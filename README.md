@@ -47,6 +47,8 @@ resultados/      Registro de cada rodada (resumo da sessão, decisões, avisos),
 avaliacoes/      Rubrica (5 eixos), reviews do agente revisor e planilha de registro
 ```
 
-O código gerado vive nas branches do repo `Maxx`; aqui ficam prompts, registros e
-avaliações. Ver `docs/linha-do-tempo.md` para as fases e o critério de pronto de cada
+O código gerado vive nas branches do repo `Maxx`, que é o único repositório do TCC;
+esta pasta é área de trabalho local durante a execução (nada daqui entra no Maxx
+enquanto as rodadas correm, para nenhuma trilha ver o material da outra) e, ao final,
+é copiada para `docs/experimento/` na `main` do Maxx. Ver `docs/linha-do-tempo.md` para as fases e o critério de pronto de cada
 uma.

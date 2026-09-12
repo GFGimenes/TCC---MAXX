@@ -64,12 +64,16 @@ retomar sem depender do histórico da conversa.
    (`orquestracao/coordenador.md`). Validar o fluxo ponta a ponta: worker, review,
    checklist humano, linha na planilha, registro em `resultados/<trilha>/`, merge.
 7. Depois do piloto: `eng_01_login` e `leigo_01_login`, e seguir módulo a módulo.
-8. Fazer `git push` dos dois repos quando quiser (Maxx está 2 commits à frente da
-   origin; tcc tem tudo commitado, PDFs e PNGs da raiz ficaram de fora).
+8. **Único repositório é o Maxx.** A pasta `tcc` é pasta local de trabalho (o `.git`
+   dela é só histórico na máquina, sem push). Durante a execução, nada do
+   experimento entra no Maxx, para nenhuma trilha enxergar prompt ou review da
+   outra. No fim, com as 12 rodadas rodadas, copiar prompts, resultados, reviews,
+   planilha e relatórios de carga para `docs/experimento/` na `main` do Maxx, num
+   commit final. Push do Maxx quando quiser (está 2 commits à frente da origin).
 
 ## Pequenos pendentes
 
 - `docs/especificacao-telas.md` ainda aguarda os descritivos complementares por
   feature que o autor ia enviar.
-- Decidir se os PDFs e PNGs da raiz do repo `tcc` entram no versionamento ou no
-  `.gitignore`.
+- No commit final em `docs/experimento/` do Maxx, decidir se as versões em PDF do TCC
+  e os PNGs de rascunho entram junto.
