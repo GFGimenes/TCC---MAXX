@@ -67,12 +67,14 @@ software", "você é um desenvolvedor de projetos, trabalhando em metodologia á
 ## Nível de detalhe e estrutura do pedido
 
 Os prompts e documentos do autor são longos e estruturados: tabelas com a decisão e o
-"por quê" de cada camada, listas de dependências deliberadamente evitadas (no
-Redutores: Redis, Kubernetes, microserviços, GraphQL, Next.js, Prisma), uma seção de
-convenções que o agente deve seguir, uma definição de pronto e um checklist ordenado
-da primeira semana. Um único critério governa as escolhas de stack: "um desenvolvedor
-mantém sozinho, a qualquer hora, por anos; escolher o que você domina vence qualquer
-moda".
+"por quê" de cada camada, uma seção de convenções que o agente deve seguir, uma
+definição de pronto e um checklist ordenado da primeira semana. A stack é
+dimensionada ao problema, e o critério fica explícito no documento: no Redutores
+(cliente pequeno, um desenvolvedor mantendo sozinho por anos) o kickoff lista até o
+que foi deixado de fora naquele contexto (Redis, Kubernetes, microserviços, GraphQL,
+Next.js, Prisma); no trabalho, o mesmo autor opera Kubernetes, Kafka, RabbitMQ, AWS
+e Terraform em sistemas de alto volume. Não é aversão a ferramenta: é escolher pelo
+tamanho do problema e pelo que ele domina, e registrar o porquê.
 
 Quando o pedido é visual (mockups), a especificação inclui resolução, tema, fontes,
 paleta em hexadecimal, dados de exemplo consistentes e a ordem das telas. O autor
@@ -141,8 +143,8 @@ fecha o prompt com "qualquer dúvida pode interromper e perguntar".
 
 - Superespecificação: o prompt fixa tanto que o agente deixa de decidir, e o custo
   de escrever o prompt se aproxima do custo de escrever o código.
-- Overengineering para o tamanho do problema (o próprio autor lista, no Redutores, o
-  que decidiu **não** usar, sinal de que a tentação existe).
+- Overengineering para o tamanho do problema (o kickoff do Redutores precisa listar
+  explicitamente o que ficou de fora, sinal de que a tentação existe).
 - Antecipar requisitos que o cliente não pediu (ex.: log de leitura dos avisos do
   mural). No experimento isso é registrado como feature emergente da persona, não
   como erro.
@@ -152,10 +154,12 @@ fecha o prompt com "qualquer dúvida pode interromper e perguntar".
 Critério do autor: o que ele domina e mantém sozinho. Duas opções coerentes com o
 histórico, a confirmar pelo autor antes da rodada `eng_00_contexto`:
 
-- **A. Assinatura do autor:** Expo (React Native + TypeScript) no cliente; API própria
-  em Fastify + Zod + Drizzle + PostgreSQL; fotos em storage S3-compatível; Docker
-  Compose numa VPS com Caddy; Vitest com testcontainers e Playwright. É a stack dos
-  dois projetos reais de 2026 (Redutores e hackathon), adaptada para celular.
+- **A. API própria:** Expo (React Native + TypeScript) no cliente; API em Fastify +
+  Zod + Drizzle + PostgreSQL; fotos em storage S3-compatível; Docker Compose numa VPS
+  com Caddy; Vitest com testcontainers e Playwright. É a combinação usada nos dois
+  projetos solo de 2026 (Redutores e hackathon), adaptada para celular; num projeto
+  com mais gente ou mais volume o autor escalaria a infra (Kubernetes, fila, cache)
+  como faz no trabalho.
 - **B. Mais rápida para o MVP:** Expo no cliente e Supabase (Postgres, Auth, Storage,
   políticas RLS) no lugar da API própria. Menos código por rodada, com a segurança
   concentrada nas políticas do banco.
