@@ -151,8 +151,12 @@ fecha o prompt com "qualquer dúvida pode interromper e perguntar".
 
 ## Stack para o Maxx (decisão da persona)
 
-Critério do autor: o que ele domina e mantém sozinho. Duas opções coerentes com o
-histórico, a confirmar pelo autor antes da rodada `eng_00_contexto`:
+Critério do autor: dimensionar pela projeção do projeto. Projeção declarada para o
+Maxx (12/09/2026): campus com 3.200 alunos, pico estimado de 2.000 usuários
+simultâneos (nunca todas as turmas de todos os períodos ao mesmo tempo). A carga real
+durante o TCC será de 10 a 15 pessoas, mas isso decide só a infra do deploy (mínima),
+não a projeção. **Decisão: opção A.** A opção B fica registrada como alternativa
+considerada.
 
 - **A. API própria:** Expo (React Native + TypeScript) no cliente; API em Fastify +
   Zod + Drizzle + PostgreSQL; fotos em storage S3-compatível; Docker Compose numa VPS
@@ -163,6 +167,14 @@ histórico, a confirmar pelo autor antes da rodada `eng_00_contexto`:
 - **B. Mais rápida para o MVP:** Expo no cliente e Supabase (Postgres, Auth, Storage,
   políticas RLS) no lugar da API própria. Menos código por rodada, com a segurança
   concentrada nas políticas do banco.
+
+O que a projeção de 2.000 muda, e que o `eng_00_contexto` deve exigir como requisitos
+não funcionais (a 200 poderiam ser ignorados): fotos servidas do bucket por CDN com
+URL assinada, nunca pela API; API sem estado (pode rodar duas réplicas); paginação do
+feed por cursor com índice; ranking pré-calculado por job ou view materializada; pool
+de conexões dimensionado e limite de taxa em uploads; jobs (notificações, recálculo
+de ranking) em fila no próprio Postgres. Verificação objetiva: teste de carga da fase
+7b da linha do tempo.
 
 ## O que isso significa para `prompts/engenheiro/`
 
