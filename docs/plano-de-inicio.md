@@ -54,9 +54,10 @@ retomar sem depender do histórico da conversa.
 3. Gerar os mockups do engenheiro (login, feed, perfil, mural, troféus, ranking) a
    partir de `docs/rascunhos/` e guardar em `docs/referencias-visuais/`; o engenheiro
    os anexa nas rodadas por tela.
-4. Atualizar o projeto Maxx no Orca: as branches agora são `main`, `leigo` e
-   `engenheiro` (as quatro antigas foram apagadas). Dar `git merge main` no workspace
-   coordenador se quiser o contexto lá.
+4. Orca: FEITO em 12/09. Projeto registrado em `Repos\tcc\Maxx`, projeto antigo
+   removido, workspace coordenador novo (`coordenador-2`, branch
+   `GFGimenes/coordenador-2`, nascida da `main`, já com o `CLAUDE.md`). O prompt de
+   `orquestracao/coordenador.md` é colado nesse workspace a cada rodada.
 5. Preparar contas para o deploy: VPS pequena e bucket S3-compatível (para a trilha do
    engenheiro); conta Expo (EAS) e uma hospedagem genérica (Vercel ou similar) para o
    que o agente da trilha leiga escolher. Dois deploys, uma URL por trilha.
