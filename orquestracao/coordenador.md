@@ -1,7 +1,7 @@
 # Prompt do Agente Coordenador (Orca)
 
 Cole este prompt em um agente (Claude Code) aberto no workspace do repo **Maxx**
-(`C:\Users\Guilherme Gimenes\Documents\Repos\Maxx`), substituindo `<id>` e
+(`C:\Users\Guilherme Gimenes\Documents\Repos\tcc\Maxx`), substituindo `<id>` e
 `<trilha>`. Requer Orchestration habilitado e a skill `orchestration` instalada.
 
 ---

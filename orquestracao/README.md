@@ -13,7 +13,7 @@ prompts/<trilha>/<id>.md ──▶ worker Claude (worktree da branch da trilha)
 
 1. Orchestration ativo no Orca (`orca status --json` responde com runtime ready).
 2. Skill de orquestração instalada globalmente (`~\.agents\skills\orchestration`).
-3. Projeto **Maxx** (`C:\Users\Guilherme Gimenes\Documents\Repos\Maxx`) no Orca, com as
+3. Projeto **Maxx** (`C:\Users\Guilherme Gimenes\Documents\Repos\tcc\Maxx`) no Orca, com as
    branches `main`, `leigo` e `engenheiro`, as três no commit do contexto comum.
 4. Workspace **coordenador** (branch `GFGimenes/coordenador`) com Claude Code rodando;
    é nele que se cola o prompt de `coordenador.md` a cada rodada.

@@ -64,8 +64,13 @@ retomar sem depender do histórico da conversa.
    (`orquestracao/coordenador.md`). Validar o fluxo ponta a ponta: worker, review,
    checklist humano, linha na planilha, registro em `resultados/<trilha>/`, merge.
 7. Depois do piloto: `eng_01_login` e `leigo_01_login`, e seguir módulo a módulo.
-8. **Único repositório é o Maxx.** A pasta `tcc` é pasta local de trabalho (o `.git`
-   dela é só histórico na máquina, sem push). Durante a execução, nada do
+8. **Único repositório é o Maxx, e ele fica dentro da pasta `tcc`**
+   (`Repos\tcc\Maxx`, decisão de 12/09). A pasta `tcc` é área de trabalho local (o
+   `.git` dela é só histórico na máquina, sem push; `Maxx/` está no `.gitignore` da
+   `tcc`). Nunca criar `CLAUDE.md` ou `AGENTS.md` na raiz da `tcc`: o Claude Code lê
+   contexto das pastas ancestrais e isso vazaria para o Maxx. Workers sempre nos
+   worktrees do Orca, nunca direto em `tcc\Maxx`. Depois de mover a pasta:
+   re-registrar o caminho do projeto no Orca e rodar `git worktree repair` no Maxx. Durante a execução, nada do
    experimento entra no Maxx, para nenhuma trilha enxergar prompt ou review da
    outra. No fim, com as 12 rodadas rodadas, copiar prompts, resultados, reviews,
    planilha e relatórios de carga para `docs/experimento/` na `main` do Maxx, num
