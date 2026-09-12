@@ -22,6 +22,11 @@ Esses perfis são o que orienta a escrita dos prompts em `prompts/`.
    restrições de arquitetura/segurança, e sabe apenas o essencial do que quer.
 3. **Engenheiro:** pede as mesmas features com vocabulário técnico, restrições
    explícitas (validação, autorização, testes) e revisa criticamente as respostas.
+   Pode abrir a trilha com um prompt que estabelece stack, arquitetura e boas
+   práticas; isso é comportamento da persona, não vantagem dada pelo experimento.
+3b. **A qualidade do prompt está embutida na persona.** Não existe trilha "prompt
+   ruim" separada: o prompt leigo é escrito como o corpus mostra que leigos escrevem,
+   e o do engenheiro como um engenheiro pleno escreveria.
 4. Como o objetivo funcional é o mesmo, diferenças de qualidade entre as trilhas são
    atribuíveis à formulação do prompt e à validação do usuário — não ao escopo.
 5. **Features emergentes da persona são achado, não exceção.** O engenheiro pode

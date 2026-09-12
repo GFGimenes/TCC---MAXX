@@ -1,15 +1,15 @@
 # Resultados
 
-Saída bruta de cada agente, organizada por agente e depois por persona, espelhando a
-estrutura de `prompts/`:
+Registro de cada rodada, por trilha, espelhando `prompts/`:
 
 ```
 resultados/
-  claude/leigo/<id>.md ou pasta de código
-  claude/engenheiro/<id>.md ou pasta de código
-  codex/leigo/<id>.md ou pasta de código
-  codex/engenheiro/<id>.md ou pasta de código
+  leigo/<id>.md
+  engenheiro/<id>.md
 ```
 
-Guarde a resposta completa (código gerado, decisões explicadas pela IA, eventuais
-avisos/erros) — é sobre isso que a rubrica em `avaliacoes/rubrica.md` é aplicada.
+O código gerado vive na branch da trilha no repo `Maxx` (um commit por rodada,
+`rodada: <id>`). Aqui fica o que o diff não mostra: resumo da sessão, decisões que a
+IA tomou sem o prompt pedir (stack, estrutura de pastas, hospedagem), perguntas que
+ela fez e como foram respondidas, avisos e erros, tempo e número de iterações. É sobre
+o diff e este registro que a rubrica em `avaliacoes/rubrica.md` é aplicada.

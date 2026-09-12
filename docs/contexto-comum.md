@@ -1,14 +1,20 @@
-# Contexto Comum do Projeto (arquivo de contexto das 4 trilhas)
+# Contexto Comum do Projeto (semente das duas trilhas)
 
-Este é o texto que vai, **idêntico e sem nenhum acréscimo**, para as quatro trilhas do
-experimento (`leigo/claude`, `leigo/codex`, `eng/claude`, `eng/codex`), como
-`CLAUDE.md` e `AGENTS.md` na raiz do repo Maxx. Ele é a constante do experimento: a
-"ideia central" que todo prompt parte. Tudo o que não está aqui (stack, modelo de
-dados, arquitetura, segurança, testes, convenções) chega apenas pelos prompts, ou não
-chega. Isso é proposital: a diferença entre trilhas deve ser atribuível ao prompt.
+Este é o texto que vai, **idêntico e sem nenhum acréscimo**, para as duas trilhas do
+experimento (branches `leigo` e `engenheiro` do repo Maxx), como `CLAUDE.md` e
+`AGENTS.md` na raiz. Ele é a constante do experimento: a "ideia central" de onde todo
+prompt parte. Tudo o que não está aqui (stack, modelo de dados, arquitetura,
+segurança, testes, convenções) chega apenas pelos prompts de cada trilha, ou não
+chega. Isso é proposital: a diferença entre as trilhas deve ser atribuível a quem
+pede e como pede.
 
-Regra de manutenção: este arquivo não muda durante o experimento. Se precisar mudar,
-todas as rodadas anteriores ficam marcadas como executadas com a versão anterior.
+Regras de manutenção:
+
+- Este arquivo não muda à mão durante o experimento. Se precisar mudar, todas as
+  rodadas anteriores ficam marcadas como executadas com a versão anterior.
+- Depois do commit inicial, o `CLAUDE.md` de cada branch só evolui pelos prompts da
+  própria trilha (o engenheiro pode pedir regras de arquitetura e boas práticas; o
+  leigo não). Nunca copiar o contexto de uma trilha para a outra.
 
 ---
 

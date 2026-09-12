@@ -7,7 +7,9 @@ linguagem básica, o engenheiro com restrições técnicas.
 Rascunhos originais arquivados:
 
 - `docs/rascunhos/fluxo-prompts.png` — fluxo desenhado do experimento (prompt →
-  Codex/Claude → agent review com pontuação → documentar).
+  Codex/Claude → agent review com pontuação → documentar). Desenho anterior à
+  simplificação de 12/09/2026: hoje são duas trilhas (leigo e engenheiro) e um único
+  agente, ver `README.md`.
 - `LOGIN.png` e `paigna de dashboard.png` (raiz do repo) — mockups de login e feed.
 - `docs/rascunhos/excalidraw-perfil.png`, `excalidraw-mural.png`,
   `excalidraw-trofeus.png` — wireframes do Excalidraw com anotações.
@@ -75,7 +77,9 @@ Rascunhos originais arquivados:
 - Duas abas com hover: **Troféus | Medalhas**.
 - Cada item: descrição da tarefa (ex.: "tirar mais de 1.8 integrativa"), nível de
   **"encontrabilidade"** (ex.: Comum) e **tier: Bronze, Prata, Ouro, Diamante** (vale
-  para troféus e medalhas), que determina a pontuação.
+  para troféus e medalhas), que determina a pontuação: Bronze 1 a 30, Prata 31 a 70,
+  Ouro 71 a 100, Diamante 101 a 150 pontos. O tier é do prêmio, não do aluno: o aluno
+  acumula prêmios e os rankings o classificam só pela posição numérica.
 - Filtro "mostrar não obtidos".
 - Concessão: participar de seminários, provas, atividades extra complementares, ou
   dados por professores (professores dão **somente medalhas**). Troféus têm peso maior
@@ -93,19 +97,19 @@ Rascunhos originais arquivados:
 - Condensam pontos de prêmios/troféus e medalhas.
 - Acessível a partir do perfil (clique nos pontos/posição).
 
-## IDs de rodada sugeridos
+## IDs de rodada
 
-Combinação `<persona>_<qualidade>_<tela>`, ex.:
+Combinação `<trilha>_<tela>`:
 
 ```
-leigo_bom_login      leigo_ruim_login      eng_bom_login      eng_ruim_login
-leigo_bom_feed       ...                   ...                ...
-leigo_bom_perfil     leigo_bom_mural       leigo_bom_trofeus  leigo_bom_ranking
+leigo_login    leigo_feed    leigo_perfil    leigo_mural    leigo_trofeus    leigo_ranking
+eng_login      eng_feed      eng_perfil      eng_mural      eng_trofeus      eng_ranking
 ```
 
-6 telas × 2 personas × 2 qualidades × 2 agentes = **48 execuções** (24 rodadas de
-prompt, cada uma nos 2 agentes). Se for muito volume, priorizar: `login`, `feed`,
-`trofeus` (cobrem autenticação, social e gamificação — as camadas críticas do TCC).
+6 telas × 2 trilhas = **12 rodadas** (mais `eng_00_contexto`, se o engenheiro abrir a
+trilha estabelecendo regras, e as rodadas `_v2` de correção/repetição). Se for muito
+volume, priorizar: `login`, `feed`, `trofeus` (cobrem autenticação, social e
+gamificação, as camadas críticas do TCC).
 
 ## Mapeamento telas × camadas (milestones)
 

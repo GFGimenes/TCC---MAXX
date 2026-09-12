@@ -1,37 +1,52 @@
-# TCC — Vibe Coding com Múltiplas IAs (App Maxx / UniEduk)
+# TCC: Vibe Coding e a mesma ideia construída por um leigo e por um engenheiro (App Maxx / UniEduk)
 
-Este repositório organiza o experimento prático do TCC: desenvolver o mesmo aplicativo
-gamificado (Maxx, rede UniEduk) usando prompts equivalentes em diferentes agentes de IA
-(Claude Code e Codex), sob duas personas de usuário (leiga e engenheiro) e duas
-qualidades de prompt (bom e ruim), avaliando os resultados em 5 eixos de qualidade de
-software.
+Este repositório organiza o experimento prático do TCC: construir o mesmo aplicativo
+gamificado (Maxx, rede UniEduk) a partir da mesma ideia central, em duas trilhas
+independentes, uma conduzida por prompts de um usuário leigo e outra por prompts de um
+engenheiro de software, ambas executadas pelo mesmo agente de IA (Claude Code). O que
+varia entre as trilhas é quem pede e como pede; o que se mede é o produto que cada uma
+constrói, avaliado com a mesma rubrica em 5 eixos de qualidade de software.
+
+## Desenho do experimento
+
+```
+Ideia central (contexto comum, idêntico) ──▶ Trilha LEIGO      ──▶ deploy (URL 1)
+                                         └─▶ Trilha ENGENHEIRO ──▶ deploy (URL 2)
+
+Cada rodada, em cada trilha:
+prompt da persona ──▶ Claude Code gera/evolui o código ──▶ review por agente de IA (rubrica)
+              ──▶ review humano (valida a nota) ──▶ merge na branch da trilha
+```
+
+- **Trilha = branch** do repo `Maxx` (`leigo` e `engenheiro`), as duas nascendo do mesmo
+  commit com o mesmo `CLAUDE.md` (o contexto comum, ver `docs/contexto-comum.md`).
+- **Contexto preservado por trilha.** O contexto comum é a semente das duas. A partir
+  daí, cada trilha só evolui o próprio contexto pelos próprios prompts: o engenheiro
+  pode abrir com uma rodada que estabelece regras de arquitetura e boas práticas; o
+  leigo não faz isso, porque o corpus mostra que não faria. Nunca se copia contexto,
+  código ou decisão de uma trilha para a outra.
+- **Um único agente** (Claude Code) nas duas trilhas, e **um único revisor** (mesmo
+  modelo, mesmo prompt, mesma rubrica) para as duas. Assim a diferença observada é
+  atribuível ao prompt e à validação do usuário, não à ferramenta.
+- **Review humano por persona.** Na trilha do leigo o review é observacional: falhas
+  são registradas, não corrigidas, porque o leigo real não as veria. Na trilha do
+  engenheiro o review é corretivo, e o custo da correção (tempo, iterações) é
+  registrado como resultado.
+- **Qualidade do prompt está embutida na persona.** Não há trilha "prompt ruim" à
+  parte: o prompt leigo é escrito como o corpus de `personas/leigo/` mostra que leigos
+  escrevem, e o do engenheiro como um engenheiro pleno escreveria.
 
 ## Estrutura
 
 ```
-docs/            Linha do tempo e metodologia do experimento
+docs/            Contexto comum, especificação por tela, linha do tempo do experimento
 personas/        Perfis leigo/engenheiro que orientam como cada prompt é escrito
-                  (conteúdo a ser preenchido pelo autor a partir de pesquisa)
-prompts/         Prompts efetivamente enviados aos agentes, um arquivo por rodada
-                  (persona x qualidade do prompt x etapa/tela)
-orquestracao/    Notas e fluxos do Orca usados para disparar os prompts em Claude
-                  Code e Codex de forma equivalente
-resultados/      Saídas geradas por cada agente (claude/ e codex/), organizadas por
-                  persona
-avaliacoes/      Rubrica de avaliação (5 eixos) e planilha de registro/comparação
-                  dos resultados (agent review com pontuação)
+prompts/         Prompts efetivamente enviados, um arquivo por rodada (<trilha>_<tela>.md)
+orquestracao/    Fluxo no Orca: worker por rodada + revisor, um por trilha
+resultados/      Registro de cada rodada (resumo da sessão, decisões, avisos), por trilha
+avaliacoes/      Rubrica (5 eixos), reviews do agente revisor e planilha de registro
 ```
 
-## Fluxo (referente ao diagrama do autor)
-
-```
-Prompt (bom ou ruim, por persona) ──▶ Codex   ──┐
-                                    └▶ Claude ──┴─▶ Agent Review (pontuação) ──▶ Documentação
-```
-
-Cada rodada de prompt é enviada igualmente para os dois agentes; as respostas são
-avaliadas com a mesma rubrica (`avaliacoes/rubrica.md`) e registradas na planilha
-(`avaliacoes/registro-avaliacoes.xlsx`); os achados alimentam a documentação final do
-TCC (seção 3.3 — Análise Comparativa).
-
-Ver `docs/linha-do-tempo.md` para as fases detalhadas.
+O código gerado vive nas branches do repo `Maxx`; aqui ficam prompts, registros e
+avaliações. Ver `docs/linha-do-tempo.md` para as fases e o critério de pronto de cada
+uma.

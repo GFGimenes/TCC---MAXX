@@ -2,53 +2,58 @@
 
 Fases do experimento descrito nas seções 3.1 a 3.3 do TCC, organizadas para execução.
 Cada fase lista entregável, pastas envolvidas e critério de "pronto". Datas ficam em
-aberto — preencha a coluna à medida que for executando; a ordem e as dependências
-entre fases é o que importa manter.
+aberto; a ordem e as dependências entre fases é o que importa manter.
 
 | # | Fase | O que é feito | Pastas envolvidas | Entregável / critério de pronto | Status |
 |---|------|----------------|--------------------|----------------------------------|--------|
-| 0 | Fundamentação já escrita | Contextualização, objetivos, teoria (vibe coding, LLMs, gamificação) | — (já no PDF do TCC) | Seções 1 e 2 do TCC | ✅ Feito |
-| 1 | Engenharia de contexto (personas das IAs) | Definir o núcleo comum de contexto do projeto + a persona atribuída a cada IA (arquiteto sênior/Claude, dev pragmático/GPT, direto/Grok, revisor/Gemini) | `personas/` (arquivos de contexto), Quadro 1 do TCC | Arquivos de persona por IA, reutilizáveis a cada sessão | ✅ Descrito na seção 3.1 |
-| 2 | Pesquisa das personas de usuário (leigo x engenheiro) | Levantar como cada persona formularia prompts — bons e ruins — para as mesmas telas/features do app | `personas/leigo/`, `personas/engenheiro/` | Perfil de cada persona + exemplos de vocabulário/nível de detalhe típico | 🔲 Em andamento (você) |
-| 3 | Especificação funcional por tela | Consolidar as telas desenhadas (login, feed, perfil, mural, troféus, rankings) como escopo de referência para os prompts | `docs/especificacao-telas.md` | Lista de telas/features com regras de negócio associadas | 🟡 Em consolidação (rascunhos descritivos do autor a caminho) |
-| 4 | Escrita dos prompts | Para cada combinação (persona leiga/engenheiro × prompt bom/ruim × tela/feature), escrever o prompt que será enviado igualmente aos dois agentes | `prompts/leigo/`, `prompts/engenheiro/` | 1 arquivo de prompt por rodada, nomeado de forma rastreável (ex.: `leigo_bom_login.md`) | 🔲 A fazer |
-| 5 | Orquestração da execução | Configurar no Orca o disparo do mesmo prompt para Claude Code e Codex, preservando o arquivo de persona/contexto de cada IA | `orquestracao/` | Fluxo do Orca documentado e reproduzível | 🔲 A fazer |
-| 6 | Execução nos agentes | Rodar cada prompt nos dois agentes e salvar as respostas (código, decisões, artefatos) | `resultados/claude/...`, `resultados/codex/...` | Saída de cada agente salva por persona/rodada | 🔲 A fazer |
-| 7 | Validação técnica (testes) | Rodar testes unitários sobre a lógica crítica gerada (ex.: cálculo de tier), conforme seção 3.2 do TCC | dentro de `resultados/<agente>/...` | Suíte de testes + resultado (passou/falhou) por rodada | 🔲 A fazer |
-| 8 | Agent review com pontuação (por rodada) | Revisor automático (via orquestração no Orca) pontua **Código e Segurança** de cada resultado; humano valida a nota antes de registrar | `avaliacoes/rubrica.md`, `avaliacoes/reviews/`, `avaliacoes/registro-avaliacoes.xlsx` | 1 linha de pontuação por rodada na planilha, validada por humano | 🔲 A fazer |
-| 8b | Auditorias de milestone | Ao fechar cada camada (Autenticação, Banco de Dados, Gamificação, Frontend), avaliar **Arquitetura e Mantenabilidade** sobre o diff acumulado de cada trilha; **UX** ao final de cada feature navegável | `avaliacoes/`, branches das trilhas | 4 auditorias de milestone por trilha (16 no total) | 🔲 A fazer |
-| 9 | Consolidação comparativa | Cruzar os dados: Claude x Codex, leigo x engenheiro, prompt bom x ruim | aba "Resumo" da planilha | Tabela/gráficos comparativos com achados quantitativos | 🔲 A fazer |
-| 10 | Documentação final do TCC | Atualizar a seção 3.3 (Análise Comparativa) e as Considerações Finais com dados quantitativos, substituindo a análise qualitativa da entrega parcial | PDF do TCC | Versão final do TCC | 🔲 A fazer |
+| 0 | Fundamentação já escrita | Contextualização, objetivos, teoria (vibe coding, LLMs, gamificação) | (já no PDF do TCC) | Seções 1 e 2 do TCC | Feito |
+| 1 | Contexto comum (semente das trilhas) | Escrever a ideia central do Maxx e as regras de prêmios/pontos, sem stack, dados, segurança ou testes; colocar como `CLAUDE.md` e `AGENTS.md` na `main` do repo Maxx e criar as branches `leigo` e `engenheiro` a partir dela | `docs/contexto-comum.md`, repo Maxx | Branches `leigo` e `engenheiro` no mesmo commit, com o contexto | Feito (12/09/2026) |
+| 2 | Pesquisa das personas de usuário | Perfil de como cada persona formula prompts para as mesmas telas | `personas/leigo/`, `personas/engenheiro/` | Perfil de cada persona com vocabulário, nível de detalhe e lacunas típicas | Leigo feito (N=28); engenheiro a fazer |
+| 3 | Especificação funcional por tela | Consolidar as telas (login, feed, perfil, mural, troféus, rankings) como escopo de referência | `docs/especificacao-telas.md` | Lista de telas/features com regras de negócio | Em consolidação |
+| 4 | Escrita dos prompts | Um prompt por rodada e por trilha, escrito a partir do perfil da persona | `prompts/leigo/`, `prompts/engenheiro/` | 1 arquivo por rodada, ID rastreável (ex.: `leigo_login.md`) | A fazer |
+| 5 | Orquestração | Disparo de uma rodada no Orca: worker Claude Code no worktree da trilha + worker revisor ao final | `orquestracao/` | Fluxo documentado e validado com uma rodada piloto ponta a ponta | Configurado; piloto a fazer |
+| 6 | Execução das rodadas | Rodar cada prompt na sua trilha; registrar a sessão | branches do Maxx, `resultados/<trilha>/` | Registro de cada rodada salvo | A fazer |
+| 7 | Validação técnica (testes) | Testes unitários de referência sobre a lógica crítica gerada (pontuação dos prêmios por tier, ranking), seção 3.2 do TCC | dentro da branch da trilha | Suíte de referência rodada por rodada, resultado registrado | A fazer |
+| 8 | Review por rodada | Agente revisor pontua Código e Segurança; humano valida a nota antes de registrar | `avaliacoes/rubrica.md`, `avaliacoes/reviews/`, `avaliacoes/registro-avaliacoes.xlsx` | 1 linha por rodada na planilha, validada por humano | A fazer |
+| 8b | Auditorias de milestone | Ao fechar cada camada (Autenticação, Banco de Dados, Gamificação, Frontend), avaliar Arquitetura e Mantenabilidade sobre o diff acumulado da trilha; UX ao final de cada feature navegável | `avaliacoes/`, branches | 4 auditorias por trilha (8 no total) | A fazer |
+| 9 | Deploy por trilha | Cada trilha no ar em uma URL própria (2 deploys), atualizada a cada rodada mergeada. O deploy é pedido pela persona, como qualquer outra rodada | branches do Maxx | 2 URLs navegáveis | A fazer |
+| 10 | Consolidação comparativa | Cruzar leigo x engenheiro por eixo e por tela; features emergentes; custo de correção | aba "Resumo" da planilha | Tabela/gráficos comparativos | A fazer |
+| 11 | Documentação final do TCC | Atualizar 3.1 (contexto comum, um agente), 3.2 (teste de referência sobre pontos do prêmio) e 3.3 (Análise Comparativa) com os dados | PDF do TCC | Versão final do TCC | A fazer |
 
-## Regra de revisão por trilha
+## Regra de review por trilha
 
-- Trilhas do **leigo** (`leigo/claude`, `leigo/codex`): revisão **observacional** — as
-  falhas encontradas nas rodadas são registradas mas não corrigidas, para medir o
-  efeito composto da falta de validação técnica.
-- Trilhas do **engenheiro** (`eng/claude`, `eng/codex`): revisão **corretiva** — corrigir
-  e refinar prompts faz parte da persona; registrar o custo (tempo/iterações).
+- Trilha **leigo**: review **observacional**. Falhas encontradas são registradas, não
+  corrigidas, para medir o efeito composto da falta de validação técnica.
+- Trilha **engenheiro**: review **corretivo**. Corrigir e refinar prompts faz parte da
+  persona; registrar o custo (tempo/iterações).
+
+## Regra de contexto por trilha
+
+O contexto comum (`CLAUDE.md`) é idêntico no commit inicial das duas branches e não é
+editado à mão depois disso. Cada trilha evolui o próprio contexto apenas por meio dos
+próprios prompts (o engenheiro tende a fazê-lo; o leigo, não). Nunca copiar contexto,
+código ou decisão entre trilhas.
 
 ## Dependências entre fases
 
-- Fase 4 (prompts) depende da fase 2 (pesquisa de personas) e, opcionalmente, da fase 3
-  (especificação por tela) para saber exatamente o que pedir.
-- Fase 6 (execução) depende da fase 5 (orquestração) estar validada com pelo menos um
-  prompt de teste ponta a ponta antes de rodar o lote completo.
-- Fase 8 (pontuação) só deve começar depois que a fase 7 (testes) tiver rodado — a
-  rubrica de "Código" (`avaliacoes/rubrica.md`) usa o resultado dos testes como um dos
-  critérios objetivos.
-- Fase 9 e 10 dependem de ter um volume mínimo de rodadas pontuadas (sugestão: cobrir
-  todas as combinações persona × qualidade de prompt × agente pelo menos uma vez antes
-  de consolidar).
+- Fase 4 (prompts) depende da fase 2 (personas) e da fase 3 (especificação por tela).
+- Fase 6 (execução) depende da fase 5 estar validada com uma rodada piloto ponta a
+  ponta (sugestão: `login`, nas duas trilhas).
+- Fase 8 (pontuação) só começa depois da fase 7 (testes): o eixo Código usa o
+  resultado dos testes como critério objetivo.
+- Fase 9 (deploy) depende da primeira feature navegável (login) estar mergeada.
+- Fases 10 e 11 dependem de todas as telas terem rodado nas duas trilhas.
 
-## Convenção de nomenclatura sugerida
+## Convenção de nomenclatura
 
-Para manter rastreabilidade entre prompt → resultado → avaliação, use o mesmo ID nos
-três lugares, por exemplo:
+Mesmo ID em prompt, resultado, review e planilha:
 
 ```
-prompts/leigo/leigo_ruim_cadastro.md
-resultados/claude/leigo/leigo_ruim_cadastro.md
-resultados/codex/leigo/leigo_ruim_cadastro.md
-avaliacoes/registro-avaliacoes.xlsx  (linha com ID = leigo_ruim_cadastro)
+prompts/leigo/leigo_login.md
+resultados/leigo/leigo_login.md
+avaliacoes/reviews/leigo_login.md
+avaliacoes/registro-avaliacoes.xlsx  (linha com ID = leigo_login)
 ```
+
+Rodadas extras da mesma tela (correção na trilha do engenheiro, repetição de pedido
+na trilha do leigo) recebem sufixo: `eng_login_v2`, `leigo_login_v2`.
