@@ -49,51 +49,92 @@ retomar sem depender do histórico da conversa.
   e personas por modelo já não descreve o experimento) e exemplo de teste da 3.2
   (`calcularTierAluno` vira teste da pontuação do prêmio).
 
+## Como retomar em uma sessão nova do Cowork
+
+Conectar a pasta `tcc` (o `Maxx` está dentro dela). Primeira mensagem sugerida:
+
+> Vamos continuar o experimento do TCC "A Mesma Ideia, Dois Construtores". Lê o
+> `docs/plano-de-inicio.md` e segue a seção "Próxima sessão, na ordem" a partir do
+> primeiro item não marcado como FEITO. O Orca já está configurado. A cada rodada,
+> atualiza `docs/tcc/diario-do-experimento.md` e a tabela de resultados em
+> `docs/tcc/capitulo-3-experimento.md`.
+
+## Fluxo das duas trilhas (decidido em 13/09/2026)
+
+**Engenheiro**, na ordem em que o autor trabalha de verdade:
+
+1. Identidade visual antes de qualquer prompt: mockups das 6 telas (Claude Design ou
+   Figma) a partir de `docs/rascunhos/`, salvos em `docs/referencias-visuais/`. É
+   trabalho da persona fora do agente; registrar o tempo gasto como custo.
+2. `eng_00_contexto`: um prompt de cerca de 50 linhas com ideia, projeção (campus de
+   3.200, pico de 2.000), arquitetura em camadas, modelo de desenvolvimento (plano
+   antes de código, testes, convenções, definição de pronto), infra (stack A, deploy
+   mínimo) e o pedido: propor a base do projeto e discutir o que é interessante para
+   ela. É uma rodada com diálogo: o agente pergunta e propõe, o engenheiro debate e
+   pede opções com pesos. Tudo registrado em `resultados/engenheiro/eng_00_contexto.md`.
+   Não escrever "leia o CLAUDE.md" (o Claude Code já o carrega). O rascunho longo de
+   342 linhas ficou arquivado em `docs/rascunhos/eng_00_contexto_v0_longo.md` como
+   referência do que a IA deve produzir, não do que o engenheiro escreve.
+3. Planejamento: o resultado da rodada 2 é o plano, a arquitetura, o modelo de dados,
+   a estrutura de pastas e as regras gravadas no `CLAUDE.md` da branch `engenheiro`.
+   Review humano corretivo, depois `eng_00_contexto_v2` com correções e o "pode
+   subir a fundação" (tooling, banco, migration inicial, CI, sem funcionalidade).
+4. Desenvolvimento: `eng_01_login`, depois módulo a módulo (feed, troféus, perfil e
+   ranking, mural), cada tela com regras de negócio, restrições de segurança, casos
+   de borda, testes esperados e o mockup anexado.
+
+**Leigo**, como o corpus mostra:
+
+1. `leigo_00_abertura`: uma mensagem só, no estilo do corpus, pedindo o app de cara
+   ("quero criar um aplicativo pra minha faculdade com login, mural de avisos e
+   sistema de pontos, parecido com o Instagram mas sem chat e sem reels"). Sem termo
+   técnico, sem regra de negócio, sem segurança ou teste. Referência visual é um app
+   que já existe, nomeado, não um mockup. Se o agente perguntar, o leigo responde
+   vago ("faz do jeito que ficar melhor").
+2. Depois, uma rodada por tela, sempre curta, nomeando a feature pelo nome de usuário
+   final ("agora quero a tela de troféus, tipo conquistas de jogo").
+3. Review humano observacional: registra, não corrige. Merge do que saiu.
+
+## Como rodar uma rodada no Orca
+
+1. Salvar o prompt em `prompts/<trilha>/<id>.md` com o cabeçalho (ID, trilha, tela,
+   data) e o texto do prompt depois da linha `---`.
+2. No Orca, abrir o workspace `coordenador` do projeto `Maxx` (branch
+   `GFGimenes/coordenador-2`) e colar o prompt de `orquestracao/coordenador.md`, com
+   `<id>` e `<trilha>` preenchidos. O coordenador cria o worker Claude num worktree
+   novo a partir da branch da trilha, espera terminar e dispara o revisor.
+3. Se o worker perguntar, o coordenador avisa; responder no estilo da persona e anotar
+   a pergunta e a resposta no registro da rodada.
+4. Ao final, seguir o "Checklist do humano após cada rodada" de
+   `orquestracao/coordenador.md`: ler o review, conferir que o worker não leu a outra
+   trilha, validar notas na planilha, salvar `resultados/<trilha>/<id>.md`, mergear
+   o worktree na branch da trilha (`rodada: <id>`).
+5. Documentar: uma entrada em `docs/tcc/diario-do-experimento.md` e a linha da
+   rodada na tabela de `docs/tcc/capitulo-3-experimento.md`.
+
 ## Próxima sessão, na ordem
 
-1. FEITO em 12/09. `prompts/engenheiro/eng_00_contexto.md` escrito com: projeção (3.200 / pico 2.000),
-   stack A com justificativa por camada, arquitetura em camadas (rota, serviço,
-   repositório), modelo de dados inicial, convenções (regra de negócio fora da rota,
-   escrita com auditoria na mesma transação, entrada validada por schema, nada de
-   SQL por concatenação, segredos fora do código), os seis requisitos não funcionais
-   do perfil, testes (unitário, integração em container, e2e nos fluxos críticos),
-   git (main deployável, commits em inglês no imperativo, CI), definição de pronto.
-   Pedir plano e estrutura de pastas antes de código, e gravar as regras no
-   `CLAUDE.md` da branch `engenheiro`. Os dados de exemplo dos fluxos (Ana, João
-   RA 2023001, Maria RA 2022110, Pedro RA 2023045, ADS-3, Engenharia de Produção,
-   medalha "Participação no seminário" Prata 40, troféu "Techday 2026" Ouro 80) são o
-   bloco de consistência dos mockups do item 3. Só o que vem depois de `---` vai ao
-   worker.
-2. Escrever `prompts/leigo/leigo_00_abertura.md`: uma mensagem curta (ordem de 165
-   caracteres), no estilo do corpus, citando 2 ou 3 das features pelo nome de
-   usuário final, sem termo técnico, sem regra de negócio, sem segurança ou teste
-   (ver `personas/leigo/perfil.md`, seção "O que isso significa"). A trajetória
-   simulada tem um composto típico como ponto de partida.
-3. Gerar os mockups do engenheiro (login, feed, perfil, mural, troféus, ranking) a
-   partir de `docs/rascunhos/` e guardar em `docs/referencias-visuais/`; o engenheiro
-   os anexa nas rodadas por tela.
-4. Orca: FEITO em 12/09. Projeto registrado em `Repos\tcc\Maxx`, projeto antigo
-   removido, workspace coordenador novo (`coordenador-2`, branch
-   `GFGimenes/coordenador-2`, nascida da `main`, já com o `CLAUDE.md`). O prompt de
-   `orquestracao/coordenador.md` é colado nesse workspace a cada rodada.
-5. Preparar contas para o deploy: VPS pequena e bucket S3-compatível (para a trilha do
-   engenheiro); conta Expo (EAS) e uma hospedagem genérica (Vercel ou similar) para o
-   que o agente da trilha leiga escolher. Dois deploys, uma URL por trilha.
-6. Rodada piloto: `leigo_00_abertura` e `eng_00_contexto` pelo coordenador
-   (`orquestracao/coordenador.md`). Validar o fluxo ponta a ponta: worker, review,
-   checklist humano, linha na planilha, registro em `resultados/<trilha>/`, merge.
-7. Depois do piloto: `eng_01_login` e `leigo_01_login`, e seguir módulo a módulo.
-8. **Único repositório é o Maxx, e ele fica dentro da pasta `tcc`**
-   (`Repos\tcc\Maxx`, decisão de 12/09). A pasta `tcc` é área de trabalho local (o
-   `.git` dela é só histórico na máquina, sem push; `Maxx/` está no `.gitignore` da
-   `tcc`). Nunca criar `CLAUDE.md` ou `AGENTS.md` na raiz da `tcc`: o Claude Code lê
-   contexto das pastas ancestrais e isso vazaria para o Maxx. Workers sempre nos
-   worktrees do Orca, nunca direto em `tcc\Maxx`. Depois de mover a pasta:
-   re-registrar o caminho do projeto no Orca e rodar `git worktree repair` no Maxx. Durante a execução, nada do
-   experimento entra no Maxx, para nenhuma trilha enxergar prompt ou review da
-   outra. No fim, com as 12 rodadas rodadas, copiar prompts, resultados, reviews,
-   planilha e relatórios de carga para `docs/experimento/` na `main` do Maxx, num
-   commit final. Push do Maxx quando quiser (está 2 commits à frente da origin).
+1. Mockups do engenheiro (fluxo do engenheiro, passo 1) em `docs/referencias-visuais/`.
+2. Escrever `prompts/engenheiro/eng_00_contexto.md` enxuto (cerca de 50 linhas), no
+   formato do passo 2 acima. O autor escreve; o Cowork revisa contra
+   `personas/engenheiro/perfil.md` e `docs/especificacao-telas.md`.
+3. Escrever `prompts/leigo/leigo_00_abertura.md` (o Cowork redige a partir do corpus;
+   o autor valida contra as respostas reais em `personas/leigo/corpus-respostas.md`).
+4. Orca: FEITO em 12/09 (projeto em `Repos\tcc\Maxx`, workspace `coordenador-2`).
+5. Contas para o deploy: VPS pequena e bucket S3-compatível (trilha do engenheiro);
+   conta Expo e uma hospedagem gratuita genérica para o que o agente da trilha leiga
+   escolher. Uma URL por trilha.
+6. Rodada piloto: `leigo_00_abertura` e `eng_00_contexto` pelo coordenador. Validar o
+   fluxo ponta a ponta (worker, review, checklist, planilha, registro, merge, diário).
+7. `eng_00_contexto_v2` depois do review humano; então `eng_01_login` e
+   `leigo_01_login`, e seguir módulo a módulo.
+8. **Único repositório é o Maxx, dentro da pasta `tcc`** (`Repos\tcc\Maxx`). A `tcc` é
+   área de trabalho local (o `.git` dela é só histórico na máquina, sem push; `Maxx/`
+   está no `.gitignore` da `tcc`). Nunca criar `CLAUDE.md` ou `AGENTS.md` na raiz da
+   `tcc`. Workers sempre nos worktrees do Orca, nunca direto em `tcc\Maxx`. No fim,
+   com as 12 rodadas feitas, copiar prompts, resultados, reviews, planilha, relatórios
+   de carga e `docs/tcc/` para `docs/experimento/` na `main` do Maxx, num commit
+   final. Push do Maxx quando quiser (está 2 commits à frente da origin).
 
 ## Pequenos pendentes
 

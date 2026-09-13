@@ -1,0 +1,38 @@
+# Diário do experimento
+
+Registro cronológico, uma entrada por sessão de trabalho ou por rodada. É a fonte para
+a seção de metodologia (o que foi feito, quando, por quê) e para a discussão de custo
+(tempo, iterações, turnos). Escrever em português, sem travessões, modelos de IA
+referidos pelo nome da empresa (Anthropic), não por versão.
+
+Formato de cada entrada: data, o que foi feito, decisões tomadas, tempo gasto quando
+houver, observações que possam virar achado.
+
+## 2026-09-12
+
+Arrumação da casa antes da execução. Desenho do experimento simplificado de 4 trilhas
+(2 personas x 2 agentes) para 2 trilhas (leigo e engenheiro), um único agente
+(Claude Code, da Anthropic) e um único revisor. A dimensão "prompt bom x ruim" passou a
+estar embutida na persona. Contexto comum (`CLAUDE.md`) escrito de forma enxuta, só a
+ideia do produto e as regras de prêmios e pontos, e gravado como semente idêntica das
+branches `leigo` e `engenheiro` do repo Maxx. Persona do engenheiro escrita a partir do
+próprio autor (projetos reais de 2026 e currículo), com os desenvolvedores do corpus do
+formulário como corroboração. Decisões: faixas de pontos por tier do prêmio (Bronze 1 a
+30, Prata 31 a 70, Ouro 71 a 100, Diamante 101 a 150), aluno sem tier; stack A do
+engenheiro (Expo e TypeScript no cliente, API Fastify, Zod, Drizzle e PostgreSQL,
+storage S3-compatível, Docker Compose em VPS); projeção de campus de 3.200 alunos com
+pico de 2.000; teste de carga como validação objetiva (fase 7b). Repo Maxx movido para
+dentro da pasta `tcc`; Orca reconfigurado (projeto novo, workspace coordenador novo).
+
+## 2026-09-13
+
+Título novo decidido: "A Mesma Ideia, Dois Construtores: o que muda em um produto de
+software quando quem conduz a IA entende, ou não, de engenharia de software", a
+alinhar com o orientador. Pesquisa sobre a orientação da Anthropic para prompts
+(menor conjunto de tokens de alto sinal, contexto carregado automaticamente,
+explorar, planejar e só então codificar). Consequências no desenho: rodadas podem ter
+diálogo, registrado turno a turno; o prompt de contexto do engenheiro deve ser curto
+(cerca de 50 linhas) e pedir a base do projeto em vez de descrevê-la; um rascunho
+longo de 342 linhas foi arquivado em `docs/rascunhos/`. Fluxo do engenheiro fixado em
+quatro passos (identidade visual, prompt de contexto com discussão, planejamento,
+desenvolvimento) e do leigo em pedido direto seguido de uma rodada por tela.
