@@ -12,7 +12,9 @@ Você é o coordenador de um experimento de TCC. Use a skill de orquestração d
 Rodada: `<id>` (ex.: `leigo_login`)
 Trilha: `<trilha>` (branch `leigo` ou `engenheiro`)
 Prompt da rodada: conteúdo do arquivo
-`C:\Users\Guilherme Gimenes\Documents\Repos\tcc\prompts\<trilha>\<id>.md`
+`C:\Users\Guilherme Gimenes\Documents\Repos\tcc\prompts\<trilha>\<id>.md`,
+somente o que vem depois da linha `---` (o cabeçalho com ID, trilha, tela e data é
+registro do experimento e não vai ao worker)
 
 Execute:
 

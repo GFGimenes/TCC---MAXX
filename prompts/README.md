@@ -1,7 +1,8 @@
 # Prompts
 
 Um arquivo por rodada, nomeado `<trilha>_<tela-ou-feature>.md` (ex.: `leigo_login.md`,
-`eng_feed.md`). O arquivo é enviado sem alterações ao agente da trilha.
+`eng_feed.md`). O prompt (tudo o que vem depois da linha `---`) é enviado sem
+alterações ao agente da trilha; o cabeçalho é registro e não vai ao worker.
 
 - `leigo/`: prompts escritos a partir do perfil e do corpus em `personas/leigo/`
   (curtos, sem termo técnico, sem regra de negócio, sem segurança ou teste).

@@ -19,7 +19,7 @@ aberto; a ordem e as dependências entre fases é o que importa manter.
 | 8b | Auditorias de milestone | Ao fechar cada camada (Autenticação, Banco de Dados, Gamificação, Frontend), avaliar Arquitetura e Mantenabilidade sobre o diff acumulado da trilha; UX ao final de cada feature navegável | `avaliacoes/`, branches | 4 auditorias por trilha (8 no total) | A fazer |
 | 9 | Deploy por trilha | Cada trilha no ar em uma URL própria (2 deploys), atualizada a cada rodada mergeada. O deploy é pedido pela persona, como qualquer outra rodada | branches do Maxx | 2 URLs navegáveis | A fazer |
 | 10 | Consolidação comparativa | Cruzar leigo x engenheiro por eixo e por tela; features emergentes; custo de correção | aba "Resumo" da planilha | Tabela/gráficos comparativos | A fazer |
-| 11 | Documentação final do TCC | Atualizar 3.1 (contexto comum, um agente), 3.2 (teste de referência sobre pontos do prêmio) e 3.3 (Análise Comparativa) com os dados | PDF do TCC | Versão final do TCC | A fazer |
+| 11 | Documentação final do TCC | Novo título ("A Mesma Ideia, Dois Construtores...", ver README) e nova pergunta de pesquisa, alinhados com o orientador; atualizar resumo/abstract, objetivos, 3.1 (contexto comum, um agente), 3.2 (teste de referência sobre pontos do prêmio) e 3.3 (Análise Comparativa) com os dados | PDF do TCC | Versão final do TCC | A fazer |
 
 ## Regra de review por trilha
 

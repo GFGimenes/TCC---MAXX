@@ -1,4 +1,20 @@
-# TCC: Vibe Coding e a mesma ideia construída por um leigo e por um engenheiro (App Maxx / UniEduk)
+# A Mesma Ideia, Dois Construtores
+
+**Título do TCC (decidido em 13/09/2026):** A Mesma Ideia, Dois Construtores: o que muda
+em um produto de software quando quem conduz a IA entende, ou não, de engenharia de
+software.
+
+**Title (EN):** Same Idea, Two Builders: what changes in a software product when the
+person directing the AI does, or does not, understand software engineering.
+
+**Pergunta de pesquisa:** o que muda no produto, nos cinco eixos avaliados
+(arquitetura, segurança, código, UX e mantenabilidade), quando a mesma ideia é
+construída com IA por um usuário leigo e por um engenheiro de software?
+
+Título original da entrega parcial (junho/2026): "Desenvolvimento de um Produto de
+Software com IA e Vibe Coding: análise dos benefícios, limitações e pontos críticos". A
+troca de título acompanha a mudança de método (duas trilhas, uma variável) e precisa
+ser alinhada com o orientador.
 
 Este repositório organiza o experimento prático do TCC: construir o mesmo aplicativo
 gamificado (Maxx, rede UniEduk) a partir da mesma ideia central, em duas trilhas

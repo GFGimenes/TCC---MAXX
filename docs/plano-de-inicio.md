@@ -5,6 +5,20 @@ retomar sem depender do histórico da conversa.
 
 ## Decisões fechadas em 12/09/2026
 
+- Título (13/09/2026): "A Mesma Ideia, Dois Construtores: o que muda em um produto de
+  software quando quem conduz a IA entende, ou não, de engenharia de software" (EN:
+  "Same Idea, Two Builders: what changes in a software product when the person
+  directing the AI does, or does not, understand software engineering"). Pergunta de
+  pesquisa e título original no `README.md`. Alinhar com o orientador antes da
+  versão final.
+- Rodadas podem ter diálogo (perguntas do agente e respostas da persona), desde que
+  cada mensagem humana fique registrada em `resultados/<trilha>/<id>.md`; o número
+  de turnos humanos por rodada é métrica de custo. O `eng_00_contexto` deve ser
+  enxuto (80 a 120 linhas): decisões e critérios de aceite, não o conteúdo que a IA
+  deve produzir (modelo de dados, fluxos, estrutura de pastas viram entregáveis);
+  sem "leia o CLAUDE.md" (o Claude Code já o carrega em toda sessão, nas duas
+  trilhas). Depois do review humano vem `eng_00_contexto_v2` com correções.
+
 - Experimento: duas trilhas (`leigo` e `engenheiro`), branches do repo Maxx, um único
   agente (Claude Code), um único revisor (mesmo modelo, mesmo prompt, mesma rubrica),
   review humano observacional no leigo e corretivo no engenheiro, correção só por
@@ -37,7 +51,7 @@ retomar sem depender do histórico da conversa.
 
 ## Próxima sessão, na ordem
 
-1. Escrever `prompts/engenheiro/eng_00_contexto.md`: projeção (3.200 / pico 2.000),
+1. FEITO em 12/09. `prompts/engenheiro/eng_00_contexto.md` escrito com: projeção (3.200 / pico 2.000),
    stack A com justificativa por camada, arquitetura em camadas (rota, serviço,
    repositório), modelo de dados inicial, convenções (regra de negócio fora da rota,
    escrita com auditoria na mesma transação, entrada validada por schema, nada de
@@ -45,7 +59,11 @@ retomar sem depender do histórico da conversa.
    do perfil, testes (unitário, integração em container, e2e nos fluxos críticos),
    git (main deployável, commits em inglês no imperativo, CI), definição de pronto.
    Pedir plano e estrutura de pastas antes de código, e gravar as regras no
-   `CLAUDE.md` da branch `engenheiro`.
+   `CLAUDE.md` da branch `engenheiro`. Os dados de exemplo dos fluxos (Ana, João
+   RA 2023001, Maria RA 2022110, Pedro RA 2023045, ADS-3, Engenharia de Produção,
+   medalha "Participação no seminário" Prata 40, troféu "Techday 2026" Ouro 80) são o
+   bloco de consistência dos mockups do item 3. Só o que vem depois de `---` vai ao
+   worker.
 2. Escrever `prompts/leigo/leigo_00_abertura.md`: uma mensagem curta (ordem de 165
    caracteres), no estilo do corpus, citando 2 ou 3 das features pelo nome de
    usuário final, sem termo técnico, sem regra de negócio, sem segurança ou teste
