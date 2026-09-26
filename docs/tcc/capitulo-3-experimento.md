@@ -46,6 +46,13 @@ corpus). Incluir as limitações da amostra.]
 branches, worktrees, rodada como unidade (com diálogo registrado), review automático
 e humano, regra observacional x corretiva, isolamento entre trilhas.]
 
+### 3.1.4 Identidade visual da trilha do engenheiro
+
+[A completar a partir de `docs/referencias-visuais/prompts-design.md`: por que o
+engenheiro produz mockups antes de qualquer prompt de código, ferramenta usada, bloco
+de consistência, prompts enviados, tempo gasto (entra como custo da persona). A trilha
+do leigo usa um app existente como referência, conforme o corpus.]
+
 ## 3.2 Validação do código gerado
 
 [A completar: testes de referência (fronteiras da pontuação por tier: 30/31, 70/71,
