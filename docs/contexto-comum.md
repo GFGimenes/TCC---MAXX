@@ -36,7 +36,9 @@ pontos, com um feed social onde os alunos compartilham suas conquistas.
 
 ## O que o app tem
 
-- Login e cadastro (aluno por RA ou e-mail; professor com login próprio).
+- Login e cadastro somente com e-mail institucional ou RA (aluno por RA ou e-mail
+  institucional; professor com e-mail institucional). Não existe login social, para
+  que ninguém de fora da faculdade consiga entrar.
 - Feed social no estilo Instagram, com posts que podem estar ligados a um prêmio
   conquistado.
 - Perfil do aluno com pontos totais, posição no ranking e seus prêmios.
@@ -62,6 +64,10 @@ pontos, com um feed social onde os alunos compartilham suas conquistas.
   prêmios é a pontuação dele, e os rankings classificam os alunos apenas pela posição
   numérica (1º, 2º, 3º...).
 - Um professor só pode dar medalha a aluno com quem tem aula.
+- Alguns prêmios têm **progressão**: a mesma conquista repetida (por exemplo, média
+  10 em uma matéria, em semestres diferentes) rende um novo prêmio de tier acima do
+  anterior, valendo mais pontos, até chegar ao Diamante. O aluno guarda todos os
+  prêmios da progressão.
 - Alguns prêmios exigem comprovação por foto, e podem ser revogados se a comprovação
   for contestada.
 - Ex-alunos mantêm o acesso e a posição no ranking, mas não pontuam mais.

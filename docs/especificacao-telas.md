@@ -24,8 +24,8 @@ Rascunhos originais arquivados:
 - Abas "Entrar" e "Cadastrar"; logo MAXX; tema claro e escuro.
 - Login por **RA ou e-mail** + senha; "esqueci minha senha"; botão Login.
 - Cadastro: alunos e professores vinculam a conta via portal da instituição
-  (@unimax.com.br); possibilidade de vincular login social (Google/Apple/outros) para
-  acesso posterior.
+  (@unimax.com.br). Somente e-mail institucional ou RA; sem login social (decisão
+  de 26/09/2026, para ninguém de fora da faculdade entrar).
 - Alunos: RA no cadastro, curso/semestre vinculados ao perfil. Ex-aluno mantém acesso
   e posição nos rankings, mas não pontua mais.
 - Professores: login de professor atrelado ao perfil.
@@ -81,6 +81,9 @@ Rascunhos originais arquivados:
   Ouro 71 a 100, Diamante 101 a 150 pontos. O tier é do prêmio, não do aluno: o aluno
   acumula prêmios e os rankings o classificam só pela posição numérica.
 - Filtro "mostrar não obtidos".
+- Progressão (decisão de 26/09/2026): a mesma conquista repetida rende um novo
+  prêmio de tier acima do anterior, valendo mais pontos, até o Diamante; a tela
+  mostra a trilha de progressão de cada conquista (obtidos e o próximo tier).
 - Concessão: participar de seminários, provas, atividades extra complementares, ou
   dados por professores (professores dão **somente medalhas**). Troféus têm peso maior
   que medalhas. Há troféus por assiduidade (não faltar), techdays, feiras, estudo

@@ -36,3 +36,16 @@ diálogo, registrado turno a turno; o prompt de contexto do engenheiro deve ser 
 longo de 342 linhas foi arquivado em `docs/rascunhos/`. Fluxo do engenheiro fixado em
 quatro passos (identidade visual, prompt de contexto com discussão, planejamento,
 desenvolvimento) e do leigo em pedido direto seguido de uma rodada por tela.
+
+## 2026-09-26
+
+Início do passo 1 da trilha do engenheiro (identidade visual). Documentos principais
+copiados para o projeto "tcc" do claude.ai. Criado o registro de prompts de design
+com bloco de consistência. Duas regras de produto decididas antes de qualquer rodada
+(portanto ainda dentro da regra de contexto comum imutável): login somente por
+e-mail institucional ou RA, sem login social; e progressão de prêmios (a mesma
+conquista repetida rende um novo prêmio de tier acima do anterior). As duas entraram
+em `docs/contexto-comum.md`, no `CLAUDE.md`/`AGENTS.md` da `main` do Maxx e nas
+branches `leigo` e `engenheiro`, ainda no mesmo commit. Revisão do primeiro prompt de
+design contra a documentação oficial do Claude Design (objetivo, layout, conteúdo,
+público; identidade anexada; uma tela por mensagem).

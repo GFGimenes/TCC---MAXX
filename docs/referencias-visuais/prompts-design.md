@@ -26,6 +26,11 @@ entre todas.
   jornal), Troféus, Perfil.
 - Tiers de prêmio e pontos: Bronze 1 a 30, Prata 31 a 70, Ouro 71 a 100, Diamante
   101 a 150. Aluno não tem tier; ranking é posição numérica.
+- Progressão: a mesma conquista repetida rende um novo prêmio de tier acima do
+  anterior. Exemplo demo: "Média 10 em uma matéria" (Bronze 5 pts no 1º semestre,
+  Prata 35 pts no 2º, Ouro 75 pts no 3º; próximo: Diamante). A tela de troféus
+  mostra a trilha de cada conquista, com os tiers obtidos e o próximo.
+- Login: somente e-mail institucional ou RA. Sem botões de login social.
 - Alunos demo: Ana Souza (RA 2023001, ADS 3º semestre, 15.020 pts, #29 no geral),
   João Lima (RA 2022110, Engenharia de Produção 5º semestre, 9.870 pts, #112),
   Maria Costa (RA 2023045, Psicologia 2º semestre, 21.400 pts, #4),
