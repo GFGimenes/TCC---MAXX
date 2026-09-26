@@ -133,8 +133,38 @@ institucional (botões sociais do mockup devem sair), vocabulário troféu x med
 alinhado ao contexto comum, e entrega explícita (seis telas, uma por mensagem, ordem
 definida).
 
-Resultado: (preencher: o que o Design propôs de pattern, o que foi aceito, o que foi
-refeito). Tempo: (min, incluindo a preparação dos anexos).
+Resultado (canvas "MAXX", 26/09): o Design entregou três pranchetas de uma vez: Perfil
+claro, Perfil escuro e uma prancheta "Padrão visual" (proposta v1). Padrão proposto:
+
+- Cores, tema claro: fundo #FFFFFF, superfície #F0F3F8, linha #DCE2EB, marinho de
+  ação #022D57, texto #0B1D33, texto 2 #4D5B70, dourado de marca #FAB301, dourado
+  para texto #8A5A00, link #2F6FBF. Tema escuro: fundo #022D57, superfície #0A3867,
+  linha #1D5188, dourado de ação #FAB301, texto #F2F5FA, texto 2 #A8B8CE, link
+  #8DBBEE. Curtida e erro #E0243A.
+- Tipografia: Archivo semi-expandida para números, nomes e títulos (dialoga com o
+  logo); Instrument Sans para o resto. Escala: display 28/32, título 20/24, seção
+  16/22, corpo 14/20, legenda 13/18, rótulo 11/14.
+- Tiers e raridade: o tier é a única coisa colorida (gradientes bronze, prata, ouro,
+  diamante, como os pills do Figma); a raridade é neutra, pontos de 1 a 4 (Comum,
+  Raro, Épico, Lendário). Ícone de troféu para troféu, de medalha para medalha.
+- Botões em pill (primário marinho, secundário superfície, no escuro primário
+  dourado), estados padrão, pressionado, foco e desativado; filtros do mural como
+  chips; bolinha dourada de não lido.
+- Espaçamento 4/8/12/16/24/32 (margem 16); raios 8 (selo, avatar mini), 12 (campo,
+  aviso), 16 (card), pill (botão, tier). Sem sombra em cards (profundidade por
+  superfície tonal); sombra só no botão central do Mural; alvos de toque de 44 px.
+- Perfil: avatar com anel dourado; bloco "pts · #29" clicável para os rankings;
+  seguidores e seguindo; nome, curso, semestre e RA; bio; card "Último troféu" com
+  tier e raridade; "Seguida por João Lima e Maria Costa"; botões Editar perfil e
+  Compartilhar; abas Tudo, Troféus, Medalhas (acréscimo do Design, não estava no
+  rascunho); grade 3 colunas misturando foto e prêmios; navegação inferior com o
+  Mural como botão central elevado. Dados do bloco de consistência respeitados.
+
+Pendências para o D02: a última linha da grade fica escondida atrás da navegação na
+prancheta de 844 px (falta um respiro no fim da lista); decidir se as abas do perfil
+ficam; o menu hambúrguer no topo substitui o "status" do rascunho.
+
+Tempo: (min, incluindo a preparação dos anexos).
 
 ### D02 · (data) · Perfil: ajustes
 
