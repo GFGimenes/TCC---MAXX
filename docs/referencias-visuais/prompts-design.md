@@ -53,7 +53,7 @@ entre todas.
 
 ## Prompts
 
-### D01 · 2026-09-26 · Identidade visual e as seis telas (abertura, Claude Design)
+### D1.1 · 2026-09-26 · Canvas 1, abertura: identidade visual e as seis telas
 
 Anexos enviados junto: logo MAXX e logo UniMax com paleta e pills de tier (print do
 Figma), telas prontas de login e feed (claro e escuro), rascunhos do caderno
@@ -170,17 +170,19 @@ Tempo: incluído no total do passo 1 (ver Fechamento).
 
 | ID | Arquivo | Origem | Usado em |
 |---|---|---|---|
-| A01 | logo MAXX (dourado e branco) | autor, Figma | D01, D02, D03 |
-| A02 | logo UniMax e paleta marinho e dourado com pills de tier | autor, Figma | D01, D02 |
-| A03 | login claro e escuro | autor, Figma (ago/2026) | D01, D02, D03 |
-| A04 | feed claro e escuro | autor, Figma (ago/2026) | D01, D02, D03 |
-| A05 | rascunhos do caderno (login e mural; filosofia e dashboard) | autor, caderno | D01, D02, D03 |
-| A06 | wireframes Excalidraw (perfil com referência do Instagram, mural, troféus) | autor, Excalidraw | D01, D02, D03 |
-| A07 | prancheta "Padrão visual v1" | gerado, canvas 1, resultado do D01 | D02 |
-| A08 | tela de conquistas (medalhões metálicos, trilha de progressão) | gerado, canvas 3 | D05 |
-| A09 | login e cadastro (bloco marinho e card sobreposto) | gerado, canvas 3 | D05 |
-| A10 | feed com card descritivo do prêmio abaixo da foto | gerado, canvas 3 | D05 |
-| A11 | design system "Marinho & Ouro, institucional, metal de verdade": `anexos/A11-marinho-ouro-tokens.json` (paleta, tipografia, espaçamento e raios em valores) e `anexos/A11-marinho-ouro-README.md` (regras de uso) | gerado, artefato "MAXX · exploração de identidade 3" (tipo Design System), resultado do D03/D04 | D05 |
+| A01 | logo MAXX (dourado e branco) | autor, Figma | D1.1, D2.1, D3.1 |
+| A02 | logo UniMax e paleta marinho e dourado com pills de tier | autor, Figma | D1.1, D2.1 |
+| A03 | login claro e escuro | autor, Figma (ago/2026) | D1.1, D2.1, D3.1 |
+| A04 | feed claro e escuro | autor, Figma (ago/2026) | D1.1, D2.1, D3.1 |
+| A05 | rascunhos do caderno (login e mural; filosofia e dashboard) | autor, caderno | D1.1, D2.1, D3.1 |
+| A06 | wireframes Excalidraw (perfil com referência do Instagram, mural, troféus) | autor, Excalidraw | D1.1, D2.1, D3.1 |
+| A07 | prancheta "Padrão visual v1" | gerado, canvas 1, resultado do D1.1 | D2.1 |
+| A08 | tela de conquistas (medalhões metálicos, trilha de progressão) | gerado, canvas 3 | D1.3 |
+| A09 | login e cadastro (bloco marinho e card sobreposto) | gerado, canvas 3 | D1.3 |
+| A10 | feed com card descritivo do prêmio abaixo da foto | gerado, canvas 3 | D1.3 |
+| A11 | design system "Marinho & Ouro, institucional, metal de verdade": `anexos/A11-marinho-ouro-tokens.json` (paleta, tipografia, espaçamento e raios em valores) e `anexos/A11-marinho-ouro-README.md` (regras de uso); o print "fase 2a Marinho & Ouro" | gerado, canvas 3 (artefato "MAXX · exploração de identidade 3", tipo Design System), resultado de D3.1 a D3.4 | D1.3 |
+| A12 | tiers e raridade com menos brilho; fundo dos prêmios sem foto na grade do perfil | gerado, canvas 3 | D1.4 |
+| A13 | login escuro (modelo) | gerado, canvas 3 | D1.6 |
 
 Os arquivos ficam em `docs/referencias-visuais/anexos/` com o ID no nome
 (`A08-conquistas-canvas3.png`). Anexo gerado por IA é reaproveitado como referência
@@ -188,19 +190,154 @@ com a origem anotada; nunca é apresentado como mockup do autor.
 
 ## Sessões (canvases) e prompts
 
-Quatro sessões do Claude Design, em paralelo, com propósitos diferentes. O design
-final saiu do canvas 1, que recebeu de volta o melhor de cada uma das outras.
+Três sessões do Claude Design, em paralelo, com propósitos diferentes. O design final
+saiu do canvas 1, que recebeu de volta o melhor das outras duas. Os textos abaixo
+foram recuperados pedindo a cada sessão a lista dos prompts enviados, na ordem, e
+conferidos pelo autor. Comentários inline nas pranchetas: nenhum registrado pelas
+sessões.
 
-| Canvas | Propósito | Prompts | Resultado aproveitado |
-|---|---|---|---|
-| 1 | Modelo propõe o padrão visual a partir da identidade do autor | D01, D05, D06 | Padrão v1, perfil; depois a convergência final (12 telas + cadastro + padrão) |
-| 2 | Padrão fixo por valores e regra "na dúvida, o componente do Instagram" | D02 | Seis telas de referência para a regra do Instagram (botões baixos, grade sem legenda, abas só com ícone) |
-| 3 | Exploração de identidade que virou um design system publicado ("MAXX · exploração de identidade 3", com README, tokens e as sete telas como componentes) | D03 | Medalhões metálicos, card do prêmio abaixo da foto, estilo de login e cadastro; a paleta Marinho & Ouro em valores |
-| 4 | Exploração livre: três direções de design system, sem cores fixadas | D04 | Paleta "Marinho & Ouro, institucional, metal de verdade" |
+| Canvas | Artefato | Propósito | Prompts | Aproveitado no resultado final |
+|---|---|---|---|---|
+| 1 | "MAXX" (Design) | O modelo propõe o padrão visual a partir da identidade do autor; depois recebe a convergência | D1.1 a D1.6 | Tudo: 14 pranchetas (7 telas, claro e escuro) e o padrão visual |
+| 2 | "MAXX" (Design) | Padrão fixo por valores e regra "na dúvida, o componente do Instagram" | D2.1 e D2.2 | Referência da regra do Instagram (botões baixos, grade sem legenda, abas só com ícone, nome de usuário no cabeçalho) |
+| 3 | "MAXX · exploração de identidade 3" (Design System) | Exploração livre em três direções, sem cores fixadas | D3.1 a D3.4 | Paleta Marinho & Ouro em valores; medalhões metálicos; raridade como ornamento; card do prêmio abaixo da foto; estilo de login e cadastro |
 
-### D02 · 2026-09-26 · Canvas 2: seis telas com padrão fixo e regra do Instagram
+O D1.1 está registrado acima. Os demais seguem como enviados.
 
-Texto como enviado: (a confirmar pelo autor; rascunho do Cowork abaixo)
+### D1.2 · 2026-09-26 · Canvas 1: as outras cinco telas no padrão v1 (sem imagens)
+
+```
+Aprovo o padrão visual v1. Agora quero as outras cinco telas no mesmo padrão, para
+fechar o conjunto: login, feed, mural, troféus e medalhas, rankings. Cada uma em tema
+claro e escuro, 390 x 844, uma prancheta por tela e tema.
+
+Ajustes que valem para todas as telas, inclusive o perfil já feito:
+- A referência de UX é o Instagram. Botões menores e discretos: secundários com 32 px
+  de altura, raio 8, texto 13; a área de toque de 44 px fica na área clicável, não no
+  tamanho visual. Pill só nos selos de tier e no botão de entrar do login.
+- Grades e listas terminam com um respiro para nada ficar atrás da navegação.
+- Avatares redondos, com anel dourado no perfil.
+
+Por tela:
+- Login: entrar e cadastrar, RA ou e-mail institucional e senha, esqueci minha senha,
+  sem botões de login social; aviso de que o primeiro acesso é pelo Portal do Aluno.
+- Feed: posts como no Instagram (cabeçalho com avatar, nome de usuário, curso e
+  semestre, selo do prêmio, foto, curtir, comentar, compartilhar, salvar, curtidas,
+  legenda, comentários, tempo). Post da Ana com o Pássaro Raro no Campus e post do
+  João com o Techday 2026.
+- Mural: filtros Faculdade, Curso e Professores no topo, botão "ler todos"; o aviso
+  mais recente semi-expandido, os demais só com título; bolinha dourada em não lido;
+  ao tocar no semi-expandido, abre quase em tela cheia com botão de voltar.
+- Troféus e medalhas: abas Troféus e Medalhas, filtro "mostrar não obtidos"; cada
+  item com nome, tier, pontos e raridade; a trilha de progressão de "Média 10 em uma
+  matéria" com Bronze, Prata e Ouro obtidos e Diamante como próximo.
+- Rankings: Geral, Por curso, All-time geral, All-time por curso; lista com posição,
+  avatar, nome, curso e pontos, a Ana em destaque na posição #29, o Pedro marcado como
+  ex-aluno.
+
+Use os mesmos dados de exemplo que já mandei. Não pergunte antes de gerar; decida e
+registre as suposições na resposta.
+```
+
+Resultado: as cinco telas no padrão v1, claro e escuro, com os botões do perfil
+reduzidos ao padrão do Instagram.
+
+### D1.3 · 2026-09-26 · Canvas 1: convergência (anexos A08, A09, A10, A11)
+
+Observação: o texto foi enviado com o marcador "[cole aqui a lista de cores...]" sem
+preenchimento; a paleta chegou ao modelo pelo print A11, não por valores. O rascunho
+original começava com "Fechando o design hoje.", frase retirada pelo autor.
+
+```
+Aplique tudo abaixo em todas as pranchetas já feitas (as seis
+telas, claro e escuro) e atualize a prancheta "Padrão visual" para refletir o
+resultado. O que não está listado fica como está.
+
+1. Paleta. Substitua a paleta v1 pela direção "Marinho & Ouro, institucional, metal
+   de verdade" (anexo/valores abaixo), nos dois temas. Mantenha os papéis de cada
+   cor (fundo, superfície, linha, ação, texto, texto secundário, link, curtida e
+   erro) e refaça o contraste onde precisar.
+   [cole aqui a lista de cores da direção, com os hexadecimais, se tiver]
+
+2. Tiers como metal de verdade. Refaça os selos de tier como no print de
+   conquistas em anexo: medalhão redondo com gradiente metálico radial (brilho no
+   alto, sombra embaixo), anel externo fino, ícone de troféu ou medalha em tom
+   escuro dentro. Bronze, prata e ouro metálicos; diamante em azul-gelo com brilho
+   branco. Use o mesmo medalhão em todo lugar em que o tier aparece: lista de
+   troféus, grade e destaques do perfil, selo do feed e trilha de progressão. Na
+   trilha de progressão, os medalhões obtidos ligados por uma linha, e o próximo
+   tier como medalhão tracejado com cadeado, mostrando a faixa de pontos.
+
+3. Feed. Mantenha o selo com o nome do prêmio no cabeçalho do post, ao lado do
+   nome, e acrescente, logo abaixo da foto e acima das curtidas, o card descritivo
+   como no print em anexo: medalhão do tier à esquerda, nome do prêmio, "tier ·
+   raridade" embaixo e, à direita, "+150" com "foto validada" quando o prêmio
+   exigir foto. Vale para os dois posts (Pássaro Raro no Campus e Techday 2026).
+
+4. Login e cadastro no estilo do print em anexo: bloco marinho no topo com o logo
+   MAXX e a frase "A rede de conquistas da UniMax"; card branco sobreposto ao bloco,
+   com as abas Entrar e Cadastrar; campos "RA ou e-mail institucional" e "Senha"
+   com mostrar senha; "Esqueci minha senha" alinhado à direita; botão primário
+   "Entrar" (marinho no claro, dourado no escuro); abaixo, "Primeiro acesso? Alunos
+   e professores vinculam a conta pelo Portal UniMax com o RA"; rodapé com o selo
+   da UniMax e "Rede UniEduk · UniMax e UniFaj". Sem nenhum login social. Se couber,
+   uma prancheta extra com a aba Cadastrar ativa.
+
+5. Posição no ranking ao lado do nome de usuário: onde o nome aparece com curso e
+   semestre (cabeçalho do post, perfil, rankings), acrescente "#29" discreto, em
+   texto secundário, na mesma linha.
+
+6. Navegação inferior. O ícone da tela atual é o que fica marcado (preenchido, cor
+   de texto); hoje todas as telas marcam o Mural. O botão central do Mural continua
+   elevado, mas só aparece ativo na tela do Mural. Bolinha pequena, dourada, no
+   canto superior direito do ícone com novidade: nas pranchetas, no Mural (aviso
+   não lido) e nos Troféus (prêmio novo).
+
+Mantenha: botões baixos e secundários, avatares redondos com anel dourado no
+perfil, grade sem legenda, respiro no fim das listas, os mesmos dados de exemplo em
+todas as telas. Não pergunte antes de gerar; decida e registre as suposições na
+resposta.
+```
+
+Resultado: doze pranchetas refeitas na paleta nova, mais duas de cadastro e a
+prancheta "Padrão visual" atualizada.
+
+### D1.4 · 2026-09-26 · Canvas 1: correção em linguagem do autor (anexo A12)
+
+```
+Nos premios, pode usar menos brilho/metalico, estou te mandando outro print E esse efeito que você concentrou no icon do mural, é pra estar no que esta aberto, dele ficar maior esse icone. estou te mandando também o estilo de fundo dos premios no perfil quando não tiverem foto
+```
+
+Resultado: medalhões com menos brilho; o círculo elevado da navegação passou a
+marcar a tela aberta (Home no feed, Troféus na tela de troféus), o que o autor
+reverteu no D1.5; fundo em gradiente suave do tier nas células da grade do perfil
+sem foto. Este prompt é o único do passo 1 escrito inteiramente pelo autor, sem
+rascunho do Cowork, e mostra o registro real da persona quando corrige: curto,
+direto, com print, sem termo técnico.
+
+### D1.5 · 2026-09-27 · Canvas 1: ajustes finais (sem imagens)
+
+```
+Três ajustes finais e exportar:
+1. Navegação: o Mural volta a ser o único botão elevado, fixo no centro, em todas as
+   telas. A tela ativa é indicada só pelo ícone preenchido e na cor de texto (e, no
+   Mural, pelo preenchimento do círculo). Nada de círculo elevado nos outros itens.
+2. Mural: filtros como uma fileira leve, "Todos" ativo por padrão e Faculdade, Curso
+   e Professores como chips de contorno, sem ícone de check.
+3. Feed: o selo do prêmio no cabeçalho do post vai para uma segunda linha, abaixo do
+   nome, para "ADS · 3º semestre · #29" não cortar. Rankings: abas com rótulos curtos
+   (Geral, Curso, Histórico, Histórico do curso) para a última não cortar.
+```
+
+### D1.6 · 2026-09-27 · Canvas 1: login e cadastro no modelo escuro (anexo A13)
+
+```
+Pode mudar a questão do Login/cadastro para esse tipo de modelo
+```
+
+Resultado: versão final do canvas 1, exportada.
+
+### D2.1 · 2026-09-26 · Canvas 2, abertura: padrão fixo e regra do Instagram (anexos A01 a A07)
 
 ```
 Quero as seis telas de um aplicativo mobile chamado MAXX, com identidade e padrão
@@ -248,84 +385,154 @@ Deixe um respiro no fim de toda lista ou grade para nada ficar atrás da navega�
 Use os dados abaixo em todas as telas. Não pergunte antes de gerar; decida e
 registre as suposições na resposta.
 
-[bloco de consistência, igual ao do D01, com os acréscimos: usuário ana.souza,
-1.234 seguidores, 231 seguindo; último troféu da Ana: Pássaro Raro no Campus;
-filtros do mural; lista de ranking com a Ana em destaque]
+REGRAS DE CONSISTÊNCIA (valem para todas as telas)
+- Produto: MAXX, app da rede UniEduk (UniMax e UniFaj). Logo MAXX no feed e no login;
+  no perfil, o nome de usuário no cabeçalho, como no Instagram.
+- Tiers e pontos: Bronze 1 a 30, Prata 31 a 70, Ouro 71 a 100, Diamante 101 a 150.
+- Progressão demo: "Média 10 em uma matéria": Bronze 5 pts (1º semestre), Prata 35
+  pts (2º), Ouro 75 pts (3º), próximo Diamante. A tela de troféus mostra a trilha de
+  cada conquista, com os tiers obtidos e o próximo.
+- Alunos demo: Ana Souza, usuário ana.souza (RA 2023001, ADS 3º semestre, 15.020
+  pts, #29 no geral, 1.234 seguidores, 231 seguindo); João Lima (RA 2022110,
+  Engenharia de Produção 5º semestre, 9.870 pts, #112); Maria Costa (RA 2023045,
+  Psicologia 2º semestre, 21.400 pts, #4); Pedro Alves (RA 2021088, ADS 7º
+  semestre, ex-aluno, 18.300 pts, #15, não pontua mais).
+- Professores demo: Prof. Carla Mendes (ADS), Prof. Ricardo Nunes (Engenharia).
+- Prêmios demo: troféu "Techday 2026" (Ouro, 80 pts, Raro); troféu "Assiduidade
+  semestral" (Prata, 50 pts, Comum); troféu "Top 2% Integrativa" (Ouro, 95 pts,
+  Raro); medalha "Participação no seminário" (Prata, 40 pts, Comum, dada pela
+  Prof. Carla); medalha "Apresentação de TCC" (Diamante, 120 pts, Épico); troféu de
+  acúmulo "10 medalhas" (Bronze, 25 pts, Comum); troféu "Pássaro Raro no Campus"
+  (Diamante, 150 pts, Lendário, exige foto). Último troféu da Ana: Pássaro Raro no
+  Campus.
+- Mural demo: aviso da Faculdade "Matrícula do 2º semestre até 30/07" (não lido,
+  bolinha dourada); aviso do curso ADS "Techday: inscrições abertas"; aviso da
+  Prof. Carla "Prova integrativa remarcada para 14/08". O mais recente fica
+  semi-expandido; os outros mostram só o título. Filtros no topo: Faculdade, Curso,
+  Professores.
+- Feed demo: post da Ana com foto e selo "Pássaro Raro no Campus" (troféu), 128
+  curtidas, 12 comentários; post do João com selo "Techday 2026".
+- Rankings: Geral, Por curso, All-time geral, All-time por curso; lista com posição,
+  avatar, nome, curso e pontos; a Ana em destaque na posição #29.
+- Semestre 2/2026.
 ```
 
-Resultado: doze pranchetas (seis telas, claro e escuro) numa só resposta. Perfil
-corrigido para o padrão do Instagram (nome de usuário no cabeçalho, botões baixos e
+Resultado: doze pranchetas (seis telas, claro e escuro) numa só resposta, com o
+perfil no padrão do Instagram (nome de usuário no cabeçalho, botões baixos e
 secundários, abas só com ícone, grade sem legenda), mural fiel ao rascunho, trilha
-de progressão legível na tela de troféus, rankings com lacunas comprimidas. Problemas
-apontados: quatro números na linha do avatar não cabiam em 390 px; última aba dos
-rankings cortada; avatares quadrados (o Instagram usa círculo).
+de progressão legível e rankings com lacunas comprimidas. Problemas apontados na
+revisão: quatro números na linha do avatar não cabiam em 390 px; última aba dos
+rankings cortada; avatares quadrados.
 
-### D03 · 2026-09-26 · Canvas 3: exploração de identidade (design system)
+### D2.2 · 2026-09-26 · Canvas 2: prancheta de padrão visual
 
-Texto como enviado: (a confirmar pelo autor)
+```
+Adicione uma prancheta "Padrão visual MAXX" (1280 de largura, altura livre) documentando
+o sistema que você aplicou nas seis telas, para servir de referência de implementação:
 
-Resultado: um artefato do tipo Design System, "MAXX · exploração de identidade 3",
-com README, `tokens.json` e as sete telas (login, feed, perfil, mural, troféus,
-medalhas, rankings) em claro e escuro. O que foi aproveitado no canvas 1: medalhões
-metálicos (gradiente base, brilho e sombra por tier, com o glifo em tom escuro);
-raridade como ornamento em volta do medalhão, na cor primária, nunca na cor do
-tier (sem anel, anel simples, anel duplo, anel com raios); card descritivo do
-prêmio abaixo da foto do post; login e cadastro com faixa marinho no topo, card
-sobreposto com abas, primeiro acesso pelo Portal UniMax e rodapé da rede. A paleta
-está em valores em `anexos/A11-marinho-ouro-tokens.json`: claro com fundo #FFFFFF,
-superfície #F3F5F9, linha #DDE3EC, texto #0B1B33, texto secundário #52627A, primário
-#0B2A55, acento #F5B400, destaque #FFF3CC, link #1D4F9C; escuro com fundo #06142A,
-superfície #0D2142, linha #1E355A, texto #F1F4F9, texto secundário #9FB1CA, primário
-#F5B400 (texto sobre ele #0B1B33), link #8DB8F2; tiers bronze #C07A3E, prata
-#A5AEB8, ouro #E8AE00, diamante #56C2E6, cada um com variantes de brilho, sombra e
-texto. Tipografia dessa exploração: Archivo ExtraBold itálico para títulos e
-números, Figtree para o resto (o canvas 1 manteve Instrument Sans no corpo).
+- Cores do tema claro e do tema escuro, com nome, uso e valor hexadecimal (fundo,
+  superfície, linha, ação, texto, texto secundário, link, curtida e erro, dourado de
+  marca e dourado em texto).
+- Tipografia: famílias, pesos e a escala usada (display, título, seção, corpo,
+  legenda, rótulo), com um exemplo real de cada, tirado das telas.
+- Tiers e raridade: os quatro gradientes de tier com as faixas de pontos, os pontos
+  de raridade de 1 a 4, e os ícones de troféu e medalha.
+- Componentes como estão nas telas: botões primário e secundário com estados
+  (padrão, pressionado, foco, desativado), chips de filtro, selo de tier, card de
+  aviso semi-expandido e colapsado, item de ranking, item de troféu, trilha de
+  progressão, barra de navegação com o botão central do Mural.
+- Espaçamento, raios e regras (respiro no fim das listas, sombras, áreas de toque).
+- Uma seção "Desvios e suposições": tudo o que você decidiu que não estava no meu
+  prompt (por exemplo, o formato dos avatares e do botão central).
 
-### D04 · 2026-09-26 · Canvas 4: exploração livre em três direções
+Sem inventar nada novo: a prancheta descreve o que já está nas telas.
+```
 
-Texto como enviado: (a confirmar pelo autor; rascunho do Cowork: prompt "Quero
-explorar a identidade visual..." com duas etapas, três direções de design system
-com perfil e feed aplicados, sem cores fixadas, bloco de consistência igual ao D02)
+### D3.1 · 2026-09-26 · Canvas 3, abertura: exploração livre em três direções (anexos A01, A03 a A06; sem o print de paleta e sem o padrão v1, de propósito)
 
-Resultado aproveitado: a direção "Marinho & Ouro, institucional, metal de verdade"
-(paleta e intenção: "a UniMax entrega o prêmio; o marinho dá confiança, o ouro
-aparece só onde há conquista, e os selos são medalhões metálicos como os de uma
-colação"). As demais direções foram descartadas.
+```
+Quero explorar a identidade visual de um aplicativo mobile chamado MAXX antes de
+fechar o design. Nesta sessão você tem liberdade de propor cores, paleta,
+tipografia e design system; quero comparar direções, não receber uma só.
 
-### D05 · 2026-09-26 · Canvas 1: convergência
+O que é: uma rede social gamificada para alunos e professores da UniMax
+(Indaiatuba). A referência de UX é o Instagram: a estrutura das telas, os componentes
+e o tamanho das coisas devem lembrar o Instagram (botões de perfil baixos e
+discretos, grade sem legendas, abas só com ícone, cards de post, comentários). O
+que diferencia o MAXX são as conquistas: troféus, dados pela instituição ou por
+regras automáticas (presença, techday, olimpíadas, feiras, conquistas com foto de
+prova), e medalhas, dadas por professores. Cada prêmio tem um tier, Bronze, Prata,
+Ouro ou Diamante, que define os pontos. Algumas conquistas têm progressão: a mesma
+conquista repetida rende um novo prêmio de tier acima. O aluno acumula prêmios e
+aparece em rankings; o aluno não tem tier, só posição. Login somente por e-mail
+institucional ou RA, sem login social.
 
-Texto como enviado: (a confirmar pelo autor; rascunho do Cowork "Fechando o design
-hoje..." com seis itens: paleta Marinho & Ouro no lugar da v1; tiers como
-medalhões metálicos; selo do prêmio no cabeçalho do post mais card descritivo abaixo
-da foto; login e cadastro no estilo do canvas 3, sem login social; posição no
-ranking ao lado do nome de usuário; navegação com a tela atual marcada e bolinhas
-de notificação)
+Identidade: em anexo, o logo MAXX, o logo da UniMax e duas telas antigas (login e
+feed) que mostram a direção anterior. O azul-marinho e o dourado do logo são
+referência, não obrigação: você pode propor outra paleta, desde que o logo
+conviva bem com ela. Tema claro e escuro em toda tela. Navegação inferior fixa:
+Home (feed), Busca, Mural (botão central, ícone de jornal), Troféus, Perfil.
 
-Resultado: doze pranchetas refeitas na paleta nova, mais duas de cadastro e a
-prancheta "Padrão visual" atualizada. Desvio observado: o círculo elevado da
-navegação virou indicador de tela ativa e passou a mudar de lugar (Home no feed,
-Troféus na tela de troféus), em vez de o Mural ficar fixo no centro; filtros do
-mural todos marcados por padrão; selo do prêmio no cabeçalho do post cortando a
-linha de curso e semestre; última aba dos rankings cortada.
+Entrega, em duas etapas:
 
-### D06 · 2026-09-27 · Canvas 1: ajustes finais e exportação
+1. Três direções de design system, uma prancheta cada: paleta clara e escura,
+   tipografia, tratamento dos tiers e da raridade, componentes principais (botão,
+   chip, selo de tier, card de post, item de lista) e uma frase sobre a intenção da
+   direção. Para cada direção, o perfil e o feed aplicados, em tema claro (390 x
+   844), para eu comparar as três lado a lado. Se conseguir, também o mural.
+2. Depois que eu escolher uma direção, as seis telas completas nela, claro e
+   escuro: login, feed, perfil, mural, troféus e medalhas, rankings.
 
-Texto como enviado: (a confirmar pelo autor; rascunho do Cowork com três ajustes:
-Mural como único botão elevado e fixo; filtros do mural como fileira leve com
-"Todos"; selo do prêmio numa segunda linha do cabeçalho do post e abas dos rankings
-com rótulos curtos)
+Os rascunhos em anexo mostram a mecânica de cada tela; siga o que está neles e
+resolva o que estiver em aberto de forma consistente. Use os dados de exemplo
+abaixo em todas as telas. Não pergunte antes de gerar; decida e registre as
+suposições na resposta.
 
-Resultado: (a preencher). Exportação: (lista de PNGs).
+[REGRAS DE CONSISTÊNCIA: idênticas às do D2.1]
+
+Comece pela etapa 1.
+```
+
+### D3.2 a D3.4 · 2026-09-26 · Canvas 3: continuação, em linguagem do autor
+
+```
+Pode seguir com as outras telas, e faz as pranchetas separadas pra eu poder dar zoom
+```
+
+```
+continue
+```
+
+```
+Me dê somente os designs do marinho e ouro
+```
+
+Resultado do canvas 3: três direções na etapa 1; a "Marinho & Ouro, institucional,
+metal de verdade" foi escolhida e a sessão a publicou como design system (README,
+`tokens.json`, sete telas em claro e escuro). Ver anexo A11 e a descrição da paleta
+na seção de fechamento.
 
 ## Fechamento do passo 1
 
-- Sessões: 4. Prompts de abertura ou de convergência: 6 (D01 a D06), mais
-  comentários inline não registrados individualmente: (quantidade, a preencher).
+- Sessões: 3 canvases. Prompts: 12 (6 no canvas 1, 2 no canvas 2, 4 no canvas 3).
+  Dos 12, 9 partiram de rascunhos revisados no Cowork contra a documentação oficial
+  do Claude Design e a especificação das telas, e 3 são texto livre do autor (D1.4,
+  D1.6 e as continuações do canvas 3, que somam 3 mensagens curtas: D3.2 a D3.4).
+  Comentários inline: nenhum.
 - Tempo do autor: cerca de 6 horas nas sessões de design (26 e 27/09/2026), incluindo
   preparação de anexos, comparação entre canvases e exportação; mais 3 a 4 horas nos
   rascunhos manuais feitos antes (caderno e Excalidraw, agosto de 2026), para
   colocar a ideia no papel. Total do passo 1: entre 9 e 10 horas. Os tempos por
   prompt não foram medidos individualmente.
+- Paleta final (canvas 1, "Marinho & Ouro"): claro com fundo #FFFFFF, superfície
+  #F3F5F9, linha #DDE2EA, texto #0B1B33, texto secundário #556070, primário #0B2A55,
+  dourado #F5B400, dourado em texto #8A6200, link #245AA8, destaque #FFF5D6, curtida
+  #E0243A; escuro com fundo #06142A, superfície #0D2142, linha #1E3560, texto
+  #F2F5FA, texto secundário #A4ADBB, primário #F5B400 sobre #06142A, link #81ABE1,
+  curtida #FF5468. Tipografia: Archivo semi-expandida (títulos e números, pontos em
+  itálico) e Instrument Sans (corpo). Tiers como medalhões metálicos (bronze, prata,
+  ouro, diamante azul-gelo), raridade como ornamento em volta do medalhão (Comum sem
+  anel, Raro anel simples, Épico anel duplo, Lendário anel com raios).
 - Entregáveis: `docs/referencias-visuais/*.png` (login, cadastro, feed, perfil,
   mural, trofeus, ranking, cada um em claro e escuro) e `padrao-visual.png`.
 - Decisões de produto que nasceram no design e entraram no contexto comum antes de
@@ -333,4 +540,5 @@ Resultado: (a preencher). Exportação: (lista de PNGs).
   ficaram só no design do engenheiro (escopo emergente da persona, a registrar na
   análise): abas do perfil (tudo, troféus, medalhas); filtro "quem eu sigo" nos
   rankings; log de leitura do mural ("quem publicou vê que você leu e quando");
-  raridade como pontos neutros de 1 a 4; posição no ranking ao lado do nome.
+  raridade como ornamento neutro; posição no ranking ao lado do nome; tela de
+  cadastro separada.
