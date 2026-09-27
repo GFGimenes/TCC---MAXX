@@ -128,9 +128,12 @@ Conectar a pasta `tcc` (o `Maxx` está dentro dela). Primeira mensagem sugerida:
    fluxo ponta a ponta (worker, review, checklist, planilha, registro, merge, diário).
 7. `eng_00_contexto_v2` depois do review humano; então `eng_01_login` e
    `leigo_01_login`, e seguir módulo a módulo.
-8. **Único repositório é o Maxx, dentro da pasta `tcc`** (`Repos\tcc\Maxx`). A `tcc` é
-   área de trabalho local (o `.git` dela é só histórico na máquina, sem push; `Maxx/`
-   está no `.gitignore` da `tcc`). Nunca criar `CLAUDE.md` ou `AGENTS.md` na raiz da
+8. **Único repositório do experimento é o Maxx, dentro da pasta `tcc`**
+   (`Repos\tcc\Maxx`). A `tcc` é o caderno do autor, com repo próprio e privado só
+   para backup e histórico (`origin` = `GFGimenes/TCC---MAXX`, branch `master`,
+   criado em 27/09; `Maxx/` está no `.gitignore` da `tcc` e nunca entra nele). O
+   Cowork commita na `tcc` a cada sessão; o push é do autor (a ponte não tem
+   credencial do GitHub). Versões em PDF do TCC em `docs/tcc/versoes/`. Nunca criar `CLAUDE.md` ou `AGENTS.md` na raiz da
    `tcc`. Workers sempre nos worktrees do Orca, nunca direto em `tcc\Maxx`. No fim,
    com as 12 rodadas feitas, copiar prompts, resultados, reviews, planilha, relatórios
    de carga e `docs/tcc/` para `docs/experimento/` na `main` do Maxx, num commit

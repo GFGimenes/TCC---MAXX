@@ -63,8 +63,10 @@ resultados/      Registro de cada rodada (resumo da sessão, decisões, avisos),
 avaliacoes/      Rubrica (5 eixos), reviews do agente revisor e planilha de registro
 ```
 
-O código gerado vive nas branches do repo `Maxx`, que é o único repositório do TCC;
-esta pasta é área de trabalho local durante a execução (nada daqui entra no Maxx
-enquanto as rodadas correm, para nenhuma trilha ver o material da outra) e, ao final,
-é copiada para `docs/experimento/` na `main` do Maxx. Ver `docs/linha-do-tempo.md` para as fases e o critério de pronto de cada
+O código gerado vive nas branches do repo `Maxx`, que é o único repositório do
+experimento (o único que os agentes tocam); esta pasta é o caderno do autor durante a
+execução (nada daqui entra no Maxx enquanto as rodadas correm, para nenhuma trilha
+ver o material da outra) e, ao final, é copiada para `docs/experimento/` na `main` do
+Maxx. Ela tem repositório próprio, privado, só como backup e histórico
+(`GFGimenes/TCC---MAXX`); `Maxx/` fica fora dele pelo `.gitignore`. Ver `docs/linha-do-tempo.md` para as fases e o critério de pronto de cada
 uma.
