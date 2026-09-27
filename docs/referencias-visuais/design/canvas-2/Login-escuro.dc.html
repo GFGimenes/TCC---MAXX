@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX · Login (escuro)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif}
+.dsp{font-family:'Archivo',system-ui,sans-serif;font-stretch:112.5%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{text-decoration:none}
+input::placeholder{color:inherit;opacity:0.75}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; box-sizing: border-box; padding: 47px 16px 0; background: {{t.bg}}; color: {{t.text}}; display: flex; flex-direction: column">
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 88px">
+    <img src="assets/maxx-ouro.png" alt="MAXX" style="width: 236px; height: 72px; display: block">
+    <p style="margin: 0; font-size: 14px; line-height: 20px; color: {{t.text2}}; text-align: center">A rede gamificada da UniMax e da UniFaj</p>
+  </div>
+
+  <section style="margin-top: 40px; background: {{t.surface}}; border-radius: 16px; padding: 0 16px 24px; display: flex; flex-direction: column">
+    <div role="tablist" aria-label="Acesso" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid {{t.line}}">
+      <button type="button" role="tab" aria-selected="true" class="dsp" style="height: 48px; background: none; border: 0; border-bottom: 2px solid {{t.action}}; margin-bottom: -1px; font-size: 16px; line-height: 22px; font-weight: 600; color: {{t.text}}">Entrar</button>
+      <button type="button" role="tab" aria-selected="false" class="dsp" style="height: 48px; background: none; border: 0; font-size: 16px; line-height: 22px; font-weight: 500; color: {{t.text2}}">Cadastrar</button>
+    </div>
+
+    <form style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <label for="login-id" style="font-size: 13px; line-height: 18px; font-weight: 600; color: {{t.text}}">RA ou e-mail institucional</label>
+        <input id="login-id" type="text" autocomplete="username" placeholder="Ex.: 2023001" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1px solid {{t.line}}; background: {{t.bg}}; color: {{t.text}}; font: inherit; font-size: 14px">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <label for="login-senha" style="font-size: 13px; line-height: 18px; font-weight: 600; color: {{t.text}}">Senha</label>
+        <div style="position: relative">
+          <input id="login-senha" type="password" autocomplete="current-password" placeholder="Sua senha" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 44px 0 12px; border-radius: 12px; border: 1px solid {{t.line}}; background: {{t.bg}}; color: {{t.text}}; font: inherit; font-size: 14px">
+          <button type="button" aria-label="Mostrar senha" style="position: absolute; right: 0; top: 0; width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text2}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: -8px">
+        <a href="#" style="min-height: 44px; display: flex; align-items: center; font-size: 13px; line-height: 18px; color: {{t.link}}">Esqueci minha senha</a>
+      </div>
+      <a href="{{links.feed}}" class="dsp" style="height: 44px; border-radius: 999px; background: {{t.action}}; color: {{t.onAction}}; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 22px; font-weight: 700">Entrar</a>
+    </form>
+  </section>
+
+  <p style="margin: 24px 0 0; font-size: 13px; line-height: 18px; color: {{t.text2}}; text-align: center">Primeiro acesso? Ative sua conta com o RA<br>pelo <a href="#" style="color: {{t.link}}; font-weight: 600">Portal do Aluno</a>.</p>
+
+  <p style="margin: auto 0 40px; font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.04em; color: {{t.text2}}; text-align: center">UNIEDUK · UNIMAX · UNIFAJ</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":true,"section":"Tema"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? true;
+    const t = dark
+      ? { bg: '#022D57', surface: '#0A3867', line: '#1D5188', action: '#FAB301', onAction: '#022D57', text: '#F2F5FA', text2: '#A8B8CE', link: '#8DBBEE' }
+      : { bg: '#FFFFFF', surface: '#F0F3F8', line: '#DCE2EB', action: '#022D57', onAction: '#FFFFFF', text: '#0B1D33', text2: '#4D5B70', link: '#2F6FBF' };
+    const s = dark ? '-escuro' : '-claro';
+    return { t, links: { feed: 'Feed' + s + '.dc.html' } };
+  }
+}
+</script>
+</body>
+</html>

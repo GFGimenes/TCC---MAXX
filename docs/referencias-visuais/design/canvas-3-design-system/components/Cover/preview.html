@@ -1,0 +1,43 @@
+<!-- @dsCard height=300 -->
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-body); overflow:hidden; }
+  .cover { position:relative; height:300px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:300px; }
+  .navy { fill:var(--hero); }
+  .gold { fill:var(--accent); }
+  .soft { fill:var(--highlight); }
+  .br { fill:var(--tier-bronze); } .pr { fill:var(--tier-prata); } .ou { fill:var(--tier-ouro); } .di { fill:var(--tier-diamante); }
+  .ring { fill:none; stroke:var(--accent); stroke-width:4; }
+  .words { position:absolute; left:32px; bottom:32px; max-width:440px; }
+  .name { margin:0; font-family:var(--font-display); font-style:italic; font-weight:800; font-size:120px; line-height:.9; letter-spacing:-.02em; }
+  .tag { margin:10px 0 0 4px; font-size:14px; line-height:20px; color:var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="cover">
+<svg class="art" viewBox="0 0 480 300" width="480" height="300" aria-hidden="true">
+<!--
+  blocks   hero 224x300 slab bled top and bottom; accent 112x176; highlight 112x108 (space-4 gaps)
+  arrange  one tall navy slab with two satellites, flush to the right edge
+  pattern  medallions: tier-bronze, tier-prata, tier-ouro, tier-diamante on the slab, the rarity ring (accent) around the last
+  scales   gaps 16 (space-4), discs r 26, ring stroke 4, radius-pill discs
+-->
+<rect class="navy" x="96" y="0" width="224" height="300"/>
+<rect class="gold" x="336" y="0" width="144" height="176"/>
+<rect class="soft" x="336" y="192" width="144" height="108"/>
+<circle class="br" cx="162" cy="96" r="26"/>
+<circle class="pr" cx="254" cy="96" r="26"/>
+<circle class="ou" cx="162" cy="196" r="26"/>
+<circle class="di" cx="254" cy="196" r="26"/>
+<circle class="ring" cx="254" cy="196" r="36"/>
+</svg>
+<div class="words"><h1 class="name">MAXX</h1><p class="tag">A rede de conquistas da UniMax: marinho que dá confiança, ouro onde há prêmio.</p></div>
+</div>
+</body>
+</html>

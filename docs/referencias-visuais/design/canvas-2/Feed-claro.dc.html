@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX · Feed (claro)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif}
+.dsp{font-family:'Archivo',system-ui,sans-serif;font-stretch:112.5%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit}
+.tier-bronze{background:linear-gradient(105deg,#C9621F 0%,#EE8A45 30%,#F9C4A0 46%,#EE8A45 60%,#D8712C 100%)}
+.tier-prata{background:linear-gradient(105deg,#9C9C9C 0%,#CFCFCF 30%,#F1F1F1 46%,#CFCFCF 60%,#A9A9A9 100%)}
+.tier-ouro{background:linear-gradient(105deg,#D99A12 0%,#FBC43A 30%,#FFE08A 46%,#FBC43A 60%,#DDA11A 100%)}
+.tier-diamante{background:linear-gradient(105deg,#5FB6DE 0%,#A9E2F5 30%,#F4FDFF 46%,#B7C6F5 62%,#6FA9E6 100%)}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: {{t.bg}}; color: {{t.text}}">
+  <main style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; box-sizing: border-box; padding-bottom: 115px">
+    <header style="position: sticky; top: 0; z-index: 3; height: 91px; box-sizing: border-box; padding: 47px 4px 0 16px; background: {{t.bg}}; display: flex; align-items: center; justify-content: space-between">
+      <h1 style="margin: 0; line-height: 0">
+        <sc-if value="{{ dark }}" hint-placeholder-val="{{ false }}"><img src="assets/maxx-branco.png" alt="MAXX" style="width: 92px; height: 28px; display: block"></sc-if>
+        <sc-if value="{{ light }}" hint-placeholder-val="{{ true }}"><img src="assets/maxx-ouro.png" alt="MAXX" style="width: 92px; height: 28px; display: block"></sc-if>
+      </h1>
+      <button type="button" aria-label="Notificações, 3 novas" style="position: relative; width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 21h4"></path></svg>
+        <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 4px; background: {{t.like}}; box-shadow: 0 0 0 2px {{t.bg}}"></span>
+      </button>
+    </header>
+
+    <article aria-label="Post de ana.souza">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 8px 4px 8px 16px">
+        <span class="dsp" style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; background: {{t.surface}}; border: 1px solid {{t.line}}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: {{t.text}}">AS</span>
+        <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+          <div style="font-size: 13px; line-height: 18px; color: {{t.text2}}; white-space: nowrap"><a href="{{links.perfil}}" class="dsp" style="font-size: 14px; font-weight: 600; color: {{t.text}}">ana.souza</a> · ADS · 3º sem.</div>
+          <span class="tier-diamante" style="align-self: flex-start; height: 22px; padding: 0 10px 0 6px; border-radius: 999px; display: flex; align-items: center; gap: 4px; color: #0B1D33; font-size: 11px; line-height: 14px; font-weight: 700">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg>
+            Pássaro Raro no Campus
+          </span>
+        </div>
+        <button type="button" aria-label="Mais opções" style="width: 44px; height: 44px; flex-shrink: 0; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg></button>
+      </div>
+      <img src="assets/foto-exemplo.jpg" alt="Pássaro amarelo sobrevoando o prédio da UniMax" style="width: 390px; height: 390px; object-fit: cover; display: block">
+      <div style="display: flex; align-items: center; padding: 2px 6px 0">
+        <button type="button" aria-label="Descurtir" aria-pressed="true" style="width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.like}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5C7 16.9 3 13.6 3 9.4 3 6.9 5 5 7.4 5c1.9 0 3.6 1.1 4.6 2.7C13 6.1 14.7 5 16.6 5 19 5 21 6.9 21 9.4c0 4.2-4 7.5-9 11.1z"></path></svg></button>
+        <button type="button" aria-label="Comentar" style="width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-3.9-7.15A8.5 8.5 0 0 1 20.5 12z"></path><path d="m20.5 20.5-1.9-4.3"></path></svg></button>
+        <button type="button" aria-label="Compartilhar" style="width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 3 10.5 13.5"></path><path d="M21 3 14.5 21l-4-7.5L3 9.5z"></path></svg></button>
+        <button type="button" aria-label="Salvar" style="margin-left: auto; width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-6-4.8-6 4.8z"></path></svg></button>
+      </div>
+      <div style="padding: 0 16px; display: flex; flex-direction: column; gap: 4px">
+        <p class="dsp" style="margin: 0; font-size: 14px; line-height: 20px; font-weight: 600">128 curtidas</p>
+        <p style="margin: 0; font-size: 14px; line-height: 20px"><a href="{{links.perfil}}" class="dsp" style="font-weight: 600">ana.souza</a> Um pássaro raro sobrevoando o prédio principal hoje cedo. Foto de prova enviada!</p>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; color: {{t.text2}}">
+          <span>Troféu Diamante · +150 pts · Lendário</span>
+          <span aria-hidden="true" style="display: flex; gap: 3px"><span style="width: 6px; height: 6px; border-radius: 3px; background: {{t.text2}}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{t.text2}}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{t.text2}}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{t.text2}}"></span></span>
+        </div>
+        <a href="#" style="font-size: 14px; line-height: 20px; color: {{t.text2}}">Ver todos os 12 comentários</a>
+        <p style="margin: 0; font-size: 11px; line-height: 14px; color: {{t.text2}}">Há 2 horas</p>
+      </div>
+    </article>
+
+    <article aria-label="Post de joao.lima" style="margin-top: 24px">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 8px 4px 8px 16px">
+        <span class="dsp" style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; background: {{t.surface}}; border: 1px solid {{t.line}}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: {{t.text}}">JL</span>
+        <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+          <div style="font-size: 13px; line-height: 18px; color: {{t.text2}}; white-space: nowrap"><a href="#" class="dsp" style="font-size: 14px; font-weight: 600; color: {{t.text}}">joao.lima</a> · Eng. de Produção · 5º sem.</div>
+          <span class="tier-ouro" style="align-self: flex-start; height: 22px; padding: 0 10px 0 6px; border-radius: 999px; display: flex; align-items: center; gap: 4px; color: #0B1D33; font-size: 11px; line-height: 14px; font-weight: 700">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg>
+            Techday 2026
+          </span>
+        </div>
+        <button type="button" aria-label="Mais opções" style="width: 44px; height: 44px; flex-shrink: 0; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg></button>
+      </div>
+      <div style="width: 390px; height: 390px; background: {{t.surface}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px">
+        <span class="tier-ouro" style="width: 120px; height: 120px; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #0B1D33">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg>
+        </span>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+          <p class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">Techday 2026</p>
+          <p style="margin: 0; font-size: 14px; line-height: 20px; color: {{t.text2}}">Troféu Ouro · +80 pts · Raro</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; padding: 2px 6px 0">
+        <button type="button" aria-label="Curtir" aria-pressed="false" style="width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5C7 16.9 3 13.6 3 9.4 3 6.9 5 5 7.4 5c1.9 0 3.6 1.1 4.6 2.7C13 6.1 14.7 5 16.6 5 19 5 21 6.9 21 9.4c0 4.2-4 7.5-9 11.1z"></path></svg></button>
+        <button type="button" aria-label="Comentar" style="width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-3.9-7.15A8.5 8.5 0 0 1 20.5 12z"></path><path d="m20.5 20.5-1.9-4.3"></path></svg></button>
+        <button type="button" aria-label="Compartilhar" style="width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 3 10.5 13.5"></path><path d="M21 3 14.5 21l-4-7.5L3 9.5z"></path></svg></button>
+        <button type="button" aria-label="Salvar" style="margin-left: auto; width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-6-4.8-6 4.8z"></path></svg></button>
+      </div>
+      <div style="padding: 0 16px; display: flex; flex-direction: column; gap: 4px">
+        <p style="margin: 0; font-size: 14px; line-height: 20px">Curtido por <span class="dsp" style="font-weight: 600">ana.souza</span> e outras pessoas</p>
+        <p style="margin: 0; font-size: 14px; line-height: 20px"><a href="#" class="dsp" style="font-weight: 600">joao.lima</a> Primeiro Techday e já saí com troféu.</p>
+        <p style="margin: 0; font-size: 11px; line-height: 14px; color: {{t.text2}}">Há 5 horas</p>
+      </div>
+    </article>
+  </main>
+
+  <nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; height: 83px; box-sizing: border-box; padding: 0 8px; background: {{t.bg}}; border-top: 1px solid {{t.line}}; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; justify-items: center">
+    <a href="{{links.feed}}" aria-label="Home" aria-current="{{nav.homeCur}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="{{nav.home}}" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"></path></svg></a>
+    <button type="button" aria-label="Busca" style="width: 48px; height: 48px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20.5 20.5-4.5-4.5"></path></svg></button>
+    <a href="{{links.mural}}" aria-label="Mural" style="width: 52px; height: 52px; margin-top: -14px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: {{t.fab}}; color: {{t.fabIcon}}; box-shadow: {{t.fabShadow}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"></rect><rect x="6.5" y="8" width="5" height="4.5" rx="0.5"></rect><path d="M14.5 8.5h3M14.5 12h3M6.5 16h11"></path></svg></a>
+    <a href="{{links.trofeus}}" aria-label="Troféus" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="{{nav.trofeus}}"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></a>
+    <a href="{{links.perfil}}" aria-label="Perfil" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center">
+      <span style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; border: 2px solid {{nav.ring}}; padding: 2px; display: flex">
+        <span class="dsp" style="flex-grow: 1; border-radius: 6px; background: {{t.surface}}; border: 1px solid {{t.line}}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: {{t.text}}">AS</span>
+      </span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false,"section":"Tema"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? false;
+    const t = dark
+      ? { bg: '#022D57', surface: '#0A3867', line: '#1D5188', action: '#FAB301', onAction: '#022D57', text: '#F2F5FA', text2: '#A8B8CE', goldText: '#FAB301', link: '#8DBBEE', like: '#E0243A', fab: '#FAB301', fabIcon: '#022D57', fabShadow: '0 6px 16px rgba(0, 0, 0, 0.35)' }
+      : { bg: '#FFFFFF', surface: '#F0F3F8', line: '#DCE2EB', action: '#022D57', onAction: '#FFFFFF', text: '#0B1D33', text2: '#4D5B70', goldText: '#8A5A00', link: '#2F6FBF', like: '#E0243A', fab: '#022D57', fabIcon: '#FFFFFF', fabShadow: '0 6px 16px rgba(2, 45, 87, 0.30)' };
+    const s = dark ? '-escuro' : '-claro';
+    const links = { feed: 'Feed' + s + '.dc.html', perfil: 'Perfil' + s + '.dc.html', mural: 'Mural' + s + '.dc.html', trofeus: 'Trofeus' + s + '.dc.html', rankings: 'Rankings' + s + '.dc.html' };
+    const active = 'feed';
+    const nav = {
+      home: active === 'feed' ? 'currentColor' : 'none',
+      homeCur: active === 'feed' ? 'page' : 'false',
+      trofeus: active === 'trofeus' ? 'currentColor' : 'none',
+      ring: active === 'perfil' ? t.text : 'transparent'
+    };
+    return { t, dark, light: !dark, links, nav };
+  }
+}
+</script>
+</body>
+</html>

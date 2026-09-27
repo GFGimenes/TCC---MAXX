@@ -534,7 +534,11 @@ na seção de fechamento.
   ouro, diamante azul-gelo), raridade como ornamento em volta do medalhão (Comum sem
   anel, Raro anel simples, Épico anel duplo, Lendário anel com raios).
 - Entregáveis: `docs/referencias-visuais/*.png` (login, cadastro, feed, perfil,
-  mural, trofeus, ranking, cada um em claro e escuro) e `padrao-visual.png`.
+  mural, trofeus, rankings, cada um em claro e escuro) e `padrao-visual.png`,
+  renderizados a partir do canvas 1; e `docs/referencias-visuais/design/`, a
+  exportação completa das três sessões (código-fonte das pranchetas, `canvas.json`,
+  `tokens.json`, `README.md` do design system, componentes, fontes e imagens), com
+  um README de procedência e a versão exportada de cada canvas.
 - Decisões de produto que nasceram no design e entraram no contexto comum antes de
   qualquer rodada: progressão de prêmios; login somente institucional. Decisões que
   ficaram só no design do engenheiro (escopo emergente da persona, a registrar na

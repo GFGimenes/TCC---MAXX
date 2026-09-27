@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX · Padrão visual</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif}
+.dsp{font-family:'Archivo',system-ui,sans-serif;font-stretch:112.5%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit}
+.mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.tier-bronze{background:linear-gradient(105deg,#C9621F 0%,#EE8A45 30%,#F9C4A0 46%,#EE8A45 60%,#D8712C 100%)}
+.tier-prata{background:linear-gradient(105deg,#9C9C9C 0%,#CFCFCF 30%,#F1F1F1 46%,#CFCFCF 60%,#A9A9A9 100%)}
+.tier-ouro{background:linear-gradient(105deg,#D99A12 0%,#FBC43A 30%,#FFE08A 46%,#FBC43A 60%,#DDA11A 100%)}
+.tier-diamante{background:linear-gradient(105deg,#5FB6DE 0%,#A9E2F5 30%,#F4FDFF 46%,#B7C6F5 62%,#6FA9E6 100%)}
+</style>
+</helmet>
+<div style="width: 1280px; height: 6400px; box-sizing: border-box; padding: 64px; background: #FFFFFF; color: #0B1D33; display: flex; flex-direction: column; gap: 72px">
+
+  <header style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 32px; border-bottom: 1px solid #DCE2EB">
+    <p style="margin: 0; font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.08em; color: #8A5A00">MAXX · UNIEDUK · REFERÊNCIA DE IMPLEMENTAÇÃO</p>
+    <h1 class="dsp" style="margin: 0; font-size: 48px; line-height: 52px; font-weight: 700">Padrão visual MAXX</h1>
+    <p style="margin: 0; max-width: 760px; font-size: 16px; line-height: 24px; color: #4D5B70">Tudo o que as seis telas usam (login, feed, perfil, mural, troféus e medalhas, rankings), em 390 × 844, temas claro e escuro. Os componentes abaixo são cópias fiéis das telas, no tamanho real.</p>
+  </header>
+
+  <section style="display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h2 class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">1. Cores</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #4D5B70">Um conjunto de tokens por tema. A cor de tier (seção 3) é a única cor além destes.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div style="border: 1px solid #DCE2EB; border-radius: 16px; overflow: hidden">
+          <div style="padding: 16px 24px; background: {{ th.bg }}; color: {{ th.text }}; display: flex; justify-content: space-between; align-items: center">
+            <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">{{ th.name }}</span>
+            <span style="font-size: 13px; line-height: 18px; color: {{ th.text2 }}">texto sobre ação: <span class="mono">{{ th.onAction }}</span></span>
+          </div>
+          <sc-for list="{{ th.colors }}" as="c" hint-placeholder-count="10">
+            <div style="display: flex; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid #DCE2EB">
+              <span style="width: 44px; height: 44px; flex-shrink: 0; box-sizing: border-box; border-radius: 8px; border: 1px solid #DCE2EB; background: {{ c.hex }}"></span>
+              <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+                <span style="font-size: 14px; line-height: 20px; font-weight: 600">{{ c.name }}</span>
+                <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ c.use }}</span>
+              </div>
+              <span class="mono" style="flex-shrink: 0; font-size: 13px; line-height: 18px; font-weight: 600">{{ c.hex }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+    <p style="margin: 0; font-size: 13px; line-height: 18px; color: #4D5B70">Fixos nos dois temas: tinta sobre tier <span class="mono">#0B1D33</span> (texto e ícones sobre gradiente) e bolinha de não lido <span class="mono">#FAB301</span>.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h2 class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">2. Tipografia</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #4D5B70">Duas famílias do Google Fonts. Números, nomes e títulos em Archivo; o resto em Instrument Sans.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+      <div style="background: #F0F3F8; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span class="dsp" style="font-size: 56px; line-height: 60px; font-weight: 700">Aa 15.020</span>
+        <span class="dsp" style="font-size: 20px; line-height: 24px; font-weight: 700">Archivo, semi-expandida</span>
+        <span style="font-size: 14px; line-height: 20px; color: #4D5B70"><span class="mono">font-stretch: 112.5%</span> · pesos 600 e 700. Usada em números (pontos, posição, curtidas), nomes de usuário, títulos, abas do login, botão Entrar e iniciais dos avatares.</span>
+      </div>
+      <div style="background: #F0F3F8; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 56px; line-height: 60px; font-weight: 400">Aa Mural</span>
+        <span style="font-size: 20px; line-height: 24px; font-weight: 700">Instrument Sans</span>
+        <span style="font-size: 14px; line-height: 20px; color: #4D5B70">Largura normal · pesos 400, 600 e 700. Usada em corpo, legendas, rótulos, campos, chips, botões secundários, selos e metadados.</span>
+      </div>
+    </div>
+    <div style="border: 1px solid #DCE2EB; border-radius: 16px; overflow: hidden">
+      <div style="display: grid; grid-template-columns: 120px 110px 230px minmax(0, 1fr) 330px; gap: 16px; padding: 12px 24px; background: #F0F3F8; font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: #4D5B70">
+        <span>ESTILO</span><span>TAMANHO</span><span>FAMÍLIA E PESO</span><span>EXEMPLO REAL</span><span>ONDE</span>
+      </div>
+      <sc-for list="{{ typeScale }}" as="s" hint-placeholder-count="6">
+        <div style="display: grid; grid-template-columns: 120px 110px 230px minmax(0, 1fr) 330px; gap: 16px; align-items: center; padding: 16px 24px; border-top: 1px solid #DCE2EB">
+          <span class="dsp" style="font-size: 14px; line-height: 20px; font-weight: 700">{{ s.name }}</span>
+          <span class="mono" style="font-size: 13px; line-height: 18px">{{ s.size }}</span>
+          <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ s.family }}</span>
+          <span class="{{ s.cls }}" style="font-size: {{ s.px }}; line-height: {{ s.lh }}; font-weight: {{ s.w }}">{{ s.sample }}</span>
+          <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ s.where }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h2 class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">3. Tiers, raridade e ícones</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #4D5B70">O tier define os pontos e é a única coisa colorida. Gradientes lineares a 105°, com uma faixa clara no meio (o brilho dos pills de referência). Tinta sempre <span class="mono">#0B1D33</span>.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+      <sc-for list="{{ tiers }}" as="tr" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div class="{{ tr.cls }}" style="height: 112px; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #0B1D33">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between">
+            <span class="dsp" style="font-size: 20px; line-height: 24px; font-weight: 700">{{ tr.name }}</span>
+            <span class="dsp" style="font-size: 14px; line-height: 20px; font-weight: 600">{{ tr.range }}</span>
+          </div>
+          <span class="mono" style="font-size: 11px; line-height: 16px; color: #4D5B70">{{ tr.stops }}</span>
+          <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ tr.example }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; margin-top: 8px">
+      <div style="border: 1px solid #DCE2EB; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+        <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">Raridade (neutra)</span>
+        <sc-for list="{{ rarity }}" as="r" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 16px">
+            <span style="display: flex; gap: 3px; width: 40px">
+              <sc-for list="{{ r.dots }}" as="d" hint-placeholder-count="4"><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ d.c }}"></span></sc-for>
+            </span>
+            <span style="width: 90px; font-size: 14px; line-height: 20px; font-weight: 600">{{ r.label }}</span>
+            <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ r.ex }}</span>
+          </div>
+        </sc-for>
+        <span style="font-size: 13px; line-height: 18px; color: #4D5B70">Pontos de 6 px, intervalo de 3 px. Preenchido = texto secundário; vazio = linha. Rótulo 11/14 abaixo dos pontos nas listas. Indica o quão difícil é encontrar o prêmio; não altera os pontos.</span>
+      </div>
+      <div style="border: 1px solid #DCE2EB; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+        <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">Ícones de prêmio</span>
+        <div style="display: flex; gap: 32px; align-items: flex-start">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 120px; text-align: center">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0B1D33" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg>
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600">Troféu</span>
+            <span style="font-size: 13px; line-height: 18px; color: #4D5B70">Instituição ou regra automática</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 120px; text-align: center">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0B1D33" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 3 11 8.6M15.5 3 13 8.6"></path><circle cx="12" cy="14.5" r="6"></circle><circle cx="12" cy="14.5" r="2.5"></circle></svg>
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600">Medalha</span>
+            <span style="font-size: 13px; line-height: 18px; color: #4D5B70">Dada por professores</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 120px; text-align: center">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4D5B70" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600">Não obtido</span>
+            <span style="font-size: 13px; line-height: 18px; color: #4D5B70">Cadeado em moldura tracejada</span>
+          </div>
+        </div>
+        <span style="font-size: 13px; line-height: 18px; color: #4D5B70">Grade de 24 px, traço 1,75 (1,5 em 44 px ou mais; 2 no selo de 14 px), pontas e cantos arredondados. Sobre tier: tinta #0B1D33.</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h2 class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">4. Componentes</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #4D5B70">No tamanho real (listas e cards com 358 px, a largura útil da tela). Os estados pressionado, foco e desativado não aparecem nas telas; estão definidos aqui (ver seção 6).</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div style="background: {{ th.bg }}; color: {{ th.text }}; border: 1px solid #DCE2EB; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 24px">
+          <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">{{ th.name }}</span>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">BOTÃO PRIMÁRIO · pill 44 px · Archivo 16/22 700</span>
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+              <span style="display: flex; flex-direction: column; gap: 6px"><span class="dsp" style="height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; background: {{ th.action }}; color: {{ th.onAction }}">Entrar</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Padrão</span></span>
+              <span style="display: flex; flex-direction: column; gap: 6px"><span class="dsp" style="height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; background: {{ th.pPress }}; color: {{ th.onAction }}">Entrar</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Pressionado</span></span>
+              <span style="display: flex; flex-direction: column; gap: 6px"><span class="dsp" style="height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; background: {{ th.action }}; color: {{ th.onAction }}; box-shadow: {{ th.ring }}">Entrar</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Foco</span></span>
+              <span style="display: flex; flex-direction: column; gap: 6px"><span class="dsp" style="height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; background: {{ th.line }}; color: {{ th.text2 }}">Entrar</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Desativado</span></span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">BOTÃO SECUNDÁRIO · 32 px visíveis em área de 44 · raio 8</span>
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+              <span style="display: flex; flex-direction: column; gap: 6px"><span style="height: 44px; display: flex; align-items: center"><span style="flex-grow: 1; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: {{ th.surface }}">Editar perfil</span></span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Padrão</span></span>
+              <span style="display: flex; flex-direction: column; gap: 6px"><span style="height: 44px; display: flex; align-items: center"><span style="flex-grow: 1; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: {{ th.line }}">Editar perfil</span></span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Pressionado</span></span>
+              <span style="display: flex; flex-direction: column; gap: 6px"><span style="height: 44px; display: flex; align-items: center"><span style="flex-grow: 1; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: {{ th.surface }}; box-shadow: {{ th.ring }}">Editar perfil</span></span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Foco</span></span>
+              <span style="display: flex; flex-direction: column; gap: 6px"><span style="height: 44px; display: flex; align-items: center"><span style="flex-grow: 1; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: {{ th.surface }}; color: {{ th.text2 }}; opacity: 0.6">Editar perfil</span></span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Desativado</span></span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">CHIPS DE FILTRO · seleção única · 32 em 44 · raio 8</span>
+            <div style="display: flex; gap: 8px">
+              <span style="height: 32px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; font-size: 13px; font-weight: 600; background: {{ th.action }}; color: {{ th.onAction }}">Faculdade</span>
+              <span style="height: 32px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; font-size: 13px; font-weight: 600; background: {{ th.surface }}">Curso</span>
+              <span style="height: 32px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; font-size: 13px; font-weight: 600; background: {{ th.surface }}">Professores</span>
+            </div>
+            <span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Ativo = ação; inativo = superfície. Nenhum ativo = todos os avisos.</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">SELO DE TIER · pill 22 px · ícone 14 · Instrument 11/14 700</span>
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap">
+              <span class="tier-diamante" style="height: 22px; padding: 0 10px 0 6px; border-radius: 999px; display: flex; align-items: center; gap: 4px; color: #0B1D33; font-size: 11px; line-height: 14px; font-weight: 700"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg>Pássaro Raro no Campus</span>
+              <span class="tier-ouro" style="height: 22px; padding: 0 10px 0 6px; border-radius: 999px; display: flex; align-items: center; gap: 4px; color: #0B1D33; font-size: 11px; line-height: 14px; font-weight: 700"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg>Techday 2026</span>
+              <span class="tier-prata" style="width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0B1D33"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 3 11 8.6M15.5 3 13 8.6"></path><circle cx="12" cy="14.5" r="6"></circle><circle cx="12" cy="14.5" r="2.5"></circle></svg></span>
+              <span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Emblema 44 · raio 8 (listas, trilha)</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">CARD DE AVISO · semi-expandido e colapsado · raio 12</span>
+            <div style="width: 358px; display: flex; flex-direction: column; gap: 8px">
+              <div style="padding: 16px; border-radius: 12px; background: {{ th.surface }}; display: flex; flex-direction: column; gap: 8px">
+                <span style="display: flex; align-items: center; gap: 8px">
+                  <span class="dsp" style="width: 32px; height: 32px; flex-shrink: 0; box-sizing: border-box; border-radius: 8px; background: {{ th.bg }}; border: 1px solid {{ th.line }}; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700">UM</span>
+                  <span style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 13px; line-height: 18px; font-weight: 600">Faculdade · UniMax</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Há 2 horas</span></span>
+                  <span style="width: 8px; height: 8px; border-radius: 4px; background: #FAB301"></span>
+                </span>
+                <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">Matrícula do 2º semestre até 30/07</span>
+                <span style="font-size: 14px; line-height: 20px; color: {{ th.text2 }}">A rematrícula para o 2º semestre deve ser feita pelo Portal do Aluno até 30/07. Em caso de dúvidas, procure a secretaria acadêmica.</span>
+                <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: {{ th.link }}">Ler aviso completo</span>
+              </div>
+              <div style="min-height: 52px; box-sizing: border-box; padding: 12px 16px; border-radius: 12px; background: {{ th.surface }}; display: flex; align-items: center; gap: 8px">
+                <span style="flex-grow: 1; font-size: 14px; line-height: 20px; font-weight: 600">Techday: inscrições abertas</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ th.text2 }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+            </div>
+            <span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">1º toque no colapsado: semi-expande. 2º toque: tela do aviso com voltar. Corpo limitado a 3 linhas.</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">ITEM DE RANKING · normal e destacado (você)</span>
+            <div style="width: 374px; display: flex; flex-direction: column">
+              <div style="min-height: 64px; padding: 8px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; gap: 12px">
+                <span class="dsp" style="width: 40px; text-align: center; font-size: 14px; line-height: 20px; font-weight: 700; color: {{ th.text2 }}">#4</span>
+                <span class="dsp" style="width: 40px; height: 40px; flex-shrink: 0; box-sizing: border-box; border-radius: 8px; background: {{ th.surface }}; border: 1px solid {{ th.line }}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">MC</span>
+                <span style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 14px; line-height: 20px; font-weight: 600">Maria Costa</span><span style="font-size: 13px; line-height: 18px; color: {{ th.text2 }}">Psicologia · 2º semestre</span></span>
+                <span style="display: flex; flex-direction: column; align-items: flex-end"><span class="dsp" style="font-size: 14px; line-height: 20px; font-weight: 700">21.400</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">pts</span></span>
+              </div>
+              <div style="min-height: 64px; padding: 8px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; gap: 12px; background: {{ th.surface }}">
+                <span class="dsp" style="width: 40px; text-align: center; font-size: 14px; line-height: 20px; font-weight: 700">#29</span>
+                <span class="dsp" style="width: 40px; height: 40px; flex-shrink: 0; box-sizing: border-box; border-radius: 8px; background: {{ th.bg }}; border: 1px solid {{ th.line }}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">AS</span>
+                <span style="flex-grow: 1; display: flex; flex-direction: column"><span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14px; line-height: 20px; font-weight: 600">Ana Souza</span><span style="height: 18px; padding: 0 6px; border-radius: 8px; display: flex; align-items: center; background: {{ th.action }}; color: {{ th.onAction }}; font-size: 11px; font-weight: 700">Você</span></span><span style="font-size: 13px; line-height: 18px; color: {{ th.text2 }}">ADS · 3º semestre</span></span>
+                <span style="display: flex; flex-direction: column; align-items: flex-end"><span class="dsp" style="font-size: 14px; line-height: 20px; font-weight: 700">15.020</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">pts</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">ITEM DE TROFÉU · obtido e não obtido</span>
+            <div style="width: 358px; display: flex; flex-direction: column">
+              <div style="min-height: 68px; padding: 8px 0; box-sizing: border-box; border-bottom: 1px solid {{ th.line }}; display: flex; align-items: center; gap: 12px">
+                <span class="tier-ouro" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0B1D33"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></span>
+                <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; line-height: 20px; font-weight: 600">Techday 2026</span><span style="font-size: 13px; line-height: 18px; color: {{ th.text2 }}">Ouro · 80 pts</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Dado pela instituição</span></span>
+                <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px"><span style="display: flex; gap: 3px"><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.text2 }}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.text2 }}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.line }}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.line }}"></span></span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Raro</span></span>
+              </div>
+              <div style="min-height: 68px; padding: 8px 0; box-sizing: border-box; border-bottom: 1px solid {{ th.line }}; display: flex; align-items: center; gap: 12px">
+                <span style="width: 44px; height: 44px; flex-shrink: 0; box-sizing: border-box; border-radius: 8px; border: 1.5px dashed {{ th.text2 }}; display: flex; align-items: center; justify-content: center; color: {{ th.text2 }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span>
+                <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; line-height: 20px; font-weight: 600; color: {{ th.text2 }}">Apresentação de TCC</span><span style="font-size: 13px; line-height: 18px; color: {{ th.text2 }}">Diamante · 120 pts</span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Dada pelo professor orientador</span></span>
+                <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px"><span style="display: flex; gap: 3px"><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.text2 }}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.text2 }}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.text2 }}"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ th.line }}"></span></span><span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Épico</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">TRILHA DE PROGRESSÃO · card raio 16</span>
+            <div style="width: 358px; box-sizing: border-box; background: {{ th.surface }}; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; align-items: baseline; justify-content: space-between"><span style="font-size: 14px; line-height: 20px; font-weight: 600">Média 10 em uma matéria</span><span style="font-size: 13px; line-height: 18px; color: {{ th.text2 }}">3 de 4 · 115 pts</span></div>
+              <div style="display: flex; align-items: center">
+                <span style="width: 64px; display: flex; justify-content: center"><span class="tier-bronze" style="width: 44px; height: 44px; border-radius: 8px"></span></span>
+                <span style="flex-grow: 1; height: 2px; background: {{ th.text2 }}"></span>
+                <span style="width: 64px; display: flex; justify-content: center"><span class="tier-prata" style="width: 44px; height: 44px; border-radius: 8px"></span></span>
+                <span style="flex-grow: 1; height: 2px; background: {{ th.text2 }}"></span>
+                <span style="width: 64px; display: flex; justify-content: center"><span class="tier-ouro" style="width: 44px; height: 44px; border-radius: 8px"></span></span>
+                <span style="flex-grow: 1; height: 0; border-top: 2px dashed {{ th.line }}"></span>
+                <span style="width: 64px; display: flex; justify-content: center"><span style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 8px; border: 1.5px dashed {{ th.text2 }}; display: flex; align-items: center; justify-content: center; color: {{ th.text2 }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-top: -8px; font-size: 11px; line-height: 14px; text-align: center">
+                <span style="width: 64px; display: flex; flex-direction: column"><span style="font-weight: 700">Bronze</span><span style="color: {{ th.text2 }}">5 pts</span></span>
+                <span style="width: 64px; display: flex; flex-direction: column"><span style="font-weight: 700">Prata</span><span style="color: {{ th.text2 }}">35 pts</span></span>
+                <span style="width: 64px; display: flex; flex-direction: column"><span style="font-weight: 700">Ouro</span><span style="color: {{ th.text2 }}">75 pts</span></span>
+                <span style="width: 64px; display: flex; flex-direction: column; color: {{ th.text2 }}"><span style="font-weight: 700">Diamante</span><span>Próximo</span></span>
+              </div>
+            </div>
+            <span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Conector obtido: 2 px em texto secundário. Até o próximo: tracejado em linha. Nas telas os emblemas levam o ícone de troféu.</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{ th.text2 }}">BARRA DE NAVEGAÇÃO · 390 × 83 · Home ativa</span>
+            <div style="width: 390px; height: 83px; margin-top: 16px; box-sizing: border-box; padding: 0 8px; background: {{ th.bg }}; border-top: 1px solid {{ th.line }}; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; justify-items: center">
+              <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"></path></svg></span>
+              <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20.5 20.5-4.5-4.5"></path></svg></span>
+              <span style="width: 52px; height: 52px; margin-top: -14px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: {{ th.fab }}; color: {{ th.fabIcon }}; box-shadow: {{ th.fabShadow }}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"></rect><rect x="6.5" y="8" width="5" height="4.5" rx="0.5"></rect><path d="M14.5 8.5h3M14.5 12h3M6.5 16h11"></path></svg></span>
+              <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></span>
+              <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center"><span style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; border: 2px solid transparent; padding: 2px; display: flex"><span class="dsp" style="flex-grow: 1; border-radius: 6px; background: {{ th.surface }}; border: 1px solid {{ th.line }}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700">AS</span></span></span>
+            </div>
+            <span style="font-size: 11px; line-height: 14px; color: {{ th.text2 }}">Home, Busca, Mural, Troféus, Perfil. Itens 48 × 48; Mural 52 × 52, raio 16, sobe 14 px. Ativo: Home e Troféus preenchidos; Perfil ganha contorno de 2 px na cor do texto. Sem rótulos.</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h2 class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">5. Espaçamento, raios e regras</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #4D5B70">Escala de 4 em 4 até 16, depois 24 e 32. Margem lateral de 16 px em todas as telas.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+      <div style="border: 1px solid #DCE2EB; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">Espaçamento</span>
+        <sc-for list="{{ spacing }}" as="sp" hint-placeholder-count="6">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span class="mono" style="width: 24px; font-size: 13px; line-height: 18px; font-weight: 600">{{ sp.v }}</span>
+            <span style="width: 32px; flex-shrink: 0; display: flex"><span style="height: 12px; border-radius: 2px; background: #022D57; width: {{ sp.px }}"></span></span>
+            <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ sp.use }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="border: 1px solid #DCE2EB; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">Raios</span>
+        <sc-for list="{{ radii }}" as="rd" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span style="width: 44px; height: 32px; flex-shrink: 0; background: #F0F3F8; border: 1px solid #DCE2EB; border-radius: {{ rd.css }}"></span>
+            <span class="mono" style="width: 56px; flex-shrink: 0; font-size: 13px; line-height: 18px; font-weight: 600">{{ rd.v }}</span>
+            <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ rd.use }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="border: 1px solid #DCE2EB; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">Regras</span>
+        <sc-for list="{{ rules }}" as="ru" hint-placeholder-count="7">
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600">{{ ru.t }}</span>
+            <span style="font-size: 13px; line-height: 18px; color: #4D5B70">{{ ru.d }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h2 class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">6. Desvios e suposições</h2>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #4D5B70">Decisões tomadas nas telas que não estavam no briefing. Confirme ou corrija antes de implementar.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+      <sc-for list="{{ deviations }}" as="g" hint-placeholder-count="2">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">{{ g.title }}</span>
+          <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="8">
+              <li style="display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid #DCE2EB">
+                <span class="dsp" style="width: 24px; flex-shrink: 0; font-size: 13px; line-height: 20px; font-weight: 700; color: #4D5B70">{{ it.n }}</span>
+                <span style="font-size: 14px; line-height: 20px"><span style="font-weight: 600">{{ it.t }}</span> {{ it.d }}</span>
+              </li>
+            </sc-for>
+          </ol>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":6400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const themes = [
+      {
+        name: 'Tema claro', bg: '#FFFFFF', surface: '#F0F3F8', line: '#DCE2EB', action: '#022D57', onAction: '#FFFFFF', text: '#0B1D33', text2: '#4D5B70', link: '#2F6FBF',
+        pPress: '#011E3A', ring: '0 0 0 2px #FFFFFF, 0 0 0 4px #2F6FBF',
+        fab: '#022D57', fabIcon: '#FFFFFF', fabShadow: '0 6px 16px rgba(2, 45, 87, 0.30)',
+        colors: [
+          { name: 'Fundo', hex: '#FFFFFF', use: 'Tela, barra de navegação, cabeçalhos fixos, campos' },
+          { name: 'Superfície', hex: '#F0F3F8', use: 'Card do login, avisos, trilha, botão secundário, chip inativo, avatares, linha da Ana no ranking' },
+          { name: 'Linha', hex: '#DCE2EB', use: 'Borda de campo e avatar, divisórias, abas, raridade vazia, chave desligada' },
+          { name: 'Ação (marinho)', hex: '#022D57', use: 'Botão Entrar, chip ativo, selo Você, chave ligada, botão do Mural' },
+          { name: 'Texto', hex: '#0B1D33', use: 'Texto principal, ícones, aba ativa' },
+          { name: 'Texto secundário', hex: '#4D5B70', use: 'Metadados, cursos, tempos, abas inativas, raridade preenchida, conector da trilha' },
+          { name: 'Link', hex: '#2F6FBF', use: 'Esqueci minha senha, Portal do Aluno, Ler todos, Ler aviso completo, Rankings' },
+          { name: 'Curtida e erro', hex: '#E0243A', use: 'Coração curtido, ponto de notificação no sino' },
+          { name: 'Dourado de marca', hex: '#FAB301', use: 'Logo MAXX, bolinha de aviso não lido' },
+          { name: 'Dourado em texto', hex: '#8A5A00', use: 'Definido; nenhuma tela usa hoje' }
+        ]
+      },
+      {
+        name: 'Tema escuro', bg: '#022D57', surface: '#0A3867', line: '#1D5188', action: '#FAB301', onAction: '#022D57', text: '#F2F5FA', text2: '#A8B8CE', link: '#8DBBEE',
+        pPress: '#D99A00', ring: '0 0 0 2px #022D57, 0 0 0 4px #8DBBEE',
+        fab: '#FAB301', fabIcon: '#022D57', fabShadow: '0 6px 16px rgba(0, 0, 0, 0.35)',
+        colors: [
+          { name: 'Fundo', hex: '#022D57', use: 'Tela, barra de navegação, cabeçalhos fixos, campos' },
+          { name: 'Superfície', hex: '#0A3867', use: 'Card do login, avisos, trilha, botão secundário, chip inativo, avatares, linha da Ana no ranking' },
+          { name: 'Linha', hex: '#1D5188', use: 'Borda de campo e avatar, divisórias, abas, raridade vazia, chave desligada' },
+          { name: 'Ação (dourado)', hex: '#FAB301', use: 'Botão Entrar, chip ativo, selo Você, chave ligada, botão do Mural' },
+          { name: 'Texto', hex: '#F2F5FA', use: 'Texto principal, ícones, aba ativa, logo do feed (branco)' },
+          { name: 'Texto secundário', hex: '#A8B8CE', use: 'Metadados, cursos, tempos, abas inativas, raridade preenchida, conector da trilha' },
+          { name: 'Link', hex: '#8DBBEE', use: 'Esqueci minha senha, Portal do Aluno, Ler todos, Ler aviso completo, Rankings' },
+          { name: 'Curtida e erro', hex: '#E0243A', use: 'Coração curtido, ponto de notificação no sino' },
+          { name: 'Dourado de marca', hex: '#FAB301', use: 'Logo MAXX no login, bolinha de não lido, ação' },
+          { name: 'Dourado em texto', hex: '#FAB301', use: 'Suposição (não estava no briefing); nenhuma tela usa hoje' }
+        ]
+      }
+    ];
+
+    const typeScale = [
+      { name: 'Display', size: '28 / 32', family: 'Archivo 700', cls: 'dsp', px: '28px', lh: '32px', w: 700, sample: 'Techday 2026', where: 'Card do prêmio no feed, título do aviso completo, iniciais do avatar do perfil' },
+      { name: 'Título', size: '20 / 24', family: 'Archivo 700', cls: 'dsp', px: '20px', lh: '24px', w: 700, sample: 'Troféus e medalhas', where: 'Cabeçalhos: Mural, Rankings, ana.souza no perfil' },
+      { name: 'Seção', size: '16 / 22', family: 'Archivo 600 (700 em números e no Entrar)', cls: 'dsp', px: '16px', lh: '22px', w: 600, sample: 'Prova integrativa remarcada para 14/08', where: 'Título do aviso semi-expandido, Trilhas, títulos de lista, abas Entrar e Cadastrar, números do perfil' },
+      { name: 'Corpo', size: '14 / 20', family: 'Instrument Sans 400 (600 em nomes)', cls: '', px: '14px', lh: '20px', w: 400, sample: 'Um pássaro raro sobrevoando o prédio principal hoje cedo.', where: 'Legenda do post, corpo do aviso, nomes em listas, campos, curtidas (Archivo 600)' },
+      { name: 'Legenda', size: '13 / 18', family: 'Instrument Sans 400 (600 em rótulos, chips e botões)', cls: '', px: '13px', lh: '18px', w: 400, sample: 'ADS · 3º semestre', where: 'Cursos, metadados, rótulos de campo, chips, botão secundário, links auxiliares' },
+      { name: 'Rótulo', size: '11 / 14', family: 'Instrument Sans 700 (400 em tempos)', cls: '', px: '11px', lh: '14px', w: 700, sample: 'Pássaro Raro no Campus', where: 'Selo de tier, Você, Ex-aluno, legendas da trilha, Há 2 horas, raridade' }
+    ];
+
+    const tiers = [
+      { name: 'Bronze', cls: 'tier-bronze', range: '1 a 30 pts', stops: '#C9621F 0 · #EE8A45 30 · #F9C4A0 46 · #EE8A45 60 · #D8712C 100', example: 'Ex.: 10 medalhas (25 pts), Média 10 nível 1 (5 pts)' },
+      { name: 'Prata', cls: 'tier-prata', range: '31 a 70 pts', stops: '#9C9C9C 0 · #CFCFCF 30 · #F1F1F1 46 · #CFCFCF 60 · #A9A9A9 100', example: 'Ex.: Assiduidade semestral (50 pts), Seminário (40 pts)' },
+      { name: 'Ouro', cls: 'tier-ouro', range: '71 a 100 pts', stops: '#D99A12 0 · #FBC43A 30 · #FFE08A 46 · #FBC43A 60 · #DDA11A 100', example: 'Ex.: Top 2% Integrativa (95 pts), Techday 2026 (80 pts)' },
+      { name: 'Diamante', cls: 'tier-diamante', range: '101 a 150 pts', stops: '#5FB6DE 0 · #A9E2F5 30 · #F4FDFF 46 · #B7C6F5 62 · #6FA9E6 100', example: 'Ex.: Pássaro Raro no Campus (150 pts), TCC (120 pts)' }
+    ];
+
+    const rarityEx = ['', 'Assiduidade semestral, 10 medalhas', 'Techday 2026, Top 2% Integrativa', 'Apresentação de TCC', 'Pássaro Raro no Campus'];
+    const rarityNames = ['', 'Comum', 'Raro', 'Épico', 'Lendário'];
+    const rarity = [1, 2, 3, 4].map((n) => ({
+      label: rarityNames[n], ex: rarityEx[n],
+      dots: [1, 2, 3, 4].map((i) => ({ c: i <= n ? '#4D5B70' : '#DCE2EB' }))
+    }));
+
+    const spacing = [
+      { v: '4', px: '4px', use: 'Rótulo e campo; linhas de texto do post; nome e selo' },
+      { v: '8', px: '8px', use: 'Entre chips, entre avisos, entre botões secundários, padding de linha' },
+      { v: '12', px: '12px', use: 'Avatar e nome; padding do aviso colapsado e do campo' },
+      { v: '16', px: '16px', use: 'Margem lateral; padding de cards e do aviso semi-expandido' },
+      { v: '24', px: '24px', use: 'Entre posts; antes de títulos de lista; fundo do card de login' },
+      { v: '32', px: '32px', use: 'Respiro no fim de listas e grades (somado à barra)' }
+    ];
+
+    const radii = [
+      { v: '8', css: '8px', use: 'Selo e emblema 44, avatar, chip, botão secundário, selos Você e Ex-aluno' },
+      { v: '12', css: '12px', use: 'Campo, aviso, linha destacada do ranking, trilho da chave' },
+      { v: '16', css: '16px', use: 'Card (login, trilha), emblema grande do feed, botão do Mural' },
+      { v: 'pill', css: '999px', use: 'Só selo de tier e botão Entrar' },
+      { v: 'círculo', css: '16px', use: 'Pontos de raridade, bolinha de não lido, notificação, botão da chave' }
+    ];
+
+    const rules = [
+      { t: 'Respiro no fim', d: 'Todo conteúdo rolável termina com 115 px de folga: 83 da barra + 32.' },
+      { t: 'Sombras', d: 'Nenhuma em cards. Só o botão do Mural: claro 0 6 16 rgba(2,45,87,.30); escuro 0 6 16 rgba(0,0,0,.35).' },
+      { t: 'Áreas de toque', d: 'Mínimo 44 px. Ícones de 24 a 26 px em botões de 44; itens da barra 48; chips e botão secundário com 32 visíveis em 44.' },
+      { t: 'Área segura', d: '47 px no topo, sem barra de status desenhada. Barra de navegação com 83 px (itens no topo, indicador de início abaixo).' },
+      { t: 'Cabeçalhos', d: 'Fixos no topo ao rolar, com o fundo da tela e sem divisória (exceto abas).' },
+      { t: 'Cor', d: 'Só o tier é colorido. Avatares, chips, raridade e selos neutros usam fundo, superfície, linha ou ação.' },
+      { t: 'Estado ativo', d: 'Ícones de navegação preenchidos; abas com sublinhado na cor do texto; chip ativo na cor de ação.' }
+    ];
+
+    const deviations = [
+      {
+        title: 'Sistema',
+        items: [
+          { n: '01', t: 'Avatares:', d: 'quadrados com raio 8, iniciais em Archivo sobre superfície e contorno de linha. Não há fotos de perfil.' },
+          { n: '02', t: 'Botão central do Mural:', d: 'quadrado de 52 px, raio 16, 14 px acima da barra. Claro: marinho com ícone branco. Escuro: dourado com ícone marinho.' },
+          { n: '03', t: 'Tema escuro:', d: 'texto sobre ação #022D57 e dourado em texto #FAB301, valores que não estavam no briefing.' },
+          { n: '04', t: 'Tinta sobre tier:', d: '#0B1D33 nos dois temas, para texto e ícones sobre gradiente.' },
+          { n: '05', t: 'Gradientes:', d: 'valores próprios (105°, 5 paradas) a partir dos pills anexos. O Diamante não tinha referência.' },
+          { n: '06', t: 'Semi-expandida:', d: 'interpretada como font-stretch 112,5%. Pesos 600 e 700 no Archivo.' },
+          { n: '07', t: 'Fora da escala:', d: 'iniciais de avatar em 7, 9 e 10 px (seguidores, barra e origem do aviso) e ícones em 14 a 64 px não seguem os seis estilos.' },
+          { n: '08', t: 'Estados de botão:', d: 'pressionado, foco (anel de 2 px na cor de link com 2 px de afastamento) e desativado foram definidos só nesta prancheta.' },
+          { n: '09', t: 'Não lido:', d: 'bolinha de 8 px em #FAB301 também no tema claro.' },
+          { n: '10', t: 'Não obtido:', d: 'moldura tracejada de 1,5 px em texto secundário com cadeado; nome em texto secundário.' },
+          { n: '11', t: 'Abas:', d: 'sublinhado de 1 px (perfil, troféus) e de 2 px (login em cor de ação, rankings em cor de texto). Inconsistência a unificar.' },
+          { n: '12', t: 'Sem barra de status:', d: 'só a área segura de 47 px; o indicador de início não é desenhado.' }
+        ]
+      },
+      {
+        title: 'Telas',
+        items: [
+          { n: '13', t: 'Login:', d: 'botão Entrar (no lugar de Login), placeholder Ex.: 2023001, olho para mostrar senha, link para ativar a conta no Portal do Aluno, rodapé UniEduk.' },
+          { n: '14', t: 'Logo:', d: 'recortado do print e recolorido; branco no feed escuro, dourado nos demais.' },
+          { n: '15', t: 'Feed:', d: 'selo do prêmio sob o nome; post sem foto vira card do prêmio (superfície + emblema de 120 px). Legendas, tempos e Curtido por ana.souza são textos meus.' },
+          { n: '16', t: 'Perfil:', d: 'quatro números (pontos, posição, seguidores, seguindo), pontos e posição levam aos rankings; grade de 3 colunas com 2 px de intervalo e blocos de tier; abas grade, troféu e medalha.' },
+          { n: '17', t: 'Mural:', d: 'Ler todos como link; contador de avisos; filtro de seleção única; origem por iniciais (UM, ADS, CM); tempos relativos; corpos dos avisos escritos por mim; tela do aviso cobre tudo menos a barra e registra a leitura.' },
+          { n: '18', t: 'Troféus:', d: 'resumo de pontos com link para rankings; abas só com ícone; chave Mostrar não obtidos desligada; Diamante da trilha com a faixa 101 a 150 pts; Média 10 sem raridade; TCC não obtido pela Ana; legenda de raridade no fim.' },
+          { n: '19', t: 'Rankings:', d: 'linhas de salto para posições sem dados; só a aba Geral preenchida; Pedro com selo Ex-aluno; Ana em superfície com selo Você; voltar leva ao perfil, que fica ativo na barra.' },
+          { n: '20', t: 'Busca:', d: 'não tem tela; o ícone é um botão sem destino.' },
+          { n: '21', t: 'Protótipo:', d: 'a barra liga as telas do mesmo tema; Mural e Troféus são interativos; cada prancheta tem a opção de tema escuro em Tweaks.' }
+        ]
+      }
+    ];
+
+    return { themes, typeScale, tiers, rarity, spacing, radii, rules, deviations };
+  }
+}
+</script>
+</body>
+</html>

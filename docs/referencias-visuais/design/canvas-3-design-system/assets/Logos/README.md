@@ -1,0 +1,1 @@
+Logo MAXX recortado das telas originais, fundo transparente. `maxx-ouro.png` (tinta #fab301) em fundos claros e marinho; `maxx-branco.png` em fotos e fundos escuros. `unimax.png` é o selo da UniMax sobre marinho, para o rodapé do login. Altura mínima do logo MAXX: 22px.

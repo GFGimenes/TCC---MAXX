@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX · Rankings (escuro)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif}
+.dsp{font-family:'Archivo',system-ui,sans-serif;font-stretch:112.5%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: {{t.bg}}; color: {{t.text}}">
+  <main style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; box-sizing: border-box; padding-bottom: 115px">
+    <header style="position: sticky; top: 0; z-index: 3; background: {{t.bg}}; padding-top: 47px">
+      <div style="height: 44px; padding: 0 16px 0 4px; display: flex; align-items: center; gap: 4px">
+        <a href="{{links.perfil}}" aria-label="Voltar ao perfil" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+        <h1 class="dsp" style="margin: 0; font-size: 20px; line-height: 24px; font-weight: 700">Rankings</h1>
+      </div>
+      <div role="tablist" aria-label="Tipo de ranking" style="display: flex; gap: 16px; padding: 0 16px; border-bottom: 1px solid {{t.line}}; overflow-x: auto; white-space: nowrap">
+        <button type="button" role="tab" aria-selected="true" style="height: 44px; padding: 0; background: none; border: 0; border-bottom: 2px solid {{t.text}}; margin-bottom: -1px; font-size: 13px; line-height: 18px; font-weight: 700; color: {{t.text}}">Geral</button>
+        <button type="button" role="tab" aria-selected="false" style="height: 44px; padding: 0; background: none; border: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: {{t.text2}}">Por curso</button>
+        <button type="button" role="tab" aria-selected="false" style="height: 44px; padding: 0; background: none; border: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: {{t.text2}}">All-time geral</button>
+        <button type="button" role="tab" aria-selected="false" style="height: 44px; padding: 0; background: none; border: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: {{t.text2}}">All-time por curso</button>
+      </div>
+      <p style="margin: 0; padding: 8px 16px; font-size: 13px; line-height: 18px; color: {{t.text2}}">Semestre 2/2026 · UniMax e UniFaj</p>
+    </header>
+
+    <ol style="list-style: none; margin: 0; padding: 0 8px; display: flex; flex-direction: column">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="9">
+        <sc-if value="{{ r.isGap }}" hint-placeholder-val="{{ false }}">
+          <li aria-hidden="true" style="height: 32px; padding: 0 8px; display: flex; align-items: center; gap: 12px; font-size: 11px; line-height: 14px; color: {{t.text2}}">
+            <span style="width: 40px; text-align: center; font-weight: 700; letter-spacing: 0.1em">⋮</span>
+            <span>{{ r.label }}</span>
+          </li>
+        </sc-if>
+        <sc-if value="{{ r.isRow }}" hint-placeholder-val="{{ true }}">
+          <li aria-label="{{ r.aria }}" style="min-height: 64px; padding: 8px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; gap: 12px; background: {{ r.bg }}">
+            <span class="dsp" style="width: 40px; flex-shrink: 0; text-align: center; font-size: 14px; line-height: 20px; font-weight: 700; color: {{ r.posColor }}">#{{ r.pos }}</span>
+            <span class="dsp" style="width: 40px; height: 40px; flex-shrink: 0; box-sizing: border-box; border-radius: 8px; background: {{ r.avatarBg }}; border: 1px solid {{t.line}}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{ r.initials }}</span>
+            <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+              <span style="display: flex; align-items: center; gap: 8px">
+                <span style="font-size: 14px; line-height: 20px; font-weight: 600">{{ r.name }}</span>
+                <sc-if value="{{ r.isMe }}" hint-placeholder-val="{{ false }}"><span style="height: 18px; padding: 0 6px; border-radius: 8px; display: flex; align-items: center; background: {{t.action}}; color: {{t.onAction}}; font-size: 11px; line-height: 14px; font-weight: 700">Você</span></sc-if>
+                <sc-if value="{{ r.isAlumni }}" hint-placeholder-val="{{ false }}"><span style="height: 18px; padding: 0 6px; box-sizing: border-box; border-radius: 8px; display: flex; align-items: center; border: 1px solid {{t.line}}; color: {{t.text2}}; font-size: 11px; line-height: 14px; font-weight: 700">Ex-aluno</span></sc-if>
+              </span>
+              <span style="font-size: 13px; line-height: 18px; color: {{t.text2}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.course }}</span>
+            </div>
+            <span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end">
+              <span class="dsp" style="font-size: 14px; line-height: 20px; font-weight: 700">{{ r.pts }}</span>
+              <span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">pts</span>
+            </span>
+          </li>
+        </sc-if>
+      </sc-for>
+    </ol>
+    <p style="margin: 16px 16px 0; font-size: 13px; line-height: 18px; color: {{t.text2}}">Ex-alunos mantêm a pontuação acumulada, mas não pontuam mais.</p>
+  </main>
+
+  <nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; height: 83px; box-sizing: border-box; padding: 0 8px; background: {{t.bg}}; border-top: 1px solid {{t.line}}; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; justify-items: center">
+    <a href="{{links.feed}}" aria-label="Home" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"></path></svg></a>
+    <button type="button" aria-label="Busca" style="width: 48px; height: 48px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20.5 20.5-4.5-4.5"></path></svg></button>
+    <a href="{{links.mural}}" aria-label="Mural" style="width: 52px; height: 52px; margin-top: -14px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: {{t.fab}}; color: {{t.fabIcon}}; box-shadow: {{t.fabShadow}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"></rect><rect x="6.5" y="8" width="5" height="4.5" rx="0.5"></rect><path d="M14.5 8.5h3M14.5 12h3M6.5 16h11"></path></svg></a>
+    <a href="{{links.trofeus}}" aria-label="Troféus" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></a>
+    <a href="{{links.perfil}}" aria-label="Perfil" aria-current="page" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center">
+      <span style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; border: 2px solid {{t.text}}; padding: 2px; display: flex">
+        <span class="dsp" style="flex-grow: 1; border-radius: 6px; background: {{t.surface}}; border: 1px solid {{t.line}}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: {{t.text}}">AS</span>
+      </span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":true,"section":"Tema"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? true;
+    const t = dark
+      ? { bg: '#022D57', surface: '#0A3867', line: '#1D5188', action: '#FAB301', onAction: '#022D57', text: '#F2F5FA', text2: '#A8B8CE', link: '#8DBBEE', fab: '#FAB301', fabIcon: '#022D57', fabShadow: '0 6px 16px rgba(0, 0, 0, 0.35)' }
+      : { bg: '#FFFFFF', surface: '#F0F3F8', line: '#DCE2EB', action: '#022D57', onAction: '#FFFFFF', text: '#0B1D33', text2: '#4D5B70', link: '#2F6FBF', fab: '#022D57', fabIcon: '#FFFFFF', fabShadow: '0 6px 16px rgba(2, 45, 87, 0.30)' };
+    const s = dark ? '-escuro' : '-claro';
+    const links = { feed: 'Feed' + s + '.dc.html', perfil: 'Perfil' + s + '.dc.html', mural: 'Mural' + s + '.dc.html', trofeus: 'Trofeus' + s + '.dc.html' };
+
+    const gap = (label) => ({ isGap: true, isRow: false, label });
+    const person = (pos, initials, name, course, pts, opts) => {
+      const o = opts || {};
+      return {
+        isGap: false, isRow: true, pos, initials, name, course, pts,
+        isMe: !!o.me, isAlumni: !!o.alumni,
+        bg: o.me ? t.surface : 'transparent',
+        avatarBg: o.me ? t.bg : t.surface,
+        posColor: o.me ? t.text : t.text2,
+        aria: 'Posição ' + pos + ', ' + name + (o.me ? ' (você)' : '') + ', ' + course + ', ' + pts + ' pontos'
+      };
+    };
+    const rows = [
+      gap('Posições 1 a 3'),
+      person(4, 'MC', 'Maria Costa', 'Psicologia · 2º semestre', '21.400'),
+      gap('Posições 5 a 14'),
+      person(15, 'PA', 'Pedro Alves', 'ADS · 7º semestre · não pontua mais', '18.300', { alumni: true }),
+      gap('Posições 16 a 28'),
+      person(29, 'AS', 'Ana Souza', 'ADS · 3º semestre', '15.020', { me: true }),
+      gap('Posições 30 a 111'),
+      person(112, 'JL', 'João Lima', 'Eng. de Produção · 5º semestre', '9.870')
+    ];
+    return { t, links, rows };
+  }
+}
+</script>
+</body>
+</html>

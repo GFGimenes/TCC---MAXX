@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX · Troféus e medalhas (escuro)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif}
+.dsp{font-family:'Archivo',system-ui,sans-serif;font-stretch:112.5%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit}
+.tier-bronze{background:linear-gradient(105deg,#C9621F 0%,#EE8A45 30%,#F9C4A0 46%,#EE8A45 60%,#D8712C 100%)}
+.tier-prata{background:linear-gradient(105deg,#9C9C9C 0%,#CFCFCF 30%,#F1F1F1 46%,#CFCFCF 60%,#A9A9A9 100%)}
+.tier-ouro{background:linear-gradient(105deg,#D99A12 0%,#FBC43A 30%,#FFE08A 46%,#FBC43A 60%,#DDA11A 100%)}
+.tier-diamante{background:linear-gradient(105deg,#5FB6DE 0%,#A9E2F5 30%,#F4FDFF 46%,#B7C6F5 62%,#6FA9E6 100%)}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: {{t.bg}}; color: {{t.text}}">
+  <main style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; box-sizing: border-box; padding-bottom: 115px">
+    <header style="position: sticky; top: 0; z-index: 3; background: {{t.bg}}; padding-top: 47px">
+      <div style="height: 44px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between">
+        <h1 class="dsp" style="margin: 0; font-size: 20px; line-height: 24px; font-weight: 700">Troféus e medalhas</h1>
+      </div>
+      <a href="{{links.rankings}}" style="height: 44px; padding: 0 12px 0 16px; display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; color: {{t.text2}}">
+        <span><span class="dsp" style="font-weight: 700; color: {{t.text}}">15.020 pts</span> · <span class="dsp" style="font-weight: 700; color: {{t.text}}">#29</span> no geral · 2/2026</span>
+        <span style="margin-left: auto; display: flex; align-items: center; gap: 2px; font-weight: 600; color: {{t.link}}">Rankings<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></span>
+      </a>
+      <div role="tablist" aria-label="Tipo de prêmio" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid {{t.line}}">
+        <button type="button" role="tab" aria-label="Troféus" aria-selected="{{ tabs.trofeusSel }}" onClick="{{ tabs.toTrofeus }}" style="height: 44px; background: none; border: 0; border-bottom: 1px solid {{ tabs.trofeusLine }}; margin-bottom: -1px; display: flex; align-items: center; justify-content: center; color: {{ tabs.trofeusColor }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></button>
+        <button type="button" role="tab" aria-label="Medalhas" aria-selected="{{ tabs.medalhasSel }}" onClick="{{ tabs.toMedalhas }}" style="height: 44px; background: none; border: 0; border-bottom: 1px solid {{ tabs.medalhasLine }}; margin-bottom: -1px; display: flex; align-items: center; justify-content: center; color: {{ tabs.medalhasColor }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 3 11 8.6M15.5 3 13 8.6"></path><circle cx="12" cy="14.5" r="6"></circle><circle cx="12" cy="14.5" r="2.5"></circle></svg></button>
+      </div>
+    </header>
+
+    <div style="height: 52px; padding: 0 8px 0 16px; display: flex; align-items: center; justify-content: space-between">
+      <span id="lbl-locked" style="font-size: 14px; line-height: 20px">Mostrar não obtidos</span>
+      <button type="button" role="switch" aria-checked="{{ lockedSel }}" aria-labelledby="lbl-locked" onClick="{{ toggleLocked }}" style="width: 56px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center">
+        <span style="width: 40px; height: 24px; box-sizing: border-box; border-radius: 12px; padding: 2px; display: flex; justify-content: {{ sw.justify }}; background: {{ sw.track }}">
+          <span style="width: 20px; height: 20px; border-radius: 10px; background: {{ sw.knob }}"></span>
+        </span>
+      </button>
+    </div>
+
+    <sc-if value="{{ isTrofeus }}" hint-placeholder-val="{{ true }}">
+      <section aria-label="Trilhas de progressão" style="padding: 0 16px">
+        <h2 class="dsp" style="margin: 8px 0 8px; font-size: 16px; line-height: 22px; font-weight: 600">Trilhas</h2>
+        <div style="background: {{t.surface}}; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+            <p style="margin: 0; font-size: 14px; line-height: 20px; font-weight: 600">Média 10 em uma matéria</p>
+            <p style="margin: 0; font-size: 13px; line-height: 18px; color: {{t.text2}}; white-space: nowrap">3 de 4 · 115 pts</p>
+          </div>
+          <div style="display: flex; align-items: center">
+            <span style="width: 64px; display: flex; justify-content: center"><span class="tier-bronze" style="width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0B1D33"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></span></span>
+            <span style="flex-grow: 1; height: 2px; background: {{t.text2}}"></span>
+            <span style="width: 64px; display: flex; justify-content: center"><span class="tier-prata" style="width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0B1D33"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></span></span>
+            <span style="flex-grow: 1; height: 2px; background: {{t.text2}}"></span>
+            <span style="width: 64px; display: flex; justify-content: center"><span class="tier-ouro" style="width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0B1D33"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></span></span>
+            <span style="flex-grow: 1; height: 0; border-top: 2px dashed {{t.line}}"></span>
+            <span style="width: 64px; display: flex; justify-content: center"><span style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 8px; border: 1.5px dashed {{t.text2}}; display: flex; align-items: center; justify-content: center; color: {{t.text2}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: -8px">
+            <span style="width: 64px; display: flex; flex-direction: column; align-items: center; text-align: center"><span style="font-size: 11px; line-height: 14px; font-weight: 700">Bronze</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">5 pts</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">1º sem.</span></span>
+            <span style="width: 64px; display: flex; flex-direction: column; align-items: center; text-align: center"><span style="font-size: 11px; line-height: 14px; font-weight: 700">Prata</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">35 pts</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">2º sem.</span></span>
+            <span style="width: 64px; display: flex; flex-direction: column; align-items: center; text-align: center"><span style="font-size: 11px; line-height: 14px; font-weight: 700">Ouro</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">75 pts</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">3º sem.</span></span>
+            <span style="width: 64px; display: flex; flex-direction: column; align-items: center; text-align: center"><span style="font-size: 11px; line-height: 14px; font-weight: 700; color: {{t.text2}}">Diamante</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">Próximo</span><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">101–150 pts</span></span>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <section aria-label="{{ listTitle }}" style="padding: 0 16px">
+      <h2 class="dsp" style="margin: 24px 0 4px; font-size: 16px; line-height: 22px; font-weight: 600">{{ listTitle }}</h2>
+      <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+          <li style="min-height: 68px; display: flex; align-items: center; gap: 12px; padding: 8px 0; box-sizing: border-box; border-bottom: 1px solid {{t.line}}">
+            <sc-if value="{{ r.got }}" hint-placeholder-val="{{ true }}">
+              <span class="{{ r.tier }}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0B1D33">
+                <sc-if value="{{ isTrofeus }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></sc-if>
+                <sc-if value="{{ isMedalhas }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 3 11 8.6M15.5 3 13 8.6"></path><circle cx="12" cy="14.5" r="6"></circle><circle cx="12" cy="14.5" r="2.5"></circle></svg></sc-if>
+              </span>
+            </sc-if>
+            <sc-if value="{{ r.locked }}" hint-placeholder-val="{{ false }}">
+              <span style="width: 44px; height: 44px; flex-shrink: 0; box-sizing: border-box; border-radius: 8px; border: 1.5px dashed {{t.text2}}; display: flex; align-items: center; justify-content: center; color: {{t.text2}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span>
+            </sc-if>
+            <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 14px; line-height: 20px; font-weight: 600; color: {{ r.nameColor }}">{{ r.name }}</span>
+              <span style="font-size: 13px; line-height: 18px; color: {{t.text2}}">{{ r.sub }}</span>
+              <sc-if value="{{ r.hasMeta }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">{{ r.meta }}</span></sc-if>
+            </div>
+            <sc-if value="{{ r.hasRarity }}" hint-placeholder-val="{{ true }}">
+              <div style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px" aria-label="Raridade {{ r.rarityLabel }}">
+                <span aria-hidden="true" style="display: flex; gap: 3px">
+                  <sc-for list="{{ r.dots }}" as="d" hint-placeholder-count="4"><span style="width: 6px; height: 6px; border-radius: 3px; background: {{ d.c }}"></span></sc-for>
+                </span>
+                <span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">{{ r.rarityLabel }}</span>
+              </div>
+            </sc-if>
+          </li>
+        </sc-for>
+      </ul>
+      <p style="margin: 16px 0 0; font-size: 13px; line-height: 18px; color: {{t.text2}}">Raridade indica o quão difícil é encontrar o prêmio: 1 ponto Comum, 2 Raro, 3 Épico, 4 Lendário. O tier define os pontos.</p>
+    </section>
+  </main>
+
+  <nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; height: 83px; box-sizing: border-box; padding: 0 8px; background: {{t.bg}}; border-top: 1px solid {{t.line}}; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; justify-items: center">
+    <a href="{{links.feed}}" aria-label="Home" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"></path></svg></a>
+    <button type="button" aria-label="Busca" style="width: 48px; height: 48px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20.5 20.5-4.5-4.5"></path></svg></button>
+    <a href="{{links.mural}}" aria-label="Mural" style="width: 52px; height: 52px; margin-top: -14px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: {{t.fab}}; color: {{t.fabIcon}}; box-shadow: {{t.fabShadow}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"></rect><rect x="6.5" y="8" width="5" height="4.5" rx="0.5"></rect><path d="M14.5 8.5h3M14.5 12h3M6.5 16h11"></path></svg></a>
+    <a href="{{links.trofeus}}" aria-label="Troféus" aria-current="page" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="currentColor"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></a>
+    <a href="{{links.perfil}}" aria-label="Perfil" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center">
+      <span style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; border: 2px solid transparent; padding: 2px; display: flex">
+        <span class="dsp" style="flex-grow: 1; border-radius: 6px; background: {{t.surface}}; border: 1px solid {{t.line}}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: {{t.text}}">AS</span>
+      </span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":true,"section":"Tema"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? true;
+    const t = dark
+      ? { bg: '#022D57', surface: '#0A3867', line: '#1D5188', action: '#FAB301', onAction: '#022D57', text: '#F2F5FA', text2: '#A8B8CE', link: '#8DBBEE', fab: '#FAB301', fabIcon: '#022D57', fabShadow: '0 6px 16px rgba(0, 0, 0, 0.35)' }
+      : { bg: '#FFFFFF', surface: '#F0F3F8', line: '#DCE2EB', action: '#022D57', onAction: '#FFFFFF', text: '#0B1D33', text2: '#4D5B70', link: '#2F6FBF', fab: '#022D57', fabIcon: '#FFFFFF', fabShadow: '0 6px 16px rgba(2, 45, 87, 0.30)' };
+    const s = dark ? '-escuro' : '-claro';
+    const links = { feed: 'Feed' + s + '.dc.html', perfil: 'Perfil' + s + '.dc.html', mural: 'Mural' + s + '.dc.html', trofeus: 'Trofeus' + s + '.dc.html', rankings: 'Rankings' + s + '.dc.html' };
+
+    const st = this.state || {};
+    const tab = st.tab || 'trofeus';
+    const showLocked = !!st.showLocked;
+    const isTrofeus = tab === 'trofeus';
+
+    const rarities = ['', 'Comum', 'Raro', 'Épico', 'Lendário'];
+    const tierNames = { bronze: 'Bronze', prata: 'Prata', ouro: 'Ouro', diamante: 'Diamante' };
+    const row = (name, tier, pts, rarity, meta, got) => ({
+      name,
+      tier: 'tier-' + tier,
+      got,
+      locked: !got,
+      nameColor: got ? t.text : t.text2,
+      sub: tierNames[tier] + ' · ' + pts,
+      meta: meta || '',
+      hasMeta: !!meta,
+      hasRarity: rarity > 0,
+      rarityLabel: rarities[rarity] || '',
+      dots: [1, 2, 3, 4].map((i) => ({ c: i <= rarity ? t.text2 : t.line }))
+    });
+
+    const trofeus = [
+      row('Pássaro Raro no Campus', 'diamante', '150 pts', 4, 'Exige foto de prova · aprovada', true),
+      row('Top 2% Integrativa', 'ouro', '95 pts', 2, '', true),
+      row('Techday 2026', 'ouro', '80 pts', 2, 'Dado pela instituição', true),
+      row('Média 10 em uma matéria', 'ouro', '75 pts', 0, 'Trilha: 3 de 4 níveis', true),
+      row('Assiduidade semestral', 'prata', '50 pts', 1, 'Regra automática de presença', true),
+      row('10 medalhas', 'bronze', '25 pts', 1, 'Troféu de acúmulo', true),
+      row('Média 10 em uma matéria', 'diamante', '101 a 150 pts', 0, 'Próximo nível da trilha', false)
+    ];
+    const medalhas = [
+      row('Participação no seminário', 'prata', '40 pts', 1, 'Dada pela Prof. Carla Mendes', true),
+      row('Apresentação de TCC', 'diamante', '120 pts', 3, 'Dada pelo professor orientador', false)
+    ];
+    const all = isTrofeus ? trofeus : medalhas;
+    const rows = all.filter((r) => r.got || showLocked);
+
+    return {
+      t, links, rows, isTrofeus, isMedalhas: !isTrofeus,
+      listTitle: showLocked ? (isTrofeus ? 'Todos os troféus' : 'Todas as medalhas') : (isTrofeus ? 'Troféus obtidos' : 'Medalhas obtidas'),
+      lockedSel: showLocked ? 'true' : 'false',
+      sw: { track: showLocked ? t.action : t.line, knob: showLocked ? t.onAction : t.bg, justify: showLocked ? 'flex-end' : 'flex-start' },
+      toggleLocked: () => this.setState({ showLocked: !showLocked }),
+      tabs: {
+        trofeusSel: isTrofeus ? 'true' : 'false',
+        medalhasSel: isTrofeus ? 'false' : 'true',
+        trofeusLine: isTrofeus ? t.text : 'transparent',
+        medalhasLine: isTrofeus ? 'transparent' : t.text,
+        trofeusColor: isTrofeus ? t.text : t.text2,
+        medalhasColor: isTrofeus ? t.text2 : t.text,
+        toTrofeus: () => this.setState({ tab: 'trofeus' }),
+        toMedalhas: () => this.setState({ tab: 'medalhas' })
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

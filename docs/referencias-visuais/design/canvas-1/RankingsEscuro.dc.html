@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX · Rankings (escuro)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Instrument+Sans:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Instrument Sans',system-ui,-apple-system,sans-serif;background:#1c1c1c}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}
+a{color:inherit;text-decoration:none}
+input{font:inherit}
+input::placeholder{color:var(--ink-3)}
+.th-light{--bg:#FFFFFF;--surface:#F3F5F9;--surface-2:#E6EAF1;--line:#DDE2EA;--field-line:#C9D0DB;--field-bg:#FFFFFF;--ink:#0B1B33;--ink-2:#556070;--ink-3:#6B7588;--gold:#F5B400;--accent-ink:#8A6200;--link:#245AA8;--primary-bg:#0B2A55;--primary-fg:#FFFFFF;--hero:#0B2A55;--card-shadow:0 10px 30px rgba(11,27,51,0.14),0 0 0 1px #E6EAF1;--avatar-bg:#0B2A55;--avatar-fg:#F5B400;--hl:#FFF5D6;--like:#E0243A;--fab-idle-bg:#F3F5F9;--fab-idle-fg:#556070;--fab-on-bg:#0B2A55;--fab-on-fg:#F5B400;--ring-gap:#FFFFFF;--rar:#0B2A55;--focus:#0B2A55;--seg-on:#FFFFFF;--seg-shadow:0 1px 3px rgba(11,27,51,0.14);--scrim:rgba(6,20,42,0.45)}
+.th-dark{--bg:#06142A;--surface:#0D2142;--surface-2:#15294F;--line:#1E3560;--field-line:#2A4677;--field-bg:#0D2142;--ink:#F2F5FA;--ink-2:#A4ADBB;--ink-3:#8893A5;--gold:#F5B400;--accent-ink:#F5B400;--link:#81ABE1;--primary-bg:#F5B400;--primary-fg:#06142A;--hero:#0D2142;--card-shadow:0 0 0 1px #1E3560;--avatar-bg:#1B3A6B;--avatar-fg:#F5B400;--hl:#182E57;--like:#FF5468;--fab-idle-bg:#0D2142;--fab-idle-fg:#A4ADBB;--fab-on-bg:#F5B400;--fab-on-fg:#06142A;--ring-gap:#06142A;--rar:#DCE3EE;--focus:#F5B400;--seg-on:#1B3261;--seg-shadow:none;--scrim:rgba(0,6,16,0.65)}
+.disp{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:112%}
+.num{font-variant-numeric:tabular-nums}
+.ic{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.scroll{overflow-y:auto;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.med{border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;box-sizing:border-box;box-shadow:0 1px 2px rgba(0,0,0,0.16)}
+.med::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--edge),inset 0 0 0 4px rgba(255,255,255,0.2),inset 0 -2px 3px rgba(0,0,0,0.08);pointer-events:none}
+.m-bronze{--edge:#A2602F;color:#5A2C0E;background:radial-gradient(circle at 50% 30%,#EBB58D 0%,#D08C5A 55%,#B06B38 100%)}
+.m-prata{--edge:#959CA5;color:#3A414A;background:radial-gradient(circle at 50% 30%,#F1F3F5 0%,#C9CED4 55%,#A7ADB5 100%)}
+.m-ouro{--edge:#C99300;color:#6B4700;background:radial-gradient(circle at 50% 30%,#FFDE6E 0%,#F3BD24 55%,#DDA200 100%)}
+.m-diamante{--edge:#3F9DC6;color:#0F4766;background:radial-gradient(circle at 50% 30%,#CDF1FA 0%,#86D2EC 55%,#52AFD6 100%)}
+.m-next{box-shadow:none;border:2px dashed var(--ink-2);background:transparent;color:var(--ink-2)}
+.m-next::after{display:none}
+.r-raro,.r-epico,.r-lendario{outline:1.5px solid var(--rar);outline-offset:3px}
+.r-epico::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1.5px solid var(--rar);pointer-events:none}
+.r-lendario::before{content:'';position:absolute;inset:-10.5px;border-radius:50%;background:repeating-conic-gradient(var(--rar) 0deg 4deg,transparent 4deg 12deg);-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 4px));mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 4px));pointer-events:none}
+.tile-bronze{background:linear-gradient(160deg,#F6DCC7 0%,#D69A6C 100%)}
+.tile-prata{background:linear-gradient(160deg,#F4F5F7 0%,#C9CED4 100%)}
+.tile-ouro{background:linear-gradient(160deg,#FFEAA6 0%,#F2BA1E 100%)}
+.tile-diamante{background:linear-gradient(160deg,#DDF5FC 0%,#8BD2EC 100%)}
+.th-dark .tile-bronze{background:linear-gradient(160deg,#6A3E24 0%,#3A2013 100%)}
+.th-dark .tile-prata{background:linear-gradient(160deg,#4A5463 0%,#252D39 100%)}
+.th-dark .tile-ouro{background:linear-gradient(160deg,#6E5209 0%,#3A2B06 100%)}
+.th-dark .tile-diamante{background:linear-gradient(160deg,#1F5A7E 0%,#0E3350 100%)}
+.navon{width:52px;height:52px;margin-top:-16px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;background:var(--fab-on-bg);color:var(--fab-on-fg);box-shadow:0 6px 16px rgba(0,0,0,0.22),0 0 0 4px var(--bg)}
+.s-bronze{background:linear-gradient(105deg,#B35A1C 0%,#E8894A 34%,#F7C7A0 50%,#E8894A 64%,#C0682A 100%);color:#3A1C06}
+.s-prata{background:linear-gradient(105deg,#8F949B 0%,#CDD1D6 34%,#F5F6F8 50%,#C6CACF 64%,#979BA2 100%);color:#1E2530}
+.s-ouro{background:linear-gradient(105deg,#D29400 0%,#FDC52C 34%,#FFE590 50%,#FDC52C 64%,#DB9D05 100%);color:#3A2600}
+.s-diamante{background:linear-gradient(105deg,#4FB6D3 0%,#9FE3F2 32%,#F1FCFF 50%,#B4E6F6 66%,#5FB4D8 100%);color:#0B3452}
+.tt-bronze{color:#9A4F1C}.tt-prata{color:#5E6670}.tt-ouro{color:#8A6200}.tt-diamante{color:#1B6E99}
+.th-dark .tt-bronze{color:#E7A06C}.th-dark .tt-prata{color:#C5CAD2}.th-dark .tt-ouro{color:#F5B400}.th-dark .tt-diamante{color:#7FD3EE}
+.dot{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--bg)}
+.pts{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:112%;font-weight:800;font-style:italic;font-variant-numeric:tabular-nums}
+.sw{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:13px;background:var(--surface-2);position:relative;margin:0;cursor:pointer;flex-shrink:0;transition:background .15s}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,0.25);transition:left .15s}
+.sw:checked{background:var(--primary-bg)}
+.sw:checked::after{left:21px}
+.sw:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.clamp3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+</style>
+</helmet>
+<div class="th-dark" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: var(--bg); color: var(--ink)">
+<header style="position: absolute; top: 47px; left: 0; right: 0; height: 48px; padding: 0 4px 0 16px; display: flex; align-items: center; justify-content: space-between">
+<img src="assets/maxx-ouro.png" alt="MAXX" style="height: 28px; width: auto; display: block">
+<div style="display: flex; align-items: center">
+<button class="ic" aria-label="Notificações, há novas" style="position: relative"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg><span class="dot" style="top: 10px; right: 11px"></span></button>
+</div>
+</header>
+<main class="scroll" style="position: absolute; top: 95px; left: 0; right: 0; bottom: 84px; display: flex; flex-direction: column">
+<div style="padding: 4px 16px 0 4px; height: 44px; display: flex; align-items: center; gap: 2px; flex-shrink: 0">
+<a href="PerfilEscuro.dc.html" class="ic" aria-label="Voltar ao perfil"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></a>
+<h1 class="disp" style="margin: 0; font-size: 22px; font-weight: 800; line-height: 26px; flex-grow: 1">Rankings</h1>
+<span style="font-size: 13px; color: var(--ink-2)">Semestre 2/2026</span>
+</div>
+<div role="tablist" aria-label="Tipo de ranking" style="padding: 0 16px; display: flex; gap: 8px; flex-shrink: 0; overflow: hidden">
+<button role="tab" aria-selected="true" style="height: 44px; display: flex; align-items: center; flex-shrink: 0"><span style="height: 32px; padding: 0 12px; border-radius: 8px; background: var(--primary-bg); color: var(--primary-fg); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">Geral</span></button>
+<button role="tab" aria-selected="false" style="height: 44px; display: flex; align-items: center; flex-shrink: 0"><span style="height: 32px; padding: 0 12px; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">Curso</span></button>
+<button role="tab" aria-selected="false" style="height: 44px; display: flex; align-items: center; flex-shrink: 0"><span style="height: 32px; padding: 0 12px; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">Histórico</span></button>
+<button role="tab" aria-selected="false" style="height: 44px; display: flex; align-items: center; flex-shrink: 0"><span style="height: 32px; padding: 0 12px; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">Histórico do curso</span></button>
+</div>
+<div style="padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 16px">
+<section aria-label="Sua posição" style="padding: 16px; border-radius: 16px; background: var(--surface); color: var(--ink); display: flex; align-items: center; gap: 16px">
+<span class="disp num" style="font-size: 40px; font-weight: 900; line-height: 44px; letter-spacing: -1px; color: var(--gold)">#29</span>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--ink-2)">Sua posição · Geral</span><span class="disp num" style="font-size: 20px; font-weight: 800; line-height: 24px">15.020 pts</span></div>
+<a href="TrofeusEscuro.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; color: var(--link)">Ver prêmios</a>
+</section>
+<div style="display: flex; flex-direction: column">
+<div style="height: 44px; display: flex; align-items: center; justify-content: space-between">
+<h2 style="margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--ink-2)">Posição no geral</h2>
+<div role="group" aria-label="Mostrar" style="display: flex; padding: 2px; border-radius: 8px; background: var(--surface)"><button aria-pressed="false" style="height: 28px; padding: 0 10px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2)">Todos</button><button aria-pressed="true" style="height: 28px; padding: 0 10px; border-radius: 6px; font-size: 12px; font-weight: 700; background: var(--line)">Quem eu sigo</button></div>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<li style="height: 64px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line)">
+<span class="disp num" style="width: 44px; font-size: 16px; font-weight: 800; text-align: center; color: var(--ink)">#4</span>
+<span class="disp" style="width: 40px; height: 40px; border-radius: 50%; background: #8A6200; color: #FFFFFF; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0">MC</span>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600; line-height: 19px; display: flex; align-items: center; gap: 6px">Maria Costa</span><span style="font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Psicologia · 2º semestre</span></div>
+<span class="disp num" style="font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--ink)">21.400 <span style="font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-2)">pts</span></span>
+</li>
+<li style="height: 64px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line)">
+<span class="disp num" style="width: 44px; font-size: 16px; font-weight: 800; text-align: center; color: var(--ink-2)">#15</span>
+<span class="disp" style="width: 40px; height: 40px; border-radius: 50%; background: #5B6B80; color: #FFFFFF; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0">PA</span>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600; line-height: 19px; display: flex; align-items: center; gap: 6px">Pedro Alves <span style="height: 18px; padding: 0 6px; border-radius: 4px; background: var(--surface-2); color: var(--ink-2); font-size: 10.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; display: inline-flex; align-items: center">Ex-aluno</span></span><span style="font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">ADS · 7º sem. · não pontua mais</span></div>
+<span class="disp num" style="font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--ink-2)">18.300 <span style="font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-2)">pts</span></span>
+</li>
+<li aria-current="true" style="height: 64px; display: flex; align-items: center; gap: 12px; margin: 0 -8px; padding: 0 8px; border-radius: 12px; background: var(--hl); box-shadow: inset 0 0 0 1.5px var(--gold)">
+<span class="disp num" style="width: 44px; font-size: 16px; font-weight: 800; text-align: center; color: var(--ink)">#29</span>
+<span style="width: 40px; height: 40px; border-radius: 50%; padding: 2px; box-sizing: border-box; background: var(--gold); flex-shrink: 0"><span class="disp" style="width: 100%; height: 100%; border-radius: 50%; box-sizing: border-box; border: 2px solid var(--hl); background: var(--avatar-bg); color: var(--avatar-fg); font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center">AS</span></span>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 700; line-height: 19px; display: flex; align-items: center; gap: 6px">Ana Souza · você</span><span style="font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">ADS · 3º semestre</span></div>
+<span class="disp num" style="font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--ink)">15.020 <span style="font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-2)">pts</span></span>
+</li>
+<li style="height: 64px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line)">
+<span class="disp num" style="width: 44px; font-size: 16px; font-weight: 800; text-align: center; color: var(--ink)">#112</span>
+<span class="disp" style="width: 40px; height: 40px; border-radius: 50%; background: #2F63B0; color: #FFFFFF; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0">JL</span>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600; line-height: 19px; display: flex; align-items: center; gap: 6px">João Lima</span><span style="font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Eng. de Produção · 5º semestre</span></div>
+<span class="disp num" style="font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--ink)">9.870 <span style="font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-2)">pts</span></span>
+</li>
+</ol>
+</div>
+</div>
+</main>
+<nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: var(--bg); border-top: 1px solid var(--line); box-sizing: border-box; padding: 4px 8px 30px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center">
+<a href="FeedEscuro.dc.html" aria-label="Home" style="height: 48px; display: flex; align-items: center; justify-content: center; color: var(--ink-2)"><span style="position: relative; display: flex"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5L12 4l8 6.5V20h-5.5v-5.5h-5V20H4z"></path></svg></span></a>
+<a href="#busca" aria-label="Busca" style="height: 48px; display: flex; align-items: center; justify-content: center; color: var(--ink-2)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4 4"></path></svg></a>
+<a href="MuralEscuro.dc.html" aria-label="Mural, há aviso não lido" style="height: 48px; display: flex; align-items: center; justify-content: center"><span style="width: 54px; height: 54px; margin-top: -18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; background: var(--fab-idle-bg); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line), 0 4px 12px rgba(0,0,0,0.10), 0 0 0 4px var(--bg)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"></rect><rect x="6.5" y="8" width="5" height="5" rx="0.8"></rect><path d="M14 8.5h3.5"></path><path d="M14 11.5h3.5"></path><path d="M6.5 16h11"></path></svg><span class="dot" style="top: 5px; right: 5px"></span></span></a>
+<a href="TrofeusEscuro.dc.html" aria-label="Troféus, há prêmio novo" style="height: 48px; display: flex; align-items: center; justify-content: center; color: var(--ink-2)"><span style="position: relative; display: flex"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"></path><path d="M8 6H5.5a2.5 2.5 0 0 0 2.5 4"></path><path d="M16 6h2.5a2.5 2.5 0 0 1-2.5 4"></path><path d="M12 13v4"></path><path d="M8.5 20h7"></path><path d="M9.5 17h5"></path></svg><span class="dot" style="top: -1px; right: -3px"></span></span></a>
+<a href="PerfilEscuro.dc.html" aria-label="Perfil" aria-current="page" style="height: 48px; display: flex; align-items: center; justify-content: center"><span class="disp" style="width: 30px; height: 30px; border-radius: 50%; box-sizing: border-box; border: 2px solid var(--ink); background: var(--avatar-bg); color: var(--avatar-fg); font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center">AS</span></a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

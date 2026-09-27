@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>MAXX · Mural (escuro)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif}
+.dsp{font-family:'Archivo',system-ui,sans-serif;font-stretch:112.5%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit}
+.clamp3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: {{t.bg}}; color: {{t.text}}">
+  <main style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; box-sizing: border-box; padding-bottom: 115px">
+    <header style="position: sticky; top: 0; z-index: 3; background: {{t.bg}}; padding-top: 47px">
+      <div style="height: 44px; box-sizing: border-box; padding: 0 4px 0 16px; display: flex; align-items: center; justify-content: space-between">
+        <h1 class="dsp" style="margin: 0; font-size: 20px; line-height: 24px; font-weight: 700">Mural</h1>
+        <button type="button" onClick="{{ readAll }}" style="height: 44px; padding: 0 12px; background: none; border: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: {{t.link}}">Ler todos</button>
+      </div>
+      <div role="group" aria-label="Filtrar por origem" style="padding: 0 16px; display: flex; gap: 8px">
+        <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="3">
+          <button type="button" aria-pressed="{{ chip.pressed }}" onClick="{{ chip.toggle }}" style="height: 44px; padding: 6px 0; background: none; border: 0">
+            <span style="height: 32px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; font-size: 13px; line-height: 18px; font-weight: 600; background: {{ chip.bg }}; color: {{ chip.fg }}">{{ chip.label }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <p style="margin: 0; padding: 4px 16px 8px; font-size: 13px; line-height: 18px; color: {{t.text2}}">{{ summary }}</p>
+    </header>
+
+    <div style="padding: 0 16px; display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{ items }}" as="n" hint-placeholder-count="3">
+        <sc-if value="{{ n.semi }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ n.tap }}" aria-label="{{ n.aria }}" style="width: 100%; text-align: left; padding: 16px; border: 0; border-radius: 12px; background: {{t.surface}}; color: {{t.text}}; display: flex; flex-direction: column; gap: 8px">
+            <span style="display: flex; align-items: center; gap: 8px; width: 100%">
+              <span class="dsp" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{t.bg}}; border: 1px solid {{t.line}}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700">{{ n.badge }}</span>
+              <span style="flex-grow: 1; display: flex; flex-direction: column">
+                <span style="font-size: 13px; line-height: 18px; font-weight: 600">{{ n.from }}</span>
+                <span style="font-size: 11px; line-height: 14px; color: {{t.text2}}">{{ n.when }}</span>
+              </span>
+              <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><span style="width: 8px; height: 8px; border-radius: 4px; background: #FAB301"></span></sc-if>
+            </span>
+            <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">{{ n.title }}</span>
+            <span class="clamp3" style="font-size: 14px; line-height: 20px; color: {{t.text2}}">{{ n.body }}</span>
+            <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: {{t.link}}">Ler aviso completo</span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ n.collapsed }}" hint-placeholder-val="{{ true }}">
+          <button type="button" onClick="{{ n.tap }}" aria-label="{{ n.aria }}" style="width: 100%; min-height: 52px; text-align: left; padding: 12px 16px; border: 0; border-radius: 12px; background: {{t.surface}}; color: {{t.text}}; display: flex; align-items: center; gap: 8px">
+            <span style="flex-grow: 1; font-size: 14px; line-height: 20px; font-weight: 600">{{ n.title }}</span>
+            <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><span style="width: 8px; height: 8px; border-radius: 4px; background: #FAB301"></span></sc-if>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{t.text2}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+        </sc-if>
+      </sc-for>
+    </div>
+  </main>
+
+  <sc-if value="{{ showFull }}" hint-placeholder-val="{{ false }}">
+    <section aria-label="Aviso completo" style="position: absolute; top: 0; left: 0; right: 0; bottom: 83px; z-index: 8; background: {{t.bg}}; overflow-y: auto; box-sizing: border-box; padding: 47px 0 32px">
+      <div style="height: 44px; padding: 0 16px 0 4px; display: flex; align-items: center; gap: 4px">
+        <button type="button" onClick="{{ closeFull }}" aria-label="Voltar ao mural" style="width: 44px; height: 44px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+        <span class="dsp" style="font-size: 16px; line-height: 22px; font-weight: 600">Aviso</span>
+      </div>
+      <div style="padding: 16px 16px 0; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span class="dsp" style="width: 40px; height: 40px; border-radius: 8px; background: {{t.surface}}; border: 1px solid {{t.line}}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700">{{ fullItem.badge }}</span>
+          <span style="display: flex; flex-direction: column">
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600">{{ fullItem.from }}</span>
+            <span style="font-size: 13px; line-height: 18px; color: {{t.text2}}">{{ fullItem.when }}</span>
+          </span>
+        </div>
+        <h2 class="dsp" style="margin: 0; font-size: 28px; line-height: 32px; font-weight: 700">{{ fullItem.title }}</h2>
+        <p style="margin: 0; font-size: 14px; line-height: 20px">{{ fullItem.body }}</p>
+        <p style="margin: 0; padding: 12px; border-radius: 12px; background: {{t.surface}}; display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; color: {{t.text2}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>Sua leitura foi registrada para o autor do aviso.</p>
+      </div>
+    </section>
+  </sc-if>
+
+  <nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 9; height: 83px; box-sizing: border-box; padding: 0 8px; background: {{t.bg}}; border-top: 1px solid {{t.line}}; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; justify-items: center">
+    <a href="{{links.feed}}" aria-label="Home" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"></path></svg></a>
+    <button type="button" aria-label="Busca" style="width: 48px; height: 48px; background: none; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20.5 20.5-4.5-4.5"></path></svg></button>
+    <a href="{{links.mural}}" aria-label="Mural" aria-current="page" style="width: 52px; height: 52px; margin-top: -14px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: {{t.fab}}; color: {{t.fabIcon}}; box-shadow: {{t.fabShadow}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"></rect><rect x="6.5" y="8" width="5" height="4.5" rx="0.5" fill="currentColor"></rect><path d="M14.5 8.5h3M14.5 12h3M6.5 16h11"></path></svg></a>
+    <a href="{{links.trofeus}}" aria-label="Troféus" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4.5a2.5 2.5 0 0 0 2.9 3.9M17 6h2.5a2.5 2.5 0 0 1-2.9 3.9"></path><path d="M12 14v3.5M8.5 20.5h7M9.5 17.5h5"></path></svg></a>
+    <a href="{{links.perfil}}" aria-label="Perfil" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center">
+      <span style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; border: 2px solid transparent; padding: 2px; display: flex">
+        <span class="dsp" style="flex-grow: 1; border-radius: 6px; background: {{t.surface}}; border: 1px solid {{t.line}}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: {{t.text}}">AS</span>
+      </span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":true,"section":"Tema"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? true;
+    const t = dark
+      ? { bg: '#022D57', surface: '#0A3867', line: '#1D5188', action: '#FAB301', onAction: '#022D57', text: '#F2F5FA', text2: '#A8B8CE', link: '#8DBBEE', fab: '#FAB301', fabIcon: '#022D57', fabShadow: '0 6px 16px rgba(0, 0, 0, 0.35)' }
+      : { bg: '#FFFFFF', surface: '#F0F3F8', line: '#DCE2EB', action: '#022D57', onAction: '#FFFFFF', text: '#0B1D33', text2: '#4D5B70', link: '#2F6FBF', fab: '#022D57', fabIcon: '#FFFFFF', fabShadow: '0 6px 16px rgba(2, 45, 87, 0.30)' };
+    const s = dark ? '-escuro' : '-claro';
+    const links = { feed: 'Feed' + s + '.dc.html', perfil: 'Perfil' + s + '.dc.html', mural: 'Mural' + s + '.dc.html', trofeus: 'Trofeus' + s + '.dc.html' };
+
+    const st = this.state || {};
+    const filter = st.filter || null;
+    const open = st.open || 'n1';
+    const full = st.full || null;
+    const read = st.read || { n2: true, n3: true };
+
+    const base = [
+      { id: 'n1', src: 'faculdade', badge: 'UM', from: 'Faculdade · UniMax', when: 'Há 2 horas', title: 'Matrícula do 2º semestre até 30/07', body: 'A rematrícula para o 2º semestre deve ser feita pelo Portal do Aluno até 30/07. Em caso de dúvidas, procure a secretaria acadêmica.' },
+      { id: 'n2', src: 'curso', badge: 'ADS', from: 'Curso · ADS', when: 'Ontem', title: 'Techday: inscrições abertas', body: 'As inscrições para o Techday estão abertas no Portal do Aluno. Quem participar recebe o troféu Techday 2026 (Ouro, 80 pts).' },
+      { id: 'n3', src: 'professores', badge: 'CM', from: 'Prof. Carla Mendes · ADS', when: 'Há 3 dias', title: 'Prova integrativa remarcada para 14/08', body: 'A prova integrativa foi remarcada para 14/08. Horário e sala continuam os mesmos.' }
+    ];
+
+    const visible = base.filter((n) => !filter || n.src === filter);
+    const items = visible.map((n) => {
+      const semi = n.id === open;
+      const unread = !read[n.id];
+      return {
+        ...n,
+        semi,
+        collapsed: !semi,
+        unread,
+        aria: n.title + (unread ? ', não lido' : '') + (semi ? ', abrir aviso completo' : ', expandir'),
+        tap: () => this.setState(semi
+          ? { full: n.id, read: { ...read, [n.id]: true } }
+          : { open: n.id, read: { ...read, [n.id]: true } })
+      };
+    });
+
+    const chipDefs = [
+      { key: 'faculdade', label: 'Faculdade' },
+      { key: 'curso', label: 'Curso' },
+      { key: 'professores', label: 'Professores' }
+    ];
+    const chips = chipDefs.map((c) => {
+      const on = filter === c.key;
+      return {
+        ...c,
+        pressed: on ? 'true' : 'false',
+        bg: on ? t.action : t.surface,
+        fg: on ? t.onAction : t.text,
+        toggle: () => this.setState({ filter: on ? null : c.key })
+      };
+    });
+
+    const unreadCount = visible.filter((n) => !read[n.id]).length;
+    const summary = visible.length + (visible.length === 1 ? ' aviso' : ' avisos') + ' · ' + (unreadCount === 0 ? 'todos lidos' : unreadCount + (unreadCount === 1 ? ' não lido' : ' não lidos'));
+    const fullItem = base.find((n) => n.id === full) || base[0];
+
+    return {
+      t, links, chips, items, summary,
+      showFull: !!full,
+      fullItem,
+      closeFull: () => this.setState({ full: null }),
+      readAll: () => this.setState({ read: { n1: true, n2: true, n3: true } })
+    };
+  }
+}
+</script>
+</body>
+</html>
