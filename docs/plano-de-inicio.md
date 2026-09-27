@@ -114,7 +114,7 @@ Conectar a pasta `tcc` (o `Maxx` está dentro dela). Primeira mensagem sugerida:
 
 ## Próxima sessão, na ordem
 
-1. FEITO em 27/09. Mockups do engenheiro em `docs/referencias-visuais/` (registro em `prompts-design.md`; falta só exportar as PNGs para a pasta).
+1. FEITO em 27/09. Mockups do engenheiro em `docs/referencias-visuais/` (registro em `prompts-design.md`; PNGs das 15 telas na pasta; exportação completa do design em `design/`).
 2. Escrever `prompts/engenheiro/eng_00_contexto.md` enxuto (cerca de 50 linhas), no
    formato do passo 2 acima. O autor escreve; o Cowork revisa contra
    `personas/engenheiro/perfil.md` e `docs/especificacao-telas.md`.

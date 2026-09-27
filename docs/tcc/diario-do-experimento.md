@@ -62,4 +62,9 @@ registrados como enviados. Tempo: cerca de 6 horas nas sessões (26 e 27/09) mai
 prompt a prompt em `docs/referencias-visuais/prompts-design.md`, com anexos
 identificados e a procedência de cada um (insumo do autor ou resultado gerado em
 outra sessão). Entregáveis: seis telas mais cadastro, em tema claro e escuro, e a
-prancheta de padrão visual. Tempo total do autor no passo 1 a consolidar no registro.
+prancheta de padrão visual, como PNG em `docs/referencias-visuais/`; e a exportação
+completa das três sessões em `docs/referencias-visuais/design/` (código-fonte das
+pranchetas, `canvas.json`, `tokens.json` e README do design system, componentes,
+fontes e imagens), feita pelo Cowork a partir dos arquivos publicados de cada
+artifact, com README de procedência. Os PNGs foram renderizados das pranchetas do
+canvas 1 com Chromium, e não exportados pela interface do Claude Design.
