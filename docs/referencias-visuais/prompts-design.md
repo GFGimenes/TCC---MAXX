@@ -183,6 +183,7 @@ Tempo: incluído no total do passo 1 (ver Fechamento).
 | A11 | design system "Marinho & Ouro, institucional, metal de verdade": `anexos/A11-marinho-ouro-tokens.json` (paleta, tipografia, espaçamento e raios em valores) e `anexos/A11-marinho-ouro-README.md` (regras de uso); o print "fase 2a Marinho & Ouro" | gerado, canvas 3 (artefato "MAXX · exploração de identidade 3", tipo Design System), resultado de D3.1 a D3.4 | D1.3 |
 | A12 | tiers e raridade com menos brilho; fundo dos prêmios sem foto na grade do perfil | gerado, canvas 3 | D1.4 |
 | A13 | login escuro (modelo) | gerado, canvas 3 | D1.6 |
+| A14 | dois prints da barra de navegação do Instagram (ícone ativo sobre realce arredondado) | autor, print do celular; usado só na revisão do rascunho no Cowork, não anexado no Claude Design | D1.8 |
 
 Os arquivos ficam em `docs/referencias-visuais/anexos/` com o ID no nome
 (`A08-conquistas-canvas3.png`). Anexo gerado por IA é reaproveitado como referência
@@ -198,7 +199,7 @@ sessões.
 
 | Canvas | Artefato | Propósito | Prompts | Aproveitado no resultado final |
 |---|---|---|---|---|
-| 1 | "MAXX" (Design) | O modelo propõe o padrão visual a partir da identidade do autor; depois recebe a convergência | D1.1 a D1.6 | Tudo: 14 pranchetas (7 telas, claro e escuro) e o padrão visual |
+| 1 | "MAXX" (Design) | O modelo propõe o padrão visual a partir da identidade do autor; depois recebe a convergência e, após o fechamento, a correção da navegação | D1.1 a D1.8 | Tudo: 14 pranchetas (7 telas, claro e escuro) e o padrão visual |
 | 2 | "MAXX" (Design) | Padrão fixo por valores e regra "na dúvida, o componente do Instagram" | D2.1 e D2.2 | Referência da regra do Instagram (botões baixos, grade sem legenda, abas só com ícone, nome de usuário no cabeçalho) |
 | 3 | "MAXX · exploração de identidade 3" (Design System) | Exploração livre em três direções, sem cores fixadas | D3.1 a D3.4 | Paleta Marinho & Ouro em valores; medalhões metálicos; raridade como ornamento; card do prêmio abaixo da foto; estilo de login e cadastro |
 
@@ -335,7 +336,63 @@ Três ajustes finais e exportar:
 Pode mudar a questão do Login/cadastro para esse tipo de modelo
 ```
 
-Resultado: versão final do canvas 1, exportada.
+Resultado: versão do canvas 1 dada como final em 27/09 (versão `1790468301-6a7f`),
+exportada. Reaberta no mesmo dia para a correção da navegação (D1.7 e D1.8).
+
+### D1.7 · 2026-09-27 · Canvas 1: navegação inferior sem botão elevado (sem imagens)
+
+Motivo: ao revisar os PNGs exportados, o autor notou que o botão do Mural, elevado
+com sombra e anel em todas as telas (pedido no item 1 do D1.5), parecia o item
+selecionado mesmo com outra tela aberta. O D1.7 desfaz esse item do D1.5. Rascunho
+revisado no Cowork; a alternativa de manter o botão elevado só quando o Mural está
+aberto foi descartada porque mantinha uma regra própria para uma aba.
+
+```
+Ajuste na navegação inferior, em todas as 14 telas (claro e escuro) e na prancheta "Padrão visual MAXX".
+
+Problema: o botão do Mural é um círculo elevado com sombra e anel em todas as telas, então parece o item selecionado mesmo quando a tela aberta é outra. No Feed, por exemplo, o Home está preenchido, mas o destaque visual está no círculo do Mural.
+
+O que fazer:
+
+1. Tirar o botão elevado. O Mural vira uma aba igual às outras quatro: mesma altura, mesmo alinhamento, sem círculo, sem sombra, sem anel e sem deslocamento para cima.
+
+2. Uma única regra de estado ativo para as cinco abas: a tela aberta mostra o ícone preenchido na cor ink; as outras mostram o ícone em contorno na cor ink-2. No Perfil, o estado ativo é um anel de 2px em ink em volta do avatar. Aplicar tela por tela: Feed marca Home; Mural marca Mural; Troféus marca Troféus; Perfil marca Perfil. Login e Cadastro não têm navegação.
+
+3. Novidade continua sendo a bolinha dourada pequena no canto superior direito do ícone (Mural com aviso não lido, Troféus com prêmio novo), em qualquer estado, sem mudar o tamanho do ícone.
+
+4. Ordem e ícones não mudam: Home, Busca, Mural (jornal), Troféus (taça), Perfil (avatar). Barra de 84px com borda superior em line, como está.
+
+5. Na prancheta "Padrão visual MAXX", refazer o bloco "Navegação, novidades e forma": remover o par "Mural em outra tela / Mural aberto" e a frase sobre o botão elevado; mostrar os três estados de uma aba (inativa, inativa com novidade, ativa) e a frase nova: "As cinco abas seguem a mesma regra: ícone preenchido em ink na tela ativa, contorno em ink-2 nas outras. Bolinha dourada = novidade."
+
+Manter todo o resto como está. Não mexer em cores, tipografia, cards, selos ou conteúdo das telas.
+```
+
+### D1.8 · 2026-09-27 · Canvas 1: realce atrás do ícone ativo, como no Instagram (anexo A14 só no Cowork)
+
+Motivo: depois do D1.7 o autor quis o realce suave atrás do ícone ativo, como na
+barra do Instagram (A14). Rascunho revisado no Cowork a partir dos prints.
+
+```
+Complemento ao ajuste da navegação inferior, em todas as telas com barra (claro e escuro) e na prancheta "Padrão visual MAXX".
+
+Na aba ativa, além do ícone preenchido em ink, colocar um realce atrás do ícone, como no Instagram: um quadrado de cantos bem arredondados (44 x 44, raio 14) centralizado no ícone, sem sombra projetada, sem borda e sem elevação. Cor do realce: surface no tema claro e line no tema escuro. É um realce discreto, um tom acima do fundo da barra; se no claro ficar fraco demais, escurecer um passo, sem passar de line. O ícone continua com 26px e centralizado dentro do realce.
+
+Abas inativas seguem sem realce: ícone em contorno, cor ink-2.
+
+Na aba Perfil, o estado ativo usa o mesmo realce atrás do avatar, no lugar do anel.
+
+A bolinha dourada de novidade continua no canto superior direito do ícone, por cima do realce quando a aba estiver ativa.
+
+Na prancheta "Padrão visual MAXX", atualizar os três estados da aba (inativa, inativa com novidade, ativa) para mostrar o realce no estado ativo, e completar a frase: "A tela ativa ganha o ícone preenchido em ink sobre um realce arredondado em surface (claro) ou line (escuro). Contorno em ink-2 nas outras. Bolinha dourada = novidade."
+
+Manter todo o resto como está.
+```
+
+Resultado (versão `1790471156-05a5`, a final): as cinco abas com a mesma regra;
+realce de 44 x 44 e raio 14 em `#E6EAF1` no claro (um passo acima de surface, como
+o prompt permitia) e `#1E3560` (line) no escuro; avatar do Perfil sobre o realce,
+sem anel; prancheta de padrão com os três estados da aba. Aceito pelo autor sem
+novo ajuste. Esta é a versão exportada em `design/canvas-1/` e nos PNGs.
 
 ### D2.1 · 2026-09-26 · Canvas 2, abertura: padrão fixo e regra do Instagram (anexos A01 a A07)
 
@@ -514,16 +571,19 @@ na seção de fechamento.
 
 ## Fechamento do passo 1
 
-- Sessões: 3 canvases. Prompts: 12 (6 no canvas 1, 2 no canvas 2, 4 no canvas 3).
-  Dos 12, 9 partiram de rascunhos revisados no Cowork contra a documentação oficial
+- Sessões: 3 canvases. Prompts: 14 (8 no canvas 1, 2 no canvas 2, 4 no canvas 3).
+  Dos 14, 11 partiram de rascunhos revisados no Cowork contra a documentação oficial
   do Claude Design e a especificação das telas, e 3 são texto livre do autor (D1.4,
   D1.6 e as continuações do canvas 3, que somam 3 mensagens curtas: D3.2 a D3.4).
-  Comentários inline: nenhum.
+  Comentários inline: nenhum. Dos 14, 2 (D1.7 e D1.8) vieram depois do fechamento
+  de 27/09, quando a revisão dos PNGs exportados mostrou que a navegação pedida no
+  D1.5 lia errado; o passo 1 foi reaberto e fechado no mesmo dia.
 - Tempo do autor: cerca de 6 horas nas sessões de design (26 e 27/09/2026), incluindo
   preparação de anexos, comparação entre canvases e exportação; mais 3 a 4 horas nos
   rascunhos manuais feitos antes (caderno e Excalidraw, agosto de 2026), para
   colocar a ideia no papel. Total do passo 1: entre 9 e 10 horas. Os tempos por
-  prompt não foram medidos individualmente.
+  prompt não foram medidos individualmente. A reabertura para D1.7 e D1.8 não está
+  contada; o autor estima o tempo dela.
 - Paleta final (canvas 1, "Marinho & Ouro"): claro com fundo #FFFFFF, superfície
   #F3F5F9, linha #DDE2EA, texto #0B1B33, texto secundário #556070, primário #0B2A55,
   dourado #F5B400, dourado em texto #8A6200, link #245AA8, destaque #FFF5D6, curtida

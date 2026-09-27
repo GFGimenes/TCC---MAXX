@@ -8,14 +8,15 @@ das telas finais estão em `../` (um por tela, em claro e escuro, mais
 `padrao-visual.png`).
 
 Exportado em 27/09/2026 pelo Cowork (Anthropic), lendo os arquivos publicados de
-cada artifact. Nenhum arquivo foi reescrito à mão. A única alteração feita nos
+cada artifact; o canvas 1 foi reexportado no mesmo dia, depois da correção da
+navegação (D1.7 e D1.8). Nenhum arquivo foi reescrito à mão. A única alteração feita nos
 fontes está descrita em "Imagens", abaixo.
 
 ## O que é cada pasta
 
 | Pasta | Sessão no registro | Tipo de artifact | Versão exportada | Conteúdo |
 |---|---|---|---|---|
-| `canvas-1/` | Canvas 1 "MAXX" (D1.1 a D1.6). Design final. | Design | `1790468301-6a7f` | `canvas.json` (posição, título e ordem das 15 pranchetas), 15 pranchetas `.dc.html` (login, cadastro, feed, mural, troféus e medalhas, rankings e perfil, cada uma em claro e escuro, mais `Sistema.dc.html`, o "Padrão visual MAXX" em 1280 x 1400), `support.js` e `assets/`. |
+| `canvas-1/` | Canvas 1 "MAXX" (D1.1 a D1.8). Design final. | Design | `1790471156-05a5` | `canvas.json` (posição, título e ordem das 15 pranchetas), 15 pranchetas `.dc.html` (login, cadastro, feed, mural, troféus e medalhas, rankings e perfil, cada uma em claro e escuro, mais `Sistema.dc.html`, o "Padrão visual MAXX" em 1280 x 1400), `support.js` e `assets/`. |
 | `canvas-2/` | Canvas 2 "MAXX" (D2.1 e D2.2). Exploração descartada, mantida para comparação. | Design | `1790457483-0cce` | `canvas.json`, 13 pranchetas `.dc.html` (seis telas em claro e escuro, mais `Padrao-visual.dc.html`), `support.js` e `assets/`. |
 | `canvas-3-design-system/` | Canvas 3 "MAXX · exploração de identidade 3" (D3.1 a D3.4). Origem da paleta Marinho & Ouro. | Design System | `1790465401-3d7a` | `tokens.json` (cores por tema, tipografia, espaçamento, raios), `README.md` (regras da identidade), `design-system.json`, `components/` (renderizadores das telas e dos cartões da prancheta), `fonts/` e `assets/`. |
 

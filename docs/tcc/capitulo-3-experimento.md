@@ -77,18 +77,29 @@ sistema de design; a direção escolhida, "Marinho & Ouro, institucional, metal 
 verdade", foi publicada como um sistema de design com paleta, tipografia e regras de
 uso em valores. A convergência aconteceu de volta na primeira sessão, que recebeu a
 paleta da terceira, os medalhões metálicos de tier e o card descritivo do prêmio
-abaixo da foto do post, e a regra do Instagram da segunda. Ao todo foram 12 prompts,
-9 deles rascunhados com apoio do assistente da Anthropic no Cowork e revisados
+abaixo da foto do post, e a regra do Instagram da segunda. Ao todo foram 14 prompts,
+11 deles rascunhados com apoio do assistente da Anthropic no Cowork e revisados
 contra a documentação oficial da ferramenta (objetivo, layout, conteúdo e público no
 primeiro prompt; referências anexadas; uma tela por mensagem), e 3 escritos livremente
-pelo autor como correções curtas com print. O registro completo, prompt a prompt, com
-cada anexo identificado e sua procedência (insumo do autor ou resultado gerado em
-outra sessão e reaproveitado como referência), está no apêndice
-(`docs/referencias-visuais/prompts-design.md`).
+pelo autor como correções curtas com print. Os dois últimos vieram depois de o passo
+ter sido dado como encerrado: ao revisar as telas exportadas, o autor percebeu que o
+botão central do Mural, elevado e com sombra em todas as telas (pedido por ele mesmo
+num prompt anterior), parecia o item selecionado mesmo com outra tela aberta, e
+reabriu a sessão para uniformizar a regra de estado ativo das cinco abas, com o
+realce arredondado atrás do ícone ativo, como na barra do Instagram. O registro
+completo, prompt a prompt, com cada anexo identificado e sua procedência (insumo do
+autor ou resultado gerado em outra sessão e reaproveitado como referência), está no
+apêndice (`docs/referencias-visuais/prompts-design.md`); a exportação integral das
+três sessões (código-fonte das pranchetas, tokens, componentes, fontes e imagens)
+está em `docs/referencias-visuais/design/`.
 
-Duas observações de método. A identidade visual do engenheiro também foi produzida
+Três observações de método. A identidade visual do engenheiro também foi produzida
 com IA; o engenheiro atuou como diretor de arte, explorando alternativas em paralelo,
 comparando e convergindo, e essa forma de trabalhar é parte do que se está medindo.
+A revisão do resultado exportado, fora da ferramenta, pegou um defeito de uso que
+passou na tela da própria ferramenta, e o pedido de correção desfez uma instrução
+anterior do próprio autor: revisar o que a IA entregou, inclusive contra o que se
+pediu antes, faz parte do trabalho da persona.
 E o passo teve custo: entre 9 e 10 horas de trabalho da persona antes de qualquer
 código, contra zero da persona leiga. Esse custo entra na análise comparativa junto
 com o que ele comprou. Duas decisões de produto nasceram no design e, por serem regras

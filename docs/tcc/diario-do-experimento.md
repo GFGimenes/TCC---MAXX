@@ -68,3 +68,12 @@ pranchetas, `canvas.json`, `tokens.json` e README do design system, componentes,
 fontes e imagens), feita pelo Cowork a partir dos arquivos publicados de cada
 artifact, com README de procedência. Os PNGs foram renderizados das pranchetas do
 canvas 1 com Chromium, e não exportados pela interface do Claude Design.
+
+Reabertura no mesmo dia. Revisando os PNGs, o autor notou que o botão do Mural,
+elevado com sombra e anel em todas as telas (item 1 do D1.5, pedido por ele), lia
+como item selecionado mesmo com outra tela aberta. Dois prompts a mais no canvas 1,
+rascunhados no Cowork: D1.7 (tirar o botão elevado; regra única de estado ativo para
+as cinco abas) e D1.8 (realce arredondado atrás do ícone ativo, como no Instagram,
+a partir de dois prints do celular). Resultado aceito sem novo ajuste. Passo 1
+fechado com 14 prompts; `design/canvas-1/` e os PNGs reexportados; registro, §3.1.4
+e este diário atualizados.
