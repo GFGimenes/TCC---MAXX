@@ -48,10 +48,55 @@ e humano, regra observacional x corretiva, isolamento entre trilhas.]
 
 ### 3.1.4 Identidade visual da trilha do engenheiro
 
-[A completar a partir de `docs/referencias-visuais/prompts-design.md`: por que o
-engenheiro produz mockups antes de qualquer prompt de código, ferramenta usada, bloco
-de consistência, prompts enviados, tempo gasto (entra como custo da persona). A trilha
-do leigo usa um app existente como referência, conforme o corpus.]
+Antes de escrever qualquer prompt de código, a persona do engenheiro produziu a
+identidade visual e as telas de referência do Maxx. Esse passo existe porque é assim
+que o autor trabalha em projetos reais (plano, telas, stack e arquitetura antes de
+código) e porque o corpus da pesquisa mostra que a persona leiga não o faz: o leigo
+usa um aplicativo existente como referência ("parecido com o Instagram") e pede a
+tela direto. A diferença entre as trilhas começa, portanto, antes da primeira linha
+de código.
+
+O trabalho foi feito em duas etapas. Na primeira, em agosto de 2026, o autor colocou a
+ideia no papel: rascunhos à mão no caderno (filosofia do aplicativo, login e cadastro,
+mural, dashboard) e wireframes anotados no Excalidraw (perfil com a referência do
+Instagram, mural, troféus), além de duas telas de alta fidelidade no Figma (login e
+feed) e a prancha de identidade com o logo, a paleta azul-marinho e dourado do logo
+da UniMax e os pills de tier. Essa etapa consumiu entre 3 e 4 horas. Na segunda, em
+26 e 27 de setembro de 2026, o autor usou a ferramenta de design da Anthropic
+(Claude Design) para transformar os rascunhos em seis telas finais, em tema claro e
+escuro, mais a tela de cadastro e uma prancheta de padrão visual. Essa etapa consumiu
+cerca de 6 horas, em três sessões paralelas com propósitos distintos.
+
+A primeira sessão recebeu a identidade do autor e a pediu que o modelo propusesse o
+padrão visual (tipografia, espaçamento, componentes, estados). A segunda recebeu o
+padrão já fixado em valores e uma regra de experiência ("na dúvida entre um
+componente de aplicativo e o equivalente do Instagram, use o do Instagram"), para
+testar o quanto a regra sozinha corrigia o peso visual da primeira proposta. A
+terceira foi uma exploração livre, sem cores fixadas, que devolveu três direções de
+sistema de design; a direção escolhida, "Marinho & Ouro, institucional, metal de
+verdade", foi publicada como um sistema de design com paleta, tipografia e regras de
+uso em valores. A convergência aconteceu de volta na primeira sessão, que recebeu a
+paleta da terceira, os medalhões metálicos de tier e o card descritivo do prêmio
+abaixo da foto do post, e a regra do Instagram da segunda. Ao todo foram 12 prompts,
+9 deles rascunhados com apoio do assistente da Anthropic no Cowork e revisados
+contra a documentação oficial da ferramenta (objetivo, layout, conteúdo e público no
+primeiro prompt; referências anexadas; uma tela por mensagem), e 3 escritos livremente
+pelo autor como correções curtas com print. O registro completo, prompt a prompt, com
+cada anexo identificado e sua procedência (insumo do autor ou resultado gerado em
+outra sessão e reaproveitado como referência), está no apêndice
+(`docs/referencias-visuais/prompts-design.md`).
+
+Duas observações de método. A identidade visual do engenheiro também foi produzida
+com IA; o engenheiro atuou como diretor de arte, explorando alternativas em paralelo,
+comparando e convergindo, e essa forma de trabalhar é parte do que se está medindo.
+E o passo teve custo: entre 9 e 10 horas de trabalho da persona antes de qualquer
+código, contra zero da persona leiga. Esse custo entra na análise comparativa junto
+com o que ele comprou. Duas decisões de produto nasceram no design e, por serem regras
+do produto e não da trilha, entraram no contexto comum das duas trilhas antes da
+primeira rodada: a progressão de prêmios e o login exclusivamente institucional. As
+demais escolhas feitas no design (abas no perfil, filtro "quem eu sigo" no ranking,
+log de leitura no mural, raridade como ornamento) ficaram apenas na trilha do
+engenheiro e são tratadas como escopo emergente da persona.
 
 ## 3.2 Validação do código gerado
 
