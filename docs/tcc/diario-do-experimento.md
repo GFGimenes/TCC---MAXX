@@ -49,3 +49,15 @@ em `docs/contexto-comum.md`, no `CLAUDE.md`/`AGENTS.md` da `main` do Maxx e nas
 branches `leigo` e `engenheiro`, ainda no mesmo commit. Revisão do primeiro prompt de
 design contra a documentação oficial do Claude Design (objetivo, layout, conteúdo,
 público; identidade anexada; uma tela por mensagem).
+
+## 2026-09-27
+
+Passo 1 da trilha do engenheiro (identidade visual) encerrado. Quatro sessões do
+Claude Design em paralelo, cada uma com um propósito (modelo propõe o padrão; padrão
+fixo com regra do Instagram; exploração de componentes; exploração livre em três
+direções), e convergência de volta na primeira, que recebeu a paleta de uma, os
+medalhões e o card de prêmio de outra, e a regra do Instagram da terceira. Registro
+prompt a prompt em `docs/referencias-visuais/prompts-design.md`, com anexos
+identificados e a procedência de cada um (insumo do autor ou resultado gerado em
+outra sessão). Entregáveis: seis telas mais cadastro, em tema claro e escuro, e a
+prancheta de padrão visual. Tempo total do autor no passo 1 a consolidar no registro.
