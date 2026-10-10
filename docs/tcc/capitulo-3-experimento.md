@@ -40,11 +40,18 @@ atores, telas, regras de prêmios e pontos) e o que deliberadamente deixa de for
 `personas/engenheiro/perfil.md` (autor como persona, corroboração pelos devs do
 corpus). Incluir as limitações da amostra.]
 
-### 3.1.3 Trilhas, rodadas e orquestração
+### 3.1.3 Trilhas, rodadas e protocolo de execução
 
-[A completar a partir de `README.md`, `docs/linha-do-tempo.md` e `orquestracao/`:
-branches, worktrees, rodada como unidade (com diálogo registrado), review automático
-e humano, regra observacional x corretiva, isolamento entre trilhas.]
+[A completar a partir de `README.md`, `docs/linha-do-tempo.md` e
+`protocolo-de-rodada.md`: um repositório por trilha, nascidos do mesmo commit semente
+(mesmo hash), em vez de duas branches de um repositório, porque o agente executa `git`
+e poderia ler a outra branch; rodada como unidade (sessão nova do Claude Code, com
+diálogo registrado e exportado); sem orquestrador entre a persona e o agente, para
+que o único texto que chega ao agente seja o da persona mais o contexto comum; review
+automático e humano, regra observacional x corretiva; ambiente constante nas duas
+trilhas (mesmo modelo, mesma versão, mesma interface, memória automática desligada,
+nenhum arquivo de contexto fora do repositório). Registrar que o fluxo com Orca foi
+configurado em 12/09 e abandonado em 10/10, e por quê.]
 
 ### 3.1.4 Identidade visual da trilha do engenheiro
 

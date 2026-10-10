@@ -77,3 +77,35 @@ as cinco abas) e D1.8 (realce arredondado atrás do ícone ativo, como no Instag
 a partir de dois prints do celular). Resultado aceito sem novo ajuste. Passo 1
 fechado com 14 prompts; `design/canvas-1/` e os PNGs reexportados; registro, §3.1.4
 e este diário atualizados.
+
+## 2026-10-10
+
+Ambiente das rodadas refeito antes do primeiro prompt. Duas mudanças, as duas por
+isolamento e fidelidade.
+
+Primeira: as trilhas deixam de ser branches do mesmo repositório e passam a ser dois
+repositórios, `maxx-leigo` e `maxx-engenheiro` (o antigo `Maxx` renomeado), nascidos
+do mesmo commit `e32107d`, com o mesmo hash nos dois. O motivo: o agente executa `git`
+livremente, e num worktree da branch `leigo` um `git branch -a` ou `git show
+engenheiro:arquivo` entregaria o material da outra trilha; o nome da branch sozinho já
+seria informação. Com dois repositórios não há o que vazar. A pasta `tcc`, que ganhou
+remoto privado em 27/09 (`GFGimenes/TCC---MAXX`), passa a ser o repositório do TCC;
+os dois repos de trilha ficam fora dela pelo `.gitignore`. Três repositórios, não
+quatro: o `Maxx` virou um dos dois.
+
+Segunda: o Orca sai. Com dois repositórios e um experimento sequencial de uma pessoa,
+o que ele resolvia (worktree por rodada, worker e revisor disparados por um
+coordenador) se resolve com git e duas sessões do Claude Code. E o coordenador era
+mais um agente, com prompt escrito pelo autor, entre a persona e o worker; para a
+trilha do leigo isso é irreal, e para as duas é um confundidor. Sem ele, quem fala
+com o agente é a persona, direto, e o que entra no experimento é só o prompt dela
+mais o `CLAUDE.md`. O fluxo novo está em `protocolo-de-rodada.md`; os arquivos do
+Orca foram arquivados em `docs/rascunhos/` como registro da decisão.
+
+Ficou decidido também que a interface é a CLI do Claude Code nas duas trilhas, com o
+mesmo modelo e a mesma versão (a registrar na linha do tempo na primeira sessão), e
+que antes do piloto se confere, pela documentação do Claude Code: memória automática
+desligada (`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`), nenhum `CLAUDE.md` global ou em
+pasta acima dos repos, e `/context` mostrando só o `CLAUDE.md` do repo. Sessões
+exportadas com `/export` por rodada, porque as transcrições automáticas expiram em 30
+dias.

@@ -19,12 +19,14 @@ retomar sem depender do histórico da conversa.
   sem "leia o CLAUDE.md" (o Claude Code já o carrega em toda sessão, nas duas
   trilhas). Depois do review humano vem `eng_00_contexto_v2` com correções.
 
-- Experimento: duas trilhas (`leigo` e `engenheiro`), branches do repo Maxx, um único
-  agente (Claude Code), um único revisor (mesmo modelo, mesmo prompt, mesma rubrica),
+- Experimento: duas trilhas (`leigo` e `engenheiro`), um repositório por trilha
+  (`maxx-leigo`, `maxx-engenheiro`, mesma semente `e32107d`), um único agente (Claude
+  Code CLI, sessão nova por rodada, sem orquestrador), um único revisor (mesmo
+  modelo, mesmo prompt, mesma rubrica),
   review humano observacional no leigo e corretivo no engenheiro, correção só por
   prompt (`_v2`). Qualidade do prompt embutida na persona. Ver `README.md`.
 - Contexto comum: `docs/contexto-comum.md`, idêntico como `CLAUDE.md` e `AGENTS.md`
-  no commit inicial das duas branches. Só evolui pelos prompts de cada trilha.
+  no commit semente dos dois repos. Só evolui pelos prompts de cada trilha.
 - Prêmios: tier do prêmio define pontos (Bronze 1 a 30, Prata 31 a 70, Ouro 71 a 100,
   Diamante 101 a 150); aluno não tem tier, ranking é posição numérica.
 - Persona do engenheiro: o autor, com os devs do corpus como corroboração
@@ -51,11 +53,13 @@ retomar sem depender do histórico da conversa.
 
 ## Como retomar em uma sessão nova do Cowork
 
-Conectar a pasta `tcc` (o `Maxx` está dentro dela). Primeira mensagem sugerida:
+Conectar a pasta `tcc` (os repos `maxx-leigo` e `maxx-engenheiro` estão dentro dela).
+Primeira mensagem sugerida:
 
 > Vamos continuar o experimento do TCC "A Mesma Ideia, Dois Construtores". Lê o
 > `docs/plano-de-inicio.md` e segue a seção "Próxima sessão, na ordem" a partir do
-> primeiro item não marcado como FEITO. O Orca já está configurado. A cada rodada,
+> primeiro item não marcado como FEITO. O fluxo de rodada está em
+> `protocolo-de-rodada.md`. A cada rodada,
 > atualiza `docs/tcc/diario-do-experimento.md` e a tabela de resultados em
 > `docs/tcc/capitulo-3-experimento.md`.
 
@@ -76,7 +80,7 @@ Conectar a pasta `tcc` (o `Maxx` está dentro dela). Primeira mensagem sugerida:
    342 linhas ficou arquivado em `docs/rascunhos/eng_00_contexto_v0_longo.md` como
    referência do que a IA deve produzir, não do que o engenheiro escreve.
 3. Planejamento: o resultado da rodada 2 é o plano, a arquitetura, o modelo de dados,
-   a estrutura de pastas e as regras gravadas no `CLAUDE.md` da branch `engenheiro`.
+   a estrutura de pastas e as regras gravadas no `CLAUDE.md` do repo `maxx-engenheiro`.
    Review humano corretivo, depois `eng_00_contexto_v2` com correções e o "pode
    subir a fundação" (tooling, banco, migration inicial, CI, sem funcionalidade).
 4. Desenvolvimento: `eng_01_login`, depois módulo a módulo (feed, troféus, perfil e
@@ -95,22 +99,16 @@ Conectar a pasta `tcc` (o `Maxx` está dentro dela). Primeira mensagem sugerida:
    final ("agora quero a tela de troféus, tipo conquistas de jogo").
 3. Review humano observacional: registra, não corrige. Merge do que saiu.
 
-## Como rodar uma rodada no Orca
+## Como rodar uma rodada
 
-1. Salvar o prompt em `prompts/<trilha>/<id>.md` com o cabeçalho (ID, trilha, tela,
-   data) e o texto do prompt depois da linha `---`.
-2. No Orca, abrir o workspace `coordenador` do projeto `Maxx` (branch
-   `GFGimenes/coordenador-2`) e colar o prompt de `orquestracao/coordenador.md`, com
-   `<id>` e `<trilha>` preenchidos. O coordenador cria o worker Claude num worktree
-   novo a partir da branch da trilha, espera terminar e dispara o revisor.
-3. Se o worker perguntar, o coordenador avisa; responder no estilo da persona e anotar
-   a pergunta e a resposta no registro da rodada.
-4. Ao final, seguir o "Checklist do humano após cada rodada" de
-   `orquestracao/coordenador.md`: ler o review, conferir que o worker não leu a outra
-   trilha, validar notas na planilha, salvar `resultados/<trilha>/<id>.md`, mergear
-   o worktree na branch da trilha (`rodada: <id>`).
-5. Documentar: uma entrada em `docs/tcc/diario-do-experimento.md` e a linha da
-   rodada na tabela de `docs/tcc/capitulo-3-experimento.md`.
+O passo a passo completo, com o prompt do revisor, o checklist humano e a conferência
+de contexto (`/status`, `/context`, `/memory`), está em `protocolo-de-rodada.md`. Em
+resumo: prompt salvo em `prompts/<trilha>/<id>.md`; terminal na pasta do repo da
+trilha, `git checkout -b rodada/<id>`; `claude` em sessão nova; colar o prompt e
+dialogar no estilo da persona; `/export` da sessão para
+`resultados/<trilha>/<id>-sessao.txt`; segunda sessão como revisor; review humano,
+planilha e `resultados/<trilha>/<id>.md`; merge na `main` (`rodada: <id>`) e push;
+diário e tabela do capítulo 3.
 
 ## Próxima sessão, na ordem
 
@@ -120,28 +118,34 @@ Conectar a pasta `tcc` (o `Maxx` está dentro dela). Primeira mensagem sugerida:
    `personas/engenheiro/perfil.md` e `docs/especificacao-telas.md`.
 3. Escrever `prompts/leigo/leigo_00_abertura.md` (o Cowork redige a partir do corpus;
    o autor valida contra as respostas reais em `personas/leigo/corpus-respostas.md`).
-4. Orca: FEITO em 12/09 (projeto em `Repos\tcc\Maxx`, workspace `coordenador-2`).
+4. Ambiente das rodadas: FEITO em 10/10 (dois repos no lugar do Orca). Antes do
+   piloto, a conferência única do `protocolo-de-rodada.md`: versão do Claude Code,
+   modelo fixado, memória automática desligada, nenhum `CLAUDE.md` global ou acima
+   dos repos, `/context` limpo. Registrar modelo e versão na linha do tempo.
 5. Contas para o deploy: VPS pequena e bucket S3-compatível (trilha do engenheiro);
    conta Expo e uma hospedagem gratuita genérica para o que o agente da trilha leiga
    escolher. Uma URL por trilha.
-6. Rodada piloto: `leigo_00_abertura` e `eng_00_contexto` pelo coordenador. Validar o
-   fluxo ponta a ponta (worker, review, checklist, planilha, registro, merge, diário).
+6. Rodada piloto: `leigo_00_abertura` e `eng_00_contexto`, cada uma no seu repo,
+   seguindo o protocolo. Validar o fluxo ponta a ponta (sessão, export, revisor,
+   checklist, planilha, registro, merge, diário).
 7. `eng_00_contexto_v2` depois do review humano; então `eng_01_login` e
    `leigo_01_login`, e seguir módulo a módulo.
-8. **Único repositório do experimento é o Maxx, dentro da pasta `tcc`**
-   (`Repos\tcc\Maxx`). A `tcc` é o caderno do autor, com repo próprio e privado só
-   para backup e histórico (`origin` = `GFGimenes/TCC---MAXX`, branch `master`,
-   criado em 27/09; `Maxx/` está no `.gitignore` da `tcc` e nunca entra nele). O
-   Cowork commita na `tcc` a cada sessão; o push é do autor (a ponte não tem
-   credencial do GitHub). Versões em PDF do TCC em `docs/tcc/versoes/`. Nunca criar `CLAUDE.md` ou `AGENTS.md` na raiz da
-   `tcc`. Workers sempre nos worktrees do Orca, nunca direto em `tcc\Maxx`. No fim,
-   com as 12 rodadas feitas, copiar prompts, resultados, reviews, planilha, relatórios
-   de carga e `docs/tcc/` para `docs/experimento/` na `main` do Maxx, num commit
-   final. Push do Maxx quando quiser (está 2 commits à frente da origin).
+8. **Três repositórios.** `maxx-leigo` e `maxx-engenheiro` (`Repos\tcc\maxx-leigo` e
+   `Repos\tcc\maxx-engenheiro`; remotos privados `GFGimenes/maxx-leigo` e
+   `GFGimenes/maxx-engenheiro`, o segundo é o antigo `Maxx` renomeado) são os repos
+   das trilhas, os únicos que os agentes tocam, ambos nascidos do commit `e32107d`
+   com o mesmo hash. A `tcc` é o repositório do TCC (`origin` = `GFGimenes/TCC---MAXX`,
+   branch `master`, privado), caderno do autor; as duas pastas de trilha estão no
+   `.gitignore` dela e nunca entram nela. O Cowork commita na `tcc` a cada sessão; o
+   push é do autor (a ponte não tem credencial do GitHub). Versões em PDF do TCC em
+   `docs/tcc/versoes/`. Nunca criar `CLAUDE.md` ou `AGENTS.md` na raiz da `tcc` nem
+   em pasta acima dos repos. Sem Orca: o fluxo é o do `protocolo-de-rodada.md`. No
+   fim, com as 12 rodadas feitas, prompts, resultados, reviews, planilha, relatórios de
+   carga e `docs/tcc/` já estão na `tcc`; os repos das trilhas ficam como estão.
 
 ## Pequenos pendentes
 
 - `docs/especificacao-telas.md` ainda aguarda os descritivos complementares por
   feature que o autor ia enviar.
-- No commit final em `docs/experimento/` do Maxx, decidir se as versões em PDF do TCC
-  e os PNGs de rascunho entram junto.
+- Decidir, ao final, se os repos das trilhas recebem um `docs/experimento/` apontando
+  para a `tcc`, ou se ficam só com o código.

@@ -31,11 +31,13 @@ Ideia central (contexto comum, idêntico) ──▶ Trilha LEIGO      ──▶ 
 
 Cada rodada, em cada trilha:
 prompt da persona ──▶ Claude Code gera/evolui o código ──▶ review por agente de IA (rubrica)
-              ──▶ review humano (valida a nota) ──▶ merge na branch da trilha
+              ──▶ review humano (valida a nota) ──▶ merge na main do repo da trilha
 ```
 
-- **Trilha = branch** do repo `Maxx` (`leigo` e `engenheiro`), as duas nascendo do mesmo
-  commit com o mesmo `CLAUDE.md` (o contexto comum, ver `docs/contexto-comum.md`).
+- **Trilha = repositório** (`maxx-leigo` e `maxx-engenheiro`), os dois nascendo do mesmo
+  commit (`e32107d`, mesmo hash nos dois) com o mesmo `CLAUDE.md` (o contexto comum,
+  ver `docs/contexto-comum.md`). Repos separados, e não branches, para o agente de uma
+  trilha não ter como enxergar a outra nem por `git` (decidido em 10/10/2026).
 - **Contexto preservado por trilha.** O contexto comum é a semente das duas. A partir
   daí, cada trilha só evolui o próprio contexto pelos próprios prompts: o engenheiro
   pode abrir com uma rodada que estabelece regras de arquitetura e boas práticas; o
@@ -58,15 +60,15 @@ prompt da persona ──▶ Claude Code gera/evolui o código ──▶ review p
 docs/            Contexto comum, especificação por tela, linha do tempo do experimento
 personas/        Perfis leigo/engenheiro que orientam como cada prompt é escrito
 prompts/         Prompts efetivamente enviados, um arquivo por rodada (<trilha>_<tela>.md)
-orquestracao/    Fluxo no Orca: worker por rodada + revisor, um por trilha
+protocolo-de-rodada.md   Como uma rodada é executada (sessão nova do Claude Code, revisor, checklist)
 resultados/      Registro de cada rodada (resumo da sessão, decisões, avisos), por trilha
 avaliacoes/      Rubrica (5 eixos), reviews do agente revisor e planilha de registro
 ```
 
-O código gerado vive nas branches do repo `Maxx`, que é o único repositório do
-experimento (o único que os agentes tocam); esta pasta é o caderno do autor durante a
-execução (nada daqui entra no Maxx enquanto as rodadas correm, para nenhuma trilha
-ver o material da outra) e, ao final, é copiada para `docs/experimento/` na `main` do
-Maxx. Ela tem repositório próprio, privado, só como backup e histórico
-(`GFGimenes/TCC---MAXX`); `Maxx/` fica fora dele pelo `.gitignore`. Ver `docs/linha-do-tempo.md` para as fases e o critério de pronto de cada
+O código gerado vive nos repos `maxx-leigo` e `maxx-engenheiro` (`Repos\tcc\`), os
+únicos que os agentes tocam; esta pasta é o caderno do autor durante a execução (nada
+daqui entra nos repos das trilhas enquanto as rodadas correm, para nenhuma trilha ver
+o material da outra). Ela tem repositório próprio, privado (`GFGimenes/TCC---MAXX`),
+que é o repositório do TCC; as duas pastas de trilha ficam fora dele pelo
+`.gitignore`. Não há mais orquestrador: o fluxo está em `protocolo-de-rodada.md`. Ver `docs/linha-do-tempo.md` para as fases e o critério de pronto de cada
 uma.
