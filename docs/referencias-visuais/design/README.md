@@ -86,3 +86,17 @@ do navegador e das fontes.
   que são o editor do Claude Design e não fazem parte do design.
 - As conversas com o Claude Design. Os prompts estão transcritos em
   `../prompts-design.md`; as respostas não foram exportadas.
+
+## Pacote para o repositório do engenheiro
+
+`../pacote-engenheiro/` é o que a persona do engenheiro leva para dentro do seu
+repositório (`maxx-engenheiro/design/`) antes da primeira rodada, como insumo dela:
+as 15 telas em PNG (`telas/`), os logos (`assets/`), `tokens.json` e
+`identidade-visual.md`. Os valores do `tokens.json` foram extraídos das pranchetas
+finais do canvas 1 (variáveis CSS `.th-light` e `.th-dark`, estilos de tier e raridade
+e a prancheta "Padrão visual"), não do `tokens.json` do canvas 3: o design system do
+canvas 3 foi a origem da paleta, mas a convergência no canvas 1 mudou valores (por
+exemplo `ink-2`, `line`, `link`, `like`) e a fonte de corpo (Instrument Sans no lugar
+de Figtree), e o que vale é o canvas 1. O `identidade-visual.md` reescreve as regras
+do README do canvas 3 e da prancheta de padrão na forma final, sem nenhuma referência
+ao experimento. Montado em 10/10/2026 pelo Cowork e conferido pelo autor.
