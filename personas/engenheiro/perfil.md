@@ -54,8 +54,9 @@ codificação.
 
 Preciso e nomeado: camadas (rota, serviço, repositório), transação, idempotência,
 auditoria, sessão revogável, menor privilégio, schema de validação, migration, seed,
-CI, staging, definição de pronto. Cita ferramentas pelo nome e versão (Fastify 5,
-Postgres 16, Node 22, Drizzle, Zod, Vitest, Playwright, Docker Compose, Caddy). Fala
+CI, staging, definição de pronto. Cita ferramentas pelo nome e versão (.NET e ASP.NET
+Core na LTS vigente, EF Core, Postgres 16, xUnit, Testcontainers, Expo e TypeScript,
+Docker Compose, Caddy). Fala
 em "invariantes" do modelo de dados e transforma exemplos de fluxo em testes de
 integração. Nunca usa "código", "tal linguagem" ou "design clean" como placeholder.
 
@@ -155,15 +156,29 @@ Critério do autor: dimensionar pela projeção do projeto. Projeção declarada
 Maxx (12/09/2026): campus com 3.200 alunos, pico estimado de 2.000 usuários
 simultâneos (nunca todas as turmas de todos os períodos ao mesmo tempo). A carga real
 durante o TCC será de 10 a 15 pessoas, mas isso decide só a infra do deploy (mínima),
-não a projeção. **Decisão: opção A.** A opção B fica registrada como alternativa
-considerada.
+não a projeção. **Decisão (10/10/2026): opção C.** A opção A foi a decisão de 12/09,
+sugerida pelo Cowork e aceita pelo autor; foi trocada antes do primeiro prompt porque
+a persona é o autor, e a stack que ele escolheria sozinho, e que domina, é .NET no
+servidor. Isso importa para o experimento: o review corretivo do engenheiro, que é
+parte do que se mede, é mais afiado na stack em que ele enxerga de longe um
+controller mal feito, um N+1 no EF Core ou uma injeção de dependência errada. O
+cliente continua nativo (Expo) porque o Maxx é um app de celular com câmera e feed, e
+app de loja é requisito do produto, não só do TCC. A e B ficam registradas como
+alternativas consideradas.
 
-- **A. API própria:** Expo (React Native + TypeScript) no cliente; API em Fastify +
-  Zod + Drizzle + PostgreSQL; fotos em storage S3-compatível; Docker Compose numa VPS
-  com Caddy; Vitest com testcontainers e Playwright. É a combinação usada nos dois
-  projetos solo de 2026 (Redutores e hackathon), adaptada para celular; num projeto
-  com mais gente ou mais volume o autor escalaria a infra (Kubernetes, fila, cache)
-  como faz no trabalho.
+- **C. .NET + Expo, monorepo:** API em ASP.NET Core (LTS vigente) com EF Core e
+  PostgreSQL, em camadas (API, aplicação, domínio, infraestrutura); cliente Expo
+  (React Native + TypeScript); contrato entre os dois pelo OpenAPI da API, com cliente
+  TypeScript gerado; fotos em storage S3-compatível com CDN; Docker Compose numa VPS
+  com Caddy; xUnit com Testcontainers na API, Vitest no cliente, e2e mobile a decidir
+  com o agente. Monorepo com `.sln` na raiz, `apps/api`, `apps/mobile` e
+  `packages/api-client`. É a combinação do trabalho do autor (.NET + React), com o
+  React na forma mobile; num projeto com mais gente ou mais volume ele escalaria a
+  infra (Kubernetes, fila, cache) como faz no trabalho.
+- **A. API própria em Node (decisão de 12/09, substituída):** Expo no cliente; API em
+  Fastify + Zod + Drizzle + PostgreSQL; mesmo storage, deploy e testes com Vitest,
+  testcontainers e Playwright. Era a combinação dos dois projetos solo de 2026
+  (Redutores e hackathon).
 - **B. Mais rápida para o MVP:** Expo no cliente e Supabase (Postgres, Auth, Storage,
   políticas RLS) no lugar da API própria. Menos código por rodada, com a segurança
   concentrada nas políticas do banco.

@@ -30,10 +30,12 @@ retomar sem depender do histórico da conversa.
 - Prêmios: tier do prêmio define pontos (Bronze 1 a 30, Prata 31 a 70, Ouro 71 a 100,
   Diamante 101 a 150); aluno não tem tier, ranking é posição numérica.
 - Persona do engenheiro: o autor, com os devs do corpus como corroboração
-  (`personas/engenheiro/perfil.md`). Stack A: Expo + TypeScript no cliente, API
-  Fastify + Zod + Drizzle + PostgreSQL, storage S3-compatível com CDN, Docker Compose
-  em VPS com Caddy, Vitest + testcontainers + Playwright. Projeção: campus de 3.200,
-  pico de 2.000 simultâneos. Infra do deploy mínima nas duas trilhas.
+  (`personas/engenheiro/perfil.md`). Stack C (decidida em 10/10, no lugar da A):
+  API em ASP.NET Core com EF Core e PostgreSQL, cliente Expo (React Native +
+  TypeScript), contrato por OpenAPI, storage S3-compatível com CDN, Docker Compose em
+  VPS com Caddy, xUnit + Testcontainers na API e Vitest no cliente, monorepo
+  (`.sln` na raiz, `apps/api`, `apps/mobile`, `packages/api-client`). Projeção:
+  campus de 3.200, pico de 2.000 simultâneos. Infra do deploy mínima nas duas trilhas.
 - Persona do leigo: `personas/leigo/perfil.md` (N=28). Abre com `leigo_00_abertura`
   no estilo do corpus e usa app existente (ex.: Instagram) como referência visual;
   não constrói mockup.
@@ -72,7 +74,7 @@ Primeira mensagem sugerida:
    trabalho da persona fora do agente; registrar o tempo gasto como custo.
 2. `eng_00_contexto`: um prompt de cerca de 50 linhas com ideia, projeção (campus de
    3.200, pico de 2.000), arquitetura em camadas, modelo de desenvolvimento (plano
-   antes de código, testes, convenções, definição de pronto), infra (stack A, deploy
+   antes de código, testes, convenções, definição de pronto), infra (stack C, deploy
    mínimo) e o pedido: propor a base do projeto e discutir o que é interessante para
    ela. É uma rodada com diálogo: o agente pergunta e propõe, o engenheiro debate e
    pede opções com pesos. Tudo registrado em `resultados/engenheiro/eng_00_contexto.md`.

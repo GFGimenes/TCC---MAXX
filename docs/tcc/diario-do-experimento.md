@@ -109,3 +109,11 @@ desligada (`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`), nenhum `CLAUDE.md` global ou em
 pasta acima dos repos, e `/context` mostrando só o `CLAUDE.md` do repo. Sessões
 exportadas com `/export` por rodada, porque as transcrições automáticas expiram em 30
 dias.
+
+Stack do engenheiro trocada antes do primeiro prompt: de A (Expo + Fastify, Zod,
+Drizzle) para C (Expo + ASP.NET Core, EF Core, PostgreSQL, monorepo com contrato
+OpenAPI). A opção A tinha sido sugestão do Cowork aceita pelo autor em 12/09; a C é o
+que o autor escolheria sozinho, e é a stack em que o review corretivo dele é mais
+afiado, o que é parte do que se mede. O cliente segue nativo (Expo) porque app de
+loja é requisito do produto. Cogitou-se React web como PWA pela facilidade de deploy
+e teste; descartado por isso. Registro completo em `personas/engenheiro/perfil.md`.
