@@ -37,6 +37,29 @@ produto e requisitos técnicos antes do código e pode mandar o agente gravar is
 trilha evolui o próprio contexto apenas por meio dos próprios prompts. Nunca copiar
 contexto, código ou decisão entre trilhas.
 
+## Ambiente fixado para as rodadas (conferido em 11/10/2026)
+
+Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no meio.
+
+- Claude Code (CLI) 2.1.270, Windows, PowerShell.
+- Modelo: `claude-opus-5[1m]` (Opus 5, 1M de contexto), escolhido por nome com
+  `/model` (opção "Opus (1M context)", não a "Default", que segue o padrão do momento
+  e poderia mudar). Esforço: high (padrão). Motivo: é o modelo padrão que uma pessoa
+  sem repertório técnico recebe ao abrir o CLI, e o custo e o contexto sustentam as
+  rodadas longas; o modelo mais capaz (Fable 5.1) foi descartado por ser o caso
+  limite de preenchimento de lacunas, não o caso representativo.
+- Memória automática desligada (`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` na janela de
+  cada sessão). Nenhum `CLAUDE.md` ou `AGENTS.md` no usuário, nos ancestrais da pasta
+  nem nos repos das trilhas (conferido com `Get-ChildItem` antes de abrir o CLI).
+- `/context` ao abrir a sessão do engenheiro: 37,8k tokens (sistema 2,4k, ferramentas
+  31,9k, skills 3,3k, mensagens 167), sem arquivo de memória e sem `CLAUDE.md`.
+  Existem 24 skills instaladas na conta do autor (plugins de engenharia e produto da
+  Anthropic e skills do Cowork), visíveis ao agente nas duas trilhas por igual; o uso
+  de qualquer uma por iniciativa do agente é registrado no review da rodada.
+- Modo de permissão: "auto mode" (o agente executa sem pedir aprovação a cada ação),
+  o mesmo nas duas trilhas.
+- A versão do CLI não é atualizada até o fim das rodadas.
+
 ## Dependências entre fases
 
 - Fase 4 (prompts) depende da fase 2 (personas) e da fase 3 (especificação por tela).
