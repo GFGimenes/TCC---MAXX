@@ -53,9 +53,15 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   nem nos repos das trilhas (conferido com `Get-ChildItem` antes de abrir o CLI).
 - `/context` ao abrir a sessão do engenheiro: 37,8k tokens (sistema 2,4k, ferramentas
   31,9k, skills 3,3k, mensagens 167), sem arquivo de memória e sem `CLAUDE.md`.
-  Existem 24 skills instaladas na conta do autor (plugins de engenharia e produto da
-  Anthropic e skills do Cowork), visíveis ao agente nas duas trilhas por igual; o uso
-  de qualquer uma por iniciativa do agente é registrado no review da rodada.
+  Skills visíveis ao agente (`/context all`, 26 no total, 3,7k tokens): 9 do usuário
+  (`orchestration`, `orca-cli`, `maestri`, `maestri-manager`, `maestri-workspace`,
+  `maestri-portal`, `maestri-portal-devices`, `maestri-routines`, `computer-use`) e
+  17 embutidas no CLI (`dataviz`, `claude-api`, `code-review`, `security-review`,
+  `simplify`, `init`, `artifact-*`, `claude-in-chrome`, `schedule`, `run`, `loop`,
+  `workflow-authoring`, `update-config`, `keybindings-help`, `fewer-permission-prompts`).
+  Iguais nas duas trilhas; `orca-cli` é o orquestrador abandonado em 10/10 e continua
+  instalado. O uso de qualquer skill por iniciativa do agente é registrado no review
+  da rodada.
 - Conectores MCP da conta (claude.ai), visíveis depois do login: Atlassian Rovo (41
   ferramentas), Claude Docs (8), Expedia (3), Kiwi.com (2), lastminute.com (8); 49
   ferramentas carregadas sob demanda, 672 tokens. Nenhum tem relação com o projeto;
