@@ -7,11 +7,11 @@ aberto; a ordem e as dependências entre fases é o que importa manter.
 | # | Fase | O que é feito | Pastas envolvidas | Entregável / critério de pronto | Status |
 |---|------|----------------|--------------------|----------------------------------|--------|
 | 0 | Fundamentação já escrita | Contextualização, objetivos, teoria (vibe coding, LLMs, gamificação) | (já no PDF do TCC) | Seções 1 e 2 do TCC | Feito |
-| 1 | Contexto comum (semente das trilhas) | Escrever a ideia central do Maxx e as regras de prêmios/pontos, sem stack, dados, segurança ou testes; colocar como `CLAUDE.md` e `AGENTS.md` no commit semente e fazer os dois repos de trilha nascerem dele | `docs/contexto-comum.md`, repos `maxx-leigo` e `maxx-engenheiro` | Os dois repos no mesmo commit `e32107d` (mesmo hash), com o contexto | Feito (12/09/2026; dois repos em 10/10/2026) |
+| 1 | A ideia (semente das trilhas) | Fixar a ideia como pitch, igual nas duas trilhas, e as regras completas como referência do autor; os repos nascem vazios (README e `.gitattributes`), sem `CLAUDE.md`; a ideia chega pelo prompt de abertura de cada persona | `docs/contexto-comum.md`, repos `maxx-leigo` e `maxx-engenheiro` | Os dois repos no mesmo commit semente vazio (mesmo hash, a registrar aqui); ideia, conhecimento por persona e política de reação do leigo documentados | Feito (12/09/2026 com `CLAUDE.md`; refeito em 11/10/2026 sem) |
 | 2 | Pesquisa das personas de usuário | Perfil de como cada persona formula prompts para as mesmas telas | `personas/leigo/`, `personas/engenheiro/` | Perfil de cada persona com vocabulário, nível de detalhe e lacunas típicas | Feito (leigo N=28; engenheiro em 12/09/2026) |
 | 3 | Especificação funcional por tela | Consolidar as telas (login, feed, perfil, mural, troféus, rankings) como escopo de referência | `docs/especificacao-telas.md` | Lista de telas/features com regras de negócio | Em consolidação |
 | 4 | Escrita dos prompts | Um prompt por rodada e por trilha, escrito a partir do perfil da persona | `prompts/leigo/`, `prompts/engenheiro/` | 1 arquivo por rodada, ID rastreável (ex.: `leigo_login.md`) | A fazer |
-| 5 | Protocolo de rodada | Sessão nova do Claude Code (CLI) na pasta do repo da trilha, branch da rodada, export da sessão, segunda sessão como revisor, review humano, merge na `main`; ambiente conferido (modelo, versão, memória automática desligada, nenhum `CLAUDE.md` fora do repo) | `protocolo-de-rodada.md` | Fluxo documentado e validado com uma rodada piloto ponta a ponta; modelo e versão registrados aqui | Protocolo escrito (10/10/2026); Orca abandonado; piloto a fazer |
+| 5 | Protocolo de rodada | Sessão nova do Claude Code (CLI) na pasta do repo da trilha, branch da rodada, export da sessão, segunda sessão como revisor, review humano, merge na `main`; ambiente conferido (modelo, versão, memória automática desligada, nenhum `CLAUDE.md` em lugar nenhum) | `protocolo-de-rodada.md` | Fluxo documentado e validado com uma rodada piloto ponta a ponta; modelo e versão registrados aqui | Protocolo escrito (10/10/2026); Orca abandonado; piloto a fazer |
 | 6 | Execução das rodadas | Rodar cada prompt na sua trilha; registrar a sessão | repos das trilhas, `resultados/<trilha>/` | Registro de cada rodada salvo | A fazer |
 | 7 | Validação técnica (testes) | Testes unitários de referência sobre a lógica crítica gerada (pontuação dos prêmios por tier, ranking), seção 3.2 do TCC | dentro do repo da trilha | Suíte de referência rodada por rodada, resultado registrado | A fazer |
 | 7b | Validação de carga | Teste de carga sintético (k6 ou autocannon), idêntico contra os dois deploys, com 200 e 2.000 usuários virtuais no feed, mural e upload de foto; registrar latência p95 e taxa de erro por trilha | `avaliacoes/carga/` | 1 relatório por trilha com os mesmos cenários e números | A fazer (depois do feed mergeado nas duas trilhas) |
@@ -30,10 +30,12 @@ aberto; a ordem e as dependências entre fases é o que importa manter.
 
 ## Regra de contexto por trilha
 
-O contexto comum (`CLAUDE.md`) é idêntico no commit semente dos dois repos e não é
-editado à mão depois disso. Cada trilha evolui o próprio contexto apenas por meio dos
-próprios prompts (o engenheiro tende a fazê-lo; o leigo, não). Nunca copiar contexto,
-código ou decisão entre trilhas.
+Os repos nascem vazios. A ideia (o pitch de `docs/contexto-comum.md`) chega ao agente
+pelo prompt de abertura de cada persona. O engenheiro transforma a ideia em regras de
+produto e requisitos técnicos antes do código e pode mandar o agente gravar isso como
+`CLAUDE.md` do repo dele; o leigo entrega o pitch e segue a política de reação. Cada
+trilha evolui o próprio contexto apenas por meio dos próprios prompts. Nunca copiar
+contexto, código ou decisão entre trilhas.
 
 ## Dependências entre fases
 

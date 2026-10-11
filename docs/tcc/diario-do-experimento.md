@@ -114,6 +114,31 @@ Stack do engenheiro trocada antes do primeiro prompt: de A (Expo + Fastify, Zod,
 Drizzle) para C (Expo + ASP.NET Core, EF Core, PostgreSQL, monorepo com contrato
 OpenAPI). A opção A tinha sido sugestão do Cowork aceita pelo autor em 12/09; a C é o
 que o autor escolheria sozinho, e é a stack em que o review corretivo dele é mais
-afiado, o que é parte do que se mede. O cliente segue nativo (Expo) porque app de
-loja é requisito do produto. Cogitou-se React web como PWA pela facilidade de deploy
-e teste; descartado por isso. Registro completo em `personas/engenheiro/perfil.md`.
+afiado, o que é parte do que se mede. O cliente é Expo (app de loja é requisito do
+produto), mas o acesso principal da primeira fase é a versão web do mesmo código: na
+apresentação a banca entra por QR code no navegador, e o nativo fica pronto para
+build sem ir às lojas. Cogitou-se React web puro (PWA); descartado porque o Expo dá
+web e nativo do mesmo projeto. Registro completo em `personas/engenheiro/perfil.md`.
+
+## 2026-10-11
+
+Mudança de desenho, decidida em debate com o Cowork ao revisar o rascunho do
+`eng_00`: **os repositórios passam a nascer vazios**, sem `CLAUDE.md`. Até aqui as
+duas trilhas recebiam o mesmo contexto com as regras completas do produto; isso
+entregava ao leigo uma especificação que ele nunca escreveria, e o experimento media
+só técnica de prompt. Agora a ideia é o pitch de corredor (igual nas duas) e chega ao
+agente pelo prompt de abertura de cada persona. O engenheiro faz três definições antes
+do código (design, produto no `eng_00_produto`, técnica no `eng_00_tecnica`, dois
+prompts na mesma sessão); o leigo entrega o pitch e segue uma política de reação
+pré-registrada (aceita o que o agente propõe, reclama só do que vê quebrado ou feio,
+não introduz regra nova), com abertura e prompts de tela escritos antes do piloto. O
+trabalho de definição não desaparece: ou a pessoa faz antes, ou o agente faz por ela,
+e isso passa a ser medido (tabela de custo de entrada e decisões do agente por
+trilha). A rubrica ganha o estado "regra ausente". A tese fica escopada: não afirma
+que o engenheiro tem ideias melhores, afirma que a disciplina de engenharia de
+software muda o que é construído a partir da mesma ideia; o autor único é a força do
+desenho (mesma pessoa, mesma ideia, só o conhecimento aplicado muda), com a política
+de reação como controle do que ele não consegue não saber. Semente órfã nos dois repos
+(README e `.gitattributes`), porque o `CLAUDE.md` ficaria no histórico. Decidido
+também que o Cowork revisa os prompts do autor sem reescrevê-los no próprio estilo; o
+exemplo do `eng_00` montado a partir do texto do autor fica registrado como tal.

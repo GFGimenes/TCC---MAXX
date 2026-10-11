@@ -88,7 +88,7 @@ de um leigo); os prompts do autor em projeto real ultrapassam isso com folga, po
 vêm acompanhados de arquivos de contexto que o agente deve ler antes de agir
 ("leia `docs/escopo_funcional.md` e `docs/kickoff/` antes de implementar um módulo").
 
-## O que exige de saída (conteúdo da rodada `eng_00_contexto`)
+## O que exige de saída (conteúdo da rodada `eng_00`)
 
 Declarado pelo autor para o Maxx: testes, formatação, convenção e boas práticas de
 git, Clean Code, SOLID, boas práticas de segurança de credenciais, encapsulamento,
@@ -155,26 +155,35 @@ fecha o prompt com "qualquer dúvida pode interromper e perguntar".
 Critério do autor: dimensionar pela projeção do projeto. Projeção declarada para o
 Maxx (12/09/2026): campus com 3.200 alunos, pico estimado de 2.000 usuários
 simultâneos (nunca todas as turmas de todos os períodos ao mesmo tempo). A carga real
-durante o TCC será de 10 a 15 pessoas, mas isso decide só a infra do deploy (mínima),
+durante o TCC será de 10 a 20 pessoas, mas isso decide só a infra do deploy (mínima),
 não a projeção. **Decisão (10/10/2026): opção C.** A opção A foi a decisão de 12/09,
 sugerida pelo Cowork e aceita pelo autor; foi trocada antes do primeiro prompt porque
 a persona é o autor, e a stack que ele escolheria sozinho, e que domina, é .NET no
 servidor. Isso importa para o experimento: o review corretivo do engenheiro, que é
 parte do que se mede, é mais afiado na stack em que ele enxerga de longe um
 controller mal feito, um N+1 no EF Core ou uma injeção de dependência errada. O
-cliente continua nativo (Expo) porque o Maxx é um app de celular com câmera e feed, e
-app de loja é requisito do produto, não só do TCC. A e B ficam registradas como
-alternativas consideradas.
+cliente é Expo porque o Maxx é um app de celular com câmera e feed e app de loja é
+requisito do produto; mas na primeira fase o acesso principal é a versão web do mesmo
+código, porque na apresentação a banca entra por QR code no navegador (decidido em
+10/10). A e B ficam registradas como alternativas consideradas.
 
 - **C. .NET + Expo, monorepo:** API em ASP.NET Core (LTS vigente) com EF Core e
   PostgreSQL, em camadas (API, aplicação, domínio, infraestrutura); cliente Expo
-  (React Native + TypeScript); contrato entre os dois pelo OpenAPI da API, com cliente
-  TypeScript gerado; fotos em storage S3-compatível com CDN; Docker Compose numa VPS
-  com Caddy; xUnit com Testcontainers na API, Vitest no cliente, e2e mobile a decidir
-  com o agente. Monorepo com `.sln` na raiz, `apps/api`, `apps/mobile` e
-  `packages/api-client`. É a combinação do trabalho do autor (.NET + React), com o
-  React na forma mobile; num projeto com mais gente ou mais volume ele escalaria a
-  infra (Kubernetes, fila, cache) como faz no trabalho.
+  (React Native + TypeScript) com Expo Router, um código só para web, Android e iOS.
+  A web é o acesso principal da primeira fase: a banca escaneia um QR code e abre o
+  app no navegador, servido pelo Caddy, centralizado numa moldura de largura de
+  celular no notebook; o nativo fica pronto para publicar (projeto configurado para
+  build e um APK gerado), sem publicar nas lojas. Contrato entre os dois pelo OpenAPI
+  da API, com cliente TypeScript gerado; fotos em storage S3-compatível com CDN,
+  nunca pela API; Docker Compose numa VPS com Caddy, que também serve o build web;
+  xUnit com Testcontainers na API, testes do cliente e e2e a decidir com o agente.
+  Monorepo com `.sln` na raiz, `apps/api`, `apps/mobile`, `packages/api-client` e
+  `design/`. Acesso de demonstração semeado para a apresentação (aluno de demo com
+  nome, turma e foto, código curto para voltar, ligado só por configuração). É a
+  combinação do trabalho do autor (.NET + React), com o React na forma mobile; num
+  projeto com mais gente ou mais volume ele escalaria a infra (Kubernetes, fila,
+  cache) como faz no trabalho. Desenho validado em 10/10 (página "Arquitetura do
+  Maxx", claude.ai).
 - **A. API própria em Node (decisão de 12/09, substituída):** Expo no cliente; API em
   Fastify + Zod + Drizzle + PostgreSQL; mesmo storage, deploy e testes com Vitest,
   testcontainers e Playwright. Era a combinação dos dois projetos solo de 2026
@@ -183,7 +192,7 @@ alternativas consideradas.
   políticas RLS) no lugar da API própria. Menos código por rodada, com a segurança
   concentrada nas políticas do banco.
 
-O que a projeção de 2.000 muda, e que o `eng_00_contexto` deve exigir como requisitos
+O que a projeção de 2.000 muda, e que o `eng_00_tecnica` deve exigir como requisitos
 não funcionais (a 200 poderiam ser ignorados): fotos servidas do bucket por CDN com
 URL assinada, nunca pela API; API sem estado (pode rodar duas réplicas); paginação do
 feed por cursor com índice; ranking pré-calculado por job ou view materializada; pool
@@ -195,9 +204,14 @@ de ranking) em fila no próprio Postgres. Verificação objetiva: teste de carga
 
 1. Português, longo, estruturado em seções; pode mandar o agente ler arquivos do
    repositório antes de agir.
-2. Abre a trilha com `eng_00_contexto`: pede plano, stack justificada, arquitetura,
-   modelo de dados, convenções, definição de pronto e estrutura de pastas, e manda
-   gravar isso como regras do projeto (`CLAUDE.md`) antes de qualquer código.
+2. Abre a trilha com dois prompts na mesma sessão: `eng_00_produto` (as regras do
+   produto, na voz dele: atores, telas, prêmios, tiers, progressão, login, acesso de
+   demonstração) e `eng_00_tecnica` (projeção, stack, arquitetura, segurança, testes,
+   deploy, jeito de trabalhar). Pede plano antes de código, estrutura, modelo de
+   dados, convenções e definição de pronto, e manda gravar isso como regras do
+   projeto (`CLAUDE.md` do repo dele) antes de qualquer código. Separar produto de
+   técnica é de propósito: na análise, cada diferença entre as trilhas é atribuída a
+   uma das duas coisas.
 3. Referência visual entra como artefato do engenheiro (mockups feitos antes), com
    dados consistentes entre telas.
 4. Cada tela é pedida com regras de negócio explícitas, restrições de segurança

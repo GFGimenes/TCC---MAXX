@@ -17,8 +17,9 @@ experiência do usuário e mantenabilidade, quando a mesma ideia é construída 
 um usuário leigo e por um engenheiro de software?
 
 O experimento constrói o mesmo aplicativo (Maxx, plataforma gamificada de engajamento
-acadêmico da rede UniEduk) em duas trilhas independentes, a partir de um contexto
-comum idêntico. Em uma trilha os prompts são escritos como um usuário sem formação
+acadêmico da rede UniEduk) em duas trilhas independentes, a partir da mesma ideia,
+entregue a cada trilha pelo prompt de abertura da própria persona, em repositórios que
+nascem vazios. Em uma trilha os prompts são escritos como um usuário sem formação
 técnica escreveria; na outra, como um engenheiro de software pleno escreveria. O
 agente de IA é o mesmo nas duas trilhas (Claude Code, da Anthropic), o revisor
 automático é o mesmo (mesmo modelo, mesmo prompt, mesma rubrica) e a validação técnica
@@ -28,11 +29,41 @@ pede; o que se mede é o produto que cada trilha constrói.
 [A completar: justificativa da simplificação em relação ao desenho da entrega parcial
 (quatro famílias de modelos e personas por modelo); por que um agente e um revisor.]
 
-### 3.1.1 Contexto comum
+### 3.1.1 A ideia e o conhecimento de cada persona
 
-[A completar a partir de `docs/contexto-comum.md`: o que o contexto fixa (ideia,
-atores, telas, regras de prêmios e pontos) e o que deliberadamente deixa de fora
-(stack, dados, segurança, testes), e por quê.]
+[A completar a partir de `docs/contexto-comum.md`. A ideia é o pitch de corredor,
+igual nas duas trilhas: uma rede social para a UniMax, parecida com o Instagram, com
+pontos por prêmios e medalhas, rankings geral e por curso, mural de avisos. Tudo que
+transforma o pitch em algo construível é engenharia de requisitos, e só o engenheiro
+faz antes do código. Registrar a mudança de 11/10/2026: até então as duas trilhas
+recebiam o mesmo `CLAUDE.md` com as regras completas; isso entregava ao leigo uma
+especificação que ele nunca escreveria e fazia o experimento medir só técnica de
+prompt. Sem o arquivo, o experimento mede o fenômeno inteiro.
+
+O que a tese afirma e o que não afirma: não afirma que o engenheiro tem ideias
+melhores; afirma que a disciplina de engenharia de software (requisitos, design,
+arquitetura, segurança, testes, operação) muda o que é construído a partir da mesma
+ideia. Uma pessoa sem formação técnica pode ter a ideia melhor; o que ela não tem é a
+disciplina de transformá-la, e é isso que se mede. O desenho com um autor único é a
+força do experimento, não a fraqueza: a mesma pessoa, a mesma ideia, mudando só o
+conhecimento aplicado.
+
+Engenheiro: três definições antes de qualquer código (design, em 9 a 10 horas e 14
+prompts; produto, no `eng_00_produto`; técnica, no `eng_00_tecnica`). Leigo: o pitch
+na abertura e nada mais, com política de reação pré-registrada (aceita o que o agente
+propõe, reclama só do que vê quebrado ou feio, não introduz regra nova), escrita antes
+do piloto a partir do corpus. O trabalho de definição não desaparece: ou a pessoa faz
+antes, ou o agente faz por ela, com os padrões dele; quanto cada agente decidiu
+sozinho é medido nas duas trilhas.
+
+Tabela 3.x, custo de entrada, por trilha: horas antes do primeiro código; artefatos
+produzidos antes do primeiro código (telas, tokens, linhas de prompt); decisões de
+produto e técnicas tomadas pela pessoa antes de o agente agir; decisões tomadas pelo
+agente sem pedido (somadas ao longo das rodadas).
+
+Limitações a declarar: um autor único não consegue não saber o que sabe, e a política
+de reação do leigo é o controle disso; os padrões assumidos pelo agente são os deste
+modelo nesta versão, e outro modelo assumiria outros.]
 
 ### 3.1.2 Personas de quem escreve o prompt
 
@@ -47,10 +78,10 @@ corpus). Incluir as limitações da amostra.]
 (mesmo hash), em vez de duas branches de um repositório, porque o agente executa `git`
 e poderia ler a outra branch; rodada como unidade (sessão nova do Claude Code, com
 diálogo registrado e exportado); sem orquestrador entre a persona e o agente, para
-que o único texto que chega ao agente seja o da persona mais o contexto comum; review
+que o único texto que chega ao agente seja o da persona; review
 automático e humano, regra observacional x corretiva; ambiente constante nas duas
 trilhas (mesmo modelo, mesma versão, mesma interface, memória automática desligada,
-nenhum arquivo de contexto fora do repositório). Registrar que o fluxo com Orca foi
+nenhum arquivo de contexto, nem no repositório). Registrar que o fluxo com Orca foi
 configurado em 12/09 e abandonado em 10/10, e por quê.]
 
 ### 3.1.4 Identidade visual da trilha do engenheiro
@@ -109,12 +140,14 @@ anterior do próprio autor: revisar o que a IA entregou, inclusive contra o que 
 pediu antes, faz parte do trabalho da persona.
 E o passo teve custo: entre 9 e 10 horas de trabalho da persona antes de qualquer
 código, contra zero da persona leiga. Esse custo entra na análise comparativa junto
-com o que ele comprou. Duas decisões de produto nasceram no design e, por serem regras
-do produto e não da trilha, entraram no contexto comum das duas trilhas antes da
-primeira rodada: a progressão de prêmios e o login exclusivamente institucional. As
-demais escolhas feitas no design (abas no perfil, filtro "quem eu sigo" no ranking,
-log de leitura no mural, raridade como ornamento) ficaram apenas na trilha do
-engenheiro e são tratadas como escopo emergente da persona.
+com o que ele comprou. Duas decisões de produto nasceram no design: a progressão de
+prêmios e o login exclusivamente institucional. De 26/09 a 10/10 elas estiveram no
+contexto comum das duas trilhas; com a mudança de 11/10 (repositórios vazios, ideia
+como pitch) passaram a ser regras que só o engenheiro declara, no `eng_00_produto`, e
+que o leigo só terá se pedir ou se o agente oferecer. As demais escolhas feitas no
+design (abas no perfil, filtro "quem eu sigo" no ranking, log de leitura no mural,
+raridade como ornamento) ficaram apenas na trilha do engenheiro e são tratadas como
+escopo emergente da persona.
 
 ## 3.2 Validação do código gerado
 

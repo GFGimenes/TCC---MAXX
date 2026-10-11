@@ -8,6 +8,15 @@ Escala por eixo: **1 (crítico) a 5 (excelente)**. Pontuação total possível: 
 5 eixos). Registre a pontuação e as observações na planilha
 `avaliacoes/registro-avaliacoes.xlsx`.
 
+**Regra ausente.** Quando o produto de uma trilha não implementa uma regra do produto
+(por exemplo, não tem tiers, não tem progressão, não restringe quem pode dar medalha),
+o critério correspondente é marcado como **ausente**, não como errado: a nota do eixo
+é calculada sobre o que existe, e a ausência vai para a planilha e para a análise como
+resultado (regra nunca pedida pela persona e nunca oferecida pelo agente). Os testes
+de referência de fronteira de pontos aplicam-se à regra de pontos que o produto tiver;
+se não houver regra de pontos, o teste é "ausente". Decidido em 11/10/2026, quando os
+repos passaram a nascer sem contexto comum.
+
 ## 1. Arquitetura
 
 | Nota | Critério |
@@ -16,8 +25,8 @@ Escala por eixo: **1 (crítico) a 5 (excelente)**. Pontuação total possível: 
 | 2 | Estrutura confusa; mistura responsabilidades (ex.: lógica de negócio no componente de UI); pouca reutilização. |
 | 3 | Separação básica de camadas (frontend/backend/dados), mas com acoplamentos evitáveis ou decisões não justificadas. |
 | 4 | Arquitetura coerente com o restante da trilha, camadas bem definidas, decisões justificadas mesmo que melhoráveis. |
-| 5 | Arquitetura coerente, justificada, adequada ao produto descrito no contexto comum (app para celular, muitos alunos, fotos) e preparada para crescer (novas telas/features sem retrabalho). |
-| — | Nota: o contexto comum não fixa stack. A stack é decisão da trilha (explícita no prompt do engenheiro, delegada à IA no caso do leigo) e a decisão em si é registrada como resultado, não pontuada aqui; o que se pontua é a coerência com ela. |
+| 5 | Arquitetura coerente, justificada, adequada ao produto pedido pela trilha (app para celular, muitos alunos, fotos) e preparada para crescer (novas telas/features sem retrabalho). |
+| — | Nota: a ideia não fixa stack. A stack é decisão da trilha (explícita no prompt do engenheiro, delegada à IA no caso do leigo) e a decisão em si é registrada como resultado, não pontuada aqui; o que se pontua é a coerência com ela. |
 
 ## 2. Segurança
 
@@ -28,7 +37,7 @@ Escala por eixo: **1 (crítico) a 5 (excelente)**. Pontuação total possível: 
 | 3 | Validações básicas presentes, mas faltam casos de borda (ex.: não trata prova de foto adulterada/duplicada, não valida quem pode dar medalha a quem). |
 | 4 | Validação de entrada e autorização consistentes; poucos pontos a reforçar. |
 | 5 | Trata dados sensíveis (RA, fotos-prova, notas) corretamente, valida entradas, aplica o princípio do menor privilégio (aluno x professor) e não expõe segredos. |
-| — | Referência: o contexto comum não traz restrições de segurança de propósito; esta tabela é a referência. Dados sensíveis do Maxx: RA, e-mail, fotos-prova, notas e pontos. |
+| — | Referência: a ideia não traz restrições de segurança de propósito; esta tabela é a referência. Dados sensíveis do Maxx: RA, e-mail, fotos-prova, notas e pontos. |
 
 ## 3. Código
 
@@ -37,7 +46,7 @@ Escala por eixo: **1 (crítico) a 5 (excelente)**. Pontuação total possível: 
 | 1 | Não compila/roda; lógica claramente errada (ex.: faixas de pontos dos tiers erradas, ranking fora de ordem). |
 | 2 | Roda, mas falha em testes unitários básicos de fronteira (ex.: aceita prêmio Bronze de 31 pontos, ou Diamante de 151; empata ranking de forma inconsistente). |
 | 3 | Passa nos testes de fronteira, mas não trata entradas inválidas (null, tipos errados) como no exemplo de teste da seção 3.2. |
-| 4 | Passa nos testes de fronteira e de entrada inválida; segue as convenções de nomenclatura/organização do contexto comum. |
+| 4 | Passa nos testes de fronteira e de entrada inválida; segue as convenções de nomenclatura e organização da própria trilha. |
 | 5 | Idem ao 4, e sem sinais de alucinação (função/API inexistente, import que não existe, lógica plausível mas incorreta). |
 | — | Critério objetivo: rodar a suíte de testes de referência da fase 7 antes de pontuar este eixo (fronteiras 30/31, 70/71, 100/101, 150/151 da pontuação por tier; entradas inválidas; ordenação do ranking). |
 

@@ -26,7 +26,7 @@ constrói, avaliado com a mesma rubrica em 5 eixos de qualidade de software.
 ## Desenho do experimento
 
 ```
-Ideia central (contexto comum, idêntico) ──▶ Trilha LEIGO      ──▶ deploy (URL 1)
+Mesma ideia (pitch; repos nascem vazios) ──▶ Trilha LEIGO      ──▶ deploy (URL 1)
                                          └─▶ Trilha ENGENHEIRO ──▶ deploy (URL 2)
 
 Cada rodada, em cada trilha:
@@ -35,14 +35,18 @@ prompt da persona ──▶ Claude Code gera/evolui o código ──▶ review p
 ```
 
 - **Trilha = repositório** (`maxx-leigo` e `maxx-engenheiro`), os dois nascendo do mesmo
-  commit (`e32107d`, mesmo hash nos dois) com o mesmo `CLAUDE.md` (o contexto comum,
-  ver `docs/contexto-comum.md`). Repos separados, e não branches, para o agente de uma
+  commit semente, vazio (README e `.gitattributes`; mesmo hash nos dois). A ideia está
+  em `docs/contexto-comum.md`. Repos separados, e não branches, para o agente de uma
   trilha não ter como enxergar a outra nem por `git` (decidido em 10/10/2026).
-- **Contexto preservado por trilha.** O contexto comum é a semente das duas. A partir
-  daí, cada trilha só evolui o próprio contexto pelos próprios prompts: o engenheiro
-  pode abrir com uma rodada que estabelece regras de arquitetura e boas práticas; o
-  leigo não faz isso, porque o corpus mostra que não faria. Nunca se copia contexto,
-  código ou decisão de uma trilha para a outra.
+- **A mesma ideia, conhecimento diferente.** A ideia é o pitch de corredor, igual nas
+  duas trilhas, e chega ao agente pelo prompt de abertura de cada persona; nenhum
+  arquivo de contexto vai no repositório. O engenheiro transforma o pitch em regras de
+  produto e em requisitos técnicos antes de qualquer código (três definições: design,
+  produto, técnica); o leigo entrega o pitch e segue, porque o corpus mostra que
+  faria assim. O trabalho de definição não desaparece: ou a pessoa faz antes, ou o
+  agente faz por ela, e isso é medido. Nunca se copia contexto, código ou decisão de
+  uma trilha para a outra (decidido em 11/10/2026; antes, as duas trilhas recebiam o
+  mesmo `CLAUDE.md`).
 - **Um único agente** (Claude Code) nas duas trilhas, e **um único revisor** (mesmo
   modelo, mesmo prompt, mesma rubrica) para as duas. Assim a diferença observada é
   atribuível ao prompt e à validação do usuário, não à ferramenta.
@@ -57,7 +61,7 @@ prompt da persona ──▶ Claude Code gera/evolui o código ──▶ review p
 ## Estrutura
 
 ```
-docs/            Contexto comum, especificação por tela, linha do tempo do experimento
+docs/            A ideia e as regras do produto, especificação por tela, linha do tempo
 personas/        Perfis leigo/engenheiro que orientam como cada prompt é escrito
 prompts/         Prompts efetivamente enviados, um arquivo por rodada (<trilha>_<tela>.md)
 protocolo-de-rodada.md   Como uma rodada é executada (sessão nova do Claude Code, revisor, checklist)

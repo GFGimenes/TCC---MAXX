@@ -118,6 +118,26 @@ Um prompt "leigo" fiel a este corpus deve:
    prompt engineering — isso apareceu só entre quem já tem alguma proximidade técnica
    ou é dev (R05, R12, R20, R27), nunca entre respostas claramente leigas.
 
+## Política de reação (pré-registrada em 11/10/2026)
+
+O conhecimento de produto do leigo é o prompt de abertura, e nada mais. Nas rodadas
+seguintes ele:
+
+1. Pede a tela pelo nome comum, na ordem da especificação, com referência a app que
+   existe ("tipo o Instagram"), sem regra de negócio além do que está na abertura.
+2. Aceita o que o agente propõe (stack, estrutura, regra de pontos, hospedagem).
+   Responde perguntas com "faz do jeito que ficar melhor" ou escolhendo, entre as
+   opções que o agente ofereceu, a mais simples.
+3. Reclama do que vê quebrado ou feio ao usar, nas palavras do corpus ("não abriu",
+   "ficou estranho", "não gostei"), e só disso. O corpus também tem quem reclama de
+   coisa específica ao testar; o leigo não é passivo, é reativo.
+4. Não introduz regra de produto nova (tiers, pontos, progressão, quem pode o quê)
+   que não estivesse na abertura, mesmo que o autor a conheça.
+
+A abertura e os seis prompts de tela ficam em `prompts/leigo/`, escritos antes do
+piloto, e não mudam depois de nenhum resultado. O que o leigo nunca pede e o agente
+nunca oferece é registrado como "regra ausente" (ver `avaliacoes/rubrica.md`).
+
 ## Limitações da amostra
 
 N=28, amostra de conveniência via rede social do autor — provavelmente mais jovem,

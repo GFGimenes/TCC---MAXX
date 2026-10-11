@@ -1,20 +1,56 @@
-# Contexto Comum do Projeto (semente das duas trilhas)
+# A ideia (semente das duas trilhas)
 
-Este é o texto que vai, **idêntico e sem nenhum acréscimo**, para as duas trilhas do
-experimento (repos `maxx-leigo` e `maxx-engenheiro`, mesma semente), como `CLAUDE.md` e
-`AGENTS.md` na raiz. Ele é a constante do experimento: a "ideia central" de onde todo
-prompt parte. Tudo o que não está aqui (stack, modelo de dados, arquitetura,
-segurança, testes, convenções) chega apenas pelos prompts de cada trilha, ou não
-chega. Isso é proposital: a diferença entre as trilhas deve ser atribuível a quem
-pede e como pede.
+Até 10/10/2026 este arquivo era copiado, idêntico, como `CLAUDE.md` e `AGENTS.md` na
+raiz dos dois repositórios. Em 11/10/2026 isso mudou: **os repositórios nascem vazios**
+(só `README.md` e `.gitattributes`) e a ideia chega ao agente pelo prompt de abertura
+de cada persona, cada uma do seu jeito. O motivo está no diário e no capítulo 3:
+entregar ao leigo uma especificação que ele nunca escreveria fazia o experimento medir
+só técnica de prompt; sem o arquivo, ele mede o fenômeno inteiro, e transformar a
+ideia em regras passa a fazer parte do que se mede.
 
-Regras de manutenção:
+## O que é "a mesma ideia"
 
-- Este arquivo não muda à mão durante o experimento. Se precisar mudar, todas as
-  rodadas anteriores ficam marcadas como executadas com a versão anterior.
-- Depois do commit semente, o `CLAUDE.md` de cada repo só evolui pelos prompts da
-  própria trilha (o engenheiro pode pedir regras de arquitetura e boas práticas; o
-  leigo não). Nunca copiar o contexto de uma trilha para a outra.
+A ideia é o pitch de corredor, igual nas duas trilhas:
+
+> Uma rede social para a UniMax, parecida com o Instagram mas sem stories e sem
+> mensagens, onde os alunos ganham pontos por prêmios e medalhas dadas pelos
+> professores, e esses pontos os colocam em rankings geral e por curso. Só alunos e
+> professores usam. Tem um mural onde os coordenadores dos cursos publicam avisos.
+
+Tudo que transforma o pitch em algo construível (atores formais, telas, tipos de
+prêmio, tiers e pontos, progressão, login só institucional, comprovação por foto,
+ex-alunos) é engenharia de requisitos, e só uma das personas faz isso antes do código.
+
+## Conhecimento de produto por persona
+
+- **Engenheiro**: define as regras do produto antes de qualquer código, no prompt
+  `eng_00_produto` (a versão dele das regras abaixo, na voz dele), seguido na mesma
+  sessão do `eng_00_tecnica` (projeção, stack, arquitetura, segurança, testes, deploy
+  e jeito de trabalhar). Três definições antes do código: design, produto, técnica.
+- **Leigo**: o conhecimento de produto do leigo é o prompt de abertura, e nada mais.
+  Daí em diante ele não introduz regra nova: reage ao que vê, aceita o que o agente
+  propõe e reclama do que quebra ou contradiz o que pediu, nas palavras do corpus. O
+  que o leigo nunca pede, e o agente nunca oferece, é resultado do experimento
+  ("regra ausente"), não defeito da persona. A política de reação está em
+  `personas/leigo/perfil.md`; a abertura e os prompts por tela são escritos antes do
+  piloto e não mudam depois de nenhum resultado.
+
+O trabalho de definição não desaparece: ou a pessoa faz antes, ou o agente faz por
+ela, com os padrões dele. Quanto cada agente decidiu sozinho é medido nas duas
+trilhas.
+
+## O que fica constante nas duas trilhas
+
+Nome (Maxx), faculdade (UniMax, rede UniEduk), as seis telas na mesma ordem de rodadas
+(`docs/especificacao-telas.md`), os números dos tiers quando aparecerem, modelo e
+versão do Claude Code, revisor, rubrica e testes de referência. Nunca se copia
+contexto, código ou decisão de uma trilha para a outra.
+
+## Regras completas do produto (referência do autor; base do `eng_00_produto`)
+
+Este é o texto que foi o `CLAUDE.md` comum de 12/09 a 10/10/2026. Continua sendo a
+referência do que o produto é; o engenheiro o reescreve na voz dele no
+`eng_00_produto`, e o leigo não o recebe.
 
 ---
 

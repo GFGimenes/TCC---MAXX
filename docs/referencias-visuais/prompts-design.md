@@ -599,8 +599,10 @@ na seção de fechamento.
   exportação completa das três sessões (código-fonte das pranchetas, `canvas.json`,
   `tokens.json`, `README.md` do design system, componentes, fontes e imagens), com
   um README de procedência e a versão exportada de cada canvas.
-- Decisões de produto que nasceram no design e entraram no contexto comum antes de
-  qualquer rodada: progressão de prêmios; login somente institucional. Decisões que
+- Decisões de produto que nasceram no design: progressão de prêmios; login somente
+  institucional. Entraram no contexto comum em 26/09 e, com a mudança de 11/10
+  (repositórios vazios, ideia como pitch), passaram a regras do `eng_00_produto`, só
+  do engenheiro. Decisões que
   ficaram só no design do engenheiro (escopo emergente da persona, a registrar na
   análise): abas do perfil (tudo, troféus, medalhas); filtro "quem eu sigo" nos
   rankings; log de leitura do mural ("quem publicou vê que você leu e quando");

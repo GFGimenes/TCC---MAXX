@@ -6,7 +6,7 @@ os arquivos antigos estão em `docs/rascunhos/orca-README.md` e
 `docs/rascunhos/orca-coordenador.md`, e o motivo está no diário.
 
 Resumo: cada trilha é um repositório próprio (`maxx-leigo`, `maxx-engenheiro`),
-nascidos do mesmo commit `e32107d`. Cada rodada é uma sessão nova do Claude Code
+nascidos da mesma semente vazia (README e `.gitattributes`, mesmo hash nos dois). Cada rodada é uma sessão nova do Claude Code
 (CLI), aberta na pasta do repo da trilha, numa branch da rodada. Quem fala com o
 agente é a persona, direto. O revisor de IA é uma segunda sessão. O merge na `main`
 só acontece depois do review humano.
@@ -21,14 +21,15 @@ só acontece depois do review humano.
 3. Memória automática desligada, fora dos repos: variável de ambiente
    `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` no Windows (ou `autoMemoryEnabled: false` em
    `~/.claude/settings.json`). Conferir com `/memory`.
-4. Nada além do `CLAUDE.md` do repo pode entrar no contexto. O Claude Code carrega,
+4. Nada pode entrar no contexto além do prompt da persona e, nas rodadas seguintes,
+   do que a própria trilha commitou (inclusive um `CLAUDE.md`, se a persona mandou o
+   agente criar). O Claude Code carrega,
    nesta ordem: `C:\Program Files\ClaudeCode\CLAUDE.md` (política), `~/.claude/CLAUDE.md`
    (global), `CLAUDE.md` e `.claude/CLAUDE.md` da pasta de trabalho e de **todas as
    pastas acima** (`Repos\tcc`, `Repos`, `Documents`, a home), `CLAUDE.local.md` nos
    mesmos lugares e `.claude/rules/*.md`. Durante o experimento, o global fica vazio
    ou renomeado e nenhuma pasta acima dos repos tem esses arquivos. Conferir com
-   `/context` na primeira sessão de cada repo: em "Memory files" só pode aparecer o
-   `CLAUDE.md` do repo.
+   `/context` na primeira sessão de cada repo: "Memory files" vazio.
 5. Transcrições automáticas ficam em `~/.claude/projects/<pasta>/<sessão>.jsonl` e
    são apagadas depois de `cleanupPeriodDays` (padrão: 30 dias). O `/export` por
    rodada (passo 6 abaixo) é a cópia que vale.
@@ -42,11 +43,13 @@ só acontece depois do review humano.
    `Repos\tcc\maxx-engenheiro`), `main` limpa e em dia com a origin:
    `git checkout -b rodada/<id>`.
 3. `claude`, sessão nova (nunca `--continue` ou `--resume`). Conferir `/status`
-   (modelo e versão) e `/context` (só o `CLAUDE.md` do repo).
+   (modelo e versão) e `/context` (nenhum arquivo de memória na abertura; depois, só
+   o que a própria trilha commitou).
 4. Colar o prompt. Se o agente perguntar, responder no estilo da persona: o leigo
    responde vago ("faz do jeito que ficar melhor"); o engenheiro responde com a
    restrição técnica que ele daria, e pode pedir opções com pesos. Nunca responder
-   com decisão de produto que não esteja no contexto comum. Cada troca conta como
+   com decisão de produto que não esteja no prompt de abertura da persona. Cada
+   troca conta como
    turno humano (métrica de custo) e vai anotada no registro da rodada.
 5. Quando o agente terminar, não corrigir nada. Se ele não tiver commitado, o autor
    commita na branch da rodada sem alterar arquivo algum.

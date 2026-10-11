@@ -13,20 +13,23 @@ retomar sem depender do histórico da conversa.
   versão final.
 - Rodadas podem ter diálogo (perguntas do agente e respostas da persona), desde que
   cada mensagem humana fique registrada em `resultados/<trilha>/<id>.md`; o número
-  de turnos humanos por rodada é métrica de custo. O `eng_00_contexto` deve ser
-  enxuto (80 a 120 linhas): decisões e critérios de aceite, não o conteúdo que a IA
-  deve produzir (modelo de dados, fluxos, estrutura de pastas viram entregáveis);
-  sem "leia o CLAUDE.md" (o Claude Code já o carrega em toda sessão, nas duas
-  trilhas). Depois do review humano vem `eng_00_contexto_v2` com correções.
+  de turnos humanos por rodada é métrica de custo. A abertura do engenheiro são dois
+  prompts na mesma sessão: `eng_00_produto` (as regras do produto, na voz dele) e
+  `eng_00_tecnica` (projeção, stack, arquitetura, segurança, testes, deploy, jeito de
+  trabalhar): decisões e critérios de aceite, não o conteúdo que a IA deve produzir
+  (modelo de dados, fluxos, estrutura de pastas viram entregáveis). Depois do review
+  humano vem `eng_00_v2` com correções.
 
 - Experimento: duas trilhas (`leigo` e `engenheiro`), um repositório por trilha
-  (`maxx-leigo`, `maxx-engenheiro`, mesma semente `e32107d`), um único agente (Claude
+  (`maxx-leigo`, `maxx-engenheiro`, mesma semente vazia), um único agente (Claude
   Code CLI, sessão nova por rodada, sem orquestrador), um único revisor (mesmo
   modelo, mesmo prompt, mesma rubrica),
   review humano observacional no leigo e corretivo no engenheiro, correção só por
   prompt (`_v2`). Qualidade do prompt embutida na persona. Ver `README.md`.
-- Contexto comum: `docs/contexto-comum.md`, idêntico como `CLAUDE.md` e `AGENTS.md`
-  no commit semente dos dois repos. Só evolui pelos prompts de cada trilha.
+- A ideia: `docs/contexto-comum.md`. Pitch igual nas duas trilhas, entregue pelo
+  prompt de abertura de cada persona; repos nascem vazios, sem `CLAUDE.md` (decidido
+  em 11/10). As regras completas ficam lá como referência do autor e base do
+  `eng_00_produto`; o leigo não as recebe.
 - Prêmios: tier do prêmio define pontos (Bronze 1 a 30, Prata 31 a 70, Ouro 71 a 100,
   Diamante 101 a 150); aluno não tem tier, ranking é posição numérica.
 - Persona do engenheiro: o autor, com os devs do corpus como corroboração
@@ -72,18 +75,22 @@ Primeira mensagem sugerida:
 1. Identidade visual antes de qualquer prompt: mockups das 6 telas (Claude Design ou
    Figma) a partir de `docs/rascunhos/`, salvos em `docs/referencias-visuais/`. É
    trabalho da persona fora do agente; registrar o tempo gasto como custo.
-2. `eng_00_contexto`: um prompt de cerca de 50 linhas com ideia, projeção (campus de
-   3.200, pico de 2.000), arquitetura em camadas, modelo de desenvolvimento (plano
-   antes de código, testes, convenções, definição de pronto), infra (stack C, deploy
-   mínimo) e o pedido: propor a base do projeto e discutir o que é interessante para
-   ela. É uma rodada com diálogo: o agente pergunta e propõe, o engenheiro debate e
-   pede opções com pesos. Tudo registrado em `resultados/engenheiro/eng_00_contexto.md`.
-   Não escrever "leia o CLAUDE.md" (o Claude Code já o carrega). O rascunho longo de
-   342 linhas ficou arquivado em `docs/rascunhos/eng_00_contexto_v0_longo.md` como
+2. Rodada `eng_00`, dois prompts na mesma sessão. Primeiro `eng_00_produto`: as
+   regras do produto na voz do engenheiro (atores, telas, troféus e medalhas, tabela
+   de tiers, aluno sem tier, progressão, login institucional ou RA, comprovação por
+   foto, ex-alunos, rankings, mural, acesso de demonstração), fechando com "só
+   confirme o entendimento; a parte técnica vem a seguir". Depois `eng_00_tecnica`:
+   projeção (campus de 3.200, pico de 2.000), stack C, arquitetura e requisitos não
+   funcionais, segurança, jeito de trabalhar, design no repo, e o pedido: propor a
+   base do projeto e discutir o que é interessante para ela. É uma rodada com
+   diálogo: o agente pergunta e propõe, o engenheiro debate e pede opções com pesos.
+   Tudo registrado em `resultados/engenheiro/eng_00.md`. O rascunho longo de 342
+   linhas ficou arquivado em `docs/rascunhos/eng_00_contexto_v0_longo.md` como
    referência do que a IA deve produzir, não do que o engenheiro escreve.
 3. Planejamento: o resultado da rodada 2 é o plano, a arquitetura, o modelo de dados,
-   a estrutura de pastas e as regras gravadas no `CLAUDE.md` do repo `maxx-engenheiro`.
-   Review humano corretivo, depois `eng_00_contexto_v2` com correções e o "pode
+   a estrutura de pastas e as regras gravadas pelo agente como `CLAUDE.md` do repo
+   `maxx-engenheiro`, a pedido do engenheiro (é a trilha dele criando o próprio
+   contexto). Review humano corretivo, depois `eng_00_v2` com correções e o "pode
    subir a fundação" (tooling, banco, migration inicial, CI, sem funcionalidade).
 4. Desenvolvimento: `eng_01_login`, depois módulo a módulo (feed, troféus, perfil e
    ranking, mural), cada tela com regras de negócio, restrições de segurança, casos
@@ -100,6 +107,11 @@ Primeira mensagem sugerida:
 2. Depois, uma rodada por tela, sempre curta, nomeando a feature pelo nome de usuário
    final ("agora quero a tela de troféus, tipo conquistas de jogo").
 3. Review humano observacional: registra, não corrige. Merge do que saiu.
+4. Política de reação pré-registrada (`personas/leigo/perfil.md`): o conhecimento de
+   produto do leigo é a abertura e nada mais; ele aceita o que o agente propõe,
+   reclama só do que vê quebrado ou feio, e não introduz regra nova. A abertura e os
+   seis prompts de tela são escritos antes do piloto e não mudam depois de nenhum
+   resultado. O que ele nunca pede vira "regra ausente" na rubrica.
 
 ## Como rodar uma rodada
 
@@ -115,15 +127,19 @@ diário e tabela do capítulo 3.
 ## Próxima sessão, na ordem
 
 1. FEITO em 27/09. Mockups do engenheiro em `docs/referencias-visuais/` (registro em `prompts-design.md`, 14 prompts; PNGs das 15 telas na pasta; exportação completa do design em `design/`, canvas 1 na versão final `1790471156-05a5`).
-2. Escrever `prompts/engenheiro/eng_00_contexto.md` enxuto (cerca de 50 linhas), no
-   formato do passo 2 acima. O autor escreve; o Cowork revisa contra
-   `personas/engenheiro/perfil.md` e `docs/especificacao-telas.md`.
-3. Escrever `prompts/leigo/leigo_00_abertura.md` (o Cowork redige a partir do corpus;
-   o autor valida contra as respostas reais em `personas/leigo/corpus-respostas.md`).
+2. Escrever `prompts/engenheiro/eng_00_produto.md` e `eng_00_tecnica.md`, no formato
+   do passo 2 acima. O autor escreve; o Cowork revisa contra
+   `personas/engenheiro/perfil.md`, `docs/contexto-comum.md` e
+   `docs/especificacao-telas.md`. Antes, levar o pacote de design para o repo
+   (`design/`, primeiro commit da branch `rodada/eng_00`).
+3. Escrever `prompts/leigo/leigo_00_abertura.md` e os seis prompts de tela, todos
+   antes do piloto (o Cowork redige a partir do corpus e da política de reação; o
+   autor valida contra as respostas reais em `personas/leigo/corpus-respostas.md`).
+   Depois de escritos, não mudam.
 4. Ambiente das rodadas: FEITO em 10/10 (dois repos no lugar do Orca). Antes do
    piloto, a conferência única do `protocolo-de-rodada.md`: versão do Claude Code,
-   modelo fixado, memória automática desligada, nenhum `CLAUDE.md` global ou acima
-   dos repos, `/context` limpo. Registrar modelo e versão na linha do tempo.
+   modelo fixado, memória automática desligada, nenhum `CLAUDE.md` em lugar nenhum,
+   `/context` sem arquivo de memória. Registrar modelo e versão na linha do tempo.
 5. Contas para o deploy: VPS pequena e bucket S3-compatível (trilha do engenheiro);
    conta Expo e uma hospedagem gratuita genérica para o que o agente da trilha leiga
    escolher. Uma URL por trilha.
@@ -135,8 +151,9 @@ diário e tabela do capítulo 3.
 8. **Três repositórios.** `maxx-leigo` e `maxx-engenheiro` (`Repos\tcc\maxx-leigo` e
    `Repos\tcc\maxx-engenheiro`; remotos privados `GFGimenes/maxx-leigo` e
    `GFGimenes/maxx-engenheiro`, o segundo é o antigo `Maxx` renomeado) são os repos
-   das trilhas, os únicos que os agentes tocam, ambos nascidos do commit `e32107d`
-   com o mesmo hash. A `tcc` é o repositório do TCC (`origin` = `GFGimenes/TCC---MAXX`,
+   das trilhas, os únicos que os agentes tocam, ambos nascidos da semente órfã de
+   11/10 (só README e `.gitattributes`; mesmo hash nos dois, registrado na linha do
+   tempo). A `tcc` é o repositório do TCC (`origin` = `GFGimenes/TCC---MAXX`,
    branch `master`, privado), caderno do autor; as duas pastas de trilha estão no
    `.gitignore` dela e nunca entram nela. O Cowork commita na `tcc` a cada sessão; o
    push é do autor (a ponte não tem credencial do GitHub). Versões em PDF do TCC em
