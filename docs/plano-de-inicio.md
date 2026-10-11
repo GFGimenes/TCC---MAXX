@@ -21,7 +21,7 @@ retomar sem depender do histórico da conversa.
   humano vem `eng_00_v2` com correções.
 
 - Experimento: duas trilhas (`leigo` e `engenheiro`), um repositório por trilha
-  (`maxx-leigo`, `maxx-engenheiro`, mesma semente vazia), um único agente (Claude
+  (`maxx-leigo`, `maxx-engenheiro`, mesma semente vazia `1577ae9`), um único agente (Claude
   Code CLI, sessão nova por rodada, sem orquestrador), um único revisor (mesmo
   modelo, mesmo prompt, mesma rubrica),
   review humano observacional no leigo e corretivo no engenheiro, correção só por
@@ -152,8 +152,7 @@ diário e tabela do capítulo 3.
    `Repos\tcc\maxx-engenheiro`; remotos privados `GFGimenes/maxx-leigo` e
    `GFGimenes/maxx-engenheiro`, o segundo é o antigo `Maxx` renomeado) são os repos
    das trilhas, os únicos que os agentes tocam, ambos nascidos da semente órfã de
-   11/10 (só README e `.gitattributes`; mesmo hash nos dois, registrado na linha do
-   tempo). A `tcc` é o repositório do TCC (`origin` = `GFGimenes/TCC---MAXX`,
+   11/10 (só README e `.gitattributes`; commit `1577ae9` nos dois). A `tcc` é o repositório do TCC (`origin` = `GFGimenes/TCC---MAXX`,
    branch `master`, privado), caderno do autor; as duas pastas de trilha estão no
    `.gitignore` dela e nunca entram nela. O Cowork commita na `tcc` a cada sessão; o
    push é do autor (a ponte não tem credencial do GitHub). Versões em PDF do TCC em

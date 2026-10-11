@@ -35,7 +35,7 @@ prompt da persona ──▶ Claude Code gera/evolui o código ──▶ review p
 ```
 
 - **Trilha = repositório** (`maxx-leigo` e `maxx-engenheiro`), os dois nascendo do mesmo
-  commit semente, vazio (README e `.gitattributes`; mesmo hash nos dois). A ideia está
+  commit semente, vazio (`1577ae9`: README e `.gitattributes`, mesmo hash nos dois). A ideia está
   em `docs/contexto-comum.md`. Repos separados, e não branches, para o agente de uma
   trilha não ter como enxergar a outra nem por `git` (decidido em 10/10/2026).
 - **A mesma ideia, conhecimento diferente.** A ideia é o pitch de corredor, igual nas

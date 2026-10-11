@@ -6,7 +6,7 @@ os arquivos antigos estão em `docs/rascunhos/orca-README.md` e
 `docs/rascunhos/orca-coordenador.md`, e o motivo está no diário.
 
 Resumo: cada trilha é um repositório próprio (`maxx-leigo`, `maxx-engenheiro`),
-nascidos da mesma semente vazia (README e `.gitattributes`, mesmo hash nos dois). Cada rodada é uma sessão nova do Claude Code
+nascidos da mesma semente vazia (`1577ae9`: README e `.gitattributes`). Cada rodada é uma sessão nova do Claude Code
 (CLI), aberta na pasta do repo da trilha, numa branch da rodada. Quem fala com o
 agente é a persona, direto. O revisor de IA é uma segunda sessão. O merge na `main`
 só acontece depois do review humano.
