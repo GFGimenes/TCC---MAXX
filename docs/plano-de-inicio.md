@@ -127,7 +127,7 @@ diário e tabela do capítulo 3.
 ## Próxima sessão, na ordem
 
 1. FEITO em 27/09. Mockups do engenheiro em `docs/referencias-visuais/` (registro em `prompts-design.md`, 14 prompts; PNGs das 15 telas na pasta; exportação completa do design em `design/`, canvas 1 na versão final `1790471156-05a5`).
-2. Escrever `prompts/engenheiro/eng_00_produto.md` e `eng_00_tecnica.md`, no formato
+2. FEITO em 11/10. `prompts/engenheiro/eng_00_produto.md` e `eng_00_tecnica.md`, no formato
    do passo 2 acima. O autor escreve; o Cowork revisa contra
    `personas/engenheiro/perfil.md`, `docs/contexto-comum.md` e
    `docs/especificacao-telas.md`. Antes, levar o pacote de design para o repo
@@ -143,10 +143,10 @@ diário e tabela do capítulo 3.
 5. Contas para o deploy: VPS pequena e bucket S3-compatível (trilha do engenheiro);
    conta Expo e uma hospedagem gratuita genérica para o que o agente da trilha leiga
    escolher. Uma URL por trilha.
-6. Rodada piloto: `leigo_00_abertura` e `eng_00_contexto`, cada uma no seu repo,
+6. Rodada piloto: `leigo_00_abertura` e `eng_00` (produto e técnica), cada uma no seu repo,
    seguindo o protocolo. Validar o fluxo ponta a ponta (sessão, export, revisor,
    checklist, planilha, registro, merge, diário).
-7. `eng_00_contexto_v2` depois do review humano; então `eng_01_login` e
+7. `eng_00_v2` depois do review humano; então `eng_01_login` e
    `leigo_01_login`, e seguir módulo a módulo.
 8. **Três repositórios.** `maxx-leigo` e `maxx-engenheiro` (`Repos\tcc\maxx-leigo` e
    `Repos\tcc\maxx-engenheiro`; remotos privados `GFGimenes/maxx-leigo` e

@@ -22,10 +22,13 @@ Data: 2026-09-20
 <prompt exatamente como enviado>
 ```
 
-Rodadas de contexto: o engenheiro pode abrir a trilha com uma rodada que estabelece
-regras de arquitetura, stack e boas práticas (`eng_00_contexto.md`). Isso é uma rodada
-como qualquer outra e é registrado do mesmo jeito. O leigo não tem rodada
-equivalente, porque o corpus mostra que não a faria.
+Rodadas de abertura: cada trilha começa com uma rodada que entrega a ideia ao agente,
+registrada como qualquer outra (`Tela: abertura`). A do engenheiro são dois prompts
+enviados em sequência na mesma sessão (`eng_00_produto.md`, definição de produto, e
+`eng_00_tecnica.md`, definição técnica), depois do pacote de design já commitado no
+repo da trilha. A do leigo é uma mensagem só (`leigo_00_abertura.md`), no estilo do
+corpus; ela e os seis prompts de tela são escritos antes do piloto e não mudam depois
+(política de reação em `personas/leigo/perfil.md`).
 
 Rodadas extras da mesma tela (correção do engenheiro, repetição do leigo) recebem
 sufixo: `eng_login_v2`.

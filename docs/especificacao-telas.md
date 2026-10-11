@@ -109,8 +109,8 @@ leigo_login    leigo_feed    leigo_perfil    leigo_mural    leigo_trofeus    lei
 eng_login      eng_feed      eng_perfil      eng_mural      eng_trofeus      eng_ranking
 ```
 
-6 telas × 2 trilhas = **12 rodadas** (mais `eng_00_contexto`, se o engenheiro abrir a
-trilha estabelecendo regras, e as rodadas `_v2` de correção/repetição). Se for muito
+6 telas × 2 trilhas = **12 rodadas** (mais as duas aberturas, `leigo_00_abertura` e
+`eng_00` em dois prompts, e as rodadas `_v2` de correção/repetição). Se for muito
 volume, priorizar: `login`, `feed`, `trofeus` (cobrem autenticação, social e
 gamificação, as camadas críticas do TCC).
 

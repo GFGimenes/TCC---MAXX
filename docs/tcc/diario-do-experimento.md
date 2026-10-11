@@ -142,3 +142,19 @@ de reação como controle do que ele não consegue não saber. Semente órfã no
 (README e `.gitattributes`), porque o `CLAUDE.md` ficaria no histórico. Decidido
 também que o Cowork revisa os prompts do autor sem reescrevê-los no próprio estilo; o
 exemplo do `eng_00` montado a partir do texto do autor fica registrado como tal.
+
+Fechados os dois prompts de abertura do engenheiro, em `prompts/engenheiro/`:
+`eng_00_produto` (a ideia em termos de produto: papéis, login, tipos de prêmio e
+tiers, progressão, comprovação e revogação, as quatro visões de ranking, as seis telas,
+o modo de demonstração para a banca e o aviso de que o design já existe; termina
+pedindo só confirmação de entendimento, sem código nem proposta técnica) e
+`eng_00_tecnica` (cenário de carga, stack C com web via QR code, arquitetura,
+cache em camadas, fila no Postgres, autenticação e autorização, segurança, demo,
+método de trabalho, testes, git, definição de pronto, `CLAUDE.md` a ser escrito pelo
+agente, onde está o design; entregável da rodada é o plano mestre, sem código). Texto
+do autor; o Cowork revisou, apontou três correções (linha de cache duplicada, "nada
+de código" ausente no fecho, erros de digitação) e sugeriu um parágrafo de segurança
+(hash de senha, validação antes de assinar upload, flag da demo desligada por padrão,
+auditoria de concessões, reuso de refresh token, HSTS e CSP no Caddy, varredura de
+dependências e segredos na CI), aceito na íntegra. Os dois vão na mesma sessão, em
+sequência, amanhã, junto com a abertura do leigo.
