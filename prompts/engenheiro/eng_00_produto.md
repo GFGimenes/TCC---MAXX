@@ -16,7 +16,7 @@ Login e cadastro somente com e-mail institucional ou RA (aluno por RA ou e-mail;
 
 Existem dois tipos de prêmio: troféus (concedidos pela instituição ou por regra automática, como assiduidade, participação em evento, acúmulo de medalhas) e medalhas (dadas por professores). Todo prêmio tem um tier, e o tier define os pontos: Bronze de 1 a 30, Prata de 31 a 70, Ouro de 71 a 100, Diamante de 101 a 150. O aluno não tem tier: a pontuação dele é a soma dos pontos dos prêmios, e o ranking é só a posição numérica.
 Alguns prêmios têm progressão: a mesma conquista repetida (média 10 numa matéria em semestres diferentes, por exemplo) rende um prêmio novo, um tier acima do anterior, até o Diamante; o aluno guarda todos os prêmios da progressão.
-Alguns prêmios exigem comprovação por foto, validada pela instituição ou pelo professor da turma. Um prêmio pode ser revogado se a comprovação for contestada: pela instituição, ou pelo professor que o concedeu.
+Alguns prêmios exigem comprovação por foto, validada pela instituição ou pelo professor da turma. Um prêmio pode ser contestado por um professor das turmas do aluno (inclusive quem o concedeu) ou pela instituição, informando o motivo. A contestação vai para a instituição averiguar; enquanto isso o prêmio fica como "em averiguação", visível para o aluno, e deixa de pontuar. A instituição decide: confirma, e os pontos voltam, ou revoga, e o prêmio sai da pontuação mas fica no histórico com o motivo.
 
 Sobre os rankings, terão quatro visões: ranking geral e ranking por curso, cada um do semestre atual e histórico (all time). Medalhas e prêmios contam pontos e os pontos definem a posição de cada aluno.
 
