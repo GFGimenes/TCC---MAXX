@@ -56,6 +56,12 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   Existem 24 skills instaladas na conta do autor (plugins de engenharia e produto da
   Anthropic e skills do Cowork), visíveis ao agente nas duas trilhas por igual; o uso
   de qualquer uma por iniciativa do agente é registrado no review da rodada.
+- Conectores MCP da conta (claude.ai), visíveis depois do login: Atlassian Rovo (41
+  ferramentas), Claude Docs (8), Expedia (3), Kiwi.com (2), lastminute.com (8); 49
+  ferramentas carregadas sob demanda, 672 tokens. Nenhum tem relação com o projeto;
+  iguais nas duas trilhas. Depois do login o `/context` mostrou 26 skills (3,7k) e
+  ferramentas do sistema em 23k; o total antes do primeiro prompt ficou em torno de
+  30k tokens.
 - Modo de permissão: "auto mode" (o agente executa sem pedir aprovação a cada ação),
   o mesmo nas duas trilhas.
 - A versão do CLI não é atualizada até o fim das rodadas.
