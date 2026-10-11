@@ -158,3 +158,16 @@ de código" ausente no fecho, erros de digitação) e sugeriu um parágrafo de s
 auditoria de concessões, reuso de refresh token, HSTS e CSP no Caddy, varredura de
 dependências e segredos na CI), aceito na íntegra. Os dois vão na mesma sessão, em
 sequência, amanhã, junto com a abertura do leigo.
+
+Ajuste no `eng_00_produto` ao reler: contestação de prêmio deixa de ser revogação
+direta e vira averiguação pela instituição (professor das turmas do aluno ou a
+instituição contesta com motivo; o prêmio fica "em averiguação", visível ao aluno, e
+deixa de pontuar; a instituição confirma ou revoga, com histórico).
+
+Abertura do leigo fechada em `prompts/leigo/leigo_00_abertura.md`: texto do autor,
+escrito de uma vez, no registro do corpus ("Oi chat", app existente como referência,
+features pelo nome, nenhuma regra, nenhum termo técnico); o Cowork apontou três
+ausências em relação ao pitch (nome Maxx, ranking por curso, professores como
+usuários) e o autor reescreveu. Tamanho e justificativa registrados no cabeçalho do
+arquivo, com as frases de reação para usar na sessão. Piloto das duas aberturas
+marcado para 12/10.
