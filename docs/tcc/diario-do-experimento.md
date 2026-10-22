@@ -171,3 +171,19 @@ ausências em relação ao pitch (nome Maxx, ranking por curso, professores como
 usuários) e o autor reescreveu. Tamanho e justificativa registrados no cabeçalho do
 arquivo, com as frases de reação para usar na sessão. Piloto das duas aberturas
 marcado para 12/10.
+
+## 2026-10-12 e 2026-10-22
+
+Rodada `eng_00` em andamento, sessão retomada com `claude --resume` depois de um
+reinício do computador em 11/10. Em 12/10 o autor enviou a `r1` (respostas aos 8
+bloqueadores, lacunas e contradições; `prompts/engenheiro/eng_00_produto-r1.md`). O
+agente devolveu o modelo revisado como entendeu (tabela dos três tipos de prêmio, ciclo
+do prêmio de participação, calendário, superfícies, social) e **20 decisões que ainda
+faltam, cada uma com sugestão**, mais quatro inconsistências nos exemplos do autor
+(valor da medalha de nota 10 dado como 30 no catálogo e 10 na conta da conquista;
+"Diamante baixo" não existe como sub-tier; recuperação de senha por e-mail sem
+verificação de e-mail; medalha por presença automática na fase 2 se confundiria com
+conquista). Continuou sem código e sem proposta técnica, como pedido, e disse que não
+propõe estrutura antes de ler o design e de ter o catálogo canônico de prêmios. Em
+22/10, ao retomar, o CLI tinha se atualizado sozinho para 2.1.308 (ver linha do tempo).
+
