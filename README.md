@@ -13,15 +13,10 @@ architecture.
 (arquitetura, segurança, código, UX e mantenabilidade), quando a mesma ideia é
 construída com IA por um usuário leigo e por um engenheiro e arquiteto de software?
 
-Título original da entrega parcial (junho/2026): "Desenvolvimento de um Produto de
-Software com IA e Vibe Coding: análise dos benefícios, limitações e pontos críticos". A
-troca de título acompanha a mudança de método (duas trilhas, uma variável) e precisa
-ser alinhada com o orientador.
-
 Este repositório organiza o experimento prático do TCC: construir o mesmo aplicativo
 gamificado (Maxx, rede UniEduk) a partir da mesma ideia central, em duas trilhas
 independentes, uma conduzida por prompts de um usuário leigo e outra por prompts de um
-engenheiro de software, ambas executadas pelo mesmo agente de IA (Claude Code). O que
+engenheiro e arquiteto de software, ambas executadas pelo mesmo agente de IA (Claude Code). O que
 varia entre as trilhas é quem pede e como pede; o que se mede é o produto que cada uma
 constrói, avaliado com a mesma rubrica em 5 eixos de qualidade de software.
 
