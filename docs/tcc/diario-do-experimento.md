@@ -209,3 +209,29 @@ pedido. Primeiras trocas na versão 2.1.308 do CLI. Em paralelo, o autor decidiu
 acrescentar ao desenho a condição "prompt único" (um prompt por persona, sem turnos
 humanos depois) e pediu a estrutura de capítulos do TCC num chat separado do projeto.
 
+Mais tarde em 23/10: `r4` enviada (a `r4` colada sem a técnica junto; o agente registrou o
+catálogo congelado e, em vez de sair lendo o repositório, pediu o caminho do design e
+disse que não "fuçaria" antes de o autor apontar o que é canônico). Em seguida o
+`eng_00_tecnica` foi enviado inteiro. O agente leu `design/tokens.json` e
+`design/identidade-visual.md`, listou `design/telas/` sem abrir as telas (como pedido)
+e devolveu a primeira versão do **plano mestre**, sem código: (1) oito contradições
+entre o design e o produto (raridade existe no design e não no produto; a trilha de
+progressão com cadeado desenha a regra substituída; a navegação tem aba Busca nunca
+especificada e Rankings sem aba; "enviar" e "salvar" no post sem DM nem coleção;
+sininho ausente da identidade; "editar perfil" e foto de perfil nunca entraram no
+produto; glifos batem com o vocabulário); (2) quatro contraindicações da stack (fonte
+variável Archivo 112% não funciona no nativo, instanciar estática; bundle web do RN a
+medir; miniaturas ninguém gera; bucket privado com CDN pública é contradição parcial,
+com LGPD) e versões (.NET 10 LTS, OpenAPI nativo); (3) quinze decisões técnicas com
+opções e pesos (origem única, R2, leitura pública por ULID, derivadas no cliente,
+motor declarativo de conquistas, snapshot de pontos, ranking por worker com
+coalescência, auth própria com Argon2id e família de refresh, openapi-typescript +
+TanStack, Jest/Playwright/Maestro, quatro projetos, migrations em contêiner com
+advisory lock, seed no cursor para recomendação aleatória, catálogo em JSON com seeder
+idempotente, domínio em português e técnico em inglês); (4) modelo de dados inicial
+com índices únicos que carregam regra; (5) seed base e demo; (6) pipeline com seis jobs
+e definição de pronto com p95 medido; (7) quatro riscos (rede do campus na banca,
+pico de aprovação, LGPD e termo de uso, backup); (8) plano mestre de 13 passos; (9)
+seis bloqueantes e oito itens importantes para o autor antes do plano do passo 0. Tempo
+do agente na resposta: alguns minutos; leitura humana e decisões ficam para a `r5`.
+
