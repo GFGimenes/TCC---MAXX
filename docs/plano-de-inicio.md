@@ -132,18 +132,21 @@ diário e tabela do capítulo 3.
    `personas/engenheiro/perfil.md`, `docs/contexto-comum.md` e
    `docs/especificacao-telas.md`. Antes, levar o pacote de design para o repo
    (`design/`, primeiro commit da branch `rodada/eng_00`).
-3. Escrever `prompts/leigo/leigo_00_abertura.md` e os seis prompts de tela, todos
-   antes do piloto (o Cowork redige a partir do corpus e da política de reação; o
+3. FEITO em 11/10 a abertura (`prompts/leigo/leigo_00_abertura.md`, texto do autor). Faltam os seis prompts de tela, todos
+   antes do piloto da trilha leiga (o Cowork redige a partir do corpus e da política de reação; o
    autor valida contra as respostas reais em `personas/leigo/corpus-respostas.md`).
    Depois de escritos, não mudam.
-4. Ambiente das rodadas: FEITO em 10/10 (dois repos no lugar do Orca). Antes do
-   piloto, a conferência única do `protocolo-de-rodada.md`: versão do Claude Code,
-   modelo fixado, memória automática desligada, nenhum `CLAUDE.md` em lugar nenhum,
-   `/context` sem arquivo de memória. Registrar modelo e versão na linha do tempo.
+4. FEITO em 10/10 (dois repos no lugar do Orca) e 11/10 (conferência do ambiente:
+   Claude Code 2.1.270, depois 2.1.308 fixado em 22/10; `claude-opus-5[1m]`, esforço
+   high; memória automática desligada; nenhum `CLAUDE.md`; `/context` sem memória;
+   `DISABLE_AUTOUPDATER=1` em toda janela). Registrado na linha do tempo.
 5. Contas para o deploy: VPS pequena e bucket S3-compatível (trilha do engenheiro);
    conta Expo e uma hospedagem gratuita genérica para o que o agente da trilha leiga
    escolher. Uma URL por trilha.
-6. Rodada piloto: `leigo_00_abertura` e `eng_00` (produto e técnica), cada uma no seu repo,
+6. EM ANDAMENTO. `eng_00` aberta em 11/10 (sessão `e358b13d`, branch `rodada/eng_00`):
+   produto fechado em quatro respostas do autor (`eng_00_produto-r1..r4`), catálogo
+   congelado em 23/10, `eng_00_tecnica` a enviar. `leigo_00_abertura` a rodar depois
+   dos seis prompts de tela. Rodada piloto: `leigo_00_abertura` e `eng_00` (produto e técnica), cada uma no seu repo,
    seguindo o protocolo. Validar o fluxo ponta a ponta (sessão, export, revisor,
    checklist, planilha, registro, merge, diário).
 7. `eng_00_v2` depois do review humano; então `eng_01_login` e
@@ -162,6 +165,15 @@ diário e tabela do capítulo 3.
    carga e `docs/tcc/` já estão na `tcc`; os repos das trilhas ficam como estão.
 
 ## Pequenos pendentes
+
+- Condição "prompt único" (decidida em 23/10): um prompt por persona com tudo que ela
+  entrega, sessão nova, sem turnos humanos depois; roda num clone sem remoto a partir
+  da semente `1577ae9`, não numa branch do repo da trilha (o agente veria
+  `rodada/eng_00`). Precisa de pré-registro antes de rodar. Texto da seção e
+  estrutura de capítulos vêm de um chat separado do projeto; gravar em `docs/tcc/`.
+- Copiar o `.jsonl` de cada sessão (`~/.claude/projects/<pasta>/<id>.jsonl`) para
+  `resultados/<trilha>/` antes de 30 dias, além do `/export`; a `eng_00` começou em
+  11/10. Serve para contar tokens por rodada.
 
 - `docs/especificacao-telas.md` ainda aguarda os descritivos complementares por
   feature que o autor ia enviar.
