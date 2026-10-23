@@ -1,0 +1,1192 @@
+Seguem os dois arquivos completos, em texto cru para você copiar.
+
+## estrutura-do-tcc.md
+
+````markdown
+# Estrutura do TCC: capítulos, cobertura e lacunas
+
+Documento de planejamento da versão final do TCC "A Mesma Ideia, Dois Construtores: o
+que muda em um produto de software quando quem conduz a IA entende, ou não, de
+engenharia de software". Para cada capítulo e seção traz o que ela contém, quais
+documentos do experimento já cobrem o conteúdo, o que ainda não existe e uma
+estimativa de tamanho. Não é texto do TCC; é o mapa para escrevê-lo.
+
+Versão de 23/10/2026. Fontes: documentos da pasta `experimento/` do projeto "tcc" no
+claude.ai e, para o estado depois de 11/10, as versões locais mais novas de
+`docs/tcc/diario-do-experimento.md` (entrada de 12/10 e 22/10) e
+`docs/linha-do-tempo.md` (seção "Ambiente fixado para as rodadas" e hash da semente),
+que ainda não estão sincronizadas no projeto.
+
+## 1 Como ler este documento
+
+Cada seção do TCC aparece com quatro partes: um parágrafo sobre o conteúdo; **Já
+existe**, com os documentos que cobrem o conteúdo (caminhos como estão no repositório
+`tcc`); **Falta**, com o que ainda não foi escrito ou não foi produzido; e **Tamanho**,
+em páginas no formato ABNT (fonte 12, espaçamento 1,5, A4). As estimativas são minhas
+e servem para distribuir esforço; o limite de páginas e o modelo de documento da
+UniMax estão marcados como "a confirmar com o autor".
+
+Tudo que é afirmado sobre o experimento está nos documentos citados. O que não está
+aparece como **a confirmar com o autor**. Propostas minhas (de estrutura, de redação,
+de procedimento) aparecem como **proposta**.
+
+Normas de referência para a forma: ABNT NBR 14724 (trabalhos acadêmicos), NBR 6024
+(numeração progressiva), NBR 6027 (sumário), NBR 6028 (resumo), NBR 10520 (citações) e
+NBR 6023 (referências). Se a UniMax tiver modelo próprio, ele prevalece (a confirmar
+com o autor).
+
+## 2 Visão geral e tamanho
+
+| Parte | Conteúdo | Páginas estimadas |
+|---|---|---|
+| Pré-textuais | Capa a sumário | 10 a 14 (não contam no corpo) |
+| Capítulo 1 | Introdução | 6 a 8 |
+| Capítulo 2 | Fundamentação teórica | 16 a 22 |
+| Capítulo 3 | Metodologia e desenho do experimento | 24 a 30 |
+| Capítulo 4 | Resultados | 14 a 20 |
+| Capítulo 5 | Discussão | 9 a 12 |
+| Capítulo 6 | Conclusão e trabalhos futuros | 3 a 4 |
+| Referências | Lista ABNT | 3 a 5 |
+| Apêndices | A a J | 40 a 80 impressas; exports integrais em mídia digital |
+| Anexos | Material de terceiros | 0 a 5 |
+| **Corpo textual** | Capítulos 1 a 6 | **72 a 96** |
+
+O capítulo 3 é o maior de propósito: o experimento é a contribuição do trabalho, e um
+desenho bem descrito é o que permite que outra pessoa o repita. Limite mínimo ou
+máximo de páginas exigido pelo curso: a confirmar com o autor.
+
+## 3 Elementos pré-textuais
+
+Capa, folha de rosto, ficha catalográfica, folha de aprovação, dedicatória e
+agradecimentos (opcionais), epígrafe (opcional), resumo com palavras-chave, abstract
+com keywords, listas de figuras, quadros, tabelas e siglas, e sumário.
+
+- **Já existe:** título em português e em inglês e pergunta de pesquisa
+  (`README.md`, decididos em 13/09/2026); nome do orientador (Prof. Luiz Cláudio
+  Chiavini Oliveira Júnior). A entrega parcial de junho de 2026 tem resumo e abstract
+  com o título antigo ("Desenvolvimento de um Produto de Software com IA e Vibe
+  Coding: análise dos benefícios, limitações e pontos críticos").
+- **Falta:** resumo e abstract novos, escritos por último, com os resultados (fase 11
+  da linha do tempo); palavras-chave; aprovação do título novo pelo orientador
+  (`README.md` e `plano-de-inicio.md` registram que precisa ser alinhado); lista de
+  siglas (CLI, LLM, MCP, MVP, RA, ORM, CI, CDN, VPS, p95, entre outras).
+- **Tamanho:** resumo e abstract com uma página cada (NBR 6028: 150 a 500 palavras); o
+  conjunto, 10 a 14 páginas.
+
+## 4 Elementos textuais
+
+### Capítulo 1 Introdução
+
+#### 1.1 Contextualização
+
+Apresenta o cenário: modelos de linguagem que escrevem código, agentes de
+codificação que executam tarefas inteiras e o *vibe coding*, em que a pessoa conduz a
+construção por linguagem natural. Fecha com a observação que motiva o trabalho: a
+mesma ferramenta passa a estar na mão de quem tem formação em engenharia de software
+e de quem não tem, e não se sabe o que muda no produto entre um caso e outro.
+
+- **Já existe:** contextualização da entrega parcial (fase 0 da linha do tempo:
+  "Contextualização, objetivos, teoria", marcada como feita).
+- **Falta:** reescrever com o enquadramento novo (duas pessoas conduzindo a mesma IA,
+  em vez de benefícios e limitações do vibe coding em geral). O conteúdo exato da
+  contextualização da entrega parcial não está nos documentos do projeto: a confirmar
+  com o autor o que aproveitar.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 1.2 Problema e pergunta de pesquisa
+
+Formula o problema e a pergunta: o que muda no produto, em arquitetura, segurança,
+código, experiência do usuário e mantenabilidade, quando a mesma ideia é construída
+com IA por um usuário leigo e por um engenheiro de software. Explicita a premissa que
+o experimento põe à prova: o trabalho de definição (requisitos, design, arquitetura,
+segurança, testes) não desaparece quando a IA escreve o código; ou a pessoa faz antes,
+ou o agente faz por ela, com os padrões dele.
+
+- **Já existe:** pergunta de pesquisa (`README.md`, `capitulo-3-experimento.md` §3.1);
+  a premissa do trabalho de definição (`contexto-comum.md`, diário de 11/10).
+- **Falta:** o texto em si; hipóteses formuladas de maneira explícita no capítulo 1
+  (hoje estão implícitas no desenho). **Proposta:** declarar aqui a hipótese principal
+  e remeter as hipóteses da condição de prompt único para a §3.1.5.
+- **Tamanho:** 1 página.
+
+#### 1.3 Objetivos
+
+Objetivo geral e objetivos específicos, alinhados ao método de duas trilhas.
+
+- **Já existe:** objetivos da entrega parcial, com o título antigo; a linha do tempo
+  (fase 11) registra que precisam ser atualizados.
+- **Falta:** os objetivos novos. **Proposta**, derivada dos documentos, a validar com
+  o autor e o orientador:
+  - Geral: comparar o produto de software construído por um mesmo agente de IA, a
+    partir da mesma ideia, quando conduzido por um usuário leigo e por um engenheiro
+    de software, nos cinco eixos da rubrica.
+  - Específicos: (a) caracterizar como pessoas sem formação técnica pedem software a
+    uma IA, a partir de uma pesquisa com 28 respondentes; (b) construir as duas
+    trilhas sob protocolo controlado (mesmo agente, mesmo modelo, mesma versão, mesmo
+    revisor); (c) avaliar cada produto com rubrica, testes de referência e teste de
+    carga; (d) medir quem fez o trabalho de definição, a pessoa ou o agente (custo de
+    entrada, decisões do agente sem pedido, regras ausentes); (e) medir o custo de
+    cada trilha (turnos humanos, tempo, rodadas de correção, tokens); (f) medir a
+    concordância entre o revisor de IA e a validação humana; (g) verificar, com a
+    condição de prompt único, se a diferença entre as trilhas está no conteúdo do que
+    a pessoa entrega ao agente ou na quantidade de mensagens.
+- **Tamanho:** 1 página.
+
+#### 1.4 Justificativa
+
+Por que a pergunta importa: agentes de codificação tornam possível a quem não programa
+publicar um aplicativo com login, fotos e dados pessoais; se o que separa um produto
+seguro e mantenível de um frágil é a disciplina de quem conduz, isso tem consequência
+para quem usa esses produtos, para quem ensina engenharia de software e para quem
+avalia código gerado por IA. Inclui a justificativa do recorte (um autor, uma ideia,
+um agente) como força do desenho.
+
+- **Já existe:** argumentos espalhados: o risco de "IA avaliando IA sem validação
+  humana" (`protocolo-de-rodada.md`, regra 3); contexto desatualizado como fonte de
+  dívida técnica, já registrado no TCC segundo `persona-engenheiro.md`; o autor único
+  como força do desenho (diário de 11/10, `capitulo-3-experimento.md` §3.1.1);
+  dados sensíveis do produto (RA, e-mail, fotos-prova, notas e pontos, em
+  `rubrica.md`).
+- **Falta:** o texto e a sustentação bibliográfica (dados sobre adoção de agentes de
+  codificação, estudos sobre segurança de código gerado por IA). Nenhuma referência
+  bibliográfica desse tipo está nos documentos do projeto: a levantar.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 1.5 Escopo e delimitação
+
+O que a tese afirma e o que não afirma: não afirma que o engenheiro tem ideias
+melhores; afirma que a disciplina de engenharia de software muda o que é construído a
+partir da mesma ideia. Delimita: um agente (Claude Code, da Anthropic), um modelo, um
+produto (Maxx), um autor que atua nas duas personas, uma execução por condição.
+
+- **Já existe:** `capitulo-3-experimento.md` §3.1.1 (notas), diário de 11/10.
+- **Falta:** o texto.
+- **Tamanho:** 0,5 a 1 página.
+
+#### 1.6 Organização do trabalho
+
+Um parágrafo por capítulo.
+
+- **Já existe:** nada específico.
+- **Falta:** escrever por último.
+- **Tamanho:** 0,5 página.
+
+### Capítulo 2 Fundamentação teórica
+
+O capítulo dá a base para os conceitos que o capítulo 3 usa sem explicar. A linha do
+tempo marca como feita a teoria sobre vibe coding, LLMs e gamificação (fase 0); o
+experimento novo pede três blocos que não existiam na entrega parcial: agentes de
+codificação, engenharia de requisitos e qualidade de software (base da rubrica), e
+avaliação por LLM.
+
+#### 2.1 Inteligência artificial generativa e modelos de linguagem
+
+Funcionamento em alto nível dos modelos de linguagem, janela de contexto, não
+determinismo da geração, alucinação. Os três últimos são usados diretamente no
+experimento (contexto de 1M, uma execução por condição, critério de "sinais de
+alucinação" no eixo Código).
+
+- **Já existe:** seção da entrega parcial (fase 0).
+- **Falta:** ligar explicitamente não determinismo e alucinação às ameaças à validade
+  e à rubrica. O conteúdo exato da seção existente: a confirmar com o autor.
+- **Tamanho:** 3 a 4 páginas.
+
+#### 2.2 Vibe coding e desenvolvimento assistido por IA
+
+Definição, origem do termo, espectro entre autocompletar e agente autônomo, quem
+pratica.
+
+- **Já existe:** seção da entrega parcial (fase 0).
+- **Falta:** revisão para o enquadramento leigo x engenheiro.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 2.3 Agentes de codificação
+
+O que é um agente de codificação e como o Claude Code funciona no que importa para o
+experimento: ferramentas (ler, escrever, executar comandos, `git`), modos de
+permissão, arquivos de contexto carregados automaticamente (`CLAUDE.md` em várias
+pastas), memória automática, skills e conectores visíveis ao agente, sessões e
+transcrições. É a base para justificar os controles do protocolo (repositórios
+separados, memória desligada, nenhum `CLAUDE.md` acima dos repositórios).
+
+- **Já existe:** ordem de carregamento de contexto e expiração das transcrições
+  (`protocolo-de-rodada.md`, "Antes da primeira rodada"); ambiente fixado, skills e
+  conectores visíveis, modo de permissão (versão local de `docs/linha-do-tempo.md`);
+  motivo da troca de branches por repositórios (diário de 10/10).
+- **Falta:** o texto, com citação da documentação oficial do Claude Code como fonte.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 2.4 Engenharia de requisitos e o trabalho de definição
+
+O que é transformar uma ideia em algo construível: atores, regras de negócio,
+requisitos não funcionais, casos de borda, critérios de aceite. É o conceito que
+separa as personas no desenho (o engenheiro faz três definições antes do código; o
+leigo entrega o pitch) e que sustenta as métricas de "decisões do agente" e "regra
+ausente".
+
+- **Já existe:** a aplicação ao experimento (`contexto-comum.md`,
+  `persona-engenheiro.md`, diário de 11/10).
+- **Falta:** a seção inteira, com bibliografia de engenharia de requisitos (a
+  levantar).
+- **Tamanho:** 2 a 3 páginas.
+
+#### 2.5 Qualidade de software: os cinco eixos
+
+Fundamenta cada eixo da rubrica: arquitetura, segurança, código (correção e testes),
+experiência do usuário e mantenabilidade. **Proposta:** ancorar os eixos em um modelo
+de qualidade reconhecido (por exemplo, ISO/IEC 25010) e o eixo de segurança em uma
+referência de vulnerabilidades comuns de aplicações web (por exemplo, OWASP Top 10),
+mostrando o mapeamento entre o modelo e a rubrica. As duas referências são sugestão
+minha, não constam dos documentos.
+
+- **Já existe:** a rubrica operacional (`rubrica.md`), sem fundamentação teórica.
+- **Falta:** a seção inteira e o quadro de mapeamento entre o modelo de qualidade e
+  os cinco eixos.
+- **Tamanho:** 3 a 4 páginas.
+
+#### 2.6 Engenharia de prompt e de contexto
+
+Como a forma e o conteúdo do pedido afetam o resultado de um agente; a orientação da
+Anthropic para prompts consultada em 13/09 (menor conjunto de tokens de alto sinal,
+contexto carregado automaticamente, explorar, planejar e só então codificar).
+Distingue técnica de prompt de conhecimento do domínio, distinção que motivou a
+mudança de 11/10.
+
+- **Já existe:** resumo da pesquisa no diário de 13/09; a justificativa da mudança
+  de 11/10 (o contexto comum fazia o experimento "medir só técnica de prompt").
+- **Falta:** o texto e as referências (documentação da Anthropic e literatura).
+- **Tamanho:** 2 páginas.
+
+#### 2.7 Avaliação de código por modelos de linguagem
+
+O uso de um modelo como revisor (o "LLM como juiz"), seus vieses conhecidos e por que
+o experimento trata a nota do revisor como rascunho e a nota humana como a que vale.
+
+- **Já existe:** a regra no protocolo (regra 3) e a divergência como dado
+  (`capitulo-3-experimento.md` §3.3).
+- **Falta:** a seção inteira e a bibliografia (a levantar).
+- **Tamanho:** 1 a 2 páginas.
+
+#### 2.8 Gamificação no ensino
+
+Base do domínio do produto (prêmios, pontos, rankings). Aqui a gamificação é o
+assunto do aplicativo, não o objeto da pesquisa.
+
+- **Já existe:** seção da entrega parcial (fase 0).
+- **Falta:** **proposta:** reduzir ao necessário para entender as regras do Maxx.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 2.9 Trabalhos relacionados
+
+Estudos que comparam desenvolvedores experientes e iniciantes usando IA, que medem
+segurança e qualidade de código gerado por IA, ou que estudam pessoas sem formação
+técnica construindo software com IA. Fecha com um quadro comparativo e a lacuna que o
+TCC ocupa.
+
+- **Já existe:** nada nos documentos do projeto.
+- **Falta:** levantamento bibliográfico e quadro comparativo.
+- **Tamanho:** 2 a 3 páginas.
+
+### Capítulo 3 Metodologia e desenho do experimento
+
+O capítulo existe como rascunho (`capitulo-3-experimento.md`), com a numeração 3.1 a
+3.7. Na estrutura completa, ele fica com o desenho, os instrumentos e os controles; as
+tabelas de resultado (3.4 a 3.6) vão para o capítulo 4 e a análise comparativa (3.7)
+vai para o capítulo 5. As mudanças estão detalhadas na seção 6 deste documento. As
+seções 3.1 a 3.3 mantêm a numeração atual.
+
+#### 3.1 Desenho do experimento
+
+Visão geral: o mesmo aplicativo (Maxx, rede UniEduk) construído em duas trilhas
+independentes a partir do mesmo pitch, com o mesmo agente, o mesmo revisor e a mesma
+validação; varia quem pede e como pede. Inclui a figura do desenho e a justificativa
+da simplificação em relação à entrega parcial.
+
+- **Já existe:** texto de abertura da §3.1; figura do desenho (`README.md`); a
+  simplificação de quatro trilhas (2 personas x 2 agentes) para duas, com um agente e
+  um revisor (diário de 12/09).
+- **Falta:** o parágrafo "[A completar: justificativa da simplificação...]"; a figura
+  redesenhada para incluir a condição de prompt único (proposta: quadro 2 x 2, persona
+  por condição).
+- **Tamanho:** 2 páginas.
+
+#### 3.1.1 A ideia e o conhecimento de cada persona
+
+O pitch igual nas duas trilhas, o que é engenharia de requisitos e quem a faz, a
+mudança de 11/10 (fim do `CLAUDE.md` comum), as três definições do engenheiro, a
+política de reação do leigo e a definição da tabela de custo de entrada (o
+instrumento; os valores vão para o capítulo 4).
+
+- **Já existe:** notas detalhadas na própria §3.1.1; `contexto-comum.md`; diário de
+  11/10, incluindo o ajuste de contestação de prêmio para "em averiguação"; o
+  conteúdo dos prompts `eng_00_produto` e `eng_00_tecnica` e o registro de
+  `leigo_00_abertura` (481 caracteres, 2,6 vezes a média de 165 dos não devs do
+  corpus), descritos no diário de 11/10.
+- **Falta:** passar as notas a texto corrido; incluir as limitações já listadas nas
+  notas na nova §3.4.
+- **Tamanho:** 3 a 4 páginas.
+
+#### 3.1.2 Personas de quem escreve o prompt
+
+Perfil do leigo a partir do corpus (N=28: 10 nunca trabalharam com tecnologia, 13 em
+função próxima, 5 com desenvolvimento; 165 contra 566 caracteres na primeira
+mensagem; 8 de 23 citam algum dos três elementos do cenário; 0 de 23 mencionam
+segurança, teste, hospedagem ou publicação) e perfil do engenheiro (o autor, com os
+desenvolvedores do corpus como corroboração), com as limitações da amostra.
+
+- **Já existe:** `persona-leigo.md` e `persona-engenheiro.md`, completos.
+- **Falta:** a síntese em texto; um quadro comparando as duas personas (vocabulário,
+  tamanho, ordem de trabalho, como respondem ao agente, como validam).
+- **Tamanho:** 3 a 4 páginas.
+
+#### 3.1.3 Trilhas, rodadas e protocolo de execução
+
+Um repositório por trilha a partir da mesma semente, rodada como unidade, sem
+orquestrador, revisor e review humano (observacional e corretivo), ambiente constante
+e o histórico das decisões de ambiente (Orca configurado em 12/09 e abandonado em
+10/10). Inclui um quadro de ambiente.
+
+- **Já existe:** `README.md`, `protocolo-de-rodada.md`, `plano-de-inicio.md`, diário
+  de 10/10; na versão local da linha do tempo, o hash da semente (`1577ae9`, 10/10/2026
+  22:59), a versão do CLI (2.1.270, depois 2.1.308 fixada em 22/10 com
+  `DISABLE_AUTOUPDATER=1`), o modelo escolhido por nome, o esforço, o modo de
+  permissão ("auto mode"), as skills e os conectores visíveis e o `/context` de
+  abertura.
+- **Falta:** o texto; o quadro de ambiente; o registro do desvio da `eng_00` (sessão
+  retomada com `claude --resume` depois do reinício do computador, quando o protocolo
+  diz "nunca `--continue` ou `--resume`", e mudança de versão do CLI no meio da mesma
+  sessão, ambos no diário de 12/10 e 22/10).
+- **Tamanho:** 3 a 4 páginas.
+
+#### 3.1.4 Identidade visual da trilha do engenheiro
+
+Já escrita: o trabalho de design antes do código, em duas etapas (3 a 4 horas de
+rascunhos em agosto, cerca de 6 horas no Claude Design em 26 e 27/09), três sessões
+paralelas, 14 prompts, o defeito do botão do Mural achado na revisão do exportado, e
+o custo de 9 a 10 horas contra zero do leigo.
+
+- **Já existe:** a seção completa; `prompts-design.md`; exportação em
+  `docs/referencias-visuais/design/`.
+- **Falta:** ajustes pequenos (ver seção 6): corrigir "e a pediu que o modelo
+  propusesse" e trocar o caminho do apêndice pela letra do apêndice.
+- **Tamanho:** 2 a 3 páginas (como está).
+
+#### 3.1.5 Condição de prompt único
+
+Condição nova: cada persona entrega tudo em um prompt só, numa sessão nova, sem turno
+humano depois, e o agente vai até onde consegue. Isola o conteúdo do pedido da
+quantidade de mensagens.
+
+- **Já existe:** o texto proposto no documento separado
+  `docs/tcc/condicao-prompt-unico.md`.
+- **Falta:** decisões do autor listadas no fim daquele documento; o pré-registro;
+  os arquivos de prompt `leigo_pu` e `eng_pu`.
+- **Tamanho:** 3 a 4 páginas.
+
+#### 3.2 Validação do código gerado
+
+Os testes de referência (fronteiras 30/31, 70/71, 100/101 e 150/151 da pontuação por
+tier; entradas inválidas; ordenação do ranking), aplicados igualmente às trilhas e à
+regra de pontos que cada produto tiver, com "ausente" quando não houver regra; e o
+teste de carga (k6 ou autocannon, 200 e 2.000 usuários virtuais, feed, mural e upload
+de foto, latência p95 e taxa de erro, mesmos cenários nos dois deploys).
+
+- **Já existe:** especificação em `plano-de-inicio.md`, linha do tempo (fases 7 e 7b) e
+  `rubrica.md` (regra ausente aplicada aos testes).
+- **Falta:** o texto; a suíte de testes em si; os scripts de carga e a escolha entre
+  k6 e autocannon; como a suíte de referência é adaptada a um produto cuja regra de
+  pontos difere da referência (a confirmar com o autor); se a condição de prompt único
+  entra no teste de carga (ela não tem deploy; ver o documento da condição).
+- **Tamanho:** 2 a 3 páginas.
+
+#### 3.3 Rubrica e registro
+
+Os cinco eixos, a escala de 1 a 5, quando cada eixo é avaliado (Código e Segurança por
+rodada; Arquitetura e Mantenabilidade nos milestones; UX ao fim de cada feature
+navegável), o estado "regra ausente", a nota do revisor ao lado da nota validada e a
+divergência como dado; a planilha de registro.
+
+- **Já existe:** `rubrica.md`; prompt do revisor por rodada em
+  `protocolo-de-rodada.md`; a planilha `avaliacoes/registro-avaliacoes.xlsx` é citada
+  no plano, mas não está entre os documentos do projeto.
+- **Falta:** o texto; o prompt do revisor para os milestones (o protocolo descreve,
+  não transcreve); a forma de avaliar UX na trilha do leigo, que não tem telas de
+  referência, já que a rubrica fala em "fiel ao desenho/telas de referência" (a
+  confirmar com o autor; proposta: usar `docs/especificacao-telas.md` como referência
+  nas duas trilhas e os mockups só como referência adicional do engenheiro);
+  atualizar o critério 3 do eixo Código, que ainda cita "o exemplo de teste da seção
+  3.2" da entrega parcial.
+- **Tamanho:** 2 a 3 páginas, com a rubrica completa no apêndice G.
+
+#### 3.4 Pré-registro e ameaças à validade (seção nova)
+
+**Proposta.** Reúne o que hoje está espalhado: o que foi fixado antes de rodar e
+quando (política de reação do leigo, prompts de abertura, prompts de tela do leigo,
+condição de prompt único), com data e hash de commit; e as ameaças à validade do
+experimento todo, por tipo (interna, de construto, externa, de conclusão), cada uma
+com o controle adotado. As ameaças específicas do prompt único ficam na §3.1.5 e são
+apenas referenciadas aqui.
+
+- **Já existe:** limitações nas notas da §3.1.1 (autor único que não consegue não saber
+  o que sabe; padrões assumidos pelo agente são os deste modelo); limitações da
+  amostra (`persona-leigo.md`); lacunas típicas do engenheiro (superespecificação,
+  overengineering, `persona-engenheiro.md`); resíduo de versão do CLI na `eng_00`
+  (linha do tempo local).
+- **Falta:** a seção; um registro único de pré-registro com datas e hashes; ameaças
+  ainda não escritas que encontrei ao ler os documentos (a confirmar com o autor se
+  entram): o nome da pasta e do remoto (`maxx-leigo`, `maxx-engenheiro`) é visível ao
+  agente e revela a trilha; os repositórios das trilhas ficam dentro da pasta `tcc`,
+  que contém os prompts e as personas das duas trilhas (o checklist humano confere
+  acesso, mas não impede); o revisor e o validador humano sabem qual trilha avaliam.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 3.5 Aspectos éticos (seção nova)
+
+**Proposta.** A pesquisa com 28 respondentes coletou respostas de pessoas; a seção
+registra como foi o consentimento, o anonimato (os respondentes aparecem como R01 a
+R28) e se houve ou não submissão a comitê de ética.
+
+- **Já existe:** a identificação por código no corpus (`persona-leigo.md`).
+- **Falta:** tudo sobre consentimento, data e meio de coleta e comitê de ética (a
+  confirmar com o autor e o orientador).
+- **Tamanho:** 0,5 a 1 página.
+
+### Capítulo 4 Resultados
+
+Só dados, sem interpretação. Recebe as tabelas que hoje estão em 3.4 a 3.6 do
+rascunho, mais os resultados que o desenho já prevê e que ainda não têm tabela.
+
+#### 4.1 Execução do experimento
+
+O que rodou, quando, com qual versão, e todos os desvios do protocolo (rodadas
+descartadas por acesso fora do repositório, retomadas de sessão, mudança de versão).
+
+- **Já existe:** diário (12/10 e 22/10: `eng_00` em andamento, retomada com
+  `--resume`, CLI atualizado para 2.1.308).
+- **Falta:** tudo a partir das rodadas seguintes. O estado de `leigo_00_abertura` (o
+  piloto estava marcado para 12/10, e o diário de 12/10 só fala da `eng_00`): a
+  confirmar com o autor.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 4.2 Custo de entrada por trilha
+
+A tabela definida na §3.1.1: horas antes do primeiro código, artefatos antes do
+primeiro código, decisões de produto e técnicas tomadas pela pessoa, decisões tomadas
+pelo agente sem pedido.
+
+- **Já existe:** valores parciais: engenheiro, 9 a 10 horas de design e 14 prompts
+  (§3.1.4), dois prompts de abertura e a `r1` com respostas a 8 bloqueadores (diário
+  de 12/10); o agente devolveu 20 decisões pendentes com sugestão. Leigo: zero horas
+  antes do código, abertura de 481 caracteres.
+- **Falta:** tempo de escrita dos prompts de abertura do engenheiro; contagem de
+  decisões; os valores do leigo depois da abertura.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 4.3 Resultados por rodada
+
+Tabela que hoje é a §3.4 do rascunho (ID, trilha, tela, data, turnos humanos,
+Segurança, Código, observações), com a nota do revisor e a validada.
+
+- **Já existe:** a tabela vazia.
+- **Falta:** os dados. **Proposta:** acrescentar colunas de tempo e de tokens por
+  rodada, necessárias para comparar custo com o prompt único.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 4.4 Testes de referência
+
+Resultado da suíte por trilha e por rodada, incluindo os casos "ausente".
+
+- **Já existe:** a especificação (§3.2).
+- **Falta:** os dados.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 4.5 Auditorias de milestone
+
+Tabela que hoje é a §3.5 (Autenticação, Banco de dados, Gamificação, Frontend, por
+trilha, com Arquitetura, Mantenabilidade e UX).
+
+- **Já existe:** a tabela vazia.
+- **Falta:** os dados.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 4.6 Teste de carga
+
+Tabela que hoje é a §3.6 (cenário, usuários virtuais, trilha, p95, erros).
+
+- **Já existe:** a tabela vazia.
+- **Falta:** os dados e os relatórios em `avaliacoes/carga/`.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 4.7 Decisões do agente, features emergentes e regras ausentes
+
+Lista e contagem, por trilha, das decisões tomadas pelo agente sem o prompt pedir
+(stack, estrutura, hospedagem, regra de produto), das features emergentes (do agente
+e da persona) e das regras do produto nunca pedidas e nunca oferecidas.
+
+- **Já existe:** a seção do review que registra decisões e features emergentes
+  (prompt do revisor); o estado "regra ausente" (`rubrica.md`); as escolhas do design
+  tratadas como escopo emergente da persona (§3.1.4).
+- **Falta:** os dados; **proposta:** uma lista fixa de regras do produto, tirada de
+  `contexto-comum.md`, usada como inventário igual para todos os produtos.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 4.8 Condição de prompt único
+
+Os quatro produtos lado a lado (leigo e engenheiro, iterativo e prompt único): notas
+por eixo, inventário de cobertura, decisões do agente, o que ficou quebrado ou
+ausente, custo.
+
+- **Já existe:** o plano em `docs/tcc/condicao-prompt-unico.md` (§3.1.5.7).
+- **Falta:** a execução e os dados.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 4.9 Revisor de IA e validação humana
+
+Divergência entre a nota do revisor e a nota validada, por eixo e por trilha.
+
+- **Já existe:** a divergência calculada na planilha (segundo o plano).
+- **Falta:** os dados.
+- **Tamanho:** 1 página.
+
+### Capítulo 5 Discussão
+
+Interpreta os resultados à luz da pergunta e da fundamentação. Recebe o que hoje é a
+§3.7 do rascunho ("Análise comparativa"), dividido em seções.
+
+#### 5.1 Leigo e engenheiro, eixo a eixo
+
+Onde as trilhas diferem e onde não diferem, por eixo e por tela.
+
+- **Já existe:** a pauta na §3.7.
+- **Falta:** os resultados.
+- **Tamanho:** 2 a 3 páginas.
+
+#### 5.2 Quem fez o trabalho de definição
+
+O que o engenheiro decidiu antes e o que o agente decidiu pelo leigo; que padrões o
+agente assumiu; o que nunca foi decidido (regras ausentes).
+
+- **Já existe:** a premissa (`contexto-comum.md`); as notas de limitação sobre os
+  padrões serem deste modelo (§3.1.1).
+- **Falta:** os resultados.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 5.3 Conteúdo ou quantidade de mensagens
+
+A leitura da condição de prompt único, pelas regras de interpretação pré-registradas.
+
+- **Já existe:** as regras de interpretação propostas em
+  `docs/tcc/condicao-prompt-unico.md` (§3.1.5.7).
+- **Falta:** os resultados.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 5.4 O custo do conhecimento e o que ele comprou
+
+Custo de entrada, turnos, correções e tokens de cada trilha contra a diferença de
+qualidade obtida; inclui as lacunas típicas do engenheiro (superespecificação,
+overengineering) como possíveis custos sem retorno.
+
+- **Já existe:** o custo do design (§3.1.4); as lacunas típicas
+  (`persona-engenheiro.md`).
+- **Falta:** os resultados.
+- **Tamanho:** 1 a 2 páginas.
+
+#### 5.5 IA avaliando IA
+
+O que a divergência entre revisor e humano diz sobre usar um modelo para avaliar
+código de modelo.
+
+- **Já existe:** a pauta (§3.7, regra 3 do protocolo).
+- **Falta:** os resultados.
+- **Tamanho:** 1 página.
+
+#### 5.6 Resultados que não confirmam a hipótese
+
+Registro explícito, como achado, de tudo que contrariar a hipótese.
+
+- **Já existe:** a regra na §3.7.
+- **Falta:** os resultados.
+- **Tamanho:** 0,5 a 1 página.
+
+#### 5.7 Limitações
+
+As ameaças da §3.4 e da §3.1.5 revisitadas: quais se materializaram e como afetam a
+leitura.
+
+- **Já existe:** as ameaças (ver §3.4).
+- **Falta:** a avaliação depois dos dados.
+- **Tamanho:** 1 a 2 páginas.
+
+### Capítulo 6 Conclusão e trabalhos futuros
+
+#### 6.1 Resposta à pergunta de pesquisa
+
+A resposta direta, eixo a eixo, com o grau de confiança que o desenho permite.
+
+- **Já existe:** nada.
+- **Falta:** tudo, depois dos resultados.
+- **Tamanho:** 1 página.
+
+#### 6.2 Contribuições
+
+O desenho experimental (mesma pessoa, mesma ideia, conhecimento diferente), o corpus
+de 28 respostas sobre como leigos pedem software, a rubrica com "regra ausente" e o
+pacote reproduzível (prompts, exports, reviews).
+
+- **Já existe:** os artefatos.
+- **Falta:** o texto.
+- **Tamanho:** 0,5 a 1 página.
+
+#### 6.3 Trabalhos futuros
+
+Desdobramentos que os próprios documentos apontam: outros modelos e agentes (os
+padrões assumidos "são os deste modelo nesta versão, e outro modelo assumiria
+outros"); o modelo mais capaz, descartado aqui por ser "o caso limite de
+preenchimento de lacunas"; leigos sem familiaridade com IA, que o corpus não capturou;
+personas conduzidas por pessoas reais em vez de um autor único; repetições do prompt
+único para medir variabilidade.
+
+- **Já existe:** as limitações citadas em §3.1.1, `persona-leigo.md` e linha do tempo
+  local.
+- **Falta:** o texto.
+- **Tamanho:** 1 página.
+
+## 5 Elementos pós-textuais
+
+### 5.1 Referências
+
+Lista em ABNT NBR 6023.
+
+- **Já existe:** referências da entrega parcial; fontes citadas nos documentos sem
+  referência formal: documentação do Claude Code (carregamento de `CLAUDE.md`,
+  memória automática, `/export`, transcrições), documentação do Claude Design
+  (§3.1.4) e orientação da Anthropic para prompts (diário de 13/09).
+- **Falta:** referências de engenharia de requisitos, qualidade de software,
+  segurança, LLM como juiz e trabalhos relacionados; datas de acesso das páginas da
+  documentação.
+- **Tamanho:** 3 a 5 páginas.
+
+### 5.2 Glossário (opcional)
+
+Termos do experimento: trilha, rodada, turno humano, review observacional e
+corretivo, regra ausente, feature emergente, custo de entrada, prompt único.
+
+- **Tamanho:** 1 página.
+
+### 5.3 Apêndices
+
+Pela NBR 14724, apêndice é material produzido pelo autor. Os exports e os registros
+são extensos; **proposta:** imprimir trechos representativos e entregar o conjunto
+integral em mídia digital ou no repositório do TCC, com o hash do commit citado no
+texto (forma de entrega aceita pela UniMax: a confirmar com o autor).
+
+| Apêndice | Conteúdo | Origem no repositório `tcc` | Estado |
+|---|---|---|---|
+| A | Pesquisa com 28 respondentes: formulário, corpus etiquetado (R01 a R28) e contagens que sustentam a persona leiga | `personas/leigo/formulario-persona-leiga.md`, `personas/leigo/corpus-respostas.md`, `personas/leigo/perfil.md` | Existe; faltam data e meio de coleta e termo de consentimento (a confirmar) |
+| B | Perfis das personas | `personas/leigo/perfil.md`, `personas/engenheiro/perfil.md` | Existe |
+| C | Prompts de cada rodada, por trilha, com cabeçalho; prompts de design; prompts únicos | `prompts/leigo/`, `prompts/engenheiro/` (hoje `leigo_00_abertura`, `eng_00_produto`, `eng_00_produto-r1`, `eng_00_produto-r2`, `eng_00_tecnica`), `docs/referencias-visuais/prompts-design.md` | Parcial; prompts de tela do leigo ainda não estão na pasta; prompts únicos a escrever |
+| D | Registros das rodadas (resumo, decisões, perguntas e respostas, turnos, tempo) | `resultados/<trilha>/<id>.md` | A produzir |
+| E | Exports das sessões | `resultados/<trilha>/<id>-sessao.txt` | A produzir; trechos impressos, integral em mídia digital |
+| F | Avaliações do revisor de IA e planilha de registro | `avaliacoes/reviews/<id>.md`, `avaliacoes/registro-avaliacoes.xlsx` | A produzir |
+| G | Protocolo de rodada, prompts do revisor e rubrica completa | `protocolo-de-rodada.md`, `avaliacoes/rubrica.md` | Existe; falta o prompt do revisor de milestone |
+| H | Referências visuais do engenheiro (telas em tema claro e escuro, prancheta de padrão) | `docs/referencias-visuais/` | Existe |
+| I | Registro de pré-registro (o que foi fixado, data, hash do commit) | a criar | A produzir |
+| J | Suíte de testes de referência e relatórios de carga | `avaliacoes/carga/`, repos das trilhas | A produzir |
+
+Sobre o arquivo `eng_00_produto-r2.md`: ele existe na pasta `prompts/engenheiro/`,
+mas o diário só descreve a `r1`. O que é a `r2` e se ela já foi enviada: a confirmar
+com o autor.
+
+### 5.4 Anexos
+
+Material de terceiros. **Proposta:** trechos da documentação oficial do Claude Code
+usados para configurar o ambiente (carregamento de contexto, memória, atualização
+automática), com data de acesso, já que o protocolo depende deles. Opcional; se a
+banca aceitar a citação com link, o anexo pode ser dispensado.
+
+- **Tamanho:** 0 a 5 páginas.
+
+## 6 O que muda no capítulo 3 para caber na estrutura
+
+As seções 3.1, 3.1.1 a 3.1.4, 3.2 e 3.3 mantêm número e conteúdo. As mudanças:
+
+1. **3.4 a 3.6 saem do capítulo 3.** "Resultados por rodada" vira 4.3, "Auditorias de
+   milestone" vira 4.5 e "Teste de carga" vira 4.6. As tabelas vão como estão. A
+   "Tabela 3.x, custo de entrada" das notas da §3.1.1 fica definida no capítulo 3 como
+   instrumento, e os valores vão para 4.2.
+2. **3.7 sai do capítulo 3.** "Análise comparativa" vira o capítulo 5, dividido nas
+   seções 5.1 a 5.6.
+3. **Entra a §3.1.5**, condição de prompt único (documento separado).
+4. **Entra uma §3.4 nova**, pré-registro e ameaças à validade, reunindo as
+   limitações das notas da §3.1.1 e as ameaças listadas na seção 4 deste documento.
+5. **Entra uma §3.5 nova**, aspectos éticos (a confirmar com o autor se é exigida).
+6. **§3.1:** escrever o parágrafo de justificativa da simplificação (diário de 12/09)
+   e atualizar a figura do desenho para o quadro 2 x 2.
+7. **§3.1.1:** passar as notas a texto; incluir o ajuste de averiguação de prêmio do
+   `eng_00_produto` (diário de 11/10).
+8. **§3.1.3:** incluir o quadro de ambiente (a partir da linha do tempo local), o
+   hash da semente `1577ae9` e o desvio da `eng_00` (`--resume` depois do reinício,
+   troca de versão do CLI dentro da sessão). O protocolo diz "nunca `--continue` ou
+   `--resume`"; ou o protocolo ganha uma regra para interrupção externa, ou o texto
+   declara o desvio como tal (a confirmar com o autor).
+9. **§3.1.4:** corrigir "A primeira sessão recebeu a identidade do autor e a pediu
+   que o modelo propusesse" (sobra o "a"); trocar
+   `docs/referencias-visuais/prompts-design.md` por "Apêndice C" e a exportação por
+   "Apêndice H".
+10. **§3.2:** escrever; dizer como os testes de referência se aplicam a um produto
+    com regra de pontos diferente e se a condição de prompt único entra no teste de
+    carga.
+11. **§3.3:** escrever; definir a referência de UX para a trilha do leigo; registrar o
+    prompt do revisor de milestone.
+12. **Regra de estilo do rascunho.** O cabeçalho manda referir modelos "pelo nome da
+    empresa (Anthropic), nunca por versão", mas a reprodutibilidade pede o
+    identificador exato do modelo e a versão do CLI, que a linha do tempo já registra.
+    **Proposta:** corpo do texto com "modelo da Anthropic"; identificador exato só no
+    quadro de ambiente da §3.1.3. A confirmar com o autor.
+13. **Nota de abertura do rascunho.** Diz que o capítulo "vai substituir a metodologia
+    parcial (seções 3.1 a 3.3 da entrega de junho)"; com a reorganização, o rascunho
+    passa a alimentar também os capítulos 4 e 5.
+
+## 7 Inconsistências encontradas nos documentos
+
+Não corrigi nenhuma; ficam para o autor decidir.
+
+1. **Nome da rodada de abertura do engenheiro.** `plano-de-inicio.md` (versão do
+   projeto, itens 6 e 7) fala em `eng_00_contexto` e `eng_00_contexto_v2`; os demais
+   documentos e a versão local do plano usam `eng_00_produto`, `eng_00_tecnica` e
+   `eng_00_v2`. A versão do projeto está desatualizada.
+2. **Carga real do TCC.** `persona-engenheiro.md` diz "de 10 a 20 pessoas";
+   `linha-do-tempo.md` (dependências) diz "de 10 a 15 pessoas".
+3. **Número de rodadas.** O plano fala em "as 12 rodadas"; a especificação tem seis
+   telas; a ordem de execução lista cinco módulos (login, feed, troféus, perfil e
+   ranking, mural); o leigo tem abertura mais seis prompts de tela, e o engenheiro tem
+   `eng_00`, `eng_00_v2` e as telas, mais as correções `_v2`. A contagem e o que
+   conta como rodada: a confirmar com o autor.
+4. **Semente.** O diário de 10/10 cita o commit `e32107d`; a semente órfã de 11/10 é
+   outra. A versão local da linha do tempo registra `1577ae9` com data de 10/10/2026
+   22:59, enquanto o diário diz que a semente órfã foi feita em 11/10. Qual data vale:
+   a confirmar com o autor.
+5. **Contexto do agente.** O diário de 10/10 fala em "`/context` mostrando só o
+   `CLAUDE.md` do repo" e em "o prompt dela mais o `CLAUDE.md`"; isso foi superado em
+   11/10 (repositórios vazios). O texto do TCC deve seguir 11/10.
+6. **Fase 11 da linha do tempo.** Ainda menciona "3.1 (contexto comum, um agente)" e
+   "3.3 (Análise Comparativa)"; o contexto comum como arquivo deixou de existir e a
+   análise comparativa vai para o capítulo 5.
+7. **Política de reação e prompts de tela do leigo.** `persona-leigo.md` e o plano
+   dizem que a abertura e os seis prompts de tela são escritos antes do piloto; a
+   pasta `prompts/leigo/` só tem `leigo_00_abertura.md`. Se o piloto do leigo já
+   rodou, os prompts de tela foram escritos depois dele: a confirmar com o autor.
+8. **Modo de permissão.** O protocolo e as regras falam em responder perguntas e
+   aprovar, mas a linha do tempo local fixa "auto mode" (o agente executa sem pedir
+   aprovação a cada ação). O protocolo deve registrar o modo.
+9. **Rubrica, eixo Código, nota 3.** Cita "o exemplo de teste da seção 3.2", que é o
+   `calcularTierAluno` da entrega parcial, substituído segundo o plano.
+10. **Cópias no projeto.** `diario-do-experimento.md`, `linha-do-tempo.md` e
+    `plano-de-inicio.md` no projeto do claude.ai estão atrás das versões locais.
+
+## 8 Itens a confirmar com o autor
+
+1. Modelo de documento, limite de páginas e forma de entrega de apêndices digitais
+   exigidos pela UniMax.
+2. Conteúdo exato das seções 1 e 2 da entrega parcial que será aproveitado.
+3. Aprovação do título e dos objetivos novos pelo orientador.
+4. Consentimento, data e meio de coleta da pesquisa com 28 respondentes; necessidade
+   de comitê de ética.
+5. Estado da rodada `leigo_00_abertura` e dos seis prompts de tela do leigo.
+6. O que é `eng_00_produto-r2.md`.
+7. Como tratar o `--resume` da `eng_00` (desvio declarado ou regra nova no protocolo).
+8. Referência de UX para a trilha do leigo.
+9. Regra de estilo sobre nome e versão do modelo.
+10. Se entram na §3.4 as três ameaças novas (nome da pasta revela a trilha, repos
+    dentro da pasta `tcc`, avaliação sem cegamento).
+11. **Urgente: transcrições da `eng_00`.** O protocolo registra que as transcrições
+    automáticas são apagadas depois de `cleanupPeriodDays` (padrão: 30 dias), e o
+    `/export` é a cópia que vale. O `/export` em texto não deve trazer o uso de
+    tokens por mensagem; se o custo em tokens for comparado entre condições, vale
+    copiar o `.jsonl` da sessão `eng_00` (iniciada em 12/10) antes do prazo ou aumentar
+    `cleanupPeriodDays`, e incluir a cópia do `.jsonl` no protocolo de todas as
+    rodadas. Conferir na documentação do Claude Code como a contagem de dias é feita.
+````
+
+## condicao-prompt-unico.md
+
+````markdown
+# 3.1.5 Condição de prompt único (rascunho)
+
+Rascunho da seção que entra no capítulo 3 depois da §3.1.4, no mesmo padrão do
+`capitulo-3-experimento.md`: português, sem travessões, modelos de IA referidos pelo
+nome da empresa (Anthropic), afirmações sobre resultado só com a execução registrada.
+A condição é nova (proposta em 23/10/2026) e ainda não está em nenhum outro documento
+do experimento. Ela só pode rodar depois de pré-registrada (§3.1.5.8). As decisões que
+dependem do autor estão marcadas no texto e reunidas na §3.1.5.9, que é nota de
+trabalho e sai da versão final.
+
+## 3.1.5 Condição de prompt único
+
+As duas trilhas descritas até aqui são iterativas: cada persona conversa com o agente
+ao longo de várias rodadas, responde perguntas, pede tela por tela e, no caso do
+engenheiro, corrige por prompt depois do review. Isso deixa uma explicação
+concorrente para qualquer diferença entre os produtos: o engenheiro poderia chegar a
+um produto melhor não pelo que sabe, mas porque fala mais com o agente, responde
+mais perguntas e corrige mais vezes. A condição de prompt único existe para separar
+essas duas coisas. Cada persona entrega ao agente, em uma única mensagem, tudo o que
+entrega na abertura da trilha iterativa; depois disso, nenhuma mensagem humana entra
+na sessão, e o agente vai até onde consegue sozinho.
+
+### 3.1.5.1 Hipóteses
+
+A hipótese geral é que a diferença entre as trilhas está no conteúdo do que a persona
+entrega ao agente, e não na quantidade de mensagens trocadas. Ela se desdobra em três
+hipóteses verificáveis e uma exploratória:
+
+- **H1.** Com uma mensagem só em cada persona, o produto do engenheiro recebe nota
+  maior que o do leigo nos eixos Arquitetura, Segurança, Código e Mantenabilidade, no
+  mesmo sentido da diferença observada entre as trilhas iterativas.
+- **H2.** O produto do prompt único do engenheiro não fica abaixo do produto final da
+  trilha iterativa do leigo nesses quatro eixos. Se ficar, as mensagens a mais do
+  leigo compensaram a falta de conteúdo, e a hipótese geral perde força.
+- **H3.** O agente toma mais decisões sem perguntar no prompt único do leigo do que
+  no do engenheiro, e a diferença entre as duas contagens é maior que nas trilhas
+  iterativas, porque no prompt único ninguém responde às perguntas dele.
+- **Exploratória.** Em cada eixo, a diferença entre personas dentro de uma mesma
+  condição é maior que a diferença entre condições dentro de uma mesma persona.
+
+O eixo UX entra na comparação, mas fica fora de H1 e H2: na trilha do engenheiro ele
+depende dos mockups produzidos antes do código (§3.1.4), o que mistura conteúdo do
+prompt e artefato visual.
+
+Como há uma execução por condição e a escala é ordinal de 1 a 5, a comparação é
+descritiva, sem teste estatístico. Para que "maior" e "no mesmo sentido" não sejam
+decididos depois de ver os dados, a regra de decisão é fixada no pré-registro.
+Proposta: em cada eixo, conta como diferença uma distância de pelo menos 1 ponto na
+nota validada por humano; H1 é apoiada se a diferença existir, no sentido previsto,
+em pelo menos três dos quatro eixos; H2 é apoiada se em nenhum dos quatro eixos o
+prompt único do engenheiro ficar 1 ponto ou mais abaixo do produto final do leigo
+iterativo (a confirmar com o autor).
+
+### 3.1.5.2 O que a condição isola
+
+Com a condição nova, o experimento passa a ter quatro produtos, numa matriz de duas
+personas por duas condições:
+
+| | Iterativa | Prompt único |
+|---|---|---|
+| **Leigo** | `maxx-leigo`, `main` | `maxx-leigo`, branch `rodada/leigo_pu` |
+| **Engenheiro** | `maxx-engenheiro`, `main` | `maxx-engenheiro`, branch `rodada/eng_pu` |
+
+Entre as personas, dentro do prompt único, as duas sessões têm exatamente uma mensagem
+humana, nenhuma resposta a pergunta do agente, nenhum prompt por tela e nenhum review
+corretivo. O que muda entre elas é só o conteúdo da mensagem. Essa é a comparação
+limpa da condição: o que ela mostrar não pode ser atribuído a número de turnos, a
+diálogo ou à correção do engenheiro, porque nenhum dos três existe ali.
+
+Dentro de cada persona, entre o prompt único e a trilha iterativa, a diferença reúne
+tudo o que a iteração acrescenta: mais mensagens, o conteúdo dos prompts por tela, as
+respostas às perguntas do agente (como a `r1` do engenheiro, com as respostas a 8
+bloqueadores) e, no engenheiro, as rodadas de correção `_v2`. Essas coisas não se
+separam uma da outra nesta comparação; o que ela mede é o efeito do processo
+iterativo inteiro de cada persona.
+
+O cruzamento entre o prompt único do engenheiro e a trilha iterativa do leigo
+responde à pergunta mais direta da condição: muitas mensagens sem conhecimento de
+engenharia chegam aonde uma mensagem com esse conhecimento chega?
+
+A condição não isola o efeito do review humano sobre a nota (a validação humana
+continua igual nas quatro células) e não isola o conteúdo dos mockups do engenheiro,
+que entram nas duas condições da trilha dele.
+
+### 3.1.5.3 O prompt único de cada persona
+
+O prompt único carrega tudo que a persona entrega ao agente na abertura da trilha
+iterativa, e nada que tenha nascido de resposta do agente.
+
+- **Leigo.** O texto de `prompts/leigo/leigo_00_abertura.md`, tal como enviado na
+  trilha iterativa. As frases de reação previstas na política do leigo ("faz do jeito
+  que ficar melhor") não entram: são respostas, e no prompt único não há respostas.
+- **Engenheiro.** Os textos de `prompts/engenheiro/eng_00_produto.md` e
+  `prompts/engenheiro/eng_00_tecnica.md`, em sequência, numa mensagem só. A `r1` não
+  entra, porque foi escrita em resposta às perguntas do agente; incluí-la daria ao
+  engenheiro, no prompt único, o benefício de uma iteração. O pacote de design entra
+  como na `eng_00`: commitado na branch antes da sessão (§3.1.5.4), porque faz parte
+  do que a persona entrega.
+
+Há um problema a resolver antes de congelar os textos. Os dois prompts do engenheiro
+foram escritos para uma conversa: o `eng_00_produto` termina pedindo só confirmação
+de entendimento, sem código nem proposta técnica, e o `eng_00_tecnica` define como
+entregável da rodada o plano mestre, sem código (diário de 11/10). Enviados como estão,
+eles levariam o agente a parar no plano, enquanto o fecho do leigo ("Consegue fazer
+pra mim ?") deixa o agente livre para codar. A condição compararia um plano com um
+aplicativo e mediria a instrução de parar, não o conteúdo. Há duas saídas, e a escolha
+é do autor:
+
+1. **Textos literais.** Os prompts vão como estão, e "até onde vai" do engenheiro é o
+   plano. A condição passa a medir o conteúdo junto com o método de trabalho de cada
+   persona.
+2. **Textos sem as instruções de turno, mais um fecho comum.** Saem apenas as frases
+   que organizam a conversa (pedir só confirmação, anunciar que a parte técnica vem
+   depois, definir o plano como entregável da rodada e proibir código nela); nenhuma
+   regra de produto ou decisão técnica sai. Os dois prompts únicos recebem, no fim, o
+   mesmo parágrafo, idêntico, avisando que não haverá respostas a perguntas, que o
+   agente deve decidir e registrar o que decidiu, e que deve ir até onde conseguir.
+   O diff entre cada prompt único e o original vai inteiro para o pré-registro e para
+   o apêndice.
+
+A opção 2 é a que responde à pergunta da condição, e é a recomendada; o fecho comum é
+texto do autor escrito depois de a `eng_00` ter começado, e isso entra nas ameaças à
+validade (§3.1.5.6). Os arquivos ficam em `prompts/leigo/leigo_pu.md` e
+`prompts/engenheiro/eng_pu.md`, com o cabeçalho de sempre e o texto depois da linha
+`---`, e não mudam depois de pré-registrados.
+
+### 3.1.5.4 Protocolo de execução
+
+O protocolo é o da §3.1.3 e do `protocolo-de-rodada.md`, com as diferenças abaixo.
+
+**Repositório, branch e semente.** Cada prompt único roda no repositório da própria
+persona, numa branch própria (`rodada/leigo_pu` em `maxx-leigo`, `rodada/eng_pu` em
+`maxx-engenheiro`), criada a partir do commit semente vazio, o mesmo das trilhas
+iterativas (`1577ae9`, README e `.gitattributes`). A branch nunca é mesclada na
+`main`: a `main` é a trilha iterativa. Na branch do engenheiro, o primeiro commit é o
+pacote de design, com a mesma árvore do commit de design da `rodada/eng_00`
+(conferida pelo hash da árvore).
+
+**Isolamento.** Uma branch no mesmo repositório traz de volta o problema que levou às
+duas trilhas em repositórios separados (diário de 10/10): o agente executa `git` e, com
+um `git log --all` ou `git branch -a`, enxergaria a trilha iterativa da própria
+persona, que já tem a `rodada/eng_00` em andamento. Proposta de procedimento: a sessão
+roda num clone local novo, que só contém a semente (e, no engenheiro, o commit de
+design), sem remoto configurado, numa pasta com o mesmo nome do repositório da trilha
+e fora da pasta `tcc`, com as pastas acima dela conferidas como na primeira sessão de
+cada repo (nenhum `CLAUDE.md`, `AGENTS.md` ou `CLAUDE.local.md`). Só depois de as duas
+trilhas iterativas terminarem o autor adiciona o remoto e envia a branch, para que
+nenhuma sessão iterativa veja a branch do prompt único num `git fetch`. A localização
+exata da pasta é decisão do autor.
+
+**Ambiente.** O mesmo das trilhas iterativas, conforme o quadro de ambiente da §3.1.3:
+mesma versão do Claude Code (a fixada em 22/10, com a atualização automática
+desligada), mesmo modelo da Anthropic escolhido pelo nome, mesmo nível de esforço,
+mesmo modo de permissão, memória automática desligada, as mesmas skills e conectores
+visíveis. Conferido com `/status` e `/context` antes de colar o prompt, como em
+qualquer rodada. As duas execuções rodam no mesmo dia, uma depois da outra, para
+reduzir a chance de mudança no serviço entre elas; a ordem fica registrada.
+
+**Entrada humana.** O autor cola o prompt único e, a partir daí, as únicas ações
+permitidas são as de aprovação de execução. No modo de permissão fixado ("auto mode")
+o agente já executa sem pedir aprovação a cada ação; se algum pedido de aprovação
+aparecer, a política é fixa e igual nas duas personas: aprova o que tem efeito dentro
+da pasta do clone e a instalação de dependências; nega leitura ou escrita fora da
+pasta. Cada pedido e cada resposta ficam registrados. Não são permitidos: responder
+pergunta, comentar, interromper para redirecionar, enviar "continue" ou qualquer
+comando que leve texto ao agente. Os únicos comandos do autor são `/status` e
+`/context` na abertura e `/export` no fim.
+
+**Critério de parada.** A execução termina no primeiro destes eventos:
+
+1. O agente encerra o turno, seja qual for o conteúdo da última mensagem: relatório de
+   conclusão, pergunta, pedido de confirmação ou oferta de continuar.
+2. O agente abre uma pergunta que bloqueia a sessão à espera de escolha. A pergunta não
+   é respondida; a execução é encerrada e registrada como "parada por pergunta".
+3. A execução atinge o teto de tempo de relógio ou o teto de tokens, com os valores
+   fixados no pré-registro (a confirmar com o autor; proposta: tetos acima da maior
+   rodada iterativa observada até a data do pré-registro, para que o teto só pare
+   execuções anômalas).
+
+Interrupções externas não contam como parada do agente. Proposta: se a sessão for
+interrompida por falha do ambiente (travamento, reinício do computador, como em 11/10),
+a execução é descartada e refeita do zero, num clone novo, com o descarte registrado;
+se for interrompida por limite de uso da conta, o autor espera a liberação e envia uma
+única mensagem literal, fixada no pré-registro (por exemplo, "continue"), contada como
+retomada técnica e não como turno humano. As duas regras são decisão do autor.
+
+**O que conta como "até onde vai".** É o estado da branch no momento da parada, depois
+do commit de fechamento (se o agente não tiver commitado, o autor commita sem alterar
+arquivo, como no passo 5 do protocolo). Esse estado é descrito em quatro partes:
+
+1. **Fase alcançada:** só texto (plano, perguntas), fundação (projeto, banco,
+   configuração, sem funcionalidade), ou funcionalidade (alguma tela utilizável).
+2. **Estado de execução:** instala, compila, sobe localmente, os testes da própria
+   trilha passam, a suíte de referência roda.
+3. **Inventário de cobertura:** uma lista fixa, igual para os quatro produtos, com as
+   seis telas de `docs/especificacao-telas.md` e as regras do produto de
+   `docs/contexto-comum.md` (papéis, login só institucional, tipos de prêmio, tiers e
+   faixas de pontos, aluno sem tier, professor só premia aluno com quem tem aula,
+   progressão, comprovação por foto, contestação e revogação, ex-alunos, rankings
+   geral e por curso, mural). Cada item recebe um estado: implementado e funcionando,
+   implementado e quebrado, parcial, só simulado (dados fixos, tela sem lógica) ou
+   ausente. A lista é escrita no pré-registro, antes de qualquer execução.
+4. **Alegações sem lastro:** o que a mensagem final do agente diz que está pronto e o
+   inventário mostra que não está.
+
+**Registro.** Export da sessão em `resultados/<trilha>/<id>-sessao.txt`; cópia da
+transcrição automática (`.jsonl`) em `resultados/<trilha>/<id>-transcricao.jsonl`,
+porque é dela que saem os tokens e os tempos por mensagem e porque ela expira (§3.1.3);
+registro da rodada em `resultados/<trilha>/<id>.md`, com o evento de parada. IDs:
+`leigo_pu` e `eng_pu`, os mesmos no prompt, no resultado, no review e na planilha.
+
+**Revisão.** O mesmo revisor, numa sessão nova na pasta do clone e na branch da
+condição. Como a execução reúne numa sessão o que nas trilhas iterativas se espalha
+por várias rodadas, o revisor aplica o prompt por rodada (Código e Segurança) e a
+avaliação de milestone (Arquitetura e Mantenabilidade) sobre o estado final, e UX se
+houver alguma tela navegável. O review humano é observacional nas duas personas:
+nada é corrigido e não existe `_v2` nesta condição.
+
+**Validação técnica.** A suíte de referência da §3.2 roda sobre a regra de pontos que
+cada produto tiver, com "ausente" quando não houver. O teste de carga não se aplica:
+o prompt único não tem deploy, porque o agente não recebe credenciais e o autor não
+pode fornecê-las sem um turno humano. Se o agente deixar o deploy preparado, isso é
+registrado no inventário (a confirmar com o autor se um teste de carga local entra
+como dado complementar, sabendo que não é comparável ao dos deploys).
+
+### 3.1.5.5 Métricas
+
+**Rubrica.** Os cinco eixos, a mesma escala, a nota do revisor ao lado da nota
+validada, com o estado "regra ausente" como nas trilhas iterativas.
+
+**Decisões tomadas pelo agente sem perguntar.** Cada decisão que o prompt não
+determinou e o agente tomou, classificada por tipo (regra de produto, stack e
+arquitetura, modelo de dados, segurança, UX e visual, testes e processo, hospedagem
+e deploy) e por forma: declarada (o agente escreveu que decidiu) ou silenciosa (só
+aparece no código). Fontes: export da sessão, diff da branch e a seção de decisões do
+review. Ao lado, as perguntas que o agente fez e ficaram sem resposta.
+
+**O que ficou quebrado ou ausente.** Do inventário de cobertura: itens quebrados,
+parciais, simulados e ausentes; falhas de instalação, compilação e execução; testes
+que falham; e as alegações sem lastro.
+
+**Custo.** Tokens de entrada, de saída e de cache, somados da transcrição; tempo de
+relógio do envio até a parada; tempo ativo do agente, pelas marcas de tempo da
+transcrição; número de chamadas de ferramenta, de commits e de compactações de
+contexto; número de pedidos de aprovação. Turnos humanos: um, por construção. Se a
+versão fixada do Claude Code tiver comando próprio de custo ou de uso, o valor dele é
+registrado ao lado da soma (a confirmar com o autor qual comando a versão oferece).
+
+Para comparar custo com as trilhas iterativas, as rodadas iterativas precisam ter os
+mesmos números. Hoje o protocolo registra turnos e tempo, mas não tokens; a condição
+depende de acrescentar ao protocolo a cópia da transcrição de cada rodada e a soma de
+tokens, inclusive da `eng_00`, que já está em andamento.
+
+### 3.1.5.6 Ameaças à validade específicas desta condição
+
+**O prompt único não é o jeito natural de nenhuma das personas.** O engenheiro
+trabalha em diálogo, pede opções com pesos e corrige depois do review
+(`persona-engenheiro.md`); o leigo, segundo o corpus, pede por partes (9 de 23
+respostas). A condição mede o conteúdo de cada persona sem o método de interação de
+cada uma, que é o que se quer isolar, mas não descreve como nenhuma delas trabalharia.
+O resultado vale como experimento de controle, não como retrato de uso real.
+
+**O fecho comum altera o conteúdo.** Se for adotada a opção 2 da §3.1.5.3, o fecho é
+texto do autor que nenhuma das personas escreveria e que muda o comportamento do
+agente (decidir em vez de perguntar). Ele é idêntico nas duas personas, o que mantém a
+comparação entre elas, mas afasta as duas do comportamento iterativo. Além disso, foi
+escrito depois de a `eng_00` ter começado, com o autor já sabendo que o agente,
+naquela sessão, devolveu perguntas e decisões pendentes em vez de código. O controle
+é o pré-registro: o fecho e a retirada das instruções de turno são fixados e
+publicados no apêndice antes da primeira execução.
+
+**Uma execução por condição.** O agente não é determinístico; outra execução do mesmo
+prompt poderia ir mais longe ou parar antes. Com uma execução, uma parada precoce ou
+um desvio raro pesa como resultado. Controle possível: repetir cada prompt único
+algumas vezes e relatar todas as execuções; o número de repetições, se houver, é
+fixado no pré-registro (a confirmar com o autor).
+
+**Vazamento entre condições.** Sem o clone isolado da §3.1.5.4, o agente do prompt
+único poderia ler pelo `git` a trilha iterativa da mesma persona, e o agente da trilha
+iterativa poderia ler a branch do prompt único. Controle: clone sem remoto, branch
+enviada só no fim, e a mesma conferência de acesso do checklist humano (o export é
+lido para ver se o agente acessou algo fora da pasta; se acessou, a execução é
+descartada e refeita).
+
+**Deriva de ambiente.** A trilha iterativa do engenheiro já teve uma mudança de versão
+do Claude Code no meio da `eng_00` (linha do tempo, 22/10). Se o prompt único rodar
+semanas depois das rodadas iterativas, o serviço por trás do mesmo nome de modelo pode
+ter mudado sem aviso. Controle: mesma versão fixada, mesmo nome de modelo, as duas
+execuções no mesmo dia, data e versões registradas.
+
+**Uma sessão longa contra várias sessões curtas.** Na trilha iterativa cada rodada é
+uma sessão nova; no prompt único tudo acontece numa sessão, que pode passar por
+compactação de contexto. Parte da diferença entre as condições pode vir da dinâmica
+de contexto, não do número de mensagens humanas. Controle: registrar as compactações
+e declarar a ameaça.
+
+**O critério de parada molda o resultado.** Um teto baixo corta uma execução que
+iria mais longe; tratar uma pergunta como parada favorece o prompt que antecipa as
+respostas, o que é parte do que se quer medir, mas precisa estar dito. Controle: tetos
+fixados antes, com folga, e o evento de parada registrado.
+
+**A comparação com a trilha iterativa mistura várias coisas.** Dentro de cada persona,
+prompt único contra iterativa mistura número de mensagens, conteúdo dos prompts por
+tela, respostas e correções (§3.1.5.2). Só a comparação entre personas dentro do
+prompt único sustenta uma afirmação sobre conteúdo; as outras são lidas como efeito do
+processo inteiro.
+
+**Avaliação sem cegamento.** O revisor e o autor sabem qual condição e qual persona
+estão avaliando (o nome da pasta e da branch dizem). Controle parcial: mesmo prompt de
+revisor, rubrica com critérios observáveis e o inventário de cobertura com estados
+definidos antes.
+
+### 3.1.5.7 Como a condição entra em resultados e discussão
+
+No capítulo 4 (seção 4.8), a condição aparece em três tabelas: as notas validadas
+por eixo nas quatro células da matriz, com a nota do revisor ao lado; o inventário de
+cobertura das quatro células, item a item; e as decisões do agente e o custo (tokens,
+tempo, chamadas de ferramenta, turnos humanos) nas quatro células. O evento de parada
+de cada execução e a fase alcançada ficam no texto da seção.
+
+No capítulo 5 (seção 5.3), a leitura segue regras fixadas no pré-registro, para que o
+padrão encontrado não seja interpretado depois de visto. Proposta de regras:
+
+| Padrão observado | Leitura |
+|---|---|
+| A diferença entre personas no prompt único tem o mesmo sentido e tamanho parecido com a da trilha iterativa | A diferença está no conteúdo do que a persona entrega; a iteração não a cria (H1 apoiada) |
+| Mesmo sentido, mas menor no prompt único | O conteúdo explica parte da diferença, e o processo iterativo (prompts por tela, respostas, correção) amplia; a discussão diz em quais eixos |
+| Diferença perto de zero ou invertida no prompt único, com diferença presente na trilha iterativa | A diferença vem do processo iterativo, não do conteúdo da abertura (H1 não apoiada); registrado como achado, conforme a §3.7 do rascunho |
+| Prompt único do engenheiro igual ou acima do produto final do leigo iterativo | Mensagens a mais do leigo não compensaram a falta de conteúdo (H2 apoiada) |
+| Prompt único do engenheiro abaixo do produto final do leigo iterativo | A iteração do leigo compensou, nesses eixos, a falta de conteúdo (H2 não apoiada) |
+
+A contagem de decisões do agente entra na discussão sobre quem faz o trabalho de
+definição (seção 5.2): no prompt único do leigo, tudo o que não está na abertura de
+481 caracteres é decidido pelo agente ou fica ausente, e a lista dessas decisões é o
+retrato mais direto dos padrões que o agente assume quando ninguém decide por ele. O
+custo entra na seção 5.4, ao lado do custo de entrada do engenheiro.
+
+### 3.1.5.8 Pré-registro
+
+Como a política de reação do leigo e os prompts de abertura das duas trilhas, a
+condição de prompt único é fixada antes de rodar e não muda depois de nenhum
+resultado. O pré-registro é um commit no repositório do TCC, feito antes da primeira
+execução, com a data e o hash anotados na linha do tempo e no diário, contendo:
+
+1. Os arquivos `prompts/leigo/leigo_pu.md` e `prompts/engenheiro/eng_pu.md`, com o
+   diff de cada um em relação aos prompts originais e, se adotado, o texto do fecho
+   comum.
+2. As hipóteses H1, H2 e H3, a hipótese exploratória e a regra de decisão de cada uma.
+3. O procedimento de isolamento (clone, pasta, remoto, momento do envio da branch).
+4. O ambiente: versão do Claude Code, modelo, esforço, modo de permissão, variáveis de
+   ambiente, conferência de `/context`.
+5. A política de aprovação, o critério de parada com os valores dos tetos e as regras
+   para interrupção externa.
+6. O inventário de cobertura, item a item, com a definição de cada estado.
+7. As métricas e a forma de medir cada uma, incluindo a extração de tokens da
+   transcrição.
+8. O número de execuções por prompt e o que se faz com execuções descartadas.
+9. As regras de interpretação da §3.1.5.7.
+
+Qualquer mudança depois do commit vira uma condição nova, com sufixo (`leigo_pu_v2`,
+`eng_pu_v2`), declarada no texto ao lado da original, nunca no lugar dela. O commit de
+pré-registro e o texto dos dois prompts únicos vão para o apêndice de pré-registro.
+
+### 3.1.5.9 Decisões a confirmar com o autor (nota de trabalho, sai do texto final)
+
+1. Opção 1 (textos literais) ou opção 2 (sem instruções de turno, com fecho comum), e
+   o texto do fecho.
+2. Pasta do clone isolado e momento de enviar as branches ao remoto.
+3. Tetos de tempo e de tokens.
+4. Regras para falha do ambiente e para limite de uso da conta, incluindo a mensagem
+   literal de retomada.
+5. Número de execuções por prompt único.
+6. Limiar de 1 ponto e regra de "três de quatro eixos" para H1 e H2.
+7. Se um teste de carga local entra como dado complementar.
+8. Quando rodar: a recomendação é logo depois do pré-registro, com a versão já fixada,
+   para ficar perto, no tempo, das rodadas iterativas.
+9. Acrescentar ao `protocolo-de-rodada.md` a cópia da transcrição `.jsonl` e a soma de
+   tokens em todas as rodadas, a começar pela `eng_00`.
+````
