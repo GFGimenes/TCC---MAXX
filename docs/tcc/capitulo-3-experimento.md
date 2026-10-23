@@ -10,7 +10,8 @@ rodada correspondente registrada.
 ## 3.1 Desenho do experimento
 
 Título de trabalho: A Mesma Ideia, Dois Construtores: o que muda em um produto de
-software quando quem conduz a IA entende, ou não, de engenharia de software.
+software quando quem conduz a IA entende, ou não, de engenharia e arquitetura de
+software.
 
 Pergunta de pesquisa: o que muda no produto, em arquitetura, segurança, código,
 experiência do usuário e mantenabilidade, quando a mesma ideia é construída com IA por

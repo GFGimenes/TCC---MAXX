@@ -5,12 +5,12 @@ retomar sem depender do histórico da conversa.
 
 ## Decisões fechadas em 12/09/2026
 
-- Título (13/09/2026): "A Mesma Ideia, Dois Construtores: o que muda em um produto de
-  software quando quem conduz a IA entende, ou não, de engenharia de software" (EN:
-  "Same Idea, Two Builders: what changes in a software product when the person
-  directing the AI does, or does not, understand software engineering"). Pergunta de
-  pesquisa e título original no `README.md`. Alinhar com o orientador antes da
-  versão final.
+- Título (13/09/2026, com "e arquitetura" acrescentado em 23/10/2026): "A Mesma Ideia,
+  Dois Construtores: o que muda em um produto de software quando quem conduz a IA
+  entende, ou não, de engenharia e arquitetura de software" (EN: "Same Idea, Two
+  Builders: what changes in a software product when the person directing the AI does,
+  or does not, understand software engineering and architecture"). Pergunta de
+  pesquisa no `README.md`. Título e objetivos alinhados com o orientador.
 - Rodadas podem ter diálogo (perguntas do agente e respostas da persona), desde que
   cada mensagem humana fique registrada em `resultados/<trilha>/<id>.md`; o número
   de turnos humanos por rodada é métrica de custo. A abertura do engenheiro são dois

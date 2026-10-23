@@ -2,7 +2,7 @@
 
 Documento de planejamento da versão final do TCC "A Mesma Ideia, Dois Construtores: o
 que muda em um produto de software quando quem conduz a IA entende, ou não, de
-engenharia de software". Para cada capítulo e seção traz o que ela contém, quais
+engenharia e arquitetura de software". Para cada capítulo e seção traz o que ela contém, quais
 documentos do experimento já cobrem o conteúdo, o que ainda não existe e uma
 estimativa de tamanho. Não é texto do TCC; é o mapa para escrevê-lo.
 

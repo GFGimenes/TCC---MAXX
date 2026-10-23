@@ -1,15 +1,17 @@
 # A Mesma Ideia, Dois Construtores
 
-**Título do TCC (decidido em 13/09/2026):** A Mesma Ideia, Dois Construtores: o que muda
-em um produto de software quando quem conduz a IA entende, ou não, de engenharia de
-software.
+**Título do TCC (decidido em 13/09/2026; "e arquitetura" acrescentado em 23/10/2026,
+alinhado com o orientador):** A Mesma Ideia, Dois Construtores: o que muda em um
+produto de software quando quem conduz a IA entende, ou não, de engenharia e
+arquitetura de software.
 
 **Title (EN):** Same Idea, Two Builders: what changes in a software product when the
-person directing the AI does, or does not, understand software engineering.
+person directing the AI does, or does not, understand software engineering and
+architecture.
 
 **Pergunta de pesquisa:** o que muda no produto, nos cinco eixos avaliados
 (arquitetura, segurança, código, UX e mantenabilidade), quando a mesma ideia é
-construída com IA por um usuário leigo e por um engenheiro de software?
+construída com IA por um usuário leigo e por um engenheiro e arquiteto de software?
 
 Título original da entrega parcial (junho/2026): "Desenvolvimento de um Produto de
 Software com IA e Vibe Coding: análise dos benefícios, limitações e pontos críticos". A

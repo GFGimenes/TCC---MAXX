@@ -235,3 +235,11 @@ pico de aprovação, LGPD e termo de uso, backup); (8) plano mestre de 13 passos
 seis bloqueantes e oito itens importantes para o autor antes do plano do passo 0. Tempo
 do agente na resposta: alguns minutos; leitura humana e decisões ficam para a `r5`.
 
+Título fechado com o orientador em 23/10: "A Mesma Ideia, Dois Construtores: o que muda
+em um produto de software quando quem conduz a IA entende, ou não, de engenharia e
+arquitetura de software". O acréscimo de "e arquitetura" acompanha a persona do
+engenheiro (engenheiro e arquiteto de software) e o fato de a comparação incluir a
+arquitetura das duas soluções. Descritivo dos capítulos para o orientador gerado em
+`docs/tcc/descritivo-capitulos-tcc.docx`, com o corpo planejado em 25 páginas e os
+materiais no repositório.
+
