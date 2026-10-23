@@ -187,3 +187,25 @@ conquista). Continuou sem código e sem proposta técnica, como pedido, e disse 
 propõe estrutura antes de ler o design e de ter o catálogo canônico de prêmios. Em
 22/10, ao retomar, o CLI tinha se atualizado sozinho para 2.1.308 (ver linha do tempo).
 
+## 2026-10-23
+
+`eng_00`, continuação. O autor enviou a `r2` (`prompts/engenheiro/eng_00_produto-r2.md`: 14
+sugestões do agente aceitas, 6 decisões próprias, quatro inconsistências resolvidas,
+catálogo delegado ao agente). O agente devolveu as decisões fechadas em um parágrafo,
+um **catálogo proposto** com três princípios declarados (fato isolado é Bronze, acúmulo
+é Prata ou acima; conquista de período é repetível por instância; topo da faixa
+reservado ao item mais pesado) e 48 itens (14 medalhas, 16 prêmios de participação, 18
+conquistas, com tier, valor, período e gatilho), conferiu o exemplo do autor (3 × M01 +
+C02 = 130) e reclassificou "três palestras no semestre" de prêmio para conquista. Expôs
+**oito decisões novas**: medalhas discricionárias (contradizem "medalha é fato
+registrado"), medalha acima de Bronze no fechamento de matéria, evento com duração,
+conquista não conta conquista, congelamento do ranking semestral 30 dias após o fim,
+desequilíbrio estrutural dos rankings a assumir de propósito, dedupe de evento em texto
+livre, conteúdo do perfil do professor. O autor respondeu na `r3` (três decisões
+próprias, cinco aceites); o agente congelou o catálogo (11 medalhas, 17 prêmios, 18
+conquistas) e deixou dois pontos, fechados na `r4` (M13 cai; dedupe por item + data +
+matéria para apresentação em sala). Continua sem código e sem proposta técnica, como
+pedido. Primeiras trocas na versão 2.1.308 do CLI. Em paralelo, o autor decidiu
+acrescentar ao desenho a condição "prompt único" (um prompt por persona, sem turnos
+humanos depois) e pediu a estrutura de capítulos do TCC num chat separado do projeto.
+
