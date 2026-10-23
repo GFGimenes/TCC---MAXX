@@ -12,6 +12,16 @@ claude.ai e, para o estado depois de 11/10, as versões locais mais novas de
 `docs/linha-do-tempo.md` (seção "Ambiente fixado para as rodadas" e hash da semente),
 que ainda não estão sincronizadas no projeto.
 
+> **Decisão do autor (23/10/2026), posterior a este rascunho:** o corpo do TCC terá no
+> máximo 25 páginas (introdução 2, fundamentação 5, metodologia 8, resultados 5,
+> discussão 3, conclusão 1). As estimativas de páginas abaixo (72 a 96) ficam como
+> registro do rascunho e não valem. Prompts, respostas, exports, reviews e planilhas
+> ficam no repositório público do TCC, referenciado pelo hash do commit; só o essencial
+> vai como apêndice no fim do documento (prompts da condição de prompt único com
+> diffs, um prompt de exemplo por trilha, trechos de sessão e quadros das planilhas).
+> Os itens "a confirmar com o autor" foram resolvidos no
+> `docs/tcc/descritivo-capitulos-tcc.docx` (documento para o orientador).
+
 ## 1 Como ler este documento
 
 Cada seção do TCC aparece com quatro partes: um parágrafo sobre o conteúdo; **Já
