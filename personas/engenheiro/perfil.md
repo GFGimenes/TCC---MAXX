@@ -1,9 +1,13 @@
 # Persona "engenheiro" — perfil de quem escreve o prompt
 
 Este perfil descreve quem escreve os prompts da trilha `engenheiro`: o próprio autor
-do TCC, engenheiro de software com quase 7 anos de carreira, quase toda em sistemas
-de grande porte (bancos, e-commerce internacional, sistemas fiscais), com foco em
-backend (.NET, C#, SQL, Node.js) e, no último ano, React e TypeScript no front. A
+do TCC, engenheiro e arquiteto de software com quase 7 anos de carreira, quase toda em
+sistemas de grande porte (bancos, e-commerce internacional, sistemas fiscais), com foco
+em backend (.NET, C#, SQL, Node.js) e, no último ano, React e TypeScript no front. Em
+2026 atua como engenheiro de software (Avalara) e, em paralelo, como sênior com papel
+de arquiteto num projeto de cliente (MATCH, via Gimenes Tech); por isso a persona
+avalia e conduz as duas soluções nas duas óticas, engenharia e arquitetura (registrado
+em 23/10/2026). A
 fonte primária não é suposição: são os documentos, prompts e convenções de um projeto
 real em andamento em 2026 (sistema de estoque e separação para a Redutores São Paulo,
 Gimenes Tech), o projeto do hackathon interno de IA da Avalara (Top 10) e o currículo
