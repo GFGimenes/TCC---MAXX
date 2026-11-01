@@ -243,3 +243,24 @@ arquitetura das duas soluções. Descritivo dos capítulos para o orientador ger
 `docs/tcc/descritivo-capitulos-tcc.docx`, com o corpo planejado em 25 páginas e os
 materiais no repositório.
 
+## 2026-11-01
+
+`eng_00`, continuação. O autor enviou a `tecnica-r1` (respostas ao plano mestre v1:
+barra de navegação mantida com rankings pelo perfil e pela Busca; raridade derivada da
+escassez com limiares fixos, contra a sugestão do agente; "salvar" removido e "enviar"
+vira compartilhar; domínio em português e técnico em inglês; GitHub Actions; R2;
+leitura pública por chave aleatória; motor declarativo; sem plano B local de rede, a
+banca usa a rede móvel; termo de uso na fase 1; aceite em bloco das recomendações de
+peso 8 ou mais e da ordem dos 13 passos). O agente devolveu o **plano do passo 0**
+(fundação documental, seis etapas: produto.md, catálogo em três JSON, regras
+declarativas das conquistas em três formas de contagem, sete famílias de trilha, oito
+ADRs com índice, plano mestre, CLAUDE.md; um commit por etapa com revisão do autor
+antes de cada um), três consequências das decisões (raridade vira tabela de
+estatística calculada pelo worker; com 40 alunos as faixas de raridade colapsam,
+recomendou 120; oito superfícies sem desenho inventariadas) e oito perguntas. O autor
+respondeu na `tecnica-r2`: denominador por elegíveis; raridade não congela; 150 alunos
+no seed (120 ativos, 30 ex-alunos); arroba único escolhido pelo usuário, RA nunca
+exposto, busca por nome e arroba com filtros de curso e semestre; convenção de branch
+e commit aceita, passo 0 na `rodada/eng_00`; um commit por etapa e um PR por assunto;
+oito ADRs separados; deep link com muro de login. Autorizada a E0.1. Ainda sem código.
+
