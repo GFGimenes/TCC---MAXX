@@ -44,14 +44,20 @@ retomar sem depender do histórico da conversa.
   não constrói mockup.
 - Referência visual do engenheiro: mockups feitos antes (Figma ou Claude Design), a
   partir dos rascunhos em `docs/rascunhos/`.
-- Ordem de execução: as duas rodadas de abertura primeiro; depois módulo a módulo
-  (login, feed, troféus, perfil e ranking, mural), sem obrigação de alternar trilha
-  a cada rodada.
+- Ordem de execução (decidida em 01/11/2026): a trilha do engenheiro inteira primeiro
+  (`eng_00` e depois uma rodada por passo do plano mestre do agente, `eng_01_fundacao`
+  a `eng_13_endurecimento`), depois a trilha do leigo inteira (abertura e seis telas,
+  até o deploy), depois a condição de prompt único das duas personas, depois as
+  avaliações. A avaliação com rubrica é uma por produto, no fim, em seis eixos
+  (experiência do usuário, segurança, infraestrutura, documentação, código, projeto e
+  arquitetura), com seis revisores de IA e a avaliação independente do autor; por
+  rodada fica só o registro.
 - Validação objetiva: testes de referência (fase 7: fronteiras da pontuação por
   tier, entradas inválidas, ordenação do ranking) e teste de carga (fase 7b: k6 ou
   autocannon, 200 e 2.000 usuários virtuais, mesmos cenários nos dois deploys).
-- Planilha `avaliacoes/registro-avaliacoes.xlsx` refeita: nota do revisor IA ao lado
-  da nota validada, divergência calculada, resumo por trilha e por tela.
+- Planilha `avaliacoes/registro-avaliacoes.xlsx`: por produto, seis eixos, nota do
+  revisor IA ao lado da nota do autor, divergência calculada; decisões do agente e
+  regras ausentes por produto; registro por rodada com turnos, tempo e tokens.
 - Ajustes pendentes no texto do TCC (fase 11): seção 3.1 (Quadro 1 com quatro famílias
   e personas por modelo já não descreve o experimento) e exemplo de teste da 3.2
   (`calcularTierAluno` vira teste da pontuação do prêmio).

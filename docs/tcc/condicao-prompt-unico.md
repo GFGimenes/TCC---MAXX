@@ -27,10 +27,11 @@ entrega ao agente, e não na quantidade de mensagens trocadas. Ela se desdobra e
 hipóteses verificáveis e uma exploratória:
 
 - **H1.** Com uma mensagem só em cada persona, o produto do engenheiro recebe nota
-  maior que o do leigo nos eixos Arquitetura, Segurança, Código e Mantenabilidade, no
-  mesmo sentido da diferença observada entre as trilhas iterativas.
+  maior que o do leigo nos eixos Segurança, Infraestrutura, Documentação, Código e
+  Projeto e arquitetura, no mesmo sentido da diferença observada entre as trilhas
+  iterativas.
 - **H2.** O produto do prompt único do engenheiro não fica abaixo do produto final da
-  trilha iterativa do leigo nesses quatro eixos. Se ficar, as mensagens a mais do
+  trilha iterativa do leigo nesses cinco eixos. Se ficar, as mensagens a mais do
   leigo compensaram a falta de conteúdo, e a hipótese geral perde força.
 - **H3.** O agente toma mais decisões sem perguntar no prompt único do leigo do que
   no do engenheiro, e a diferença entre as duas contagens é maior que nas trilhas
@@ -47,9 +48,9 @@ descritiva, sem teste estatístico. Para que "maior" e "no mesmo sentido" não s
 decididos depois de ver os dados, a regra de decisão é fixada no pré-registro.
 Proposta: em cada eixo, conta como diferença uma distância de pelo menos 1 ponto na
 nota validada por humano; H1 é apoiada se a diferença existir, no sentido previsto,
-em pelo menos três dos quatro eixos; H2 é apoiada se em nenhum dos quatro eixos o
+em pelo menos quatro dos cinco eixos; H2 é apoiada se em nenhum dos cinco eixos o
 prompt único do engenheiro ficar 1 ponto ou mais abaixo do produto final do leigo
-iterativo (a confirmar com o autor).
+iterativo (decidido pelo autor em 23/10/2026).
 
 ### 3.1.5.2 O que a condição isola
 
@@ -209,12 +210,12 @@ porque é dela que saem os tokens e os tempos por mensagem e porque ela expira (
 registro da rodada em `resultados/<trilha>/<id>.md`, com o evento de parada. IDs:
 `leigo_pu` e `eng_pu`, os mesmos no prompt, no resultado, no review e na planilha.
 
-**Revisão.** O mesmo revisor, numa sessão nova na pasta do clone e na branch da
-condição. Como a execução reúne numa sessão o que nas trilhas iterativas se espalha
-por várias rodadas, o revisor aplica o prompt por rodada (Código e Segurança) e a
-avaliação de milestone (Arquitetura e Mantenabilidade) sobre o estado final, e UX se
-houver alguma tela navegável. O review humano é observacional nas duas personas:
-nada é corrigido e não existe `_v2` nesta condição.
+**Revisão.** A mesma avaliação de fim de produto das trilhas iterativas
+(`avaliacoes/rubrica.md`, decidido em 01/11/2026): seis sessões de revisor, uma por
+eixo (experiência do usuário, segurança, infraestrutura, documentação, código, projeto
+e arquitetura), na pasta do clone e na branch da condição, e a avaliação independente
+do autor nos mesmos seis eixos, sem ver a nota do revisor; a divergência é resultado.
+Nada é corrigido e não existe `_v2` nesta condição.
 
 **Validação técnica.** A suíte de referência da §3.2 roda sobre a regra de pontos que
 cada produto tiver, com "ausente" quando não houver. O teste de carga não se aplica:
@@ -225,8 +226,8 @@ como dado complementar, sabendo que não é comparável ao dos deploys).
 
 ### 3.1.5.5 Métricas
 
-**Rubrica.** Os cinco eixos, a mesma escala, a nota do revisor ao lado da nota
-validada, com o estado "regra ausente" como nas trilhas iterativas.
+**Rubrica.** Os seis eixos, a mesma escala, a nota do revisor ao lado da nota do
+autor, com o estado "regra ausente" como nas trilhas iterativas.
 
 **Decisões tomadas pelo agente sem perguntar.** Cada decisão que o prompt não
 determinou e o agente tomou, classificada por tipo (regra de produto, stack e
