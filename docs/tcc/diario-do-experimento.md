@@ -264,3 +264,16 @@ exposto, busca por nome e arroba com filtros de curso e semestre; convenção de
 e commit aceita, passo 0 na `rodada/eng_00`; um commit por etapa e um PR por assunto;
 oito ADRs separados; deep link com muro de login. Autorizada a E0.1. Ainda sem código.
 
+Mais tarde em 01/11: passo 0 em execução. E0.1 (`docs/produto.md`, 534 linhas, 13 seções,
+com diagrama de estados do prêmio de participação e tabela de visibilidade por
+estado) revisada pelo Cowork no repo e aprovada pelo autor com três mudanças
+(`tecnica-r3`: ex-alunos entram na conta de raridade; sufixo `-EX`; aluno nunca acumula
+papel) e quatro pendências do arroba fechadas; o agente aplicou e commitou (`14999e3`,
+primeiro commit do agente na trilha). E0.2a (`medalhas.json`, `premios-participacao.json`)
+entregue com três decisões que o agente precisou tomar e declarou; o autor trouxe a
+estrutura real de avaliação da UniMax (prova, prova integrativa, presença ou trabalhos
+por bimestre; substitutiva como segunda chance) e transformou a repetibilidade em
+campos do catálogo com limites derivados dela (`tecnica-r4`). Export parcial da sessão
+e cópia do `.jsonl` salvos em `resultados/engenheiro/` (`43b4210`). Ainda sem código
+executável; só documentação e dados, como o passo 0 prevê.
+
