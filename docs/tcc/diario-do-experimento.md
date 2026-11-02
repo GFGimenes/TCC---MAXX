@@ -314,4 +314,8 @@ no `Domain.Tests` até o passo 2, `MSBuildTreatWarningsAsErrors`, `JsonNumberHan
 Node 22 com avaliação do 24 no passo 13, proxy de `/api` no Metro só em desenvolvimento,
 ícones reais no passo 4. Achados moderados do `npm audit` em ferramentas de build e teste
 registrados, abaixo do corte do job de segurança. O autor instalou o SDK do .NET 10
-antes de o agente continuar. Pendentes: etapas 5 a 8, PR, merge e fechamento da rodada.
+antes de o agente continuar. Etapa 5 (`fundacao-r6`): compose com Postgres 18, migrador, duas réplicas de API e
+Caddy; o agente testou resiliência além do critério (réplica parada, rodízio exato,
+as duas paradas, dados sobrevivendo à recriação do Postgres). `infra/` entra no mapa
+do `CLAUDE.md` na etapa 8; porta 443, HSTS e CSP ficam no passo 13. Pendentes: etapas
+6 a 8, PR, merge e fechamento da rodada.

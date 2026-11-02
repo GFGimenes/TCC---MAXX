@@ -4010,3 +4010,459 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt
   chore(mobile): cria app expo com tela de estado da api e moldura de celular
 
 ✻ Baked for 10m 2s · done 22:42
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_01_fundacao-sessao.txt
+
+※ recap: Estamos no passo 1 do Maxx (esqueleto do monorepo), com as etapas 1 a 3 já commitadas e a etapa 4, o app Expo, pronta em stage. Falta você revisá-la e responder às três decisões pendentes, começando pelo proxy de `/api` no Metro em desenvolvimento. (disable recaps in /config)
+
+❯ Etapa 4 aprovada. Pode commitar com a mensagem proposta e dar push.           
+                                                                                
+  Sobre as decisões:                                                            
+                                                                                
+  Proxy de /api no Metro, só em desenvolvimento. Mantém a origem única sem      
+  ligar CORS, e o compose com Caddy continua sendo o caminho de produção na     
+  etapa 5. Deixa claro no código ou no README do apps/mobile que o proxy é só   
+  dev e não existe no build exportado.                                          
+  Moldura só na web, como você leu. Tablet nativo usa a tela inteira.           
+  Ícones e splash reais entram no passo 4, junto com o design system. Registra  
+  isso como item explícito no plano do passo 4 para não se perder, e por        
+  enquanto os PNGs padrão do Expo ficam.                                        
+                                                                                
+  Registrado: os 46 moderados e 1 baixo do npm audit em ferramentas de build e  
+  teste, abaixo do corte do job de segurança, e a borda de 1 px nos quatro      
+  lados da moldura.                                                             
+                                                                                
+  Segue para a etapa 5 e para na revisão.                                       
+
+  Pushed to chore/passo-01-esqueleto-monorepo (ctrl+o to expand)
+
+● Etapa 4 commitada (a045303) e enviada. Antes do compose, vou incluir no commit
+  da etapa 5 o proxy de /api no Metro (apenas em dev) e a nota dos ícones do
+  passo 4, avisando na revisão caso prefira separá-los.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 2 lines
+      133    tier e raridade, selo de pílula do post, faixa de prêmio, tr
+           ilha com cadeado, avatar de
+      134    iniciais, estado vazio, estado de erro amigável.
+      135  - Grade de 4 px, margem lateral de 16, respiro de 24 antes da 
+           navegação.
+      136 +- Ícones e splash reais do app, no lugar dos PNGs padrão do te
+          +mplate Expo que ficaram em                                    
+      137 +  `apps/mobile/assets` desde o passo 1.                       
+      138  
+      139  ### Passo 5. Login, cadastro, termos e entrada da demonstração
+      140  
+
+● Write(apps\mobile\metro.config.js)
+  ⎿  Wrote 45 lines to apps\mobile\metro.config.js
+       1 // https://docs.expo.dev/guides/customizing-metro/
+       2 const http = require("node:http");
+       4 
+       5 const config = getDefaultConfig(__dirname);
+       6 
+         ssa /api/* para a API
+       8 // local, e a web continua numa origem só (ADR 0001), sem CORS. 
+         O middleware vive no
+          então o proxy não existe
+      10 // no build exportado. Lá quem faz esse papel é o Caddy.
+     … +42 lines (ctrl+o to expand)
+
+● Write(apps\mobile\README.md)
+  ⎿  Wrote 30 lines to apps\mobile\README.md
+       1 # apps/mobile
+       2 
+       3 Cliente Expo do Maxx: um código para web, Android e iOS, com Exp
+       4 `src/app/`).
+       5 
+       6 ## Desenvolvimento
+       7 
+       9 # API local, em outro terminal (porta 5028; /api/health não prec
+         isa de banco)
+      10 dotnet run --project apps/api/src/Maxx.Api
+     … +26 lines (ctrl+o to expand)
+
+● Um ajuste no README: a API exige ConnectionStrings__Maxx para subir, mesmo que
+  o /health não toque no banco. Corrijo e testo o proxy de verdade (API em
+  :5028, Metro em :8081):
+
+● Update(apps\mobile\README.md)
+  ⎿  Added 3 lines, removed 1 line
+       6  ## Desenvolvimento
+       7  
+       8  ```bash
+       9 -# API local, em outro terminal (porta 5028; /api/health não pre
+         -cisa de banco)                                                 
+       9 +# API local, em outro terminal (porta 5028). A conexão é obriga
+         +tória para subir, mas o                                        
+      10 +# /api/health não toca no banco; o /api/ready precisa do Postgr
+         +es do compose de pé.                                           
+      11 +export ConnectionStrings__Maxx="Host=localhost;Port=5432;Databa
+         +se=maxx;Username=maxx;Password=<a do .env>"                    
+      12  dotnet run --project apps/api/src/Maxx.Api
+      13  
+      14  # web
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O comando ficou pendurado porque os processos de fundo prenderam o shell. Olho
+  os logs e testo direto:
+
+  Read 1 file (ctrl+o to expand)
+
+● Encontrei o problema: estou causando recursão infinita porque a leitura de
+  config.server.enhanceMiddleware ocorre após a reatribuição, fazendo o
+  middleware chamar a si mesmo. Vou encerrar o Metro e corrigir, salvando o
+  valor original antes de reatribuir.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\mobile\metro.config.js)
+  ⎿  Added 4 lines, removed 2 lines
+      29    req.pipe(upstream);
+      30  }
+      31  
+      32 +const expoEnhanceMiddleware = config.server?.enhanceMiddleware;
+      33 +                                                               
+      34  config.server = {
+      35    ...config.server,
+      36    enhanceMiddleware: (middleware, server) => {
+      35 -    const next = config.server?.enhanceMiddleware              
+      36 -      ? config.server.enhanceMiddleware(middleware, server)    
+      37 +    const next = expoEnhanceMiddleware                         
+      38 +      ? expoEnhanceMiddleware(middleware, server)              
+      39        : middleware;
+      40      return (req, res, fallthrough) =>
+      41        req.url?.startsWith("/api/")
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(for i in $(seq 1 45); do curl -s -m 5 -o /dev/null
+      localhost:8081/api/health && break; sleep 2; done; echo "metro
+      /api/health: $(curl -s -m 10 -w ' [%{http_code…)
+  ⎿  metro /api/health: {"status":"ok"} [200]
+     metro /api/ready: 503 (503 esperado: banco fora)
+     metro /: 200
+  ⎿  Updated apps\mobile\tsconfig.json (+6 -2)
+       3    "compilerOptions": {
+       4      "strict": true,
+       5      "noUncheckedIndexedAccess": true,
+       6 -    "types": ["jest"]                                          
+       6 +    "types": [                                                 
+       7 +      "jest"                                                   
+       8 +    ]                                                          
+       9    },
+       8 -  "include": ["src", "expo-env.d.ts", ".expo/types/**/*.ts"]   
+      10 +  "include": [                                                 
+      11 +    "src"                                                      
+      12 +  ]                                                            
+      13  }
+  ⎿  (timeout 3m)
+
+● Background command "Run API and Metro, test dev proxy" completed (exit code 0)
+
+● Confirmo que o proxy funciona: /api/health retorna 200, /api/ready 503 (banco
+  fora, propositalmente), e a página 200. O expo start reescreveu o
+  tsconfig.json, removendo includes inexistentes — vou aceitar essa versão e
+  encerrar o Metro e a API agora.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Start Metro dev server in background" failed with exit
+code 127
+
+● Esperado: o Metro saiu porque eu o encerrei. Agora a etapa 5 propriamente.
+  Confiro as tags de imagem antes de fixar:
+
+  Ran 1 shell command (ctrl+o to expand)
+● Fixo nas linhas menores, que continuam recebendo patch: caddy:2.11-alpine,
+  node:22-alpine e o .NET 10.0.
+
+● Write(apps\api\Dockerfile)
+  ⎿  Wrote 26 lines to apps\api\Dockerfile
+       1 # syntax=docker/dockerfile:1
+          ficam lá).
+       3 # A mesma imagem serve a API e o contêiner de migração (`migrate
+       4 
+       5 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+       7 
+       8 # Restauração em camada própria: só refaz quando um .csproj ou .
+       9 COPY global.json Directory.Build.props Directory.Packages.props 
+         ./
+         xx.Domain/
+     … +22 lines (ctrl+o to expand)
+
+● Write(infra\caddy\Dockerfile)
+  ⎿  Wrote 20 lines to infra\caddy\Dockerfile
+       1 # syntax=docker/dockerfile:1
+       2 # Contexto: raiz do repositório. O build web do Expo vai dentro 
+         da imagem do Caddy.
+       4 FROM node:22-alpine AS web
+       5 WORKDIR /repo
+       6 
+       7 # Instalação em camada própria: só refaz quando um package.json 
+       8 COPY package.json package-lock.json ./
+       9 COPY apps/mobile/package.json apps/mobile/
+      10 COPY packages/api-client/package.json packages/api-client/
+     … +12 lines (ctrl+o to expand)
+
+● Write(infra\caddy\Caddyfile)
+  ⎿  Wrote 28 lines to infra\caddy\Caddyfile
+       1 # Origem única (ADR 0001): o build web em / e a API em /api, no 
+       2 # Local, o endereço é :80 em HTTP. HTTPS, HSTS e CSP entram no p
+         asso 13.
+       3 {$MAXX_SITE_ADDRESS::80} {
+       5 
+       6   # A API mapeia tudo sob /api: o prefixo segue como veio, sem c
+       7   handle /api/* {
+       8     reverse_proxy {
+       9       # Descobre as réplicas pelo DNS do compose e reconsulta a 
+      10       # réplica parada some da lista, réplica nova entra.
+     … +21 lines (ctrl+o to expand)
+
+● Write(docker-compose.yml)
+  ⎿  Wrote 67 lines to docker-compose.yml
+       1 # Maxx: Postgres, migração, duas réplicas de API e Caddy.
+       2 # Uso local: cp .env.example .env && docker compose up --build
+       3 
+       4 name: maxx
+       5 
+       6 x-api-image: &api-image
+       7   image: maxx-api:local
+       8   build:
+       9     context: .
+      10     dockerfile: apps/api/Dockerfile
+     … +62 lines (ctrl+o to expand)
+
+● Write(.env.example)
+  ⎿  Wrote 10 lines to .env.example
+       1 # Copie para .env (que fica fora do git) e troque a senha.
+       2 # Valores só para a máquina local. Na VPS, o .env de lá tem senh
+         a própria e nunca é
+       3 # versionado.
+       4 
+       6 POSTGRES_USER=maxx
+       7 POSTGRES_PASSWORD=troque-esta-senha
+       8 
+       9 # Porta HTTP do Caddy na máquina local.
+      10 MAXX_HTTP_PORT=80
+     … +1 line (ctrl+o to expand)
+
+● Write(.dockerignore)
+  ⎿  Wrote 19 lines to .dockerignore
+       1 .git
+       2 .env
+       3 .env.*
+       4 !.env.example
+       5 
+       6 **/bin
+       7 **/obj
+       8 **/TestResults
+       9 
+      10 **/node_modules
+     … +9 lines (ctrl+o to expand)
+
+● Faço a prova de aceite a partir do .env.example, como alguém faria num clone
+  limpo. O .env fica fora do git.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Subiu na ordem certa: Postgres saudável, migração, as duas réplicas e o Caddy.
+  Agora os critérios de aceite:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Encontrei um warning inofensivo no log do migrador sobre a falta da biblioteca
+  libgssapi_krb5.so.2 (GSS/Kerberos), que o Npgsql tenta usar sem necessidade.
+  Vou desativar isso via Gss Encryption Mode=Disable na string de conexão do
+  compose.
+
+● Update(docker-compose.yml)
+  ⎿  Added 2 lines, removed 1 line
+       9      context: .
+      10      dockerfile: apps/api/Dockerfile
+      11  
+      12 +# Sem Kerberos: sem isto, o Npgsql tenta negociar GSS e registr
+         +a a falta da libgssapi.                                        
+      13  x-api-env: &api-env
+      13 -  ConnectionStrings__Maxx: "Host=postgres;Port=5432;Database=${
+         -POSTGRES_DB:?defina no .env};Username=${POSTGRES_USER:?defina n
+         -o .env};Password=${POSTGRES_PASSWORD:?defina no .env}"         
+      14 +  ConnectionStrings__Maxx: "Host=postgres;Port=5432;Database=${
+         +POSTGRES_DB:?defina no .env};Username=${POSTGRES_USER:?defina n
+         +o .env};Password=${POSTGRES_PASSWORD:?defina no .env};Gss Encry
+         +ption Mode=Disable"                                            
+      15  
+      16  services:
+      17    postgres:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O ruído desapareceu, a segunda rodada não aplicou nada e o histórico segue com
+  uma linha só — o volume do Postgres sobreviveu à recriação do contêiner.
+  Agora vou testar resiliência: confirmar que as duas réplicas recebem tráfego,
+  derrubar uma e enviar 20 requisições.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As 20 requisições retornaram 200 mesmo com uma réplica parada, e a contagem
+  zerada por réplica se deve ao ASP.NET não registrar requisições em Production.
+  Vou consultar a distribuição via API de administração do Caddy e confirmar
+  que, com ambas as réplicas paradas, o erro se torna 502 em vez de travar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Já que a API de administração do Caddy não responde dentro do contêiner,
+  testei a distribuição subindo as réplicas com um override temporário (fora do
+  repositório) e ativando o log de requisição. Com as duas réplicas paradas, o
+  Caddy retornou 503 em 8s (soma do lb_try_duration com o refresh de DNS), sem
+  travar nada e exibindo a mensagem amigável.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Rodízio exato: 10 requisições para cada réplica. Desço o compose sem apagar o
+  volume e rodo as verificações do lado do app, por causa do metro.config.js e
+  do tsconfig.json:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      docker compose down 2>&1 | tail -1; npx prettier --write apps/mobile 2>&1
+      | grep -v uncha…)
+  ⎿   Network maxx_default Removed
+     apps/mobile/metro.config.js 13ms
+     apps/mobile/tsconfig.json 1ms
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\metro.config.js (+4 -1)
+      23    upstream.on("error", () => {
+      24      res.writeHead(502, { "content-type": "application/problem+j
+          son" });
+      25      res.end(
+      26 -      JSON.stringify({ title: `API local fora do ar em ${apiUrl
+         -}.`, status: 502 }),                                           
+      26 +      JSON.stringify({                                         
+      27 +        title: `API local fora do ar em ${apiUrl}.`,           
+      28 +        status: 502,                                           
+      29 +      }),                                                      
+      30      );
+      31    });
+      32    req.pipe(upstream);
+  ⎿  Updated apps\mobile\tsconfig.json (+2 -6)
+       3    "compilerOptions": {
+       4      "strict": true,
+       5      "noUncheckedIndexedAccess": true,
+       6 -    "types": [                                                 
+       7 -      "jest"                                                   
+       8 -    ]                                                          
+       6 +    "types": ["jest"]                                          
+       7    },
+      10 -  "include": [                                                 
+      11 -    "src"                                                      
+      12 -  ]                                                            
+       8 +  "include": ["src"]                                           
+       9  }
+  ⎿  (timeout 5m)
+
+● A etapa 5 está pronta e espera a sua revisão. Deixei tudo em stage e não fiz o
+  commit. O compose ficou parado e o volume do Postgres foi mantido.
+
+  Critérios de aceite
+
+  Partindo de cp .env.example .env e docker compose up --build:
+
+  ┌───────────────────────┬─────────────────────────────────────────────────┐
+  │       Critério        │                    Resultado                    │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ Ordem de subida       │ Postgres saudável, depois o migrador (saiu com  │
+  │                       │ 0), depois as duas réplicas, depois o Caddy     │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ http://localhost      │ 200 com o index.html, e o bundle JS servido     │
+  │                       │ (1,1 MB)                                        │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ /api/health e         │ 200 nos dois, com o prefixo chegando inteiro à  │
+  │ /api/ready via Caddy  │ API                                             │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ Fallback da SPA       │ /post/123 devolve o mesmo index.html            │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ Rota de API           │ 404 em ProblemDetails, vindo da API e não do    │
+  │ inexistente           │ Caddy                                           │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ Uma réplica parada    │ 20 de 20 requisições com 200, e 200 de novo     │
+  │                       │ depois que ela volta                            │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ Distribuição entre    │ exatamente 10 e 10 em 20 requisições            │
+  │ réplicas              │                                                 │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │ As duas réplicas      │ 503 em 8 s, sem travar                          │
+  │ paradas               │                                                 │
+  ├───────────────────────┼─────────────────────────────────────────────────┤
+  │                       │ "0 migration(s) pendente(s)", uma linha só no   │
+  │ Subir de novo         │ histórico, e os dados sobrevivem à recriação do │
+  │                       │  contêiner do Postgres                          │
+  └───────────────────────┴─────────────────────────────────────────────────┘
+
+  Para ver a distribuição liguei o log de requisição com um override temporário
+  no scratchpad, fora do repositório, e desfiz em seguida.
+
+  O que entrou
+
+  - apps/api/Dockerfile: SDK 10.0 para o build e aspnet:10.0 para rodar, com o
+    usuário sem privilégio da imagem oficial. A mesma imagem serve a API e o
+    migrador.
+  - infra/caddy/Dockerfile: o build web sai do node:22-alpine e vai para dentro
+    do caddy:2.11-alpine.
+  - infra/caddy/Caddyfile:
+    - /api/* vai para as réplicas, descobertas pelo DNS do compose a cada 5 s,
+      em rodízio, tentando outra réplica se uma falhar;
+    - o resto é arquivo estático, com fallback para index.html.
+  - docker-compose.yml:
+    - postgres:18-alpine, com volume no caminho que o 18 espera;
+    - migrator com migrate, que espera o banco ficar saudável;
+    - api com 2 réplicas, que só sobem depois de o migrador terminar com
+      sucesso;
+    - caddy.
+
+    Se faltar alguma variável no .env, o compose para logo no início com "defina
+    no .env".
+  - .env.example (sem segredo real) e .dockerignore.
+
+  Junto neste commit, decididos por você na etapa 4
+
+  - Proxy de /api no Metro, só em desenvolvimento (apps/mobile/metro.config.js),
+    com o aviso no código e no apps/mobile/README.md de que ele não existe no
+    build exportado. Testado: com a API em :5028 e o Metro em :8081, /api/health
+    passa com 200.
+  - Ícones e splash reais registrados no passo 4 do plano.
+
+  São de escopo mobile e docs dentro de um commit infra. Se preferir, separo.
+
+  Correções no caminho
+
+  1. Recursão no proxy do Metro. A primeira versão chamava a si mesma. Corrigi
+     guardando o middleware original do Expo antes de reatribuir.
+  2. Ruído de Kerberos. O Npgsql tentava negociar GSS e registrava Cannot load 
+     library libgssapi_krb5.so.2. Pus Gss Encryption Mode=Disable na string de
+     conexão do compose.
+  3. tsconfig.json do app. O expo start reescreveu o arquivo ao subir: tirou os
+     includes de expo-env.d.ts e .expo/types, que não existem sem rotas tipadas.
+     Aceitei.
+
+  Para você decidir
+
+  1. A pasta infra/caddy/ guarda o Dockerfile e o Caddyfile do Caddy. O mapa do
+     repositório no CLAUDE.md não tem uma pasta de infraestrutura. Se aprovar,
+     acrescento infra/ ao mapa no commit da etapa 8.
+  2. Endereço do site. O Caddyfile aceita MAXX_SITE_ADDRESS e cai em :80 sem
+     ela. Na VPS, com o domínio nessa variável, o Caddy liga HTTPS sozinho.
+     Mesmo assim o compose só publica a porta 80 por enquanto, e a 443, o HSTS e
+     a CSP ficam para o passo 13, como o plano prevê.
+
+  Commit proposto
+
+  chore(infra): adiciona compose com postgres, migração, duas réplicas de api e 
+  caddy
+
+✻ Brewed for 13m 29s · done 23:02
