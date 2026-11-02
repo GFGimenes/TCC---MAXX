@@ -4466,3 +4466,533 @@ code 127
   caddy
 
 ✻ Brewed for 13m 29s · done 23:02
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_01_fundacao-sessao.txt
+
+❯ Etapa 5 aprovada. Um commit só, com a mensagem proposta: a convenção é um     
+  commit por etapa, e o proxy do Metro e o item do plano são consequência da    
+  revisão da etapa 4, então ficam juntos. Push.                                 
+                                                                                
+  Decisões: 1, infra/ entra no mapa do repositório do CLAUDE.md no commit da    
+  etapa 8. 2, só a porta 80 por enquanto; 443, HSTS e CSP ficam no passo 13,    
+  como está no plano.                                                           
+                                                                                
+  As três correções do caminho aceitas: a guarda do middleware no proxy do      
+  Metro, o Gss Encryption Mode=Disable na string de conexão do compose          
+  (registra num comentário no compose o motivo, para ninguém remover achando    
+  que é sobra), e o tsconfig.json reescrito pelo Expo.                          
+                                                                                
+  Segue para a etapa 6 e para na revisão.                                       
+
+● O comentário do GSS já existe no compose, mas reforço para deixar claro que a
+  linha não é sobra:
+
+● Update(docker-compose.yml)
+  ⎿  Added 3 lines, removed 1 line
+       9      context: .
+      10      dockerfile: apps/api/Dockerfile
+      11  
+      12 -# Sem Kerberos: sem isto, o Npgsql tenta negociar GSS e registr
+         -a a falta da libgssapi.                                        
+      12 +# `Gss Encryption Mode=Disable` é proposital, não remover: o Ma
+         +xx não usa Kerberos, e sem                                     
+      13 +# isto o Npgsql tenta negociar criptografia GSS a cada conexão 
+         +e registra no log                                              
+      14 +# "Cannot load library libgssapi_krb5.so.2", que a imagem aspne
+         +t não traz.                                                    
+      15  x-api-env: &api-env
+      16    ConnectionStrings__Maxx: "Host=postgres;Port=5432;Database=${
+          POSTGRES_DB:?defina no .env};Username=${POSTGRES_USER:?defina n
+          o .env};Password=${POSTGRES_PASSWORD:?defina no .env};Gss Encry
+          ption Mode=Disable"
+      17  
+
+  Pushed to chore/passo-01-esqueleto-monorepo (ctrl+o to expand)
+● Etapa 5 commitada (99bec8e) e enviada, com o compose documentando que o Gss 
+  Encryption Mode=Disable é intencional. Agora iniciando a etapa 6: testes e2e
+  com Playwright contra o build web servido pelo Caddy.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm view @playwright/test version && mkdir -p e2e/tests && node -e '
+      const fs=require("fs…)
+  ⎿  1.64.1
+     found 0 vulnerabilities
+     {
+     … +10 lines (ctrl+o to expand)
+  ⎿  Created e2e\package.json (+10 -0)
+       1 +{                                                              
+       2 +  "name": "@maxx/e2e",                                         
+       3 +  "version": "0.0.0",                                          
+       4 +  "private": true,                                             
+       5 +  "description": "e2e com Playwright contra o build web servido
+         + pelo Caddy.",                                                 
+       6 +  "scripts": {                                                 
+       7 +    "test": "playwright test",                                 
+       8 +    "typecheck": "tsc --noEmit"                                
+       9 +  }                                                            
+      10 +}                                                              
+  ⎿  Updated package-lock.json (+9 -0)
+       7        "name": "maxx",
+       8        "workspaces": [
+       9          "apps/mobile",
+      10 +        "e2e",                                                 
+      11          "packages/*"
+      12        ],
+      13        "devDependencies": {
+     ...
+      61          "node": ">=14.17"
+      62        }
+      63      },
+      64 +    "e2e": {                                                   
+      65 +      "name": "@maxx/e2e",                                     
+      66 +      "version": "0.0.0"                                       
+      67 +    },                                                         
+      68      "node_modules/@asamuzakjp/css-color": {
+      69        "version": "3.2.0",
+      70        "resolved": "https://registry.npmjs.org/@asamuzakjp/css-c
+          olor/-/css-color-3.2.0.tgz",
+     ...
+      4381        "resolved": "packages/api-client",
+      4382        "link": true
+      4383      },
+      4384 +    "node_modules/@maxx/e2e": {                              
+      4385 +      "resolved": "e2e",                                     
+      4386 +      "link": true                                           
+      4387 +    },                                                       
+      4388      "node_modules/@maxx/mobile": {
+      4389        "resolved": "apps/mobile",
+      4390        "link": true
+  ⎿  Updated package.json (+3 -2)
+       3    "private": true,
+       4    "workspaces": [
+       5      "apps/mobile",
+       6 +    "e2e",                                                     
+       7      "packages/*"
+       8    ],
+       9    "engines": {
+      10      "node": ">=22.12"
+      11    },
+      12    "scripts": {
+      12 -    "format": "prettier --write apps/mobile packages",         
+      13 -    "format:check": "prettier --check apps/mobile packages"    
+      13 +    "format": "prettier --write apps/mobile e2e packages",     
+      14 +    "format:check": "prettier --check apps/mobile e2e packages"
+      15    },
+      16    "devDependencies": {
+      17      "prettier": "^3.9.10"
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A instalação não pegou: o workspace novo ainda não estava ligado. Faço o npm 
+  install antes e repito:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm install 2>&1 | tail -1 && npm install -D -w e2e
+      @playwright/test@1.64.1 typescript@~5…)
+  ⎿  Run `npm audit` for details.
+     found 0 vulnerabilities
+       "devDependencies": {
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated e2e\package.json (+4 -0)
+       6    "scripts": {
+       7      "test": "playwright test",
+       8      "typecheck": "tsc --noEmit"
+       9 +  },                                                           
+      10 +  "devDependencies": {                                         
+      11 +    "@playwright/test": "^1.64.1",                             
+      12 +    "typescript": "~5.9.3"                                     
+      13    }
+      14  }
+  ⎿  Updated package-lock.json (+50 -1)
+      63      },
+      64      "e2e": {
+      65        "name": "@maxx/e2e",
+      66 -      "version": "0.0.0"                                       
+      66 +      "version": "0.0.0",                                      
+      67 +      "devDependencies": {                                     
+      68 +        "@playwright/test": "^1.64.1",                         
+      69 +        "typescript": "~5.9.3"                                 
+      70 +      }                                                        
+      71      },
+      72      "node_modules/@asamuzakjp/css-color": {
+      73        "version": "3.2.0",
+     ...
+      4851          "url": "https://opencollective.com/pkgr"
+      4852        }
+      4853      },
+      4854 +    "node_modules/@playwright/test": {                       
+      4855 +      "version": "1.64.1",                                   
+      4856 +      "resolved": "https://registry.npmjs.org/@playwright/tes
+           +t/-/test-1.64.1.tgz",                                        
+      4857 +      "integrity": "sha512-IaYGml/nSOiZWROfPtuIL7neuu9qDOZ3TN
+           +vNljUIrhDMxiGTgPjzj/g9p9RxpS2tSepPDRY+UwAaEeiKtUvIAg==",     
+      4858 +      "dev": true,                                           
+      4859 +      "license": "Apache-2.0",                               
+      4860 +      "dependencies": {                                      
+      4861 +        "playwright": "1.64.1"                               
+      4862 +      },                                                     
+      4863 +      "bin": {                                               
+      4864 +        "playwright": "cli.js"                               
+      4865 +      },                                                     
+      4866 +      "engines": {                                           
+      4867 +        "node": ">=20"                                       
+      4868 +      }                                                      
+      4869 +    },                                                       
+      4870      "node_modules/@radix-ui/primitive": {
+      4871        "version": "1.2.0",
+      4872        "resolved": "https://registry.npmjs.org/@radix-ui/primi
+            tive/-/primitive-1.2.0.tgz",
+     ...
+      17147          "node": ">=8"
+      17148        }
+      17149      },
+      17150 +    "node_modules/playwright": {                            
+      17151 +      "version": "1.64.1",                                  
+      17152 +      "resolved": "https://registry.npmjs.org/playwright/-/p
+            +laywright-1.64.1.tgz",                                      
+     … 29 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Agora a configuração e os testes:
+
+● Write(e2e\playwright.config.ts)
+  ⎿  Wrote 26 lines to e2e\playwright.config.ts
+       1 import { defineConfig, devices } from "@playwright/test";
+       2 
+         pé:
+       4 //   cp .env.example .env && docker compose up --build -d
+       5 //   npm test -w @maxx/e2e
+       7 const baseURL = process.env.MAXX_E2E_BASE_URL ?? "http://localho
+         st";
+       8 
+         h: 1280, height: 900 } };
+      10 // Largura e altura das pranchetas do design.
+     … +23 lines (ctrl+o to expand)
+
+● Write(e2e\tests\estado-api.spec.ts)
+  ⎿  Wrote 71 lines to e2e\tests\estado-api.spec.ts
+       1 import { expect, test, type Locator, type Page } from "@playwrig
+         ht/test";
+       2 
+       4 
+       5 const FRAME_WIDTH = 390;
+       6 const FRAME_MAX_HEIGHT = 844;
+       7 
+       9   return colorScheme === "dark" ? tokens.cores.escuro : tokens.c
+         ores.claro;
+      10 }
+     … +74 lines (ctrl+o to expand)
+
+● Write(e2e\tsconfig.json)
+  ⎿  Wrote 13 lines to e2e\tsconfig.json
+       1 {
+       2   "compilerOptions": {
+       3     "target": "ES2022",
+       4     "module": "ESNext",
+       5     "moduleResolution": "Bundler",
+       6     "lib": ["ES2022", "DOM"],
+       7     "strict": true,
+       8     "resolveJsonModule": true,
+       9     "skipLibCheck": true,
+      10     "noEmit": true
+     … +3 lines (ctrl+o to expand)
+
+● O teste do celular usa um testID que ainda não existe, o app-fundo no ramo sem
+  moldura. Acrescento no PhoneFrame e troco o XPath frágil por ele:
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\components\PhoneFrame.tsx)
+  ⎿  Added 4 lines, removed 1 line
+      15  
+      16    if (Platform.OS !== "web" || width < FRAME_MIN_WINDOW_WIDTH) 
+          {
+      17      return (
+      18 -      <View style={[styles.fill, { backgroundColor: colors.bg }
+         -]}>                                                            
+      18 +      <View                                                    
+      19 +        testID="app-fundo"                                     
+      20 +        style={[styles.fill, { backgroundColor: colors.bg }]}  
+      21 +      >                                                        
+      22          {children}
+      23        </View>
+      24      );
+
+● Update(e2e\tests\estado-api.spec.ts)
+  ⎿  Added 4 lines, removed 4 lines
+      59  
+      60    await expect(page.getByTestId("moldura")).toHaveCount(0);
+      61  
+      62 -  const status = page.getByTestId("estado-api");               
+      63 -  const root = status.locator("xpath=ancestor::div[last()]");  
+      64 -  expect((await root.boundingBox())!.width).toBe(viewport.width
+         -);                                                             
+      62 +  const app = page.getByTestId("app-fundo");                   
+      63 +  expect((await app.boundingBox())!.width).toBe(viewport.width)
+         +;                                                              
+      64 +  await expect(app.getByTestId("estado-api")).toBeVisible();   
+      65  
+      66    // Nenhuma rolagem horizontal.
+      67    expect(await page.evaluate(() => document.documentElement.scr
+          ollWidth)).toBe(viewport.width);
+      68  
+      69    const colors = themeColors(testInfo.project.use.colorScheme);
+      70 -  expect(await backgroundOf(page.getByTestId("app-fundo"))).toB
+         -e(rgb(colors.bg));                                             
+      70 +  expect(await backgroundOf(app)).toBe(rgb(colors.bg));        
+      71  });
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 4 testes essenciais passaram (desktop/celular, claro/escuro); os "skipped"
+  são só ruído por rodarem em todos os projetos. Vou trocar o skip por tags para
+  cada projeto executar apenas o que lhe cabe.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && node -e '
+      const fs=require("fs");…)
+  ⎿  0
+     21:    { name: "desktop-claro", grep: /@desktop/, use: { ...desktop, c
+     olorScheme: "light" } },
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated e2e\playwright.config.ts (+4 -4)
+      18    use: { baseURL, trace: "retain-on-failure" },
+      19    // Claro e escuro, sempre os dois.
+      20    projects: [
+      21 -    { name: "desktop-claro", use: { ...desktop, colorScheme: "l
+         -ight" } },                                                     
+      22 -    { name: "desktop-escuro", use: { ...desktop, colorScheme: "
+         -dark" } },                                                     
+      23 -    { name: "celular-claro", use: { ...celular, colorScheme: "l
+         -ight" } },                                                     
+      24 -    { name: "celular-escuro", use: { ...celular, colorScheme: "
+         -dark" } },                                                     
+      21 +    { name: "desktop-claro", grep: /@desktop/, use: { ...deskto
+         +p, colorScheme: "light" } },                                   
+      22 +    { name: "desktop-escuro", grep: /@desktop/, use: { ...deskt
+         +op, colorScheme: "dark" } },                                   
+      23 +    { name: "celular-claro", grep: /@celular/, use: { ...celula
+         +r, colorScheme: "light" } },                                   
+      24 +    { name: "celular-escuro", grep: /@celular/, use: { ...celul
+         +ar, colorScheme: "dark" } },                                   
+      25    ],
+      26  });
+  ⎿  Updated e2e\tests\estado-api.spec.ts (+2 -4)
+      25    await expect(page.getByText("A API respondeu 200.")).toBeVisi
+          ble();
+      26  }
+      27  
+      28 -test("no desktop, o app aparece na moldura centralizada e receb
+         -e 200 do /health", async ({                                    
+      28 +test("no desktop, o app aparece na moldura centralizada e receb
+         +e 200 do /health", { tag: "@desktop" }, async ({               
+      29    page,
+      30  }, testInfo) => {
+      31    const viewport = page.viewportSize()!;
+      32 -  test.skip(viewport.width < 600, "só no desktop");            
+      32    await openApp(page);
+      33  
+      34    const frame = page.getByTestId("moldura");
+     ...
+      51    expect(await frame.evaluate((el) => getComputedStyle(el).boxS
+          hadow)).toBe("none");
+      52  });
+      53  
+      55 -test("no celular, o app ocupa a largura toda, sem moldura", asy
+         -nc ({ page }, testInfo) => {                                   
+      54 +test("no celular, o app ocupa a largura toda, sem moldura", { t
+         +ag: "@celular" }, async ({ page }, testInfo) => {              
+      55    const viewport = page.viewportSize()!;
+      57 -  test.skip(viewport.width >= 600, "só no celular");           
+      56    await openApp(page);
+      57  
+      58    await expect(page.getByTestId("moldura")).toHaveCount(0);
+  ⎿  (timeout 5m)
+
+● Quatro testes e nenhum pulado. Agora a prova de que o e2e pega falha: com as
+  duas réplicas paradas, ele precisa falhar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Com a API fora, os 4 falham; de volta, os 4 passam. Tiro capturas dos quatro
+  projetos para conferir o visual com os meus próprios olhos, além das
+  asserções:
+
+  Read 3 files, ran 1 shell command (ctrl+o to expand)
+
+● As capturas confirmam as asserções (moldura centralizada, fundo em surface,
+  celular em largura total e os dois temas). Agora vou rodar as verificações
+  finais, já que o PhoneFrame ganhou um testID e os arquivos e2e ainda precisam
+  passar pelo Prettier.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write e2e apps/mobile 2>&1 | grep -v unchanged; npm run
+      format:check 2>&1…)
+  ⎿  e2e/playwright.config.ts 43ms
+     e2e/tests/estado-api.spec.ts 23ms
+     All matched files use Prettier code style!
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated e2e\playwright.config.ts (+30 -6)
+       6  // MAXX_E2E_BASE_URL troca o alvo (outra porta, ou a VPS).
+       7  const baseURL = process.env.MAXX_E2E_BASE_URL ?? "http://localh
+          ost";
+       8  
+       9 -const desktop = { ...devices["Desktop Chrome"], viewport: { wid
+         -th: 1280, height: 900 } };                                     
+       9 +const desktop = {                                              
+      10 +  ...devices["Desktop Chrome"],                                
+      11 +  viewport: { width: 1280, height: 900 },                      
+      12 +};                                                             
+      13  // Largura e altura das pranchetas do design.
+      11 -const celular = { ...devices["Desktop Chrome"], viewport: { wid
+         -th: 390, height: 844 }, isMobile: true, hasTouch: true };      
+      14 +const celular = {                                              
+      15 +  ...devices["Desktop Chrome"],                                
+      16 +  viewport: { width: 390, height: 844 },                       
+      17 +  isMobile: true,                                              
+      18 +  hasTouch: true,                                              
+      19 +};                                                             
+      20  
+      21  export default defineConfig({
+      22    testDir: "./tests",
+     ...
+      26    use: { baseURL, trace: "retain-on-failure" },
+      27    // Claro e escuro, sempre os dois.
+      28    projects: [
+      21 -    { name: "desktop-claro", grep: /@desktop/, use: { ...deskto
+         -p, colorScheme: "light" } },                                   
+      22 -    { name: "desktop-escuro", grep: /@desktop/, use: { ...deskt
+         -op, colorScheme: "dark" } },                                   
+      23 -    { name: "celular-claro", grep: /@celular/, use: { ...celula
+         -r, colorScheme: "light" } },                                   
+      24 -    { name: "celular-escuro", grep: /@celular/, use: { ...celul
+         -ar, colorScheme: "dark" } },                                   
+      29 +    {                                                          
+      30 +      name: "desktop-claro",                                   
+      31 +      grep: /@desktop/,                                        
+      32 +      use: { ...desktop, colorScheme: "light" },               
+      33 +    },                                                         
+      34 +    {                                                          
+      35 +      name: "desktop-escuro",                                  
+      36 +      grep: /@desktop/,                                        
+      37 +      use: { ...desktop, colorScheme: "dark" },                
+      38 +    },                                                         
+      39 +    {                                                          
+      40 +      name: "celular-claro",                                   
+      41 +      grep: /@celular/,                                        
+      42 +      use: { ...celular, colorScheme: "light" },               
+     … 8 more lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\estado-api.spec.ts (+56 -42)
+      25    await expect(page.getByText("A API respondeu 200.")).toBeVisi
+          ble();
+      26  }
+      27  
+      28 -test("no desktop, o app aparece na moldura centralizada e receb
+         -e 200 do /health", { tag: "@desktop" }, async ({               
+      29 -  page,                                                        
+      30 -}, testInfo) => {                                              
+      31 -  const viewport = page.viewportSize()!;                       
+      32 -  await openApp(page);                                         
+      33 -                                                               
+      34 -  const frame = page.getByTestId("moldura");                   
+      35 -  const box = (await frame.boundingBox())!;                    
+      36 -  const height = Math.min(viewport.height, FRAME_MAX_HEIGHT);  
+      37 -                                                               
+      38 -  expect(box.width).toBe(FRAME_WIDTH);                         
+      39 -  expect(box.height).toBe(height);                             
+      40 -  expect(box.x).toBeCloseTo((viewport.width - FRAME_WIDTH) / 2,
+         - 0);                                                           
+      41 -  expect(box.y).toBeCloseTo((viewport.height - height) / 2, 0);
+      42 -                                                               
+      43 -  // O conteúdo fica dentro da moldura.                        
+      44 -  await expect(frame.getByTestId("estado-api")).toBeVisible(); 
+      45 -                                                               
+      46 -  const colors = themeColors(testInfo.project.use.colorScheme);
+      47 -  expect(await backgroundOf(frame)).toBe(rgb(colors.bg));      
+      48 -  expect(await backgroundOf(page.getByTestId("moldura-fundo")))
+         -.toBe(rgb(colors.surface));                                    
+      49 -  expect(await frame.evaluate((el) => getComputedStyle(el).bord
+         -erTopColor)).toBe(rgb(colors.line));                           
+      50 -  // Sem sombra na interface.                                  
+      51 -  expect(await frame.evaluate((el) => getComputedStyle(el).boxS
+         -hadow)).toBe("none");                                          
+      52 -});                                                            
+      53 -                                                               
+      54 -test("no celular, o app ocupa a largura toda, sem moldura", { t
+         -ag: "@celular" }, async ({ page }, testInfo) => {              
+      55 -  const viewport = page.viewportSize()!;                       
+      56 -  await openApp(page);                                         
+      57 -                                                               
+      58 -  await expect(page.getByTestId("moldura")).toHaveCount(0);    
+      59 -                                                               
+      60 -  const app = page.getByTestId("app-fundo");                   
+      61 -  expect((await app.boundingBox())!.width).toBe(viewport.width)
+         -;                                                              
+      62 -  await expect(app.getByTestId("estado-api")).toBeVisible();   
+      63 -                                                               
+      64 -  // Nenhuma rolagem horizontal.                               
+     … 61 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● A etapa 6 está pronta e espera a sua revisão. Deixei tudo em stage e não fiz o
+  commit. O compose ficou parado.
+
+  Critérios de aceite
+
+  ┌────────────────────────────────────────┬─────────────────────────────────┐
+  │                Critério                │            Resultado            │
+  ├────────────────────────────────────────┼─────────────────────────────────┤
+  │ Desktop (1280 × 900): app centralizado │                                 │
+  │  na moldura, mostrando o 200 do        │ passa no claro e no escuro      │
+  │ /health                                │                                 │
+  ├────────────────────────────────────────┼─────────────────────────────────┤
+  │ Celular (390 × 844): app na largura    │ passa no claro e no escuro      │
+  │ toda, sem moldura                      │                                 │
+  ├────────────────────────────────────────┼─────────────────────────────────┤
+  │                                        │ com as duas réplicas paradas,   │
+  │ O e2e pega falha de verdade            │ os 4 falham; de volta, os 4     │
+  │                                        │ passam                          │
+  └────────────────────────────────────────┴─────────────────────────────────┘
+
+  O que o teste do desktop confere:
+  - a moldura tem exatamente 390 × 844;
+  - ela está centralizada nos dois eixos;
+  - o conteúdo fica dentro dela;
+  - as cores batem com o tokens.json de cada tema: fundo bg, fora da moldura
+    surface, borda line;
+  - não há sombra.
+
+  O que o teste do celular confere:
+  - não há moldura;
+  - o app tem a largura da janela;
+  - não há rolagem horizontal;
+  - o fundo é bg do tema.
+
+  O "200" vem de uma chamada real: navegador, Caddy, réplica da API,
+  /api/health.
+
+  Também tirei capturas dos quatro casos e olhei uma por uma. Batem com as
+  asserções.
+
+  O que entrou
+
+  - Workspace e2e/ com Playwright 1.64.1, só Chromium. O alvo padrão é
+    http://localhost, e MAXX_E2E_BASE_URL troca para outra porta ou para a VPS.
+  - Quatro projetos: desktop-claro, desktop-escuro, celular-claro e
+    celular-escuro. Cada teste tem uma tag (@desktop, @celular), e cada projeto
+    roda só os seus, então o relatório não mostra testes pulados.
+  - Na CI: uma nova tentativa em caso de falha e relatório HTML com trace.
+  - apps/mobile: o PhoneFrame ganhou testID="app-fundo" no ramo sem moldura. O
+    teste do celular usava antes um XPath frágil, e esse testID substitui. Os
+    testes de unidade continuam 7 de 7.
+  - Raiz: e2e entrou nos workspaces e no Prettier.
+
+  Commit proposto
+
+  test(mobile): adiciona e2e com playwright contra o build web
+
+✻ Worked for 6m 16s · done 23:16

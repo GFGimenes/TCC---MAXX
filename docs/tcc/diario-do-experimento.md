@@ -317,5 +317,7 @@ registrados, abaixo do corte do job de segurança. O autor instalou o SDK do .NE
 antes de o agente continuar. Etapa 5 (`fundacao-r6`): compose com Postgres 18, migrador, duas réplicas de API e
 Caddy; o agente testou resiliência além do critério (réplica parada, rodízio exato,
 as duas paradas, dados sobrevivendo à recriação do Postgres). `infra/` entra no mapa
-do `CLAUDE.md` na etapa 8; porta 443, HSTS e CSP ficam no passo 13. Pendentes: etapas
-6 a 8, PR, merge e fechamento da rodada.
+do `CLAUDE.md` na etapa 8; porta 443, HSTS e CSP ficam no passo 13. Etapa 6 (`fundacao-r7`): e2e com Playwright em quatro projetos (desktop e celular,
+claro e escuro), conferindo moldura, cores dos tokens e chamada real pelo Caddy; o
+agente provou que o teste falha com a API fora. Sem decisão pedida. Pendentes: etapas
+7 e 8, PR, merge e fechamento da rodada.
