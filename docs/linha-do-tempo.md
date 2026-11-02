@@ -84,6 +84,9 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   sessões restantes, nas duas trilhas. A `eng_00` (só documentação) fica como exceção
   declarada. Antes do primeiro prompt de cada sessão, `/model` conferido contra o
   registro; no fim, o `.jsonl` confirma. A trilha do leigo roda inteira num dia só.
+  Na abertura da `eng_02_dados` (02/11) o `/model` passou a nomear a opção como
+  "Opus 5.5 (1M context)", com "Medium effort (default)"; conferido por captura de tela
+  antes do primeiro prompt.
 
 ## Dependências entre fases
 
