@@ -324,4 +324,8 @@ branches descartáveis em três cenários (verde, formato quebrado, contrato mud
 regerar o cliente); o agente descobriu que `dotnet list package --vulnerable` sai com 0
 mesmo achando vulnerabilidade e filtrou com `jq`. Gatilho por push em qualquer branch,
 sem `pull_request`, decisão do autor; execuções das branches temporárias mantidas como
-registro. Pendentes: etapa 8, PR, merge e fechamento da rodada.
+registro. Etapa 8 (`fundacao-r9`): cinco diagramas de sequência em `docs/fluxos/`, cada passo
+rastreado a uma regra escrita. O agente achou uma ambiguidade real no `produto.md` 4.7
+(reenvio após reprovação) e não decidiu; o autor decidiu: reenvio é post novo, o
+reprovado vira post comum. Recálculo de ranking em todo evento que muda pontuação
+confirmado e levado ao ADR 0005. Pendentes: PR, merge e fechamento da rodada.
