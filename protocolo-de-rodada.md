@@ -23,7 +23,11 @@ condição de prompt único das duas personas, depois as avaliações.
    tempo). Se mesmo assim mudar, registrar a partir de qual rodada.
 2. Modelo: escolher uma vez com `/model` (fica salvo em `~/.claude/settings.json`,
    chave `model`) e usar o mesmo nas duas trilhas, com o nome exato registrado na
-   linha do tempo. `/status` mostra modelo e versão em qualquer sessão.
+   linha do tempo. `/status` mostra modelo e versão em qualquer sessão. A opção
+   escolhida pode mudar de modelo e de esforço por baixo, sem aviso (aconteceu entre
+   a `eng_00` e a `eng_01_fundacao`): antes do primeiro prompt de cada sessão, abrir
+   `/model`, conferir modelo e esforço contra a linha do tempo e, no fim da rodada,
+   confirmar no `.jsonl` (campos `model` e `effort` das mensagens do agente).
 3. Memória automática desligada, fora dos repos: variável de ambiente
    `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` no Windows (ou `autoMemoryEnabled: false` em
    `~/.claude/settings.json`). Conferir com `/memory`.

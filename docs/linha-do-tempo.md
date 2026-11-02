@@ -76,6 +76,14 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   Decisão (22/10): 2.1.308 passa a ser a versão fixa de todas as rodadas, com
   `DISABLE_AUTOUPDATER=1` em toda janela. Mesma sessão, mesmo modelo, mesmo histórico.
   A trilha do leigo roda inteira na 2.1.308.
+- Modelo e esforço (conferido nos `.jsonl` em 02/11/2026): a opção "Opus (1M
+  context)" entregou `claude-opus-5` com esforço `high` em toda a `eng_00` (até 02/11
+  00:14 UTC) e `claude-opus-5-5` com esforço `medium` na `eng_01_fundacao` (sessão
+  aberta cinco minutos depois), sem ação do autor e sem aviso do CLI. Decisão
+  (02/11): `claude-opus-5-5`, `medium`, auto, 2.1.308 é o ambiente fixo de todas as
+  sessões restantes, nas duas trilhas. A `eng_00` (só documentação) fica como exceção
+  declarada. Antes do primeiro prompt de cada sessão, `/model` conferido contra o
+  registro; no fim, o `.jsonl` confirma. A trilha do leigo roda inteira num dia só.
 
 ## Dependências entre fases
 

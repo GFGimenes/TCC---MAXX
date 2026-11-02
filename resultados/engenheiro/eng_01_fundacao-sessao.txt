@@ -5575,3 +5575,323 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt
 ✻ Cogitated for 5m 26s · done domingo, 23:59
 
 ※ recap: O passo 1 do Maxx está pronto: as etapas 1 a 7 estão commitadas, com a CI verde, e a etapa 8, com os cinco diagramas de sequência, está em stage esperando a sua revisão. Falta você decidir sobre a ambiguidade do reenvio após reprovação e sobre o recálculo de ranking; depois disso faço o commit e abro o PR para a rodada.
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_01_fundacao-sessao.txt
+
+❯ Etapa 8 aprovada, com duas correções nos docs no mesmo commit, já que são     
+  decisões e não podem ficar só nos diagramas.                                  
+                                                                                
+  1. Reenvio depois da reprovação: é um post novo de reivindicação. O post      
+  reprovado perde o vínculo com o prêmio e permanece no feed como post comum;   
+  para tentar de novo, o aluno publica outro post com outra foto e reivindica   
+  de novo. Cada reivindicação tem um post e uma foto só. Corrige o produto.md   
+  4.7 para dizer isso sem ambiguidade e ajusta o diagrama 02 se precisar.       
+  2. Recálculo de ranking: fica como você desenhou, enfileirado em todo evento  
+  que muda pontuação (aprovação de comprovação, contestação, decisão da         
+  instituição, anulação de medalha e conquista concedida), com a coalescência   
+  do ADR 0005. Atualiza o ADR 0005 para dizer isso explicitamente, em vez de só 
+  na concessão de medalha, e tira a marca de inferência das tabelas de fonte.   
+                                                                                
+  Depois commita com a mensagem proposta, push, confere a CI e abre o PR da     
+  chore/passo-01-esqueleto-monorepo para a rodada/eng_01_fundacao com a         
+  descrição listando as oito etapas. Eu reviso e faço o merge.                  
+
+● Faço as duas correções nos docs antes do commit. Primeiro os trechos exatos:
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 3 lines, removed 2 lines
+      246  ```
+      247  reivindicado ──aprovado──> válido ──contestado──> em averiguaç
+           ão ──confirma──> definitivo
+      248       │                       │                          │
+      249 -     └──reprovado──> reenvio │                          └──rev
+          -oga──> revogado                                               
+      250 -                             └──15 dias sem contestação──> def
+          -initivo                                                       
+      249 +     │                       │                          └──rev
+          +oga──> revogado                                               
+      250 +     │                       └──15 dias sem contestação──> def
+          +initivo                                                       
+      251 +     └──reprovado──> post comum (nova tentativa é outro post d
+          +e reivindicação)                                              
+      252  ```
+      253  
+      254  | Estado | Pontua | Visível para |
+
+● Update(docs\produto.md)
+  ⎿  Added 4 lines, removed 1 line
+      266  - Aprovam o professor de qualquer turma do aluno no semestre v
+           igente ou a instituição.
+      267    A comprovação cai na fila de todos eles, com turma e aluno v
+           isíveis. **Vale quem chega
+      268    primeiro**; não há conflito de alçada.
+      269 -- Reprovada, o aluno pode reenviar outra foto, quantas vezes p
+          -recisar.                                                      
+      269 +- Reprovada, a reivindicação se encerra: o post perde o víncul
+          +o com o prêmio e permanece                                    
+      270 +  no feed como post comum. Para tentar de novo, o aluno public
+          +a **outro post**, com outra                                   
+      271 +  foto, e reivindica de novo, quantas vezes precisar. Cada rei
+          +vindicação tem um post e                                      
+      272 +  uma foto só; a foto de um post reprovado não é trocada.     
+      273  - Aprovado, o prêmio pontua na hora.
+      274  - Da aprovação correm **15 dias de janela de contestação**. Co
+           ntestam o professor da
+      275    turma (inclusive quem aprovou) ou a instituição, sempre com 
+           motivo. **Uma contestação
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 1 line, removed 1 line
+      181  - Reivindicação como post com foto, pública com marca de pende
+           nte, sem pontuar.
+      182  - Fila de comprovações para o professor da turma e para a inst
+           ituição, ordenada por mais
+      183    antigo, com marca após sete dias, resolvendo a corrida de qu
+           em aprova primeiro.
+      184 -- Reprovação com motivo e reenvio de foto.                    
+      184 +- Reprovação com motivo; nova tentativa é outro post de reivin
+          +dicação, com outra foto.                                      
+      185  - Contestação com motivo, uma por prêmio, estado de averiguaçã
+           o sem pontuar.
+      186  - Decisão da instituição: confirmar encerra a janela, revogar 
+           mantém no histórico.
+      187  - Trabalho na fila que torna o prêmio definitivo após quinze d
+           ias.
+
+● Update(docs\decisoes\0005-ranking-por-worker.md)
+  ⎿  Added 1 line, removed 1 line
+      1  # ADR 0005 · Ranking e raridade em tabela, escritos pelo worker 
+         com coalescência
+      2  
+      3 -Status: aceito · 01/11/2026                                     
+      3 +Status: aceito · 01/11/2026 · revisado em 02/11/2026 (eventos qu
+        +e enfileiram o recálculo)                                       
+      4  
+      5  ## Contexto
+      6  
+
+● Update(docs\decisoes\0005-ranking-por-worker.md)
+  ⎿  Added 15 lines
+      28  no máximo uma execução a cada dez segundos por visão. A raridad
+          e dos itens é recalculada
+      29  no mesmo worker, pelo mesmo gatilho.
+      30  
+      31 +O recálculo é enfileirado, na mesma transação da escrita, por *
+         +*todo evento que muda a                                        
+      32 +pontuação** de algum aluno, não só pela medalha:               
+      33 +                                                               
+      34 +- concessão de medalha;                                        
+      35 +- aprovação de comprovação de prêmio de participação, e concess
+         +ão direta pela                                                 
+      36 +  instituição;                                                 
+      37 +- contestação aberta (o prêmio entra em averiguação e para de p
+         +ontuar);                                                       
+      38 +- decisão da instituição sobre a contestação, confirmando ou re
+         +vogando;                                                       
+      39 +- anulação de medalha;                                         
+      40 +- conquista concedida ou removida pelo worker.                 
+      41 +                                                               
+      42 +A coalescência é o que torna isso barato: uma rajada de eventos
+         + no mesmo intervalo vira                                       
+      43 +uma execução só por visão. O diagrama abaixo mostra a medalha, 
+         +o caso da banca; os                                            
+      44 +outros eventos seguem o mesmo caminho, e os diagramas de `docs/
+         +fluxos/` mostram cada um.                                      
+      45 +                                                               
+      46  ```mermaid
+      47  sequenceDiagram
+      48    participant Prof as Professor
+
+● Agora o diagrama 02 e as tabelas de fonte, que passam a apontar para a lista
+  explícita do ADR 0005:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/docs/fluxos" && node -e '
+      const fs=require("fs");…)
+  ⎿  ok
+     warning: in the working copy of 'docs/decisoes/0005-ranking-por-worker
+     .md', CRLF will be replaced by LF the next time Git touches it
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\02-post-com-comprovacao.md (+3 -3)
+      42      API->>DB: grava quem reprovou, quando e o motivo
+      43      API->>Fila: notificacao de reprovacao
+      44      API-->>Aprov: reprovado
+      45 -    Note over Aluno: pode reenviar outra foto, quantas vezes pr
+         -ecisar                                                         
+      45 +    Note over Aluno: para tentar de novo, publica outro post<br
+         +/>de reivindicacao com outra foto                              
+      46    else outro aprovador ja decidiu
+      47      API-->>Aprov: a comprovacao ja foi decidida
+      48    end
+     ...
+      62  | Fila ordenada por mais antigo, com marca após 7 dias, sem dec
+          isão automática | `produto.md` 4.7 e 12.6 |
+      63  | Escopo de turma do professor checado no banco, nunca lido do 
+          token | ADR 0006; `CLAUDE.md` (Segurança) |
+      64  | Aprovado pontua na hora e abre a janela de 15 dias | `produto
+          .md` 4.7 |
+      65 -| Reprovação com motivo; reenvio de foto | `produto.md` 4.7; `p
+         -lano-mestre.md` passo 8 |                                      
+      65 +| Reprovação com motivo; nova tentativa é outro post de reivind
+         +icação, com outra foto; cada reivindicação tem um post e uma fo
+         +to só | `produto.md` 4.7; `plano-mestre.md` passo 8 |          
+      66  | Reprovado: o post perde o vínculo com o prêmio e permanece co
+          mo post comum | `produto.md` 4.7 (parágrafo final) |
+      67  | Auditoria de aprovação e reprovação | `produto.md` 4.10 |
+      68  | Notificação de aprovação e reprovação, assíncrona | `produto.
+          md` 8; ADR 0008 |
+      69 -| Recálculo de ranking enfileirado quando a pontuação muda | AD
+         -R 0005 e ADR 0008 |                                            
+      69 +| Recálculo de ranking enfileirado pela aprovação, na mesma tra
+         +nsação | ADR 0005 (eventos que enfileiram o recálculo); ADR 000
+         +8 |                                                            
+      70  | `Comprovacao` filtrável por evento, pensando no lote da fase 
+          2 | `produto.md` 13 |
+      71  
+      72  A instituição também pode conceder prêmio de participação diret
+          o, já aprovado e sem
+  ⎿  Updated docs\fluxos\03-concessao-de-medalha.md (+1 -1)
+      79  | Medalha grava turma e matéria do professor e bimestre da data
+           | `produto.md` 4.8 |
+      80  | Tier, pontos e versão do item congelados; raridade não | ADR 
+          0007; `produto.md` 4.2 |
+      81  | Auditoria de concessão e de anulação | `produto.md` 4.10 |
+      82 -| Enfileiramento na mesma transação; 200 já com os pontos | ADR
+         - 0005 e ADR 0008 |                                             
+      82 +| Enfileiramento na mesma transação; 200 já com os pontos; recá
+         +lculo de ranking pela concessão, pela anulação e pela conquista
+         + concedida ou removida | ADR 0005 (eventos que enfileiram o rec
+         +álculo); ADR 0008 |                                            
+      83  | Notificação de medalha recebida | `produto.md` 8 |
+      84  | Gatilho `porFato`: avalia assim que o fato se torna contável 
+          | `regras-conquista.md` 5 |
+      85  | Contagem dentro da instância do período, sem atravessá-la | `
+          regras-conquista.md` 3 e 4; `produto.md` 4.9 |
+  ⎿  Updated docs\fluxos\04-contestacao.md (+1 -1)
+      69  | Auditoria de contestação, decisão e revogação | `produto.md` 
+          4.10 |
+      70  | Sem contestação, trabalho na fila torna definitivo após 15 di
+          as | `produto.md` 4.7; `plano-mestre.md` passo 8 |
+      71  | Só prêmio definitivo conta para conquista; virar definitivo d
+          ispara a reavaliação | `produto.md` 4.7; `regras-conquista.md` 
+          3 e 5; ADR 0004 |
+      72 -| Recálculo de ranking enfileirado quando a pontuação muda | AD
+         -R 0005 e ADR 0008 |                                            
+      72 +| Recálculo de ranking enfileirado pela contestação e pela deci
+         +são, na mesma transação | ADR 0005 (eventos que enfileiram o re
+         +cálculo); ADR 0008 |                                           
+      73  
+      74  Prêmio revogado nunca chega a ser evidência de conquista, porqu
+          e só conta depois de
+      75  definitivo e, depois de definitivo, não pode mais ser contestad
+          o
+  ⎿  Updated docs\fluxos\05-ranking.md (+1 -1)
+      34  | Passo | Fonte |
+      35  |---|---|
+      36  | Quatro visões: geral e por curso, semestre atual e histórico 
+          | `produto.md` 5; ADR 0005 |
+      37 -| Tabela escrita pelo worker, recálculo disparado por evento | 
+         -ADR 0005 |                                                     
+      37 +| Tabela escrita pelo worker; recálculo enfileirado por todo ev
+         +ento que muda pontuação | ADR 0005 (eventos que enfileiram o re
+         +cálculo) |                                                     
+      38  | Enfileiramento na mesma transação da escrita | ADR 0008 |
+      39  | Coalescência de no máximo uma execução a cada 10 s por visão 
+          | ADR 0005 |
+      40  | Desempate pelo instante da última concessão que compõe a pont
+          uação atual, como coluna materializada | `produto.md` 5; ADR 00
+          05 |
+
+● Rendo o diagrama 02 de novo, por causa da nota alterada, e sigo para o commit,
+  o push e a CI:
+
+  Pushed to chore/passo-01-esqueleto-monorepo, ran 1 shell command (ctrl+o to expand)
+
+● A CI está rodando no último commit (31f7784). Abro o PR assim que ela passar.
+
+✻ Cooked for 1m 48s · done 0:18
+
+※ recap: O passo 1, o esqueleto do monorepo, tem as oito etapas commitadas e enviadas, com as correções no produto.md e no ADR 0005. A CI está rodando no último commit (31f7784); quando passar, abro o PR para rodada/eng_01_fundacao.
+
+● Background command "Wait for CI on final commit" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O CI do último commit passou com todos os seis jobs verdes, mas a branch base
+  rodada/eng_01_fundacao ainda só existe localmente. Vou verificar se ela não
+  contém nenhum commit novo além dos já presentes no remoto antes de enviá-la.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A base local já aponta para o mesmo commit da origin/main, então enviá-la só
+  cria a branch remota sem conteúdo novo. Vou enviar a base e abrir o PR, sem
+  linha de atribuição, conforme o CLAUDE.md.
+
+  Made 1 scratchpad edit +25, created PR #2, ran 1 shell command (ctrl+o to expand)
+
+● O PR do passo 1 está aberto e pronto para você revisar e fazer o merge:
+  https://github.com/GFGimenes/maxx-engenheiro/pull/2
+
+  O commit da etapa 8 é o 31f7784 e já foi enviado. O PR vai de
+  chore/passo-01-esqueleto-monorepo para rodada/eng_01_fundacao, com os 8
+  commits, sem conflito, e com os seis jobs da CI verdes no último commit. A
+  descrição lista as oito etapas, como verifiquei, e o que ficou anotado para os
+  passos 2, 4 e 13. Sem linha de atribuição.
+
+  Base do PR: a rodada/eng_01_fundacao só existia na sua máquina, então enviei
+  antes de abrir o PR. Ela aponta para o mesmo commit da main (af80558) e não
+  levou nada novo ao remoto.
+
+  As duas correções que você pediu, no commit da etapa 8:
+
+  - Reenvio depois da reprovação (produto.md 4.7): o diagrama do ciclo de vida
+    agora termina em "post comum (nova tentativa é outro post de
+    reivindicação)". A regra diz que cada reivindicação tem um post e uma foto
+    só, e que a foto de um post reprovado não é trocada. O diagrama 02 foi
+    ajustado.
+    - O passo 8 do plano-mestre.md dizia "reenvio de foto". Mudei para a mesma
+      formulação, para não contradizer o produto.md.
+  - Recálculo de ranking (ADR 0005): o ADR agora lista os eventos que enfileiram
+    o recálculo e marca a revisão de 02/11/2026. As tabelas de fonte dos
+    diagramas apontam para essa lista, sem a marca de inferência.
+    - Acrescentei dois eventos além dos que você citou, porque também mudam a
+      pontuação: a concessão direta de prêmio de participação pela instituição e
+      a conquista removida pelo worker na anulação. Se não quiser os dois na
+      lista, tiro.
+
+✻ Baked for 1m 12s · done 0:22
+
+※ recap: O passo 1, o esqueleto do monorepo, está completo: oito etapas commitadas e o PR #2 aberto para a rodada/eng_01_fundacao, com a CI verde. Falta você revisar e fazer o merge, e confirmar os dois eventos extras que pus na lista do ADR 0005.
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt      ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_01_fundacao-sessao.txt
+
+❯ Os dois eventos extras ficam no ADR 0005; os dois mudam pontuação. PR         
+  conferido: oito commits, CI verde, descrição com as oito etapas e os itens    
+  anotados para os passos 2, 4 e 13. Vou fazer o merge no GitHub e fechar a     
+  rodada. Passo 1 encerrado.                                                    
+
+● Combinado: a concessão direta pela instituição e a conquista removida ficam na
+  lista do ADR 0005.
+
+  Depois do merge, a sua cópia local ainda vai estar na branch do passo. Para
+  sincronizar:
+
+  git checkout rodada/eng_01_fundacao
+  git pull
+  git branch -d chore/passo-01-esqueleto-monorepo
+
+  O -d só apaga a branch local depois que o Git confirma que ela já entrou na
+  rodada.
+
+  Para o próximo passo, ficaram duas coisas no plano mestre que o plano de
+  etapas do passo 2 precisa incluir: os primeiros testes de domínio e a remoção
+  do --ignore-exit-code 8 do Maxx.Domain.Tests.
+
+✻ Brewed for 15s · done 0:44

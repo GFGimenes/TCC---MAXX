@@ -328,4 +328,10 @@ registro. Etapa 8 (`fundacao-r9`): cinco diagramas de sequência em `docs/fluxos
 rastreado a uma regra escrita. O agente achou uma ambiguidade real no `produto.md` 4.7
 (reenvio após reprovação) e não decidiu; o autor decidiu: reenvio é post novo, o
 reprovado vira post comum. Recálculo de ranking em todo evento que muda pontuação
-confirmado e levado ao ADR 0005. Pendentes: PR, merge e fechamento da rodada.
+confirmado e levado ao ADR 0005. PR #2 (8 commits, CI verde) mergeado pelo autor, `rodada/eng_01_fundacao` → `main`
+(`3d1e91f`). Rodada fechada em 3 h 29 min de relógio, numa noite; registro em
+`resultados/engenheiro/eng_01_fundacao.md`. Achado do fechamento: o `.jsonl` mostra
+que a sessão rodou em `claude-opus-5-5` com esforço `medium`, enquanto a `eng_00`
+rodou em `claude-opus-5` com `high`, mesma opção no `/model`, cinco minutos de
+intervalo. Decisão: esse é o ambiente fixo daqui em diante, nas duas trilhas, com
+`/model` conferido antes de cada sessão; a `eng_00` fica como exceção declarada.
