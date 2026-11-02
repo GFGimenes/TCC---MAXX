@@ -2452,3 +2452,1743 @@
   depois commito a E0.1 inteira.
 
 ✻ Churned for 5m 44s · done 19:13
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_00-sessao.txt             
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_00-sessao.txt
+
+※ recap: Estamos montando a base do app Maxx; o passo 0 grava as regras no repositório e acabei de escrever docs/produto.md, sem commit. Falta você revisar e responder as quatro pendências do arroba para eu seguir para o catálogo em JSON. (disable recaps in /config)
+
+> E0.1 aprovada, com ajustes antes do commit.                                   
+                                                                                
+  Termo de uso versionado: aceito.                                              
+                                                                                
+  Raridade: ex-alunos entram nos dois lados da conta. O divisor é todos os      
+  alunos que já passaram pela base, ativos e ex-alunos, do campus ou do curso   
+  conforme o item; o numerador conta quem tem o item, ativo ou não. É isso que  
+  deixa um aluno do 3º semestre ver quantos por cento conseguem, por exemplo,   
+  15 notas 10 ao longo do curso.                                                
+                                                                                
+  Arroba, nas quatro pendências:                                                
+                                                                                
+  Ex-aluno troca o sufixo para -EX (exemplo: @guilhermeGimenes-EX), na          
+  marcação.                                                                     
+  Aceito: a sugestão inclui o nome do meio quando houver e, se ainda colidir,   
+  um número sequencial, sempre editável pelo aluno.                             
+  Aceito: arroba antigo fica reservado permanentemente ao dono, sem reuso por   
+  terceiros.                                                                    
+  Não existe aluno e professor na mesma conta. Quem é aluno de pós e também     
+  professor tem duas contas e dois arrobas, como numa universidade em que a     
+  pessoa tem um ID de docente e outro de pós-graduando. Isso corrige o que eu   
+  disse antes sobre acumular papéis: aluno é sempre conta própria; o acúmulo só 
+  existe entre professor e instituição, na mesma conta, com sufixo -PROF.       
+  Atualize a seção 2.1.                                                         
+                                                                                
+  Incorpora na 2.1 e na 2.3, ajusta a 4.3 e a seção 9 onde falam de “ativos”,   
+  commita a E0.1 e segue para a E0.2a.                                          
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 5 lines, removed 2 lines
+      38  | **Professor** | Conceder medalha aos alunos das suas turmas d
+          o semestre vigente, aprovar ou reprovar comprovação desses alun
+          os, contestar prêmio desses alunos, publicar aviso para suas tu
+          rmas, seguir seus alunos, curtir, comentar |
+      39  | **Instituição** | Conceder prêmio de participação já aprovado
+          , aprovar ou reprovar comprovação, contestar, decidir contestaç
+          ão, anular medalha, publicar aviso de faculdade e de curso, rem
+          over post e comentário impróprios, corrigir e-mail de aluno, ma
+          rcar ex-aluno, purgar dados de demonstração |
+      40  
+      41 -Uma mesma pessoa pode acumular papéis. Na fase 1 "instituição" 
+         -é um papel único;                                              
+      42 -coordenação e secretaria como sub-papéis ficam para depois, se 
+         -houver necessidade.                                            
+      41 +Cada aluno tem conta própria, e aluno nunca acumula papel: quem
+         + é aluno de pós e também                                       
+      42 +dá aula tem duas contas e dois arrobas, como quem tem um ID de 
+         +docente e outro de                                             
+      43 +pós-graduando. O único acúmulo possível é professor e instituiç
+         +ão na mesma conta, que                                         
+      44 +usa o sufixo `-PROF`. Na fase 1 "instituição" é um papel único;
+         + coordenação e secretaria                                      
+      45 +como sub-papéis ficam para depois, se houver necessidade.      
+      46  
+      47  A instituição não tem perfil social: não posta no feed, não é s
+          eguida, não aparece em
+      48  ranking. A voz dela é o mural.
+
+● Update(docs\produto.md)
+  ⎿  Added 2 lines, removed 1 line
+      57  A instituição marca o aluno como ex-aluno. A partir daí ele con
+          tinua entrando,
+      58  seguindo, lendo o mural, curtindo e comentando, e mantém os pos
+          ts que já tinha. Não
+      59  posta, não recebe prêmio e não pontua. Sai do ranking do semest
+          re no instante da
+      60 -marcação e permanece no ranking histórico.                     
+      60 +marcação e permanece no ranking histórico. Nesse mesmo instante
+         + o arroba troca o sufixo                                       
+      61 +para `-EX`.                                                    
+      62  
+      63  ### 2.3 Identidade do usuário
+      64  
+
+● Update(docs\produto.md)
+  ⎿  Added 1 line, removed 1 line
+      66  |---|---|
+      67  | **RA** | Identidade interna do aluno e credencial de login. É
+           dado pessoal: nunca aparece para outros alunos e não é buscáve
+          l |
+      68  | **E-mail institucional** | Vem da base abastecida pela faculd
+          ade. O aluno não escolhe e não edita; só a instituição corrige,
+           pela área web |
+      69 -| **Arroba** | Identificador público e único. Formato `@primeir
+         -oNomeUltimoNome-SIGLA`, com a sigla do curso atual sempre no su
+         -fixo (`@guilhermeGimenes-CC`). O cadastro sugere a partir do no
+         -me; o usuário edita apenas a parte antes do hífen, no cadastro 
+         -e depois no perfil. O sufixo muda sozinho quando o aluno troca 
+         -de curso. Unicidade sem diferenciar maiúsculas; exibição como o
+         - usuário escreveu. Professor usa `-PROF`, instituição usa `-UNI
+         -MAX` |                                                         
+      69 +| **Arroba** | Identificador público e único. Formato `@primeir
+         +oNomeUltimoNome-SUFIXO`. Sufixos: a sigla do curso atual para o
+         + aluno (`@guilhermeGimenes-CC`), `-EX` para o ex-aluno, `-PROF`
+         + para professor — inclusive quando a conta acumula professor e 
+         +instituição — e `-UNIMAX` para a conta só de instituição. O cad
+         +astro sugere a partir do nome; em colisão, a sugestão inclui o 
+         +nome do meio quando houver e, se ainda colidir, acrescenta núme
+         +ro sequencial. O usuário edita apenas a parte antes do hífen, n
+         +o cadastro e depois no perfil. O sufixo muda sozinho quando o a
+         +luno troca de curso ou é marcado como ex-aluno, e o arroba anti
+         +go fica reservado permanentemente ao dono, sem reuso por tercei
+         +ros. Unicidade sem diferenciar maiúsculas; exibição como o usuá
+         +rio escreveu |                                                 
+      70  | **Nome de exibição** | Texto livre, editável, não precisa ser
+           único |
+      71  | **Foto de perfil** | Opcional, de aluno e de professor; segue
+           as mesmas regras de assinatura e de derivadas da foto de post.
+           Sem foto, o avatar são as iniciais |
+      72  
+
+● Update(docs\produto.md)
+  ⎿  Added 6 lines, removed 4 lines
+      194  | Raro | abaixo de 20% |
+      195  | Comum | 20% ou mais |
+      196  
+      197 -O numerador são os alunos **ativos distintos** que têm ao meno
+          -s um prêmio daquele item;                                     
+      198 -conquista repetível conta uma vez por aluno. O divisor são os 
+          -alunos ativos que podiam                                      
+      199 -ganhar: o campus inteiro, para item aberto; os alunos ativos d
+          -o curso, para item                                            
+      200 -exclusivo de curso. Ex-alunos não entram em nenhum dos dois la
+          -dos. Item que ninguém tem                                     
+      197 +O numerador são os alunos **distintos** que têm ao menos um pr
+          +êmio daquele item, ativos                                     
+      198 +ou ex-alunos; conquista repetível conta uma vez por aluno. O d
+          +ivisor são todos os alunos                                    
+      199 +que já passaram pela base, ativos e ex-alunos, entre os que po
+          +diam ganhar: o campus                                         
+      200 +inteiro, para item aberto; os alunos do curso, para item exclu
+          +sivo de curso. Contar                                         
+      201 +ex-aluno nos dois lados é o que permite a um aluno do 3º semes
+          +tre ver que percentual                                        
+      202 +consegue, por exemplo, 15 notas 10 ao longo do curso inteiro. 
+          +Item que ninguém tem                                          
+      203  aparece como Lendário com 0%. O texto exibido é "x% dos alunos
+           ".
+      204  
+      205  A raridade **não congela** no prêmio: é propriedade do item, s
+           empre a atual, fonte
+
+  Committed 14999e3 (ctrl+o to expand)
+  ⎿  PostToolUse:Bash says: Tip: Run /ultrareview before you push to catch bugs 
+     with a cloud-based multi-agent review — 3 free reviews left.
+● Commit 14999e3 feito na rodada/eng_00. Seguindo para a E0.2a.
+
+● Write(data\catalogo\medalhas.json)
+  ⎿  Wrote 194 lines to data\catalogo\medalhas.json
+       1 {
+       3   "tipo": "medalha",
+       4   "observacao": "Medalha e concessao humana do professor, sempre
+         semestre vigente. Sempre Bronze, salvo as duas de fechamento de 
+         materia, que sao Prata. Nao e contestavel nem revogavel; a insti
+         etapa E0.2c.",
+       5   "itens": [
+       7       "codigo": "M01",
+       8       "nome": "Nota 10 em prova",
+      10       "tipo": "medalha",
+     … +207 lines (ctrl+o to expand)
+
+● Escrevi as descrições sem acento por cautela com encoding, mas esse texto é o
+  que o aluno lê na tela. O produto.md saiu com acentuação correta, então
+  corrijo o arquivo.
+
+● Write(data\catalogo\medalhas.json)
+  ⎿  Added 18 lines, removed 18 lines
+       1  {
+       2    "versao": 1,
+       3    "tipo": "medalha",
+       4 -  "observacao": "Medalha e concessao humana do professor, sempr
+         -e sobre fato registrado de nota ou presenca, apenas em turmas d
+         -o semestre vigente. Sempre Bronze, salvo as duas de fechamento 
+         -de materia, que sao Prata. Nao e contestavel nem revogavel; a i
+         -nstituicao pode anular. familia e ordemNaFamilia sao preenchido
+         -s na etapa E0.2c.",                                            
+       4 +  "observacao": "Medalha é concessão humana do professor, sempr
+         +e sobre fato registrado de nota ou presença, apenas em turmas d
+         +o semestre vigente. Sempre Bronze, salvo as duas de fechamento 
+         +de matéria, que são Prata. Não é contestável nem revogável; a i
+         +nstituição pode anular. Os campos familia e ordemNaFamilia são 
+         +preenchidos na etapa E0.2c.",                                  
+       5    "itens": [
+       6      {
+       7        "codigo": "M01",
+       8        "nome": "Nota 10 em prova",
+       9 -      "descricao": "Tirar 10 em uma prova da materia.",        
+       9 +      "descricao": "Tirar 10 em uma prova da matéria.",        
+      10        "tipo": "medalha",
+      11        "base": "nota",
+      12        "tier": "bronze",
+     ...
+      23      {
+      24        "codigo": "M02",
+      25        "nome": "Melhor nota da turma",
+      26 -      "descricao": "Ter a melhor nota da turma em uma prova da 
+         -materia.",                                                     
+      26 +      "descricao": "Ter a melhor nota da turma em uma prova da 
+         +matéria.",                                                     
+      27        "tipo": "medalha",
+      28        "base": "nota",
+      29        "tier": "bronze",
+     ...
+      39      },
+      40      {
+      41        "codigo": "M03",
+      42 -      "nome": "Presenca integral no bimestre",                 
+      43 -      "descricao": "Nao faltar a nenhuma aula da materia no bim
+         -estre.",                                                       
+      42 +      "nome": "Presença integral no bimestre",                 
+      43 +      "descricao": "Não faltar a nenhuma aula da matéria no bim
+         +estre.",                                                       
+      44        "tipo": "medalha",
+      45        "base": "presenca",
+      46        "tier": "bronze",
+     ...
+      57      {
+      58        "codigo": "M04",
+      59        "nome": "Pontualidade",
+      60 -      "descricao": "Nao registrar nenhum atraso na materia no b
+         -imestre.",                                                     
+      60 +      "descricao": "Não registrar nenhum atraso na matéria no b
+         +imestre.",                                                     
+      61        "tipo": "medalha",
+      62        "base": "presenca",
+      63        "tier": "bronze",
+     ...
+      73      },
+      74      {
+      75        "codigo": "M05",
+      76 -      "nome": "Evolucao de nota",                              
+      77 -      "descricao": "Melhorar a nota da materia de um bimestre p
+         -ara o outro.",                                                 
+      76 +      "nome": "Evolução de nota",                              
+      77 +      "descricao": "Melhorar a nota da matéria de um bimestre p
+         +ara o outro.",                                                 
+      78        "tipo": "medalha",
+      79        "base": "nota",
+      80        "tier": "bronze",
+     ...
+      90      },
+      91      {
+      92        "codigo": "M06",
+      93 -      "nome": "Nota maxima em trabalho",                       
+      94 -      "descricao": "Tirar a nota maxima em um trabalho da mater
+         -ia.",                                                          
+      93 +      "nome": "Nota máxima em trabalho",                       
+      94 +      "descricao": "Tirar a nota máxima em um trabalho da matér
+         +ia.",                                                          
+      95        "tipo": "medalha",
+      96        "base": "nota",
+      97        "tier": "bronze",
+     ...
+      124      },
+      125      {
+      126        "codigo": "M08",
+      127 -      "nome": "Presenca em plantao de duvidas",               
+      128 -      "descricao": "Comparecer a um plantao de duvidas ou a um
+          -a aula de reposicao da materia.",                             
+      127 +      "nome": "Presença em plantão de dúvidas",               
+      128 +      "descricao": "Comparecer a um plantão de dúvidas ou a um
+          +a aula de reposição da matéria.",                             
+      129        "tipo": "medalha",
+      130        "base": "presenca",
+      131        "tier": "bronze",
+     ...
+      141      },
+      142      {
+      143        "codigo": "M09",
+      144 -      "nome": "Nota maxima em atividade de sala",             
+      145 -      "descricao": "Tirar a nota maxima em uma atividade ou li
+          -sta feita em sala.",                                          
+      144 +      "nome": "Nota máxima em atividade de sala",             
+      145 +      "descricao": "Tirar a nota máxima em uma atividade ou li
+          +sta feita em sala.",                                          
+      146        "tipo": "medalha",
+      147        "base": "nota",
+      148        "tier": "bronze",
+     ...
+      158      },
+      159      {
+      160        "codigo": "M10",
+      161 -      "nome": "Media final 10 na materia",                    
+      162 -      "descricao": "Fechar a materia com media final 10.",    
+      161 +      "nome": "Média final 10 na matéria",                    
+      162 +      "descricao": "Fechar a matéria com média final 10.",    
+      163        "tipo": "medalha",
+      164        "base": "nota",
+      165        "tier": "prata",
+     ...
+      175      },
+      176      {
+      177        "codigo": "M11",
+      178 -      "nome": "Presenca integral no semestre",                
+      179 -      "descricao": "Nao faltar a nenhuma aula da materia no se
+          -mestre inteiro.",                                             
+      178 +      "nome": "Presença integral no semestre",                
+      179 +      "descricao": "Não faltar a nenhuma aula da matéria no se
+          +mestre inteiro.",                                             
+      180        "tipo": "medalha",
+      181        "base": "presenca",
+      182        "tier": "prata",
+
+● Write(data\catalogo\premios-participacao.json)
+  ⎿  Wrote 297 lines to data\catalogo\premios-participacao.json
+      1 {
+      3   "tipo": "premioParticipacao",
+      4   "observacao": "Prêmio de participação é reivindicado pelo aluno
+         com um post com foto e aprovado pelo professor de qualquer turma
+         primeiro; a instituição também pode conceder já aprovado, sem co
+        mprovação. Conta no semestre do evento. Tem janela de contestação
+        onquista depois de definitivo. Os campos familia e ordemNaFamilia
+         são preenchidos na etapa E0.2c.",
+      5   "regraDeDeduplicacao": "Um aluno tem um prêmio por evento. Quan
+        o é texto livre, a ch
+     … +313 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● E0.2a pronta para sua revisão
+
+  data/catalogo/medalhas.json (11 itens) e
+  data/catalogo/premios-participacao.json (17 itens). Validei por script: JSON
+  íntegro, códigos únicos, tipo coerente com o arquivo e todos os 28 valores 
+  dentro da faixa do tier. Sem commit, aguardando você.
+
+  Distribuição: medalhas 9 Bronze + 2 Prata; prêmios 7 Bronze + 6 Prata + 4
+  Ouro.
+
+  Três coisas que eu precisei decidir e que você não tinha definido
+
+  1. Repetibilidade da medalha no período — campo novo, precisa da sua 
+  aprovação.
+  Nunca combinamos se o professor pode conceder o mesmo item duas vezes na mesma
+  matéria no mesmo bimestre. Isso importa porque a C02 ("três medalhas de nota
+  10 em prova no bimestre") muda de sentido: se M01 é única por matéria, "três"
+  significa três matérias diferentes.
+
+  Opção: Repetível com limite declarado por item (o que escrevi): M01 a M05, M10
+
+  e M11 únicas por matéria e período; M06 trabalho até 3, M07 complementar até
+  2, M08 plantão até 2, M09 lista até 4 — porque esses fatos realmente
+  acontecem várias vezes num bimestre e valem pouco. Campo limitePorPeriodo,
+  novo.
+  Peso: 8
+  ────────────────────────────────────────
+  Opção: Nada repetível: um prêmio por item + matéria + período. Mais simples,
+  elimina inflação, mas a segunda prova 10 do bimestre não rende nada.
+  Peso: 7
+  ────────────────────────────────────────
+  Opção: Repetível sem limite. Vinte listas de sala = 100 pontos.
+  Peso: 2
+
+  O teto que os limites propostos criam, para você julgar os números: 210 pontos
+  por matéria por bimestre (120 dos itens únicos + 90 dos repetíveis no
+  limite). Com 5 matérias, 1.050 por bimestre e cerca de 2.575 por semestre em
+  medalhas, antes de qualquer conquista. Se achar alto, o caminho é cortar
+  limites, não valores.
+
+  Nos itens repetíveis, a chave de deduplicação ganha ocorrencia — é o enésimo
+  registro daquele item naquela matéria e período, e é o que o limite controla.
+
+  2. tipoDeEvento no item do catálogo. A C06 conta "eventos de três tipos
+  diferentes no semestre", e esse agrupamento tem que vir de algum lugar
+  determinístico. Coloquei o tipo no item (palestra, visitaTecnica, extensao,
+  competicao, publicacao, monitoria, solidario, praticaOpcional, minicurso,
+  semanaAcademica, apresentacaoEvento, apresentacaoSala) em vez de no evento,
+  para a conquista não depender de quem cadastrou o evento ter escolhido bem.
+  Note que P01 e P03 são os dois palestra, e P08 e P12 os dois
+  apresentacaoEvento — ou seja, duas palestras não contam como dois tipos.
+
+  3. formaDoEvento. pontual ou periodo, para distinguir o que é um dia do que é
+  um semestre inteiro (P06 semana acadêmica, P07 minicurso, P09 organização, P10
+  monitoria, P11 extensão, P14 iniciação científica). Era o que faltava para
+  "evento tem data de início e fim" fazer sentido no seed.
+
+  Dois detalhes menores
+
+  - P17 ficou com o código P17, no lugar temático dele (depois do P04, entre os
+    Bronze de 20 pontos), mas com o código no fim da sequência. Preferi não
+    renumerar para não quebrar o vocabulário que a gente usou nas últimas
+    mensagens — P08, P13 e companhia continuam significando a mesma coisa. A
+    ordem de exibição na tela é calculada por tier e pontos, nunca pelo código.
+  - M05 (evolução de nota) compara dois bimestres mas é atribuída ao bimestre
+    mais recente, que é o periodoDeReferencia dela.
+
+  familia e ordemNaFamilia estão em null nos 28 itens, para a E0.2c preencher
+  com a tabela completa dos 46, como combinamos.
+
+  Aprovando (com ou sem ajuste na repetibilidade), eu commito a E0.2a e sigo
+  para a E0.2b, que é onde as 18 conquistas e o avaliador declarativo aparecem.
+
+✻ Crunched for 4m 59s · done 19:30
+
+※ recap: Estamos montando a base do app Maxx: o produto já está congelado e o catálogo de prêmios está sendo gravado no repositório. Falta sua aprovação da E0.2a (medalhas e prêmios, com a dúvida da repetibilidade) para eu commitar e seguir para as conquistas. (disable recaps in /config)
+
+> E0.2a aprovada com uma mudança na repetibilidade. Cada medalha ganha dois     
+  campos: repetivel (sim ou não) e limitePorPeriodo, que é a quantidade de      
+  vezes que ela pode ser dada ao mesmo aluno na mesma matéria (pelo professor   
+  daquela turma) dentro do período de referência. Os limites saem da estrutura  
+  real de avaliação: em cada bimestre uma matéria tem prova, prova integrativa  
+  e presença ou trabalhos, a critério do professor; no semestre, duas provas e  
+  duas integrativas por matéria, mais alguns trabalhos. Então: M01 nota 10 em   
+  prova, até 2 por bimestre (prova e integrativa); M02 melhor nota da turma,    
+  até 2 por bimestre; M03 presença integral, M04 pontualidade e M05 evolução, 1 
+  por bimestre; M06 trabalho, até 3 por bimestre; M07 atividade complementar,   
+  até 2; M08 plantão ou reposição, até 2; M09 lista de sala, até 4; M10 e M11,  
+  1 por semestre. Prova substitutiva ou de recuperação não gera medalha de      
+  nota: é segunda chance, não mérito novo. A ocorrencia entra na chave de       
+  deduplicação dos repetíveis. Com isso, “três notas 10 em prova no bimestre”   
+  pode vir de duas matérias. tipoDeEvento no item do catálogo, formaDoEvento    
+  pontual ou período, P17 com código no fim e M05 no bimestre mais recente:     
+  aceitos. Recalcule o teto por matéria e bimestre e me mostre; commita e segue 
+  para a E0.2b.                                                                 
+
+● Ajustando os limites e os dois campos.
+
+● Write(data\catalogo\medalhas.json)
+  ⎿  Added 23 lines, removed 22 lines
+       2    "versao": 1,
+       3    "tipo": "medalha",
+       4    "observacao": "Medalha é concessão humana do professor, sempr
+          e sobre fato registrado de nota ou presença, apenas em turmas d
+          o semestre vigente. Sempre Bronze, salvo as duas de fechamento 
+          de matéria, que são Prata. Não é contestável nem revogável; a i
+          nstituição pode anular. Os campos familia e ordemNaFamilia são 
+          preenchidos na etapa E0.2c.",
+       5 +  "regraDeRepeticao": "limitePorPeriodo é quantas vezes a medal
+         +ha pode ser concedida ao mesmo aluno, na mesma matéria, pelo pr
+         +ofessor daquela turma, dentro do período de referência. Os limi
+         +tes seguem a estrutura real de avaliação: por bimestre, cada ma
+         +téria tem prova e prova integrativa, mais presença ou trabalhos
+         + a critério do professor. Prova substitutiva e prova de recuper
+         +ação não geram medalha de nota: são segunda chance, não mérito 
+         +novo. Nos itens repetíveis, ocorrencia entra na chave de dedupl
+         +icação e é o que o limite controla.",                          
+       6    "itens": [
+       7      {
+       8        "codigo": "M01",
+       9        "nome": "Nota 10 em prova",
+       9 -      "descricao": "Tirar 10 em uma prova da matéria.",        
+      10 +      "descricao": "Tirar 10 em uma prova da matéria. Vale para
+         + prova e prova integrativa; substitutiva e recuperação não cont
+         +am.",                                                          
+      11        "tipo": "medalha",
+      12        "base": "nota",
+      13        "tier": "bronze",
+      14        "pontos": 30,
+      15        "periodoDeReferencia": "bimestre",
+      15 -      "repetivelNoPeriodo": false,                             
+      16 -      "limitePorPeriodo": null,                                
+      17 -      "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+         -stre"],                                                        
+      16 +      "repetivel": true,                                       
+      17 +      "limitePorPeriodo": 2,                                   
+      18 +      "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+         +stre", "ocorrencia"],                                          
+      19        "restricaoCurso": null,
+      20        "vigencia": { "inicio": null, "fim": null },
+      21        "familia": null,
+     ...
+      24      {
+      25        "codigo": "M02",
+      26        "nome": "Melhor nota da turma",
+      26 -      "descricao": "Ter a melhor nota da turma em uma prova da 
+         -matéria.",                                                     
+      27 +      "descricao": "Ter a melhor nota da turma em uma prova da 
+         +matéria. Vale para prova e prova integrativa; substitutiva e re
+         +cuperação não contam.",                                        
+      28        "tipo": "medalha",
+      29        "base": "nota",
+      30        "tier": "bronze",
+      31        "pontos": 25,
+      32        "periodoDeReferencia": "bimestre",
+      32 -      "repetivelNoPeriodo": false,                             
+      33 -      "limitePorPeriodo": null,                                
+      34 -      "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+         -stre"],                                                        
+      33 +      "repetivel": true,                                       
+      34 +      "limitePorPeriodo": 2,                                   
+      35 +      "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+         +stre", "ocorrencia"],                                          
+      36        "restricaoCurso": null,
+      37        "vigencia": { "inicio": null, "fim": null },
+      38        "familia": null,
+     ...
+      47        "tier": "bronze",
+      48        "pontos": 25,
+      49        "periodoDeReferencia": "bimestre",
+      49 -      "repetivelNoPeriodo": false,                             
+      50 -      "limitePorPeriodo": null,                                
+      50 +      "repetivel": false,                                      
+      51 +      "limitePorPeriodo": 1,                                   
+      52        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+          stre"],
+      53        "restricaoCurso": null,
+      54        "vigencia": { "inicio": null, "fim": null },
+     ...
+      64        "tier": "bronze",
+      65        "pontos": 20,
+      66        "periodoDeReferencia": "bimestre",
+      66 -      "repetivelNoPeriodo": false,                             
+      67 -      "limitePorPeriodo": null,                                
+      67 +      "repetivel": false,                                      
+      68 +      "limitePorPeriodo": 1,                                   
+      69        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+          stre"],
+      70        "restricaoCurso": null,
+      71        "vigencia": { "inicio": null, "fim": null },
+     ...
+      81        "tier": "bronze",
+      82        "pontos": 20,
+      83        "periodoDeReferencia": "bimestre",
+      83 -      "repetivelNoPeriodo": false,                             
+      84 -      "limitePorPeriodo": null,                                
+      84 +      "repetivel": false,                                      
+      85 +      "limitePorPeriodo": 1,                                   
+      86        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+          stre"],
+      87        "restricaoCurso": null,
+      88        "vigencia": { "inicio": null, "fim": null },
+     ...
+       98        "tier": "bronze",
+       99        "pontos": 10,
+      100        "periodoDeReferencia": "bimestre",
+      100 -      "repetivelNoPeriodo": true,                             
+      101 +      "repetivel": true,                                      
+      102        "limitePorPeriodo": 3,
+      103        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bim
+           estre", "ocorrencia"],
+      104        "restricaoCurso": null,
+     ...
+      115        "tier": "bronze",
+      116        "pontos": 10,
+      117        "periodoDeReferencia": "bimestre",
+      117 -      "repetivelNoPeriodo": true,                             
+      118 +      "repetivel": true,                                      
+      119        "limitePorPeriodo": 2,
+      120        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bim
+           estre", "ocorrencia"],
+      121        "restricaoCurso": null,
+     ...
+      132        "tier": "bronze",
+      133        "pontos": 10,
+      134        "periodoDeReferencia": "bimestre",
+      134 -      "repetivelNoPeriodo": true,                             
+      135 +      "repetivel": true,                                      
+      136        "limitePorPeriodo": 2,
+      137        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bim
+           estre", "ocorrencia"],
+      138        "restricaoCurso": null,
+     ...
+      149        "tier": "bronze",
+      150        "pontos": 5,
+      151        "periodoDeReferencia": "bimestre",
+      151 -      "repetivelNoPeriodo": true,                             
+      152 +      "repetivel": true,                                      
+      153        "limitePorPeriodo": 4,
+      154        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bim
+           estre", "ocorrencia"],
+      155        "restricaoCurso": null,
+     ...
+      166        "tier": "prata",
+      167        "pontos": 50,
+      168        "periodoDeReferencia": "semestre",
+      168 -      "repetivelNoPeriodo": false,                            
+      169 -      "limitePorPeriodo": null,                               
+      169 +      "repetivel": false,                                     
+      170 +      "limitePorPeriodo": 1,                                  
+      171        "chaveDeDeduplicacao": ["aluno", "item", "materia", "sem
+           estre"],
+      172        "restricaoCurso": null,
+      173        "vigencia": { "inicio": null, "fim": null },
+     ...
+      183        "tier": "prata",
+      184        "pontos": 45,
+      185        "periodoDeReferencia": "semestre",
+      185 -      "repetivelNoPeriodo": false,                            
+      186 -      "limitePorPeriodo": null,                               
+      186 +      "repetivel": false,                                     
+      187 +      "limitePorPeriodo": 1,                                  
+      188        "chaveDeDeduplicacao": ["aluno", "item", "materia", "sem
+           estre"],
+      189        "restricaoCurso": null,
+      190        "vigencia": { "inicio": null, "fim": null },
+
+  Committed 3f1d65e, ran 1 shell command (ctrl+o to expand)
+
+● E0.2b
+
+  Escrevendo as 18 conquistas, apareceu uma simplificação: as três formas de
+  contagem são na verdade duas.
+
+● Write(data\catalogo\conquistas.json)
+  ⎿  Wrote 385 lines to data\catalogo\conquistas.json
+       1 {
+       3   "tipo": "conquista",
+         a medalhas e prêmios de participação definitivos e nunca conta o
+         a atravessa o período. Repetível uma vez por instância do períod
+         alculada depois. Especificação do avaliador em docs/regras-conqu
+         ista.md. Os campos familia e ordemNaFamilia são preenchidos na e
+       5   "itens": [
+       7       "codigo": "C01",
+       9       "descricao": "Receber cinco medalhas, de qualquer tipo, no
+      10       "tipo": "conquista",
+     … +397 lines (ctrl+o to expand)
+
+● Write(docs\regras-conquista.md)
+  ⎿  Wrote 130 lines to docs\regras-conquista.md
+      1 # Regras de conquista
+      2 
+      3 Especificação do avaliador declarativo que decide quando uma conq
+        uista é concedida. A
+      4 regra de cada conquista é dado, não código: mora em `data/catalog
+      5 avaliador é um só.
+      6 
+      7 Regras de produto por trás disto: `docs/produto.md`, seção 4.9.
+      8 
+      9 ---
+     … +167 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● E0.2b pronta para sua revisão
+
+  data/catalogo/conquistas.json (18 itens) e docs/regras-conquista.md. Catálogo
+  fechado em 46 itens. Sem commit.
+
+  A descoberta: são duas formas de contagem, não três
+
+  Escrevendo as 18, as três formas previstas colapsaram em duas. "Contagem
+  distinta com alvo dinâmico" e "contagem de tipos distintos" são a mesma forma
+  com parâmetros diferentes — o que muda é por onde se agrupa e se o alvo é fixo
+  ou calculado:
+
+  regra: { forma, fonte, filtroItens, agruparPor, alvo }
+
+  contagem          → quantos prêmios contáveis existem no período          (11 
+  itens)
+  contagemDistinta  → quantos valores distintos de um campo aparecem        (7 
+  itens)
+                      agruparPor: materia | bimestre | tipoDeEvento
+                      alvo: inteiro | "todasAsMatriculasDoPeriodo"
+
+  Isso inclusive absorveu a C14 ("nota 10 nos quatro bimestres do ano"), que no
+  plano não existia como forma: é contagemDistinta agrupando por bimestre com
+  alvo 4. Nenhuma das 18 precisou do escape para C# — o escape fica documentado
+  e sem uso.
+
+  Se você preferir manter os três nomes no documento por clareza de exposição no
+  TCC, eu renomeio; mas o avaliador seria o mesmo código, com um switch de dois
+  ramos em vez de três. Peso 8 para ficar com duas formas e dizer isso
+  explicitamente no texto — é mais honesto e dá menos superfície de teste.
+
+  Validação por script: 18 códigos únicos, pontos dentro das faixas, períodos e
+  gatilhos válidos, agruparPor coerente com a forma e com a fonte, alvo dinâmico
+  só onde agrupa por matéria, e todos os filtroItens apontam para itens que 
+  existem nos arquivos de medalha e prêmio. Distribuição: 1 Bronze, 5 Prata, 5
+  Ouro, 7 Diamante · 4 bimestre, 7 semestre, 4 ano, 3 curso · 12 por fato, 6 por
+  fechamento.
+
+  A economia de pontos, calculada do próprio catálogo
+
+  Aluno no teto absoluto, um ano letivo, 5 matérias por semestre (professor
+  concedendo tudo no limite):
+
+  ┌────────────────────────────────────────┬────────┐
+  │                                        │ Pontos │
+  ├────────────────────────────────────────┼────────┤
+  │ Medalhas no limite                     │ 6.250  │
+  ├────────────────────────────────────────┼────────┤
+  │ Conquistas de bimestre, semestre e ano │ 2.400  │
+  ├────────────────────────────────────────┼────────┤
+  │ Subtotal do ano                        │ 8.650  │
+  ├────────────────────────────────────────┼────────┤
+  │ Conquistas de curso (uma vez na vida)  │ 390    │
+  └────────────────────────────────────────┴────────┘
+
+  Equilíbrio entre os dois eixos de medalha, no ano: nota 5.620 (4.500 em
+  medalhas + 1.120 em conquistas) contra presença 2.270 (1.750 + 520). Mérito
+  acadêmico vale 2,5 vezes assiduidade, o que me parece a proporção certa — mas
+  é número seu para aprovar ou mexer. Em quatro anos, o teto fica na casa de 35
+  mil pontos, e o 15.020 que aparece como exemplo no design cai naturalmente no
+  meio de curso de um aluno muito bom.
+
+  Quatro coisas para sua decisão
+
+  1. Período curso e troca de curso. C16, C17 e C18 contam "ao longo do curso".
+  Se o aluno troca de curso, a contagem reinicia?
+
+  ┌───────────────────────────────────────────────────────────────────┬──────┐
+  │                               Opção                               │ Peso │
+  ├───────────────────────────────────────────────────────────────────┼──────┤
+  │ Instância = o aluno. "Curso" é rótulo; a contagem é a vida do     │      │
+  │ aluno no app e nunca reinicia. Coerente com "os pontos vão com o  │ 8    │
+  │ aluno para o curso novo".                                         │      │
+  ├───────────────────────────────────────────────────────────────────┼──────┤
+  │ Instância = aluno + curso. Reinicia na troca: as 50 medalhas do   │      │
+  │ curso antigo não contam para o novo. Mais literal, pune quem      │ 4    │
+  │ troca.                                                            │      │
+  └───────────────────────────────────────────────────────────────────┴──────┘
+
+  2. Nomes de exibição das conquistas. Inventei os 18 nomes curtos ("Primeiros
+  passos", "Três notas 10 no bimestre", "Repertório variado", "Presença total no
+  semestre", "Semestre perfeito", "Ano inteiro presente"…). São texto que o
+  aluno lê na tela de Troféus, então quero que você passe o olho e renomeie o
+  que não soar como a UniMax falaria.
+
+  3. C06 e os tipos repetidos. Três pares de itens compartilham tipoDeEvento:
+  P01 e P03 são palestra, P08 e P12 são apresentacaoEvento, P13 e P16 são
+  competicao. Logo, duas palestras não contam como dois tipos para a "Repertório
+  variado". É o comportamento que você quer — premiar variedade real — mas
+  confirmo porque é contraintuitivo na tela.
+
+  4. C14 com alvo fixo 4. Usei o literal 4 ("os quatro bimestres do ano") em vez
+  de um alvo dinâmico "todos os bimestres do período", porque o calendário
+  define dois semestres de dois bimestres. Se um dia houver ano com calendário
+  diferente, essa é a única regra que precisa de ajuste.
+
+  Aprovando, commito a E0.2b e sigo para a E0.2c, que preenche família e ordem
+  nos 46 itens e é a última etapa do catálogo.
+
+✻ Crunched for 4m 52s · done 20:12
+
+※ recap: Estamos documentando a base do Maxx antes de qualquer código; o catálogo de 46 prêmios está escrito e a E0.2b (18 conquistas) aguarda sua revisão. Próximo passo: você aprovar, eu commitar e preencher família e ordem na E0.2c. (disable recaps in /config)
+
+> E0.2b aprovada. Duas formas de contagem, não três, com o motivo escrito no    
+  regras-conquista.md; o escape para C# fica documentado e sem uso. Economia de 
+  pontos aprovada como está; revejo depois do primeiro seed, olhando o          
+  ranking. As quatro decisões: período de curso tem instância igual ao aluno e  
+  nunca reinicia na troca de curso; nomes aprovados, trocando C05 “Presente na  
+  faculdade” por “Presença nos eventos” e C01 “Primeiros passos” por “Cinco no  
+  bimestre”; C06 premia variedade real, duas palestras contam como um tipo,     
+  confirmado; C14 com o literal 4, anotado como a única regra dependente do     
+  calendário. Commita e segue para a E0.2c.                                     
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');…)
+  ⎿  C01: Cinco no bimestre
+     C05: Presença nos eventos
+  ⎿  Updated data\catalogo\conquistas.json (+2 -2)
+       5    "itens": [
+       6      {
+       7        "codigo": "C01",
+       8 -      "nome": "Primeiros passos",                              
+       8 +      "nome": "Cinco no bimestre",                             
+       9        "descricao": "Receber cinco medalhas, de qualquer tipo, n
+          o mesmo bimestre.",
+      10        "tipo": "conquista",
+      11        "tier": "bronze",
+     ...
+      89      },
+      90      {
+      91        "codigo": "C05",
+      92 -      "nome": "Presente na faculdade",                         
+      92 +      "nome": "Presença nos eventos",                          
+      93        "descricao": "Ganhar três prêmios de participação no mesm
+          o semestre.",
+      94        "tipo": "conquista",
+      95        "tier": "prata",
+
+● Update(docs\regras-conquista.md)
+  ⎿  Added 9 lines, removed 1 line
+      69  | `bimestre` | Um bimestre do calendário | datas do bimestre |
+      70  | `semestre` | Um semestre letivo | datas do semestre |
+      71  | `ano` | Um ano letivo | datas dos dois semestres |
+      72 -| `curso` | O vínculo do aluno com o curso | sem fronteira de d
+         -ata |                                                          
+      72 +| `curso` | O próprio aluno | sem fronteira de data |          
+      73  
+      74 +A instância do período `curso` é o aluno, não o vínculo dele co
+         +m um curso: a contagem é a                                     
+      75 +vida inteira do aluno no Maxx e **não reinicia quando ele troca
+         + de curso**, pela mesma                                        
+      76 +razão que os pontos acompanham o aluno para o ranking do curso 
+         +novo.                                                          
+      77 +                                                               
+      78 +A C14 é a única regra do catálogo que depende do formato do cal
+         +endário: usa o literal 4                                       
+      79 +para "os quatro bimestres do ano". Calendário com outro número 
+         +de bimestres exige ajustar                                     
+      80 +esse alvo.                                                     
+      81 +                                                               
+      82  A contagem **nunca atravessa a instância**. Duas medalhas no bi
+          mestre 1 e uma no
+      83  bimestre 2 fecham C08 (cinco no semestre, se houver mais duas) 
+          e **não** fecham C02 (três
+      84  no bimestre).
+
+● Update(docs\produto.md)
+  ⎿  Added 2 lines, removed 1 line
+      320  | `fechamentoDePeriodo` | No fechamento do período, porque o a
+           lvo só existe completo (ex.: "todas as matérias do bimestre") 
+           |
+      321  
+      322  Conquista de período é **repetível uma vez por instância do pe
+           ríodo**: a mesma conquista
+      323 -dispara em cada bimestre que fechar o critério.               
+      323 +dispara em cada bimestre que fechar o critério. No período `cu
+          +rso`, a instância é o                                         
+      324 +próprio aluno: a contagem é a vida dele no Maxx e não reinicia
+          + na troca de curso.                                           
+      325  
+      326  A conquista pontua no semestre **do período a que se refere**,
+            mesmo quando calculada
+      327  depois. O prêmio de participação conta no semestre **do evento
+           **, não no da aprovação.
+
+  Committed 11d5c9a (ctrl+o to expand)
+
+● E0.2c
+
+  Oito famílias, cobrindo 27 dos 46 itens. Primeiro o arquivo que dá nome a cada
+  trilha:
+
+● Write(data\catalogo\familias.json)
+  ⎿  Wrote 55 lines to data\catalogo\familias.json
+       1 {
+       3   "tipo": "familia",
+       4   "observacao": "Família é a trilha do design: liga os itens obt
+         lada é por dificuldade, e os pontos sempre sobem de um passo par
+         mília não tem trilha. Família não é regra: não concede nada, não
+          pontua e não entra em contagem de conquista.",
+       6     {
+       7       "codigo": "nota-prova",
+       9       "descricao": "De uma prova nota 10 até fazer isso em todas
+      10       "passos": 5
+     … +58 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');…)  ⎿  itens com familia atribuida: 27
+  ⎿  Updated data\catalogo\conquistas.json (+34 -34)
+      21        },
+      22        "restricaoCurso": null,
+      23        "vigencia": { "inicio": null, "fim": null },
+      24 -      "familia": null,                                         
+      25 -      "ordemNaFamilia": null                                   
+      24 +      "familia": "volume-medalhas",                            
+      25 +      "ordemNaFamilia": 1                                      
+      26      },
+      27      {
+      28        "codigo": "C02",
+     ...
+      42        },
+      43        "restricaoCurso": null,
+      44        "vigencia": { "inicio": null, "fim": null },
+      45 -      "familia": null,                                         
+      46 -      "ordemNaFamilia": null                                   
+      45 +      "familia": "nota-prova",                                 
+      46 +      "ordemNaFamilia": 2                                      
+      47      },
+      48      {
+      49        "codigo": "C03",
+     ...
+      63        },
+      64        "restricaoCurso": null,
+      65        "vigencia": { "inicio": null, "fim": null },
+      66 -      "familia": null,                                         
+      67 -      "ordemNaFamilia": null                                   
+      66 +      "familia": "presenca-total",                             
+      67 +      "ordemNaFamilia": 1                                      
+      68      },
+      69      {
+      70        "codigo": "C04",
+     ...
+      84        },
+      85        "restricaoCurso": null,
+      86        "vigencia": { "inicio": null, "fim": null },
+      87 -      "familia": null,                                         
+      88 -      "ordemNaFamilia": null                                   
+      87 +      "familia": "nota-prova",                                 
+      88 +      "ordemNaFamilia": 4                                      
+      89      },
+      90      {
+      91        "codigo": "C05",
+     … 130 more lines (ctrl+o to expand)
+  ⎿  Updated data\catalogo\medalhas.json (+8 -8)
+      18        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+          stre", "ocorrencia"],
+      19        "restricaoCurso": null,
+      20        "vigencia": { "inicio": null, "fim": null },
+      21 -      "familia": null,                                         
+      22 -      "ordemNaFamilia": null                                   
+      21 +      "familia": "nota-prova",                                 
+      22 +      "ordemNaFamilia": 1                                      
+      23      },
+      24      {
+      25        "codigo": "M02",
+     ...
+      52        "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+          stre"],
+      53        "restricaoCurso": null,
+      54        "vigencia": { "inicio": null, "fim": null },
+      55 -      "familia": null,                                         
+      56 -      "ordemNaFamilia": null                                   
+      55 +      "familia": "presenca-materia",                           
+      56 +      "ordemNaFamilia": 1                                      
+      57      },
+      58      {
+      59        "codigo": "M04",
+     ...
+      171        "chaveDeDeduplicacao": ["aluno", "item", "materia", "sem
+           estre"],
+      172        "restricaoCurso": null,
+      173        "vigencia": { "inicio": null, "fim": null },
+      174 -      "familia": null,                                        
+      175 -      "ordemNaFamilia": null                                  
+      174 +      "familia": "media-final",                               
+      175 +      "ordemNaFamilia": 1                                     
+      176      },
+      177      {
+      178        "codigo": "M11",
+     ...
+      188        "chaveDeDeduplicacao": ["aluno", "item", "materia", "sem
+           estre"],
+      189        "restricaoCurso": null,
+      190        "vigencia": { "inicio": null, "fim": null },
+      191 -      "familia": null,                                        
+      192 -      "ordemNaFamilia": null                                  
+      191 +      "familia": "presenca-materia",                          
+      192 +      "ordemNaFamilia": 2                                     
+      193      }
+      194    ]
+      195  }
+  ⎿  Updated data\catalogo\premios-participacao.json (+12 -12)
+      86        "chaveDeDeduplicacao": ["aluno", "item", "dataDoEvento", 
+          "materia"],
+      87        "restricaoCurso": null,
+      88        "vigencia": { "inicio": null, "fim": null },
+      89 -      "familia": null,                                         
+      90 -      "ordemNaFamilia": null                                   
+      89 +      "familia": "apresentacao",                               
+      90 +      "ordemNaFamilia": 1                                      
+      91      },
+      92      {
+      93        "codigo": "P05",
+     ...
+      154        "chaveDeDeduplicacao": ["aluno", "evento"],
+      155        "restricaoCurso": null,
+      156        "vigencia": { "inicio": null, "fim": null },
+      157 -      "familia": null,                                        
+      158 -      "ordemNaFamilia": null                                  
+      157 +      "familia": "apresentacao",                              
+      158 +      "ordemNaFamilia": 2                                     
+      159      },
+      160      {
+      161        "codigo": "P09",
+     ...
+      222        "chaveDeDeduplicacao": ["aluno", "evento"],
+      223        "restricaoCurso": null,
+      224        "vigencia": { "inicio": null, "fim": null },
+      225 -      "familia": null,                                        
+      226 -      "ordemNaFamilia": null                                  
+      225 +      "familia": "apresentacao",                              
+      226 +      "ordemNaFamilia": 3                                     
+      227      },
+      228      {
+      229        "codigo": "P13",
+     ...
+      239        "chaveDeDeduplicacao": ["aluno", "evento"],
+      240        "restricaoCurso": null,
+      241        "vigencia": { "inicio": null, "fim": null },
+      242 -      "familia": null,                                        
+      243 -      "ordemNaFamilia": null                                  
+      242 +      "familia": "competicao",                                
+      243 +      "ordemNaFamilia": 1                                     
+      244      },
+      245      {
+      246        "codigo": "P14",
+     … 20 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● E0.2c pronta para sua revisão
+
+  Novo arquivo data/catalogo/familias.json (8 famílias) e os campos familia /
+  ordemNaFamilia preenchidos em 27 dos 46 itens.
+
+  ┌────────────────────────┬────────────────────────────────────────────────┐
+  │         Trilha         │                    Caminho                     │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Nota 10 em prova       │ M01 (30) → C02 (40) → C08 (75) → C04 (105) →   │
+  │                        │ C14 (110)                                      │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Média final 10         │ M10 (50) → C11 (140)                           │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Presença na matéria    │ M03 (25) → M11 (45)                            │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Presença em tudo       │ C03 (55) → C10 (90) → C15 (120)                │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Colecionador de        │ C01 (25) → C07 (60) → C12 (85) → C16 (115) →   │
+  │ medalhas               │ C18 (150)                                      │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Vida acadêmica         │ C05 (50) → C09 (80) → C13 (95) → C17 (125)     │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Apresentar trabalho    │ P17 (20) → P08 (45) → P12 (65) → P15 (90)      │
+  ├────────────────────────┼────────────────────────────────────────────────┤
+  │ Competição             │ P13 (80) → P16 (95)                            │
+  └────────────────────────┴────────────────────────────────────────────────┘
+
+  Validação por script: toda família referenciada existe, as ordens são
+  sequenciais de 1 a n, a contagem bate com os passos declarados e os pontos 
+  sempre sobem de um passo para o outro — essa monotonicidade é o que faz o
+  cadeado significar "o próximo é mais difícil". Mantive o campo passos na
+  família como redundância deliberada: é o que o validador usa para pegar item
+  esquecido ou duplicado.
+
+  Duas escolhas de desenho que vale explicar. Separei presença em duas trilhas
+  em vez de uma só de cinco passos, porque uma mistura
+  bimestre/semestre/matéria/todas-as-matérias quebrava a leitura de dificuldade:
+  "Presença na matéria" é o seu histórico numa matéria, "Presença em tudo" é
+  assiduidade total. E a trilha Apresentar trabalho é a que eu mais gostei de
+  montar: sala → evento interno → evento externo → publicação em anais conta uma
+  carreira acadêmica inteira em quatro medalhões, e ela sai de graça do
+  catálogo que você já aprovou.
+
+  Os 19 sem trilha são, por natureza, fatos isolados sem escalada: M02 melhor
+  nota, M04 pontualidade, M05 evolução, M06 a M09 (trabalho, complementar,
+  plantão, lista), P01 a P07, P09 a P11, P14, e a C06 "Repertório variado", que
+  é o único eixo de variedade e não tem passo seguinte. Eles simplesmente não
+  mostram trilha na tela.
+
+  Uma decisão
+
+  Trilha pode misturar medalha e troféu? Quatro das oito famílias misturam:
+  nota-prova começa em medalha (M01, glifo de fita) e segue em conquistas (glifo
+  de taça); o mesmo em media-final, e presenca-materia é só medalha.
+
+  ┌───────────────────────────────────────────────────────────────────┬──────┐
+  │                               Opção                               │ Peso │
+  ├───────────────────────────────────────────────────────────────────┼──────┤
+  │ Misturar, como está: a trilha conta a história completa — "você   │      │
+  │ tem a medalha da prova, agora busque o troféu das três". O        │ 8    │
+  │ medalhão alterna fita e taça ao longo da trilha.                  │      │
+  ├───────────────────────────────────────────────────────────────────┼──────┤
+  │ Só itens do mesmo tipo: nota-prova perde o M01 e começa na C02,   │      │
+  │ media-final perde o M10 e deixa de ser trilha (sobra um passo),   │ 5    │
+  │ presenca-materia desaparece. Sobram 5 famílias, todas de          │      │
+  │ conquista, e as medalhas ficam todas sem trilha.                  │      │
+  └───────────────────────────────────────────────────────────────────┴──────┘
+
+  Recomendo misturar. Se a prancheta de troféus desenhou a trilha com um glifo
+  só, eu volto atrás quando abrirmos design/telas/trofeus-*.png no passo da tela
+  — mas aí o ajuste é de dado, não de código.
+
+  Aprovando, commito a E0.2c e a E0.2 fecha. A seguir, E0.3: os oito ADRs com
+  diagrama Mermaid onde ajudar, mais o índice de decisões.
+
+✻ Brewed for 2m 41s · done 20:29
+
+※ recap: We're building the Maxx app docs foundation (passo 0): product rules and prize catalog are committed, and E0.2c just assigned the 8 trail families across 27 of 46 items. Next: your approval to commit it, then the eight ADRs in E0.3.
+
+> E0.2c aprovada. Oito famílias como estão, inclusive as duas de presença       
+  separadas e a trilha de apresentar trabalho. Trilha pode misturar medalha e   
+  troféu, com o medalhão alternando fita e taça; se a prancheta de troféus      
+  tiver desenhado de outro jeito, ajustamos como dado quando chegarmos à tela.  
+  Commita, fecha a E0.2 e segue para a E0.3, os oito ADRs com Mermaid onde      
+  ajudar e o índice.                                                            
+
+  Committed 3a859a3 (ctrl+o to expand)
+
+● E0.2 fechada. Agora os ADRs.
+
+● Write(docs\decisoes\0001-origem-unica.md)
+  ⎿  Wrote 44 lines to docs\decisoes\0001-origem-unica.md
+       1 # ADR 0001 — Origem única: o Caddy serve o web e faz proxy de /a
+       2 
+       3 Status: aceito · 01/11/2026
+       5 ## Contexto
+       6 
+         da fase 1: na
+       8 apresentação, a banca escaneia um QR code e abre o aplicativo no
+       9 ASP.NET Core, e na web o refresh token vive em cookie `HttpOnly`
+          emitido pela API. Duas
+         CSP de uma vez.
+     … +45 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\0002-fotos-fora-da-api.md)
+  ⎿  Wrote 65 lines to docs\decisoes\0002-fotos-fora-da-api.md
+       1 # ADR 0002 — Fotos nunca passam pela API, e a leitura é pública 
+       2 
+       3 Status: aceito · 01/11/2026
+       4 
+       6 
+       7 Posts e perfis têm foto, e o pico previsto é de 2.000 usuários s
+       8 evento — justamente quando muita gente reivindica prêmio com fot
+         o. Imagem é o maior
+       9 volume de bytes do sistema, e o orçamento da fase 1 é mínimo. Du
+      10 por onde sobe, e quem pode ler.
+     … +69 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\0003-derivadas-no-cliente.md)
+  ⎿  Wrote 39 lines to docs\decisoes\0003-derivadas-no-cliente.md
+       1 # ADR 0003 — As derivadas de imagem são geradas no cliente
+       3 Status: aceito · 01/11/2026
+       4 
+       5 ## Contexto
+       7 A foto do post ocupa 390 × 390 em largura total, e o perfil most
+         ra uma grade de três
+         o muito maior do que
+       9 qualquer um dos dois usos. Servir o original para uma célula de 
+         130 px é o que estoura o
+         ), alguém mais precisa
+     … +44 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\0004-motor-de-conquistas-declarativo.md)
+  ⎿  Wrote 56 lines to
+     docs\decisoes\0004-motor-de-conquistas-declarativo.md
+       1 # ADR 0004 — Conquista é dado declarativo, avaliado por um motor
+       2 
+       3 Status: aceito · 01/11/2026
+       4 
+       6 
+       7 São 18 conquistas na fase 1, e elas são regra de produto: a inst
+       8 em alvo, período e valor sem esperar deploy. Analisando as 18, e
+         las se reduzem a duas
+       9 formas de contagem sobre o mesmo conjunto de fatos (medalhas e p
+      10 definitivos) dentro de uma instância de período.
+     … +61 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\0005-ranking-por-worker.md)
+  ⎿  Wrote 62 lines to docs\decisoes\0005-ranking-por-worker.md
+       1 # ADR 0005 — Ranking e raridade em tabela, escritos pelo worker 
+       2 
+       3 Status: aceito · 01/11/2026
+       5 ## Contexto
+       6 
+         estre atual e histórico),
+       8 3.200 alunos, e um alvo de p95 de 300 ms na leitura com 2.000 us
+       9 Redis. E existe um requisito de apresentação: na banca, uma meda
+         lha concedida ao vivo
+         to da demonstração.
+     … +72 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\0006-autenticacao-propria.md)
+  ⎿  Wrote 62 lines to docs\decisoes\0006-autenticacao-propria.md
+       1 # ADR 0006 — Autenticação própria, com Argon2id e família de ref
+       2 
+       3 Status: aceito · 01/11/2026
+       5 ## Contexto
+       6 
+          hash Argon2id, access
+       8 token curto em memória e refresh rotativo cujo reuso derruba a s
+       9 ASP.NET Core Identity resolve hash, reset e confirmação de e-mai
+         l, mas não entrega
+         foi especificada.
+     … +70 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\0007-snapshot-de-pontos.md)
+  ⎿  Wrote 42 lines to docs\decisoes\0007-snapshot-de-pontos.md
+       1 # ADR 0007 — Tier e pontos congelam na concessão; raridade não
+       3 Status: aceito · 01/11/2026
+       4 
+       5 ## Contexto
+       7 O catálogo é dado versionado e vai ser reajustado: um valor que 
+         se mostre alto ou baixo
+         ing histórico, por outro
+       9 lado, é o placar acumulado da instituição e é o que a banca exam
+         ina. Se o prêmio lesse o
+         lenciosamente a posição de
+     … +48 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\0008-fila-no-postgres.md)
+  ⎿  Wrote 53 lines to docs\decisoes\0008-fila-no-postgres.md
+       1 # ADR 0008 — Fila numa tabela do Postgres, sem broker e sem Redi
+       2 
+       3 Status: aceito · 01/11/2026
+       5 ## Contexto
+       6 
+         g e raridade, notificação,
+       8 limpeza de upload abandonado e fechamento de período para as con
+       9 usuário vê acontecer. Tudo que ele vê — publicar post, curtir, m
+         arcar aviso como lido,
+          e o requisito foi
+     … +62 lines (ctrl+o to expand)
+
+● Write(docs\decisoes\README.md)
+  ⎿  Wrote 78 lines to docs\decisoes\README.md
+      1 # Decisões do Maxx
+      2 
+        to que têm troca real
+      4 entre alternativas viraram ADR com contexto, opções pesadas, deci
+        são e consequências —
+         não houve dúvida
+      6 relevante.
+      7 
+        ](../produto.md), e as
+      9 seis assumidas de propósito, na seção 12 daquele documento.
+     … +129 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● E0.3 pronta para sua revisão
+
+  docs/decisoes/ com os oito ADRs e o índice. Sem commit.
+
+  ┌──────┬───────────────────────────────┬──────────────────────────────────┐
+  │ ADR  │            Decisão            │             Diagrama             │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │ 0001 │ Origem única: Caddy serve o   │ topologia                        │
+  │      │ web e faz proxy de /api       │                                  │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │      │ Fotos nunca passam pela API;  │ sequência do upload assinado e   │
+  │ 0002 │ leitura pública por chave     │ da leitura pela CDN              │
+  │      │ aleatória                     │                                  │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │ 0003 │ Derivadas de imagem geradas   │ —                                │
+  │      │ no cliente                    │                                  │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │      │ Conquista é dado declarativo, │ fluxo dos quatro gatilhos até    │
+  │ 0004 │  avaliado por um motor único  │ conceder, remover ou atualizar   │
+  │      │                               │ progresso                        │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │      │ Ranking e raridade em tabela, │ sequência da concessão ao vivo   │
+  │ 0005 │  escritos pelo worker com     │ até a tabela                     │
+  │      │ coalescência                  │                                  │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │ 0006 │ Autenticação própria, com     │ sequência da rotação e da        │
+  │      │ Argon2id e família de refresh │ detecção de reuso                │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │ 0007 │ Tier e pontos congelam na     │ —                                │
+  │      │ concessão; raridade não       │                                  │
+  ├──────┼───────────────────────────────┼──────────────────────────────────┤
+  │ 0008 │ Fila numa tabela do Postgres, │ enfileiramento e consumo com     │
+  │      │  sem broker e sem Redis       │ SKIP LOCKED                      │
+  └──────┴───────────────────────────────┴──────────────────────────────────┘
+
+  Cada um cabe em uma tela (40 a 66 linhas), tem contexto, opções com peso,
+  decisão e consequências. Validei por script que os quatro títulos existem em
+  todos, que todos têm ao menos uma consequência negativa marcada, que os blocos
+  de código estão fechados e que nenhum link do índice está quebrado. Deixei
+  sem diagrama os dois ADRs em que um desenho não acrescentaria nada ao texto.
+
+  O índice (README.md) traz os oito mais todas as outras decisões aceitas, em
+  cinco grupos: entrega e infraestrutura, dados, domínio e API, cliente,
+  processo e qualidade. É a folha única que responde "por que está assim" sem
+  precisar reler a conversa.
+
+  Três observações que surgiram ao escrever
+
+  1. A consequência negativa do 0005 é a mais séria do conjunto. Se o worker
+  morre, nada quebra em tela: os pontos do aluno continuam certos, o ranking só
+  para de se mover. Isso é um defeito silencioso, e é exatamente o tipo de coisa
+  que aparece pela primeira vez na banca. Anotei no ADR, mas vale uma entrada
+  explícita no passo 13: verificação de saúde do worker e alerta de fila parada.
+
+  2. O 0003 ganhou um efeito colateral bom que eu não havia percebido. Reencodar
+  a imagem no cliente antes de subir remove o metadado EXIF, inclusive a
+  localização GPS da foto. Como a foto é pública para quem tem o link (0002),
+  isso deixou de ser detalhe e passou a ser mitigação: sem o reencode,
+  estaríamos publicando as coordenadas de onde o aluno estava. Está escrito no
+  ADR, e é argumento de defesa para a pergunta de privacidade na apresentação.
+
+  3. A assimetria do 0007 merecia estar escrita, e agora está. Pontos congelam
+  porque são o que o aluno ganhou — histórico. Raridade não congela porque é
+  quão difícil aquilo é hoje — presente. Parecia incoerente até ter uma frase
+  que explicasse; é o tipo de pergunta que uma banca faz.
+
+  Aprovando, commito a E0.3 e sigo para a E0.4, o plano-mestre.md com os 13
+  passos, a definição de pronto, o protocolo de trabalho e o backlog de fase 2 —
+  incluindo os diagramas de sequência de docs/fluxos/ como entregável do passo
+  1, como você pediu.
+
+✻ Worked for 4m 33s · done 20:39
+
+> E0.3 aprovada, com as três observações aceitas: verificação de saúde do       
+  worker e alerta de fila parada entram no passo 13; o reencode no cliente      
+  removendo EXIF e GPS fica registrado no ADR 0003 como mitigação ligada ao ADR 
+  0002; a assimetria do 0007 fica com a frase que você escreveu. Dois ajustes   
+  de texto antes do commit: troca os travessões por vírgula, dois pontos ou     
+  parênteses em todos os arquivos de docs/ (padrão do projeto, vale para o      
+  CLAUDE.md também), e em “Pronto” escreve “revisão humana do autor”. Commita e 
+  segue para a E0.4.                                                            
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Trinta e nove travessões em onze arquivos. Substituo um por um, escolhendo a
+  pontuação caso a caso.
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');…)
+  ⎿  substituicoes feitas: 34
+     NAO ENCONTRADAS:
+     docs/produto.md :: é sempre conquista — inclusive presença
+  ⎿  Updated docs\decisoes\0001-origem-unica.md (+2 -2)
+      1 -# ADR 0001 — Origem única: o Caddy serve o web e faz proxy de /a
+        -pi                                                              
+      1 +# ADR 0001 · Origem única: o Caddy serve o web e faz proxy de /a
+        +pi                                                              
+      2  
+      3  Status: aceito · 01/11/2026
+      4  
+     ...
+      40    o outro exige mudar a topologia, e a API não pode trocar de d
+          omínio sem atualizar o
+      41    binário nativo já distribuído.
+      42  - **Negativa:** o espaço de rotas é compartilhado. `/api` fica 
+          reservado, e o deep link
+      43 -  `/post/:id` precisa ser servido pelo build web, não pela API 
+         -— qualquer rota nova de                                        
+      43 +  `/post/:id` precisa ser servido pelo build web, não pela API:
+         + qualquer rota nova de                                         
+      44    API entra sob o prefixo, sem exceção.
+  ⎿  Updated docs\decisoes\0002-fotos-fora-da-api.md (+2 -2)
+       1 -# ADR 0002 — Fotos nunca passam pela API, e a leitura é pública
+         - por chave aleatória                                           
+       1 +# ADR 0002 · Fotos nunca passam pela API, e a leitura é pública
+         + por chave aleatória                                           
+       2  
+       3  Status: aceito · 01/11/2026
+       4  
+       5  ## Contexto
+       6  
+       7  Posts e perfis têm foto, e o pico previsto é de 2.000 usuários 
+          simultâneos em dia de
+       8 -evento — justamente quando muita gente reivindica prêmio com fo
+         -to. Imagem é o maior                                           
+       8 +evento, justamente quando muita gente reivindica prêmio com fot
+         +o. Imagem é o maior                                            
+       9  volume de bytes do sistema, e o orçamento da fase 1 é mínimo. D
+          uas perguntas separadas:
+      10  por onde sobe, e quem pode ler.
+      11  
+  ⎿  Updated docs\decisoes\0003-derivadas-no-cliente.md (+3 -3)
+      1 -# ADR 0003 — As derivadas de imagem são geradas no cliente      
+      1 +# ADR 0003 · As derivadas de imagem são geradas no cliente      
+      2  
+      3  Status: aceito · 01/11/2026
+      4  
+     ...
+      29  - Custo de servidor zero para imagem, e nenhuma dependência pag
+          a de transformação.
+      30  - O metadado de GPS da foto não chega ao bucket, o que é um gan
+          ho de privacidade que não
+      31    teríamos se subíssemos o original.
+      32 -- **Negativa:** o mesmo trabalho existe três vezes — canvas na 
+         -web, biblioteca nativa no                                      
+      33 -  iOS e no Android — e qualquer divergência entre as plataforma
+         -s aparece como qualidade                                       
+      32 +- **Negativa:** o mesmo trabalho existe três vezes (canvas na w
+         +eb, biblioteca nativa no                                       
+      33 +  iOS e no Android), e qualquer divergência entre as plataforma
+         +s aparece como qualidade                                       
+      34    de imagem diferente no mesmo feed.
+      35  - **Negativa:** confiamos no cliente para respeitar dimensão e 
+          qualidade. A assinatura
+      36    prende tipo e tamanho máximo, não o conteúdo: um cliente adul
+          terado pode enviar uma
+  ⎿  Updated docs\decisoes\0004-motor-de-conquistas-declarativo.md (+2 -2)
+      1 -# ADR 0004 — Conquista é dado declarativo, avaliado por um motor
+        - único                                                          
+      1 +# ADR 0004 · Conquista é dado declarativo, avaliado por um motor
+        + único                                                          
+      2  
+      3  Status: aceito · 01/11/2026
+      4  
+     ...
+      49  - **Negativa:** o avaliador é um mini-interpretador. Um erro ne
+          le quebra todas as
+      50    conquistas de uma vez, enquanto um erro numa das 18 classes q
+          uebraria uma só. Por isso o
+      51    plano de teste cobre forma, item e fronteira de período separ
+          adamente.
+      52 -- **Negativa:** perdemos o que o compilador daria de graça — au
+         -tocompletar, checagem de                                       
+      52 +- **Negativa:** perdemos o que o compilador daria de graça: aut
+         +ocompletar, checagem de                                        
+      53    tipo, refatoração segura. Em troca, a validação do JSON do ca
+          tálogo precisa ser tão
+      54    testada quanto a regra, e roda na CI.
+      55  - **Negativa:** regra que não couber nas duas formas obriga a u
+          sar o escape, que é um
+  ⎿  Updated docs\decisoes\0005-ranking-por-worker.md (+3 -3)
+      1 -# ADR 0005 — Ranking e raridade em tabela, escritos pelo worker 
+        -com coalescência                                                
+      1 +# ADR 0005 · Ranking e raridade em tabela, escritos pelo worker 
+        +com coalescência                                                
+      2  
+      3  Status: aceito · 01/11/2026
+      4  
+     ...
+       7  São quatro visões de ranking (geral e por curso, cada uma em se
+          mestre atual e histórico),
+       8  3.200 alunos, e um alvo de p95 de 300 ms na leitura com 2.000 u
+          suários virtuais. Não há
+       9  Redis. E existe um requisito de apresentação: na banca, uma med
+          alha concedida ao vivo
+      10 -precisa mexer a posição em segundos — é o momento de maior impa
+         -cto da demonstração.                                           
+      10 +precisa mexer a posição em segundos, e é o momento de maior imp
+         +acto da demonstração.                                          
+      11  
+      12  A raridade dos itens (percentual de alunos que têm cada prêmio)
+           tem exatamente a mesma
+      13  natureza: cálculo agregado, leitura muito frequente, tolerância
+           a alguns segundos de
+     ...
+      55    que o aluno vê os pontos novos e a posição antiga, e a interf
+          ace precisa assumir isso
+      56    sem parecer defeito.
+      57  - **Negativa:** o worker é ponto único de atraso. Se ele morre,
+           o ranking congela **sem
+      58 -  erro visível** — nenhuma tela quebra, os números só param. Pr
+         -ecisa de verificação de                                        
+      58 +  erro visível**: nenhuma tela quebra, os números só param. Pre
+         +cisa de verificação de                                         
+      59    saúde própria e de um alerta, senão o sintoma aparece primeir
+          o na banca.
+      60  - **Negativa:** o congelamento do ranking semestral 30 dias apó
+          s o fim do semestre passa a
+      61    ser regra do worker, não da consulta: quem lê a tabela não sa
+          be que ela parou de ser
+  ⎿  … 6 more files changed
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 1 line, removed 1 line
+      147  distintos e nunca se misturam.
+      148  
+      149  Medalha é, por definição, concessão humana do professor. Tudo 
+           que for automático é
+      150 -conquista — inclusive presença, quando a integração com a cham
+          -ada chegar.                                                   
+      150 +conquista, inclusive presença, quando a integração com a chama
+          +da chegar.                                                    
+      151  
+      152  Não existe medalha discricionária: nada de "participação em au
+           la" ou "ajuda a colegas",
+      153  porque não há fato registrado por trás e é o que mais infla po
+           ntuação. Apresentação de
+
+  Committed 13c5ccf (ctrl+o to expand)
+● E0.4
+
+  Escrevendo o plano, encontrei um problema de ordenação na minha própria
+  proposta: a comprovação de prêmio é um post com foto, então o post precisa
+  existir antes do prêmio de participação. Inverti os dois passos.
+
+● Write(docs\plano-mestre.md)
+  ⎿  Wrote 259 lines to docs\plano-mestre.md
+      1 # Plano mestre do Maxx
+      2 
+      3 Treze passos da fase 1, o protocolo de trabalho e a definição de 
+        pronto. Regras de
+      4 produto em [`produto.md`](produto.md), decisões técnicas em
+      5 [`decisoes/`](decisoes/README.md), catálogo em `data/catalogo/`.
+      6 
+      7 ---
+      8 
+      9 ## 1. Como trabalhamos
+     … +333 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● E0.4 pronta para sua revisão
+
+  docs/plano-mestre.md, 259 linhas: protocolo de trabalho, definição de pronto,
+  duas regras de planejamento, grafo de dependências em Mermaid, os 13 passos
+  com entrega verificável, backlog de fase 2 e tabela de riscos acompanhados.
+  Sem travessões. Sem commit.
+
+  Uma correção de ordem na minha própria proposta
+
+  Ao escrever o passo 8, percebi que o plano que você aprovou tinha um erro de
+  dependência meu: a comprovação de prêmio de participação é um post com foto,
+  então o post precisa existir antes. Na ordem antiga, o passo de prêmios de
+  participação vinha antes do passo social, e eu teria que implementar um post
+  incompleto ali e refazê-lo depois.
+
+  A ordem corrigida, da 6 em diante:
+
+  ┌───────────────────────────┬───────────────────────────┐
+  │           Antes           │           Agora           │
+  ├───────────────────────────┼───────────────────────────┤
+  │ 6 Medalhas                │ 6 Medalhas, fila e worker │
+  ├───────────────────────────┼───────────────────────────┤
+  │ 7 Prêmios de participação │ 7 Posts, upload e feed    │
+  ├───────────────────────────┼───────────────────────────┤
+  │ 8 Conquistas              │ 8 Prêmios de participação │
+  ├───────────────────────────┼───────────────────────────┤
+  │ 9 Social                  │ 9 Conquistas              │
+  └───────────────────────────┴───────────────────────────┘
+
+  Os passos 10 a 13 ficam como estavam. A correção não muda o tamanho do plano,
+  só evita trabalho jogado fora.
+
+  Duas regras de planejamento que precisam da sua aprovação
+
+  1. O esquema cresce por passo. Cada passo traz a sua migration, em vez de uma
+  migration grande no passo 2.
+
+  ┌───────────────────────────────────────────────────────────────────┬──────┐
+  │                               Opção                               │ Peso │
+  ├───────────────────────────────────────────────────────────────────┼──────┤
+  │ Incremental: migration por passo, seed de demonstração crescendo  │ 8    │
+  │ junto e completo só no passo 12                                   │      │
+  ├───────────────────────────────────────────────────────────────────┼──────┤
+  │ Esquema completo no passo 2: seed rico desde cedo, mas modelando  │      │
+  │ no vazio tabelas que só serão usadas seis passos depois, com      │ 5    │
+  │ chance alta de errar o formato antes de implementar               │      │
+  └───────────────────────────────────────────────────────────────────┴──────┘
+
+  2. A fila e o worker nascem no passo 6, não no 11. A notificação de medalha e
+  o recálculo de raridade já precisam deles, então a infraestrutura assíncrona
+  vem junto com o primeiro recurso que a exige, e o passo 11 só acrescenta as
+  quatro visões de ranking no worker que já existe.
+
+  Três pendências declaradas de propósito
+
+  Marquei no plano o que fica faltando de um passo para outro, para não parecer
+  defeito na revisão:
+
+  - Passo 6 entrega a tela de Troféus com pontos, catálogo e raridade, mas sem a
+    posição no ranking, que só existe no passo 11.
+  - Passo 7 entrega o perfil com pontos e prêmios; o toque na posição e os
+    atalhos de ranking da Busca chegam no passo 11.
+  - Passo 6 permite anular medalha por comando administrativo; a tela disso é do
+    passo 12.
+
+  Aprovando, commito a E0.4 e sigo para a E0.5, o CLAUDE.md na raiz, que é a
+  última etapa de conteúdo do passo 0 antes do PR.
+
+✻ Brewed for 3m 51s · done 20:44
+
+※ recap: Estamos montando a base do app Maxx no passo 0, gravando produto, catálogo, ADRs e plano mestre no repositório. A E0.4 (plano mestre) está escrita e aguarda sua revisão; aprovando, eu commito e escrevo o CLAUDE.md.
+
+> E0.4 aprovada. Ordem corrigida aceita (6 medalhas, fila e worker; 7 posts,    
+  upload e feed; 8 prêmios de participação; 9 conquistas). As duas regras de    
+  planejamento aceitas: esquema incremental, uma migration por passo, com o     
+  seed de demonstração crescendo junto e completo no passo 12; fila e worker    
+  nascem no passo 6. As três pendências declaradas ficam registradas no plano   
+  como estão. Commita e segue para a E0.5, o CLAUDE.md.                         
+
+  Committed 8e16077 (ctrl+o to expand)
+
+● Write(CLAUDE.md)
+  ⎿  Wrote 157 lines to CLAUDE.md
+       1 # Maxx
+       2 
+       3 Aplicativo da UniMax (rede UniEduk, Indaiatuba/SP): rede social 
+       4 alunos, professores e a instituição. Fase 1 é o TCC, com apresen
+         tação a uma banca
+       5 rotativa.
+       6 
+       8 
+       9 | Preciso de | Arquivo |
+      10 |---|---|
+     … +203 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● E0.5 pronta para sua revisão
+
+  CLAUDE.md na raiz, 157 linhas. Sem travessões, blocos fechados, todos os
+  caminhos citados existem. Sem commit.
+
+  O que ele tem: mapa de onde está cada coisa, com a frase que mais importa
+  (decisão que não está nos arquivos não foi tomada, pergunte) · protocolo de
+  trabalho com "nenhum código antes do plano de etapas aprovado" · definição de
+  pronto · stack com versões · mapa do repositório · as quatro camadas e a
+  direção das dependências · idioma do código · glossário obrigatório ·
+  segurança inviolável · testes por camada · git · interface · padrão de texto.
+
+  O que ele deliberadamente não tem: regra de produto. Ele aponta para
+  docs/produto.md em vez de resumi-lo, porque dois lugares com a mesma regra
+  divergem na terceira edição.
+
+  Três convenções que eu precisei fixar e que você ainda não tinha dito
+
+  1. Identificadores sem acento e sem cedilha. Premio, Materia, Contestacao,
+  Comprovacao, Notificacao. Texto para o usuário com acentuação correta. C#
+  aceita acento em identificador, mas isso quebra ferramenta, busca e teclado
+  alheio. É a consequência prática de "domínio em português" que ninguém decide
+  até doer. Peso 9.
+
+  2. snake_case no Postgres, PascalCase no C#. Convenção de cada lado
+  respeitada, com o mapeamento fazendo a ponte. A alternativa é deixar o EF Core
+  criar tabelas PascalCase, que no Postgres exige aspas em toda consulta
+  manual. Peso 9.
+
+  3. Glossário com proibição explícita. Listei os termos canônicos e escrevi que
+  Award, Prize, Badge, Reward e Trophy não existem no código. Sem isso,
+  "prêmio" vira três palavras diferentes em três arquivos, e a palavra troféu é
+  a mais perigosa: ela existe só na interface, cobrindo prêmio de participação e
+  conquista, e não deve aparecer em nome de classe, tabela ou rota.
+
+  Incluí também o rodapé Co-Authored-By: como parte da convenção de commit, que
+  é o que já estamos fazendo nos cinco commits desta rodada. Se preferir que
+  isso não fique escrito no CLAUDE.md, eu removo a linha.
+
+  Aprovando, commito a E0.5 e vou para a E0.6: abrir o PR do passo 0 inteiro
+  contra a rodada. Depois dele, o passo 0 fecha e eu te traço o plano de etapas
+  do passo 1.
+
+✻ Churned for 1m 33s · done 20:53
+
+※ recap: Estamos montando a base documental do app Maxx (passo 0 do TCC): produto, catálogo, ADRs e plano mestre já commitados. O CLAUDE.md está escrito e aguarda sua revisão; aprovado, eu commito e abro o PR do passo 0.
+
+> E0.5 aprovada. As três convenções aceitas: identificadores sem acento e sem   
+  cedilha, snake_case no Postgres mapeado do PascalCase do C#, e o glossário    
+  com a proibição explícita de Award, Prize, Badge, Reward e Trophy no código.  
+  Sobre o rodapé Co-Authored-By: remove a linha do CLAUDE.md e não use o rodapé 
+  nos commits deste repositório. Aqui você é a ferramenta, não o autor; os      
+  commits são meus, revisados por mim antes de existirem. Reescreve os commits  
+  desta rodada sem o rodapé (rebase interativo na branch, antes de dar push), e 
+  commita a E0.5.                                                               
+                                                                                
+  Depois, antes do PR, organiza o git como vamos trabalhar daqui em diante:     
+  cria a branch docs/passo-00-fundacao a partir do estado atual (os commits do  
+  passo 0 vão nela), volta a rodada/eng_00 para o commit do design (9412465),   
+  dá push das duas para a origin (git push -u origin) e abre o PR da            
+  docs/passo-00-fundacao contra a rodada/eng_00, com a descrição listando as    
+  seis etapas. Eu reviso e faço o merge. A partir do passo 1, toda etapa nasce  
+  numa branch por tipo saída da rodada/eng_00, com commit e push a cada etapa e 
+  um PR por assunto.                                                            
+
+● Entendido. Removo a linha, troco por uma proibição explícita para nenhuma
+  sessão futura reintroduzir o rodapé, e reescrevo os cinco commits.
+
+● Update(CLAUDE.md)
+  ⎿  Added 4 lines, removed 1 line
+      135  
+      136  Commit convencional: `<tipo>(<escopo>): <assunto>`, escopos `a
+           pi`, `mobile`, `client`,
+      137  `seed`, `infra`, `docs`, `design`. Assunto no imperativo, minú
+           sculo, sem ponto final.
+      138 -Commits de agente terminam com o rodapé `Co-Authored-By:` do m
+          -odelo que os escreveu.                                        
+      138  
+      139 +**Sem rodapé de co-autoria neste repositório.** Nada de `Co-Au
+          +thored-By:` nem de menção a                                   
+      140 +ferramenta na mensagem de commit ou na descrição de PR. O auto
+          +r do projeto é o autor dos                                    
+      141 +commits, e revisa cada um antes de ele existir.               
+      142 +                                                              
+      143  PR pequeno e de assunto único.
+      144  
+      145  ## Interface
+
+  Made 2 scratchpad edits +77, committed 9a7e751, pushed to rodada/eng_00, created PR #1, ran 5 shell commands (ctrl+o to expand)
+
+● Passo 0 fechado · PR aberto
+
+  https://github.com/GFGimenes/maxx-engenheiro/pull/1 · docs/passo-00-fundacao →
+  rodada/eng_00 · 7 commits, 17 arquivos, 2.531 linhas.
+
+  Rodapé de co-autoria
+
+  Removido do CLAUDE.md e substituído por uma proibição explícita, para nenhuma
+  sessão futura reintroduzir:
+
+  ▎ Sem rodapé de co-autoria neste repositório. Nada de Co-Authored-By: nem de 
+  ▎ menção a ferramenta na mensagem de commit ou na descrição de PR. O autor do 
+  ▎ projeto é o autor dos commits, e revisa cada um antes de ele existir.
+
+  Os cinco commits anteriores foram reescritos (git filter-branch com filtro de
+  mensagem, já que rebase interativo não roda neste ambiente). Confirmei por
+  grep: zero ocorrências de Co-Authored-By nos sete commits. Os hashes mudaram,
+  e como o push foi o primeiro, não houve force em nada já publicado. A
+  descrição do PR também não menciona ferramenta.
+
+  Git como vai ficar daqui em diante
+
+  main                    1577ae9  semente
+  rodada/eng_00           9412465  design: telas, tokens e identidade visual
+  docs/passo-00-fundacao  9a7e751  os 7 commits do passo 0, aguardando seu merge
+
+  Ambas publicadas na origin e com upstream configurado. A rodada/eng_00 voltou
+  ao commit do design, como você pediu, e é a base de todas as branches dos
+  próximos passos.
+
+  ┌─────────┬──────────────────────────────────────────┐
+  │ Commit  │                  Etapa                   │
+  ├─────────┼──────────────────────────────────────────┤
+  │ 133f129 │ E0.1 regras de produto                   │
+  ├─────────┼──────────────────────────────────────────┤
+  │ 9aa584c │ E0.2a medalhas e prêmios de participação │
+  ├─────────┼──────────────────────────────────────────┤
+  │ e7ae3a7 │ E0.2b conquistas e avaliador             │
+  ├─────────┼──────────────────────────────────────────┤
+  │ 9ab7c78 │ E0.2c famílias de trilha                 │
+  ├─────────┼──────────────────────────────────────────┤
+  │ 49e8537 │ E0.3 oito ADRs e índice                  │
+  ├─────────┼──────────────────────────────────────────┤
+  │ 9e27ae9 │ E0.4 plano mestre                        │
+  ├─────────┼──────────────────────────────────────────┤
+  │ 9a7e751 │ E0.5 CLAUDE.md                           │
+  └─────────┴──────────────────────────────────────────┘
+
+  Depois do seu merge
+
+  O passo 1 é o esqueleto do monorepo: solution com os quatro projetos, app
+  Expo, compose com Postgres e Caddy, contêiner de migration, /health, CI com os
+  seis jobs, moldura de celular no desktop e os cinco diagramas de sequência em
+  docs/fluxos/. Entrega verificável: a web abre, bate na API e recebe 200.
+
+  Quando você mergear, eu te mando o plano de etapas do passo 1 para revisar
+  antes de qualquer código. Se preferir, posso adiantar o plano agora, enquanto
+  você revisa o PR.
+
+✻ Sautéed for 2m 49s · done 20:59
+
+※ recap: Estamos construindo o Maxx, app gamificado da UniMax; o passo 0 (toda a documentação, catálogo e ADRs) está pronto e aberto no PR 1 contra a rodada/eng_00. Próxima ação: você revisar e mergear, e eu traço o plano do passo 1.
+
+> PR #1 mergeado na rodada/eng_00. Esta rodada encerra aqui: o passo 0 está     
+  fechado e eu levo a rodada/eng_00 para a main. O plano de etapas do passo 1   
+  fica para a próxima sessão, que vai começar já com o CLAUDE.md carregado. Não 
+  faça mais nada neste repositório agora.                                       
+
+● Encerrado. Passo 0 fechado, PR #1 mergeado, nada mais tocado aqui.
+
+  Um detalhe para a próxima sessão: o diretório de trabalho ficou na branch
+  docs/passo-00-fundacao, já mergeada. O primeiro movimento da próxima sessão é
+  um git checkout rodada/eng_00 com git pull, e aí a branch do passo 1 nasce de
+  lá.
+
+  O que a próxima sessão herda, sem precisar de nenhuma recapitulação: CLAUDE.md
+  na raiz com o protocolo e as convenções, docs/produto.md com as regras de
+  produto, data/catalogo/ com os 46 itens e as oito trilhas,
+  docs/regras-conquista.md com o contrato do avaliador, docs/decisoes/ com os
+  oito ADRs e o índice, e docs/plano-mestre.md apontando o passo 1 e o que ele
+  entrega.
+
+  Boa apresentação pela frente.
+
+✻ Cogitated for 12s · done 21:14

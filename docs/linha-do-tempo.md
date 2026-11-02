@@ -70,12 +70,12 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   30k tokens.
 - Modo de permissão: "auto mode" (o agente executa sem pedir aprovação a cada ação),
   o mesmo nas duas trilhas.
-- Versão do CLI: a atualização automática atualizou o Claude Code de 2.1.270 para 2.1.308
-  entre 12/10 e 22/10/2026, sem ação do autor. Decisão (22/10): 2.1.308 passa a ser a
-  versão fixa de todas as rodadas, com `DISABLE_AUTOUPDATER=1` em toda janela. Resíduo
-  declarado: na sessão `eng_00`, o `eng_00_produto`, a resposta do agente, a `r1` e a
-  resposta à `r1` rodaram na 2.1.270; `eng_00_tecnica` em diante, na 2.1.308. Mesma
-  sessão, mesmo modelo, mesmo histórico. A trilha do leigo roda inteira na 2.1.308.
+- Versão do CLI: a atualização automática trocou a versão duas vezes dentro da `eng_00`,
+  sem ação do autor (conferido na transcrição `.jsonl`): 2.1.270 em 11/10 (produto e
+  primeira resposta), 2.1.296 em 12/10 (`r1` e resposta), 2.1.308 de 22/10 em diante.
+  Decisão (22/10): 2.1.308 passa a ser a versão fixa de todas as rodadas, com
+  `DISABLE_AUTOUPDATER=1` em toda janela. Mesma sessão, mesmo modelo, mesmo histórico.
+  A trilha do leigo roda inteira na 2.1.308.
 
 ## Dependências entre fases
 
