@@ -277,3 +277,21 @@ campos do catálogo com limites derivados dela (`tecnica-r4`). Export parcial da
 e cópia do `.jsonl` salvos em `resultados/engenheiro/` (`43b4210`). Ainda sem código
 executável; só documentação e dados, como o passo 0 prevê.
 
+Noite de 01/11: passo 0 fechado. E0.2b, E0.2c, E0.3, E0.4 e E0.5 revisadas pelo Cowork
+no repo e aprovadas pelo autor (`tecnica-r5` a `r9`): 18 conquistas em duas formas de
+contagem (o agente descobriu que as três previstas eram duas), oito famílias de trilha,
+oito ADRs com Mermaid e índice de decisões, plano mestre com a ordem dos passos 6 a 9
+corrigida pelo próprio agente (post antes de prêmio de participação), `CLAUDE.md` da
+trilha. Decisões do autor ao longo da noite: raridade com ex-alunos nos dois lados;
+sufixo `-EX`; aluno nunca acumula papel; repetibilidade das medalhas pela estrutura real
+de avaliação; dois nomes de conquista; migration por passo; sem rodapé de co-autoria nos
+commits (persona: o agente é ferramenta). Sete commits do agente na
+`docs/passo-00-fundacao`, PR #1 contra a `rodada/eng_00`, as duas publicadas. Em
+paralelo, o desenho da avaliação mudou (`avaliacoes/rubrica.md`, protocolo): seis eixos
+(experiência do usuário, segurança, infraestrutura, documentação, código, projeto e
+arquitetura), um revisor de IA por eixo, avaliação uma vez por produto no fim, autor
+pontua sem ver o revisor; ordem de execução: engenheiro inteiro, leigo inteiro, prompt
+único, avaliações. Sete prompts do leigo rascunhados em `prompts/leigo/` para o autor
+reescrever. Título do TCC com "e arquitetura" (23/10) e descritivo dos capítulos para o
+orientador em `docs/tcc/descritivo-capitulos-tcc.docx`.
+
