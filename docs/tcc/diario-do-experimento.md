@@ -295,3 +295,23 @@ pontua sem ver o revisor; ordem de execução: engenheiro inteiro, leigo inteiro
 reescrever. Título do TCC com "e arquitetura" (23/10) e descritivo dos capítulos para o
 orientador em `docs/tcc/descritivo-capitulos-tcc.docx`.
 
+02/11: `eng_01_fundacao` em andamento, sessão nova na `rodada/eng_01_fundacao` (saída da
+`main` após o merge da `eng_00`). Prompt de abertura curto de propósito, para medir se o
+`CLAUDE.md` sustenta a sessão sozinho: sustentou. O agente leu os docs, não escreveu
+código antes do plano e perguntou só o que não estava documentado (gerenciador de
+pacotes, escopo inicial do job de segurança, forma do migrador, prefixo de rotas,
+medidas da moldura). Plano de oito etapas aprovado (`fundacao-r1`), branch
+`chore/passo-01-esqueleto-monorepo` com um PR para a rodada. A revisão passou a ser
+por export: a cada etapa o autor roda `/export` para
+`resultados/engenheiro/eng_01_fundacao-sessao.txt`, o Cowork lê o fim do arquivo e
+redige a resposta. Etapas 1 a 4 revisadas e aprovadas (`fundacao-r2` a `r5`): esqueleto
+.NET 10 com health e ready, testes de arquitetura separados e teste de pureza do Domain;
+banco com migração por subcomando `migrate`, advisory lock e `ready` checando migrations
+pendentes; cliente OpenAPI gerado sob demanda com duas versões de TypeScript; app Expo
+SDK 58 com tela de estado da API e moldura de celular só na web (390 px a partir de
+600 px de janela, teto de 844 px). Desvios declarados pelo agente e aceitos: `ignore-exit-code`
+no `Domain.Tests` até o passo 2, `MSBuildTreatWarningsAsErrors`, `JsonNumberHandling.Strict`,
+Node 22 com avaliação do 24 no passo 13, proxy de `/api` no Metro só em desenvolvimento,
+ícones reais no passo 4. Achados moderados do `npm audit` em ferramentas de build e teste
+registrados, abaixo do corte do job de segurança. O autor instalou o SDK do .NET 10
+antes de o agente continuar. Pendentes: etapas 5 a 8, PR, merge e fechamento da rodada.
