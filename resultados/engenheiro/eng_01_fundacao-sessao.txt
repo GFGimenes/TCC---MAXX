@@ -4996,3 +4996,249 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt
   test(mobile): adiciona e2e com playwright contra o build web
 
 ✻ Worked for 6m 16s · done 23:16
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_01_fundacao-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_01_fundacao-sessao.txt
+
+❯ Etapa 6 aprovada. Commita com a mensagem proposta, push, e segue para a etapa 
+  7; para para a minha revisão no fim dela.                                     
+
+  Pushed to chore/passo-01-esqueleto-monorepo (ctrl+o to expand)
+
+● Etapa 6 commitada e enviada. Agora vou iniciar a etapa 7 (CI), verificando
+  antes as versões atuais das actions e do gitleaks, além da autenticação do gh
+  para acompanhar as execuções.
+
+  Ran 1 shell command (ctrl+o to expand)
+● Tudo autenticado. Escrevo o workflow com as versões atuais fixadas.
+
+● Write(.github\workflows\ci.yml)
+  ⎿  Wrote 145 lines to .github\workflows\ci.yml
+       1 name: CI
+       2 
+       3 # Push em qualquer branch: os checks do commit aparecem também n
+         o PR, sem rodar duas vezes.
+       4 on:
+       6   workflow_dispatch:
+       7 
+       8 concurrency:
+       9   group: ci-${{ github.ref }}
+      10   cancel-in-progress: true
+     … +150 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      31  | Migrations | Contêiner separado com advisory lock, antes de s
+          ubir as réplicas. Nunca no startup da aplicação |
+      32  | Backup | `pg_dump` noturno para o bucket, mais dump manual ob
+          rigatório antes de cada migration, com restauração testada uma 
+          vez |
+      33  | Banca | Sem plano B local: a VPS é o único ambiente. Se o wif
+          i do campus falhar, a banca entra pela rede móvel e o notebook 
+          é roteado pelo celular |
+      34 -| CI | GitHub Actions, um job por pasta: api, mobile, api-clien
+         -t, e2e, segurança |                                            
+      34 +| CI | GitHub Actions, seis jobs: api, mobile, api-client, e2e,
+         + segurança e build (imagens da API e do Caddy com o build web) 
+         +|                                                              
+      35  
+      36  ## Dados
+      37  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Nenhum pacote NuGet vulnerável hoje. Testo o filtro jq contra um JSON
+  sintético com um achado alto e um moderado, para ter certeza de que ele pega o
+  alto e ignora o moderado:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Não há jq nesta máquina. Testo o mesmo filtro com a imagem oficial do jq no
+  Docker, que é a mesma ferramenta que roda no runner:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou testar a CI real criando duas branches temporárias:
+  ci/verificacao-passo-01 (estado atual, deve passar os seis jobs) e
+  ci/teste-quebra-formato (quebra formatação do C#, mobile e contrato gerado,
+  deve falhar em api, mobile e api-client). Depois apago ambas remoto e local,
+  sem tocar na sua branch.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto essa execução roda, preparo e envio a branch de quebra a partir dela:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git checkout -q -b ci/teste-quebra-formato && \
+      sed -i 's#^var api = app.MapGroup("/api")…)
+  ⎿   apps/api/src/Maxx.Api/Health/HealthEndpoints.cs | 2 +-
+      apps/api/src/Maxx.Api/Program.cs                | 2 +-
+      apps/mobile/src/components/PhoneFrame.tsx       | 2 +-
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Health\HealthEndpoints.cs (+1 -1)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -1)
+  ⎿  Updated apps\mobile\src\components\PhoneFrame.tsx (+1 -1)
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+  ⎿  (timeout 2m)
+
+● Os meus próprios seds mudaram esses dois arquivos de propósito, só nesta
+  branch descartável. Acompanho as duas execuções em segundo plano:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou ser avisado quando as duas terminarem.
+
+✻ Sautéed for 3m 7s · done 23:27
+
+● Background command "Wait for both CI runs and summarize job results" completed
+(exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Na branch de verificação, os seis jobs ficaram verdes. Na de quebra, falharam
+  os três esperados e também build e e2e. Confiro se cada um caiu pelo motivo
+  certo, e não por acaso:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● api e mobile falharam na formatação como esperado, e build/e2e caíram em
+  cascata pelo mesmo erro de formato do C#. Agora vou checar o log do
+  api-client, já que seu gerar também depende do build da API e pode ter falhado
+  pelo mesmo motivo, não pela mudança de contrato.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Confirmado que o api-client quebrou por formatação, não pela mudança de
+  contrato — a prova do contrato ainda está pendente. Vou enviar outro commit na
+  mesma branch descartável, revertendo as quebras de formato e mantendo só a
+  troca de GetReady por GetReadiness, esperando que agora só o api-client falhe.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git branch --show-current && git checkout -q ci/verificacao-passo-01 --
+      apps/api/src/Maxx…)
+  ⎿  ci/teste-quebra-formato
+      apps/api/src/Maxx.Api/Health/HealthEndpoints.cs | 2 +-
+      1 file changed, 1 insertion(+), 1 deletion(-)
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -1)
+  ⎿  Updated apps\mobile\src\components\PhoneFrame.tsx (+1 -1)
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+  ⎿  (timeout 2m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou ser avisado quando essa execução terminar.
+
+✻ Sautéed for 1m 12s · done 23:32
+
+● Background command "Wait for contract-only run and show results" completed
+(exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Só o api-client falhou na etapa de contrato, com o diff mostrando GetReady
+  renomeado para GetReadiness no openapi.json e no schema.d.ts; os outros cinco
+  passaram. Vou limpar as branches descartáveis e voltar para sua branch com as
+  mudanças em stage.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git checkout -q chore/passo-01-esqueleto-monorepo && git cherry-pick -n
+      ci/verificacao-pa…)
+  ⎿  Deleted branch ci/verificacao-passo-01 (was 0e1026d).
+     Deleted branch ci/teste-quebra-formato (was ab36773).
+     refs/heads/chore/passo-01-esqueleto-monorepo
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Health\HealthEndpoints.cs (+1 -1)
+  ⎿  Updated docs\decisoes\README.md (+78 -78)
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● A etapa 7 está pronta e espera a sua revisão. Deixei em stage na sua branch e
+  não fiz o commit.
+
+  Critérios de aceite
+
+  Validei no GitHub Actions de verdade, com commits descartáveis em branches
+  temporárias, porque o commit da etapa só sai depois da sua revisão.
+
+  Execução: Estado atual (ci/verificacao-passo-01)
+  Resultado: os seis jobs verdes: api, mobile, api-client, e2e, segurança, build
+  ────────────────────────────────────────
+  Execução: Formato quebrado no C# e no mobile
+  Resultado: api e mobile caíram no passo de formatação
+  ────────────────────────────────────────
+  Execução: Só o contrato mudado (GetReady vira GetReadiness sem regerar o
+  cliente)
+  Resultado: só o api-client caiu, no passo "Cliente gerado igual ao OpenAPI da
+  API", com o diff no openapi.json e no schema.d.ts; os outros cinco verdes
+
+  Na primeira rodada de quebra eu tinha juntado as três quebras num commit só. O
+  api-client caiu, mas pela formatação do C#, porque o gerar faz um build da
+  API. Então a prova do contrato não valia, e repeti com o contrato isolado.
+
+  Na mesma rodada, build e e2e também caíram em cascata pelo formato do C#. Com
+  o estilo cobrado no build, o dotnet publish dentro do Docker quebra. Isso é
+  desejado: código fora do padrão não vira imagem.
+
+  As duas branches temporárias foram apagadas no remoto e no local. As execuções
+  delas continuam no histórico do Actions. Se quiser, apago essas execuções
+  também.
+
+  O que cada job roda
+
+  ┌────────────┬─────────────────────────────────────────────────────────────┐
+  │    Job     │                           Passos                            │
+  ├────────────┼─────────────────────────────────────────────────────────────┤
+  │            │ restore, dotnet format --verify-no-changes, build Release   │
+  │ api        │ (aviso vira erro), testes de domínio, arquitetura e         │
+  │            │ integração com Postgres real (Testcontainers no runner)     │
+  ├────────────┼─────────────────────────────────────────────────────────────┤
+  │ mobile     │ Prettier, lint, typecheck, Jest                             │
+  ├────────────┼─────────────────────────────────────────────────────────────┤
+  │ api-client │ Prettier, npm run verificar (regera e roda git diff         │
+  │            │ --exit-code), typecheck                                     │
+  ├────────────┼─────────────────────────────────────────────────────────────┤
+  │            │ Prettier e tipos, compose a partir do .env.example, espera  │
+  │ e2e        │ o /api/ready, Playwright nos quatro projetos; em caso de    │
+  │            │ falha, logs do compose e relatório HTML como artefato       │
+  ├────────────┼─────────────────────────────────────────────────────────────┤
+  │ segurança  │ gitleaks 8.30.1 no histórico completo; NuGet vulnerável com │
+  │            │  filtro alto/crítico; npm audit --audit-level=high          │
+  ├────────────┼─────────────────────────────────────────────────────────────┤
+  │ build      │ docker compose build: a imagem da API e a do Caddy com o    │
+  │            │ build web                                                   │
+  └────────────┴─────────────────────────────────────────────────────────────┘
+
+  O NuGet precisa de filtro próprio porque o dotnet list package --vulnerable
+  sai com 0 mesmo quando acha vulnerabilidade. O filtro lê o JSON com jq. Testei
+  com um JSON sintético: ele pegou o achado alto, ignorou o moderado, e deu 0
+  no repositório real.
+
+  As actions estão fixadas nas versões atuais: checkout@v7, setup-node@v7,
+  setup-dotnet@v6 e upload-artifact@v7. O .NET vem do global.json e o Node do
+  .nvmrc.
+
+  Também corrigi o docs/decisoes/README.md, que agora lista os seis jobs.
+
+  Para você decidir
+
+  Gatilho da CI: push em qualquer branch, mais workflow_dispatch, sem
+  pull_request. Os checks do commit de push aparecem no PR, e assim a CI não
+  roda duas vezes para cada commit de branch com PR aberto. O custo é que um PR
+  vindo de fork não rodaria CI, o que aqui não acontece. Se preferir o par
+  clássico (push só em main e rodada/**, mais pull_request), troco.
+
+  Commit proposto
+
+  ci(infra): adiciona ci com os seis jobs
+
+  Quando eu fizer o push desse commit, a CI roda na sua branch pela primeira
+  vez.
+✻ Worked for 37s · done 23:36

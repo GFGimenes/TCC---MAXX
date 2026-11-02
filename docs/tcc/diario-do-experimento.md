@@ -319,5 +319,9 @@ Caddy; o agente testou resiliência além do critério (réplica parada, rodízi
 as duas paradas, dados sobrevivendo à recriação do Postgres). `infra/` entra no mapa
 do `CLAUDE.md` na etapa 8; porta 443, HSTS e CSP ficam no passo 13. Etapa 6 (`fundacao-r7`): e2e com Playwright em quatro projetos (desktop e celular,
 claro e escuro), conferindo moldura, cores dos tokens e chamada real pelo Caddy; o
-agente provou que o teste falha com a API fora. Sem decisão pedida. Pendentes: etapas
-7 e 8, PR, merge e fechamento da rodada.
+agente provou que o teste falha com a API fora. Sem decisão pedida. Etapa 7 (`fundacao-r8`): CI com os seis jobs, validada no Actions antes do commit com
+branches descartáveis em três cenários (verde, formato quebrado, contrato mudado sem
+regerar o cliente); o agente descobriu que `dotnet list package --vulnerable` sai com 0
+mesmo achando vulnerabilidade e filtrou com `jq`. Gatilho por push em qualquer branch,
+sem `pull_request`, decisão do autor; execuções das branches temporárias mantidas como
+registro. Pendentes: etapa 8, PR, merge e fechamento da rodada.
