@@ -1388,3 +1388,759 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
   Se aprovar, faço o commit, o push e sigo para a E4, já com o Docker ligado.
 
 ✻ Worked for 4m 9s · done 22:18
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
+
+❯ E3 aprovada. As três escolhas ficam: leitor estrito, teste no                 
+  IntegrationTests sem banco, versao do topo ignorada. Formata os dois JSON     
+  neste commit e inclui data/catalogo na checagem do Prettier, para a CI passar 
+  a conferir a pasta; é só formatação, sem mudar conteúdo, e o teste dos 46     
+  itens prova isso. Commita com a mensagem proposta, push, e segue para a E4    
+  com o Docker ligado; para para a minha revisão no fim dela.                   
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write data/catalogo/familias.json
+      data/catalogo/medalhas.json && git diff…)
+  ⎿  data/catalogo/familias.json 42ms
+     data/catalogo/medalhas.json 18ms
+      data/catalogo/conquistas.json           |  2 +-
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated data\catalogo\medalhas.json (+42 -6)
+      15        "periodoDeReferencia": "bimestre",
+      16        "repetivel": true,
+      17        "limitePorPeriodo": 2,
+      18 -      "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+         -stre", "ocorrencia"],                                          
+      18 +      "chaveDeDeduplicacao": [                                 
+      19 +        "aluno",                                               
+      20 +        "item",                                                
+      21 +        "materia",                                             
+      22 +        "bimestre",                                            
+      23 +        "ocorrencia"                                           
+      24 +      ],                                                       
+      25        "restricaoCurso": null,
+      26        "vigencia": { "inicio": null, "fim": null },
+      27        "familia": "nota-prova",
+     ...
+      38        "periodoDeReferencia": "bimestre",
+      39        "repetivel": true,
+      40        "limitePorPeriodo": 2,
+      35 -      "chaveDeDeduplicacao": ["aluno", "item", "materia", "bime
+         -stre", "ocorrencia"],                                          
+      41 +      "chaveDeDeduplicacao": [                                 
+      42 +        "aluno",                                               
+      43 +        "item",                                                
+      44 +        "materia",                                             
+      45 +        "bimestre",                                            
+      46 +        "ocorrencia"                                           
+      47 +      ],                                                       
+      48        "restricaoCurso": null,
+      49        "vigencia": { "inicio": null, "fim": null },
+      50        "familia": null,
+     ...
+      112        "periodoDeReferencia": "bimestre",
+      113        "repetivel": true,
+      114        "limitePorPeriodo": 3,
+      103 -      "chaveDeDeduplicacao": ["aluno", "item", "materia", "bim
+          -estre", "ocorrencia"],                                        
+      115 +      "chaveDeDeduplicacao": [                                
+      116 +        "aluno",                                              
+      117 +        "item",                                               
+      118 +        "materia",                                            
+      119 +        "bimestre",                                           
+      120 +        "ocorrencia"                                          
+      121 +      ],                                                      
+      122        "restricaoCurso": null,
+     … 44 more lines (ctrl+o to expand)
+  ⎿  Updated package.json (+2 -2)
+      10      "node": ">=22.12"
+      11    },
+      12    "scripts": {
+      13 -    "format": "prettier --write apps/mobile e2e packages",     
+      14 -    "format:check": "prettier --check apps/mobile e2e packages"
+      13 +    "format": "prettier --write apps/mobile e2e packages data/c
+         +atalogo",                                                      
+      14 +    "format:check": "prettier --check apps/mobile e2e packages 
+         +data/catalogo"                                                 
+      15    },
+      16    "devDependencies": {
+      17      "prettier": "^3.9.10"
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 7 lines
+      26          run: dotnet format Maxx.sln --verify-no-changes --no-re
+          store
+      27        - name: Build (aviso vira erro)
+      28          run: dotnet build Maxx.sln --no-restore -c Release
+      29 +      # O catálogo é dado da API, então a formatação dele é con
+         +ferida aqui. Sem `npm ci`:                                     
+      30 +      # só o Prettier, na versão travada no package-lock.json. 
+      31 +      - uses: actions/setup-node@v7                            
+      32 +        with:                                                  
+      33 +          node-version-file: .nvmrc                            
+      34 +      - name: Formatação do catálogo                           
+      35 +        run: npx --yes "prettier@$(node -p "require('./package-
+         +lock.json').packages['node_modules/prettier'].version")" --chec
+         +k data/catalogo                                                
+      36        # Passo próprio para a falha de catálogo ficar legível se
+          m abrir o log dos testes.
+      37        # Os mesmos testes rodam de novo no passo seguinte; sem b
+          anco, levam segundos.
+      38        - name: Catálogo válido
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A E3 está no commit 9357878, já enviado, e o Docker está ligado (29.8.2).
+  Começo a E4: primeiro vejo como o projeto gera migration.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O EF precisa de construtores sem parâmetros. Adiciono um privado em cada
+  entidade, sem mudar regra nenhuma.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Domain/Academico" && node -e "
+      const fs=require('fs');…)
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\AnoLetivo.cs (+3 -0)
+       4  {
+       5      private readonly List<SemestreLetivo> _semestres;
+       6  
+       7 +    // Para o EF Core materializar do banco.                   
+       8 +    private AnoLetivo() => _semestres = [];                    
+       9 +                                                               
+      10      public AnoLetivo(int ano, SemestreLetivo primeiro, Semestre
+          Letivo segundo)
+      11      {
+      12          ArgumentNullException.ThrowIfNull(primeiro);
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\Bimestre.cs (+5 -0)
+       6  {
+       7      public const int PorAno = SemestreLetivo.PorAno * SemestreL
+          etivo.BimestresPorSemestre;
+       8  
+       9 +    // Para o EF Core materializar do banco.                   
+      10 +    private Bimestre()                                         
+      11 +    {                                                          
+      12 +    }                                                          
+      13 +                                                               
+      14      public Bimestre(int numero, DateOnly inicio, DateOnly fim)
+      15      {
+      16          if (numero is < 1 or > PorAno)
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\CadastroElegivel.cs (+7 -0)
+       4  // liga a uma linha daqui, uma para uma. O papel vem daqui, nun
+          ca do domínio do e-mail.
+       5  public sealed class CadastroElegivel
+       6  {
+       7 +    // Para o EF Core materializar do banco.                   
+       8 +    private CadastroElegivel()                                 
+       9 +    {                                                          
+      10 +        Email = null!;                                         
+      11 +        NomeCompleto = null!;                                  
+      12 +    }                                                          
+      13 +                                                               
+      14      private CadastroElegivel(
+      15          Papeis papeis, string? ra, string email, string nomeCom
+          pleto, Guid? cursoId, int? semestre)
+      16      {
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\Curso.cs (+7 -0)
+       2  
+       3  public sealed class Curso
+       4  {
+       5 +    // Para o EF Core materializar do banco.                   
+       6 +    private Curso()                                            
+       7 +    {                                                          
+       8 +        Nome = null!;                                          
+       9 +        Sigla = null!;                                         
+      10 +    }                                                          
+      11 +                                                               
+      12      public Curso(string nome, string sigla, int duracaoEmSemest
+          res)
+      13      {
+      14          sigla = Texto.Obrigatorio(sigla, "A sigla do curso");
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\Materia.cs (+3 -0)
+       2  
+       3  public sealed class Materia
+       4  {
+       5 +    // Para o EF Core materializar do banco.                   
+       6 +    private Materia() => Nome = null!;                         
+       7 +                                                               
+       8      public Materia(Curso curso, string nome)
+       9      {
+      10          ArgumentNullException.ThrowIfNull(curso);
+  ⎿  … 4 more files changed
+
+● Ao carregar do banco, a ordem das coleções não é garantida. Então semestre e
+  ano passam a ordenar seus filhos na leitura, em vez de depender da ordem de
+  inserção.
+
+● Update(apps\api\src\Maxx.Domain\Academico\SemestreLetivo.cs)
+  ⎿  Added 4 lines, removed 3 lines
+      56  
+      57      public string Codigo => $"{Ano}/{Numero}";
+      58  
+      59 -    public IReadOnlyList<Bimestre> Bimestres => _bimestres;    
+      59 +    // Ordenado na leitura: vindo do banco, a coleção não garan
+         +te ordem.                                                      
+      60 +    public IReadOnlyList<Bimestre> Bimestres => [.. _bimestres.
+         +OrderBy(bimestre => bimestre.Numero)];                         
+      61  
+      61 -    public DateOnly Inicio => _bimestres[0].Inicio;            
+      62 +    public DateOnly Inicio => _bimestres.Min(bimestre => bimest
+         +re.Inicio);                                                    
+      63  
+      63 -    public DateOnly Fim => _bimestres[^1].Fim;                 
+      64 +    public DateOnly Fim => _bimestres.Max(bimestre => bimestre.
+         +Fim);                                                          
+      65  
+      66      public bool Contem(DateOnly data) => data >= Inicio && data
+           <= Fim;
+      67  }
+
+● Update(apps\api\src\Maxx.Domain\Academico\AnoLetivo.cs)
+  ⎿  Added 5 lines, removed 4 lines
+      37  
+      38      public int Ano { get; private set; }
+      39  
+      40 -    public IReadOnlyList<SemestreLetivo> Semestres => _semestre
+         -s;                                                             
+      40 +    // Ordenado na leitura: vindo do banco, a coleção não garan
+         +te ordem.                                                      
+      41 +    public IReadOnlyList<SemestreLetivo> Semestres => [.. _seme
+         +stres.OrderBy(semestre => semestre.Numero)];                   
+      42  
+      42 -    public IEnumerable<Bimestre> Bimestres => _semestres.Select
+         -Many(semestre => semestre.Bimestres);                          
+      43 +    public IEnumerable<Bimestre> Bimestres => Semestres.SelectM
+         +any(semestre => semestre.Bimestres);                           
+      44  
+      44 -    public DateOnly Inicio => _semestres[0].Inicio;            
+      45 +    public DateOnly Inicio => _semestres.Min(semestre => semest
+         +re.Inicio);                                                    
+      46  
+      46 -    public DateOnly Fim => _semestres[^1].Fim;                 
+      47 +    public DateOnly Fim => _semestres.Max(semestre => semestre.
+         +Fim);                                                          
+      48  }
+
+● Agora o mapeamento do EF, com uma configuração por entidade.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\CalendarioCo
+       nfiguration.cs)
+  ⎿  Wrote 57 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\CalendarioConfiguration.cs
+       1 using Maxx.Domain.Academico;
+       2 using Microsoft.EntityFrameworkCore;
+       4 
+       5 namespace Maxx.Infrastructure.Persistence.Configurations;
+       6 
+         mestres, o semestre dos
+       8 // bimestres. As chaves para o dono são de sombra, porque o domí
+         nio não as precisa.
+         uration<AnoLetivo>
+      10 {
+     … +61 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\AcademicoCon
+       figuration.cs)
+  ⎿  Wrote 141 lines to apps\api\src\Maxx.Infrastructure\Persistence\Config
+     urations\AcademicoConfiguration.cs
+       1 using Maxx.Domain.Academico;
+       2 using Microsoft.EntityFrameworkCore;
+       3 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       5 namespace Maxx.Infrastructure.Persistence.Configurations;
+       6 
+       7 // Entre agregados, nada apaga em cascata: matrícula e vínculo s
+         eguram turma e cadastro.
+         ion<Curso>
+       9 {
+      10     public void Configure(EntityTypeBuilder<Curso> builder)
+     … +160 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\MaxxDbContext.cs)
+  ⎿  Added 23 lines
+      1 +using Maxx.Domain.Academico;                                    
+      2  using Microsoft.EntityFrameworkCore;
+      3  
+      4  namespace Maxx.Infrastructure.Persistence;
+     ...
+       8  {
+       9      public const string MigrationsHistoryTable = "__ef_migratio
+          ns_history";
+      10  
+      11 +    public DbSet<Curso> Cursos => Set<Curso>();                
+      12 +                                                               
+      13 +    public DbSet<AnoLetivo> AnosLetivos => Set<AnoLetivo>();   
+      14 +                                                               
+      15 +    public DbSet<SemestreLetivo> SemestresLetivos => Set<Semest
+         +reLetivo>();                                                   
+      16 +                                                               
+      17 +    public DbSet<Materia> Materias => Set<Materia>();          
+      18 +                                                               
+      19 +    public DbSet<Turma> Turmas => Set<Turma>();                
+      20 +                                                               
+      21 +    public DbSet<CadastroElegivel> CadastrosElegiveis => Set<Ca
+         +dastroElegivel>();                                             
+      22 +                                                               
+      23 +    public DbSet<Matricula> Matriculas => Set<Matricula>();    
+      24 +                                                               
+      25 +    public DbSet<VinculoProfessor> VinculosProfessor => Set<Vin
+         +culoProfessor>();                                              
+      26 +                                                               
+      27      public static void Configure(DbContextOptionsBuilder option
+          s, Action<DbContextOptionsBuilder> useNpgsql)
+      28      {
+      29          useNpgsql(options);
+      30          options.UseSnakeCaseNamingConvention();
+      31      }
+      32 +                                                               
+      33 +    protected override void OnModelCreating(ModelBuilder modelB
+         +uilder)                                                        
+      34 +    {                                                          
+      35 +        modelBuilder.HasPostgresExtension("citext");           
+      36 +        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Max
+         +xDbContext).Assembly);                                         
+      37 +    }                                                          
+      38  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet tool restore >/dev/null && dotnet ef migrations add ModeloAcademico
+      --project apps…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+     20261102011317_Inicial.Designer.cs
+     20261102011317_Inicial.cs
+     … +3 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     03012359_ModeloAcademico.cs (+338 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class ModeloAcademico : Migration          
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.AlterDatabase()                  
+       15 +                .Annotation("Npgsql:PostgresExtension:citext",
+          + ",,");                                                       
+       16 +                                                              
+       17 +            migrationBuilder.CreateTable(                     
+       18 +                name: "ano_letivo",                           
+       19 +                columns: table => new                         
+       20 +                {                                             
+       21 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       22 +                    ano = table.Column<int>(type: "integer", n
+          +ullable: false)                                               
+       23 +                },                                            
+       24 +                constraints: table =>                         
+       25 +                {                                             
+       26 +                    table.PrimaryKey("pk_ano_letivo", x => x.i
+          +d);                                                           
+       27 +                });                                           
+       28 +                                                              
+       29 +            migrationBuilder.CreateTable(                     
+       30 +                name: "curso",                                
+       31 +                columns: table => new                         
+       32 +                {                                             
+       33 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       34 +                    nome = table.Column<string>(type: "text", 
+          +nullable: false),                                             
+       35 +                    sigla = table.Column<string>(type: "text",
+          + nullable: false),                                            
+       36 +                    duracao_em_semestres = table.Column<int>(t
+          +ype: "integer", nullable: false)                              
+       37 +                },                                            
+       38 +                constraints: table =>                         
+       39 +                {                                             
+       40 +                    table.PrimaryKey("pk_curso", x => x.id);  
+     … 298 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Encontrei três problemas antes de aceitar a migration: AnoLetivo.Bimestres
+  virou navegação por engano, as chaves de sombra do dono ficaram opcionais e os
+  DbSet no plural deixaram nomes de FK inconsistentes. Vou corrigir tudo e
+  gerar a migration novamente.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\CalendarioC
+        onfiguration.cs)
+  ⎿  Added 4 lines
+      18          builder.HasMany(ano => ano.Semestres)
+      19              .WithOne()
+      20              .HasForeignKey("AnoLetivoId")
+      21 +            .IsRequired()                                      
+      22              .OnDelete(DeleteBehavior.Cascade);
+      23          builder.Navigation(ano => ano.Semestres).HasField("_sem
+          estres");
+      24 +                                                               
+      25 +        // Atalho de leitura sobre os semestres, não uma relaçã
+         +o própria.                                                     
+      26 +        builder.Ignore(ano => ano.Bimestres);                  
+      27      }
+      28  }
+      29  
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\CalendarioC
+        onfiguration.cs)
+  ⎿  Added 1 line
+      40          builder.HasMany(semestre => semestre.Bimestres)
+      41              .WithOne()
+      42              .HasForeignKey("SemestreLetivoId")
+      43 +            .IsRequired()                                      
+      44              .OnDelete(DeleteBehavior.Cascade);
+      45          builder.Navigation(semestre => semestre.Bimestres).HasF
+          ield("_bimestres");
+      46      }
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\MaxxDbContext.cs)
+  ⎿  Added 3 lines, removed 18 lines
+       1 -using Maxx.Domain.Academico;                                   
+       1  using Microsoft.EntityFrameworkCore;
+       2  
+       3  namespace Maxx.Infrastructure.Persistence;
+       4  
+       6 -// O esquema cresce por passo: cada passo traz a sua migration.
+       5 +// O esquema cresce por passo: cada passo traz a sua migration.
+         + Sem DbSet: as entidades                                       
+       6 +// entram pelas configurações, cada uma com nome de tabela expl
+         +ícito, e o acesso é por                                        
+       7 +// Set<T>(). Um DbSet no plural vazaria para o nome das chaves 
+         +estrangeiras.                                                  
+       8  public sealed class MaxxDbContext(DbContextOptions<MaxxDbContex
+          t> options) : DbContext(options)
+       9  {
+      10      public const string MigrationsHistoryTable = "__ef_migratio
+          ns_history";
+      11  
+      11 -    public DbSet<Curso> Cursos => Set<Curso>();                
+      12 -                                                               
+      13 -    public DbSet<AnoLetivo> AnosLetivos => Set<AnoLetivo>();   
+      14 -                                                               
+      15 -    public DbSet<SemestreLetivo> SemestresLetivos => Set<Semest
+         -reLetivo>();                                                   
+      16 -                                                               
+      17 -    public DbSet<Materia> Materias => Set<Materia>();          
+      18 -                                                               
+      19 -    public DbSet<Turma> Turmas => Set<Turma>();                
+      20 -                                                               
+      21 -    public DbSet<CadastroElegivel> CadastrosElegiveis => Set<Ca
+         -dastroElegivel>();                                             
+      22 -                                                               
+      23 -    public DbSet<Matricula> Matriculas => Set<Matricula>();    
+      24 -                                                               
+      25 -    public DbSet<VinculoProfessor> VinculosProfessor => Set<Vin
+         -culoProfessor>();                                              
+      26 -                                                               
+      12      public static void Configure(DbContextOptionsBuilder option
+          s, Action<DbContextOptionsBuilder> useNpgsql)
+      13      {
+      14          useNpgsql(options);
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O migrations remove tentou conectar ao banco de design-time, que não existe.
+  Apago os dois arquivos à mão e restauro o snapshot pelo git.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      apps/api/src/Maxx.Infrastructure/Persistence/Migrations/*_ModeloAcademico
+      *.cs && git c…)
+  ⎿  Updated 1 path from the index
+     Compilação com êxito.
+     Done. To undo this action, use 'ef migrations remove'
+     … +22 lines (ctrl+o to expand)
+  ⎿  Deleted apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     03012359_ModeloAcademico.cs (+0 -338)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     03012501_ModeloAcademico.cs (+327 -0)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+7 -19)
+  ⎿  … 2 more files changed
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● A migration saiu limpa: chaves de sombra obrigatórias, nenhum
+  bimestre.ano_letivo_id e nomes de FK consistentes. Agora os testes de
+  integração.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\ModeloAcademicoTests.cs)
+  ⎿  Wrote 312 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\ModeloAcademicoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Infrastructure.Persistence;
+       3 using Microsoft.EntityFrameworkCore;
+       5 using Npgsql;
+       6 
+       7 namespace Maxx.Api.IntegrationTests;
+       8 
+         ta pelo EF e as
+      10 // constraints que seguram o dado mesmo quando ele não passa pel
+         o domínio.
+     … +367 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Antes de rodar, vou corrigir uma fragilidade: ao salvar uma Turma nova, o EF
+  poderia reinserir a Materia referenciada, mascarando a violação correta. Vou
+  ajustar o helper para anexar as referências como já existentes e fazer os
+  testes verificarem o nome da constraint, não só o código do erro.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs'); let s=fs.readF…)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\ModeloAcademicoTests.cs (+37 
+     -30)
+      10  // constraints que seguram o dado mesmo quando ele não passa pe
+          lo domínio.
+      11  public sealed class ModeloAcademicoTests(PostgresFixture postgr
+          es) : IClassFixture<PostgresFixture>
+      12  {
+      13 -    private const string ViolacaoDeUnicidade = PostgresErrorCod
+         -es.UniqueViolation;                                            
+      14 -    private const string ViolacaoDeCheck = PostgresErrorCodes.C
+         -heckViolation;                                                 
+      15 -                                                               
+      13      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      14  
+      15      [Fact]
+     ...
+      82  
+      83          var outro = CadastroElegivel.Aluno("123456", "outra@al.
+          unieduk.com.br", "Outra Pessoa", mundo.Computacao, 1);
+      84  
+      88 -        Assert.Equal(ViolacaoDeUnicidade, await FalhaAoSalvarAs
+         -ync(factory, outro));                                          
+      85 +        AssertUnicidade(await FalhaAoSalvarAsync(factory, outro
+         +), "ix_cadastro_elegivel_ra");                                 
+      86      }
+      87  
+      88      [Fact]
+     ...
+       94  
+       95          var outro = CadastroElegivel.Aluno("999999", "ANA@al.u
+           nieduk.com.br", "Ana Souza", mundo.Computacao, 1);
+       96  
+      100 -        Assert.Equal(ViolacaoDeUnicidade, await FalhaAoSalvarA
+          -sync(factory, outro));                                        
+       97 +        AssertUnicidade(await FalhaAoSalvarAsync(factory, outr
+          +o), "ix_cadastro_elegivel_email");                            
+       98      }
+       99  
+      100      [Fact]
+     ...
+      128          await using var factory = await BancoMigradoAsync();
+      129          await SalvarAsync(factory, new Curso("Ciência da Compu
+           tação", "CC", 8));
+      130  
+      134 -        Assert.Equal(ViolacaoDeUnicidade, await FalhaAoSalvarA
+          -sync(factory, new Curso("Ciências Contábeis", "CC", 8)));     
+      131 +        AssertUnicidade(await FalhaAoSalvarAsync(factory, new 
+          +Curso("Ciências Contábeis", "CC", 8)), "ix_curso_sigla");     
+      132      }
+      133  
+      134      [Fact]
+     ...
+      140  
+      141          var repetida = new Turma(mundo.BancoDeDados, mundo.Ano
+           .Semestres[1]);
+      142  
+      146 -        Assert.Equal(ViolacaoDeUnicidade, await FalhaAoSalvarA
+          -sync(factory, repetida));                                     
+      143 +        AssertUnicidade(await FalhaAoSalvarAsync(factory, repe
+          +tida), "ix_turma_materia_id_semestre_letivo_id");             
+      144      }
+      145  
+     … 120 more lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Nessa linha, as duas check constraints falhariam, e o Postgres reporta
+  primeiro a ck_cadastro_elegivel_aluno por ordem alfabética. Agora vou ajustar
+  o caso para o professor, onde só a constraint de papéis falha.
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\ModeloAcademicoTests.cs)
+  ⎿  Added 4 lines, removed 2 lines
+      205      }
+      206  
+      207      [Fact]
+      208 -    public async Task Aluno_que_acumula_papel_e_recusado_pelo_
+          -banco()                                                       
+      208 +    public async Task Acumulo_com_aluno_e_recusado_pelo_banco(
+          +)                                                             
+      209      {
+      210          await using var factory = await BancoMigradoAsync();
+      211          var mundo = new Mundo();
+      212          await SalvarAsync(factory, mundo.Todos());
+      213  
+      214 -        var falha = await FalhaNoSqlAsync(factory, "UPDATE cad
+          -astro_elegivel SET papeis = 3 WHERE ra = '123456'");          
+      214 +        // Professor (sem curso, sem semestre) virando também 
+          +aluno: só a regra de papéis falha.                            
+      215 +        var falha = await FalhaNoSqlAsync(                    
+      216 +            factory, $"UPDATE cadastro_elegivel SET papeis = 3
+          + WHERE id = '{mundo.Professor.Id}'");                         
+      217  
+      218          AssertCheck(falha, "ck_cadastro_elegivel_papeis");
+      219      }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Uma falha só, e com o mesmo motivo: ao salvar uma turma nova, o AddRange levou
+  junto a matéria que já estava no banco. Uso no caminho de sucesso o mesmo
+  helper de anexar.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs'); let s=fs.readF…)
+  ⎿  Compilação com êxito.
+     format 0
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\ModeloAcademicoTests.cs (+19 
+     -5)
+      119          var mundo = new Mundo();
+      120          await SalvarAsync(factory, mundo.Todos());
+      121  
+      122 -        await SalvarAsync(factory, CadastroElegivel.Instituica
+          -o("secretaria@unieduk.com.br", "Secretaria UniMax"));         
+      122 +        await AdicionarAsync(factory, CadastroElegivel.Institu
+          +icao("secretaria@unieduk.com.br", "Secretaria UniMax"));      
+      123      }
+      124  
+      125      [Fact]
+     ...
+      150          var mundo = new Mundo();
+      151          await SalvarAsync(factory, mundo.Todos());
+      152  
+      153 -        await SalvarAsync(factory, new Turma(mundo.BancoDeDado
+          -s, mundo.Ano.Semestres[0]));                                  
+      153 +        await AdicionarAsync(factory, new Turma(mundo.BancoDeD
+          +ados, mundo.Ano.Semestres[0]));                               
+      154      }
+      155  
+      156      [Fact]
+     ...
+      247          await db.SaveChangesAsync(Ct);
+      248      }
+      249  
+      250 -    private static async Task<PostgresException> FalhaAoSalvar
+          -Async(MaxxApiFactory factory, object entidade)                
+      250 +    // Grava só a entidade nova, num banco que já tem o que el
+          +a cita.                                                       
+      251 +    private static async Task AdicionarAsync(MaxxApiFactory fa
+          +ctory, object entidade)                                       
+      252      {
+      253          await using var scope = factory.Services.CreateAsyncSc
+           ope();
+      254          var db = scope.ServiceProvider.GetRequiredService<Maxx
+           DbContext>();
+      255 +        AnexarComoNova(db, entidade);                         
+      256 +        await db.SaveChangesAsync(Ct);                        
+      257 +    }                                                         
+      258  
+      255 -        // O que a entidade nova cita (a matéria da turma, por
+          - exemplo) já está no banco:                                   
+      256 -        // entra como inalterado, para a falha vir da entidade
+          - nova e não de uma cópia.                                     
+      259 +    // O que a entidade nova cita (a matéria da turma, por exe
+          +mplo) já está no banco:                                       
+      260 +    // entra como inalterado, para a gravação, ou a falha, vir
+          + só da entidade nova.                                         
+      261 +    private static void AnexarComoNova(MaxxDbContext db, objec
+          +t entidade)                                                   
+      262 +    {                                                         
+      263          db.Attach(entidade);
+      264          db.Entry(entidade).State = EntityState.Added;
+      265 +    }                                                         
+      266 +                                                              
+      267 +    private static async Task<PostgresException> FalhaAoSalvar
+          +Async(MaxxApiFactory factory, object entidade)                
+     … 8 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Os 161 testes passam, contando os 15 novos de integração com Postgres real.
+  Confiro ainda a migration aplicada pelo contêiner de migração e o estado da CI
+  do commit da E3.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A E3 está no commit 9357878, com os JSON formatados e o Prettier conferindo
+  data/catalogo no job api. Os três commits do passo passaram na CI.
+
+  A E4 está pronta para sua revisão e ainda sem commit. Os 161 testes passam,
+  contando 15 novos de integração com Postgres real, e o build e o dotnet format
+  estão limpos. O contêiner de migração do Compose aplicou ModeloAcademico e as
+  nove tabelas existem no banco.
+
+  O que entrou
+  - A migration 20261103012501_ModeloAcademico, com as tabelas curso,
+    ano_letivo, semestre_letivo, bimestre, materia, turma, cadastro_elegivel,
+    matricula e vinculo_professor.
+  - O mapeamento, em Persistence/Configurations/, com uma configuração por
+    entidade e o nome de cada tabela no singular, escrito à mão.
+  - Unicidade:
+    - sigla do curso; ano letivo; semestre por (ano, número); bimestre por
+      (semestre, número); matéria por (curso, nome);
+    - turma por (matéria, semestre);
+    - matrícula por (aluno, turma) e vínculo por (professor, turma);
+    - RA e e-mail do cadastro elegível.
+  - Checks no banco:
+    - número do semestre e do bimestre dentro do intervalo; fim do bimestre não
+      antes do início; duração do curso de pelo menos 1;
+    - papeis só aceita as quatro combinações válidas;
+    - um aluno tem RA, curso e semestre, e os outros papéis não têm curso nem
+      semestre.
+  - Índices por turma_id na matrícula e no vínculo. O do vínculo atende o ADR
+    0006: o escopo de turma do professor checado no banco.
+
+  Mudanças no domínio, sem mudar regra
+  - Cada entidade ganhou um construtor privado sem parâmetros, para o EF
+    materializar do banco.
+  - SemestreLetivo.Bimestres e AnoLetivo.Semestres agora ordenam por número na
+    leitura, e o início e o fim saem do menor e do maior valor. Vindo do banco,
+    a ordem da coleção não é garantida.
+
+  Escolhas minhas (confirme ou peça ajuste)
+  1. E-mail em citext. A unicidade não diferencia maiúsculas, e o valor fica
+     gravado como veio. Isso ativa a extensão citext no banco.
+  2. Os checks repetem invariantes do domínio no banco, porque a carga por CSV
+     da fase 2 pode não passar pelo domínio. A exceção é "semestre até a duração
+     do curso": a regra cruza duas tabelas e fica só no domínio.
+  3. O MaxxDbContext não tem DbSet; o acesso é por Set<T>(). Com DbSet no
+     plural, as FKs saíam com nomes inconsistentes, como
+     fk_cadastro_elegivel_cursos_curso_id ao lado de fk_materia_curso_curso_id.
+  4. Na mesma tabela, nada apaga em cascata entre agregados. Matrícula e vínculo
+     seguram turma e cadastro com Restrict. A cascata só vale dentro do
+     agregado do calendário: ano, semestres e bimestres.
+  5. Os testes conferem o nome da constraint violada, não só o código do erro,
+     para uma falha em outro lugar não passar como acerto.
+
+  Um tropeço no caminho: o dotnet ef migrations remove tenta conectar ao banco.
+  Para gerar de novo, apaguei os arquivos da migration e restaurei o snapshot
+  pelo git.
+
+  Commit proposto: feat(api): adiciona migration do modelo acadêmico
+
+  Se aprovar, faço o commit, o push e sigo para a E5, a migration do catálogo.
+
+✻ Sautéed for 9m 9s · done 22:29
