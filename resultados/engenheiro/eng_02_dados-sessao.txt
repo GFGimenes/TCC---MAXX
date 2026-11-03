@@ -2144,3 +2144,515 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
   Se aprovar, faço o commit, o push e sigo para a E5, a migration do catálogo.
 
 ✻ Sautéed for 9m 9s · done 22:29
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
+
+❯ E4 aprovada. As cinco escolhas ficam: citext no e-mail, checks no banco       
+  repetindo as invariantes exceto a que cruza tabelas, Set<T> sem DbSet,        
+  Restrict entre agregados e cascata só no calendário, teste conferindo o nome  
+  da constraint. Commita com a mensagem proposta, push, e segue para a E5; para 
+  para a minha revisão no fim dela.                                             
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E4 já está commitada (e76a45c). Vou começar a E5: criar a tabela
+  item_catalogo com classes próprias de infraestrutura
+  (ItemCatalogoRow/FamiliaRow), chave primária pelo codigo, começando por um
+  ajudante de camelCase compartilhado entre leitor e mapeamento.
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\NomeJson.cs)
+  ⎿  Wrote 29 lines to apps\api\src\Maxx.Infrastructure\Seed\NomeJson.cs
+       1 using System.Text.Json;
+       2 
+       3 namespace Maxx.Infrastructure.Seed;
+       5 // O catálogo escreve enumerações em camelCase ("premioParticipa
+         cao", "porFato"). O banco
+       6 // guarda o mesmo texto, para uma linha de item_catalogo ler com
+         o o JSON de origem.
+       8 {
+       9     public static string De<T>(T valor)
+      10         where T : struct, Enum => De(valor.ToString());
+     … +22 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Seed" && node -e "
+      const fs=require('fs'); let s=fs.readFile…)
+  ⎿  24:        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\CatalogoReader.cs (+4 
+     -9)
+      37              (ArquivoDeConquistas, TipoDeItem.Conquista),
+      38          })
+      39          {
+      40 -            var conteudo = LerArquivo<ItemJson>(diretorio, arqu
+         -ivo, Camel(tipo.ToString()), erros);                           
+      40 +            var conteudo = LerArquivo<ItemJson>(diretorio, arqu
+         +ivo, NomeJson.De(tipo), erros);                                
+      41              foreach (var item in conteudo)
+      42              {
+      43                  if (MapearItem(item, tipo, arquivo, erros) is {
+           } mapeado)
+     ...
+      192              case { ValueKind: JsonValueKind.Number } numero wh
+           en numero.TryGetInt32(out var fixo):
+      193                  return AlvoDeConquista.De(fixo);
+      194              case { ValueKind: JsonValueKind.String } texto
+      195 -                when texto.GetString() == Camel(nameof(AlvoDeC
+          -onquista.TodasAsMatriculasDoPeriodo)):                        
+      195 +                when texto.GetString() == NomeJson.De(nameof(A
+          +lvoDeConquista.TodasAsMatriculasDoPeriodo)):                  
+      196                  return AlvoDeConquista.TodasAsMatriculasDoPeri
+           odo;
+      197              default:
+      198                  campos.Erro($"regra.alvo {alvo} não é inteiro 
+           nem \"todasAsMatriculasDoPeriodo\".");
+     ...
+      214          return campos.Falhou ? null : familia;
+      215      }
+      216  
+      217 -    private static string Camel(string nome) => JsonNamingPoli
+          -cy.CamelCase.ConvertName(nome);                               
+      218 -                                                              
+      217      // Junta os erros de um item sem parar no primeiro.
+      218      private sealed class Campos(string referencia, List<ErroDe
+           Catalogo> erros)
+      219      {
+     ...
+      256                  return default;
+      257              }
+      258  
+      261 -            foreach (var candidato in System.Enum.GetValues<T>
+          -())                                                           
+      259 +            if (NomeJson.TentarLer<T>(valor, out var lido))   
+      260              {
+      263 -                if (Camel(candidato.ToString()) == valor)     
+      264 -                {                                             
+      265 -                    return candidato;                         
+      266 -                }                                             
+      261 +                return lido;                                  
+      262              }
+      263  
+      264              Erro($"{campo} \"{valor}\" desconhecido.");
+
+● Agora as linhas, o JSON da regra e o mapeamento.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\ItemCatalogoRow.cs)
+  ⎿  Wrote 70 lines to
+     apps\api\src\Maxx.Infrastructure\Persistence\ItemCatalogoRow.cs
+       1 namespace Maxx.Infrastructure.Persistence;
+       3 // Uma linha de item_catalogo: os três tipos numa tabela só, com
+          coluna de tipo. Campos
+       4 // comuns sempre preenchidos; os específicos de cada tipo, nulos
+       5 // constraint cobra isso). Enumerações em texto camelCase, como 
+         no JSON de origem.
+       7 // Não é o modelo do domínio: os itens do domínio são imutáveis,
+          e a versão é assunto do
+       8 // seeder (sobe quando o conteúdo muda; ADR 0007).
+      10 {
+     … +66 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\RegraDeConquistaJson.cs)
+  ⎿  Wrote 70 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\RegraDeConquistaJson.cs
+       1 using System.Text.Json;
+       2 using System.Text.Json.Nodes;
+       3 using Maxx.Domain.Catalogo;
+       4 
+       5 namespace Maxx.Infrastructure.Seed;
+       7 // A regra no mesmo formato de data/catalogo/conquistas.json, pa
+         ra a coluna jsonb ler
+       8 // como o arquivo. O avaliador do passo 9 lê daqui.
+       9 public static class RegraDeConquistaJson
+      10 {
+     … +74 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\CatalogoRowMapper.cs)
+  ⎿  Wrote 70 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\CatalogoRowMapper.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Infrastructure.Persistence;
+       3 
+       4 namespace Maxx.Infrastructure.Seed;
+       5 
+         ca de fora: quem decide
+       7 // é o seeder, comparando com o que já está no banco.
+       8 public static class CatalogoRowMapper
+       9 {
+      10     public static ItemCatalogoRow ParaRow(ItemCatalogo item)
+     … +68 lines (ctrl+o to expand)
+
+● Agora a configuração. As checks de tipo, tier e faixa de pontos são geradas
+  das próprias enumerações e de Tiers.Faixa, para o banco não ter uma segunda
+  cópia das faixas escrita à mão.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\CatalogoConf
+       iguration.cs)
+  ⎿  Wrote 83 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\CatalogoConfiguration.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Infrastructure.Seed;
+       4 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       5 
+       6 namespace Maxx.Infrastructure.Persistence.Configurations;
+       8 // O catálogo entra só pelo seeder, nunca por HasData em migrati
+         on. As checks repetem no
+       9 // banco o que o validador do domínio garante; as de tier e faix
+      10 // enumerações do domínio, para não haver uma segunda cópia das 
+         faixas escrita à mão.
+     … +102 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet build apps/api/src/Maxx.Infrastructure -c Debug 2>&1 | grep -E "
+      error | warning |…)
+  ⎿  Compilação com êxito.
+     Done. To undo this action, use 'ef migrations remove'
+             protected override void Up(MigrationBuilder migrationBuilder)
+     … +77 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     03013352_Catalogo.cs (+91 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class Catalogo : Migration                  
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "familia",                               
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    codigo = table.Column<string>(type: "text",
+         + nullable: false),                                             
+      19 +                    nome = table.Column<string>(type: "text", n
+         +ullable: false),                                               
+      20 +                    descricao = table.Column<string>(type: "tex
+         +t", nullable: false),                                          
+      21 +                    passos = table.Column<int>(type: "integer",
+         + nullable: false)                                              
+      22 +                },                                             
+      23 +                constraints: table =>                          
+      24 +                {                                              
+      25 +                    table.PrimaryKey("pk_familia", x => x.codig
+         +o);                                                            
+      26 +                    table.CheckConstraint("ck_familia_passos", 
+         +"passos >= 1");                                                
+      27 +                });                                            
+      28 +                                                               
+      29 +            migrationBuilder.CreateTable(                      
+      30 +                name: "item_catalogo",                         
+      31 +                columns: table => new                          
+      32 +                {                                              
+      33 +                    codigo = table.Column<string>(type: "text",
+         + nullable: false),                                             
+      34 +                    tipo = table.Column<string>(type: "text", n
+         +ullable: false),                                               
+      35 +                    versao = table.Column<int>(type: "integer",
+         + nullable: false, defaultValue: 1),                            
+      36 +                    nome = table.Column<string>(type: "text", n
+         +ullable: false),                                               
+      37 +                    descricao = table.Column<string>(type: "tex
+         +t", nullable: false),                                          
+      38 +                    tier = table.Column<string>(type: "text", n
+         +ullable: false),                                               
+      39 +                    pontos = table.Column<int>(type: "integer",
+         + nullable: false),                                             
+      40 +                    periodo = table.Column<string>(type: "text"
+         +, nullable: false),                                            
+     … 51 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+160 -0)
+      307                      b.ToTable("vinculo_professor", (string)nul
+           l);
+      308                  });
+      309  
+      310 +            modelBuilder.Entity("Maxx.Infrastructure.Persisten
+          +ce.FamiliaRow", b =>                                          
+      311 +                {                                             
+      312 +                    b.Property<string>("Codigo")              
+      313 +                        .HasColumnType("text")                
+      314 +                        .HasColumnName("codigo");             
+      315 +                                                              
+      316 +                    b.Property<string>("Descricao")           
+      317 +                        .IsRequired()                         
+      318 +                        .HasColumnType("text")                
+      319 +                        .HasColumnName("descricao");          
+      320 +                                                              
+      321 +                    b.Property<string>("Nome")                
+      322 +                        .IsRequired()                         
+      323 +                        .HasColumnType("text")                
+      324 +                        .HasColumnName("nome");               
+      325 +                                                              
+      326 +                    b.Property<int>("Passos")                 
+      327 +                        .HasColumnType("integer")             
+      328 +                        .HasColumnName("passos");             
+      329 +                                                              
+      330 +                    b.HasKey("Codigo")                        
+      331 +                        .HasName("pk_familia");               
+      332 +                                                              
+      333 +                    b.ToTable("familia", null, t =>           
+      334 +                        {                                     
+      335 +                            t.HasCheckConstraint("ck_familia_p
+          +assos", "passos >= 1");                                       
+      336 +                        });                                   
+      337 +                });                                           
+      338 +                                                              
+      339 +            modelBuilder.Entity("Maxx.Infrastructure.Persisten
+          +ce.ItemCatalogoRow", b =>                                     
+      340 +                {                                             
+      341 +                    b.Property<string>("Codigo")              
+      342 +                        .HasColumnType("text")                
+      343 +                        .HasColumnName("codigo");             
+      344 +                                                              
+      345 +                    b.Property<string>("Base")                
+      346 +                        .HasColumnType("text")                
+     … 132 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+● A migration saiu como planejado. Os testes de catálogo vão usar os mesmos
+  helpers de banco da E4, então levo esses helpers para uma classe
+  compartilhada, junto com o caminho do catálogo real.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\BancoDeTeste.cs)
+  ⎿  Wrote 97 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\BancoDeTeste.cs
+       1 using Maxx.Infrastructure.Persistence;
+       2 using Microsoft.EntityFrameworkCore;
+       3 using Microsoft.Extensions.DependencyInjection;
+       4 using Npgsql;
+       5 
+       7 
+       8 // O que os testes de persistência têm em comum: banco migrado, 
+         gravação e a falha que o
+       9 // Postgres devolve, conferida pelo nome da constraint.
+      10 internal static class BancoDeTeste
+     … +116 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs');…)
+  ⎿              resultado.Erros,
+                 erro => erro.Referencia == referencia && erro.Mensagem.Con
+     tains(trecho, StringComparison.Ordinal));
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\CatalogoArquivosTests.cs (+1 
+     -11)
+       8  // seeder lê, e falha mostrando o código do item. Sem banco.
+       9  public sealed class CatalogoArquivosTests : IDisposable
+      10  {
+      11 -    private static readonly string _diretorioReal = Path.Combin
+         -e(RaizDoRepositorio(), "data", "catalogo");                    
+      11 +    private static readonly string _diretorioReal = Repositorio
+         +.DiretorioDoCatalogo;                                          
+      12  
+      13      private readonly string _copia = Path.Combine(Path.GetTempP
+          ath(), $"maxx-catalogo-{Guid.NewGuid():N}");
+      14  
+     ...
+      130              erro => erro.Referencia == referencia && erro.Mens
+           agem.Contains(trecho, StringComparison.Ordinal));
+      131      }
+      132  
+      133 -    private static string RaizDoRepositorio()                 
+      134 -    {                                                         
+      135 -        var diretorio = new DirectoryInfo(AppContext.BaseDirec
+          -tory);                                                        
+      136 -        while (diretorio is not null && !File.Exists(Path.Comb
+          -ine(diretorio.FullName, "Maxx.sln")))                         
+      137 -        {                                                     
+      138 -            diretorio = diretorio.Parent;                     
+      139 -        }                                                     
+      140 -                                                              
+      141 -        return diretorio?.FullName ?? throw new InvalidOperati
+          -onException("Raiz do repositório não encontrada.");           
+      142 -    }                                                         
+      133  }
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\ModeloAcademicoTests.cs (+2 
+     -63)
+      3  using Microsoft.EntityFrameworkCore;
+      4  using Microsoft.Extensions.DependencyInjection;
+      5  using Npgsql;
+      6 +using static Maxx.Api.IntegrationTests.BancoDeTeste;            
+      7  
+      8  namespace Maxx.Api.IntegrationTests;
+      9  
+     ...
+      233          AssertCheck(falha, "ck_cadastro_elegivel_aluno");
+      234      }
+      235  
+      235 -    private async Task<MaxxApiFactory> BancoMigradoAsync()    
+      236 -    {                                                         
+      237 -        var factory = new MaxxApiFactory(await postgres.Create
+          -DatabaseAsync());                                             
+      238 -        await factory.MigrateAsync(Ct);                       
+      239 -        return factory;                                       
+      240 -    }                                                         
+      241 -                                                              
+      242 -    private static async Task SalvarAsync(MaxxApiFactory facto
+          -ry, params object[] entidades)                                
+      243 -    {                                                         
+      244 -        await using var scope = factory.Services.CreateAsyncSc
+          -ope();                                                        
+      245 -        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          -DbContext>();                                                 
+      246 -        db.AddRange(entidades);                               
+      247 -        await db.SaveChangesAsync(Ct);                        
+      248 -    }                                                         
+      249 -                                                              
+      250 -    // Grava só a entidade nova, num banco que já tem o que el
+          -a cita.                                                       
+      251 -    private static async Task AdicionarAsync(MaxxApiFactory fa
+          -ctory, object entidade)                                       
+      252 -    {                                                         
+      253 -        await using var scope = factory.Services.CreateAsyncSc
+          -ope();                                                        
+      254 -        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          -DbContext>();                                                 
+      255 -        AnexarComoNova(db, entidade);                         
+      256 -        await db.SaveChangesAsync(Ct);                        
+      257 -    }                                                         
+      258 -                                                              
+      259 -    // O que a entidade nova cita (a matéria da turma, por exe
+          -mplo) já está no banco:                                       
+      260 -    // entra como inalterado, para a gravação, ou a falha, vir
+          - só da entidade nova.                                         
+      261 -    private static void AnexarComoNova(MaxxDbContext db, objec
+          -t entidade)                                                   
+      262 -    {                                                         
+      263 -        db.Attach(entidade);                                  
+      264 -        db.Entry(entidade).State = EntityState.Added;         
+     … 37 more lines (ctrl+o to expand)
+
+● Agora os testes do catálogo no banco.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\CatalogoPersistenciaTests.cs)
+  ⎿  Wrote 170 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\CatalogoPersistenciaTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Infrastructure.Persistence;
+       3 using Maxx.Infrastructure.Seed;
+       4 using Microsoft.EntityFrameworkCore;
+       5 using Microsoft.Extensions.DependencyInjection;
+       7 
+       8 namespace Maxx.Api.IntegrationTests;
+       9 
+      10 // item_catalogo e familia no Postgres real, com os 46 itens de 
+         data/catalogo/.
+     … +200 lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste de "tipo desconhecido" acaba conferindo a constraint de campos por
+  tipo, e não a de tipo. Seria um teste com nome enganoso, então tiro.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs'); let s=fs.readF…)
+  ⎿  Compilação com êxito.
+     format 0
+       total: 176
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\CatalogoPersistenciaTests.cs
+     (+0 -12)
+      137          AssertCheck(falha, "ck_item_catalogo_campos_por_tipo")
+           ;
+      138      }
+      139  
+      140 -    [Fact]                                                    
+      141 -    public async Task Tipo_desconhecido_e_recusado_pelo_banco(
+          -)                                                             
+      142 -    {                                                         
+      143 -        await using var factory = await CatalogoGravadoAsync()
+          -;                                                             
+      144 -                                                              
+      145 -        var falha = await FalhaNoSqlAsync(factory, "UPDATE ite
+          -m_catalogo SET tipo = 'trofeu' WHERE codigo = 'C01'");        
+      146 -                                                              
+      147 -        // As checks rodam em ordem alfabética: a de campos po
+          -r tipo vem antes da de tipo,                                  
+      148 -        // e também falha, porque 'trofeu' não casa com nenhum
+          - dos três ramos.                                              
+      149 -        AssertCheck(falha, "ck_item_catalogo_campos_por_tipo")
+          -;                                                             
+      150 -    }                                                         
+      151 -                                                              
+      140      [Fact]
+      141      public async Task Familia_com_ordem_sem_codigo_e_recusada_
+           pelo_banco()
+      142      {
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E4 está no commit e76a45c, já enviado.
+
+  A E5 está pronta para sua revisão e ainda sem commit. Os 176 testes passam,
+  contando 15 novos com Postgres real, e o build e o dotnet format estão limpos.
+
+  O que entrou
+  - A migration 20261103013352_Catalogo, com as tabelas familia e item_catalogo.
+    - Os três tipos ficam na mesma tabela, com a coluna tipo e a versao
+      começando em 1.
+    - Os campos de cada tipo são colunas opcionais; a chave de deduplicação vira
+      text[] e a regra vira jsonb.
+  - Checks no banco:
+    - tipo e tier só aceitam os valores conhecidos;
+    - os pontos ficam na faixa do tier;
+    - a versão é pelo menos 1;
+    - família e ordem vêm juntas, e a vigência não termina antes de começar;
+    - cada tipo preenche só os seus campos.
+
+    As checks de tipo, de tier e de faixa são geradas de Tiers.Faixa e das
+    enumerações do domínio, então não existe uma segunda cópia das faixas
+    escrita à mão.
+  - Índices e chave estrangeira: um índice único por (família, ordem) e uma FK
+    para familia com Restrict.
+  - O mapeamento, em Infrastructure/Seed/:
+    - CatalogoRowMapper transforma o item do domínio em linha;
+    - RegraDeConquistaJson escreve e lê a regra no mesmo formato do
+      conquistas.json, e é por ela que o avaliador do passo 9 vai ler;
+    - NomeJson concentra a grafia em camelCase, agora usada também pelo leitor
+      da E3.
+  - Os testes gravam os 46 itens reais e as 8 famílias e conferem:
+    - a ida e volta campo a campo, e a regra voltando igual do jsonb;
+    - que a regra pode ser consultada por SQL (regra ->> 'alvo');
+    - a recusa de código repetido, ordem repetida na família, família
+      inexistente, pontos fora da faixa e campo de outro tipo, cada uma pelo
+      nome da constraint.
+
+  Escolhas minhas (confirme ou peça ajuste)
+  1. A linha da tabela é uma classe da Infrastructure (ItemCatalogoRow), não o 
+     record do domínio. Os itens do domínio continuam imutáveis, e a versão, que
+     é assunto do seeder, mora só na linha. Quando um passo futuro precisar do
+     item, a leitura do banco devolve o modelo do domínio.
+  2. A chave primária é o codigo (M01, C12), não um id gerado. Ele é a
+     identidade estável que o seeder usa, e os prêmios futuros vão apontar para
+     ele.
+  3. Uma só coluna periodo, que guarda o periodoDeReferencia da medalha e do
+     prêmio de participação e o periodo da conquista.
+  4. As enumerações ficam em texto camelCase, igual ao JSON
+     ('premioParticipacao', 'porFato'). Assim uma linha lida por SQL é fácil de
+     entender.
+  5. restricao_curso não tem FK para o curso. O catálogo entra no seed base,
+     antes de os cursos do demo existirem.
+  6. Os helpers de banco dos testes de integração foram para a nova classe 
+     BancoDeTeste, junto com o caminho do repositório. Por isso
+     ModeloAcademicoTests e CatalogoArquivosTests, da E3 e da E4, também
+     mudaram, sem mudança de comportamento.
+
+  Commit proposto: feat(api): adiciona migration do catálogo
+
+  Se aprovar, faço o commit, o push e sigo para a E6, o seeder base.
+
+✻ Churned for 5m 32s · done 22:37
