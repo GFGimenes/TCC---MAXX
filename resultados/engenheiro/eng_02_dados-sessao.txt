@@ -1165,3 +1165,226 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
   roda este validador na CI.
 
 ✻ Cogitated for 7m 38s · done 22:11
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
+
+❯ E2 aprovada. As cinco regras derivadas ficam todas: repetível, ocorrência e   
+  limite juntos; todasAsMatriculasDoPeriodo só com fechamentoDePeriodo; período 
+  curso nunca fecha; fonte ambos sem agrupamento; filtroItens vazio é erro e    
+  null é qualquer item. Commita com a mensagem proposta, push, e segue para a   
+  E3; para para a minha revisão no fim dela.                                    
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E2 foi para o commit cf46174, já enviado. Começo a E3: primeiro tiro a frase
+  desatualizada dos três JSON.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/ Os campos familia e ordemNaFamilia são preenchidos na etapa
+      E0\.2c\.//' data/c…)
+  ⎿   data/catalogo/conquistas.json           | 2 +-
+      data/catalogo/medalhas.json             | 2 +-
+      data/catalogo/premios-participacao.json | 2 +-
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated data\catalogo\conquistas.json (+1 -1)
+      1  {
+      2    "versao": 1,
+      3    "tipo": "conquista",
+      4 -  "observacao": "Conquista é automática: o sistema calcula. Cont
+        -a medalhas e prêmios de participação definitivos e nunca conta o
+        -utra conquista. Não é revogável, só recalculada. A contagem nunc
+        -a atravessa o período. Repetível uma vez por instância do períod
+        -o. Pontua no semestre do período a que se refere, mesmo quando c
+        -alculada depois. Especificação do avaliador em docs/regras-conqu
+        -ista.md. Os campos familia e ordemNaFamilia são preenchidos na e
+        -tapa E0.2c.",                                                   
+      4 +  "observacao": "Conquista é automática: o sistema calcula. Cont
+        +a medalhas e prêmios de participação definitivos e nunca conta o
+        +utra conquista. Não é revogável, só recalculada. A contagem nunc
+        +a atravessa o período. Repetível uma vez por instância do períod
+        +o. Pontua no semestre do período a que se refere, mesmo quando c
+        +alculada depois. Especificação do avaliador em docs/regras-conqu
+        +ista.md.",                                                      
+      5    "itens": [
+      6      {
+      7        "codigo": "C01",
+  ⎿  Updated data\catalogo\medalhas.json (+1 -1)
+      1  {
+      2    "versao": 1,
+      3    "tipo": "medalha",
+      4 -  "observacao": "Medalha é concessão humana do professor, sempre
+        - sobre fato registrado de nota ou presença, apenas em turmas do 
+        -semestre vigente. Sempre Bronze, salvo as duas de fechamento de 
+        -matéria, que são Prata. Não é contestável nem revogável; a insti
+        -tuição pode anular. Os campos familia e ordemNaFamilia são preen
+        -chidos na etapa E0.2c.",                                        
+      4 +  "observacao": "Medalha é concessão humana do professor, sempre
+        + sobre fato registrado de nota ou presença, apenas em turmas do 
+        +semestre vigente. Sempre Bronze, salvo as duas de fechamento de 
+        +matéria, que são Prata. Não é contestável nem revogável; a insti
+        +tuição pode anular.",                                           
+      5    "regraDeRepeticao": "limitePorPeriodo é quantas vezes a medalh
+         a pode ser concedida ao mesmo aluno, na mesma matéria, pelo prof
+         essor daquela turma, dentro do período de referência. Os limites
+          seguem a estrutura real de avaliação: por bimestre, cada matéri
+         a tem prova e prova integrativa, mais presença ou trabalhos a cr
+         itério do professor. Prova substitutiva e prova de recuperação n
+         ão geram medalha de nota: são segunda chance, não mérito novo. N
+         os itens repetíveis, ocorrencia entra na chave de deduplicação e
+          é o que o limite controla.",
+      6    "itens": [
+      7      {
+  ⎿  Updated data\catalogo\premios-participacao.json (+1 -1)
+      1  {
+      2    "versao": 1,
+      3    "tipo": "premioParticipacao",
+      4 -  "observacao": "Prêmio de participação é reivindicado pelo alun
+        -o com um post com foto e aprovado pelo professor de qualquer tur
+        -ma dele no semestre vigente ou pela instituição, valendo quem ch
+        -ega primeiro; a instituição também pode conceder já aprovado, se
+        -m comprovação. Conta no semestre do evento. Tem janela de contes
+        -tação de 15 dias e é o único tipo revogável. Só entra em contage
+        -m de conquista depois de definitivo. Os campos familia e ordemNa
+        -Familia são preenchidos na etapa E0.2c.",                       
+      4 +  "observacao": "Prêmio de participação é reivindicado pelo alun
+        +o com um post com foto e aprovado pelo professor de qualquer tur
+        +ma dele no semestre vigente ou pela instituição, valendo quem ch
+        +ega primeiro; a instituição também pode conceder já aprovado, se
+        +m comprovação. Conta no semestre do evento. Tem janela de contes
+        +tação de 15 dias e é o único tipo revogável. Só entra em contage
+        +m de conquista depois de definitivo.",                          
+      5    "regraDeDeduplicacao": "Um aluno tem um prêmio por evento. Qua
+         ndo o evento vem do seed, a chave é aluno + evento. Quando o eve
+         nto é texto livre, a chave degrada para aluno + item + data do e
+         vento. P17 é a exceção: aluno + item + data do evento + matéria.
+         ",
+      6    "itens": [
+      7      {
+
+● Agora o leitor dos JSON, na Infrastructure.
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\CatalogoReader.cs)
+  ⎿  Wrote 285 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\CatalogoReader.cs
+       1 using System.Text.Json;
+       2 using Maxx.Domain.Catalogo;
+       4 namespace Maxx.Infrastructure.Seed;
+       5 
+       6 // Erros vazios: o catálogo foi lido e passou no validador do do
+       7 public sealed record CatalogoReadResult(Catalogo? Catalogo, IRea
+         dOnlyList<ErroDeCatalogo> Erros)
+       8 {
+          0;
+      10 }
+     … +322 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\CatalogoJson.cs)
+  ⎿  Wrote 105 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\CatalogoJson.cs
+       1 using System.Text.Json;
+       2 
+       3 namespace Maxx.Infrastructure.Seed;
+       5 // A forma dos arquivos de data/catalogo/. Tudo opcional aqui: a
+          falta de um campo vira
+       6 // erro com o código do item no CatalogoReader, em vez de uma ex
+         ceção genérica.
+       8 {
+       9     private sealed class ArquivoJson<T>
+      10     {
+     … +97 lines (ctrl+o to expand)
+
+● Agora os testes contra os arquivos reais e contra cópias quebradas de
+  propósito.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\CatalogoArquivosTests.cs)
+  ⎿  Wrote 143 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\CatalogoArquivosTests.cs
+       1 using System.Text.Json.Nodes;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Infrastructure.Seed;
+       4 
+       5 namespace Maxx.Api.IntegrationTests;
+       7 // A validação do catálogo na CI (ADR 0004): lê os arquivos de d
+         ata/catalogo/ como o
+       8 // seeder lê, e falha mostrando o código do item. Sem banco.
+       9 public sealed class CatalogoArquivosTests : IDisposable
+      10 {
+     … +163 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O catálogo real passou de primeira, e as sete quebras de propósito falharam
+  com a referência certa. Agora o passo próprio na CI.
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 6 lines
+      26          run: dotnet format Maxx.sln --verify-no-changes --no-re
+          store
+      27        - name: Build (aviso vira erro)
+      28          run: dotnet build Maxx.sln --no-restore -c Release
+      29 +      # Passo próprio para a falha de catálogo ficar legível se
+         +m abrir o log dos testes.                                      
+      30 +      # Os mesmos testes rodam de novo no passo seguinte; sem b
+         +anco, levam segundos.                                          
+      31 +      - name: Catálogo válido                                  
+      32 +        run: >-                                                
+      33 +          dotnet test --project apps/api/tests/Maxx.Api.Integra
+         +tionTests --no-build -c Release                                
+      34 +          --filter-class Maxx.Api.IntegrationTests.CatalogoArqu
+         +ivosTests                                                      
+      35        - name: Testes (domínio, arquitetura e integração com Pos
+          tgres real)
+      36          run: dotnet test --solution Maxx.sln --no-build -c Rele
+          ase
+      37  
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A E3 está pronta para sua revisão e ainda sem commit. Os 10 testes de catálogo
+  passam sem banco, e o build e o dotnet format estão limpos. O catálogo real
+  passou no validador de primeira, com os 46 itens e as 8 famílias.
+
+  O que entrou
+  - O leitor, em apps/api/src/Maxx.Infrastructure/Seed/CatalogoReader.cs, com a
+    forma dos arquivos em CatalogoJson.cs. Ele lê os quatro JSON e roda o
+    CatalogoValidator. Cada erro traz o código do item, ou o nome do arquivo
+    quando o problema é do arquivo. Um campo que falta ou um valor fora da lista
+    não interrompe a leitura: aparece na lista de erros, como as falhas do
+    validador.
+  - Os testes, em
+    apps/api/tests/Maxx.Api.IntegrationTests/CatalogoArquivosTests.cs:
+    - os arquivos reais são válidos e têm 11 medalhas, 17 prêmios de
+      participação, 18 conquistas e 8 famílias;
+    - as regras são lidas com alvo fixo e com alvo dinâmico;
+    - cópias quebradas de propósito falham na referência certa. Os casos são:
+      pontos fora da faixa, filtroItens apontando para M99, "porfato" com a
+      maiúscula trocada, campo tier ausente, campo desconhecido raridade, item
+      de outro tipo no arquivo de medalhas e arquivo de famílias ausente.
+  - A CI: o job api ganhou o passo "Catálogo válido", antes do passo geral de
+    testes.
+  - Os três JSON: tirei a frase da etapa "E0.2c" das observacao.
+
+  Escolhas minhas (confirme ou peça ajuste)
+  1. O leitor é estrito.
+     - Um campo que não existe no formato é erro, para um erro de digitação como
+       limitPorPeriodo não sumir em silêncio.
+     - Um valor de enumeração só vale escrito exatamente em camelCase.
+     - Um item do tipo errado dentro de um arquivo é erro.
+  2. O teste mora em Maxx.Api.IntegrationTests, porque é o projeto de teste que
+     já enxerga a Infrastructure. Ele não usa banco nem Docker.
+  3. O versao: 1 do topo de cada arquivo é lido e ignorado. A versão que importa
+     é a de cada item, que chega na E5 e na E6.
+
+  Fora do escopo, mas você deve saber: o Prettier acusa formatação em
+  data/catalogo/familias.json e medalhas.json. Isso já acontecia antes desta
+  etapa, e a CI não confere essa pasta. Posso formatar os dois neste mesmo
+  commit, ou deixar como está.
+
+  Commit proposto: ci(api): valida o catálogo na ci
+
+  Se aprovar, faço o commit, o push e sigo para a E4, já com o Docker ligado.
+
+✻ Worked for 4m 9s · done 22:18
