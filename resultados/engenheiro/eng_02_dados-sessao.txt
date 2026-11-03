@@ -2656,3 +2656,784 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
   Se aprovar, faço o commit, o push e sigo para a E6, o seeder base.
 
 ✻ Churned for 5m 32s · done 22:37
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
+
+❯ E5 aprovada. As seis escolhas ficam: linha na Infrastructure com a versão,    
+  codigo como chave primária, uma coluna periodo, enumerações em camelCase,     
+  restricao_curso sem FK, helpers em BancoDeTeste. Sobre a 5: como o banco não  
+  garante, o seed demo confere que toda restricao_curso do catálogo aponta para 
+  uma sigla de curso existente, e falha se não apontar. Commita com a mensagem  
+  proposta, push, e segue para a E6; para para a minha revisão no fim dela.     
+
+● A E5 vai para o commit agora. Anoto a sua condição para a E7: o seed demo
+  confere que toda restricao_curso do catálogo aponta para uma sigla de curso
+  existente, e falha se não apontar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● E5 está enviada no commit b5287b7. Agora começo a E6 pelo domínio: o
+  calendário ficará num arquivo de dados para permitir correção de datas via
+  seed, e vou adicionar AtualizarDatas ao AnoLetivo para permitir corrigir as
+  datas de um ano já no banco sem alterar seus ids.
+
+● Update(apps\api\src\Maxx.Domain\Academico\Bimestre.cs)
+  ⎿  Added 13 lines
+      38      public DateOnly Fim { get; private set; }
+      39  
+      40      public bool Contem(DateOnly data) => data >= Inicio && data
+           <= Fim;
+      41 +                                                               
+      42 +    // Só pelo AnoLetivo, que valida o ano corrigido inteiro an
+         +tes de copiar as datas.                                        
+      43 +    internal bool Redatar(DateOnly inicio, DateOnly fim)       
+      44 +    {                                                          
+      45 +        if (inicio == Inicio && fim == Fim)                    
+      46 +        {                                                      
+      47 +            return false;                                      
+      48 +        }                                                      
+      49 +                                                               
+      50 +        Inicio = inicio;                                       
+      51 +        Fim = fim;                                             
+      52 +        return true;                                           
+      53 +    }                                                          
+      54  }
+
+● Update(apps\api\src\Maxx.Domain\Academico\AnoLetivo.cs)
+  ⎿  Added 21 lines
+      45      public DateOnly Inicio => _semestres.Min(semestre => semest
+          re.Inicio);
+      46  
+      47      public DateOnly Fim => _semestres.Max(semestre => semestre.
+          Fim);
+      48 +                                                               
+      49 +    // Corrige as datas a partir de um ano já construído, e por
+         +tanto já validado inteiro.                                     
+      50 +    // Os ids ficam: turmas e prêmios apontam para estes semest
+         +res e bimestres. Devolve se                                    
+      51 +    // alguma data mudou.                                      
+      52 +    public bool AtualizarDatas(AnoLetivo corrigido)            
+      53 +    {                                                          
+      54 +        ArgumentNullException.ThrowIfNull(corrigido);          
+      55 +                                                               
+      56 +        if (corrigido.Ano != Ano)                              
+      57 +        {                                                      
+      58 +            throw new DomainException($"O ano letivo {Ano} não 
+         +pode receber as datas de {corrigido.Ano}.");                   
+      59 +        }                                                      
+      60 +                                                               
+      61 +        var mudou = false;                                     
+      62 +        foreach (var (atual, novo) in Bimestres.Zip(corrigido.B
+         +imestres))                                                     
+      63 +        {                                                      
+      64 +            mudou |= atual.Redatar(novo.Inicio, novo.Fim);     
+      65 +        }                                                      
+      66 +                                                               
+      67 +        return mudou;                                          
+      68 +    }                                                          
+      69  }
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Academico\AnoLetivoTests.cs)
+  ⎿  Added 37 lines
+       85      }
+       86  
+       87      [Fact]
+       88 +    public void Atualizar_datas_copia_as_datas_e_mantem_os_ids
+          +()                                                            
+       89 +    {                                                         
+       90 +        var ano = Ano();                                      
+       91 +        var idsAntes = ano.Bimestres.Select(bimestre => bimest
+          +re.Id).ToList();                                              
+       92 +        var corrigido = new AnoLetivo(                        
+       93 +            2026,                                             
+       94 +            Primeiro(),                                       
+       95 +            new SemestreLetivo(                               
+       96 +                2026, 2, new Bimestre(3, Data(8, 3), Data(9, 2
+          +6)), new Bimestre(4, Data(9, 28), Data(12, 12))));            
+       97 +                                                              
+       98 +        Assert.True(ano.AtualizarDatas(corrigido));           
+       99 +                                                              
+      100 +        Assert.Equal(idsAntes, ano.Bimestres.Select(bimestre =
+          +> bimestre.Id));                                              
+      101 +        Assert.Equal(Data(8, 3), ano.Semestres[1].Inicio);    
+      102 +        Assert.Equal(Data(12, 12), ano.Fim);                  
+      103 +    }                                                         
+      104 +                                                              
+      105 +    [Fact]                                                    
+      106 +    public void Atualizar_com_as_mesmas_datas_nao_muda_nada() 
+      107 +    {                                                         
+      108 +        Assert.False(Ano().AtualizarDatas(Ano()));            
+      109 +    }                                                         
+      110 +                                                              
+      111 +    [Fact]                                                    
+      112 +    public void Atualizar_com_datas_de_outro_ano_e_recusado() 
+      113 +    {                                                         
+      114 +        var de2027 = new AnoLetivo(                           
+      115 +            2027,                                             
+      116 +            new SemestreLetivo(                               
+      117 +                2027, 1, new Bimestre(1, Data(1, 26), Data(4, 
+          +3)), new Bimestre(2, Data(4, 6), Data(6, 27))),               
+      118 +            new SemestreLetivo(                               
+      119 +                2027, 2, new Bimestre(3, Data(7, 27), Data(9, 
+          +26)), new Bimestre(4, Data(9, 28), Data(12, 5))));            
+      120 +                                                              
+      121 +        Assert.Throws<DomainException>(() => Ano().AtualizarDa
+          +tas(de2027));                                                 
+      122 +    }                                                         
+      123 +                                                              
+      124 +    [Fact]                                                    
+      125      public void Semestres_que_se_sobrepoem_sao_recusados()
+      126      {
+      127          var segundoCedo = new SemestreLetivo(
+
+● Agora o arquivo do calendário, com as datas que você declarou.
+
+● Write(data\calendario\2026.json)
+  ⎿  Wrote 20 lines to data\calendario\2026.json
+      1 {
+      3   "observacao": "Datas aproximadas, declaradas pelo autor do proj
+        . Podem ser corrigidas editando este arquivo e rodando de novo o 
+        seed base, sem mudar código; os ids de semestre e bimestre ficam,
+        s bimestres são numerados de 1 a 4 no ano: o semestre 1 tem o 1 e
+         em America/Sao_Paulo.",
+      5     {
+      6       "numero": 1,
+      8         { "numero": 1, "inicio": "2026-01-26", "fim": "2026-04-03
+      9         { "numero": 2, "inicio": "2026-04-06", "fim": "2026-
+     … +19 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\CalendarioReader.cs)
+  ⎿  Wrote 108 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\CalendarioReader.cs
+       1 using System.Text.Json;
+       2 using System.Text.Json.Serialization;
+       3 using Maxx.Domain;
+       5 
+       6 namespace Maxx.Infrastructure.Seed;
+       7 
+       8 // Lê data/calendario/*.json, um arquivo por ano letivo. A valid
+       9 // calendário só existe se os construtores de AnoLetivo e Calend
+         ario aceitarem.
+      10 public static class CalendarioReader
+     … +112 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\SeedException.cs)
+  ⎿  Wrote 17 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\SeedException.cs
+       1 namespace Maxx.Infrastructure.Seed;
+       2 
+       3 // O seed recusou os dados. Nada foi gravado: o seed roda numa t
+         ransação só.
+       4 public sealed class SeedException : Exception
+       6     public SeedException()
+       7     {
+       8     }
+       9 
+      10     public SeedException(string message) : base(message)
+     … +9 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\SeedOptions.cs)
+  ⎿  Wrote 28 lines to apps\api\src\Maxx.Infrastructure\Seed\SeedOptions.cs
+       1 namespace Maxx.Infrastructure.Seed;
+       2 
+       3 public sealed class SeedOptions
+       4 {
+       5     public const string Section = "Seed";
+       7     // Onde estão catalogo/ e calendario/. Relativo ao diretório
+          de trabalho: "data" na
+       8     // raiz do repositório e em /app/data na imagem.
+       9     public string DiretorioDeDados { get; set; } = "data";
+      10 }
+     … +20 lines (ctrl+o to expand)
+
+● Agora a comparação e a cópia de conteúdo da linha, que decidem quando a versão
+  sobe.
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\CatalogoRowMapper.cs)
+  ⎿  Added 41 lines
+       67      }
+       68  
+       69      private static string[] Chave(IReadOnlyList<CampoDeDedupli
+           cacao> chave) => [.. chave.Select(NomeJson.De)];
+       70 +                                                              
+       71 +    // Todo campo da linha menos a chave e a versão. Por refle
+          +xão, para uma coluna nova                                     
+       72 +    // entrar na comparação sem ninguém lembrar de acrescentá-
+          +la aqui.                                                      
+       73 +    private static readonly PropertyInfo[] _conteudo = [.. typ
+          +eof(ItemCatalogoRow).GetProperties()                          
+       74 +        .Where(propriedade => propriedade.Name is not (nameof(
+          +ItemCatalogoRow.Codigo) or nameof(ItemCatalogoRow.Versao)))]; 
+       75 +                                                              
+       76 +    public static bool MesmoConteudo(ItemCatalogoRow atual, It
+          +emCatalogoRow novo)                                           
+       77 +    {                                                         
+       78 +        ArgumentNullException.ThrowIfNull(atual);             
+       79 +        ArgumentNullException.ThrowIfNull(novo);              
+       80 +                                                              
+       81 +        return _conteudo.All(propriedade => (propriedade.GetVa
+          +lue(atual), propriedade.GetValue(novo)) switch                
+       82 +        {                                                     
+       83 +            (null, null) => true,                             
+       84 +            (string[] a, string[] b) => a.SequenceEqual(b),   
+       85 +                                                              
+       86 +            // O jsonb volta do Postgres normalizado (ordem de
+          + chave, espaços): compara a árvore.                           
+       87 +            (string a, string b) when propriedade.Name == name
+          +of(ItemCatalogoRow.Regra) =>                                  
+       88 +                JsonNode.DeepEquals(JsonNode.Parse(a), JsonNod
+          +e.Parse(b)),                                                  
+       89 +            (var a, var b) => Equals(a, b),                   
+       90 +        });                                                   
+       91 +    }                                                         
+       92 +                                                              
+       93 +    public static void CopiarConteudo(ItemCatalogoRow origem, 
+          +ItemCatalogoRow destino)                                      
+       94 +    {                                                         
+       95 +        ArgumentNullException.ThrowIfNull(origem);            
+       96 +        ArgumentNullException.ThrowIfNull(destino);           
+       97 +                                                              
+       98 +        foreach (var propriedade in _conteudo)                
+       99 +        {                                                     
+      100 +            propriedade.SetValue(destino, propriedade.GetValue
+          +(origem));                                                    
+      101 +        }                                                     
+      102 +    }                                                         
+      103 +                                                              
+      104 +    public static bool MesmoConteudo(FamiliaRow atual, Familia
+          +Row nova)                                                     
+      105 +    {                                                         
+      106 +        ArgumentNullException.ThrowIfNull(atual);             
+      107 +        ArgumentNullException.ThrowIfNull(nova);              
+      108 +                                                              
+      109 +        return (atual.Nome, atual.Descricao, atual.Passos) == 
+          +(nova.Nome, nova.Descricao, nova.Passos);                     
+      110 +    }                                                         
+      111  }
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\CatalogoRowMapper.cs)
+  ⎿  Added 2 lines
+      1 +using System.Reflection;                                        
+      2 +using System.Text.Json.Nodes;                                   
+      3  using Maxx.Domain.Catalogo;
+      4  using Maxx.Infrastructure.Persistence;
+      5  
+
+● Agora o seeder: um lock, uma transação, a validação antes de qualquer escrita
+  e a falha quando algo do banco sumiu do arquivo.
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs)
+  ⎿  Wrote 168 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Infrastructure.Persistence;
+       3 using Microsoft.EntityFrameworkCore;
+       5 using Microsoft.Extensions.Options;
+       6 
+       7 namespace Maxx.Infrastructure.Seed;
+       8 
+         r os arquivos não muda o
+      10 // banco. Uma transação só, sob advisory lock: dois seeds ao mes
+         mo tempo esperam um pelo
+     … +207 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs)
+  ⎿  Added 8 lines, removed 1 line
+      139  
+      140          // O calendário inteiro, já com as datas novas, ainda 
+           precisa fechar: um ano
+      141          // corrigido não pode passar a se sobrepor a outro que
+            não estava no arquivo.
+      142 -        _ = new Calendario(existentes.Values.Concat(calendario
+          -.Anos.Where(ano => !existentes.ContainsKey(ano.Ano))));       
+      142 +        try                                                   
+      143 +        {                                                     
+      144 +            _ = new Calendario(existentes.Values.Concat(calend
+          +ario.Anos.Where(ano => !existentes.ContainsKey(ano.Ano))));   
+      145 +        }                                                     
+      146 +        catch (Domain.DomainException ex)                     
+      147 +        {                                                     
+      148 +            throw new SeedException($"Calendário inválido depo
+          +is da correção: {ex.Message}", ex);                           
+      149 +        }                                                     
+      150  
+      151          return (novos, atualizados);
+      152      }
+
+● Update(apps\api\src\Maxx.Infrastructure\DependencyInjection.cs)  ⎿  Added 1 line
+      17                  npgsql => npgsql.MigrationsHistoryTable(MaxxDbC
+          ontext.MigrationsHistoryTable))));
+      18  
+      19          services.AddScoped<DatabaseMigrator>();
+      20 +        services.AddScoped<DatabaseSeeder>();                  
+      21  
+      22          // Toda verificação registrada aqui entra no /ready.
+      23          services.AddHealthChecks()
+
+● Update(apps\api\src\Maxx.Infrastructure\DependencyInjection.cs)
+  ⎿  Added 1 line
+      1  using Maxx.Infrastructure.Persistence;
+      2 +using Maxx.Infrastructure.Seed;                                 
+      3  using Microsoft.EntityFrameworkCore;
+      4  using Microsoft.Extensions.DependencyInjection;
+      5  using Npgsql;
+
+● Agora o subcomando no Program.cs.
+
+● Update(apps\api\src\Maxx.Api\Program.cs)
+  ⎿  Added 5 lines, removed 1 line
+       7  // `Maxx.Api migrate` roda as migrations e sai. É o comando do 
+          contêiner de migração.
+       8  var isMigrate = args is ["migrate", ..];
+       9  
+      10 +// `Maxx.Api seed <base|demo>` grava os dados de data/ e sai. I
+         +dempotente.                                                    
+      11 +var isSeed = args is ["seed", ..];                             
+      12 +                                                               
+      13  // A geração do OpenAPI no build sobe a aplicação sem servidor 
+          e sem banco.
+      14  var isOpenApiGeneration = Assembly.GetEntryAssembly()?.GetName(
+          ).Name == "GetDocument.Insider";
+      15  
+      13 -var builder = WebApplication.CreateBuilder(isMigrate ? args[1..
+         -] : args);                                                     
+      16 +var builder = WebApplication.CreateBuilder(                    
+      17 +    isMigrate ? args[1..] : isSeed ? args[Math.Min(2, args.Leng
+         +th)..] : args);                                                
+      18  
+      19  var connectionString = builder.Configuration.GetConnectionStrin
+          g("Maxx")
+      20      ?? (isOpenApiGeneration ? "Host=openapi-generation" : null)
+
+● Update(apps\api\src\Maxx.Api\Program.cs)
+  ⎿  Added 26 lines, removed 1 line
+      34      return Task.CompletedTask;
+      35  }));
+      36  builder.Services.AddInfrastructure(connectionString);
+      37 +builder.Services.Configure<SeedOptions>(builder.Configuration.G
+         +etSection(SeedOptions.Section));                               
+      38  
+      39  var app = builder.Build();
+      40  
+     ...
+      42  {
+      43      await using var scope = app.Services.CreateAsyncScope();
+      44      await scope.ServiceProvider.GetRequiredService<DatabaseMigr
+          ator>().MigrateAsync(CancellationToken.None);
+      44 -    return;                                                    
+      45 +    return 0;                                                  
+      46  }
+      47  
+      48 +if (isSeed)                                                    
+      49 +{                                                              
+      50 +    if (args is not [_, var nomeDoPerfil, ..] || !Enum.TryParse
+         +<PerfilDeSeed>(nomeDoPerfil, ignoreCase: true, out var perfil) 
+      51 +        || !Enum.IsDefined(perfil))                            
+      52 +    {                                                          
+      53 +        await Console.Error.WriteLineAsync("Uso: Maxx.Api seed 
+         +<base|demo>");                                                 
+      54 +        return 2;                                              
+      55 +    }                                                          
+      56 +                                                               
+      57 +    await using var scope = app.Services.CreateAsyncScope();   
+      58 +    try                                                        
+      59 +    {                                                          
+      60 +        await scope.ServiceProvider.GetRequiredService<Database
+         +Seeder>().SeedAsync(perfil, CancellationToken.None);           
+      61 +    }                                                          
+      62 +    catch (SeedException ex)                                   
+      63 +    {                                                          
+      64 +        // Dado recusado é resposta esperada, não falha do prog
+         +rama: sem pilha no log.                                        
+      65 +        await Console.Error.WriteLineAsync(ex.Message);        
+      66 +        return 1;                                              
+      67 +    }                                                          
+      68 +                                                               
+      69 +    return 0;                                                  
+      70 +}                                                              
+      71 +                                                               
+      72  // Um formato só de erro: ProblemDetails (RFC 9457).
+      73  app.UseExceptionHandler();
+      74  app.UseStatusCodePages();
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      tail -5 apps/api/src/Maxx.Api/Program.cs && sed -i 's/^await
+      app.RunAsync();$/await app.R…)
+  ⎿  {
+         api.MapOpenApi("/openapi/{documentName}.json");
+     }
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+2 -0)
+      3  using Maxx.Api.Health;
+      4  using Maxx.Infrastructure;
+      5  using Maxx.Infrastructure.Persistence;
+      6 +using Maxx.Infrastructure.Seed;                                 
+      7  
+      8  // `Maxx.Api migrate` roda as migrations e sai. É o comando do c
+         ontêiner de migração.
+      9  var isMigrate = args is ["migrate", ..];
+     ...
+      84  }
+      85  
+      86  await app.RunAsync();
+      87 +return 0;                                                      
+  ⎿  (timeout 5m)
+
+● Agora os testes. A factory de teste passa a apontar o seed para data/ do
+  repositório, ou para uma cópia quando o teste altera arquivos.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\MaxxApiFactory.cs)
+  ⎿  Added 13 lines, removed 2 lines
+       1  using Maxx.Infrastructure.Persistence;
+       2 +using Maxx.Infrastructure.Seed;                                
+       3  using Microsoft.AspNetCore.Hosting;
+       4  using Microsoft.AspNetCore.Mvc.Testing;
+       5  using Microsoft.Extensions.DependencyInjection;
+       6  
+       7  namespace Maxx.Api.IntegrationTests;
+       8  
+       8 -public sealed class MaxxApiFactory(string connectionString, str
+         -ing environment = "Development")                               
+       9 +// diretorioDeDados: data/ do repositório, salvo quando o teste
+         + altera uma cópia.                                             
+      10 +public sealed class MaxxApiFactory(string connectionString, str
+         +ing environment = "Development", string? diretorioDeDados = nul
+         +l)                                                             
+      11      : WebApplicationFactory<Program>
+      12  {
+      13      // Porta 1 recusa conexão: banco fora do ar sem depender de
+           contêiner.
+     ...
+      15          "Host=127.0.0.1;Port=1;Database=maxx;Username=maxx;Pass
+          word=maxx;Timeout=2";
+      16  
+      17      protected override void ConfigureWebHost(IWebHostBuilder bu
+          ilder) =>
+      16 -        builder.UseSetting("ConnectionStrings:Maxx", connection
+         -String).UseEnvironment(environment);                           
+      18 +        builder.UseSetting("ConnectionStrings:Maxx", connection
+         +String)                                                        
+      19 +            .UseSetting($"{SeedOptions.Section}:{nameof(SeedOpt
+         +ions.DiretorioDeDados)}", diretorioDeDados ?? Repositorio.Diret
+         +orioDeDados)                                                   
+      20 +            .UseEnvironment(environment);                      
+      21  
+      22      // O mesmo caminho do subcomando migrate, num escopo própri
+          o.
+      23      public async Task MigrateAsync(CancellationToken cancellati
+          onToken)
+     ...
+      25          await using var scope = Services.CreateAsyncScope();
+      26          await scope.ServiceProvider.GetRequiredService<Database
+          Migrator>().MigrateAsync(cancellationToken);
+      27      }
+      28 +                                                               
+      29 +    // O mesmo caminho do subcomando seed, num escopo próprio. 
+      30 +    public async Task<ResultadoDoSeed> SeedAsync(PerfilDeSeed p
+         +erfil, CancellationToken cancellationToken)                    
+      31 +    {                                                          
+      32 +        await using var scope = Services.CreateAsyncScope();   
+      33 +        return await scope.ServiceProvider.GetRequiredService<D
+         +atabaseSeeder>().SeedAsync(perfil, cancellationToken);         
+      34 +    }                                                          
+      35  }
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs'); let s=fs.readF…)
+  ⎿  14:    public static async Task<MaxxApiFactory> MigradoAsync(PostgresF
+     ixture postgres, string? diretorioDeDados = null)
+     16:        var factory = new MaxxApiFactory(await postgres.CreateDatab
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\BancoDeTeste.cs (+5 
+     -3)
+      11  {
+      12      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      13  
+      14 -    public static async Task<MaxxApiFactory> MigradoAsync(Postg
+         -resFixture postgres)                                           
+      14 +    public static async Task<MaxxApiFactory> MigradoAsync(Postg
+         +resFixture postgres, string? diretorioDeDados = null)          
+      15      {
+      16 -        var factory = new MaxxApiFactory(await postgres.CreateD
+         -atabaseAsync());                                               
+      16 +        var factory = new MaxxApiFactory(await postgres.CreateD
+         +atabaseAsync(), diretorioDeDados: diretorioDeDados);           
+      17          await factory.MigrateAsync(Ct);
+      18          return factory;
+      19      }
+     ...
+      82  {
+      83      public static string Raiz { get; } = Encontrar();
+      84  
+      85 -    public static string DiretorioDoCatalogo => Path.Combine(Ra
+         -iz, "data", "catalogo");                                       
+      85 +    public static string DiretorioDeDados => Path.Combine(Raiz,
+         + "data");                                                      
+      86 +                                                               
+      87 +    public static string DiretorioDoCatalogo => Path.Combine(Di
+         +retorioDeDados, "catalogo");                                   
+      88  
+      89      private static string Encontrar()
+      90      {
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs)
+  ⎿  Wrote 278 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs
+       1 using System.Text.Json.Nodes;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Infrastructure.Persistence;
+       4 using Maxx.Infrastructure.Seed;
+       5 using Microsoft.EntityFrameworkCore;
+       6 using Microsoft.Extensions.DependencyInjection;
+       7 using Npgsql;
+       8 using static Maxx.Api.IntegrationTests.BancoDeTeste;
+       9 
+      10 namespace Maxx.Api.IntegrationTests;
+     … +356 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Encontrei o problema: o EF não traduz interpolações misturando text com jsonb,
+  então vou mover a formatação para depois da consulta. Também vi que o
+  ObjectDisposedException no teste do lock ocorre porque o seed ainda estava
+  rodando quando a factory foi descartada.
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs)
+  ⎿  Added 4 lines, removed 5 lines
+      207      {
+      208          await using var scope = factory.Services.CreateAsyncSc
+           ope();
+      209          var db = scope.ServiceProvider.GetRequiredService<Maxx
+           DbContext>();
+      210 -        var itens = await db.Set<ItemCatalogoRow>().AsNoTracki
+          -ng().OrderBy(item => item.Codigo)                             
+      210 +        var itens = (await db.Set<ItemCatalogoRow>().AsNoTrack
+          +ing().OrderBy(item => item.Codigo).ToListAsync(Ct))           
+      211              .Select(item => $"{item.Codigo}:{item.Versao}:{ite
+           m.Pontos}:{item.Nome}:{item.Regra}")
+      212 -            .ToListAsync(Ct);                                 
+      213 -        var bimestres = await db.Set<Bimestre>().AsNoTracking(
+          -).OrderBy(bimestre => bimestre.Numero)                        
+      214 -            .Select(bimestre => $"{bimestre.Id}:{bimestre.Inic
+          -io}:{bimestre.Fim}")                                          
+      215 -            .ToListAsync(Ct);                                 
+      212 +            .ToList();                                        
+      213 +        var bimestres = (await db.Set<Bimestre>().AsNoTracking
+          +().OrderBy(bimestre => bimestre.Numero).ToListAsync(Ct))      
+      214 +            .Select(bimestre => $"{bimestre.Id}:{bimestre.Inic
+          +io}:{bimestre.Fim}");                                         
+      215  
+      216          return new(
+      217              itens.Count,
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 12 testes do seed passam. Faltam a imagem e o Compose: o Dockerfile passa a
+  levar data/, e entra um serviço seeder entre o migrator e as réplicas.
+
+● Update(apps\api\Dockerfile)
+  ⎿  Added 2 lines
+      20  FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+      21  WORKDIR /app
+      22  COPY --from=build /app .
+      23 +# Catálogo e calendário para o `seed` (Seed:DiretorioDeDados = 
+         +"data", relativo a /app).                                      
+      24 +COPY data/ data/                                               
+      25  # Usuário sem privilégio que a imagem oficial já traz.
+      26  USER $APP_UID
+      27  EXPOSE 8080
+
+● Update(apps\api\Dockerfile)
+  ⎿  Added 1 line, removed 1 line
+      1  # syntax=docker/dockerfile:1
+      2  # Contexto: raiz do repositório (global.json e Directory.*.props
+          ficam lá).
+      3 -# A mesma imagem serve a API e o contêiner de migração (`migrate
+        -`).                                                             
+      3 +# A mesma imagem serve a API, o contêiner de migração (`migrate`
+        +) e o de seed (`seed`).                                         
+      4  
+      5  FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+      6  WORKDIR /src
+
+● Update(docker-compose.yml)
+  ⎿  Added 14 lines, removed 1 line
+      43          condition: service_healthy
+      44      restart: "no"
+      45  
+      46 +  # Catálogo e calendário, depois da migração e antes das répli
+         +cas. Idempotente: roda a                                       
+      47 +  # cada subida sem mudar nada se os arquivos de data/ não muda
+         +ram. O `seed demo` é à mão:                                    
+      48 +  # docker compose run --rm seeder seed demo                   
+      49 +  seeder:                                                      
+      50 +    <<: *api-image                                             
+      51 +    command: ["seed", "base"]                                  
+      52 +    environment:                                               
+      53 +      <<: *api-env                                             
+      54 +    depends_on:                                                
+      55 +      migrator:                                                
+      56 +        condition: service_completed_successfully              
+      57 +    restart: "no"                                              
+      58 +                                                               
+      59    # Duas réplicas sem estado: resiliência de deploy, não capaci
+          dade.
+      60    api:
+      61      <<: *api-image
+     ...
+      65      deploy:
+      66        replicas: 2
+      67      depends_on:
+      55 -      migrator:                                                
+      68 +      seeder:                                                  
+      69          condition: service_completed_successfully
+      70      restart: unless-stopped
+      71  
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's#apps/mobile e2e packages data/catalogo#apps/mobile e2e packages
+      data#g' package…)
+  ⎿  package.json:13:    "format": "prettier --write apps/mobile e2e packag
+     es data",
+     package.json:14:    "format:check": "prettier --check apps/mobile e2e
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated .github\workflows\ci.yml (+3 -3)
+      26          run: dotnet format Maxx.sln --verify-no-changes --no-re
+          store
+      27        - name: Build (aviso vira erro)
+      28          run: dotnet build Maxx.sln --no-restore -c Release
+      29 -      # O catálogo é dado da API, então a formatação dele é con
+         -ferida aqui. Sem `npm ci`:                                     
+      29 +      # Catálogo e calendário são dados da API, então a formata
+         +ção deles é conferida aqui. Sem `npm ci`:                      
+      30        # só o Prettier, na versão travada no package-lock.json.
+      31        - uses: actions/setup-node@v7
+      32          with:
+      33            node-version-file: .nvmrc
+      34 -      - name: Formatação do catálogo                           
+      35 -        run: npx --yes "prettier@$(node -p "require('./package-
+         -lock.json').packages['node_modules/prettier'].version")" --chec
+         -k data/catalogo                                                
+      34 +      - name: Formatação de data/ (catálogo e calendário)      
+      35 +        run: npx --yes "prettier@$(node -p "require('./package-
+         +lock.json').packages['node_modules/prettier'].version")" --chec
+         +k data                                                         
+      36        # Passo próprio para a falha de catálogo ficar legível se
+          m abrir o log dos testes.
+      37        # Os mesmos testes rodam de novo no passo seguinte; sem b
+          anco, levam segundos.
+      38        - name: Catálogo válido
+  ⎿  Updated package.json (+2 -2)
+      10      "node": ">=22.12"
+      11    },
+      12    "scripts": {
+      13 -    "format": "prettier --write apps/mobile e2e packages data/c
+         -atalogo",                                                      
+      14 -    "format:check": "prettier --check apps/mobile e2e packages 
+         -data/catalogo"                                                 
+      13 +    "format": "prettier --write apps/mobile e2e packages data",
+      14 +    "format:check": "prettier --check apps/mobile e2e packages 
+         +data"                                                          
+      15    },
+      16    "devDependencies": {
+      17      "prettier": "^3.9.10"
+
+● Agora o ponta a ponta no Compose: subo tudo duas vezes, para ver o seed gravar
+  na primeira e não mudar nada na segunda. De quebra confiro se a imagem tem a
+  base de fusos que o FusoHorario usa.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● O seed foo saiu com código 139. Vejo o que aconteceu.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O erro 139 era causado pela falta da connection string num docker run avulso,
+  não relacionado ao seed. Agora, com a connection string, o perfil inválido
+  retorna código 2 e exibe o uso corretamente; vou rodar a suíte inteira, o
+  formato e a conferência do cliente gerado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E6 está pronta para sua revisão e ainda sem commit. Os 191 testes passam,
+  contando 12 novos de seed e 3 de domínio. O build, o dotnet format e o
+  Prettier estão limpos, e o cliente TypeScript gerado continua sem diferença.
+
+  Comprovado no Compose: subi com o banco zerado.
+  - Na primeira rodada, o seeder gravou 46 itens, 8 famílias e o ano de 2026.
+  - Na segunda, nada mudou: os 46 itens saíram como inalterados.
+  - O /api/ready respondeu 200.
+  - A imagem tem data/ e a base de fusos America/Sao_Paulo.
+
+  O que entrou
+  - O subcomando Maxx.Api seed <base|demo>, no mesmo molde do migrate.
+    - Sai com código 0 quando dá certo.
+    - Sai com 1 quando os dados são recusados, com a mensagem e sem pilha de
+      erro no log.
+    - Sai com 2, mostrando o uso, quando o perfil é inválido.
+    - Por ora, demo responde "ainda não existe".
+  - O DatabaseSeeder:
+    - lê e valida o catálogo e o calendário antes de abrir a transação, então um
+      arquivo inválido não toca no banco;
+    - depois, numa transação só, com um advisory lock de chave própria, grava
+      famílias, itens e anos;
+    - pelo código do item: um conteúdo diferente sobe a versao só daquele item;
+    - um item, família ou ano que está no banco e sumiu dos arquivos faz o seed
+      falhar sem gravar nada, e a mensagem indica vigencia.fim.
+  - O calendário em data/calendario/2026.json, com as suas datas e uma
+    observacao dizendo que são aproximadas e que podem ser corrigidas pelo seed
+    sem mudar código. Corrigir uma data atualiza o bimestre com o mesmo id, pelo
+    novo AnoLetivo.AtualizarDatas do domínio.
+  - No Compose, o serviço seeder roda seed base entre o migrator e as réplicas.
+    O seed demo fica à mão, com docker compose run --rm seeder seed demo, como
+    você pediu.
+  - O Dockerfile copia data/ para /app/data. O Prettier, na CI e no
+    package.json, passa a conferir data/ inteiro, incluindo o calendário.
+
+  Os testes cobrem
+  - o banco vazio recebendo os 46 itens, as 8 famílias e as quatro datas;
+  - duas rodadas deixando uma fotografia idêntica do banco;
+  - mudar os pontos da M02 sobe só ela para a versão 2, e a versão fica estável
+    na rodada seguinte;
+  - mudar a regra da C02 sobe a versão dela;
+  - um item que sumiu falha sem gravar, nem mesmo a outra mudança válida da
+    mesma rodada;
+  - um catálogo inválido ou um calendário inválido não gravam nada;
+  - uma correção de data mantém o id do bimestre;
+  - dois seeds em paralelo gravam cada item uma vez só;
+  - um seed espera o lock de outro.
+
+  Escolhas minhas (confirme ou peça ajuste)
+  1. O calendário é arquivo de dados, um por ano letivo
+     (data/calendario/<ano>.json), e não código C#. É o que permite corrigir a
+     data "por seed, sem mudar código", como você pediu. Para 2027, basta
+     acrescentar o arquivo.
+  2. Um ano no banco ausente dos arquivos também faz o seed falhar, com a mesma
+     lógica dos itens: turmas apontam para ele.
+  3. Para decidir se a versão sobe, a linha do banco é comparada com a do 
+     arquivo campo por campo, por reflexão, sem uma coluna de hash. Uma coluna
+     nova entra na comparação sozinha. A regra em jsonb é comparada como árvore,
+     porque o Postgres a devolve normalizada.
+  4. Família não tem versão: uma mudança de nome, descrição ou passos é aplicada
+     no lugar.
+  5. O diretório de dados vem da configuração Seed:DiretorioDeDados, com padrão
+     data relativo ao diretório de trabalho. Funciona na raiz do repositório e
+     em /app na imagem.
+
+  Uma limitação que fica registrada: reordenar dois itens de uma família
+  trocando as posições, numa mesma rodada, pode bater no índice único (família,
+  ordem), porque o Postgres confere o índice linha a linha. Nada no catálogo
+  atual faz isso. Se um dia for preciso, a troca sai em duas rodadas ou com um
+  índice adiável.
+
+  Commit proposto: feat(seed): adiciona seeder base com catálogo e calendário
+
+  Se aprovar, faço o commit, o push e sigo para a E7, o seed demo, já com a
+  conferência de restricao_curso que você pediu.
+
+✻ Cogitated for 10m 4s · done 22:52
