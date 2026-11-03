@@ -7,7 +7,7 @@ Origem: leitura do Cowork (Anthropic) do export da sessão; decisão do autor; r
 Notas de registro:
 - E6 commitada em `4823185`.
 - E7: `data/demo/mundo.json`, `MundoDemoReader`, `SeedDemoAsync` no mesmo lock e transação, exige o base, acrescenta pela chave natural, confere `restricao_curso`; 205 testes, 15 do demo; comprovado no compose com banco zerado (segunda rodada sem gravar).
-- Erro do agente apanhado na revisão: o mundo demo saiu com três cursos (CC, ADM, MED) quando a `r1` definiu quatro; o autor mandou acrescentar IA (8 semestres, quatro matérias reais da grade, um professor, cinco alunos) antes do commit e ajustar as contagens. É o primeiro caso na trilha de uma instrução do autor não cumprida na íntegra pelo agente.
+- Esta resposta acusou o agente de ter deixado um curso de fora, mas o erro era do autor: a `r1` enviada dizia três cursos (a versão com IA não foi a colada). O agente não mudou nada, citou a `r1` e os docs (`produto.md` seção 11 e `plano-mestre` passo 12 dizem "três cursos"), tratou IA como decisão nova e ofereceu três opções, como o `CLAUDE.md` manda. Resolvido na `r9`.
 - Cinco escolhas declaradas e aceitas: mundo como arquivo de dados; demo só acrescenta (não falha por linha a mais, por causa dos dados que a banca cria); linha divergente falha; matérias listam semestres; dados fictícios (RA `2026CCNN`, e-mails nos domínios do produto, conta `coordenacao@unieduk.com.br`). Formato do RA não está nos docs; fica como fictício.
 - Fechamento do passo: commit, push, CI, PR da `feat/passo-02-dados` para a `rodada/eng_02_dados` com as sete etapas.
 
