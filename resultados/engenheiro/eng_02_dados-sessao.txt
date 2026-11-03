@@ -1,0 +1,789 @@
+ ▐▛███▛█   Claude Code v2.1.308
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+❯ /model 
+  ⎿  Kept model as Opus 5.5 (1M context)
+
+❯ Passo 2 do plano mestre: modelo acadêmico, catálogo e seeder. Estamos na      
+  rodada/eng_02_dados, saída da main com o passo 1 mergeado. Antes de qualquer  
+  código, me traga o plano de etapas, com entrega e critério de aceite por      
+  etapa, como combinamos no CLAUDE.md. Vale tudo que está lá: decisão que não   
+  está nos docs não foi tomada, então pergunte antes de assumir. Lembro o que   
+  fecha o passo: migrations de curso, ano letivo, semestre, bimestre, matéria,  
+  turma, vínculo de professor, matrícula, cadastro elegível e catálogo; seeder  
+  idempotente por comando, com perfis base e demo, carregando os 46 itens de    
+  data/catalogo/ pelo código; calendário de 2026 com datas reais; validação do  
+  catálogo na CI; testes de integração com Postgres real; e os primeiros testes 
+  de domínio em Maxx.Domain.Tests, com a remoção do --ignore-exit-code 8 que    
+  ficou anotada no passo 1. Eu reviso o plano e aí começamos a primeira etapa.  
+
+● Vou ler os documentos de referência e o estado atual do código antes de montar
+  o plano.
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+● Agora o catálogo e o código atual da API.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Li o plano mestre, produto.md, regras-conquista.md, os ADRs, os quatro JSON do
+  catálogo e o código do passo 1. Segue o plano de etapas e, no fim, as
+  decisões que não estão nos docs e preciso que você tome antes de eu começar.
+
+  Passo 2: modelo acadêmico, catálogo e seeder
+
+  Branch: feat/passo-02-dados, saindo de rodada/eng_02_dados. Sete etapas, um
+  commit cada, um PR no fim.
+
+  E1 · Domínio acadêmico e calendário (TDD)
+
+  Entrega
+  - Em Maxx.Domain: Curso, AnoLetivo, SemestreLetivo, Bimestre, Materia, Turma,
+    CadastroElegivel, Matricula, VinculoProfessor, cada um com suas invariantes.
+  - A função que diz em qual bimestre e semestre cai um instante UTC, lendo as
+    fronteiras em America/Sao_Paulo. O passo 6 vai precisar dela para gravar o
+    bimestre da medalha.
+  - Os primeiros testes em Maxx.Domain.Tests e a remoção do --ignore-exit-code 8
+    do .csproj.
+
+  Aceite
+  - Testes do calendário:
+    - um ano tem dois semestres e cada semestre tem dois bimestres;
+    - o bimestre fica dentro do semestre e os bimestres não se sobrepõem;
+    - 23:59 em São Paulo ainda cai no bimestre, e 00:00 do dia seguinte (03:00
+      UTC) já cai fora;
+    - um instante no recesso não cai em bimestre nenhum.
+  - Teste de que a matrícula só aceita aluno e o vínculo só aceita professor.
+  - dotnet test passa sem a flag.
+  - O teste de arquitetura continua verde: o domínio só usa a biblioteca padrão.
+
+  Commit: feat(api): adiciona modelo acadêmico e calendário ao domínio
+
+  E2 · Domínio do catálogo e validador (TDD)
+
+  Entrega
+  - Tier com as faixas de pontos; os itens de medalha, prêmio de participação e
+    conquista, com a regra declarativa; Familia.
+  - Um validador de catálogo que devolve todos os erros de uma vez.
+
+  O que o validador confere
+  - O código é único no catálogo inteiro e o prefixo bate com o tipo (M, P ou
+    C).
+  - Os pontos ficam dentro da faixa do tier.
+  - Medalha que não é Bronze só existe com período semestre. Isso é a regra de
+    fechamento de matéria escrita como validação.
+  - Famílias:
+    - a família de cada item existe;
+    - a ordem vai de 1 até o número de passos, sem buraco e sem repetição;
+    - os pontos sobem a cada passo.
+  - Regras de conquista:
+    - todo código em filtroItens existe e é do tipo da fonte;
+    - agruparPor é compatível com a fonte;
+    - contagem exige agruparPor nulo;
+    - todasAsMatriculasDoPeriodo só aparece com materia;
+    - um alvo fixo é maior que zero;
+    - a forma customizada exige o nome da implementação.
+  - A chave de deduplicação só usa campos conhecidos.
+
+  Aceite: cada regra do validador tem um teste que passa e um que falha.
+
+  Commit: feat(api): adiciona catálogo e validador ao domínio
+
+  E3 · Leitura dos JSON e validação na CI
+
+  Entrega
+  - Na Infrastructure, o leitor que transforma data/catalogo/*.json no modelo do
+    domínio.
+  - Um teste que lê os arquivos reais e roda o validador.
+  - No job api da CI, um passo com nome próprio ("Catálogo válido"), para a
+    falha ficar legível.
+
+  Aceite
+  - Com os 46 itens atuais, o teste passa.
+  - Se eu quebrar um item de propósito (pontos fora da faixa, filtroItens
+    apontando para um código que não existe), o passo falha mostrando o código
+    do item.
+
+  Commit: ci(api): valida o catálogo na ci
+
+  E4 · Migration do modelo acadêmico
+
+  Entrega
+  - Configurações do EF e a migration das nove tabelas acadêmicas, em
+    snake_case.
+  - Constraints no banco:
+    - RA único;
+    - e-mail único sem diferenciar maiúsculas;
+    - turma única por (matéria, semestre);
+    - matrícula única por (aluno, turma);
+    - o fim do bimestre não pode vir antes do início.
+
+  Aceite
+  - Testes de integração com Testcontainers: a migration é aplicada num banco
+    vazio.
+  - Cada constraint recusa o dado duplicado ou inválido.
+
+  Commit: feat(api): adiciona migration do modelo acadêmico
+
+  E5 · Migration do catálogo
+
+  Entrega: as tabelas do catálogo e das famílias, com versao por item e a regra
+  guardada em jsonb. O desenho final depende da pergunta 3.
+
+  Aceite: um teste de integração faz o caminho de ida e volta de um item de cada
+  tipo, com o código único.
+
+  Commit: feat(api): adiciona migration do catálogo
+
+  E6 · Seeder base
+
+  Entrega
+  - O subcomando Maxx.Api seed base, no mesmo molde do migrate, com um advisory
+    lock de chave própria e uma transação só.
+  - O seeder valida o catálogo antes de gravar. Se o catálogo for inválido, ele
+    não grava nada.
+  - Grava os 46 itens pelo código e o calendário de 2026.
+  - O Dockerfile passa a copiar data/catalogo para a imagem.
+
+  Aceite (testes de integração)
+  - Rodar duas vezes deixa o banco igual: mesma contagem e mesma versão.
+  - Mudar os pontos de um item cria a versão 2 só desse item.
+  - Duas execuções ao mesmo tempo ficam em fila no lock.
+  - Um catálogo inválido não grava nada.
+
+  Commit: feat(seed): adiciona seeder base com catálogo e calendário
+
+  E7 · Seeder demo
+
+  Entrega: seed demo com cursos, matérias, turmas, cadastro elegível, vínculos
+  de professor e matrículas. O tamanho depende da pergunta 6; o seed completo
+  continua no passo 12.
+
+  Aceite
+  - Rodar duas vezes deixa o banco igual.
+  - Toda turma tem professor, e todo aluno tem matrícula no semestre 2026/2.
+  - O demo exige que o base já tenha rodado e explica isso se não tiver.
+
+  Commit: feat(seed): adiciona perfil demo do seeder
+
+  Fecha o passo
+
+  - Testes de domínio, de arquitetura e de integração passando.
+  - dotnet format limpo.
+  - Migrations aplicadas pelo contêiner de migração.
+  - O OpenAPI deve sair sem diferença, porque este passo não cria endpoint. Não
+    estou propondo GET /v1/catalogo aqui.
+
+  ---
+
+  Decisões que preciso de você
+
+  1. Calendário de 2026. Os docs não trazem as datas. Preciso do início e do fim
+     dos quatro bimestres de 2026 (2026/1 e 2026/2), de preferência do
+     calendário acadêmico da UniMax. Não vou inventar essas datas.
+  2. A quem a matrícula e o vínculo de professor apontam. A conta de usuário só
+     nasce no passo 3, e a faculdade abastece matrículas antes de o aluno ter
+     conta.
+     - Recomendo que os dois apontem para o CadastroElegivel, e que o Usuario do
+       passo 3 se ligue a ele numa relação de um para um.
+     - Para isso, o cadastro elegível passa a guardar também:
+       - o papel (aluno, professor, instituição), porque o produto diz que o
+         papel vem da base;
+       - o nome completo, que o cadastro usa para sugerir o arroba;
+       - o semestre do aluno (1º ao 8º);
+       - o RA, que fica opcional para quem não é aluno.
+  3. Formato do catálogo no banco. Recomendo uma tabela item_catalogo com uma
+     coluna de tipo: os campos comuns viram colunas, os específicos de cada tipo
+     ficam opcionais, e a regra vai em jsonb, porque é o avaliador quem
+     interpreta a regra. A alternativa são três tabelas, uma por tipo.
+  4. Versão e remoção de item. Recomendo:
+     - quando o conteúdo de um item muda, a versao daquele item sobe, e os
+       prêmios vão guardar essa versão (ADR 0007);
+     - se um item existe no banco e sumiu do JSON, o seeder falha. Para retirar
+       um item, use vigencia.fim, porque prêmios futuros vão apontar para ele.
+  5. Divisão entre base e demo. Recomendo:
+     - base traz só a estrutura: catálogo e calendário;
+     - demo traz o mundo fictício: cursos, matérias, turmas e pessoas;
+     - a lista de domínios de e-mail fica para o passo 3, que é quem a usa.
+  6. Conteúdo do demo agora.
+     - Quais são os três cursos, com nome e sigla? (Os docs só citam "CC" como
+       exemplo.)
+     - Quais matérias cada curso tem?
+     - Recomendo um começo mínimo: 4 matérias por curso, uma turma por matéria
+       em 2026/2, um professor por curso, uma conta de instituição e cerca de 5
+       alunos por curso.
+  7. Marcação de demonstração (flag e lote). Ela entra já nestas tabelas ou só
+     quando a banca passar a criar dados? Recomendo deixar para o passo 5, numa
+     migration aditiva.
+  8. O seed no Compose. Recomendo um serviço seeder rodando seed base depois do
+     migrator e antes das réplicas, e seed demo rodado à mão. Ou os dois ficam
+     manuais?
+  9. Nota desatualizada no catálogo. As três observacao dos JSON ainda dizem que
+     família e ordem "são preenchidos na etapa E0.2c", mas esses campos já
+     estão preenchidos. Posso tirar a frase na E3?
+
+  Com as respostas, ajusto as etapas E4 a E7 se precisar e começo pela E1.
+
+✻ Sautéed for 2m 45s · done 19:08
+
+※ recap: O plano do passo 2 (modelo acadêmico, catálogo e seeder) está pronto em sete etapas e aguarda sua revisão, sem nenhum código escrito. Próximo passo: responda às nove perguntas, a começar pelas datas reais do calendário de 2026. (disable recaps in /config)
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
+
+※ recap: Estamos planejando o passo 2 (modelo acadêmico, catálogo e seeder), e o plano de sete etapas está pronto para sua revisão. Preciso das suas respostas às nove perguntas, a começar pelas datas reais dos bimestres de 2026, para então iniciar a E1. (disable recaps in /config)
+
+❯ Plano do passo 2 aprovado como está, sete etapas, um PR da                    
+  feat/passo-02-dados para a rodada/eng_02_dados. Respostas:                    
+                                                                                
+  1. Calendário 2026. A UniMax não publica o calendário em página aberta, então 
+  as datas abaixo são aproximadas, declaradas por mim, e ficam registradas      
+  assim no seed, com comentário dizendo que podem ser corrigidas por seed sem   
+  mudar código. 2026/1: bimestre 1 de 26/01 a 03/04, bimestre 2 de 06/04 a      
+  27/06. 2026/2: bimestre 3 de 27/07 a 26/09, bimestre 4 de 28/09 a 05/12.      
+  Recesso em julho e de dezembro a janeiro.                                     
+  2. Matrícula e vínculo apontam para o CadastroElegivel, e o Usuario do passo  
+  3 se liga a ele um para um. O cadastro elegível guarda papel, nome completo,  
+  semestre e RA opcional para quem não é aluno. O semestre do aluno vai de 1    
+  até a duração do curso, que passa a ser um campo de Curso: CC e ADM têm 8     
+  semestres, Medicina tem 12.                                                   
+  3. Uma tabela item_catalogo com coluna de tipo, campos comuns em colunas,     
+  específicos opcionais, regra em jsonb.                                        
+  4. Versão por item sobe quando o conteúdo muda; item que sumiu do JSON faz o  
+  seeder falhar; retirada é por vigencia.fim.                                   
+  5. Base só estrutura (catálogo e calendário); demo o mundo fictício; domínios 
+  de e-mail no passo 3.                                                         
+  6. Três cursos reais da UniMax: Ciência da Computação (CC, 8 semestres),      
+  Administração (ADM, 8 semestres) e Medicina (MED, 12 semestres). Matérias,    
+  quatro por curso: CC: Algoritmos e Programação, Estruturas de Dados, Banco de 
+  Dados, Engenharia de Software. ADM: Teoria Geral da Administração,            
+  Contabilidade Gerencial, Marketing, Gestão de Pessoas. MED: Anatomia,         
+  Fisiologia, Bioquímica, Histologia. Uma turma por matéria em 2026/2, um       
+  professor por curso, uma conta de instituição, cinco alunos por curso. O seed 
+  completo de 150 fica no passo 12.                                             
+  7. Flag e lote de demonstração no passo 5, migration aditiva.                 
+  8. Serviço seeder no compose rodando seed base depois do migrator e antes das 
+  réplicas; seed demo à mão.                                                    
+  9. Pode tirar a frase da observacao nos três JSON na E3.                      
+                                                                                
+  Começa pela E1 e para para a minha revisão no fim dela.                       
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Branch feat/passo-02-dados criada. Escrevo o domínio da E1.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\DomainException.cs)
+  ⎿  Wrote 18 lines to apps\api\src\Maxx.Domain\DomainException.cs
+      1 namespace Maxx.Domain;
+      2 
+      3 // Regra de produto violada. A borda traduz para o formato único 
+        de erro; a mensagem é
+      4 // para quem lê o log, não para o usuário final.
+      5 public sealed class DomainException : Exception
+      6 {
+      7     public DomainException()
+      8     {
+      9     }
+     … +10 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Texto.cs)
+  ⎿  Wrote 12 lines to apps\api\src\Maxx.Domain\Texto.cs
+       1 namespace Maxx.Domain;
+       2 
+       3 internal static class Texto
+       5     public static string Obrigatorio(string? valor, string campo
+         )
+       6     {
+       7         var aparado = valor?.Trim();
+       9             ? throw new DomainException($"{campo} é obrigatório.
+         ")
+      10             : aparado;
+     … +2 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\FusoHorario.cs)
+  ⎿  Wrote 11 lines to apps\api\src\Maxx.Domain\Academico\FusoHorario.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+         mestre e ano são datas
+       4 // interpretadas em America/Sao_Paulo.
+       5 public static class FusoHorario
+       7     public static TimeZoneInfo SaoPaulo { get; } = TimeZoneInfo.
+         FindSystemTimeZoneById("America/Sao_Paulo");
+       8 
+      10         DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(instante,
+          SaoPaulo).DateTime);
+     … +4 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\Bimestre.cs)
+  ⎿  Wrote 36 lines to apps\api\src\Maxx.Domain\Academico\Bimestre.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+       3 // Numerado de 1 a 4 dentro do ano letivo: o semestre 1 tem os b
+       4 // semestre 2 tem o 3 e o 4. Datas inclusivas nas duas pontas.
+       5 public sealed class Bimestre
+       6 {
+       7     public const int PorAno = SemestreLetivo.PorAno * SemestreLe
+       8 
+       9     public Bimestre(int numero, DateOnly inicio, DateOnly fim)
+      10     {
+     … +31 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\SemestreLetivo.cs)
+  ⎿  Wrote 63 lines to apps\api\src\Maxx.Domain\Academico\SemestreLetivo.cs
+      1 namespace Maxx.Domain.Academico;
+      2 
+      3 // O semestre letivo (2026/2) corta ranking e conquistas. Não con
+        fundir com o semestre do
+      4 // aluno, que é só perfil. Começa no primeiro dia do primeiro bim
+      5 // dia do segundo: férias e recesso ficam fora.
+      6 public sealed class SemestreLetivo
+      7 {
+      8     public const int PorAno = 2;
+      9     public const int BimestresPorSemestre = 2;
+     … +61 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\AnoLetivo.cs)
+  ⎿  Wrote 44 lines to apps\api\src\Maxx.Domain\Academico\AnoLetivo.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+       3 public sealed class AnoLetivo
+       4 {
+       5     private readonly List<SemestreLetivo> _semestres;
+       7     public AnoLetivo(int ano, SemestreLetivo primeiro, SemestreL
+         etivo segundo)
+       8     {
+       9         ArgumentNullException.ThrowIfNull(primeiro);
+      10         ArgumentNullException.ThrowIfNull(segundo);
+     … +39 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\Calendario.cs)
+  ⎿  Wrote 42 lines to apps\api\src\Maxx.Domain\Academico\Calendario.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+       3 // Responde em qual bimestre e semestre cai um instante. Fora de
+         les (férias, recesso),
+       4 // a resposta é nula: nenhum fato acadêmico acontece ali.
+       6 {
+       7     private readonly List<AnoLetivo> _anos;
+       8 
+       9     public Calendario(IEnumerable<AnoLetivo> anos)
+      10     {
+     … +37 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\Curso.cs)
+  ⎿  Wrote 33 lines to apps\api\src\Maxx.Domain\Academico\Curso.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+       3 public sealed class Curso
+       5     public Curso(string nome, string sigla, int duracaoEmSemestr
+         es)
+       6     {
+       7         sigla = Texto.Obrigatorio(sigla, "A sigla do curso");
+       9         // A sigla vira o sufixo do arroba (@guilhermeGimenes-CC
+         ).
+      10         if (!sigla.All(char.IsAsciiLetterUpper))
+     … +25 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\Materia.cs)
+  ⎿  Wrote 19 lines to apps\api\src\Maxx.Domain\Academico\Materia.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+       3 public sealed class Materia
+       4 {
+       5     public Materia(Curso curso, string nome)
+       6     {
+       7         ArgumentNullException.ThrowIfNull(curso);
+       8 
+       9         Id = Guid.CreateVersion7();
+      10         CursoId = curso.Id;
+     … +9 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\Turma.cs)
+  ⎿  Wrote 21 lines to apps\api\src\Maxx.Domain\Academico\Turma.cs
+      1 namespace Maxx.Domain.Academico;
+      2 
+      3 // Matéria mais semestre letivo. Professores vinculados e alunos 
+        matriculados por turma.
+      4 public sealed class Turma
+      5 {
+      6     public Turma(Materia materia, SemestreLetivo semestre)
+      7     {
+      8         ArgumentNullException.ThrowIfNull(materia);
+      9         ArgumentNullException.ThrowIfNull(semestre);
+     … +12 lines (ctrl+o to expand)
+● Write(apps\api\src\Maxx.Domain\Academico\Papeis.cs)
+  ⎿  Wrote 12 lines to apps\api\src\Maxx.Domain\Academico\Papeis.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+       3 // Aluno nunca acumula papel. O único acúmulo possível é profess
+         or e instituição na
+       4 // mesma conta.
+       6 public enum Papeis
+       7 {
+       8     Nenhum = 0,
+       9     Aluno = 1,
+      10     Professor = 2,
+     … +3 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\CadastroElegivel.cs)
+  ⎿  Wrote 85 lines to
+     apps\api\src\Maxx.Domain\Academico\CadastroElegivel.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+         o Usuario do passo 3 se
+       4 // liga a uma linha daqui, uma para uma. O papel vem daqui, nunc
+         a do domínio do e-mail.
+       6 {
+       7     private CadastroElegivel(
+       8         Papeis papeis, string? ra, string email, string nomeComp
+       9     {
+      10         Id = Guid.CreateVersion7();
+     … +87 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\Matricula.cs)
+  ⎿  Wrote 27 lines to apps\api\src\Maxx.Domain\Academico\Matricula.cs
+      1 namespace Maxx.Domain.Academico;
+      2 
+      3 // Vínculo aluno e turma. Única fonte de "quantas matérias o alun
+        o tem no período".
+      4 public sealed class Matricula
+      5 {
+      6     public Matricula(CadastroElegivel aluno, Turma turma)
+      7     {
+      8         ArgumentNullException.ThrowIfNull(aluno);
+      9         ArgumentNullException.ThrowIfNull(turma);
+     … +20 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Academico\VinculoProfessor.cs)
+  ⎿  Wrote 27 lines to
+     apps\api\src\Maxx.Domain\Academico\VinculoProfessor.cs
+       1 namespace Maxx.Domain.Academico;
+       2 
+       3 // Professor cadastrado por turma, a cada semestre. É a fonte do
+       4 // no banco a cada mutação de prêmio.
+       5 public sealed class VinculoProfessor
+       6 {
+       7     public VinculoProfessor(CadastroElegivel professor, Turma tu
+       8     {
+       9         ArgumentNullException.ThrowIfNull(professor);
+      10         ArgumentNullException.ThrowIfNull(turma);
+     … +19 lines (ctrl+o to expand)
+
+● Agora os testes e a remoção da flag.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Maxx.Domain.Tests.csproj)
+  ⎿  Removed 2 lines
+       3    <PropertyGroup>
+       4      <IsPackable>false</IsPackable>
+       5      <OutputType>Exe</OutputType>
+       6 -    <!-- Ainda sem teste de domínio: os primeiros chegam no pas
+         -so 2. Tirar esta linha nele. -->                               
+       7 -    <TestingPlatformCommandLineArguments>--ignore-exit-code 8</
+         -TestingPlatformCommandLineArguments>                           
+       6    </PropertyGroup>
+       7  
+       8    <ItemGroup>
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Academico\Calendario2026.cs)
+  ⎿  Wrote 17 lines to
+     apps\api\tests\Maxx.Domain.Tests\Academico\Calendario2026.cs
+       1 using Maxx.Domain.Academico;
+       2 
+       3 namespace Maxx.Domain.Tests.Academico;
+       5 // As datas de 2026 declaradas pelo autor para o seed, aqui só c
+         omo cenário de teste.
+       6 internal static class Calendario2026
+       7 {
+         es, dia);
+       9 
+      10     public static SemestreLetivo Primeiro() => new(
+     … +12 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Academico\AnoLetivoTests.cs)
+  ⎿  Wrote 95 lines to
+     apps\api\tests\Maxx.Domain.Tests\Academico\AnoLetivoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using static Maxx.Domain.Tests.Academico.Calendario2026;
+       3 
+       4 namespace Maxx.Domain.Tests.Academico;
+       5 
+       7 {
+       8     [Fact]
+       9     public void Ano_tem_dois_semestres_e_cada_semestre_dois_bime
+         stres()
+      10     {
+     … +101 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Academico\CalendarioTests.cs)
+  ⎿  Wrote 73 lines to
+     apps\api\tests\Maxx.Domain.Tests\Academico\CalendarioTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using static Maxx.Domain.Tests.Academico.Calendario2026;
+       3 
+       4 namespace Maxx.Domain.Tests.Academico;
+       5 
+       7 {
+       8     private readonly Calendario _calendario = new([Ano()]);
+       9 
+      10     private static DateTimeOffset Utc(int mes, int dia, int hora
+         , int minuto = 0) =>
+     … +78 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Academico\CadastroElegivelTests.cs)
+  ⎿  Wrote 94 lines to
+     apps\api\tests\Maxx.Domain.Tests\Academico\CadastroElegivelTests.cs
+       1 using Maxx.Domain.Academico;
+       2 
+       3 namespace Maxx.Domain.Tests.Academico;
+       4 
+       5 public class CadastroElegivelTests
+       7     private static readonly Curso Medicina = new("Medicina", "ME
+         D", 12);
+       8 
+       9     [Fact]
+      10     public void Aluno_guarda_ra_curso_e_semestre()
+     … +98 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Academico\VinculosTests.cs)
+  ⎿  Wrote 71 lines to
+     apps\api\tests\Maxx.Domain.Tests\Academico\VinculosTests.cs
+       1 using Maxx.Domain.Academico;
+       2 
+       3 namespace Maxx.Domain.Tests.Academico;
+       5 public class VinculosTests
+       6 {
+       7     private static readonly Curso Computacao = new("Ciência da C
+         omputação", "CC", 8);
+         eria(Computacao, "Banco de Dados"), Calendario2026.Segundo());
+       9 
+      10     private static readonly CadastroElegivel Aluno =
+     … +74 lines (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Academico\CalendarioTests.cs)
+  ⎿  Added 2 lines, removed 2 lines
+      37      [Fact]
+      38      public void Instante_com_outro_deslocamento_e_lido_pelo_rel
+          ogio_de_Sao_Paulo()
+      39      {
+      40 -        // 05/12 23:30 em Lisboa (UTC+0 no inverno) é 05/12 20:
+         -30 em São Paulo.                                               
+      41 -        var instante = new DateTimeOffset(2026, 12, 5, 23, 30, 
+         -0, TimeSpan.Zero);                                             
+      40 +        // 06/12 00:30 em UTC+1 já é dia 6 lá, mas é 05/12 20:3
+         +0 em São Paulo: último dia do bimestre 4.                      
+      41 +        var instante = new DateTimeOffset(2026, 12, 6, 0, 30, 0
+         +, TimeSpan.FromHours(1));                                      
+      42  
+      43          Assert.Equal(4, _calendario.BimestreEm(instante)?.Numer
+          o);
+      44      }
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Duas coisas: o padrão de nome dos campos privados nos testes, e falhas nos
+  testes de integração. Vejo a causa delas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As falhas de integração vêm do Docker Desktop, que está desligado nesta
+  máquina; a E1 não mexe em nada que eles cobrem. Corrijo os nomes dos campos.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Domain.Tests/Academico" && sed -i -E
+      's/\bMedicina\b/_medicina/g' Cadastr…)
+  ⎿  7:    private static readonly Curso _computacao = new("Ciência da Comp
+     utação", "CC", 8);
+     8:    private static readonly Turma _bancoDeDados2026 = new(new Materi
+     … +29 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Academico\CadastroElegivelTests.cs
+     (+6 -6)
+       4  
+       5  public class CadastroElegivelTests
+       6  {
+       7 -    private static readonly Curso Medicina = new("Medicina", "M
+         -ED", 12);                                                      
+       7 +    private static readonly Curso _medicina = new("_medicina", 
+         +"MED", 12);                                                    
+       8  
+       9      [Fact]
+      10      public void Aluno_guarda_ra_curso_e_semestre()
+      11      {
+      12 -        var aluno = CadastroElegivel.Aluno(" 123456 ", "ana@al.
+         -unieduk.com.br", "Ana Souza", Medicina, 12);                   
+      12 +        var aluno = CadastroElegivel.Aluno(" 123456 ", "ana@al.
+         +unieduk.com.br", "Ana Souza", _medicina, 12);                  
+      13  
+      14          Assert.Equal(Papeis.Aluno, aluno.Papeis);
+      15          Assert.Equal("123456", aluno.Ra);
+      16 -        Assert.Equal(Medicina.Id, aluno.CursoId);              
+      16 +        Assert.Equal(_medicina.Id, aluno.CursoId);             
+      17          Assert.Equal(12, aluno.Semestre);
+      18      }
+      19  
+     ...
+      23      public void Semestre_do_aluno_fica_entre_1_e_a_duracao_do_c
+          urso(int semestre)
+      24      {
+      25          Assert.Throws<DomainException>(
+      26 -            () => CadastroElegivel.Aluno("123456", "ana@al.unie
+         -duk.com.br", "Ana Souza", Medicina, semestre));                
+      26 +            () => CadastroElegivel.Aluno("123456", "ana@al.unie
+         +duk.com.br", "Ana Souza", _medicina, semestre));               
+      27      }
+      28  
+      29      [Theory]
+     ...
+      32      public void Aluno_sem_ra_e_recusado(string ra)
+      33      {
+      34          Assert.Throws<DomainException>(
+      35 -            () => CadastroElegivel.Aluno(ra, "ana@al.unieduk.co
+         -m.br", "Ana Souza", Medicina, 1));                             
+      35 +            () => CadastroElegivel.Aluno(ra, "ana@al.unieduk.co
+         +m.br", "Ana Souza", _medicina, 1));                            
+      36      }
+      37  
+      38      [Theory]
+     ...
+      43      [InlineData("ana@x@y")]
+      44      public void Email_sem_forma_de_email_e_recusado(string emai
+          l)
+      45      {
+      46 -        Assert.Throws<DomainException>(() => CadastroElegivel.A
+         -luno("123456", email, "Ana Souza", Medicina, 1));              
+      46 +        Assert.Throws<DomainException>(() => CadastroElegivel.A
+         +luno("123456", email, "Ana Souza", _medicina, 1));             
+     … 3 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Domain.Tests\Academico\VinculosTests.cs
+     (+19 -19)
+       4  
+       5  public class VinculosTests
+       6  {
+       7 -    private static readonly Curso Computacao = new("Ciência da 
+         -Computação", "CC", 8);                                         
+       8 -    private static readonly Turma BancoDeDados2026 = new(new Ma
+         -teria(Computacao, "Banco de Dados"), Calendario2026.Segundo());
+       7 +    private static readonly Curso _computacao = new("Ciência da
+         + Computação", "CC", 8);                                        
+       8 +    private static readonly Turma _bancoDeDados2026 = new(new M
+         +ateria(_computacao, "Banco de Dados"), Calendario2026.Segundo()
+         +);                                                             
+       9  
+      10 -    private static readonly CadastroElegivel Aluno =           
+      11 -        CadastroElegivel.Aluno("123456", "ana@al.unieduk.com.br
+         -", "Ana Souza", Computacao, 3);                                
+      10 +    private static readonly CadastroElegivel _aluno =          
+      11 +        CadastroElegivel.Aluno("123456", "ana@al.unieduk.com.br
+         +", "Ana Souza", _computacao, 3);                               
+      12  
+      13 -    private static readonly CadastroElegivel Professor =       
+      13 +    private static readonly CadastroElegivel _professor =      
+      14          CadastroElegivel.Professor("bruno@prof.unieduk.com.br",
+           "Bruno Lima");
+      15  
+      16 -    private static readonly CadastroElegivel ProfessorEInstitui
+         -cao =                                                          
+      16 +    private static readonly CadastroElegivel _professorEInstitu
+         +icao =                                                         
+      17          CadastroElegivel.Professor("carla@unieduk.com.br", "Car
+          la Dias", tambemInstituicao: true);
+      18  
+      19 -    private static readonly CadastroElegivel Instituicao =     
+      19 +    private static readonly CadastroElegivel _instituicao =    
+      20          CadastroElegivel.Instituicao("secretaria@unieduk.com.br
+          ", "Secretaria UniMax");
+      21  
+      22      [Fact]
+      23      public void Aluno_se_matricula_na_turma()
+      24      {
+      25 -        var matricula = new Matricula(Aluno, BancoDeDados2026);
+      25 +        var matricula = new Matricula(_aluno, _bancoDeDados2026
+         +);                                                             
+      26  
+      27 -        Assert.Equal(Aluno.Id, matricula.AlunoId);             
+      28 -        Assert.Equal(BancoDeDados2026.Id, matricula.TurmaId);  
+      27 +        Assert.Equal(_aluno.Id, matricula.AlunoId);            
+      28 +        Assert.Equal(_bancoDeDados2026.Id, matricula.TurmaId); 
+      29      }
+      30  
+      31      [Fact]
+      32      public void Professor_nao_se_matricula()
+      33      {
+     … 47 more lines (ctrl+o to expand)
+
+● The sed also changed the string "Medicina" in CadastroElegivelTests; I'm
+  fixing that.
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Academico\CadastroElegivelTests.cs)
+  ⎿  Added 1 line, removed 1 line
+       4  
+       5  public class CadastroElegivelTests
+       6  {
+       7 -    private static readonly Curso _medicina = new("_medicina", 
+         -"MED", 12);                                                    
+       7 +    private static readonly Curso _medicina = new("Medicina", "
+         +MED", 12);                                                     
+       8  
+       9      [Fact]
+      10      public void Aluno_guarda_ra_curso_e_semestre()
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A E1 está pronta para sua revisão e ainda não fiz o commit. Os 47 testes de
+  domínio e os 4 de arquitetura passam, já sem o --ignore-exit-code 8, e o build
+  em Release e o dotnet format estão limpos. Os testes de integração não
+  rodaram nesta máquina porque o Docker Desktop está desligado. A E1 não toca no
+  que eles cobrem, mas eles voltam a valer a partir da E4.
+
+  O que entrou, em apps/api/src/Maxx.Domain/
+  - Calendário: Bimestre, SemestreLetivo, AnoLetivo e Calendario. O Calendario
+    diz em qual bimestre e semestre cai um instante; fora deles (férias e
+    recesso) a resposta é nula.
+  - Fuso: FusoHorario lê qualquer instante pelo relógio de America/Sao_Paulo.
+  - Modelo acadêmico: Curso (agora com DuracaoEmSemestres), Materia, Turma,
+    CadastroElegivel, Matricula, VinculoProfessor e o enum Papeis.
+  - Apoio: DomainException e um ajudante interno para texto obrigatório.
+
+  Testes, em apps/api/tests/Maxx.Domain.Tests/Academico/
+  - O formato do calendário: dois semestres, dois bimestres por semestre, sem
+    sobreposição e na ordem certa.
+  - A fronteira em São Paulo: 23:59 de 03/04 ainda cai no bimestre 1, e 00:00 de
+    04/04 (03:00 UTC) já cai fora.
+  - Um instante com outro fuso horário é lido pelo relógio de São Paulo.
+  - O recesso de julho e o de dezembro a janeiro não caem em bimestre nem em
+    semestre.
+  - O semestre do aluno vai de 1 até a duração do curso (o de Medicina vai até
+    o 12).
+  - Só aluno se matricula; professor se vincula, inclusive o que também é
+    instituição.
+
+  Escolhas minhas que não estavam no plano (confirme ou peça ajuste)
+  1. Bimestre numerado de 1 a 4 no ano, como você escreveu: o semestre 1 tem os
+     bimestres 1 e 2, o semestre 2 tem o 3 e o 4. A C14 conta 4 bimestres no
+     ano, e isso bate.
+  2. O semestre não guarda datas próprias. Ele começa no início do primeiro
+     bimestre e termina no fim do segundo. Os dias entre dois bimestres do mesmo
+     semestre, como o domingo 27/09, contam como semestre e não como bimestre.
+  3. Papeis é um enum de combinação. O domínio só deixa um cadastro ter um
+     papel, com uma exceção: professor e instituição juntos.
+  4. A sigla do curso só aceita letras maiúsculas sem acento, porque ela vira o
+     sufixo do arroba.
+  5. O e-mail só tem a forma conferida aqui: um @, com texto dos dois lados. A
+     lista de domínios aceitos fica para o passo 3.
+  6. A matrícula não confere se a matéria é do curso do aluno. Os docs não dizem
+     que isso é proibido, então não travei.
+  7. O id é um Guid v7 gerado no domínio. Os construtores privados que o EF
+     exige entram na E4, junto com o mapeamento, para não pôr infraestrutura no
+     domínio antes da hora.
+
+  Commit proposto: feat(api): adiciona modelo acadêmico e calendário ao domínio
+
+  Se aprovar, faço o commit e sigo para a E2.
+
+✻ Churned for 5m 44s · done 22:00
