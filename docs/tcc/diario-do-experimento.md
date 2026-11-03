@@ -335,3 +335,17 @@ que a sessão rodou em `claude-opus-5-5` com esforço `medium`, enquanto a `eng_
 rodou em `claude-opus-5` com `high`, mesma opção no `/model`, cinco minutos de
 intervalo. Decisão: esse é o ambiente fixo daqui em diante, nas duas trilhas, com
 `/model` conferido antes de cada sessão; a `eng_00` fica como exceção declarada.
+
+02/11 (noite) a 03/11: `eng_02_dados` inteira numa sessão de 4 h 21 min. `/model`
+conferido antes do primeiro prompt (Opus 5.5, medium, 2.1.308). Plano de sete etapas
+com nove perguntas; o agente se recusou a inventar o calendário 2026, que o autor
+declarou como aproximado (a UniMAX não publica), e os cursos foram conferidos no site
+(CC, ADM, MED com 12 semestres, IA). Etapas E1 a E7 revisadas por export (`dados-r2` a
+`r8`): domínio acadêmico e catálogo com TDD, leitor de JSON estrito com passo na CI,
+duas migrations, seeder base idempotente com versão por item, seed demo. Episódio
+registrado: na E7 o autor acusou falta de um curso, o agente mostrou que a resposta
+enviada do plano dizia três (o autor colou a primeira versão, sem IA) e que os docs
+também, não mudou nada e ofereceu opções; o autor reconheceu e escolheu quatro cursos
+com docs ajustados (`r9`). PR #3 com oito commits, CI verde, merge na `main`
+(`a84a868`). Registro em `resultados/engenheiro/eng_02_dados.md`. Próxima:
+`eng_03_auth`.
