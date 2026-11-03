@@ -787,3 +787,381 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
   Se aprovar, faço o commit e sigo para a E2.
 
 ✻ Churned for 5m 44s · done 22:00
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
+
+❯ E1 aprovada. As escolhas 1, 2, 3, 4, 5 e 7 ficam como estão. A 6 muda: a      
+  matrícula só aceita turma de matéria do curso do aluno; aluno de              
+  Administração não entra em turma de Algoritmos. Adiciona o teste que recusa e 
+  o que aceita. Commita com a mensagem proposta, push, e segue para a E2; para  
+  para a minha revisão no fim dela. O Docker Desktop vai estar ligado a partir  
+  da E4.                                                                        
+
+● Write(apps\api\src\Maxx.Domain\Academico\Turma.cs)  ⎿  Added 3 lines
+       9          ArgumentNullException.ThrowIfNull(semestre);
+      10  
+      11          Id = Guid.CreateVersion7();
+      12 +        Materia = materia;                                     
+      13          MateriaId = materia.Id;
+      14          SemestreLetivoId = semestre.Id;
+      15      }
+     ...
+      18  
+      19      public Guid MateriaId { get; private set; }
+      20  
+      21 +    public Materia Materia { get; private set; }               
+      22 +                                                               
+      23      public Guid SemestreLetivoId { get; private set; }
+      24  }
+
+● Update(apps\api\src\Maxx.Domain\Academico\Matricula.cs)
+  ⎿  Added 6 lines
+      13              throw new DomainException($"Só aluno se matricula e
+          m turma; {aluno.Email} é {aluno.Papeis}.");
+      14          }
+      15  
+      16 +        if (turma.Materia.CursoId != aluno.CursoId)            
+      17 +        {                                                      
+      18 +            throw new DomainException(                         
+      19 +                $"{aluno.Email} não pode se matricular em {turm
+         +a.Materia.Nome}: a matéria é de outro curso.");                
+      20 +        }                                                      
+      21 +                                                               
+      22          Id = Guid.CreateVersion7();
+      23          AlunoId = aluno.Id;
+      24          TurmaId = turma.Id;
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Academico\VinculosTests.cs)
+  ⎿  Added 22 lines
+      29      }
+      30  
+      31      [Fact]
+      32 +    public void Aluno_se_matricula_em_turma_de_materia_do_propr
+         +io_curso()                                                     
+      33 +    {                                                          
+      34 +        var administracao = new Curso("Administração", "ADM", 8
+         +);                                                             
+      35 +        var aluna = CadastroElegivel.Aluno("654321", "bia@al.un
+         +ieduk.com.br", "Bia Rocha", administracao, 1);                 
+      36 +        var marketing = new Turma(new Materia(administracao, "M
+         +arketing"), Calendario2026.Segundo());                         
+      37 +                                                               
+      38 +        var matricula = new Matricula(aluna, marketing);       
+      39 +                                                               
+      40 +        Assert.Equal(marketing.Id, matricula.TurmaId);         
+      41 +    }                                                          
+      42 +                                                               
+      43 +    [Fact]                                                     
+      44 +    public void Aluno_nao_se_matricula_em_turma_de_materia_de_o
+         +utro_curso()                                                   
+      45 +    {                                                          
+      46 +        var administracao = new Curso("Administração", "ADM", 8
+         +);                                                             
+      47 +        var aluna = CadastroElegivel.Aluno("654321", "bia@al.un
+         +ieduk.com.br", "Bia Rocha", administracao, 1);                 
+      48 +        var algoritmos = new Turma(new Materia(_computacao, "Al
+         +goritmos e Programação"), Calendario2026.Segundo());           
+      49 +                                                               
+      50 +        Assert.Throws<DomainException>(() => new Matricula(alun
+         +a, algoritmos));                                               
+      51 +    }                                                          
+      52 +                                                               
+      53 +    [Fact]                                                     
+      54      public void Professor_nao_se_matricula()
+      55      {
+      56          Assert.Throws<DomainException>(() => new Matricula(_pro
+          fessor, _bancoDeDados2026));
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo verde, com 49 testes de domínio. Faço o commit sem rodapé de co-autoria,
+  como pede o CLAUDE.md, e o push.
+
+  Pushed to feat/passo-02-dados (ctrl+o to expand)
+  ⎿  PostToolUse:Bash says: Tip: Run /ultrareview before you push to catch bugs 
+     with a cloud-based multi-agent review — 3 free reviews left.
+
+● A E1 está no commit 4b235e9, já enviado. Antes de escrever as regras de
+  deduplicação do validador, confiro no JSON como repetivel, limitePorPeriodo e
+  a chave de deduplicação se combinam.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Confirmei que as três condições se mantêm nos 46 itens: todo item repetivel
+  tem ocorrencia na chave com limite de 2 ou mais, e a chave sempre inclui o
+  campo do período de referência. Vou transformar isso em regra do validador e
+  escrever o domínio do catálogo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Catalogo\Tier.cs)
+  ⎿  Wrote 29 lines to apps\api\src\Maxx.Domain\Catalogo\Tier.cs
+       1 namespace Maxx.Domain.Catalogo;
+       2 
+       3 // O metal do medalhão. Define a faixa de pontos do item; não ex
+         iste sub-tier.
+       4 public enum Tier
+       6     Bronze,
+       7     Prata,
+       8     Ouro,
+       9     Diamante,
+      10 }
+     … +22 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Catalogo\Enumeracoes.cs)
+  ⎿  Wrote 49 lines to apps\api\src\Maxx.Domain\Catalogo\Enumeracoes.cs
+       1 namespace Maxx.Domain.Catalogo;
+       2 
+       3 public enum TipoDeItem
+       4 {
+       5     Medalha,
+       7     Conquista,
+       8 }
+       9 
+      10 // Medalha usa bimestre ou semestre; prêmio de participação, o e
+         vento; conquista,
+     … +40 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Catalogo\ItemCatalogo.cs)
+  ⎿  Wrote 74 lines to apps\api\src\Maxx.Domain\Catalogo\ItemCatalogo.cs
+       1 namespace Maxx.Domain.Catalogo;
+       2 
+       3 // Um item do catálogo, como está em data/catalogo/. Tier e pont
+       4 // concede escolhe o item, ninguém digita valor. A raridade não 
+         está aqui: é derivada da
+       5 // escassez pelo worker.
+       6 public abstract record ItemCatalogo
+       8     public required string Codigo { get; init; }
+       9 
+      10     public required string Nome { get; init; }
+     … +70 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Catalogo\RegraDeConquista.cs)
+  ⎿  Wrote 57 lines to
+     apps\api\src\Maxx.Domain\Catalogo\RegraDeConquista.cs
+       1 namespace Maxx.Domain.Catalogo;
+       2 
+       3 // A regra declarativa de docs/regras-conquista.md. É dado, não 
+       4 // executa (passo 9).
+       5 public sealed record RegraDeConquista
+       6 {
+       7     public required FormaDeContagem Forma { get; init; }
+       9     // Nulos só na forma customizada, que delega tudo à implemen
+         tação.
+      10     public FonteDeContagem? Fonte { get; init; }
+     … +52 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Catalogo\Familia.cs)
+  ⎿  Wrote 16 lines to apps\api\src\Maxx.Domain\Catalogo\Familia.cs
+      1 namespace Maxx.Domain.Catalogo;
+      2 
+      3 // A trilha do design: itens em ordem, o próximo em cadeado. Não 
+        concede nada, não pontua
+      4 // e não entra em contagem de conquista.
+      5 public sealed record Familia
+      6 {
+      7     public required string Codigo { get; init; }
+      8 
+      9     public required string Nome { get; init; }
+     … +8 lines (ctrl+o to expand)
+
+● Agora o validador, que junta todos os erros antes de responder.
+
+● Write(apps\api\src\Maxx.Domain\Catalogo\CatalogoValidator.cs)
+  ⎿  Wrote 380 lines to
+     apps\api\src\Maxx.Domain\Catalogo\CatalogoValidator.cs
+       1 namespace Maxx.Domain.Catalogo;
+       3 // Referencia é o código do item ou da família com problema.
+       4 public sealed record ErroDeCatalogo(string Referencia, string Me
+         nsagem)
+       6     public override string ToString() => $"{Referencia}: {Mensag
+         em}";
+       8 
+       9 // O catálogo é dado, e perde o que o compilador daria de graça 
+         (ADR 0004). Este
+         var qualquer coisa.
+     … +450 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Catalogo\CatalogoValidator.cs)
+  ⎿  Removed 5 lines
+      320                      erros.Add(new(codigo, "alvo todasAsMatricu
+           lasDoPeriodo exige gatilho fechamentoDePeriodo."));
+      321                  }
+      322  
+      323 -                if (conquista.Periodo == Periodo.Curso)       
+      324 -                {                                             
+      325 -                    erros.Add(new(codigo, "alvo todasAsMatricu
+          -lasDoPeriodo não existe no período curso, que não tem fronteir
+          -a."));                                                        
+      326 -                }                                             
+      327 -                                                              
+      323                  break;
+      324          }
+      325      }
+
+● Update(apps\api\src\Maxx.Domain\Catalogo\CatalogoValidator.cs)
+  ⎿  Added 6 lines
+      202              erros.Add(new(codigo, "conquista é de bimestre, se
+           mestre, ano ou curso, não de evento."));
+      203          }
+      204  
+      205 +        // A instância do período curso é o próprio aluno, sem
+          + fronteira de data: nunca fecha.                              
+      206 +        if (conquista.Periodo == Periodo.Curso && conquista.Ga
+          +tilho == Gatilho.FechamentoDePeriodo)                         
+      207 +        {                                                     
+      208 +            erros.Add(new(codigo, "período curso não tem fecha
+          +mento: o gatilho é porFato."));                               
+      209 +        }                                                     
+      210 +                                                              
+      211          if (regra.Forma == FormaDeContagem.Customizada)
+      212          {
+      213              if (string.IsNullOrWhiteSpace(regra.Implementacao)
+           )
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Catalogo\CatalogoDeTeste.cs)
+  ⎿  Wrote 152 lines to
+     apps\api\tests\Maxx.Domain.Tests\Catalogo\CatalogoDeTeste.cs
+       1 using Maxx.Domain.Catalogo;
+       2 
+       3 namespace Maxx.Domain.Tests.Catalogo;
+       5 // Um catálogo pequeno e válido, com um item de cada caso que o 
+         validador olha. Cada teste
+       6 // troca um item ou uma família e confere o erro.
+       7 internal static class CatalogoDeTeste
+       9     private static readonly CampoDeDeduplicacao[] _chaveRepetive
+         l =
+      10     [
+     … +155 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Catalogo\CatalogoValidatorTests.cs)
+  ⎿  Wrote 236 lines to
+     apps\api\tests\Maxx.Domain.Tests\Catalogo\CatalogoValidatorTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using static Maxx.Domain.Tests.Catalogo.CatalogoDeTeste;
+       3 
+       4 namespace Maxx.Domain.Tests.Catalogo;
+       5 
+       7 {
+       8     private static void AssertErro(Domain.Catalogo.Catalogo cata
+         logo, string referencia, string trecho)
+       9     {
+      10         var erros = CatalogoValidator.Validar(catalogo);
+     … +263 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Catalogo\RegraDeConquistaValidatorTests
+       .cs)
+  ⎿  Wrote 172 lines to apps\api\tests\Maxx.Domain.Tests\Catalogo\RegraDeCo
+     nquistaValidatorTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using static Maxx.Domain.Tests.Catalogo.CatalogoDeTeste;
+       3 
+       4 namespace Maxx.Domain.Tests.Catalogo;
+       5 
+       7 {
+       8     private static void AssertErro(ItemConquista conquista, stri
+         ng trecho)
+       9     {
+      10         var erros = CatalogoValidator.Validar(Com(conquista));
+     … +188 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Catalogo\FamiliaValidatorTests.cs)
+  ⎿  Wrote 73 lines to
+     apps\api\tests\Maxx.Domain.Tests\Catalogo\FamiliaValidatorTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using static Maxx.Domain.Tests.Catalogo.CatalogoDeTeste;
+       3 
+       4 namespace Maxx.Domain.Tests.Catalogo;
+       5 
+       7 {
+       8     private static void AssertErro(Domain.Catalogo.Catalogo cata
+         logo, string referencia, string trecho)
+       9     {
+      10         var erros = CatalogoValidator.Validar(catalogo);
+     … +75 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Catalogo\RegraDeConquista.cs)  ⎿  Added 1 line, removed 1 line
+      51  
+      52      public bool EhTodasAsMatriculasDoPeriodo => Fixo is null;
+      53  
+      54 -    public static AlvoDeConquista TodasAsMatriculasDoPeriodo { 
+         -get; } = new(null);                                            
+      54 +    public static AlvoDeConquista TodasAsMatriculasDoPeriodo { 
+         +get; } = new(fixo: null);                                      
+      55  
+      56      public static AlvoDeConquista De(int fixo) => new(fixo);
+      57  }
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A E1 foi para o commit 4b235e9 e já está no remoto. Ela recebeu a mudança que
+  você pediu: a matrícula agora só aceita turma de matéria do curso do aluno, e
+  entraram o teste que aceita e o que recusa. Para isso, a Turma passou a
+  guardar a referência à Materia.
+
+  A E2 está pronta para sua revisão e ainda sem commit. Os 123 testes de domínio
+  e os 4 de arquitetura passam, e o build e o dotnet format estão limpos.
+
+  O que entrou, em apps/api/src/Maxx.Domain/Catalogo/
+  - Tier, com as faixas de pontos.
+  - ItemCatalogo, com três variantes: ItemMedalha, ItemPremioParticipacao e
+    ItemConquista.
+  - RegraDeConquista, com o alvo fixo ou TodasAsMatriculasDoPeriodo.
+  - Familia e Catalogo.
+  - CatalogoValidator, que devolve a lista de todos os erros, cada um com o
+    código do item ou da família.
+
+  Os itens são dados imutáveis. A versao e o mapeamento para o banco ficam para
+  a E5 e a E6.
+
+  O que o validador confere
+  - O código é único e o prefixo bate com o tipo; nome e descrição não podem
+    estar vazios; os pontos ficam dentro da faixa do tier.
+  - Medalha:
+    - período bimestre ou semestre;
+    - acima de Bronze, só com período semestre.
+  - Chave de deduplicação:
+    - sempre tem o aluno, só usa campos do próprio tipo e não repete campo;
+    - na medalha, tem item, matéria e o campo do período de referência;
+    - no prêmio de participação, tem o evento ou a data do evento.
+  - Regra de conquista:
+    - o código em filtroItens existe, é da fonte da regra e nunca é conquista;
+    - filtroItens vazio é recusado;
+    - contagem não agrupa, e contagemDistinta exige agrupamento;
+    - agruparPor precisa ser compatível com a fonte;
+    - um alvo fixo é pelo menos 1;
+    - fonte e alvo são obrigatórios, salvo na forma customizada;
+    - a forma customizada exige o nome da implementação, e só ela pode ter um.
+  - Família:
+    - a família de cada item existe, e família e ordem vêm juntas;
+    - a ordem vai de 1 até o número de passos, sem buraco nem repetição;
+    - os pontos sobem a cada passo.
+  - A vigência não pode terminar antes de começar.
+
+  Regras que tirei dos docs, não de uma frase literal (confirme ou corte)
+  1. Repetível, ocorrência e limite andam juntos. Uma medalha repetivel tem
+     ocorrencia na chave e um limite de 2 ou mais; uma que não é repetível não
+     tem ocorrencia e tem limite 1. Os 11 itens atuais seguem isso; tirei a
+     regra da regraDeRepeticao de medalhas.json.
+  2. Alvo todasAsMatriculasDoPeriodo exige o gatilho fechamentoDePeriodo. O
+     motivo é a seção 5 de regras-conquista.md: esse alvo só existe completo no
+     fim do período.
+  3. Período curso não aceita o gatilho fechamentoDePeriodo. Esse período não
+     tem fronteira de data, então nunca fecha.
+  4. Com a fonte ambos, nenhum agrupamento é aceito. Matéria e bimestre só
+     existem na medalha, e o tipo de evento só no prêmio. Nenhuma conquista da
+     fase 1 usa essa fonte.
+  5. filtroItens: [] é erro. Quem quer qualquer item da fonte usa null, para a
+     lista vazia não ser lida como "nenhum item".
+
+  Commit proposto: feat(api): adiciona catálogo e validador ao domínio
+
+  Se aprovar, faço o commit, o push e sigo para a E3, que lê os JSON reais e
+  roda este validador na CI.
+
+✻ Cogitated for 7m 38s · done 22:11
