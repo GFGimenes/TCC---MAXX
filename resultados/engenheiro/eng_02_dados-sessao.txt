@@ -3437,3 +3437,517 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
   conferência de restricao_curso que você pediu.
 
 ✻ Cogitated for 10m 4s · done 22:52
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_02_dados-sessao.txt
+
+❯ E6 aprovada. As cinco escolhas ficam: calendário como arquivo por ano em      
+  data/calendario, ano ausente falha o seed, comparação campo a campo por       
+  reflexão com a regra como árvore, família sem versão, diretório de dados por  
+  configuração. A limitação do índice (família, ordem) fica registrada como     
+  está; se um dia precisar, resolve com constraint adiável. Commita com a       
+  mensagem proposta, push, e segue para a E7; para para a minha revisão no fim  
+  dela.                                                                         
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E6 já foi commitada e enviada (4823185); agora vou começar a E7, criando o
+  mundo de demonstração como data/demo/mundo.json, que cresce a cada passo até
+  os 150 alunos do passo 12 sem alterar código, usando nomes fictícios e os
+  cursos/matérias fornecidos.
+
+● Write(data\demo\mundo.json)
+  ⎿  Wrote 236 lines to data\demo\mundo.json
+       1 {
+         térias são da UniMax; pessoas, RAs e e-mails são fictícios. Cres
+         ce por passo até o seed completo do passo 12. O seed só acrescen
+         divergir deste arquivo. Cada matéria lista os semestres letivos 
+          em todas as turmas delas.",
+       3   "instituicao": [
+       5       "email": "coordenacao@unieduk.com.br",
+       6       "nomeCompleto": "Coordenação UniMax"
+       8   ],
+      10     {
+     … +240 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora o leitor do mundo, que valida o arquivo antes de qualquer acesso ao
+  banco.
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\MundoDemoReader.cs)
+  ⎿  Wrote 139 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\MundoDemoReader.cs
+       1 using System.Text.Json;
+       2 using System.Text.Json.Serialization;
+       3 
+       5 
+       6 // data/demo/mundo.json. Aqui só a coerência interna do arquivo 
+         (e-mail e RA únicos,
+       7 // matérias citadas existentes). As regras de cada entidade são 
+       8 // quando o seeder constrói os objetos.
+       9 public static class MundoDemoReader
+      10 {
+     … +152 lines (ctrl+o to expand)
+
+● Agora a refatoração do seeder em dois perfis: um lock e uma transação comuns,
+  e SeedBaseAsync e SeedDemoAsync com resultados próprios.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Seed" && node -e "
+      const fs=require('fs'); let s=fs.readFile…)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs (+27 
+     -10)
+      17  
+      18      private string Dados => Path.GetFullPath(options.Value.Dire
+          torioDeDados);
+      19  
+      20 -    public async Task<ResultadoDoSeed> SeedAsync(PerfilDeSeed p
+         -erfil, CancellationToken cancellationToken)                    
+      20 +    public async Task SeedAsync(PerfilDeSeed perfil, Cancellati
+         +onToken cancellationToken)                                     
+      21      {
+      22 -        if (perfil != PerfilDeSeed.Base)                       
+      22 +        switch (perfil)                                        
+      23          {
+      24 -            throw new SeedException($"Perfil {perfil} ainda não
+         - existe.");                                                    
+      24 +            case PerfilDeSeed.Base:                            
+      25 +                await SeedBaseAsync(cancellationToken);        
+      26 +                break;                                         
+      27 +            case PerfilDeSeed.Demo:                            
+      28 +                await SeedDemoAsync(cancellationToken);        
+      29 +                break;                                         
+      30 +            default:                                           
+      31 +                throw new SeedException($"Perfil {perfil} não e
+         +xiste.");                                                      
+      32          }
+      33 +    }                                                          
+      34  
+      35 +    public async Task<ResultadoDoSeedBase> SeedBaseAsync(Cancel
+         +lationToken cancellationToken)                                 
+      36 +    {                                                          
+      37          // Tudo lido e validado antes de abrir a transação: arq
+          uivo inválido não toca no banco.
+      38          var catalogo = CatalogoReader.Ler(Path.Combine(Dados, "
+          catalogo"));
+      39          if (!catalogo.Valido)
+     ...
+      45  
+      46          var calendario = CalendarioReader.Ler(Path.Combine(Dado
+          s, "calendario"));
+      47  
+      38 -        await using var transacao = await db.Database.BeginTran
+         -sactionAsync(cancellationToken);                               
+      39 -                                                               
+      40 -        LogWaitingForLock(logger);                             
+      41 -        await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_
+         -xact_lock({AdvisoryLockKey})", cancellationToken);             
+      48 +        await using var transacao = await AbrirComLockAsync(can
+         +cellationToken);                                               
+      49  
+      50          var (familiasNovas, familiasAtualizadas) = await Gravar
+          FamiliasAsync(catalogo.Catalogo!, cancellationToken);
+      51          await db.SaveChangesAsync(cancellationToken);
+     ...
+      56  
+      57          await transacao.CommitAsync(cancellationToken);
+      58  
+     … 27 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\SeedOptions.cs (+10 -1)
+      18      Demo,
+      19  }
+      20  
+      21 -public sealed record ResultadoDoSeed(                          
+      21 +public sealed record ResultadoDoSeedBase(                      
+      22      int ItensNovos,
+      23      int ItensAtualizados,
+      24      int ItensInalterados,
+     ...
+      26      int FamiliasAtualizadas,
+      27      int AnosNovos,
+      28      int AnosAtualizados);
+      29 +                                                               
+      30 +// Demo só acrescenta: o que já existe e bate com o arquivo fic
+         +a como está.                                                   
+      31 +public sealed record ResultadoDoSeedDemo(                      
+      32 +    int CursosNovos,                                           
+      33 +    int MateriasNovas,                                         
+      34 +    int TurmasNovas,                                           
+      35 +    int CadastrosNovos,                                        
+      36 +    int MatriculasNovas,                                       
+      37 +    int VinculosNovos);                                        
+
+● Agora o perfil demo em si.
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs)
+  ⎿  Wrote 277 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs
+       1 using Maxx.Domain;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Infrastructure.Persistence;
+       5 
+       6 namespace Maxx.Infrastructure.Seed;
+       7 
+       8 // O perfil demo: cursos, matérias, turmas e pessoas de data/dem
+       9 //
+      10 // Diferente do base, o demo só acrescenta. Linha no banco que n
+         ão está no arquivo fica
+     … +331 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Compila. Ajusto a factory e os testes da E6 para os nomes novos, e tiro o
+  teste de "demo ainda não existe".
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs');…)
+  ⎿  18
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\MaxxApiFactory.cs (+8
+     -2)
+      27      }
+      28  
+      29      // O mesmo caminho do subcomando seed, num escopo próprio.
+      30 -    public async Task<ResultadoDoSeed> SeedAsync(PerfilDeSeed p
+         -erfil, CancellationToken cancellationToken)                    
+      30 +    public async Task<ResultadoDoSeedBase> SeedBaseAsync(Cancel
+         +lationToken cancellationToken)                                 
+      31      {
+      32          await using var scope = Services.CreateAsyncScope();
+      33 -        return await scope.ServiceProvider.GetRequiredService<D
+         -atabaseSeeder>().SeedAsync(perfil, cancellationToken);         
+      33 +        return await scope.ServiceProvider.GetRequiredService<D
+         +atabaseSeeder>().SeedBaseAsync(cancellationToken);             
+      34 +    }                                                          
+      35 +                                                               
+      36 +    public async Task<ResultadoDoSeedDemo> SeedDemoAsync(Cancel
+         +lationToken cancellationToken)                                 
+      37 +    {                                                          
+      38 +        await using var scope = Services.CreateAsyncScope();   
+      39 +        return await scope.ServiceProvider.GetRequiredService<D
+         +atabaseSeeder>().SeedDemoAsync(cancellationToken);             
+      40      }
+      41  }
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs (+21
+     -29)
+      24      {
+      25          await using var factory = await MigradoAsync(postgres);
+      26  
+      27 -        var resultado = await factory.SeedAsync(PerfilDeSeed.Ba
+         -se, Ct);                                                       
+      27 +        var resultado = await factory.SeedBaseAsync(Ct);       
+      28  
+      29 -        Assert.Equal(new ResultadoDoSeed(46, 0, 0, 8, 0, 1, 0),
+         - resultado);                                                   
+      29 +        Assert.Equal(new ResultadoDoSeedBase(46, 0, 0, 8, 0, 1,
+         + 0), resultado);                                               
+      30  
+      31          await using var scope = factory.Services.CreateAsyncSco
+          pe();
+      32          var db = scope.ServiceProvider.GetRequiredService<MaxxD
+          bContext>();
+     ...
+      49      public async Task Rodar_de_novo_sem_mudar_os_arquivos_nao_m
+          uda_nada()
+      50      {
+      51          await using var factory = await MigradoAsync(postgres);
+      52 -        await factory.SeedAsync(PerfilDeSeed.Base, Ct);        
+      52 +        await factory.SeedBaseAsync(Ct);                       
+      53          var antes = await FotografiaAsync(factory);
+      54  
+      55 -        var resultado = await factory.SeedAsync(PerfilDeSeed.Ba
+         -se, Ct);                                                       
+      55 +        var resultado = await factory.SeedBaseAsync(Ct);       
+      56  
+      57 -        Assert.Equal(new ResultadoDoSeed(0, 0, 46, 0, 0, 0, 0),
+         - resultado);                                                   
+      57 +        Assert.Equal(new ResultadoDoSeedBase(0, 0, 46, 0, 0, 0,
+         + 0), resultado);                                               
+      58          Assert.Equal(antes, await FotografiaAsync(factory));
+      59      }
+      60  
+     ...
+      62      public async Task Mudar_os_pontos_de_um_item_sobe_a_versao_
+          so_dele()
+      63      {
+      64          await using var factory = await MigradoAsync(postgres, 
+          _dados);
+      65 -        await factory.SeedAsync(PerfilDeSeed.Base, Ct);        
+      65 +        await factory.SeedBaseAsync(Ct);                       
+      66  
+      67          AlterarItem("medalhas.json", "M02", item => item["ponto
+          s"] = 20);
+      68 -        var resultado = await factory.SeedAsync(PerfilDeSeed.Ba
+         -se, Ct);                                                       
+      68 +        var resultado = await factory.SeedBaseAsync(Ct);       
+      69  
+      70 -        Assert.Equal(new ResultadoDoSeed(0, 1, 45, 0, 0, 0, 0),
+         - resultado);                                                   
+      70 +        Assert.Equal(new ResultadoDoSeedBase(0, 1, 45, 0, 0, 0,
+         + 0), resultado);                                               
+      71          var versoes = await VersoesAsync(factory);
+      72          Assert.Equal((2, 20), versoes["M02"]);
+     … 100 more lines (ctrl+o to expand)
+
+● Os testes do demo também mexem em cópias de data/. Levo a cópia e a edição de
+  JSON para uma classe compartilhada.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\CopiaDeDados.cs)
+  ⎿  Wrote 42 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\CopiaDeDados.cs
+       1 using System.Text.Json.Nodes;
+       2 
+       3 namespace Maxx.Api.IntegrationTests;
+       5 // Uma cópia temporária de data/, para o teste mudar arquivo sem
+          tocar no repositório.
+       6 internal sealed class CopiaDeDados : IDisposable
+       7 {
+       9     {
+      10         Diretorio = Path.Combine(Path.GetTempPath(), $"maxx-dado
+         s-{Guid.NewGuid():N}");
+     … +41 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs'); let s=fs.readF…)
+  ⎿  20:    private string _dados => _copia.Diretorio;
+     66:        await using var factory = await MigradoAsync(postgres, _dad
+     os);
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs (+7 
+     -32)
+      13  // de data/, nunca no repositório.
+      14  public sealed class SeedBaseTests(PostgresFixture postgres) : I
+          ClassFixture<PostgresFixture>, IDisposable
+      15  {
+      16 -    private readonly string _dados = CopiarDados();            
+      16 +    private readonly CopiaDeDados _copia = new();              
+      17  
+      18      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      19  
+      20 -    public void Dispose() => Directory.Delete(_dados, recursive
+         -: true);                                                       
+      20 +    private string _dados => _copia.Diretorio;                 
+      21 +                                                               
+      22 +    public void Dispose() => _copia.Dispose();                 
+      23  
+      24      [Fact]
+      25      public async Task Banco_vazio_recebe_os_46_itens_as_8_famil
+          ias_e_o_calendario_de_2026()
+     ...
+      236      }
+      237  
+      238      private void AlterarItem(string arquivo, string codigo, Ac
+           tion<JsonObject> alteracao) =>
+      237 -        AlterarJson(Path.Combine(_dados, "catalogo", arquivo),
+          - raiz =>                                                      
+      238 -            alteracao(raiz["itens"]!.AsArray().Single(item => 
+          -(string?)item!["codigo"] == codigo)!.AsObject()));            
+      239 -                                                              
+      240 -    private void RemoverItem(string arquivo, string codigo) =>
+      241 -        AlterarJson(Path.Combine(_dados, "catalogo", arquivo),
+          - raiz =>                                                      
+      242 -        {                                                     
+      243 -            var itens = raiz["itens"]!.AsArray();             
+      244 -            itens.Remove(itens.Single(item => (string?)item!["
+          -codigo"] == codigo));                                         
+      245 -        });                                                   
+      239 +        _copia.AlterarItem(arquivo, codigo, alteracao);       
+      240  
+      247 -    private void AlterarCalendario(Action<JsonNode> alteracao)
+          - =>                                                           
+      248 -        AlterarJson(Path.Combine(_dados, "calendario", "2026.j
+          -son"), alteracao);                                            
+      241 +    private void RemoverItem(string arquivo, string codigo) =>
+          + _copia.RemoverItem(arquivo, codigo);                         
+      242  
+      250 -    private static void AlterarJson(string caminho, Action<Jso
+          -nNode> alteracao)                                             
+      251 -    {                                                         
+      252 -        var raiz = JsonNode.Parse(File.ReadAllText(caminho))!;
+      253 -        alteracao(raiz);                                      
+      254 -        File.WriteAllText(caminho, raiz.ToJsonString());      
+      255 -    }                                                         
+      256 -                                                              
+     … 14 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && sed -i 's/\b_dados\b/Dados/g'
+      SeedBaseTests.cs &…)
+  ⎿  20:    private string Dados => _copia.Diretorio;
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs (+8 
+     -8)
+      17  
+      18      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      19  
+      20 -    private string _dados => _copia.Diretorio;                 
+      20 +    private string Dados => _copia.Diretorio;                  
+      21  
+      22      public void Dispose() => _copia.Dispose();
+      23  
+     ...
+      63      [Fact]
+      64      public async Task Mudar_os_pontos_de_um_item_sobe_a_versao_
+          so_dele()
+      65      {
+      66 -        await using var factory = await MigradoAsync(postgres, 
+         -_dados);                                                       
+      66 +        await using var factory = await MigradoAsync(postgres, 
+         +Dados);                                                        
+      67          await factory.SeedBaseAsync(Ct);
+      68  
+      69          AlterarItem("medalhas.json", "M02", item => item["ponto
+          s"] = 20);
+     ...
+      78      [Fact]
+      79      public async Task Versao_nova_e_estavel_ao_rodar_de_novo()
+      80      {
+      81 -        await using var factory = await MigradoAsync(postgres, 
+         -_dados);                                                       
+      81 +        await using var factory = await MigradoAsync(postgres, 
+         +Dados);                                                        
+      82          await factory.SeedBaseAsync(Ct);
+      83          AlterarItem("medalhas.json", "M02", item => item["ponto
+          s"] = 20);
+      84          await factory.SeedBaseAsync(Ct);
+     ...
+      91      [Fact]
+      92      public async Task Mudar_a_regra_de_uma_conquista_sobe_a_ver
+          sao()
+      93      {
+      94 -        await using var factory = await MigradoAsync(postgres, 
+         -_dados);                                                       
+      94 +        await using var factory = await MigradoAsync(postgres, 
+         +Dados);                                                        
+      95          await factory.SeedBaseAsync(Ct);
+      96  
+      97          AlterarItem("conquistas.json", "C02", item => item["reg
+          ra"]!["alvo"] = 4);
+     ...
+      103      [Fact]
+      104      public async Task Item_que_sumiu_do_arquivo_faz_o_seed_fal
+           har_sem_gravar_nada()
+      105      {
+      106 -        await using var factory = await MigradoAsync(postgres,
+          - _dados);                                                     
+      106 +        await using var factory = await MigradoAsync(postgres,
+          + Dados);                                                      
+      107          await factory.SeedBaseAsync(Ct);
+      108  
+      109          // Na mesma rodada, uma mudança válida em outro item: 
+           também não pode entrar.
+     … 24 more lines (ctrl+o to expand)
+
+● Agora os testes do seed demo.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs)
+  ⎿  Wrote 270 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs
+      1 using System.Text.Json.Nodes;
+      2 using Maxx.Domain.Academico;
+      3 using Maxx.Infrastructure.Persistence;
+      4 using Maxx.Infrastructure.Seed;
+      5 using Microsoft.EntityFrameworkCore;
+      6 using Microsoft.Extensions.DependencyInjection;
+      7 using static Maxx.Api.IntegrationTests.BancoDeTeste;
+      8 
+      9 namespace Maxx.Api.IntegrationTests;
+     … +322 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os 26 testes de seed passam, 15 deles do demo. Rodo a suíte inteira e depois o
+  ponta a ponta do demo no Compose.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A E6 está no commit 4823185, já enviado.
+
+  A E7 está pronta para sua revisão e ainda sem commit. Os 205 testes passam,
+  contando 15 novos do demo, e o build, o dotnet format e o Prettier estão
+  limpos.
+
+  Comprovado no Compose: subi com o banco zerado, e o seed base rodou sozinho.
+  - O primeiro docker compose run --rm seeder seed demo gravou 3 cursos, 12
+    matérias, 12 turmas, 19 cadastros, 60 matrículas e 12 vínculos.
+  - O segundo não gravou nada.
+  - No banco, cada curso ficou com 4 turmas, 5 alunos e 1 professor.
+
+  O que entrou
+  - data/demo/mundo.json, com o que você definiu:
+    - CC, ADM e MED, com 8, 8 e 12 semestres, e as 4 matérias de cada um;
+    - uma turma por matéria em 2026/2;
+    - um professor por curso, vinculado às 4 turmas do curso;
+    - cinco alunos por curso, em semestres variados (até o 12º em MED) e
+      matriculados nas 4 turmas;
+    - uma conta de instituição.
+
+    Nomes, RAs e e-mails são fictícios; a observacao do arquivo diz isso.
+  - O MundoDemoReader confere a coerência do arquivo: sigla, e-mail (sem
+    diferenciar maiúsculas) e RA únicos, e matérias citadas existindo no curso.
+    Todo o resto é validado pelo domínio, quando o seeder constrói cada objeto.
+  - O SeedDemoAsync, no mesmo lock e numa transação só.
+    - Exige o base e explica isso se ele não rodou.
+    - Acrescenta o que falta, pela chave natural de cada coisa: sigla, (curso,
+      nome), (matéria, semestre), e-mail e os pares de matrícula e de vínculo.
+    - Conferência que você pediu: toda restricao_curso do catálogo precisa
+      apontar para uma sigla existente. Senão o seed falha sem gravar nada, com
+      uma mensagem como P05 (ENG).
+  - O seeder foi dividido em SeedBaseAsync e SeedDemoAsync, cada um com seu
+    resultado. A cópia temporária de data/ usada pelos testes foi para
+    CopiaDeDados, compartilhada com os testes da E6.
+
+  Os testes cobrem
+  - as contagens e as durações dos cursos;
+  - toda turma com professor e todo aluno com matrícula em 2026/2;
+  - nenhum aluno em turma de outro curso;
+  - rodar de novo sem mudar nada, e o base continuar idempotente depois do demo;
+  - o demo sem o base falhar com explicação;
+  - uma linha de fora do arquivo ficar no banco, e um aluno novo no arquivo
+    entrar sem mexer no resto;
+  - recusas, cada uma sem gravar nada:
+    - cadastro que diverge do arquivo, junto com outra mudança válida da mesma
+      rodada;
+    - semestre do aluno além da duração do curso;
+    - aluno de ADM citando Algoritmos;
+    - e-mail repetido com outra caixa;
+    - turma em 2027/1, que não está no calendário;
+    - restricao_curso válida e inválida.
+
+  Escolhas minhas (confirme ou peça ajuste)
+  1. O mundo é arquivo de dados, como o calendário, e não código. É ele que
+     cresce até os 150 alunos do passo 12.
+  2. O demo só acrescenta e não falha por linha a mais. É diferente do base de
+     propósito: os alunos que a banca criar no passo 5 vão morar nessas tabelas
+     sem estar no arquivo, e um seed que falhasse por eles quebraria na hora da
+     apresentação.
+  3. Uma linha que existe nos dois lugares e diverge faz o seed falhar, em vez 
+     de ser corrigida. O domínio não tem operação de correção de cadastro, e
+     corrigir é ato da instituição, que chega no passo 12.
+  4. Professor e aluno listam as matérias e entram em todas as turmas delas;
+     cada matéria lista os semestres em que tem turma. Assim dá para acrescentar
+     turmas de 2026/1 depois sem mudar o formato do arquivo.
+  5. Os dados fictícios:
+     - RAs de 8 dígitos (2026CCNN);
+     - e-mails nome.sobrenome nos três domínios de produto.md;
+     - a conta de instituição é coordenacao@unieduk.com.br, com o nome
+       "Coordenação UniMax";
+     - os professores são Renata Albuquerque (CC), Marcos Teixeira (ADM) e
+       Helena Duarte (MED).
+
+     O formato do RA não está nos docs. Se a UniMax usa outro, troco no arquivo.
+
+  Commit proposto: feat(seed): adiciona perfil demo do seeder
+
+  Com a E7 aprovada, o passo fecha. Faço o commit e o push, e abro o PR de
+  feat/passo-02-dados para rodada/eng_02_dados com os sete commits. Na descrição
+  do PR não entra rodapé de co-autoria nem menção a ferramenta, como pede o
+  CLAUDE.md.
+
+✻ Churned for 6m 39s · done 23:00
