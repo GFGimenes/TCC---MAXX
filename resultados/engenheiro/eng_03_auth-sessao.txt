@@ -640,3 +640,255 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
 
   Ajusto o que você pedir e faço o commit depois do seu ok. Aí sigo para a E2.
 ✻ Churned for 1m 39s · done 21:10
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E1 aprovada. Os três pontos ficam: professor sem escopo fora de semestre      
+  vigente, dono pode voltar a um prefixo antigo dele, registro de demonstração  
+  sem aceite do termo até o passo 5. Commita com a mensagem proposta, push, e   
+  segue para a E2; para para a minha revisão no fim dela.                       
+
+  Pushed to feat/passo-03-auth (ctrl+o to expand)
+  ⎿  PostToolUse:Bash says: Tip: Run /ultrareview before you push to catch bugs 
+     with a cloud-based multi-agent review — 3 free reviews left.
+
+● E1 commitada e no remoto. Começo a E2 lendo o estilo do domínio e dos testes.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou modelar a E2 em Maxx.Domain/Identidade, começando pelos testes: prefixo,
+  sufixo, arroba, usuário e política de senha.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\PrefixoDeArrobaTests.cs)
+  ⎿  Wrote 150 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\PrefixoDeArrobaTests.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Domain.Tests.Identidade;
+       4 
+       5 public class PrefixoDeArrobaTests
+       6 {
+       7     private static readonly Func<string, bool> _tudoLivre = _ =>
+          true;
+       8 
+       9     [Theory]
+     … +141 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\PoliticaDeSenhaTests.cs)
+  ⎿  Wrote 52 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\PoliticaDeSenhaTests.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Domain.Tests.Identidade;
+       4 
+       5 public class PoliticaDeSenhaTests
+       6 {
+       7     [Theory]
+       8     [InlineData("12345678")]
+       9     [InlineData("senhaboa")]
+      10     [InlineData("        ")]
+     … +42 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs)
+  ⎿  Wrote 241 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Domain.Tests.Identidade;
+       5 
+       6 public class UsuarioTests
+       7 {
+       8     private static readonly DateTimeOffset _agora = new(2026, 11
+         , 3, 15, 0, 0, TimeSpan.Zero);
+       9     private static readonly Curso _cc = new("Ciência da Computaç
+     … +233 lines (~8 KB) (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\SufixoTests.cs)
+  ⎿  Wrote 46 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\SufixoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Domain.Tests.Identidade;
+       5 
+       6 public class SufixoTests
+       7 {
+       8     private static readonly Curso _cc = new("Ciência da Computaç
+         ão", "CC", 8);
+       9 
+     … +37 lines (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\PoliticaDeSenhaTests.cs)
+  ⎿  Added 1 line, removed 1 line
+       8      [InlineData("12345678")]
+       9      [InlineData("senhaboa")]
+      10      [InlineData("        ")]
+      11 -    [InlineData("çãõ€ éà")]                                    
+      11 +    [InlineData("çãõ€ éàü")]                                   
+      12      public void Senha_de_8_caracteres_ou_mais_e_aceita_sem_regr
+          a_de_composicao(string senha)
+      13      {
+      14          PoliticaDeSenha.Validar(senha);
+
+● Write(apps\api\src\Maxx.Domain\Identidade\PrefixoDeArroba.cs)
+  ⎿  Wrote 124 lines to
+     apps\api\src\Maxx.Domain\Identidade\PrefixoDeArroba.cs
+       1 using System.Globalization;
+       2 using System.Text;
+       3 
+       4 namespace Maxx.Domain.Identidade;
+       5 
+       6 // A parte do arroba antes do hífen: a única que o usuário escol
+         he e a que é única no
+       7 // sistema, sem diferenciar maiúsculas (produto.md 2.3.1). Saber
+          se um prefixo está livre
+       8 // é pergunta ao banco; aqui só a forma e a ordem das sugestões.
+     … +116 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\Sufixo.cs)
+  ⎿  Wrote 42 lines to apps\api\src\Maxx.Domain\Identidade\Sufixo.cs
+      1 using Maxx.Domain.Academico;
+      2 
+      3 namespace Maxx.Domain.Identidade;
+      4 
+      5 // A parte do arroba depois do hífen. Nunca escolhida pelo usuári
+        o: segue o papel e,
+      6 // para o aluno, o curso atual ou a marcação de ex-aluno (produto
+        .md 2.3).
+      7 public static class Sufixo
+      8 {
+     … +34 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\PoliticaDeSenha.cs)
+  ⎿  Wrote 19 lines to
+     apps\api\src\Maxx.Domain\Identidade\PoliticaDeSenha.cs
+      1 namespace Maxx.Domain.Identidade;
+      2 
+      3 // De 8 a 128 caracteres, sem regra de composição (NIST SP 800-63
+        B). Conta caractere, não
+      4 // unidade de UTF-16: um emoji é um. A mensagem nunca repete a se
+        nha.
+      5 public static class PoliticaDeSenha
+      6 {
+      7     public const int TamanhoMinimo = 8;
+      8 
+     … +11 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Wrote 179 lines to apps\api\src\Maxx.Domain\Identidade\Usuario.cs
+       1 using Maxx.Domain.Academico;
+       2 
+       3 namespace Maxx.Domain.Identidade;
+       4 
+       5 // A conta. Liga-se a uma linha do cadastro elegível, uma para u
+         ma (um RA, uma conta), e é
+       6 // de lá que vem o papel. Aluno se cadastra pelo app; professor 
+         e instituição nascem do
+       7 // seed sem senha e definem a primeira pela recuperação (produto
+         .md 2.5).
+     … +172 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 204 testes do domínio passam. Agora o lint e os testes de arquitetura, do
+  jeito que a CI roda.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O dotnet format reclamou de um private const sem _. Vou ver a convenção no
+  .editorconfig.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/TentativasNumeradas/_tentativasNumeradas/g'
+      apps/api/src/Maxx.Domain/Identidade…)
+  ⎿  exit 0
+       total: 204
+       falhou: 0
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Identidade\PrefixoDeArroba.cs (+2 -2)
+      13      public const int TamanhoMaximo = 30;
+      14  
+      15      // Teto de segurança: nenhum nome real chega perto disso.
+      16 -    private const int TentativasNumeradas = 10_000;            
+      16 +    private const int _tentativasNumeradas = 10_000;           
+      17  
+      18      private static readonly HashSet<string> _particulas =
+      19          new(["da", "de", "do", "das", "dos", "e"], StringCompar
+          er.OrdinalIgnoreCase);
+     ...
+      69              yield return Cortar(comONomeDoMeio, TamanhoMaximo);
+      70          }
+      71  
+      72 -        for (var numero = 2; numero < TentativasNumeradas; nume
+         -ro++)                                                          
+      72 +        for (var numero = 2; numero < _tentativasNumeradas; num
+         +ero++)                                                         
+      73          {
+      74              var sufixo = numero.ToString(CultureInfo.InvariantC
+          ulture);
+      75              yield return Cortar(primeiroEUltimo, TamanhoMaximo 
+          - sufixo.Length) + sufixo;
+  ⎿  (timeout 6m 40s)
+
+● A E2 está pronta para a sua revisão, sem commit. Os 204 testes do domínio
+  passam, com 78 novos. O dotnet format --verify-no-changes está limpo, o build
+  Release passa sem warning e os testes de arquitetura continuam verdes, com
+  Domain sem dependência nenhuma.
+
+  O que entrou, em apps/api/src/Maxx.Domain/Identidade/:
+
+  Arquivo: PrefixoDeArroba.cs
+  O que faz: Validar (3 a 30 caracteres, letras ASCII e dígitos, começando por
+  letra), Mesmo (sem diferenciar maiúsculas) e Sugestoes / Sugerir(nome, 
+  estaLivre), na ordem que você aprovou: primeiro e último nome, depois com o
+  primeiro nome do meio, depois com número a partir de 2. Saber se um prefixo
+  está livre fica com quem chama: o banco, na E4 e na E6
+  ────────────────────────────────────────
+  Arquivo: Sufixo.cs
+  O que faz: Sufixo.Para(papeis, curso, exAluno), dando a sigla do curso, EX,
+  PROF (também quando a conta acumula instituição) ou UNIMAX, e o record
+  Arroba, que se escreve @prefixo-SUFIXO
+  ────────────────────────────────────────
+  Arquivo: PoliticaDeSenha.cs
+  O que faz: De 8 a 128 caracteres, contados como caractere e não como unidade
+  de
+  UTF-16 (um emoji conta um). A mensagem de recusa nunca repete a senha
+  ────────────────────────────────────────
+  Arquivo: Usuario.cs
+  O que faz: CadastrarAluno (exige cadastro de aluno, o curso do próprio
+  cadastro
+  e senha) e CriarPeloSeed (só professor e instituição, sem senha, com o nome
+  completo como nome de exibição). Mais DefinirSenha, EditarPrefixo,
+  TrocarDeCurso, MarcarExAluno e PrefixoReservado, a lista de todo prefixo que
+  o usuário já teve, o atual inclusive
+
+  Os testes estão em apps/api/tests/Maxx.Domain.Tests/Identidade/, um arquivo
+  por tipo.
+
+  Comportamentos que não estavam escritos nos docs e que eu fixei. Confira:
+
+  1. Nome curto ou longo: se o nome der menos de 3 letras, a sugestão já sai
+     numerada ("Li" vira li2). Se der mais de 30, é cortada em 30, e o número
+     entra dentro do limite.
+  2. Hífen e apóstrofo no nome são descartados ("D'Ávila" vira Davila,
+     "Ana-Maria" vira anamaria), em vez de separar palavras.
+  3. Trocar só as maiúsculas do próprio prefixo muda a exibição sem criar outra
+     reserva.
+  4. Ex-aluno pode editar o prefixo, e o sufixo continua -EX.
+  5. Nome de exibição é só obrigatório, sem tamanho máximo, porque os docs não
+     definem um. Se quiser um limite, me diga qual.
+
+  Se aprovar o 1 e o 2, proponho registrá-los em produto.md 2.3.1 neste mesmo
+  commit, para os docs não ficarem atrás do código.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona usuário, arroba e política de senha ao domínio
+
+✻ Worked for 5m 6s · done 21:16
