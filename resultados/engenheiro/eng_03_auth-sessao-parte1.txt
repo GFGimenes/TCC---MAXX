@@ -1,0 +1,3683 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 3 do plano mestre: autenticação e autorização. Estamos na               
+  rodada/eng_03_auth, saída da main com os passos 1 e 2 mergeados. Antes de     
+  qualquer código, me traga o plano de etapas, com entrega e critério de aceite 
+  por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá: decisão que   
+  não está nos docs não foi tomada, então pergunte antes de assumir. Lembro o   
+  que fecha o passo: cadastro conferindo RA e e-mail na mesma linha do cadastro 
+  elegível, um RA uma conta; geração e unicidade do arroba com sufixo por       
+  papel e reserva permanente do antigo; login por RA ou e-mail com Argon2id,    
+  access token curto, refresh rotativo por família com detecção de reuso e      
+  logout revogando; papéis e escopo de turma do professor checado no banco;     
+  limite de taxa em login, upload e registro de demonstração; flag da           
+  demonstração desligada por padrão, rotas em 404 quando desligada e ausente da 
+  configuração de produção; recuperação de senha por e-mail. Eu reviso o plano  
+  e aí começamos a primeira etapa.                                              
+
+● Vou ler os docs e o estado atual do código antes de montar o plano.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Li o CLAUDE.md, o plano mestre, o produto.md, o ADR 0006, o índice de
+  decisões, o fluxo 01-login.md e o código atual: CadastroElegivel, Papeis,
+  VinculoProfessor, Program.cs, o seeder demo e a factory de testes.
+
+  Passo 3: autenticação e autorização (plano de etapas)
+
+  Branch: feat/passo-03-auth, saindo de rodada/eng_03_auth. Um commit por etapa,
+  um PR no fim.
+
+  Rotas: tudo em /api/v1/.... O /health e o /ready continuam onde estão.
+
+  O plano depende das decisões em aberto listadas no fim. Em cada uma indiquei o
+  que recomendo. As etapas abaixo já assumem as recomendações; se você escolher
+  outra opção, eu ajusto o plano antes de começar.
+
+  Etapas
+
+  E1. Registrar as decisões do passo (docs)
+  - Entrega: as respostas às perguntas abaixo gravadas nos docs: linhas novas em
+    docs/decisoes/README.md, a regra do arroba em produto.md 2.3 e um fluxo
+    novo docs/fluxos/06-recuperacao-de-senha.md.
+  - Aceite: nenhuma etapa seguinte usa uma regra que não esteja escrita. Texto
+    sem travessão.
+
+  E2. Domínio: usuário e arroba (TDD, sem banco)
+  - Entrega:
+    - Usuario, ligado 1:1 a um CadastroElegivel.
+    - Arroba, com geração a partir do nome completo, na ordem: primeiro e último
+      nome, depois com o nome do meio, depois com número sequencial.
+    - Sufixo derivado do papel: sigla do curso, -EX, -PROF ou -UNIMAX.
+    - Troca de sufixo e edição do prefixo, com reserva permanente do arroba
+      antigo.
+    - Validação do formato do prefixo e regra de senha.
+  - Aceite:
+    - Testes xUnit cobrem: acento e partículas na geração, cada caso de colisão,
+      os quatro sufixos, a conta professor+instituição saindo com -PROF, a
+      passagem para ex-aluno, a troca de curso e a comparação sem diferenciar
+      maiúsculas.
+    - Os testes de arquitetura continuam verdes, com Domain sem dependência
+      nenhuma.
+
+  E3. Domínio: sessão e recuperação (TDD, com TimeProvider falso)
+  - Entrega:
+    - FamiliaDeSessao com os refresh tokens: emitir, rotacionar, detectar reuso
+      (que revoga a família inteira), expirar e revogar no logout.
+    - RecuperacaoDeSenha, com token de uso único e prazo de validade.
+  - Aceite: testes cobrem a sequência do ADR 0006 (R1, R2, R1 de novo revoga a
+    família), token expirado, token revogado, reset usado duas vezes, e reset
+    que revoga todas as famílias do usuário.
+
+  E4. Persistência e migration
+  - Entrega:
+    - Tabelas usuario, arroba, familia_sessao, refresh_token e
+      recuperacao_senha.
+    - Índice único em usuario.cadastro_elegivel_id (um RA, uma conta) e em
+      arroba com citext.
+    - Refresh e reset guardados só como hash SHA-256, nunca o valor em claro.
+  - Aceite:
+    - Migration criada e aplicada pelo contêiner migrator.
+    - Testes com Testcontainers provam que a segunda conta para o mesmo cadastro
+      é recusada pelo banco, que dois cadastros simultâneos disputando o mesmo
+      arroba deixam um só vencedor, e que um arroba reservado não pode ser
+      tomado por outra pessoa.
+
+  E5. Infraestrutura de autenticação
+  - Entrega:
+    - Hasher Argon2id.
+    - Emissão e validação de JWT, com a chave lida de variável de ambiente.
+    - TimeProvider registrado.
+    - Validação de entrada na borda com o AddValidation() nativo.
+    - Erros de domínio e de validação mapeados para ProblemDetails.
+    - ForwardedHeaders atrás do Caddy.
+    - Esquema bearer no OpenAPI.
+    - Variáveis novas no .env.example e no compose.
+  - Aceite:
+    - A API não sobe sem a chave fora de Development e Test.
+    - Token expirado ou com assinatura errada responde 401 em ProblemDetails.
+    - O hash roda com os parâmetros escolhidos.
+    - Um teste prova que senha não aparece em log.
+
+  E6. Cadastro
+  - Entrega:
+    - Sugestão de arroba (POST /v1/auth/cadastro/sugestao, com RA e e-mail).
+    - Consulta de disponibilidade do prefixo.
+    - POST /v1/auth/cadastro.
+    - RA e e-mail conferidos na mesma linha do cadastro elegível. RA que já tem
+      conta responde 409 com um código que o cliente usa para levar à
+      recuperação de senha.
+    - OpenAPI e cliente regenerados.
+  - Aceite: testes de integração cobrem: par RA e e-mail válido; RA de uma linha
+    com e-mail de outra (resposta genérica que não revela qual dos dois errou);
+    segunda conta; arroba ocupado; arroba reservado; e o cadastro já devolvendo
+    sessão.
+
+  E7. Login, refresh e logout
+  - Entrega:
+    - POST /v1/auth/login: aluno por RA ou e-mail, professor e instituição só
+      por e-mail.
+    - POST /v1/auth/refresh e POST /v1/auth/logout.
+    - Na web, o refresh vai em cookie HttpOnly; Secure; SameSite=Strict; 
+      Path=/api/v1/auth. No nativo, vai no corpo. A distinção é por um cabeçalho
+      de cliente.
+  - Aceite:
+    - Credencial errada e usuário inexistente dão a mesma resposta, e o tempo é
+      igualado com um hash fictício.
+    - O reuso de R1 revoga a família e responde 401.
+    - Depois do logout, o refresh dá 401.
+    - Ex-aluno continua entrando.
+    - O caso professor por RA é recusado.
+
+  E8. Papéis e escopo de turma
+  - Entrega:
+    - Policies por papel.
+    - GET /v1/eu, que devolve papéis e arroba, para exercitar a autenticação.
+    - IEscopoDeTurma.ProfessorLecionaAsync(usuarioId, turmaId), consultando
+      vinculo_professor no banco, só para o semestre vigente em
+      America/Sao_Paulo.
+    - Seed demo cria as contas de professor e instituição (ver P1).
+  - Aceite:
+    - Testes cobrem: professor com vínculo dá verdadeiro; turma de outro
+      semestre dá falso; vínculo removido tem efeito no request seguinte com o
+      mesmo token.
+    - O token não carrega turma nenhuma (teste inspeciona as claims).
+    - Rota de instituição chamada por aluno dá 403.
+
+  E9. Recuperação de senha
+  - Entrega:
+    - POST /v1/auth/recuperacao, que sempre responde 202.
+    - POST /v1/auth/recuperacao/confirmar.
+    - Abstração IEmailSender, implementação SMTP e Mailpit no compose local.
+    - Envio fora do request.
+  - Aceite:
+    - E-mail existente e inexistente dão a mesma resposta.
+    - Token é de uso único e expira.
+    - Senha nova revoga todas as sessões.
+    - Teste captura o e-mail com um sender falso.
+    - Nenhum token aparece em log.
+
+  E10. Modo de demonstração
+  - Entrega:
+    - DemoOptions.Habilitada, false por padrão e ausente de todos os
+      appsettings*.json.
+    - GET /v1/demo, POST /v1/demo/alunos (nome e curso) e POST /v1/demo/entrar
+      (chave do dispositivo).
+    - Usuário demo marcado por flag e por lote.
+  - Aceite:
+    - Com a flag desligada, as três rotas dão 404 (iguais a uma rota
+      inexistente).
+    - Um teste lê os appsettings*.json versionados e falha se a chave existir.
+    - Com a flag ligada, o aluno demo entra na turma do curso escolhido, recebe
+      sessão e volta pela chave.
+
+  E11. Limite de taxa
+  - Entrega: limitador nativo, por réplica, com policies de login, cadastro,
+    recuperação e registro demo, e a policy de upload declarada.
+  - Aceite:
+    - Testes mostram 429 em ProblemDetails, com Retry-After, ao passar de cada
+      limite.
+    - A chave usa o IP real vindo do X-Forwarded-For do Caddy.
+    - O limite de demo não bloqueia uma banca inteira atrás de um mesmo IP de
+      celular roteado.
+
+  Fechamento do PR: testes verdes, dotnet format e lint limpos, migration
+  aplicada, OpenAPI sem diferença, e docs/fluxos/01-login.md atualizado com os
+  códigos HTTP (o próprio doc deixa isso para o passo 3).
+
+  Decisões em aberto
+
+  Nenhuma delas está nos docs. Para cada uma, a recomendação vem primeiro.
+
+  1. Professor e instituição: como entram?
+     - Recomendo: não se autocadastram. O seed cria a conta sem senha, e o
+       primeiro acesso é pela recuperação de senha, que prova a posse do e-mail.
+     - Alternativa: autocadastro só com o e-mail. Sem verificação de e-mail na
+       fase 1, quem souber o e-mail de um professor toma a conta dele.
+  2. Unicidade do arroba:
+     - Recomendo: pelo prefixo, sem diferenciar maiúsculas.
+       - A troca automática de sufixo (curso ou ex-aluno) nunca colide.
+       - A reserva fica trivial.
+       - Custo: a pessoa com duas contas (pós e docente) recebe um prefixo
+         diferente na segunda.
+     - Alternativa: unicidade pelo arroba completo. Nesse caso preciso de uma
+       regra para quando a troca automática colidir com o arroba de outra
+       pessoa.
+  3. Editar o prefixo no perfil também reserva o antigo?
+     - Recomendo: sim, o antigo fica reservado ao dono. Assim um link antigo não
+       passa a apontar para outra pessoa.
+  4. Formato do prefixo:
+     - Recomendo: letras ASCII e dígitos, de 3 a 30 caracteres, começando por
+       letra.
+     - Na geração: acentos removidos e as partículas da/de/do/das/dos/e
+       ignoradas (Maria da Silva vira mariaSilva). O nome do meio é o primeiro
+       deles.
+  5. Validade dos tokens:
+     - Recomendo: access de 15 minutos. Refresh de 30 dias, renovado a cada
+       rotação, sem teto absoluto na fase 1.
+     - Token de reset de 30 minutos, de uso único.
+  6. Assinatura do JWT:
+     - Recomendo: HS256, com uma chave em variável de ambiente compartilhada
+       pelas duas réplicas. Assimétrica não traz ganho, porque só a API valida o
+       token.
+  7. E-mail:
+     - Recomendo: SMTP genérico (MailKit), com Mailpit no compose local. O
+       provedor da VPS fica para o passo 13.
+     - O envio roda num BackgroundService em memória e migra para a fila do
+       Postgres quando ela nascer no passo 6. Perder um e-mail num restart é
+       aceitável, porque o usuário pede de novo.
+  8. Senha e Argon2id:
+     - Recomendo: mínimo de 8 e máximo de 128 caracteres, sem regra de
+       composição (linha do NIST).
+     - Biblioteca Konscious.Security.Cryptography (dependência nova), com os
+       parâmetros do OWASP: m=19 MiB, t=2, p=1.
+  9. Limites de taxa:
+     - Recomendo:
+
+  | Rota                   | Limite
+    |
+  |------------------------|----------------------------------------------------
+  ---|
+  | Login                  | 5 por minuto por identificador e 30 por minuto por
+  IP |
+  | Cadastro e recuperação | 3 a cada 15 minutos por e-mail ou RA
+    |
+  | Registro demo          | 60 por hora por IP
+    |
+
+     - O registro demo é alto de propósito, porque a banca entra toda pelo mesmo
+       celular roteado.
+     - Cadastro e recuperação não constam nos docs; incluí porque disparam
+       e-mail e consulta à base.
+     - Upload: a policy fica declarada agora, mas é aplicada e testada no passo
+       7, onde o endpoint nasce.
+  10. Demonstração no passo 3:
+      - Recomendo: a API de registro fica aqui e a tela no passo 5.
+      - Volta sem senha: o registro devolve uma chave aleatória do dispositivo,
+        guardada com hash no banco, e é ela que a "lembrança local" guarda.
+      - Foto opcional: fica para o passo 7.
+      - Lote: um valor de configuração Demo__Lote, gravado em cada usuário demo.
+      - Cadastro e turmas: o aluno demo ganha um CadastroElegivel marcado como
+        demo, com RA gerado, porque a Matricula aponta para o cadastro. Ele é
+        matriculado nas turmas do curso no semestre vigente.
+  11. Termo de uso:
+      - Recomendo: deixar o campo de versão aceita para o passo 5, junto com a
+        tela. Nenhum cliente publicado consome o cadastro ainda, então incluir o
+        campo lá não quebra ninguém.
+
+  Pode responder só pelo número, por exemplo "tudo ok menos 2: completo" ou "9:
+  outros números". Com as respostas, ajusto o plano, e só depois da sua
+  aprovação começa a E1.
+
+✻ Brewed for 2m 51s · done 21:07
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> Plano do passo 3 aprovado como está, onze etapas, um PR da feat/passo-03-auth 
+  para a rodada/eng_03_auth. Tudo ok nas onze decisões, pela recomendação: 1,   
+  professor e instituição não se autocadastram, conta criada pelo seed sem      
+  senha e primeiro acesso pela recuperação de senha. 2, unicidade pelo prefixo  
+  sem diferenciar maiúsculas. 3, editar o prefixo reserva o antigo ao dono. 4,  
+  prefixo com letras ASCII e dígitos, 3 a 30, começando por letra, acentos      
+  removidos e partículas ignoradas. 5, access de 15 minutos, refresh de 30 dias 
+  renovado na rotação, reset de 30 minutos de uso único. 6, HS256 com chave em  
+  variável de ambiente. 7, SMTP com MailKit, Mailpit no compose, envio em       
+  BackgroundService até a fila do passo 6. 8, senha de 8 a 128 sem regra de     
+  composição, Argon2id com Konscious e parâmetros do OWASP. 9, os limites da    
+  tabela, com o de upload só declarado. 10, API de demonstração aqui e tela no  
+  passo 5, chave de dispositivo com hash, lote por configuração, cadastro       
+  elegível marcado como demo. 11, versão do termo aceita no passo 5. Tudo isso  
+  vai para os docs na E1, como você propôs. Começa pela E1 e para para a minha  
+  revisão no fim dela.                                                          
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Branch criada. Agora as edições de docs.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 1 line, removed 1 line
+      66  |---|---|
+      67  | **RA** | Identidade interna do aluno e credencial de login. É
+           dado pessoal: nunca aparece para outros alunos e não é buscáve
+          l |
+      68  | **E-mail institucional** | Vem da base abastecida pela faculd
+          ade. O aluno não escolhe e não edita; só a instituição corrige,
+           pela área web |
+      69 -| **Arroba** | Identificador público e único. Formato `@primeir
+         -oNomeUltimoNome-SUFIXO`. Sufixos: a sigla do curso atual para o
+         - aluno (`@guilhermeGimenes-CC`), `-EX` para o ex-aluno, `-PROF`
+         - para professor (inclusive quando a conta acumula professor e i
+         -nstituição) e `-UNIMAX` para a conta só de instituição. O cadas
+         -tro sugere a partir do nome; em colisão, a sugestão inclui o no
+         -me do meio quando houver e, se ainda colidir, acrescenta número
+         - sequencial. O usuário edita apenas a parte antes do hífen, no 
+         -cadastro e depois no perfil. O sufixo muda sozinho quando o alu
+         -no troca de curso ou é marcado como ex-aluno, e o arroba antigo
+         - fica reservado permanentemente ao dono, sem reuso por terceiro
+         -s. Unicidade sem diferenciar maiúsculas; exibição como o usuári
+         -o escreveu |                                                   
+      69 +| **Arroba** | Identificador público e único. Formato `@primeir
+         +oNomeUltimoNome-SUFIXO`. Sufixos: a sigla do curso atual para o
+         + aluno (`@guilhermeGimenes-CC`), `-EX` para o ex-aluno, `-PROF`
+         + para professor (inclusive quando a conta acumula professor e i
+         +nstituição) e `-UNIMAX` para a conta só de instituição. O cadas
+         +tro sugere a partir do nome; em colisão, a sugestão inclui o no
+         +me do meio quando houver e, se ainda colidir, acrescenta número
+         + sequencial. O usuário edita apenas a parte antes do hífen, no 
+         +cadastro e depois no perfil. O sufixo muda sozinho quando o alu
+         +no troca de curso ou é marcado como ex-aluno, e o arroba antigo
+         + fica reservado permanentemente ao dono, sem reuso por terceiro
+         +s. Unicidade sem diferenciar maiúsculas; exibição como o usuári
+         +o escreveu. Regras de formação na seção 2.3.1 |                
+      70  | **Nome de exibição** | Texto livre, editável, não precisa ser
+           único |
+      71  | **Foto de perfil** | Opcional, de aluno e de professor; segue
+           as mesmas regras de assinatura e de derivadas da foto de post.
+           Sem foto, o avatar são as iniciais |
+      72  
+
+● Update(docs\produto.md)
+  ⎿  Added 19 lines
+      70  | **Nome de exibição** | Texto livre, editável, não precisa ser
+           único |
+      71  | **Foto de perfil** | Opcional, de aluno e de professor; segue
+           as mesmas regras de assinatura e de derivadas da foto de post.
+           Sem foto, o avatar são as iniciais |
+      72  
+      73 +#### 2.3.1 Formação e unicidade do arroba                      
+      74 +                                                               
+      75 +- **A unicidade é do prefixo**, a parte antes do hífen, sem dif
+         +erenciar maiúsculas. O                                         
+      76 +  sufixo não conta: `@anaSouza-CC` e `@anaSouza-SI` não convive
+         +m. Por isso a troca                                            
+      77 +  automática de sufixo (curso novo ou ex-aluno) nunca colide co
+         +m ninguém.                                                     
+      78 +- Consequência aceita: quem tem duas contas (pós-graduando e do
+         +cente) recebe prefixos                                         
+      79 +  diferentes nelas, porque a segunda cai na regra de colisão.  
+      80 +- **Formato do prefixo:** letras ASCII e dígitos, de 3 a 30 car
+         +acteres, começando por                                         
+      81 +  letra. Sem acento, sem cedilha, sem ponto, sem hífen (o hífen
+         + separa o sufixo).                                             
+      82 +- **Sugestão a partir do nome completo:** acentos e cedilha rem
+         +ovidos (`João` vira                                            
+      83 +  `joao`), partículas `da`, `de`, `do`, `das`, `dos` e `e` igno
+         +radas, primeiro nome em                                        
+      84 +  minúsculas e os seguintes com inicial maiúscula. `Maria da Si
+         +lva` vira `mariaSilva`.                                        
+      85 +- **Colisão na sugestão:** primeiro nome e último nome; se ocup
+         +ado, primeiro nome, o                                          
+      86 +  primeiro nome do meio e o último nome; se ainda ocupado, prim
+         +eiro e último nome com                                         
+      87 +  número sequencial a partir de 2 (`mariaSilva2`).             
+      88 +- **Reserva permanente:** todo prefixo que o usuário já teve fi
+         +ca reservado a ele, sem                                        
+      89 +  reuso por terceiros. Vale para a troca automática de sufixo e
+         + também para a edição                                          
+      90 +  do prefixo no perfil. O dono pode voltar a um prefixo antigo 
+         +seu.                                                           
+      91 +                                                               
+      92  ### 2.4 Domínios de e-mail
+      93  
+      94  | Domínio | Quem |
+
+● Update(docs\produto.md)
+  ⎿  Added 9 lines
+      115  Professores são cadastrados a cada semestre, por matéria e tur
+           ma, como já acontece no
+      116  app de chamada da UniMax. Contas de instituição vêm do seed.
+      117  
+      118 +**Professor e instituição não se autocadastram.** O cadastro p
+          +elo app é só do aluno,                                        
+      119 +porque RA e e-mail na mesma linha são a prova de identidade de
+          +le, e professor e                                             
+      120 +instituição não têm RA obrigatório. A conta deles nasce do see
+          +d, já com arroba e sem                                        
+      121 +senha, e o primeiro acesso é pela recuperação de senha: o link
+          + que chega ao e-mail                                          
+      122 +institucional é o que prova a posse da conta. Sem isso, e sem 
+          +verificação de e-mail na                                      
+      123 +fase 1, quem soubesse o e-mail de um professor tomaria a conta
+          + dele.                                                        
+      124 +                                                              
+      125 +**Senha:** de 8 a 128 caracteres, sem regra de composição. Qua
+          +lquer caractere vale.                                         
+      126 +                                                              
+      127  Na fase 1 tudo isso entra por seed. No uso real, por CSV. Não 
+           há integração com o
+      128  sistema acadêmico.
+      129  
+
+● Agora o modo de demonstração (seção 11).
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 14 lines
+      544  - O seed traz os professores dos quatro cursos de demonstração
+            e a conta de instituição
+      545    usada para conceder ao vivo durante a apresentação.
+      546  
+      547 +Como isso se traduz no sistema:                               
+      548 +                                                              
+      549 +- **Lembrança sem senha:** o registro devolve uma chave aleató
+          +ria do dispositivo, que o                                     
+      550 +  app guarda localmente. O banco guarda só o hash dela. Entrar
+          + de novo é apresentar a                                       
+      551 +  chave, que abre uma sessão comum, com o mesmo refresh rotati
+          +vo de qualquer usuário.                                       
+      552 +- **Cadastro do aluno de demonstração:** o registro cria uma l
+          +inha no cadastro elegível                                     
+      553 +  marcada como demonstração, com RA gerado (a matrícula aponta
+          + para o cadastro                                              
+      554 +  elegível), e matricula o aluno nas turmas do curso escolhido
+          + no semestre vigente.                                         
+      555 +- **Lote:** valor de configuração, gravado em cada usuário de 
+          +demonstração criado                                           
+      556 +  enquanto ele vale. É a chave da purga.                      
+      557 +- **Foto opcional:** chega com o upload, no passo 7. Até lá, o
+          + registro é nome e curso.                                     
+      558 +- O registro de demonstração não pede aceite do termo de uso e
+          +nquanto o aceite não                                          
+      559 +  existir, no passo 5.                                        
+      560 +                                                              
+      561  ---
+      562  
+      563  ## 12. Decisões assumidas de propósito
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 35 lines, removed 1 line
+      51  | Versionamento | API em `/v1`, mudanças só aditivas, porque o 
+          app instalado atrasa em relação à API |
+      52  | Plataforma | .NET 10 LTS, com a geração de OpenAPI nativa do 
+          framework |
+      53  | Idioma do código | Domínio em português (`Premio`, `Conquista
+          `, `Turma`, `Contestacao`), técnico em inglês (`Repository`, `H
+          andler`, `Options`) |
+      54 -| Limite de taxa | Em login, upload e registro de demonstração,
+         - com o limitador nativo do ASP.NET Core: por réplica, sem estad
+         -o compartilhado |                                              
+      54 +| Limite de taxa | Em login, upload e registro de demonstração,
+         + com o limitador nativo do ASP.NET Core: por réplica, sem estad
+         +o compartilhado. Também em cadastro e recuperação de senha, que
+         + disparam consulta à base e e-mail. Números na seção Autenticaç
+         +ão |                                                           
+      55 +| Validação de entrada | `AddValidation()` nativo do .NET 10 na
+         + borda; erro de validação e de domínio saem em ProblemDetails |
+      56  
+      57 +## Autenticação                                                
+      58 +                                                               
+      59 +Complementa o [ADR 0006](0006-autenticacao-propria.md) com os n
+         +úmeros e as escolhas que                                       
+      60 +ele deixou abertas. Fechadas no plano do passo 3.              
+      61 +                                                               
+      62 +| Decisão | Detalhe |                                          
+      63 +|---|---|                                                      
+      64 +| Access token | JWT de 15 minutos, com `sub` e papéis; nunca a
+         + lista de turmas |                                             
+      65 +| Assinatura | HS256, com uma chave em variável de ambiente com
+         +partilhada pelas duas réplicas. Assimétrica não traz ganho: só 
+         +a própria API valida o token. Sem a chave, a API não sobe fora 
+         +de desenvolvimento e teste |                                   
+      66 +| Refresh | 30 dias, renovados a cada rotação, sem teto absolut
+         +o na fase 1. Guardado no banco só como hash SHA-256 |          
+      67 +| Refresh na web e no nativo | Na web, cookie `HttpOnly`, `Secu
+         +re`, `SameSite=Strict`, restrito ao caminho de autenticação; no
+         + nativo, no corpo da resposta, para o secure store. O cliente s
+         +e identifica por cabeçalho |                                   
+      68 +| Recuperação de senha | Token aleatório de 30 minutos, uso úni
+         +co, guardado só como hash. A resposta ao pedido é sempre a mesm
+         +a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+         +de refresh do usuário |                                        
+      69 +| Hash de senha | Argon2id com `Konscious.Security.Cryptography
+         +`, parâmetros do OWASP: 19 MiB de memória, 2 iterações, paralel
+         +ismo 1. Login de usuário inexistente calcula um hash fictício, 
+         +para o tempo de resposta não revelar quem tem conta |          
+      70 +| Política de senha | De 8 a 128 caracteres, sem regra de compo
+         +sição, na linha do NIST SP 800-63B |                           
+      71 +| E-mail | SMTP genérico com MailKit; Mailpit no compose local.
+         + Provedor da VPS escolhido no passo 13 |                       
+      72 +| Envio de e-mail | Fora da requisição, num `BackgroundService`
+         + com fila em memória, até a fila do Postgres nascer no passo 6,
+         + quando migra para ela. Perder um e-mail num restart é aceito: 
+         +o usuário pede de novo |                                       
+      73 +| Contas de professor e instituição | Criadas pelo seed, sem se
+         +nha; primeiro acesso pela recuperação de senha. Ver `produto.md
+         +` 2.5 |                                                        
+      74 +| Escopo de turma | Verificado no banco a cada mutação, contra 
+         +`vinculo_professor`, só nas turmas do semestre letivo vigente, 
+         +com a data interpretada em `America/Sao_Paulo`. Fora de semestr
+         +e vigente, o professor não tem escopo |                        
+      75 +| Demonstração | Chave aleatória do dispositivo guardada só com
+         +o hash; lote por configuração; cadastro elegível marcado como d
+         +emonstração. Ver `produto.md` 11 |                             
+      76 +                                                               
+      77 +Limites de taxa, por réplica:                                  
+      78 +                                                               
+      79 +| Rota | Limite |                                              
+      80 +|---|---|                                                      
+      81 +| Login | 5 por minuto por identificador informado e 30 por min
+         +uto por IP |                                                   
+      82 +| Cadastro | 3 a cada 15 minutos por RA |                      
+      83 +| Recuperação de senha | 3 a cada 15 minutos por e-mail |      
+      84 +| Registro de demonstração | 60 por hora por IP. Alto de propós
+         +ito: a banca inteira entra pelo mesmo celular roteado |        
+      85 +| Upload | Policy declarada no passo 3; aplicada e testada no p
+         +asso 7, quando o endpoint nasce |                              
+      86 +                                                               
+      87 +O IP vem do `X-Forwarded-For` posto pelo Caddy, aceito só dele.
+         + Estourado o limite, a                                         
+      88 +resposta é 429 em ProblemDetails, com `Retry-After`.           
+      89 +                                                               
+      90  ## Cliente
+      91  
+      92  | Decisão | Detalhe |
+
+● Agora o fluxo de recuperação de senha e o índice.
+
+● Write(docs\fluxos\06-recuperacao-de-senha.md)
+  ⎿  Wrote 52 lines to docs\fluxos\06-recuperacao-de-senha.md
+       1 # Recuperação de senha e primeiro acesso
+       2 
+       3 O mesmo fluxo serve a dois casos: o aluno que esqueceu a senha e
+          o primeiro acesso de
+       4 professor e instituição, cuja conta nasce do seed sem senha. Imp
+         lementado no passo 3; a
+       5 tela chega no passo 5.
+       6 
+       7 ```mermaid
+       8 sequenceDiagram
+     … +44 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\fluxos\README.md)
+  ⎿  Added 1 line
+      12  | Concessão de medalha com recálculo de conquistas | [`03-conce
+          ssao-de-medalha.md`](03-concessao-de-medalha.md) | 6 e 9 |
+      13  | Contestação de prêmio de participação | [`04-contestacao.md`]
+          (04-contestacao.md) | 8 |
+      14  | Ranking | [`05-ranking.md`](05-ranking.md) | 11 |
+      15 +| Recuperação de senha e primeiro acesso | [`06-recuperacao-de-
+         +senha.md`](06-recuperacao-de-senha.md) | 3 |                   
+      16  
+      17  Convenções dos diagramas, as mesmas dos ADRs:
+      18  
+
+● Update(docs\fluxos\README.md)
+  ⎿  Added 1 line, removed 1 line
+      1  # Fluxos do Maxx
+      2  
+      3 -Diagramas de sequência dos cinco fluxos que atravessam mais de u
+        -ma peça do sistema. São                                         
+      3 +Diagramas de sequência dos seis fluxos que atravessam mais de um
+        +a peça do sistema. São                                          
+      4  o desenho decidido, escrito antes do código: cada passo de cada 
+         diagrama aponta para a
+      5  regra de onde saiu, em `docs/produto.md`, nos ADRs ou em `docs/r
+         egras-conquista.md`.
+      6  Nenhum deles cria regra nova.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E1 está pronta para a sua revisão, sem commit. As onze decisões estão
+  registradas nos docs, na branch feat/passo-03-auth. Não rodei nada sobre os
+  arquivos além de procurar travessões neles, e não há nenhum.
+
+  O que mudou
+
+  - docs/produto.md
+    - 2.3: o arroba remete a uma subseção nova, a 2.3.1. Ela traz a unicidade
+      pelo prefixo e a consequência das duas contas, o formato do prefixo, a
+      regra de sugestão (Maria da Silva vira mariaSilva), a ordem de colisão e a
+      reserva permanente, que vale também para a edição do prefixo.
+    - 2.5: professor e instituição não se autocadastram e fazem o primeiro
+      acesso pela recuperação de senha, com o porquê. Também a política de
+      senha.
+    - 11: como a demonstração vira sistema: chave do dispositivo com hash,
+      cadastro elegível marcado como demonstração com RA gerado, matrícula nas
+      turmas do curso no semestre vigente, lote por configuração, foto só no
+      passo 7.
+  - docs/decisoes/README.md
+    - A linha de limite de taxa passa a incluir cadastro e recuperação.
+    - Linha nova sobre a validação de entrada com AddValidation().
+    - Seção nova "Autenticação", complementando o ADR 0006: tokens, HS256,
+      cookie na web e corpo no nativo, recuperação, Argon2id, senha, e-mail,
+      contas do seed, escopo de turma e demonstração.
+    - A tabela de limites, com a origem do IP e a resposta 429.
+  - docs/fluxos/06-recuperacao-de-senha.md (novo): diagrama de sequência que
+    cobre também o primeiro acesso, com a tabela de onde vem cada passo.
+  - docs/fluxos/README.md: o fluxo 06 entra no índice, e "cinco fluxos" virou
+    "seis".
+
+  Três pontos que escrevi além das suas respostas. Confira se concorda:
+
+  1. Escopo de turma fora do semestre: escrevi que, fora de um semestre letivo
+     vigente (férias), o professor fica sem escopo. Isso é consequência de "só
+     nas turmas do semestre vigente" (produto.md 4.7 e 4.8), mas não estava
+     escrito.
+  2. Prefixo antigo: escrevi que o dono pode voltar a um prefixo antigo dele. Me
+     pareceu o sentido natural de "reservado ao dono".
+  3. Termo de uso na demonstração: escrevi que o registro de demonstração não
+     pede aceite do termo até o passo 5.
+
+  Mensagem de commit proposta, sem rodapé de co-autoria:
+
+  docs(docs): registra as decisões de autenticação do passo 3
+
+  Ajusto o que você pedir e faço o commit depois do seu ok. Aí sigo para a E2.
+✻ Churned for 1m 39s · done 21:10
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E1 aprovada. Os três pontos ficam: professor sem escopo fora de semestre      
+  vigente, dono pode voltar a um prefixo antigo dele, registro de demonstração  
+  sem aceite do termo até o passo 5. Commita com a mensagem proposta, push, e   
+  segue para a E2; para para a minha revisão no fim dela.                       
+
+  Pushed to feat/passo-03-auth (ctrl+o to expand)
+  ⎿  PostToolUse:Bash says: Tip: Run /ultrareview before you push to catch bugs 
+     with a cloud-based multi-agent review — 3 free reviews left.
+
+● E1 commitada e no remoto. Começo a E2 lendo o estilo do domínio e dos testes.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou modelar a E2 em Maxx.Domain/Identidade, começando pelos testes: prefixo,
+  sufixo, arroba, usuário e política de senha.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\PrefixoDeArrobaTests.cs)
+  ⎿  Wrote 150 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\PrefixoDeArrobaTests.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Domain.Tests.Identidade;
+       4 
+       5 public class PrefixoDeArrobaTests
+       6 {
+       7     private static readonly Func<string, bool> _tudoLivre = _ =>
+          true;
+       8 
+       9     [Theory]
+     … +141 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\PoliticaDeSenhaTests.cs)
+  ⎿  Wrote 52 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\PoliticaDeSenhaTests.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Domain.Tests.Identidade;
+       4 
+       5 public class PoliticaDeSenhaTests
+       6 {
+       7     [Theory]
+       8     [InlineData("12345678")]
+       9     [InlineData("senhaboa")]
+      10     [InlineData("        ")]
+     … +42 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs)
+  ⎿  Wrote 241 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Domain.Tests.Identidade;
+       5 
+       6 public class UsuarioTests
+       7 {
+       8     private static readonly DateTimeOffset _agora = new(2026, 11
+         , 3, 15, 0, 0, TimeSpan.Zero);
+       9     private static readonly Curso _cc = new("Ciência da Computaç
+     … +233 lines (~8 KB) (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\SufixoTests.cs)
+  ⎿  Wrote 46 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\SufixoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Domain.Tests.Identidade;
+       5 
+       6 public class SufixoTests
+       7 {
+       8     private static readonly Curso _cc = new("Ciência da Computaç
+         ão", "CC", 8);
+       9 
+     … +37 lines (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\PoliticaDeSenhaTests.cs)
+  ⎿  Added 1 line, removed 1 line
+       8      [InlineData("12345678")]
+       9      [InlineData("senhaboa")]
+      10      [InlineData("        ")]
+      11 -    [InlineData("çãõ€ éà")]                                    
+      11 +    [InlineData("çãõ€ éàü")]                                   
+      12      public void Senha_de_8_caracteres_ou_mais_e_aceita_sem_regr
+          a_de_composicao(string senha)
+      13      {
+      14          PoliticaDeSenha.Validar(senha);
+
+● Write(apps\api\src\Maxx.Domain\Identidade\PrefixoDeArroba.cs)
+  ⎿  Wrote 124 lines to
+     apps\api\src\Maxx.Domain\Identidade\PrefixoDeArroba.cs
+       1 using System.Globalization;
+       2 using System.Text;
+       3 
+       4 namespace Maxx.Domain.Identidade;
+       5 
+       6 // A parte do arroba antes do hífen: a única que o usuário escol
+         he e a que é única no
+       7 // sistema, sem diferenciar maiúsculas (produto.md 2.3.1). Saber
+          se um prefixo está livre
+       8 // é pergunta ao banco; aqui só a forma e a ordem das sugestões.
+     … +116 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\Sufixo.cs)
+  ⎿  Wrote 42 lines to apps\api\src\Maxx.Domain\Identidade\Sufixo.cs
+      1 using Maxx.Domain.Academico;
+      2 
+      3 namespace Maxx.Domain.Identidade;
+      4 
+      5 // A parte do arroba depois do hífen. Nunca escolhida pelo usuári
+        o: segue o papel e,
+      6 // para o aluno, o curso atual ou a marcação de ex-aluno (produto
+        .md 2.3).
+      7 public static class Sufixo
+      8 {
+     … +34 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\PoliticaDeSenha.cs)
+  ⎿  Wrote 19 lines to
+     apps\api\src\Maxx.Domain\Identidade\PoliticaDeSenha.cs
+      1 namespace Maxx.Domain.Identidade;
+      2 
+      3 // De 8 a 128 caracteres, sem regra de composição (NIST SP 800-63
+        B). Conta caractere, não
+      4 // unidade de UTF-16: um emoji é um. A mensagem nunca repete a se
+        nha.
+      5 public static class PoliticaDeSenha
+      6 {
+      7     public const int TamanhoMinimo = 8;
+      8 
+     … +11 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Wrote 179 lines to apps\api\src\Maxx.Domain\Identidade\Usuario.cs
+       1 using Maxx.Domain.Academico;
+       2 
+       3 namespace Maxx.Domain.Identidade;
+       4 
+       5 // A conta. Liga-se a uma linha do cadastro elegível, uma para u
+         ma (um RA, uma conta), e é
+       6 // de lá que vem o papel. Aluno se cadastra pelo app; professor 
+         e instituição nascem do
+       7 // seed sem senha e definem a primeira pela recuperação (produto
+         .md 2.5).
+     … +172 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 204 testes do domínio passam. Agora o lint e os testes de arquitetura, do
+  jeito que a CI roda.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O dotnet format reclamou de um private const sem _. Vou ver a convenção no
+  .editorconfig.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/TentativasNumeradas/_tentativasNumeradas/g'
+      apps/api/src/Maxx.Domain/Identidade…)
+  ⎿  exit 0
+       total: 204
+       falhou: 0
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Identidade\PrefixoDeArroba.cs (+2 -2)
+      13      public const int TamanhoMaximo = 30;
+      14  
+      15      // Teto de segurança: nenhum nome real chega perto disso.
+      16 -    private const int TentativasNumeradas = 10_000;            
+      16 +    private const int _tentativasNumeradas = 10_000;           
+      17  
+      18      private static readonly HashSet<string> _particulas =
+      19          new(["da", "de", "do", "das", "dos", "e"], StringCompar
+          er.OrdinalIgnoreCase);
+     ...
+      69              yield return Cortar(comONomeDoMeio, TamanhoMaximo);
+      70          }
+      71  
+      72 -        for (var numero = 2; numero < TentativasNumeradas; nume
+         -ro++)                                                          
+      72 +        for (var numero = 2; numero < _tentativasNumeradas; num
+         +ero++)                                                         
+      73          {
+      74              var sufixo = numero.ToString(CultureInfo.InvariantC
+          ulture);
+      75              yield return Cortar(primeiroEUltimo, TamanhoMaximo 
+          - sufixo.Length) + sufixo;
+  ⎿  (timeout 6m 40s)
+
+● A E2 está pronta para a sua revisão, sem commit. Os 204 testes do domínio
+  passam, com 78 novos. O dotnet format --verify-no-changes está limpo, o build
+  Release passa sem warning e os testes de arquitetura continuam verdes, com
+  Domain sem dependência nenhuma.
+
+  O que entrou, em apps/api/src/Maxx.Domain/Identidade/:
+
+  Arquivo: PrefixoDeArroba.cs
+  O que faz: Validar (3 a 30 caracteres, letras ASCII e dígitos, começando por
+  letra), Mesmo (sem diferenciar maiúsculas) e Sugestoes / Sugerir(nome, 
+  estaLivre), na ordem que você aprovou: primeiro e último nome, depois com o
+  primeiro nome do meio, depois com número a partir de 2. Saber se um prefixo
+  está livre fica com quem chama: o banco, na E4 e na E6
+  ────────────────────────────────────────
+  Arquivo: Sufixo.cs
+  O que faz: Sufixo.Para(papeis, curso, exAluno), dando a sigla do curso, EX,
+  PROF (também quando a conta acumula instituição) ou UNIMAX, e o record
+  Arroba, que se escreve @prefixo-SUFIXO
+  ────────────────────────────────────────
+  Arquivo: PoliticaDeSenha.cs
+  O que faz: De 8 a 128 caracteres, contados como caractere e não como unidade
+  de
+  UTF-16 (um emoji conta um). A mensagem de recusa nunca repete a senha
+  ────────────────────────────────────────
+  Arquivo: Usuario.cs
+  O que faz: CadastrarAluno (exige cadastro de aluno, o curso do próprio
+  cadastro
+  e senha) e CriarPeloSeed (só professor e instituição, sem senha, com o nome
+  completo como nome de exibição). Mais DefinirSenha, EditarPrefixo,
+  TrocarDeCurso, MarcarExAluno e PrefixoReservado, a lista de todo prefixo que
+  o usuário já teve, o atual inclusive
+
+  Os testes estão em apps/api/tests/Maxx.Domain.Tests/Identidade/, um arquivo
+  por tipo.
+
+  Comportamentos que não estavam escritos nos docs e que eu fixei. Confira:
+
+  1. Nome curto ou longo: se o nome der menos de 3 letras, a sugestão já sai
+     numerada ("Li" vira li2). Se der mais de 30, é cortada em 30, e o número
+     entra dentro do limite.
+  2. Hífen e apóstrofo no nome são descartados ("D'Ávila" vira Davila,
+     "Ana-Maria" vira anamaria), em vez de separar palavras.
+  3. Trocar só as maiúsculas do próprio prefixo muda a exibição sem criar outra
+     reserva.
+  4. Ex-aluno pode editar o prefixo, e o sufixo continua -EX.
+  5. Nome de exibição é só obrigatório, sem tamanho máximo, porque os docs não
+     definem um. Se quiser um limite, me diga qual.
+
+  Se aprovar o 1 e o 2, proponho registrá-los em produto.md 2.3.1 neste mesmo
+  commit, para os docs não ficarem atrás do código.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona usuário, arroba e política de senha ao domínio
+
+✻ Worked for 5m 6s · done 21:16
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E2 aprovada. Os comportamentos 1 a 4 ficam, e registra o 1 e o 2 no           
+  produto.md 2.3.1 neste commit. No 5, nome de exibição com máximo de 60        
+  caracteres, e isso também vai para o 2.3.1. Commita com a mensagem proposta,  
+  push, e segue para a E3; para para a minha revisão no fim dela.               
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 1 line, removed 1 line
+      23          Id = Guid.CreateVersion7();
+      24          CadastroElegivelId = cadastro.Id;
+      25          Papeis = cadastro.Papeis;
+      26 -        NomeDeExibicao = Texto.Obrigatorio(nomeDeExibicao, "O n
+         -ome de exibição");                                             
+      26 +        NomeDeExibicao = ValidarNomeDeExibicao(nomeDeExibicao);
+      27          Prefixo = PrefixoDeArroba.Validar(prefixo);
+      28          Sufixo = sufixo;
+      29          HashDaSenha = hashDaSenha;
+
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 3 lines
+      31          _prefixosReservados.Add(new PrefixoReservado(Id, Prefix
+          o, agora));
+      32      }
+      33  
+      34 +    // Em caracteres, não em unidades de UTF-16, como na senha.
+      35 +    public const int TamanhoMaximoDoNomeDeExibicao = 60;       
+      36 +                                                               
+      37      public Guid Id { get; private set; }
+      38  
+      39      public Guid CadastroElegivelId { get; private set; }
+
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 11 lines
+      144          Sufixo = Identidade.Sufixo.ExAluno;
+      145      }
+      146  
+      147 +    private static string ValidarNomeDeExibicao(string nome)  
+      148 +    {                                                         
+      149 +        nome = Texto.Obrigatorio(nome, "O nome de exibição"); 
+      150 +        if (nome.EnumerateRunes().Count() > TamanhoMaximoDoNom
+          +eDeExibicao)                                                  
+      151 +        {                                                     
+      152 +            throw new DomainException($"O nome de exibição tem
+          + no máximo {TamanhoMaximoDoNomeDeExibicao} caracteres.");     
+      153 +        }                                                     
+      154 +                                                              
+      155 +        return nome;                                          
+      156 +    }                                                         
+      157 +                                                              
+      158      private void GarantirAlunoAtivo(string acao)
+      159      {
+      160          if (Papeis != Papeis.Aluno)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs)
+  ⎿  Added 21 lines
+      64      }
+      65  
+      66      [Fact]
+      67 +    public void Nome_de_exibicao_tem_no_maximo_60_caracteres() 
+      68 +    {                                                          
+      69 +        var ana = Usuario.CadastrarAluno(AnaNaBase(), _cc, new 
+         +string('a', 60), "anaSouza", "hash", _agora);                  
+      70 +                                                               
+      71 +        Assert.Equal(60, ana.NomeDeExibicao.Length);           
+      72 +        Assert.Throws<DomainException>(                        
+      73 +            () => Usuario.CadastrarAluno(AnaNaBase(), _cc, new 
+         +string('a', 61), "anaSouza", "hash", _agora));                 
+      74 +    }                                                          
+      75 +                                                               
+      76 +    [Fact]                                                     
+      77 +    public void Nome_de_exibicao_conta_caractere_e_nao_unidade_
+         +de_utf16()                                                     
+      78 +    {                                                          
+      79 +        // Sessenta letras com acento composto e um emoji no fi
+         +m seriam 61 caracteres.                                        
+      80 +        var sessentaEmojis = string.Concat(Enumerable.Repeat(" 
+         +🎓", 60));                                                     
+      81 +                                                               
+      82 +        var ana = Usuario.CadastrarAluno(AnaNaBase(), _cc, sess
+         +entaEmojis, "anaSouza", "hash", _agora);                       
+      83 +                                                               
+      84 +        Assert.Equal(sessentaEmojis, ana.NomeDeExibicao);      
+      85 +    }                                                          
+      86 +                                                               
+      87 +    [Fact]                                                     
+      88      public void Prefixo_fora_do_formato_e_recusado_no_cadastro(
+          )
+      89      {
+      90          Assert.Throws<DomainException>(() => Usuario.CadastrarA
+          luno(AnaNaBase(), _cc, "Ana", "ana-souza", "hash", _agora));
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs)
+  ⎿  Added 1 line, removed 1 line
+      76      [Fact]
+      77      public void Nome_de_exibicao_conta_caractere_e_nao_unidade_
+          de_utf16()
+      78      {
+      79 -        // Sessenta letras com acento composto e um emoji no fi
+         -m seriam 61 caracteres.                                        
+      79 +        // Sessenta emojis são 120 unidades de UTF-16, mas 60 c
+         +aracteres.                                                     
+      80          var sessentaEmojis = string.Concat(Enumerable.Repeat("
+          🎓", 60));
+      81  
+      82          var ana = Usuario.CadastrarAluno(AnaNaBase(), _cc, sess
+          entaEmojis, "anaSouza", "hash", _agora);
+
+● Update(docs\produto.md)
+  ⎿  Added 5 lines
+      82  - **Sugestão a partir do nome completo:** acentos e cedilha rem
+          ovidos (`João` vira
+      83    `joao`), partículas `da`, `de`, `do`, `das`, `dos` e `e` igno
+          radas, primeiro nome em
+      84    minúsculas e os seguintes com inicial maiúscula. `Maria da Si
+          lva` vira `mariaSilva`.
+      85 +- Hífen e apóstrofo dentro de um nome são descartados, sem sepa
+         +rar palavras:                                                  
+      86 +  `D'Ávila` vira `Davila`, `Ana-Maria` vira `anamaria`.        
+      87  - **Colisão na sugestão:** primeiro nome e último nome; se ocup
+          ado, primeiro nome, o
+      88    primeiro nome do meio e o último nome; se ainda ocupado, prim
+          eiro e último nome com
+      89    número sequencial a partir de 2 (`mariaSilva2`).
+      90 +- **Nome curto ou longo:** sugestão com menos de 3 caracteres j
+         +á sai numerada (`Li` vira                                      
+      91 +  `li2`). Sugestão com mais de 30 é cortada em 30, e o número, 
+         +quando houver, entra                                           
+      92 +  dentro do limite.                                            
+      93  - **Reserva permanente:** todo prefixo que o usuário já teve fi
+          ca reservado a ele, sem
+      94    reuso por terceiros. Vale para a troca automática de sufixo e
+           também para a edição
+      95    do prefixo no perfil. O dono pode voltar a um prefixo antigo 
+          seu.
+
+● Update(docs\produto.md)
+  ⎿  Added 2 lines
+       93  - **Reserva permanente:** todo prefixo que o usuário já teve f
+           ica reservado a ele, sem
+       94    reuso por terceiros. Vale para a troca automática de sufixo 
+           e também para a edição
+       95    do prefixo no perfil. O dono pode voltar a um prefixo antigo
+            seu.
+       96 +- **Nome de exibição:** de 1 a 60 caracteres, contando um emoj
+          +i como um. Para professor e                                   
+       97 +  instituição, que vêm do seed, nasce como o nome completo do 
+          +cadastro elegível.                                            
+       98  
+       99  ### 2.4 Domínios de e-mail
+      100  
+
+  Pushed to feat/passo-03-auth, ran 1 shell command (ctrl+o to expand)
+
+● E2 já está commitada e no remoto; agora sigo com a E3, sessão e recuperação no
+  domínio, onde o domínio só recebe o hash do token e a rotação devolve um
+  resultado em vez de lançar exceção, e a recuperação de senha vale 30 minutos,
+  é de uso único e revoga as famílias do usuário ao concluir.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\FamiliaDeSessaoTests.cs)
+  ⎿  Wrote 143 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\FamiliaDeSessaoTests.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Domain.Tests.Identidade;
+       4 
+       5 public class FamiliaDeSessaoTests
+       6 {
+       7     private static readonly DateTimeOffset _login = new(2026, 11
+         , 3, 15, 0, 0, TimeSpan.Zero);
+       8     private static readonly Guid _usuarioId = Guid.CreateVersion
+         7();
+     … +135 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs)
+  ⎿  Wrote 141 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Identidade;
+      3 
+      4 namespace Maxx.Domain.Tests.Identidade;
+      5 
+      6 public class RecuperacaoDeSenhaTests
+      7 {
+      8     private static readonly DateTimeOffset _pedido = new(2026, 11
+        , 3, 15, 0, 0, TimeSpan.Zero);
+      9     private static readonly Curso _cc = new("Ciência da Computaçã
+     … +133 lines (~5 KB) (ctrl+o to expand)
+
+● Agora a implementação.
+
+● Write(apps\api\src\Maxx.Domain\Identidade\FamiliaDeSessao.cs)
+  ⎿  Wrote 146 lines to
+     apps\api\src\Maxx.Domain\Identidade\FamiliaDeSessao.cs
+       1 namespace Maxx.Domain.Identidade;
+       2 
+       3 // Uma sessão, de um login até o logout, o reuso ou a senha rede
+         finida. Cada refresh usado
+       4 // é trocado por outro da mesma família; apresentar de novo um j
+         á trocado é sinal de roubo
+       5 // ou replay e derruba a família inteira (ADR 0006). O domínio s
+         ó vê o hash do refresh:
+       6 // gerar o valor e calcular o hash é da infraestrutura.
+       7 public sealed class FamiliaDeSessao
+     … +139 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\RecuperacaoDeSenha.cs)
+  ⎿  Wrote 85 lines to
+     apps\api\src\Maxx.Domain\Identidade\RecuperacaoDeSenha.cs
+       1 namespace Maxx.Domain.Identidade;
+       2 
+       3 // Um pedido de recuperação de senha, que também é o primeiro ac
+         esso de quem vem do seed
+       4 // (docs/fluxos/06-recuperacao-de-senha.md). Token de uso único,
+          por 30 minutos; o domínio
+       5 // só vê o hash dele.
+       6 public sealed class RecuperacaoDeSenha
+       7 {
+       8     public static readonly TimeSpan Validade = TimeSpan.FromMinu
+     … +78 lines (~2 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E3 está pronta para a sua revisão, sem commit. Os 226 testes do domínio
+  passam, com 20 novos. O dotnet format está limpo.
+
+  O que entrou, em apps/api/src/Maxx.Domain/Identidade/:
+
+  - FamiliaDeSessao.cs:
+    - Abrir (login, com R1 válido por 30 dias) e Revogar(motivo). O motivo é
+      Logout, Reuso ou SenhaRedefinida, e só a primeira revogação fica
+      registrada.
+    - Rotacionar(apresentado, novo), que devolve um ResultadoDoRefresh. A ordem
+      dos testes é: família já revogada; depois token já rotacionado, que é
+      reuso e revoga a família; depois validade vencida; senão rotaciona e emite
+      um refresh novo, válido por 30 dias a partir da rotação.
+    - RefreshToken guarda só o hash do token.
+  - RecuperacaoDeSenha.cs:
+    - Solicitar cria um pedido válido por 30 minutos.
+    - Concluir(usuario, hashNovo, familias) define a senha, marca o token como
+      usado e revoga as famílias com SenhaRedefinida, tudo junto ou nada. O
+      resultado é Concluida, Expirada ou JaUsada.
+    - O primeiro acesso de quem vem do seed é essa mesma conclusão.
+  - Dois casos lançam exceção em vez de devolver resultado, porque indicam bug
+    de quem chama e não ação do usuário: token de outra família, e recuperação
+    ou família de outro usuário.
+
+  Os testes cobrem a sequência do ADR 0006 (R1, R2, R1 de novo), as duas
+  fronteiras de validade (o último instante ainda vale e um segundo depois não),
+  refresh expirado, logout, reset usado duas vezes e reset que revoga as
+  famílias de todos os dispositivos.
+
+  Pontos para você decidir ou confirmar:
+
+  1. Outros pedidos de reset pendentes: depois de uma redefinição concluída, os
+     outros pedidos ainda abertos do mesmo usuário continuam valendo até
+     expirar. Recomendo invalidá-los na conclusão: custa uma linha e evita que
+     um link antigo redefina a senha de novo. Não implementei porque não está
+     decidido.
+  2. Reuso estrito, sem janela de tolerância, como diz o ADR. Consequência: duas
+     abas renovando ao mesmo tempo com o mesmo refresh derrubam a sessão.
+     Proteger contra isso fica a cargo do cliente, que vai serializar a
+     renovação no passo 5. Fica registrado aqui para não virar surpresa.
+  3. Refresh expirado só é recusado e não revoga a família. Não é sinal de
+     roubo.
+  4. Concorrência no banco: duas rotações simultâneas do mesmo token não podem
+     ambas ter sucesso. Isso não é do domínio: entra na E4 (controle de
+     concorrência na linha do token) e é testado na E7.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona família de sessão e recuperação de senha ao domínio
+
+✻ Crunched for 3m 3s · done 21:23
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E3 aprovada. 1: invalida os outros pedidos de reset pendentes na conclusão,   
+  com teste, e registra no fluxo 06. 2, 3 e 4 ficam como você descreveu: reuso  
+  estrito com a serialização no cliente no passo 5, expirado só recusa,         
+  concorrência na E4 e testada na E7. Commita com a mensagem proposta, push, e  
+  segue para a E4; para para a minha revisão no fim dela.                       
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      /tmp/novo.cs <<'EOF'
+          public static RecuperacaoDeSenha Solicitar(Guid u…)
+  ⎿  38:    public DateTimeOffset? InvalidadaEm { get; private set; }
+     79:        if (InvalidadaEm is not null)
+     107:        if (UsadaEm is null && InvalidadaEm is null)
+  ⎿  Updated apps\api\src\Maxx.Domain\Identidade\RecuperacaoDeSenha.cs (+41
+     -4)
+      34  
+      35      public DateTimeOffset? UsadaEm { get; private set; }
+      36  
+      37 +    // Outro pedido do mesmo usuário foi concluído antes deste.
+      38 +    public DateTimeOffset? InvalidadaEm { get; private set; }  
+      39 +                                                               
+      40      public static RecuperacaoDeSenha Solicitar(Guid usuarioId, 
+          string hash, DateTimeOffset agora) => new(usuarioId, hash, agor
+          a);
+      41  
+      39 -    // Senha nova e todas as sessões do usuário derrubadas, ou 
+         -nada muda. A política já                                       
+      40 -    // passou sobre a senha em claro; aqui chega o hash. famili
+         -asDoUsuario são as famílias                                    
+      41 -    // ativas que quem chama carregou.                         
+      42 +    // Senha nova, todas as sessões do usuário derrubadas e os 
+         +outros pedidos pendentes dele                                  
+      43 +    // invalidados, ou nada muda: um link antigo não redefine a
+         + senha de novo. A política já                                  
+      44 +    // passou sobre a senha em claro; aqui chega o hash. famili
+         +asDoUsuario e                                                  
+      45 +    // outrosPedidosDoUsuario são os que quem chama carregou.  
+      46      public ResultadoDaRecuperacao Concluir(
+      43 -        Usuario usuario, string hashDaSenhaNova, IEnumerable<Fa
+         -miliaDeSessao> familiasDoUsuario, DateTimeOffset agora)        
+      47 +        Usuario usuario,                                       
+      48 +        string hashDaSenhaNova,                                
+      49 +        IEnumerable<FamiliaDeSessao> familiasDoUsuario,        
+      50 +        IEnumerable<RecuperacaoDeSenha> outrosPedidosDoUsuario,
+      51 +        DateTimeOffset agora)                                  
+      52      {
+      53          ArgumentNullException.ThrowIfNull(usuario);
+      54          ArgumentNullException.ThrowIfNull(familiasDoUsuario);
+      55 +        ArgumentNullException.ThrowIfNull(outrosPedidosDoUsuari
+         +o);                                                            
+      56  
+      57          if (usuario.Id != UsuarioId)
+      58          {
+     ...
+      65              throw new ArgumentException("Há família de sessão d
+          e outro usuário.", nameof(familiasDoUsuario));
+      66          }
+      67  
+      68 +        var outrosPedidos = outrosPedidosDoUsuario.Where(pedido
+         + => pedido.Id != Id).ToList();                                 
+      69 +        if (outrosPedidos.Any(pedido => pedido.UsuarioId != Usu
+         +arioId))                                                       
+      70 +        {                                                      
+      71 +            throw new ArgumentException("Há pedido de recuperaç
+         +ão de outro usuário.", nameof(outrosPedidosDoUsuario));        
+      72 +        }                                                      
+      73 +                                                               
+      74          if (UsadaEm is not null)
+      75          {
+     … 40 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && rm -f
+      /tmp/novo.cs &&
+      f=tests/Maxx.Domain.Tests/Identidade/RecuperacaoDeSenhaTes…)
+  ⎿  42:        var resultado = recuperacao.Concluir(ana, "hash-novo", [cel
+     ular, notebook], [], conclusao);
+     63:        recuperacao.Concluir(ana, "hash-novo", [antiga], [], _pedid
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs
+     (+9 -9)
+      39          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+          "T", _pedido);
+      40          var conclusao = _pedido.AddMinutes(10);
+      41  
+      42 -        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         -[celular, notebook], conclusao);                               
+      42 +        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         +[celular, notebook], [], conclusao);                           
+      43  
+      44          Assert.Equal(ResultadoDaRecuperacao.Concluida, resultad
+          o);
+      45          Assert.Equal("hash-novo", ana.HashDaSenha);
+     ...
+      60          antiga.Revogar(MotivoDaRevogacao.Logout, _pedido.AddDay
+          s(-4));
+      61          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+          "T", _pedido);
+      62  
+      63 -        recuperacao.Concluir(ana, "hash-novo", [antiga], _pedid
+         -o.AddMinutes(1));                                              
+      63 +        recuperacao.Concluir(ana, "hash-novo", [antiga], [], _p
+         +edido.AddMinutes(1));                                          
+      64  
+      65          Assert.Equal(MotivoDaRevogacao.Logout, antiga.MotivoDaR
+          evogacao);
+      66      }
+     ...
+      72              CadastroElegivel.Professor("renata@prof.unieduk.com
+          .br", "Renata Albuquerque"), "renataAlbuquerque", _pedido.AddDa
+          ys(-30));
+      73          var recuperacao = RecuperacaoDeSenha.Solicitar(renata.I
+          d, "T", _pedido);
+      74  
+      75 -        var resultado = recuperacao.Concluir(renata, "primeira-
+         -senha", [], _pedido.AddMinutes(5));                            
+      75 +        var resultado = recuperacao.Concluir(renata, "primeira-
+         +senha", [], [], _pedido.AddMinutes(5));                        
+      76  
+      77          Assert.Equal(ResultadoDaRecuperacao.Concluida, resultad
+          o);
+      78          Assert.True(renata.TemSenha);
+     ...
+      85          var familia = FamiliaDeSessao.Abrir(ana.Id, "C1", _pedi
+          do.AddDays(-5));
+      86          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+          "T", _pedido);
+      87  
+      88 -        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         -[familia], _pedido.AddMinutes(30).AddSeconds(1));              
+      88 +        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         +[familia], [], _pedido.AddMinutes(30).AddSeconds(1));          
+      89  
+      90          Assert.Equal(ResultadoDaRecuperacao.Expirada, resultado
+          );
+      91          Assert.Equal("hash-antigo", ana.HashDaSenha);
+     ...
+       99          var ana = Ana();
+      100          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id,
+            "T", _pedido);
+      101  
+      102 -        Assert.Equal(ResultadoDaRecuperacao.Concluida, recuper
+          -acao.Concluir(ana, "hash-novo", [], _pedido.AddMinutes(30))); 
+      102 +        Assert.Equal(ResultadoDaRecuperacao.Concluida, recuper
+          +acao.Concluir(ana, "hash-novo", [], [], _pedido.AddMinutes(30)
+          +));                                                           
+      103      }
+      104  
+      105      [Fact]
+     … 28 more lines (ctrl+o to expand)
+
+● Agora os testes novos da invalidação.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs)  ⎿  Added 72 lines
+      138          Assert.Equal("hash-antigo", ana.HashDaSenha);
+      139          Assert.Null(recuperacao.UsadaEm);
+      140      }
+      141 +                                                              
+      142 +    [Fact]                                                    
+      143 +    public void Concluir_invalida_os_outros_pedidos_pendentes_
+          +do_usuario()                                                  
+      144 +    {                                                         
+      145 +        var ana = Ana();                                      
+      146 +        var primeiro = RecuperacaoDeSenha.Solicitar(ana.Id, "T
+          +1", _pedido);                                                 
+      147 +        var segundo = RecuperacaoDeSenha.Solicitar(ana.Id, "T2
+          +", _pedido.AddMinutes(2));                                    
+      148 +        var terceiro = RecuperacaoDeSenha.Solicitar(ana.Id, "T
+          +3", _pedido.AddMinutes(4));                                   
+      149 +        var conclusao = _pedido.AddMinutes(5);                
+      150 +                                                              
+      151 +        segundo.Concluir(ana, "hash-novo", [], [primeiro, segu
+          +ndo, terceiro], conclusao);                                   
+      152 +                                                              
+      153 +        Assert.Equal(conclusao, primeiro.InvalidadaEm);       
+      154 +        Assert.Equal(conclusao, terceiro.InvalidadaEm);       
+      155 +        Assert.Null(segundo.InvalidadaEm);                    
+      156 +        Assert.Equal(conclusao, segundo.UsadaEm);             
+      157 +    }                                                         
+      158 +                                                              
+      159 +    [Fact]                                                    
+      160 +    public void Link_antigo_invalidado_nao_redefine_a_senha_de
+          +_novo()                                                       
+      161 +    {                                                         
+      162 +        var ana = Ana();                                      
+      163 +        var antigo = RecuperacaoDeSenha.Solicitar(ana.Id, "T1"
+          +, _pedido);                                                   
+      164 +        var novo = RecuperacaoDeSenha.Solicitar(ana.Id, "T2", 
+          +_pedido.AddMinutes(1));                                       
+      165 +        novo.Concluir(ana, "hash-novo", [], [antigo], _pedido.
+          +AddMinutes(2));                                               
+      166 +        var sessaoNova = FamiliaDeSessao.Abrir(ana.Id, "S1", _
+          +pedido.AddMinutes(3));                                        
+      167 +                                                              
+      168 +        var resultado = antigo.Concluir(ana, "hash-de-quem-peg
+          +ou-o-link", [sessaoNova], [novo], _pedido.AddMinutes(4));     
+      169 +                                                              
+      170 +        Assert.Equal(ResultadoDaRecuperacao.Invalidada, result
+          +ado);                                                         
+      171 +        Assert.Equal("hash-novo", ana.HashDaSenha);           
+      172 +        Assert.Null(antigo.UsadaEm);                          
+      173 +        Assert.True(sessaoNova.EstaAtiva);                    
+      174 +    }                                                         
+      175 +                                                              
+      176 +    [Fact]                                                    
+      177 +    public void Pedido_ja_usado_nao_vira_invalidado()         
+      178 +    {                                                         
+      179 +        var ana = Ana();                                      
+      180 +        var usado = RecuperacaoDeSenha.Solicitar(ana.Id, "T1",
+          + _pedido);                                                    
+      181 +        usado.Concluir(ana, "hash-1", [], [], _pedido.AddMinut
+          +es(1));                                                       
+      182 +        var depois = RecuperacaoDeSenha.Solicitar(ana.Id, "T2"
+          +, _pedido.AddMinutes(10));                                    
+      183 +                                                              
+      184 +        depois.Concluir(ana, "hash-2", [], [usado], _pedido.Ad
+          +dMinutes(11));                                                
+      185 +                                                              
+      186 +        Assert.Null(usado.InvalidadaEm);                      
+      187 +        Assert.Equal(_pedido.AddMinutes(1), usado.UsadaEm);   
+      188 +    }                                                         
+      189 +                                                              
+      190 +    [Fact]                                                    
+      191 +    public void Pedido_expirado_nao_invalida_ninguem()        
+      192 +    {                                                         
+      193 +        var ana = Ana();                                      
+      194 +        var expirado = RecuperacaoDeSenha.Solicitar(ana.Id, "T
+          +1", _pedido);                                                 
+      195 +        var aberto = RecuperacaoDeSenha.Solicitar(ana.Id, "T2"
+          +, _pedido.AddMinutes(25));                                    
+      196 +                                                              
+      197 +        var resultado = expirado.Concluir(ana, "hash-novo", []
+          +, [aberto], _pedido.AddMinutes(31));                          
+      198 +                                                              
+      199 +        Assert.Equal(ResultadoDaRecuperacao.Expirada, resultad
+          +o);                                                           
+      200 +        Assert.Null(aberto.InvalidadaEm);                     
+      201 +    }                                                         
+      202 +                                                              
+      203 +    [Fact]                                                    
+      204 +    public void Pedido_de_outro_usuario_entre_os_pendentes_e_e
+          +rro_de_quem_chama()                                           
+      205 +    {                                                         
+      206 +        var ana = Ana();                                      
+      207 +        var deOutro = RecuperacaoDeSenha.Solicitar(Guid.Create
+          +Version7(), "O1", _pedido);                                   
+      208 +        var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id,
+          + "T", _pedido);                                               
+      209 +                                                              
+      210 +        Assert.Throws<ArgumentException>(() => recuperacao.Con
+          +cluir(ana, "hash-novo", [], [deOutro], _pedido));             
+      211 +        Assert.Equal("hash-antigo", ana.HashDaSenha);         
+      212 +    }                                                         
+      213  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora o fluxo 06.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/fluxos/06-recuperacao-de-senha.md && sed -i \
+       -e 's/  alt T inexistente, expirado…)
+  ⎿    App->>API: confirma (T + senha nova)
+       API->>DB: busca o token pelo hash de T
+       alt T inexistente, expirado, ja usado ou invalidado
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\06-recuperacao-de-senha.md (+3 -1)
+      26  
+      27    App->>API: confirma (T + senha nova)
+      28    API->>DB: busca o token pelo hash de T
+      29 -  alt T inexistente, expirado ou ja usado                      
+      29 +  alt T inexistente, expirado, ja usado ou invalidado          
+      30      API-->>App: recusado
+      31    else T valido
+      32      API->>API: hash da senha nova com Argon2id
+      33      API->>DB: grava a senha, marca T como usado, revoga todas a
+          s familias de refresh
+      34 +    API->>DB: invalida os outros pedidos pendentes do usuario  
+      35      API-->>App: senha redefinida, entrar de novo
+      36    end
+      37  ```
+     ...
+      47  | Limite de taxa por e-mail | `decisoes/README.md` (Autenticaçã
+          o) |
+      48  | Envio fora da requisição, em segundo plano até a fila do pass
+          o 6 | `decisoes/README.md` (Autenticação) |
+      49  | Senha nova revoga todas as famílias de refresh | `decisoes/RE
+          ADME.md` (Autenticação) |
+      50 +| Concluir um pedido invalida os outros pendentes do mesmo usuá
+         +rio: um link antigo não redefine a senha de novo | Revisão da E
+         +3 do passo 3; `decisoes/README.md` (Autenticação) |            
+      51  | Argon2id; senha e token nunca em log | ADR 0006; `CLAUDE.md` 
+          (Segurança) |
+      52  
+      53  Os códigos HTTP além do 202 ficam para o fechamento do passo 3,
+           junto com os do
+
+● A linha cita decisoes/README.md, então a regra vai também para lá:
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      65  | Assinatura | HS256, com uma chave em variável de ambiente com
+          partilhada pelas duas réplicas. Assimétrica não traz ganho: só 
+          a própria API valida o token. Sem a chave, a API não sobe fora 
+          de desenvolvimento e teste |
+      66  | Refresh | 30 dias, renovados a cada rotação, sem teto absolut
+          o na fase 1. Guardado no banco só como hash SHA-256 |
+      67  | Refresh na web e no nativo | Na web, cookie `HttpOnly`, `Secu
+          re`, `SameSite=Strict`, restrito ao caminho de autenticação; no
+           nativo, no corpo da resposta, para o secure store. O cliente s
+          e identifica por cabeçalho |
+      68 -| Recuperação de senha | Token aleatório de 30 minutos, uso úni
+         -co, guardado só como hash. A resposta ao pedido é sempre a mesm
+         -a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+         -de refresh do usuário |                                        
+      68 +| Recuperação de senha | Token aleatório de 30 minutos, uso úni
+         +co, guardado só como hash. A resposta ao pedido é sempre a mesm
+         +a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+         +de refresh do usuário e invalida os outros pedidos de recuperaç
+         +ão pendentes dele |                                            
+      69  | Hash de senha | Argon2id com `Konscious.Security.Cryptography
+          `, parâmetros do OWASP: 19 MiB de memória, 2 iterações, paralel
+          ismo 1. Login de usuário inexistente calcula um hash fictício, 
+          para o tempo de resposta não revelar quem tem conta |
+      70  | Política de senha | De 8 a 128 caracteres, sem regra de compo
+          sição, na linha do NIST SP 800-63B |
+      71  | E-mail | SMTP genérico com MailKit; Mailpit no compose local.
+           Provedor da VPS escolhido no passo 13 |
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/| Revisão da E3 do passo 3; `decisoes\/README.md` (Autenticação)
+      |/| `decisoes\…)
+  ⎿  A  apps/api/src/Maxx.Domain/Identidade/FamiliaDeSessao.cs
+     A  apps/api/src/Maxx.Domain/Identidade/RecuperacaoDeSenha.cs
+     A  apps/api/tests/Maxx.Domain.Tests/Identidade/FamiliaDeSessaoTests.cs
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\06-recuperacao-de-senha.md (+1 -1)
+      47  | Limite de taxa por e-mail | `decisoes/README.md` (Autenticaçã
+          o) |
+      48  | Envio fora da requisição, em segundo plano até a fila do pass
+          o 6 | `decisoes/README.md` (Autenticação) |
+      49  | Senha nova revoga todas as famílias de refresh | `decisoes/RE
+          ADME.md` (Autenticação) |
+      50 -| Concluir um pedido invalida os outros pendentes do mesmo usuá
+         -rio: um link antigo não redefine a senha de novo | Revisão da E
+         -3 do passo 3; `decisoes/README.md` (Autenticação) |            
+      50 +| Concluir um pedido invalida os outros pendentes do mesmo usuá
+         +rio: um link antigo não redefine a senha de novo | `decisoes/RE
+         +ADME.md` (Autenticação) |                                      
+      51  | Argon2id; senha e token nunca em log | ADR 0006; `CLAUDE.md` 
+          (Segurança) |
+      52  
+      53  Os códigos HTTP além do 202 ficam para o fechamento do passo 3,
+           junto com os do
+
+● E3 está commitada e no remoto (2ef32f6). Para a E4, leio a persistência
+  existente e os testes de integração.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Desenhei as tabelas da E4: usuario, prefixo_reservado (com citext como chave
+  primária, onde mora a unicidade), familia_sessao, refresh_token e
+  recuperacao_senha, ambas com xmin como token de concorrência. As regras do
+  domínio também vão para o banco como check constraints, seguindo o passo 2.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\IdentidadeCo
+       nfiguration.cs)
+  ⎿  Wrote 148 lines to apps\api\src\Maxx.Infrastructure\Persistence\Config
+     urations\IdentidadeConfiguration.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 using Microsoft.EntityFrameworkCore;
+       4 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       5 
+       6 namespace Maxx.Infrastructure.Persistence.Configurations;
+       7 
+       8 // Conta, sessão e recuperação. Os invariantes do domínio repeti
+         dos no banco, como no
+       9 // modelo acadêmico. Dentro do agregado apaga em cascata (usuári
+     … +140 lines (~6 KB) (ctrl+o to expand)
+
+● O varchar(n) do Postgres conta caractere (code point), igual à contagem por
+  rune do domínio. Então o limite certo é 60, não 120:
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\IdentidadeC
+        onfiguration.cs)
+  ⎿  Added 2 lines, removed 1 line
+      36              .OnDelete(DeleteBehavior.Restrict);
+      37  
+      38          builder.Property(usuario => usuario.Papeis).HasConversi
+          on<int>();
+      39 -        builder.Property(usuario => usuario.NomeDeExibicao).Has
+         -MaxLength(Usuario.TamanhoMaximoDoNomeDeExibicao * 2).IsRequired
+         -();                                                            
+      39 +        // varchar(n) no Postgres conta caractere, como o domín
+         +io: um emoji é um.                                             
+      40 +        builder.Property(usuario => usuario.NomeDeExibicao).Has
+         +MaxLength(Usuario.TamanhoMaximoDoNomeDeExibicao).IsRequired(); 
+      41  
+      42          // A unicidade do prefixo mora em prefixo_reservado; aq
+          ui é só o atual, como escrito.
+      43          builder.Property(usuario => usuario.Prefixo).HasColumnT
+          ype("citext").IsRequired();
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      grep -rn "migrations add" README.md docs apps/api 2>/dev/null | head -3;
+      dotnet tool rest…)
+  ⎿  apps/api/src/Maxx.Infrastructure/Persistence/MaxxDbContextDesignTimeFa
+     ctory.cs:6:// Usada só pelo `dotnet ef migrations add`, que não abre c
+     onexão.
+     … +3 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     04002937_Identidade.cs (+194 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class Identidade : Migration               
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.CreateTable(                     
+       15 +                name: "usuario",                              
+       16 +                columns: table => new                         
+       17 +                {                                             
+       18 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       19 +                    cadastro_elegivel_id = table.Column<Guid>(
+          +type: "uuid", nullable: false),                               
+       20 +                    papeis = table.Column<int>(type: "integer"
+          +, nullable: false),                                           
+       21 +                    nome_de_exibicao = table.Column<string>(ty
+          +pe: "character varying(60)", maxLength: 60, nullable: false), 
+       22 +                    prefixo = table.Column<string>(type: "cite
+          +xt", nullable: false),                                        
+       23 +                    sufixo = table.Column<string>(type: "text"
+          +, nullable: false),                                           
+       24 +                    hash_da_senha = table.Column<string>(type:
+          + "text", nullable: true),                                     
+       25 +                    ex_aluno_desde = table.Column<DateTimeOffs
+          +et>(type: "timestamp with time zone", nullable: true),        
+       26 +                    criado_em = table.Column<DateTimeOffset>(t
+          +ype: "timestamp with time zone", nullable: false)             
+       27 +                },                                            
+       28 +                constraints: table =>                         
+       29 +                {                                             
+       30 +                    table.PrimaryKey("pk_usuario", x => x.id);
+       31 +                    table.CheckConstraint("ck_usuario_ex_aluno
+          +", "(ex_aluno_desde IS NULL AND sufixo <> 'EX') OR (ex_aluno_d
+          +esde IS NOT NULL AND papeis = 1 AND sufixo = 'EX')");         
+       32 +                    table.CheckConstraint("ck_usuario_papeis",
+          + "papeis IN (1, 2, 4, 6)");                                   
+       33 +                    table.CheckConstraint("ck_usuario_prefixo"
+          +, "prefixo ~ '^[A-Za-z][A-Za-z0-9]{2,29}$'");                 
+       34 +                    table.ForeignKey(                         
+       35 +                        name: "fk_usuario_cadastro_elegivel_ca
+          +dastro_elegivel_id",                                          
+       36 +                        column: x => x.cadastro_elegivel_id,  
+       37 +                        principalTable: "cadastro_elegivel",  
+       38 +                        principalColumn: "id",                
+       39 +                        onDelete: ReferentialAction.Restrict);
+       40 +                });                                           
+     … 154 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A migração já criou as 5 tabelas com seus índices e checks. Cuidado com xmin,
+  que parece coluna nova mas é do sistema do Postgres; vou escrever os testes de
+  integração para confirmar que o Npgsql a ignora.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\IdentidadePersistenciaTests.cs)
+  ⎿  Wrote 373 lines to apps\api\tests\Maxx.Api.IntegrationTests\Identidade
+     PersistenciaTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Identidade;
+      3 using Maxx.Infrastructure.Persistence;
+      4 using Microsoft.EntityFrameworkCore;
+      5 using Microsoft.Extensions.DependencyInjection;
+      6 using Npgsql;
+      7 using static Maxx.Api.IntegrationTests.BancoDeTeste;
+      8 
+      9 namespace Maxx.Api.IntegrationTests;
+     … +364 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O Docker não está respondendo. Vou verificar se ele está instalado e só
+  parado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O cliente Docker está instalado, mas o daemon não está rodando e o Docker
+  Desktop não está no caminho padrão. Enquanto isso, vou checar sem banco o SQL
+  que a migration gera, para ver se a coluna xmin fica de fora.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O Npgsql deixa o xmin fora do DDL, como esperado. Rodo o lint e o build:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E4 está escrita, mas não consegui rodar os testes de integração, porque o
+  Docker não está de pé nesta máquina. A pasta padrão do Docker Desktop não
+  existe, e o Testcontainers não acha o daemon. Por isso a E4 ainda não está
+  pronta para sua revisão.
+
+  O que já está feito:
+
+  - Configuração em apps/api/src/Maxx.Infrastructure/Persistence/Configurations/
+    IdentidadeConfiguration.cs:
+    - usuario, com índice único em cadastro_elegivel_id (um RA, uma conta). As
+      checks repetem no banco o formato do prefixo, os papéis e a regra do
+      ex-aluno com sufixo EX. nome_de_exibicao é varchar(60), que no Postgres
+      conta caractere, igual ao domínio.
+    - prefixo_reservado: o prefixo citext é a chave primária. É essa chave que
+      decide a corrida entre dois cadastros e que segura a reserva para sempre.
+    - familia_sessao, com índice parcial nas famílias ativas do usuário.
+    - refresh_token, com hash único e xmin como token de concorrência.
+    - recuperacao_senha, com hash único, índice parcial nos pedidos pendentes e
+      xmin.
+  - Migration 20261104002937_Identidade, gerada. O script SQL confirma que o
+    Npgsql deixa o xmin (coluna de sistema) fora do DDL.
+  - dotnet format e build Release limpos, sem nenhum warning.
+  - 16 testes de integração em IdentidadePersistenciaTests.cs, ainda não
+    rodados: dois cadastros simultâneos pelo mesmo prefixo (um só vence),
+    prefixo antigo editado continua reservado, segunda conta para o mesmo RA,
+    prefixo de outro em outra caixa, check de formato direto no SQL, ida e volta
+    de família e reuso, duas renovações simultâneas com o mesmo refresh (a
+    segunda leva DbUpdateConcurrencyException), o mesmo link de reset usado duas
+    vezes ao mesmo tempo, e recuperação gravando senha, revogações e
+    invalidações.
+
+  Uma diferença em relação ao plano: a tabela do arroba se chama
+  prefixo_reservado, e não arroba, porque a unicidade é do prefixo.
+
+  Para fechar a E4, preciso que você suba o Docker (Docker Desktop ou outro
+  engine que exponha npipe://./pipe/docker_engine). Depois me avise ou rode você
+  mesmo:
+
+  ! dotnet test --project apps/api/tests/Maxx.Api.IntegrationTests
+
+  Com os testes rodando, corrijo o que falhar, aplico a migration no contêiner
+  migrator e trago a E4 para sua revisão com o resultado.
+
+✻ Worked for 5m 49s · done 21:32
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> Docker de pé. Roda os testes, aplica a migration no migrator e traz a E4 para 
+  revisão. A tabela prefixo_reservado no lugar de arroba está certa.            
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 92 testes passam. Confirmo que os 16 novos estão entre eles:
+  Ran 1 shell command (ctrl+o to expand)
+
+● São 17 casos, porque a theory de formato tem 4. Agora aplico a migration pelo
+  contêiner migrator:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A E4 está pronta para a sua revisão, sem commit.
+
+  - Testes de integração: os 92 passam no Postgres real via Testcontainers,
+    incluindo os 17 casos novos de IdentidadePersistenciaTests. Os que ficaram
+    verdes provam três coisas:
+    - Concorrência no banco: duas renovações simultâneas com o mesmo refresh, e
+      o mesmo link de reset usado duas vezes ao mesmo tempo, deixam só uma
+      gravação. A outra leva DbUpdateConcurrencyException, pelo xmin.
+    - Corrida pelo prefixo: dois cadastros simultâneos pelo mesmo prefixo deixam
+      um único vencedor, pela chave primária de prefixo_reservado.
+    - Unicidades e reserva: a segunda conta para o mesmo RA é recusada, um
+      prefixo de outra pessoa é recusado mesmo escrito em outra caixa, e um
+      prefixo editado continua reservado ao dono.
+  - Migration aplicada: o contêiner migrator aplicou 20261104002937_Identidade
+    sob o advisory lock e saiu com código 0. O banco local tem as cinco tabelas
+    novas, e o histórico mostra as quatro migrations.
+  - Lint e build: dotnet format limpo e build Release sem warning.
+
+  Arquivos do commit:
+  - apps/api/src/Maxx.Infrastructure/Persistence/Configurations/IdentidadeConfig
+    uration.cs
+  - apps/api/src/Maxx.Infrastructure/Persistence/Migrations/20261104002937_Ident
+    idade.cs, com o .Designer.cs e o snapshot atualizado
+  - apps/api/tests/Maxx.Api.IntegrationTests/IdentidadePersistenciaTests.cs
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona migration de usuário, sessão e recuperação de senha
+
+  Depois do seu ok eu commito, faço o push e sigo para a E5 (infraestrutura de
+  autenticação).
+
+✻ Churned for 1m 45s · done 21:35
+
+※ recap: Estamos no passo 3 (autenticação e autorização), com E1 a E3 commitadas e a E4 pronta: testes de integração passando e migration aplicada no migrator. Falta só o seu ok para eu commitar a E4, fazer o push e seguir para a E5. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E4 aprovada. Commita com a mensagem proposta, push, e segue para a E5; para   
+  para a minha revisão no fim dela.                                             
+
+  Pushed to feat/passo-03-auth (ctrl+o to expand)
+
+● E4 está commitada e no remoto (1e76bcc). Para a E5, leio o estilo dos
+  endpoints, o teste do OpenAPI e o script de geração do cliente.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O pacote de Argon2 e o JwtBearer vão para o Directory.Packages.props, com as
+  interfaces em Maxx.Application/Autenticacao. O hasher e o gerador de token
+  opaco ficam na Infrastructure, e o JWT na Api.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|    <PackageVersion Include="EFCore.NamingConventions"
+      Version="10.0.1" />|…)
+  ⎿    C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\
+     api\src\Maxx.Infrastructure\Maxx.Infrastructure.csproj restaurado (em
+     1,86 seg).
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated Directory.Packages.props (+2 -0)
+       5    </PropertyGroup>
+       6    <ItemGroup>
+       7      <PackageVersion Include="EFCore.NamingConventions" Version=
+          "10.0.1" />
+       8 +    <PackageVersion Include="Konscious.Security.Cryptography.Ar
+         +gon2" Version="1.3.1" />                                       
+       9 +    <PackageVersion Include="Microsoft.AspNetCore.Authenticatio
+         +n.JwtBearer" Version="10.0.14" />                              
+      10      <!-- O provedor Npgsql puxa um EF Core mais antigo que o De
+          sign: fixa os dois juntos. -->
+      11      <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Vers
+          ion="10.0.14" />
+      12      <PackageVersion Include="Microsoft.EntityFrameworkCore" Ver
+          sion="10.0.14" />
+  ⎿  Updated apps\api\src\Maxx.Api\Maxx.Api.csproj (+1 -0)
+      16    </ItemGroup>
+      17  
+      18    <ItemGroup>
+      19 +    <PackageReference Include="Microsoft.AspNetCore.Authenticat
+         +ion.JwtBearer" />                                              
+      20      <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+      21      <PackageReference Include="Microsoft.Extensions.ApiDescript
+          ion.Server">
+      22        <IncludeAssets>runtime; build; native; contentfiles; anal
+          yzers; buildtransitive</IncludeAssets>
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Maxx.Infrastructure.csproj
+     (+1 -0)
+       7  
+       8    <ItemGroup>
+       9      <PackageReference Include="EFCore.NamingConventions" />
+      10 +    <PackageReference Include="Konscious.Security.Cryptography.
+         +Argon2" />                                                     
+      11      <PackageReference Include="Microsoft.EntityFrameworkCore.De
+          sign">
+      12        <IncludeAssets>runtime; build; native; contentfiles; anal
+          yzers; buildtransitive</IncludeAssets>
+      13        <PrivateAssets>all</PrivateAssets>
+  ⎿  (timeout 5m)
+
+● Agora as abstrações da Application e as implementações:
+
+● Write(apps\api\src\Maxx.Application\Autenticacao\Abstractions.cs)
+  ⎿  Wrote 36 lines to
+     apps\api\src\Maxx.Application\Autenticacao\Abstractions.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Application.Autenticacao;
+       4 
+       5 // O que a autenticação precisa e a Application não implementa: 
+         hash de senha, valor e
+       6 // hash de token opaco (refresh, recuperação), emissão do access
+          token.
+       7 
+       8 public interface ISenhaHasher
+     … +28 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Autenticacao\Argon2idSenhaHasher.cs)
+  ⎿  Wrote 134 lines to
+     apps\api\src\Maxx.Infrastructure\Autenticacao\Argon2idSenhaHasher.cs
+       1 using System.Globalization;
+       2 using System.Security.Cryptography;
+       3 using System.Text;
+       4 using Konscious.Security.Cryptography;
+       5 using Maxx.Application.Autenticacao;
+       6 
+       7 namespace Maxx.Infrastructure.Autenticacao;
+       8 
+       9 // Argon2id com os parâmetros do OWASP: 19 MiB, 2 iterações, par
+         alelismo 1
+     … +125 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Autenticacao\TokenGenerator.cs)
+  ⎿  Wrote 28 lines to
+     apps\api\src\Maxx.Infrastructure\Autenticacao\TokenGenerator.cs
+       1 using System.Security.Cryptography;
+       2 using System.Text;
+       3 using Maxx.Application.Autenticacao;
+       4 
+       5 namespace Maxx.Infrastructure.Autenticacao;
+       6 
+       7 // Refresh e token de recuperação: 32 bytes aleatórios em base64
+         url para o cliente, e o
+       8 // SHA-256 em hexadecimal para o banco. Valor com 256 bits de en
+         tropia não precisa de sal
+     … +20 lines (ctrl+o to expand)
+
+● O .NET 10 já tem Base64Url nativo, então troco a conversão manual por ele:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && f=Autenticacao/TokenGenerator.cs && sed -i
+      -e 's/^using…)
+  ⎿      public TokenOpaco Generate()
+         {
+             var valor = Base64Url.EncodeToString(RandomNumberGenerator.Get
+     … +33 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Infrastructure\Autenticacao\TokenGenerator.cs (+3 
+     -6)
+      1 +using System.Buffers.Text;                                      
+      2  using System.Security.Cryptography;
+      3  using System.Text;
+      4  using Maxx.Application.Autenticacao;
+     ...
+      14  
+      15      public TokenOpaco Generate()
+      16      {
+      16 -        var valor = Base64Url(RandomNumberGenerator.GetBytes(_t
+         -amanho));                                                      
+      17 +        var valor = Base64Url.EncodeToString(RandomNumberGenera
+         +tor.GetBytes(_tamanho));                                       
+      18          return new TokenOpaco(valor, Hash(valor));
+      19      }
+      20  
+     ...
+      22      {
+      23          ArgumentNullException.ThrowIfNull(valor);
+      24          return Convert.ToHexStringLower(SHA256.HashData(Encodin
+          g.UTF8.GetBytes(valor)));
+      24 -    }                                                          
+      25 -                                                               
+      26 -    private static string Base64Url(byte[] bytes) =>           
+      27 -        Convert.ToBase64String(bytes).TrimEnd('=').Replace('+',
+         - '-').Replace('/', '_');                                       
+      28 -}                                                              
+      25 +    }}                                                         
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+5 
+     -0)
+      1 +using Maxx.Application.Autenticacao;                            
+      2 +using Maxx.Infrastructure.Autenticacao;                         
+      3  using Maxx.Infrastructure.Persistence;
+      4  using Maxx.Infrastructure.Seed;
+      5  using Microsoft.EntityFrameworkCore;
+     ...
+      22          services.AddScoped<DatabaseMigrator>();
+      23          services.AddScoped<DatabaseSeeder>();
+      24  
+      25 +        services.AddSingleton<ISenhaHasher, Argon2idSenhaHasher
+         +>();                                                           
+      26 +        services.AddSingleton<ITokenGenerator, TokenGenerator>(
+         +);                                                             
+      27 +                                                               
+      28          // Toda verificação registrada aqui entra no /ready.
+      29          services.AddHealthChecks()
+      30              .AddCheck<DatabaseReadinessCheck>("database", timeo
+          ut: TimeSpan.FromSeconds(3));
+
+● The perl comeu a quebra de linha da chave final. Corrijo:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && sed -i 's/^    }}$/    }\n}/'
+      Autenticacao/TokenGenerato…)
+  ⎿          ArgumentNullException.ThrowIfNull(valor);
+             return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.
+     GetBytes(valor)));
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Infrastructure\Autenticacao\TokenGenerator.cs (+2 
+     -1)
+      22      {
+      23          ArgumentNullException.ThrowIfNull(valor);
+      24          return Convert.ToHexStringLower(SHA256.HashData(Encodin
+          g.UTF8.GetBytes(valor)));
+      25 -    }}                                                         
+      25 +    }                                                          
+      26 +}                                                              
+
+● Agora o lado da Api: opções e emissão do JWT, registro da autenticação, o
+  handler de DomainException, o esquema bearer no OpenAPI e um GET /v1/eu
+  mínimo.
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\JwtOptions.cs)
+  ⎿  Wrote 31 lines to apps\api\src\Maxx.Api\Autenticacao\JwtOptions.cs
+       1 namespace Maxx.Api.Autenticacao;
+       2 
+       3 // A chave HS256 vem só de variável de ambiente (Jwt__Chave), em
+          base64, e é a mesma nas
+       4 // duas réplicas. Validade, emissor e audiência são decisão, não
+          configuração
+       5 // (decisoes/README.md, Autenticação).
+       6 public sealed class JwtOptions
+       7 {
+       8     public const string Section = "Jwt";
+     … +23 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\JwtAccessTokenIssuer.cs)
+  ⎿  Wrote 51 lines to
+     apps\api\src\Maxx.Api\Autenticacao\JwtAccessTokenIssuer.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Identidade;
+       4 using Microsoft.IdentityModel.JsonWebTokens;
+       5 using Microsoft.IdentityModel.Tokens;
+       6 
+       7 namespace Maxx.Api.Autenticacao;
+       8 
+       9 // Access token curto com sub e papéis, e nada mais: a lista de 
+         turmas do professor nunca
+     … +42 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollectionExtensio
+       ns.cs)
+  ⎿  Wrote 66 lines to apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServi
+     ceCollectionExtensions.cs
+       1 using System.Security.Cryptography;
+       2 using Maxx.Application.Autenticacao;
+       3 using Microsoft.AspNetCore.Authentication.JwtBearer;
+       4 using Microsoft.IdentityModel.Tokens;
+       5 
+       6 namespace Maxx.Api.Autenticacao;
+       7 
+       8 internal static partial class AutenticacaoServiceCollectionExten
+         sions
+       9 {
+     … +57 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\EuEndpoints.cs)
+  ⎿  Wrote 27 lines to apps\api\src\Maxx.Api\Autenticacao\EuEndpoints.cs
+       1 using System.Security.Claims;
+       2 using Microsoft.AspNetCore.Http.HttpResults;
+       3 
+       4 namespace Maxx.Api.Autenticacao;
+       5 
+       6 internal static class EuEndpoints
+       7 {
+       8     // Quem é o dono do access token. Nasce mínimo na E5 para ex
+         ercitar a autenticação;
+       9     // cresce só por acréscimo.
+     … +18 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Erros\DomainExceptionHandler.cs)
+  ⎿  Wrote 47 lines to
+     apps\api\src\Maxx.Api\Erros\DomainExceptionHandler.cs
+       1 using Maxx.Domain;
+       2 using Microsoft.AspNetCore.Diagnostics;
+       3 using Microsoft.AspNetCore.Mvc;
+       4 
+       5 namespace Maxx.Api.Erros;
+       6 
+       7 // Regra de domínio que escapou da validação de borda vira 400 n
+         o formato único. A
+       8 // mensagem da exceção é para o log, não para o usuário (DomainE
+         xception): a resposta leva
+     … +39 lines (ctrl+o to expand)
+● Write(apps\api\src\Maxx.Api\OpenApi\BearerSecurityTransformers.cs)
+  ⎿  Wrote 46 lines to
+     apps\api\src\Maxx.Api\OpenApi\BearerSecurityTransformers.cs
+       1 using Microsoft.AspNetCore.Authorization;
+       2 using Microsoft.AspNetCore.OpenApi;
+       3 using Microsoft.OpenApi;
+       4 
+       5 namespace Maxx.Api.OpenApi;
+       6 
+       7 // O access token no contrato: o esquema bearer no documento e o
+          requisito em cada
+       8 // operação que exige autenticação.
+       9 internal static class BearerSecurityTransformers
+     … +37 lines (ctrl+o to expand)
+
+● Agora o Program.cs: a ordem do pipeline, o grupo /v1 e os serviços novos.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" && sed
+      -i 's/internal static partial class AutenticacaoServiceCollecti…)
+  ⎿  /usr/bin/bash: line 1: python3: command not found
+     v22.18.0
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollecti
+     onExtensions.cs (+1 -1)
+       5  
+       6  namespace Maxx.Api.Autenticacao;
+       7  
+       8 -internal static partial class AutenticacaoServiceCollectionExte
+         -nsions                                                         
+       8 +internal static class AutenticacaoServiceCollectionExtensions  
+       9  {
+      10      // exigirChave é falso só nos subcomandos (migrate, seed) e
+           na geração do OpenAPI, que
+      11      // não servem requisição. Fora de desenvolvimento, sem chav
+          e válida a API não sobe.
+
+● Agora edito o Program.cs com o Edit:
+
+● Update(apps\api\src\Maxx.Api\Program.cs)
+  ⎿  Added 17 lines, removed 6 lines
+      28  builder.Services.ConfigureHttpJsonOptions(options =>
+      29      options.SerializerOptions.NumberHandling = JsonNumberHandli
+          ng.Strict);
+      30  
+      31 -builder.Services.AddOpenApi(options => options.AddDocumentTrans
+         -former((document, _, _) =>                                     
+      32 -{                                                              
+      33 -    document.Info.Title = "Maxx API";                          
+      34 -    document.Info.Version = "v1";                              
+      35 -    return Task.CompletedTask;                                 
+      36 -}));                                                           
+      31 +builder.Services.AddOpenApi(options => options                 
+      32 +    .AddDocumentTransformer((document, _, _) =>                
+      33 +    {                                                          
+      34 +        document.Info.Title = "Maxx API";                      
+      35 +        document.Info.Version = "v1";                          
+      36 +        return Task.CompletedTask;                             
+      37 +    })                                                         
+      38 +    .AddBearerSecurity());                                     
+      39  builder.Services.AddInfrastructure(connectionString);
+      40  builder.Services.Configure<SeedOptions>(builder.Configuration.G
+          etSection(SeedOptions.Section));
+      41  
+      42 +builder.Services.AddSingleton(TimeProvider.System);            
+      43 +                                                               
+      44 +// Validação de entrada na borda; a recusa sai em ProblemDetail
+         +s como o resto.                                                
+      45 +builder.Services.AddValidation();                              
+      46 +builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+      47 +                                                               
+      48 +builder.AddAutenticacao(exigirChave: !isMigrate && !isSeed && !
+         +isOpenApiGeneration);                                          
+      49 +builder.Services.AddProxyConfiavel(builder.Configuration);     
+      50 +                                                               
+      51  var app = builder.Build();
+      52  
+      53  if (isMigrate)
+
+● Update(apps\api\src\Maxx.Api\Program.cs)
+  ⎿  Added 10 lines
+       81      return 0;
+       82  }
+       83  
+       84 +// Primeiro de tudo: o IP e o esquema reais vêm do Caddy, e só
+          + dele.                                                        
+       85 +app.UseForwardedHeaders();                                    
+       86 +                                                              
+       87  // Um formato só de erro: ProblemDetails (RFC 9457).
+       88  app.UseExceptionHandler();
+       89  app.UseStatusCodePages();
+       90  
+       91 +app.UseAuthentication();                                      
+       92 +app.UseAuthorization();                                       
+       93 +                                                              
+       94  // Origem única (ADR 0001): toda rota da API vive sob /api, e 
+           o Caddy não corta o prefixo.
+       95  var api = app.MapGroup("/api");
+       96  api.MapHealthEndpoints();
+       97  
+       98 +// Contrato versionado: só mudanças aditivas.                 
+       99 +var v1 = api.MapGroup("/v1");                                 
+      100 +v1.MapEuEndpoints();                                          
+      101 +                                                              
+      102  if (app.Environment.IsDevelopment())
+      103  {
+      104      api.MapOpenApi("/openapi/{documentName}.json");
+
+● Update(apps\api\src\Maxx.Api\Program.cs)
+  ⎿  Added 3 lines
+      1  using System.Reflection;
+      2  using System.Text.Json.Serialization;
+      3 +using Maxx.Api.Autenticacao;                                    
+      4 +using Maxx.Api.Erros;                                           
+      5  using Maxx.Api.Health;
+      6 +using Maxx.Api.OpenApi;                                         
+      7  using Maxx.Infrastructure;
+      8  using Maxx.Infrastructure.Persistence;
+      9  using Maxx.Infrastructure.Seed;
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\ProxyConfiavel.cs)
+  ⎿  Wrote 30 lines to apps\api\src\Maxx.Api\Autenticacao\ProxyConfiavel.cs
+       1 using Microsoft.AspNetCore.HttpOverrides;
+       2 
+       3 namespace Maxx.Api.Autenticacao;
+       4 
+       5 // X-Forwarded-For e X-Forwarded-Proto aceitos só de quem está n
+         a rede do Caddy. Sem a
+       6 // configuração, só do loopback (o padrão do ASP.NET Core): um c
+         liente qualquer nunca
+       7 // escolhe o IP que o limite de taxa enxerga.
+       8 internal static class ProxyConfiavel
+     … +22 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O build passou de primeira, sem warning. Agora os testes. O
+  DomainExceptionHandler é internal, então abro InternalsVisibleTo da Api para o
+  projeto de testes de integração.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      grep -rn "InternalsVisibleTo" apps/api --include=*.csproj; sed -i 's|
+      <ItemGroup>\n    <…)
+  ⎿  14-  <ItemGroup>
+     15:    <InternalsVisibleTo Include="Maxx.Api.IntegrationTests" />
+     16-  </ItemGroup>
+     17-
+  ⎿  Updated apps\api\src\Maxx.Api\Maxx.Api.csproj (+5 -0)
+      10      <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenA
+          piGenerateDocumentsOptions>
+      11    </PropertyGroup>
+      12  
+      13 +  <!-- Os testes exercitam peças internas da borda, como o trat
+         +ador de DomainException. -->                                   
+      14 +  <ItemGroup>                                                  
+      15 +    <InternalsVisibleTo Include="Maxx.Api.IntegrationTests" /> 
+      16 +  </ItemGroup>                                                 
+      17 +                                                               
+      18    <ItemGroup>
+      19      <ProjectReference Include="..\Maxx.Application\Maxx.Applica
+          tion.csproj" />
+      20      <ProjectReference Include="..\Maxx.Infrastructure\Maxx.Infr
+          astructure.csproj" />
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Argon2idSenhaHashe
+       rTests.cs)
+  ⎿  Wrote 87 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticaca
+     o\Argon2idSenhaHasherTests.cs
+       1 using System.Security.Cryptography;
+       2 using System.Text;
+       3 using Konscious.Security.Cryptography;
+       4 using Maxx.Infrastructure.Autenticacao;
+       5 
+       6 namespace Maxx.Api.IntegrationTests.Autenticacao;
+       7 
+       8 public class Argon2idSenhaHasherTests
+       9 {
+      10     private readonly Argon2idSenhaHasher _hasher = new();
+     … +77 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\TokenGeneratorTest
+       s.cs)
+  ⎿  Wrote 36 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticaca
+     o\TokenGeneratorTests.cs
+       1 using Maxx.Infrastructure.Autenticacao;
+       2 
+       3 namespace Maxx.Api.IntegrationTests.Autenticacao;
+       4 
+       5 public class TokenGeneratorTests
+       6 {
+       7     private readonly TokenGenerator _gerador = new();
+       8 
+       9     [Fact]
+      10     public void Valor_tem_256_bits_em_base64url_e_o_hash_e_sha25
+     … +27 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTokenTests.c
+       s)
+  ⎿  Wrote 206 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticac
+     ao\AccessTokenTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using System.Security.Cryptography;
+       5 using System.Text.Json;
+       6 using Maxx.Api.Autenticacao;
+       7 using Maxx.Application.Autenticacao;
+       8 using Maxx.Domain.Academico;
+       9 using Maxx.Domain.Identidade;
+      10 using Microsoft.AspNetCore.Hosting;
+     … +196 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DomainExceptionHan
+       dlerTests.cs)
+  ⎿  Wrote 50 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticaca
+     o\DomainExceptionHandlerTests.cs
+       1 using System.Text.Json;
+       2 using Maxx.Api.Erros;
+       3 using Maxx.Domain;
+       4 using Microsoft.AspNetCore.Http;
+       5 using Microsoft.Extensions.DependencyInjection;
+       6 using Microsoft.Extensions.Logging.Abstractions;
+       7 
+       8 namespace Maxx.Api.IntegrationTests.Autenticacao;
+       9 
+      10 public class DomainExceptionHandlerTests
+     … +40 lines (ctrl+o to expand)
+
+● MaxxApiFactory é sealed. Em vez de herdar dela, acrescento um parâmetro
+  opcional de configuração extra, que é mais simples:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e '
+      const fs=require("fs");…)
+  ⎿      }
+
+         private sealed class WebApplicationFactoryComChave(string chave, s
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTo
+     kenTests.cs (+2 -2)
+       7  using Maxx.Application.Autenticacao;
+       8  using Maxx.Domain.Academico;
+       9  using Maxx.Domain.Identidade;
+      10 -using Microsoft.AspNetCore.Hosting;                            
+      10  using Microsoft.Extensions.DependencyInjection;
+      11  using Microsoft.IdentityModel.JsonWebTokens;
+      12  using Microsoft.IdentityModel.Tokens;
+     ...
+      158          Assert.Equal(HttpStatusCode.OK, (await client.SendAsyn
+           c(Get(token.Valor), Ct)).StatusCode);
+      159      }
+      160  
+      162 -    private static WebApplicationFactoryComChave ComChave(stri
+          -ng chave, string ambiente = "Development") => new(chave, ambie
+          -nte);                                                         
+      161 +    private static MaxxApiFactory ComChave(string chave, strin
+          +g ambiente = "Development") =>                                
+      162 +        new(MaxxApiFactory.UnreachableDatabase, ambiente, conf
+          +iguracao: new Dictionary<string, string> { ["Jwt:Chave"] = cha
+          +ve });                                                        
+      163  
+      164      private static AccessToken Emitir(MaxxApiFactory factory, 
+           Usuario usuario) =>
+      165          factory.Services.GetRequiredService<IAccessTokenIssuer
+           >().Issue(usuario);
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\MaxxApiFactory.cs
+     (+14 -2)
+       7  namespace Maxx.Api.IntegrationTests;
+       8  
+       9  // diretorioDeDados: data/ do repositório, salvo quando o teste
+           altera uma cópia.
+      10 -public sealed class MaxxApiFactory(string connectionString, str
+         -ing environment = "Development", string? diretorioDeDados = nul
+         -l)                                                             
+      10 +// configuracao: chaves a mais, no formato do IConfiguration ("
+         +Jwt:Chave").                                                   
+      11 +public sealed class MaxxApiFactory(                            
+      12 +    string connectionString,                                   
+      13 +    string environment = "Development",                        
+      14 +    string? diretorioDeDados = null,                           
+      15 +    IReadOnlyDictionary<string, string>? configuracao = null)  
+      16      : WebApplicationFactory<Program>
+      17  {
+      18      // Porta 1 recusa conexão: banco fora do ar sem depender de
+           contêiner.
+      19      public const string UnreachableDatabase =
+      20          "Host=127.0.0.1;Port=1;Database=maxx;Username=maxx;Pass
+          word=maxx;Timeout=2";
+      21  
+      17 -    protected override void ConfigureWebHost(IWebHostBuilder bu
+         -ilder) =>                                                      
+      22 +    protected override void ConfigureWebHost(IWebHostBuilder bu
+         +ilder)                                                         
+      23 +    {                                                          
+      24          builder.UseSetting("ConnectionStrings:Maxx", connection
+          String)
+      25              .UseSetting($"{SeedOptions.Section}:{nameof(SeedOpt
+          ions.DiretorioDeDados)}", diretorioDeDados ?? Repositorio.Diret
+          orioDeDados)
+      26              .UseEnvironment(environment);
+      27  
+      28 +        foreach (var (chave, valor) in configuracao ?? new Dict
+         +ionary<string, string>())                                      
+      29 +        {                                                      
+      30 +            builder.UseSetting(chave, valor);                  
+      31 +        }                                                      
+      32 +    }                                                          
+      33 +                                                               
+      34      // O mesmo caminho do subcomando migrate, num escopo própri
+          o.
+      35      public async Task MigrateAsync(CancellationToken cancellati
+          onToken)
+      36      {
+
+● The regex não pegou a classe aninhada (o arquivo tem CRLF). Removo com o Edit:
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTokenTests.
+        cs)
+  ⎿  Removed 10 lines
+      193          using var corpo = JsonDocument.Parse(await response.Co
+           ntent.ReadAsStringAsync(Ct));
+      194          Assert.Equal(401, corpo.RootElement.GetProperty("statu
+           s").GetInt32());
+      195      }
+      196 -                                                              
+      197 -    private sealed class WebApplicationFactoryComChave(string 
+          -chave, string ambiente)                                       
+      198 -        : MaxxApiFactory(UnreachableDatabase, ambiente)       
+      199 -    {                                                         
+      200 -        protected override void ConfigureWebHost(IWebHostBuild
+          -er builder)                                                   
+      201 -        {                                                     
+      202 -            base.ConfigureWebHost(builder);                   
+      203 -            builder.UseSetting("Jwt:Chave", chave);           
+      204 -        }                                                     
+      205 -    }                                                         
+      196  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora o teste do OpenAPI:
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\OpenApiDocumentTests.cs)
+  ⎿  Added 21 lines
+      19      }
+      20  
+      21      [Fact]
+      22 +    public async Task Documento_declara_o_bearer_e_o_exige_so_o
+         +nde_ha_autenticacao()                                          
+      23 +    {                                                          
+      24 +        await using var factory = new MaxxApiFactory(MaxxApiFac
+         +tory.UnreachableDatabase, "Development");                      
+      25 +        using var client = factory.CreateClient();             
+      26 +                                                               
+      27 +        using var documento = System.Text.Json.JsonDocument.Par
+         +se(                                                            
+      28 +            await client.GetStringAsync(new Uri("/api/openapi/v
+         +1.json", UriKind.Relative), Ct));                              
+      29 +        var raiz = documento.RootElement;                      
+      30 +                                                               
+      31 +        var bearer = raiz.GetProperty("components").GetProperty
+         +("securitySchemes").GetProperty("Bearer");                     
+      32 +        Assert.Equal("http", bearer.GetProperty("type").GetStri
+         +ng());                                                         
+      33 +        Assert.Equal("bearer", bearer.GetProperty("scheme").Get
+         +String());                                                     
+      34 +                                                               
+      35 +        var eu = raiz.GetProperty("paths").GetProperty("/api/v1
+         +/eu").GetProperty("get");                                      
+      36 +        Assert.True(eu.GetProperty("security")[0].TryGetPropert
+         +y("Bearer", out _));                                           
+      37 +                                                               
+      38 +        var health = raiz.GetProperty("paths").GetProperty("/ap
+         +i/health").GetProperty("get");                                 
+      39 +        Assert.False(health.TryGetProperty("security", out _));
+      40 +    }                                                          
+      41 +                                                               
+      42 +    [Fact]                                                     
+      43      public async Task Documento_nao_existe_em_producao()
+      44      {
+      45          await using var factory = new MaxxApiFactory(MaxxApiFac
+          tory.UnreachableDatabase, "Production");
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && f=Autenticacao/AccessTokenTests.cs
+      && sed -i -e…)
+  ⎿    Xunit.MicrosoftTestingPlatform.XunitException: System.InvalidOperati
+     onException : Jwt__Chave não configurada: defina uma chave base64 de a
+     o menos 32 bytes.
+     … +59 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTo
+     kenTests.cs (+6 -2)
+      19  {
+      20      private static readonly Uri _eu = new("/api/v1/eu", UriKind
+          .Relative);
+      21  
+      22 +    private static readonly string[] _soInstituicao = ["institu
+         +icao"];                                                        
+      23 +                                                               
+      24 +    private static readonly string[] _soAluno = ["aluno"];     
+      25 +                                                               
+      26      private static readonly string _chave = Convert.ToBase64Str
+          ing(RandomNumberGenerator.GetBytes(48));
+      27  
+      28      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+     ...
+      103          {
+      104              Issuer = JwtOptions.Emissor,
+      105              Audience = JwtOptions.Audiencia,
+      102 -            Claims = new Dictionary<string, object> { ["sub"] 
+          -= Guid.NewGuid().ToString(), ["papel"] = new[] { "instituicao"
+          - } },                                                         
+      106 +            Claims = new Dictionary<string, object> { ["sub"] 
+          += Guid.NewGuid().ToString(), ["papel"] = _soInstituicao },    
+      107              Expires = DateTime.UtcNow.AddMinutes(15),
+      108          });
+      109  
+     ...
+      182          {
+      183              Issuer = JwtOptions.Emissor,
+      184              Audience = audiencia,
+      181 -            Claims = new Dictionary<string, object> { ["sub"] 
+          -= Guid.NewGuid().ToString(), ["papel"] = new[] { "aluno" } }, 
+      185 +            Claims = new Dictionary<string, object> { ["sub"] 
+          += Guid.NewGuid().ToString(), ["papel"] = _soAluno },          
+      186              IssuedAt = emitidoEm,
+      187              NotBefore = emitidoEm,
+      188              Expires = expiraEm,
+  ⎿  (timeout 10m)
+
+● Duas falhas reais restam: o teste de Documento_nao_existe_em_producao precisa
+  passar uma chave, pois a API agora recusa subir em Production sem ela, e senha
+  vazia lança exceção no Konscious, o que daria 500 no login. Vou corrigir o
+  hasher para que senha vazia gaste o mesmo custo e devolva falso.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e '
+      const fs=require("fs");…)
+  ⎿  Binary file apps/api/src/Maxx.Infrastructure/Autenticacao/Argon2idSenh
+     aHasher.cs matches
+     23:    public static IReadOnlyDictionary<string, string> ChaveDeTeste
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\MaxxApiFactory.cs (+6
+     -0)
+      19      public const string UnreachableDatabase =
+      20          "Host=127.0.0.1;Port=1;Database=maxx;Username=maxx;Pass
+          word=maxx;Timeout=2";
+      21  
+      22 +    // Fora de desenvolvimento a API não sobe sem chave de assi
+         +natura. Gerada por execução.                                   
+      23 +    public static IReadOnlyDictionary<string, string> ChaveDeTe
+         +ste { get; } = new Dictionary<string, string>                  
+      24 +    {                                                          
+      25 +        ["Jwt:Chave"] = Convert.ToBase64String(System.Security.
+         +Cryptography.RandomNumberGenerator.GetBytes(48)),              
+      26 +    };                                                         
+      27 +                                                               
+      28      protected override void ConfigureWebHost(IWebHostBuilder bu
+          ilder)
+      29      {
+      30          builder.UseSetting("ConnectionStrings:Maxx", connection
+          String)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\OpenApiDocumentTests.cs (+2 
+     -1)
+      42      [Fact]
+      43      public async Task Documento_nao_existe_em_producao()
+      44      {
+      45 -        await using var factory = new MaxxApiFactory(MaxxApiFac
+         -tory.UnreachableDatabase, "Production");                       
+      45 +        await using var factory = new MaxxApiFactory(          
+      46 +            MaxxApiFactory.UnreachableDatabase, "Production", c
+         +onfiguracao: MaxxApiFactory.ChaveDeTeste);                     
+      47          using var client = factory.CreateClient();
+      48  
+      49          var response = await client.GetAsync(new Uri("/api/open
+          api/v1.json", UriKind.Relative), Ct);
+  ⎿  … 1 more file changed
+
+● O grep viu o arquivo como binário, o que sugere um byte NUL literal no código.
+  Confiro:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Infrastructure/Autenticacao/Argon2idSenhaHasher.cs &&
+      sed -i 's/_senh…)
+  ⎿  35:    private const string _senhaVazia = "\0";$
+     138
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O arquivo voltou a ser texto. Acrescento o teste de senha vazia:
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Argon2idSenhaHash
+        erTests.cs)
+  ⎿  Added 16 lines
+       79      }
+       80  
+       81      [Fact]
+       82 +    public void Senha_vazia_nao_verifica_nem_lanca()          
+       83 +    {                                                         
+       84 +        // Campo de senha vazio no login: recusa comum, nunca 
+          +500.                                                          
+       85 +        var hash = _hasher.Hash("senha-correta");             
+       86 +                                                              
+       87 +        Assert.False(_hasher.Verify(string.Empty, hash));     
+       88 +    }                                                         
+       89 +                                                              
+       90 +    [Fact]                                                    
+       91 +    public void Hash_de_senha_vazia_e_erro_de_quem_chama()    
+       92 +    {                                                         
+       93 +        // A política de senha barra antes; chegar aqui vazia 
+          +é bug.                                                        
+       94 +        Assert.Throws<ArgumentException>(() => _hasher.Hash(st
+          +ring.Empty));                                                 
+       95 +    }                                                         
+       96 +                                                              
+       97 +    [Fact]                                                    
+       98      public void Verificacao_ficticia_roda_sem_lancar()
+       99      {
+      100          _hasher.VerifyDummy("qualquer-uma");
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 124 testes de integração passam. Agora regenero o contrato e o cliente:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/packages/api-client" && npm
+      run gerar 2>&1 | tail -4 && cd ../.. && git diff --stat -- packag…)
+  ⎿  > openapi-typescript openapi.json -o src/schema.d.ts
+
+     ✨ openapi-typescript 7.13.0
+     … +74 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+65 -0)
+       54            }
+       55          }
+       56        }
+       57 +    },                                                        
+       58 +    "/api/v1/eu": {                                           
+       59 +      "get": {                                                
+       60 +        "tags": [                                             
+       61 +          "Autenticacao"                                      
+       62 +        ],                                                    
+       63 +        "operationId": "GetEu",                               
+       64 +        "responses": {                                        
+       65 +          "200": {                                            
+       66 +            "description": "OK",                              
+       67 +            "content": {                                      
+       68 +              "application/json": {                           
+       69 +                "schema": {                                   
+       70 +                  "$ref": "#/components/schemas/EuResponse"   
+       71 +                }                                             
+       72 +              }                                               
+       73 +            }                                                 
+       74 +          },                                                  
+       75 +          "401": {                                            
+       76 +            "description": "Unauthorized",                    
+       77 +            "content": {                                      
+       78 +              "application/problem+json": {                   
+       79 +                "schema": {                                   
+       80 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+       81 +                }                                             
+       82 +              }                                               
+       83 +            }                                                 
+       84 +          }                                                   
+       85 +        },                                                    
+       86 +        "security": [                                         
+       87 +          {                                                   
+       88 +            "Bearer": [ ]                                     
+       89 +          }                                                   
+       90 +        ]                                                     
+       91 +      }                                                       
+       92      }
+       93    },
+     … 46 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+50 -0)
+      36          patch?: never;
+      37          trace?: never;
+      38      };
+      39 +    "/api/v1/eu": {                                            
+      40 +        parameters: {                                          
+      41 +            query?: never;                                     
+      42 +            header?: never;                                    
+      43 +            path?: never;                                      
+      44 +            cookie?: never;                                    
+      45 +        };                                                     
+      46 +        get: operations["GetEu"];                              
+      47 +        put?: never;                                           
+      48 +        post?: never;                                          
+      49 +        delete?: never;                                        
+      50 +        options?: never;                                       
+      51 +        head?: never;                                          
+      52 +        patch?: never;                                         
+      53 +        trace?: never;                                         
+      54 +    };                                                         
+      55  }
+      56  export type webhooks = Record<string, never>;
+      57  export interface components {
+      58      schemas: {
+      59 +        EuResponse: {                                          
+      60 +            /** Format: uuid */                                
+      61 +            id: string;                                        
+      62 +            papeis: string[];                                  
+      63 +        };                                                     
+      64          HealthResponse: {
+      65              status: string;
+      66          };
+     ...
+      130              };
+      131          };
+      132      };
+      133 +    GetEu: {                                                  
+      134 +        parameters: {                                         
+      135 +            query?: never;                                    
+      136 +            header?: never;                                   
+      137 +            path?: never;                                     
+      138 +            cookie?: never;                                   
+     … 24 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+● Agora o compose e o .env.example: a chave do JWT vai só para as réplicas da
+  API, e a rede interna ganha uma sub-rede fixa, para a API confiar no
+  X-Forwarded-For só vindo dela.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e '
+      const fs=require("fs");…)
+  ⎿  1
+     .env
+     compose ok
+  ⎿  Updated .env.example (+5 -0)
+       8  
+       9  # Porta HTTP do Caddy na máquina local.
+      10  MAXX_HTTP_PORT=80
+      11 +                                                               
+      12 +# Chave HS256 do access token, em base64, de ao menos 32 bytes.
+         + Gere uma por máquina:                                         
+      13 +#   openssl rand -base64 48                                    
+      14 +# Sem ela a API não sobe. Nunca reutilize a chave da VPS.      
+      15 +MAXX_JWT_CHAVE=                                                
+  ⎿  Updated docker-compose.yml (+12 -0)
+      62      environment:
+      63        <<: *api-env
+      64        ASPNETCORE_ENVIRONMENT: Production
+      65 +      # HS256, a mesma nas duas réplicas. Sem ela a API não sob
+         +e.                                                             
+      66 +      Jwt__Chave: ${MAXX_JWT_CHAVE:?defina no .env}            
+      67 +      # X-Forwarded-For só vale vindo da rede interna, onde est
+         +á o Caddy.                                                     
+      68 +      Proxy__RedesConfiaveis__0: 172.30.0.0/24                 
+      69      deploy:
+      70        replicas: 2
+      71      depends_on:
+     ...
+      83        - api
+      84      restart: unless-stopped
+      85  
+      86 +# Sub-rede fixa: é a que a API conhece como confiável para os c
+         +abeçalhos do proxy.                                            
+      87 +# Só a porta do Caddy é publicada; a API não é alcançável de fo
+         +ra dela.                                                       
+      88 +networks:                                                      
+      89 +  default:                                                     
+      90 +    ipam:                                                      
+      91 +      config:                                                  
+      92 +        - subnet: 172.30.0.0/24                                
+      93 +                                                               
+      94  volumes:
+      95    postgres-data:
+
+● Vou subir a stack inteira para checar a API em Production e a rede nova, o que
+  exige antes um down sem -v para não perder o volume do banco.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Pelo Caddy, /api/health responde 200 e /api/v1/eu sem token responde 401 em
+  ProblemDetails, com as duas réplicas em Production. Por fim, a verificação
+  completa, do jeito da CI:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Antes de fechar, confiro se a CI sobe o compose a partir do .env.example. Se
+  subir, o MAXX_JWT_CHAVE vazio quebraria o job de e2e:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A CI copia o .env.example nos jobs de e2e e de build. Com a chave vazia, o :?
+  do compose falharia nos dois. Passo a gerar uma chave por execução logo depois
+  da cópia:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=$(grep -l "cp .env.example .env" .github/workflows/*.yml) && echo $f &&
+      sed -i 's/^\(\s…)
+  ⎿  .github/workflows/ci.yml
+     96:          cp .env.example .env
+     97-          # Chave descartável, uma por execução: o .env.example vem
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated .github\workflows\ci.yml (+4 -0)
+       94        - name: Sobe o compose (Postgres, migração, duas réplica
+           s de API, Caddy)
+       95          run: |
+       96            cp .env.example .env
+       97 +          # Chave descartável, uma por execução: o .env.exampl
+          +e vem sem chave de propósito.                                 
+       98 +          sed -i "s|^MAXX_JWT_CHAVE=.*|MAXX_JWT_CHAVE=$(openss
+          +l rand -base64 48)|" .env                                     
+       99            docker compose up --build -d
+      100            for i in $(seq 1 60); do
+      101              curl -sf http://localhost/api/ready && exit 0
+     ...
+      157        - name: Imagens da API e do Caddy com o build web
+      158          run: |
+      159            cp .env.example .env
+      160 +          # Chave descartável, uma por execução: o .env.exampl
+          +e vem sem chave de propósito.                                 
+      161 +          sed -i "s|^MAXX_JWT_CHAVE=.*|MAXX_JWT_CHAVE=$(openss
+          +l rand -base64 48)|" .env                                     
+      162            docker compose build
+
+● Simulo o passo da CI com uma cópia, fora do .env real:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E5 está pronta para a sua revisão, sem commit. Testes, lint, build e
+  contrato estão verdes, e a stack sobe com as mudanças.
+
+  Verificação
+  - Testes: os 359 da solução passam em Release (domínio, arquitetura e
+    integração com Postgres real).
+  - Lint e build: dotnet format limpo e build Release sem warning.
+  - Contrato: OpenAPI e cliente regenerados (aparecem o GET /api/v1/eu e o
+    EuResponse), e o tsc do cliente passa.
+  - Stack local: recriada com down/up, sem apagar o volume. Pelo Caddy,
+    /api/health responde 200 e /api/v1/eu sem token responde 401 em
+    ProblemDetails, com as duas réplicas em Production.
+
+  O que entrou
+  - Application (Autenticacao/Abstractions.cs): as interfaces ISenhaHasher,
+    ITokenGenerator e IAccessTokenIssuer.
+  - Infrastructure:
+    - Argon2idSenhaHasher: Konscious, 19 MiB, t=2, p=1, formato PHC com os
+      parâmetros dentro do hash. Compara em tempo constante, tem a verificação
+      fictícia para quem não tem conta, e senha vazia dá falso em vez de 500.
+    - TokenGenerator: 32 bytes em base64url para o cliente e SHA-256 em
+      hexadecimal para o banco.
+  - Api:
+    - JWT HS256 de 15 minutos só com sub e papel, mais as claims padrão. Um
+      teste prova que não há nada além disso.
+    - A chave vem de Jwt__Chave, e fora de Development a API não sobe sem uma
+      chave válida. Migrate, seed e a geração do OpenAPI não exigem a chave.
+    - DomainExceptionHandler: 400 em ProblemDetails com codigo, sem a mensagem
+      interna.
+    - AddValidation(), ForwardedHeaders restrito à rede do Caddy, e o esquema
+      bearer no OpenAPI, exigido só nas rotas autenticadas.
+  - Infra e CI:
+    - .env.example ganha MAXX_JWT_CHAVE.
+    - O compose passa a chave às réplicas e fixa a sub-rede 172.30.0.0/24.
+    - A CI gera uma chave descartável a cada execução, nos jobs de e2e e de
+      build. Simulei esse passo localmente.
+  - Seu .env local: acrescentei a ele uma MAXX_JWT_CHAVE gerada (o arquivo está
+    fora do git).
+
+  Desvios do plano:
+  1. GET /v1/eu nasceu mínimo aqui (id e papéis), porque o 401 precisava de uma
+     rota protegida para ser testado. A E8 o enriquece só por acréscimo.
+  2. O teste de "senha não aparece em log" vai para a E7, porque ainda não
+     existe endpoint que receba senha.
+  3. Os testes do X-Forwarded-For vão para a E11, junto com o limite de taxa que
+     depende do IP. Aqui ele só ficou configurado.
+
+  Decisões que tomei e quero confirmar:
+  1. Formato de erro: ProblemDetails com a extensão codigo em kebab-case (ex.:
+     requisicao-invalida), que o cliente traduz em mensagem amigável.
+  2. Tolerância de relógio de 30 segundos na validação do JWT.
+  3. Chave em desenvolvimento: sem chave em Development, a API gera uma por
+     processo. Nada versionado, e os tokens morrem no restart.
+  4. Sub-rede 172.30.0.0/24 fixa no compose.
+  5. Normalização Unicode da senha: não normalizo antes do hash. Um "ç" composto
+     no iOS e decomposto na web dariam hashes diferentes. Recomendo normalizar
+     para NFC no Hash e no Verify, mas é decisão sua.
+
+  Se aprovar, registro os itens 1 a 3 (e o 5, se entrar) em
+  docs/decisoes/README.md neste mesmo commit.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona argon2id, jwt e borda de autenticação
+
+✻ Cooked for 11m 26s · done 21:50
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E5 aprovada. Os três desvios ficam: /v1/eu mínimo agora, teste de senha em    
+  log na E7, X-Forwarded-For na E11. Decisões 1 a 4 aceitas, e 5 entra:         
+  normaliza a senha para NFC no Hash e no Verify, com teste do "ç" composto e   
+  decomposto dando o mesmo resultado. Registra 1, 2, 3 e 5 no README das        
+  decisões neste commit. Commita com a mensagem proposta, push, e segue para a  
+  E6; para para a minha revisão no fim dela.                                    
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Autenticacao\Argon2idSenhaHasher.cs)
+  ⎿  Added 4 lines, removed 4 lines
+      23  
+      24      private const string _prefixo = "$argon2id$v=19$";
+      25  
+      26 +    // Placeholder para senha vazia, que o Argon2 não aceita: o
+         + custo é o mesmo e a                                           
+      27 +    // verificação dá falso.                                   
+      28 +    private const string _senhaVazia = "\0";                   
+      29 +                                                               
+      30      private readonly Lazy<string> _hashFicticio;
+      31  
+      32      public Argon2idSenhaHasher()
+     ...
+      34          _hashFicticio = new Lazy<string>(() => Hash(Convert.ToB
+          ase64String(RandomNumberGenerator.GetBytes(16))));
+      35      }
+      36  
+      33 -    // Placeholder para senha vazia, que o Argon2 não aceita: o
+         - custo é o mesmo e a                                           
+      34 -    // verificação dá falso.                                   
+      35 -    private const string _senhaVazia = "\0";                   
+      36 -                                                               
+      37      public string Hash(string senha)
+      38      {
+      39          ArgumentException.ThrowIfNullOrEmpty(senha);
+
+● Update(apps\api\src\Maxx.Infrastructure\Autenticacao\Argon2idSenhaHasher.cs)
+  ⎿  Added 3 lines, removed 1 line
+      64      private static byte[] Calcular(
+      65          string senha, byte[] sal, int memoria, int iteracoes, i
+          nt paralelismo, int tamanho = _tamanhoDoHash)
+      66      {
+      67 -        var bytes = Encoding.UTF8.GetBytes(senha);             
+      67 +        // NFC antes do hash, no cadastro e no login: o "ç" com
+         +posto de um teclado e o                                        
+      68 +        // decomposto de outro são a mesma senha.              
+      69 +        var bytes = Encoding.UTF8.GetBytes(senha.Normalize(Norm
+         +alizationForm.FormC));                                         
+      70          try
+      71          {
+      72              using var argon2 = new Argon2id(bytes)
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Argon2idSenhaHash
+        erTests.cs)
+  ⎿  Added 12 lines
+      79      }
+      80  
+      81      [Fact]
+      82 +    public void Ce_cedilha_composto_e_decomposto_sao_a_mesma_se
+         +nha()                                                          
+      83 +    {                                                          
+      84 +        // U+00E7 de um teclado; c + U+0327 (cedilha combinante
+         +) de outro.                                                    
+      85 +        const string composto = "coração-forte";               
+      86 +        const string decomposto = "coração-forte";             
+      87 +        Assert.NotEqual(composto, decomposto);                 
+      88 +                                                               
+      89 +        Assert.True(_hasher.Verify(decomposto, _hasher.Hash(com
+         +posto)));                                                      
+      90 +        Assert.True(_hasher.Verify(composto, _hasher.Hash(decom
+         +posto)));                                                      
+      91 +    }                                                          
+      92 +                                                               
+      93 +    [Fact]                                                     
+      94      public void Senha_vazia_nao_verifica_nem_lanca()
+      95      {
+      96          // Campo de senha vazio no login: recusa comum, nunca 5
+          00.
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 3 lines
+      68  | Recuperação de senha | Token aleatório de 30 minutos, uso úni
+          co, guardado só como hash. A resposta ao pedido é sempre a mesm
+          a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+          de refresh do usuário e invalida os outros pedidos de recuperaç
+          ão pendentes dele |
+      69  | Hash de senha | Argon2id com `Konscious.Security.Cryptography
+          `, parâmetros do OWASP: 19 MiB de memória, 2 iterações, paralel
+          ismo 1. Login de usuário inexistente calcula um hash fictício, 
+          para o tempo de resposta não revelar quem tem conta |
+      70  | Política de senha | De 8 a 128 caracteres, sem regra de compo
+          sição, na linha do NIST SP 800-63B |
+      71 +| Normalização da senha | NFC antes do hash, no cadastro e no l
+         +ogin: o "ç" composto de um teclado e o decomposto de outro são 
+         +a mesma senha |                                                
+      72 +| Tolerância de relógio | 30 segundos na validação do access to
+         +ken; as réplicas estão no mesmo host |                         
+      73 +| Chave em desenvolvimento | Sem `Jwt__Chave` em Development, a
+         + API gera uma chave por processo, que some no restart. Nenhuma 
+         +chave versionada, nem a de desenvolvimento |                   
+      74  | E-mail | SMTP genérico com MailKit; Mailpit no compose local.
+           Provedor da VPS escolhido no passo 13 |
+      75  | Envio de e-mail | Fora da requisição, num `BackgroundService`
+           com fila em memória, até a fila do Postgres nascer no passo 6,
+           quando migra para ela. Perder um e-mail num restart é aceito: 
+          o usuário pede de novo |
+      76  | Contas de professor e instituição | Criadas pelo seed, sem se
+          nha; primeiro acesso pela recuperação de senha. Ver `produto.md
+          ` 2.5 |
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line
+      53  | Idioma do código | Domínio em português (`Premio`, `Conquista
+          `, `Turma`, `Contestacao`), técnico em inglês (`Repository`, `H
+          andler`, `Options`) |
+      54  | Limite de taxa | Em login, upload e registro de demonstração,
+           com o limitador nativo do ASP.NET Core: por réplica, sem estad
+          o compartilhado. Também em cadastro e recuperação de senha, que
+           disparam consulta à base e e-mail. Números na seção Autenticaç
+          ão |
+      55  | Validação de entrada | `AddValidation()` nativo do .NET 10 na
+           borda; erro de validação e de domínio saem em ProblemDetails |
+      56 +| Formato de erro | ProblemDetails (RFC 9457) com a extensão `c
+         +odigo`, estável e em kebab-case (`requisicao-invalida`, por exe
+         +mplo), que o cliente traduz em mensagem amigável. A mensagem in
+         +terna de uma regra de domínio violada vai para o log, nunca par
+         +a a resposta |                                                 
+      57  
+      58  ## Autenticação
+      59  
+
+  Pushed to feat/passo-03-auth, ran 1 shell command (ctrl+o to expand)
+
+● E5 já está commitada e no remoto, e na E6 começo pela Application, com o
+  CadastroHandler e a RecusaException.
+
+● Write(apps\api\src\Maxx.Application\Recusa.cs)
+  ⎿  Wrote 79 lines to apps\api\src\Maxx.Application\Recusa.cs
+       1 namespace Maxx.Application;
+       2 
+       3 // Um pedido que a aplicação recusa por regra, não por falha: a 
+         borda traduz o tipo em
+       4 // status HTTP e devolve o código no formato único de erro. A me
+         nsagem é só para o log.
+       5 public sealed class RecusaException : Exception
+       6 {
+       7     public RecusaException()
+       8     {
+     … +71 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Autenticacao\Repositories.cs)
+  ⎿  Wrote 26 lines to
+     apps\api\src\Maxx.Application\Autenticacao\Repositories.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Application.Autenticacao;
+       5 
+       6 public interface ICadastroElegivelRepository
+       7 {
+       8     // A linha de aluno em que RA e e-mail estão juntos, com o c
+         urso dela. E-mail sem
+       9     // diferenciar maiúsculas.
+     … +17 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Autenticacao\SessaoService.cs)
+  ⎿  Wrote 24 lines to
+     apps\api\src\Maxx.Application\Autenticacao\SessaoService.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Application.Autenticacao;
+       4 
+       5 // Abre uma sessão: família nova com o primeiro refresh, mais o 
+         access token. Usado no
+       6 // cadastro, no login e na entrada da demonstração. Quem chama g
+         rava.
+       7 public sealed class SessaoService(
+       8     ITokenGenerator tokens, IAccessTokenIssuer accessTokens, IFa
+     … +17 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Autenticacao\Cadastro\CadastroHandler.cs)
+  ⎿  Wrote 119 lines to
+     apps\api\src\Maxx.Application\Autenticacao\Cadastro\CadastroHandler.cs
+       1 using Maxx.Domain;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Application.Autenticacao.Cadastro;
+       5 
+       6 // O cadastro do aluno (produto.md 2.5): RA e e-mail na mesma li
+         nha do cadastro elegível,
+       7 // um RA uma conta, arroba único pelo prefixo. Professor e insti
+         tuição não passam aqui.
+       8 public sealed class CadastroHandler(
+     … +111 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Autenticacao\CodigosDeRecusa.cs)
+  ⎿  Wrote 18 lines to
+     apps\api\src\Maxx.Application\Autenticacao\CodigosDeRecusa.cs
+      1 namespace Maxx.Application.Autenticacao;
+      2 
+      3 // Os códigos de recusa da autenticação, como o cliente os recebe
+         em ProblemDetails.
+      4 public static class CodigosDeRecusa
+      5 {
+      6     public const string CadastroNaoEncontrado = "cadastro-nao-enc
+        ontrado";
+      7 
+      8     // O RA já tem conta: o cliente leva à recuperação de senha (
+     … +11 lines (ctrl+o to expand)
+
+● O handler usa Usuario.ValidarNomeDeExibicao, então o deixo público no domínio.
+  E limpo os nomes qualificados demais:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/
+      private static string ValidarNomeDeExibicao(string nome)/    \…)
+  ⎿  Maxx.Domain/Identidade/Usuario.cs:26:        NomeDeExibicao = ValidarN
+     omeDeExibicao(nomeDeExibicao);
+     Maxx.Domain/Identidade/Usuario.cs:148:    public static string Validar
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Autenticacao\Cadastro\CadastroHandler.cs
+     (+2 -1)
+      1  using Maxx.Domain;
+      2 +using Maxx.Domain.Academico;                                    
+      3  using Maxx.Domain.Identidade;
+      4  
+      5  namespace Maxx.Application.Autenticacao.Cadastro;
+     ...
+      80      // Par que não está na mesma linha, RA de outra pessoa, e-m
+          ail de professor: a mesma
+      81      // resposta, para não dizer qual dos dois errou. RA que já 
+          tem conta vai para a
+      82      // recuperação de senha.
+      82 -    private async Task<(Domain.Academico.CadastroElegivel Cadas
+         -tro, Domain.Academico.Curso Curso)> BuscarSemContaAsync(       
+      83 +    private async Task<(CadastroElegivel Cadastro, Curso Curso)
+         +> BuscarSemContaAsync(                                         
+      84          string ra, string email, CancellationToken cancellation
+          Token)
+      85      {
+      86          var encontrado = await cadastros.BuscarAlunoAsync(ra.Tr
+          im(), email.Trim(), cancellationToken)
+  ⎿  Updated apps\api\src\Maxx.Domain\Identidade\Usuario.cs (+2 -1)
+      144          Sufixo = Identidade.Sufixo.ExAluno;
+      145      }
+      146  
+      147 -    private static string ValidarNomeDeExibicao(string nome)  
+      147 +    // Público para a borda conferir antes de montar o usuário
+          +.                                                             
+      148 +    public static string ValidarNomeDeExibicao(string nome)   
+      149      {
+      150          nome = Texto.Obrigatorio(nome, "O nome de exibição");
+      151          if (nome.EnumerateRunes().Count() > TamanhoMaximoDoNom
+           eDeExibicao)
+
+● Agora os repositórios e a unidade de trabalho na Infrastructure:
+
+● Write(apps\api\src\Maxx.Infrastructure\Autenticacao\Repositories.cs)
+  ⎿  Wrote 49 lines to
+     apps\api\src\Maxx.Infrastructure\Autenticacao\Repositories.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Infrastructure.Persistence;
+       5 using Microsoft.EntityFrameworkCore;
+       6 
+       7 namespace Maxx.Infrastructure.Autenticacao;
+       8 
+       9 internal sealed class CadastroElegivelRepository(MaxxDbContext d
+         b) : ICadastroElegivelRepository
+     … +40 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs)
+  ⎿  Wrote 32 lines to
+     apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs
+       1 using Maxx.Application;
+       2 using Microsoft.EntityFrameworkCore;
+       3 using Npgsql;
+       4 
+       5 namespace Maxx.Infrastructure.Persistence;
+       6 
+       7 // Grava o que o escopo acumulou. Unicidade violada vira Conflit
+         oDeUnicidadeException com
+       8 // o nome da regra, para a Application responder com o código ce
+         rto sem conhecer o banco.
+     … +24 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && sed -i 's|
+      services.AddSingleton<ITokenGenerator,…)
+  ⎿  1:using Maxx.Application;
+     2:using Maxx.Application.Autenticacao;
+     3:using Maxx.Infrastructure.Autenticacao;
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+6 
+     -0)
+      1 +using Maxx.Application;                                         
+      2  using Maxx.Application.Autenticacao;
+      3  using Maxx.Infrastructure.Autenticacao;
+      4  using Maxx.Infrastructure.Persistence;
+     ...
+      26          services.AddSingleton<ISenhaHasher, Argon2idSenhaHasher
+          >();
+      27          services.AddSingleton<ITokenGenerator, TokenGenerator>(
+          );
+      28  
+      29 +        services.AddScoped<IUnitOfWork, UnitOfWork>();         
+      30 +        services.AddScoped<ICadastroElegivelRepository, Cadastr
+         +oElegivelRepository>();                                        
+      31 +        services.AddScoped<IUsuarioRepository, UsuarioRepositor
+         +y>();                                                          
+      32 +        services.AddScoped<IFamiliaDeSessaoRepository, FamiliaD
+         +eSessaoRepository>();                                          
+      33 +                                                               
+      34          // Toda verificação registrada aqui entra no /ready.
+      35          services.AddHealthChecks()
+      36              .AddCheck<DatabaseReadinessCheck>("database", timeo
+          ut: TimeSpan.FromSeconds(3));
+
+● Agora a borda: o tradutor de RecusaException, o codigo padrão em todo
+  ProblemDetails, a escrita da sessão e os endpoints de cadastro.
+
+● Write(apps\api\src\Maxx.Api\Erros\RecusaExceptionHandler.cs)
+  ⎿  Wrote 43 lines to
+     apps\api\src\Maxx.Api\Erros\RecusaExceptionHandler.cs
+       1 using Maxx.Application;
+       2 using Microsoft.AspNetCore.Diagnostics;
+       3 using Microsoft.AspNetCore.Mvc;
+       4 
+       5 namespace Maxx.Api.Erros;
+       6 
+       7 // Recusa da Application vira o status do tipo e o código dela, 
+         no formato único.
+       8 internal sealed partial class RecusaExceptionHandler(
+       9     IProblemDetailsService problemDetails, ILogger<RecusaExcepti
+     … +35 lines (~1 KB) (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Api\Erros\DomainExceptionHandler.cs)
+  ⎿  Added 30 lines
+      44  public static class Erro
+      45  {
+      46      public const string CampoCodigo = "codigo";
+      47 +                                                               
+      48 +    // Toda resposta de erro sai com código: quem não trouxe o 
+         +seu ganha o do status.                                         
+      49 +    public static void Customizar(ProblemDetailsOptions options
+         +)                                                              
+      50 +    {                                                          
+      51 +        ArgumentNullException.ThrowIfNull(options);            
+      52 +                                                               
+      53 +        options.CustomizeProblemDetails = context =>           
+      54 +        {                                                      
+      55 +            var problema = context.ProblemDetails;             
+      56 +            if (problema.Extensions.ContainsKey(CampoCodigo))  
+      57 +            {                                                  
+      58 +                return;                                        
+      59 +            }                                                  
+      60 +                                                               
+      61 +            problema.Extensions[CampoCodigo] = problema switch 
+      62 +            {                                                  
+      63 +                HttpValidationProblemDetails => "dados-invalido
+         +s",                                                            
+      64 +                _ => problema.Status switch                    
+      65 +                {                                              
+      66 +                    StatusCodes.Status400BadRequest => "requisi
+         +cao-invalida",                                                 
+      67 +                    StatusCodes.Status401Unauthorized => "nao-a
+         +utenticado",                                                   
+      68 +                    StatusCodes.Status403Forbidden => "sem-perm
+         +issao",                                                        
+      69 +                    StatusCodes.Status404NotFound => "nao-encon
+         +trado",                                                        
+      70 +                    StatusCodes.Status429TooManyRequests => "li
+         +mite-de-taxa",                                                 
+      71 +                    StatusCodes.Status503ServiceUnavailable => 
+         +"indisponivel",                                                
+      72 +                    _ => "erro-interno",                       
+      73 +                },                                             
+      74 +            };                                                 
+      75 +        };                                                     
+      76 +    }                                                          
+      77  }
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\SessaoHttp.cs)
+  ⎿  Wrote 48 lines to apps\api\src\Maxx.Api\Autenticacao\SessaoHttp.cs
+       1 using Maxx.Application.Autenticacao;
+       2 
+       3 namespace Maxx.Api.Autenticacao;
+       4 
+       5 // Como a sessão chega ao cliente (decisoes/README.md, Autentica
+         ção): na web o refresh vai
+       6 // em cookie HttpOnly e nunca no corpo; no nativo vai no corpo, 
+         para o secure store. O
+       7 // access token vai sempre no corpo, para ficar só em memória.
+       8 internal static class SessaoHttp
+     … +40 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\CadastroEndpoints.cs)
+  ⎿  Wrote 80 lines to
+     apps\api\src\Maxx.Api\Autenticacao\CadastroEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using Maxx.Application.Autenticacao.Cadastro;
+       3 using Microsoft.AspNetCore.Http.HttpResults;
+       4 
+       5 namespace Maxx.Api.Autenticacao;
+       6 
+       7 // O cadastro do aluno pelo app. RA e e-mail vão no corpo, nunca
+          na URL: são dado pessoal
+       8 // e não podem parar em log de acesso.
+       9 internal static class CadastroEndpoints
+     … +71 lines (ctrl+o to expand)
+
+● Agora o Program.cs:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" && node
+      -e '
+      const fs=require("fs");const p="Program.cs";let s=fs.read…)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollecti
+     onExtensions.cs (+3 -0)
+      1  using System.Security.Cryptography;
+      2  using Maxx.Application.Autenticacao;
+      3 +using Maxx.Application.Autenticacao.Cadastro;                   
+      4  using Microsoft.AspNetCore.Authentication.JwtBearer;
+      5  using Microsoft.IdentityModel.Tokens;
+      6  
+     ...
+      15          var chave = LerChave(builder, exigirChave);
+      16          builder.Services.AddSingleton(new ChaveDeAssinatura(cha
+          ve));
+      17          builder.Services.AddSingleton<IAccessTokenIssuer, JwtAc
+          cessTokenIssuer>();
+      18 +        builder.Services.AddScoped<SessaoService>();           
+      19 +        builder.Services.AddScoped<CadastroHandler>();         
+      20  
+      21          builder.Services.AddAuthentication(JwtBearerDefaults.Au
+          thenticationScheme)
+      22              .AddJwtBearer(options =>
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+3 -1)
+      24      ?? (isOpenApiGeneration ? "Host=openapi-generation" : null)
+      25      ?? throw new InvalidOperationException("ConnectionStrings:M
+          axx não configurada.");
+      26  
+      27 -builder.Services.AddProblemDetails();                          
+      27 +builder.Services.AddProblemDetails(Erro.Customizar);           
+      28  
+      29  // Número só como número: o padrão web aceita "42" em texto, e 
+          o contrato viraria
+      30  // `number | string` em todo campo numérico do cliente TypeScri
+          pt.
+     ...
+      46  
+      47  // Validação de entrada na borda; a recusa sai em ProblemDetail
+          s como o resto.
+      48  builder.Services.AddValidation();
+      49 +builder.Services.AddExceptionHandler<RecusaExceptionHandler>();
+      50  builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+      51  
+      52  builder.AddAutenticacao(exigirChave: !isMigrate && !isSeed && !
+          isOpenApiGeneration);
+     ...
+      102  // Contrato versionado: só mudanças aditivas.
+      103  var v1 = api.MapGroup("/v1");
+      104  v1.MapEuEndpoints();
+      105 +v1.MapGroup("/auth").MapCadastroEndpoints();                  
+      106  
+      107  if (app.Environment.IsDevelopment())
+      108  {
+  ⎿  (timeout 6m 40s)
+● Uma correção de rota: MapPost("/") dentro do grupo /cadastro gera /cadastro/
+  com barra no fim. Troco para "":
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|        cadastro.MapPost("/", CadastrarAsync)|
+      cadastro.MapPost("", Cada…)
+  ⎿  27:        cadastro.MapPost("", CadastrarAsync)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\CadastroEndpoints.cs (+1 
+     -1)
+      24              .ProducesProblem(StatusCodes.Status404NotFound)
+      25              .ProducesProblem(StatusCodes.Status409Conflict);
+      26  
+      27 -        cadastro.MapPost("/", CadastrarAsync)                  
+      27 +        cadastro.MapPost("", CadastrarAsync)                   
+      28              .WithName("Cadastrar")
+      29              .ProducesValidationProblem()
+      30              .ProducesProblem(StatusCodes.Status404NotFound)
+
+● Agora os testes de integração do cadastro, por HTTP e com Postgres real:
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs)
+  ⎿  Wrote 371 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using System.Security.Cryptography;
+       5 using System.Text;
+       6 using System.Text.Json;
+       7 using Maxx.Api.Autenticacao;
+       8 using Maxx.Domain.Academico;
+       9 using Maxx.Domain.Identidade;
+      10 using Maxx.Infrastructure.Persistence;
+     … +361 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Um nome só com espaços cai no [Required] da borda e volta como
+  dados-invalidos, em vez do código do domínio. Vou fazer a borda checar só a
+  presença nos campos com regra de domínio e devolver o código próprio.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Autenticacao/CadastroEndpoints.cs && sed -i -E
+      's/\[property: Req…)
+  ⎿  60:    [property: Required, StringLength(32)] string Ra,
+     61:    [property: Required, StringLength(254)] string Email);
+     64:    [property: Required, StringLength(32)] string Ra,
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\CadastroEndpoints.cs (+4 
+     -4)
+      63  public sealed record DisponibilidadeRequest(
+      64      [property: Required, StringLength(32)] string Ra,
+      65      [property: Required, StringLength(254)] string Email,
+      66 -    [property: Required, StringLength(64)] string Prefixo);    
+      66 +    [property: Required(AllowEmptyStrings = true), StringLength
+         +(64)] string Prefixo);                                         
+      67  
+      68  public sealed record CadastroRequest(
+      69      [property: Required, StringLength(32)] string Ra,
+      70      [property: Required, StringLength(254)] string Email,
+      71 -    [property: Required, StringLength(240)] string NomeDeExibic
+         -ao,                                                            
+      72 -    [property: Required, StringLength(64)] string Prefixo,     
+      73 -    [property: Required, StringLength(512)] string Senha)      
+      71 +    [property: Required(AllowEmptyStrings = true), StringLength
+         +(240)] string NomeDeExibicao,                                  
+      72 +    [property: Required(AllowEmptyStrings = true), StringLength
+         +(64)] string Prefixo,                                          
+      73 +    [property: Required(AllowEmptyStrings = true), StringLength
+         +(512)] string Senha)                                           
+      74  {
+      75      public override string ToString() => $"CadastroRequest {{ R
+          a = {Ra}, Prefixo = {Prefixo} }}";
+      76  }
+  ⎿  (timeout 10m)
+
+● Os 21 casos passam. Agora regenero o contrato e rodo a verificação completa:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/packages/api-client" && npm
+      run gerar 2>&1 | grep -E "error|🚀" ; npm run typecheck 2>&1 | gr…)
+  ⎿  🚀 openapi.json → src/schema.d.ts [50.9ms]
+      packages/api-client/openapi.json    | 364 +++++++++++++++++++++++++++
+     +++++++++
+     … +29 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+364 -0)
+       89            }
+       90          ]
+       91        }
+       92 +    },                                                        
+       93 +    "/api/v1/auth/cadastro/sugestao": {                       
+       94 +      "post": {                                               
+       95 +        "tags": [                                             
+       96 +          "Autenticacao"                                      
+       97 +        ],                                                    
+       98 +        "operationId": "SugerirArroba",                       
+       99 +        "requestBody": {                                      
+      100 +          "content": {                                        
+      101 +            "application/json": {                             
+      102 +              "schema": {                                     
+      103 +                "$ref": "#/components/schemas/IdentificacaoReq
+          +uest"                                                         
+      104 +              }                                               
+      105 +            }                                                 
+      106 +          },                                                  
+      107 +          "required": true                                    
+      108 +        },                                                    
+      109 +        "responses": {                                        
+      110 +          "200": {                                            
+      111 +            "description": "OK",                              
+      112 +            "content": {                                      
+      113 +              "application/json": {                           
+      114 +                "schema": {                                   
+      115 +                  "$ref": "#/components/schemas/SugestaoRespon
+          +se"                                                           
+      116 +                }                                             
+      117 +              }                                               
+      118 +            }                                                 
+      119 +          },                                                  
+      120 +          "400": {                                            
+      121 +            "description": "Bad Request",                     
+      122 +            "content": {                                      
+      123 +              "application/problem+json": {                   
+      124 +                "schema": {                                   
+      125 +                  "$ref": "#/components/schemas/HttpValidation
+          +ProblemDetails"                                               
+      126 +                }                                             
+      127 +              }                                               
+      128 +            }                                                 
+     … 346 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+244 -0)
+       52          patch?: never;
+       53          trace?: never;
+       54      };
+       55 +    "/api/v1/auth/cadastro/sugestao": {                       
+       56 +        parameters: {                                         
+       57 +            query?: never;                                    
+       58 +            header?: never;                                   
+       59 +            path?: never;                                     
+       60 +            cookie?: never;                                   
+       61 +        };                                                    
+       62 +        get?: never;                                          
+       63 +        put?: never;                                          
+       64 +        post: operations["SugerirArroba"];                    
+       65 +        delete?: never;                                       
+       66 +        options?: never;                                      
+       67 +        head?: never;                                         
+       68 +        patch?: never;                                        
+       69 +        trace?: never;                                        
+       70 +    };                                                        
+       71 +    "/api/v1/auth/cadastro/disponibilidade": {                
+       72 +        parameters: {                                         
+       73 +            query?: never;                                    
+       74 +            header?: never;                                   
+       75 +            path?: never;                                     
+       76 +            cookie?: never;                                   
+       77 +        };                                                    
+       78 +        get?: never;                                          
+       79 +        put?: never;                                          
+       80 +        post: operations["VerificarDisponibilidadeDoPrefixo"];
+       81 +        delete?: never;                                       
+       82 +        options?: never;                                      
+       83 +        head?: never;                                         
+       84 +        patch?: never;                                        
+       85 +        trace?: never;                                        
+       86 +    };                                                        
+       87 +    "/api/v1/auth/cadastro": {                                
+       88 +        parameters: {                                         
+       89 +            query?: never;                                    
+       90 +            header?: never;                                   
+       91 +            path?: never;                                     
+     … 230 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● O formatador pede _ nos campos estáticos privados. Renomeio só os
+  identificadores, sem tocar nas strings:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e '
+      const fs=require("fs");const
+      p="apps/api/tests/Maxx.Api.IntegrationTests/Autent…)
+  ⎿  26:    private static readonly CadastroRequest _ana = new("20260101",
+     "ana.souza@al.unieduk.com.br", "Ana", "anaSouza", _senha);
+     27:    private static readonly CadastroRequest _bruno = new("20260102"
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs
+     (+36 -36)
+      23      private static readonly Uri _sugestao = new("/api/v1/auth/c
+          adastro/sugestao", UriKind.Relative);
+      24      private static readonly Uri _disponibilidade = new("/api/v1
+          /auth/cadastro/disponibilidade", UriKind.Relative);
+      25      private static readonly Uri _cadastro = new("/api/v1/auth/c
+          adastro", UriKind.Relative);
+      26 +    private static readonly CadastroRequest _ana = new("2026010
+         +1", "ana.souza@al.unieduk.com.br", "Ana", "anaSouza", _senha); 
+      27 +    private static readonly CadastroRequest _bruno = new("20260
+         +102", "bruno.lima@al.unieduk.com.br", "Bruno", "brunoLima", _se
+         +nha);                                                          
+      28 +    private static readonly CadastroRequest _maria = new("20260
+         +103", "maria.silva@al.unieduk.com.br", "Maria", "mariaS", _senh
+         +a);                                                            
+      29 +    private static readonly CadastroRequest _outraMaria = new("
+         +20260104", "maria.c.silva@al.unieduk.com.br", "Maria C.", "mari
+         +aC", _senha);                                                  
+      30  
+      31      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      32  
+     ...
+      36          await using var factory = await MundoAsync();
+      37          using var client = factory.CreateClient();
+      38  
+      35 -        var response = await client.PostAsJsonAsync(_sugestao, 
+         -new { ra = Ana.Ra, email = Ana.Email }, Ct);                   
+      39 +        var response = await client.PostAsJsonAsync(_sugestao, 
+         +new { ra = _ana.Ra, email = _ana.Email }, Ct);                 
+      40  
+      41          Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+      42          var sugestao = await response.Content.ReadFromJsonAsync
+          <SugestaoResponse>(Ct);
+     ...
+      48      {
+      49          await using var factory = await MundoAsync();
+      50          using var client = factory.CreateClient();
+      47 -        await CadastrarAsync(client, Maria with { Prefixo = "ma
+         -riaSilva" });                                                  
+      48 -        await CadastrarAsync(client, Bruno with { Prefixo = "MA
+         -RIAclaraSILVA" });                                             
+      51 +        await CadastrarAsync(client, _maria with { Prefixo = "m
+         +ariaSilva" });                                                 
+      52 +        await CadastrarAsync(client, _bruno with { Prefixo = "M
+         +ARIAclaraSILVA" });                                            
+      53  
+      54          // Outra Maria Clara da Silva, que só sobra com o númer
+          o.
+      51 -        var response = await client.PostAsJsonAsync(_sugestao, 
+         -new { ra = OutraMaria.Ra, email = OutraMaria.Email }, Ct);     
+      55 +        var response = await client.PostAsJsonAsync(_sugestao, 
+         +new { ra = _outraMaria.Ra, email = _outraMaria.Email }, Ct);   
+      56  
+      57          var sugestao = await response.Content.ReadFromJsonAsync
+          <SugestaoResponse>(Ct);
+      58          Assert.Equal("mariaSilva2", sugestao!.Prefixo);
+     ...
+      64          await using var factory = await MundoAsync();
+      65          using var client = factory.CreateClient();
+      66  
+      63 -        var trocado = await client.PostAsJsonAsync(_sugestao, n
+         -ew { ra = Ana.Ra, email = Bruno.Email }, Ct);                  
+      67 +        var trocado = await client.PostAsJsonAsync(_sugestao, n
+         +ew { ra = _ana.Ra, email = _bruno.Email }, Ct);                
+      68          var inexistente = await client.PostAsJsonAsync(_sugesta
+          o, new { ra = "99999999", email = "ninguem@al.unieduk.com.br" }
+          , Ct);
+      69  
+      70          await AssertRecusaAsync(trocado, HttpStatusCode.NotFoun
+          d, "cadastro-nao-encontrado");
+     … 180 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 146 testes de integração passam. Antes de entregar, faço uma fumaça pelo
+  Caddy com o seed demo de verdade:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E6 está pronta para a sua revisão, sem commit.
+
+  Verificação
+  - Testes: os 381 da solução passam, incluindo os 21 casos novos de
+    CadastroTests.
+  - Lint e build: dotnet format limpo e build Release sem warning.
+  - Contrato: OpenAPI e cliente regenerados, e o tsc do cliente passa.
+  - Fumaça pelo Caddy com o seed demo: a sugestão para a Ana devolve
+    @anaSouza-CC, e um par inexistente devolve 404 com codigo: 
+    cadastro-nao-encontrado.
+
+  Endpoints novos (RA e e-mail sempre no corpo, nunca na URL, para não irem
+  parar em log de acesso):
+
+  ┌──────────────────────────────────────────────┬──────────────────────────┐
+  │                     Rota                     │           Faz            │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │                                              │ Devolve o arroba         │
+  │ POST /api/v1/auth/cadastro/sugestao {ra,     │ sugerido (prefixo,       │
+  │ email}                                       │ sufixo e o arroba        │
+  │                                              │ completo)                │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ POST /api/v1/auth/cadastro/disponibilidade   │ Devolve {disponivel}     │
+  │ {ra, email, prefixo}                         │                          │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ POST /api/v1/auth/cadastro {ra, email,       │ 201 com a sessão já      │
+  │ nomeDeExibicao, prefixo, senha}              │ aberta                   │
+  └──────────────────────────────────────────────┴──────────────────────────┘
+
+  Respostas de recusa (codigo no ProblemDetails):
+  - 404 cadastro-nao-encontrado: par trocado, RA inexistente ou linha de
+    professor. A resposta é idêntica nos três casos, e um teste compara os
+    corpos.
+  - 409 conta-existente: o RA já tem conta; o cliente leva à recuperação de
+    senha.
+  - 409 prefixo-indisponivel: prefixo de outra pessoa, inclusive em outra caixa
+    ou reservado.
+  - 400 com o código da regra violada: senha-fora-da-politica, prefixo-invalido
+    ou nome-de-exibicao-invalido.
+  - 400 dados-invalidos: campo ausente, com a lista de erros por campo.
+
+  Corridas: dois cadastros simultâneos pelo mesmo prefixo, ou do mesmo RA,
+  deixam um 201 e um 409, sem gravar usuário nem família a mais.
+
+  Sessão:
+  - No nativo, access e refresh vão no corpo.
+  - Com X-Maxx-Cliente: web, o refresh vai só no cookie maxx_refresh (HttpOnly,
+    Secure, SameSite=Strict, Path=/api/v1/auth), e o corpo traz refreshToken: 
+    null.
+  - Os testes confirmam que o banco guarda o hash Argon2id da senha e o SHA-256
+    do refresh, e que o access token do cadastro já abre o /v1/eu.
+
+  Estrutura: CadastroHandler e SessaoService na Application, que também declara
+  os repositórios, o IUnitOfWork e a RecusaException. Os repositórios EF ficam
+  na Infrastructure, com a UnitOfWork traduzindo índice violado em conflito
+  tipado. Na borda ficam o RecusaExceptionHandler e o SessaoHttp.
+
+  Desvio do plano:
+  - Escrita da sessão: a escolha entre cookie e corpo, que estava na E7, entrou
+    aqui porque o cadastro já devolve sessão. A E7 só a reaproveita.
+
+  Decisões que tomei e quero confirmar:
+  1. Disponibilidade exige RA e e-mail válidos. Sem isso, qualquer pessoa sem
+     conta poderia sondar quais arrobas existem, e o arroba só é visível para
+     usuário logado.
+  2. Cabeçalho X-Maxx-Cliente: web escolhe o cookie. Sem o cabeçalho, o refresh
+     vai no corpo. O nome do cookie é maxx_refresh.
+  3. Todo erro sai com codigo: quem não traz um próprio ganha o do status
+     (nao-autenticado, sem-permissao, nao-encontrado, limite-de-taxa,
+     erro-interno e outros).
+  4. Nome, prefixo e senha em branco voltam com o código da regra de domínio, e
+     não com dados-invalidos, para o cliente mostrar a mensagem certa.
+
+  Proponho registrar 2 e 3 em docs/decisoes/README.md no fechamento do passo,
+  junto com os códigos HTTP dos fluxos. Se preferir agora, entra neste commit.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona cadastro do aluno com sugestão de arroba
+
+✻ Cogitated for 10m 0s · done 22:03
+
+※ recap: No passo 3 (autenticação), as etapas E1 a E5 estão commitadas, e a E6 (cadastro do aluno) está pronta, sem commit, com 381 testes passando. Falta a sua revisão da E6 e a resposta sobre as quatro decisões que listei. (disable recaps in /config)
