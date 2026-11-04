@@ -892,3 +892,280 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
   feat(api): adiciona usuário, arroba e política de senha ao domínio
 
 ✻ Worked for 5m 6s · done 21:16
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E2 aprovada. Os comportamentos 1 a 4 ficam, e registra o 1 e o 2 no           
+  produto.md 2.3.1 neste commit. No 5, nome de exibição com máximo de 60        
+  caracteres, e isso também vai para o 2.3.1. Commita com a mensagem proposta,  
+  push, e segue para a E3; para para a minha revisão no fim dela.               
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 1 line, removed 1 line
+      23          Id = Guid.CreateVersion7();
+      24          CadastroElegivelId = cadastro.Id;
+      25          Papeis = cadastro.Papeis;
+      26 -        NomeDeExibicao = Texto.Obrigatorio(nomeDeExibicao, "O n
+         -ome de exibição");                                             
+      26 +        NomeDeExibicao = ValidarNomeDeExibicao(nomeDeExibicao);
+      27          Prefixo = PrefixoDeArroba.Validar(prefixo);
+      28          Sufixo = sufixo;
+      29          HashDaSenha = hashDaSenha;
+
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 3 lines
+      31          _prefixosReservados.Add(new PrefixoReservado(Id, Prefix
+          o, agora));
+      32      }
+      33  
+      34 +    // Em caracteres, não em unidades de UTF-16, como na senha.
+      35 +    public const int TamanhoMaximoDoNomeDeExibicao = 60;       
+      36 +                                                               
+      37      public Guid Id { get; private set; }
+      38  
+      39      public Guid CadastroElegivelId { get; private set; }
+
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 11 lines
+      144          Sufixo = Identidade.Sufixo.ExAluno;
+      145      }
+      146  
+      147 +    private static string ValidarNomeDeExibicao(string nome)  
+      148 +    {                                                         
+      149 +        nome = Texto.Obrigatorio(nome, "O nome de exibição"); 
+      150 +        if (nome.EnumerateRunes().Count() > TamanhoMaximoDoNom
+          +eDeExibicao)                                                  
+      151 +        {                                                     
+      152 +            throw new DomainException($"O nome de exibição tem
+          + no máximo {TamanhoMaximoDoNomeDeExibicao} caracteres.");     
+      153 +        }                                                     
+      154 +                                                              
+      155 +        return nome;                                          
+      156 +    }                                                         
+      157 +                                                              
+      158      private void GarantirAlunoAtivo(string acao)
+      159      {
+      160          if (Papeis != Papeis.Aluno)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs)
+  ⎿  Added 21 lines
+      64      }
+      65  
+      66      [Fact]
+      67 +    public void Nome_de_exibicao_tem_no_maximo_60_caracteres() 
+      68 +    {                                                          
+      69 +        var ana = Usuario.CadastrarAluno(AnaNaBase(), _cc, new 
+         +string('a', 60), "anaSouza", "hash", _agora);                  
+      70 +                                                               
+      71 +        Assert.Equal(60, ana.NomeDeExibicao.Length);           
+      72 +        Assert.Throws<DomainException>(                        
+      73 +            () => Usuario.CadastrarAluno(AnaNaBase(), _cc, new 
+         +string('a', 61), "anaSouza", "hash", _agora));                 
+      74 +    }                                                          
+      75 +                                                               
+      76 +    [Fact]                                                     
+      77 +    public void Nome_de_exibicao_conta_caractere_e_nao_unidade_
+         +de_utf16()                                                     
+      78 +    {                                                          
+      79 +        // Sessenta letras com acento composto e um emoji no fi
+         +m seriam 61 caracteres.                                        
+      80 +        var sessentaEmojis = string.Concat(Enumerable.Repeat(" 
+         +🎓", 60));                                                     
+      81 +                                                               
+      82 +        var ana = Usuario.CadastrarAluno(AnaNaBase(), _cc, sess
+         +entaEmojis, "anaSouza", "hash", _agora);                       
+      83 +                                                               
+      84 +        Assert.Equal(sessentaEmojis, ana.NomeDeExibicao);      
+      85 +    }                                                          
+      86 +                                                               
+      87 +    [Fact]                                                     
+      88      public void Prefixo_fora_do_formato_e_recusado_no_cadastro(
+          )
+      89      {
+      90          Assert.Throws<DomainException>(() => Usuario.CadastrarA
+          luno(AnaNaBase(), _cc, "Ana", "ana-souza", "hash", _agora));
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs)
+  ⎿  Added 1 line, removed 1 line
+      76      [Fact]
+      77      public void Nome_de_exibicao_conta_caractere_e_nao_unidade_
+          de_utf16()
+      78      {
+      79 -        // Sessenta letras com acento composto e um emoji no fi
+         -m seriam 61 caracteres.                                        
+      79 +        // Sessenta emojis são 120 unidades de UTF-16, mas 60 c
+         +aracteres.                                                     
+      80          var sessentaEmojis = string.Concat(Enumerable.Repeat("
+          🎓", 60));
+      81  
+      82          var ana = Usuario.CadastrarAluno(AnaNaBase(), _cc, sess
+          entaEmojis, "anaSouza", "hash", _agora);
+
+● Update(docs\produto.md)
+  ⎿  Added 5 lines
+      82  - **Sugestão a partir do nome completo:** acentos e cedilha rem
+          ovidos (`João` vira
+      83    `joao`), partículas `da`, `de`, `do`, `das`, `dos` e `e` igno
+          radas, primeiro nome em
+      84    minúsculas e os seguintes com inicial maiúscula. `Maria da Si
+          lva` vira `mariaSilva`.
+      85 +- Hífen e apóstrofo dentro de um nome são descartados, sem sepa
+         +rar palavras:                                                  
+      86 +  `D'Ávila` vira `Davila`, `Ana-Maria` vira `anamaria`.        
+      87  - **Colisão na sugestão:** primeiro nome e último nome; se ocup
+          ado, primeiro nome, o
+      88    primeiro nome do meio e o último nome; se ainda ocupado, prim
+          eiro e último nome com
+      89    número sequencial a partir de 2 (`mariaSilva2`).
+      90 +- **Nome curto ou longo:** sugestão com menos de 3 caracteres j
+         +á sai numerada (`Li` vira                                      
+      91 +  `li2`). Sugestão com mais de 30 é cortada em 30, e o número, 
+         +quando houver, entra                                           
+      92 +  dentro do limite.                                            
+      93  - **Reserva permanente:** todo prefixo que o usuário já teve fi
+          ca reservado a ele, sem
+      94    reuso por terceiros. Vale para a troca automática de sufixo e
+           também para a edição
+      95    do prefixo no perfil. O dono pode voltar a um prefixo antigo 
+          seu.
+
+● Update(docs\produto.md)
+  ⎿  Added 2 lines
+       93  - **Reserva permanente:** todo prefixo que o usuário já teve f
+           ica reservado a ele, sem
+       94    reuso por terceiros. Vale para a troca automática de sufixo 
+           e também para a edição
+       95    do prefixo no perfil. O dono pode voltar a um prefixo antigo
+            seu.
+       96 +- **Nome de exibição:** de 1 a 60 caracteres, contando um emoj
+          +i como um. Para professor e                                   
+       97 +  instituição, que vêm do seed, nasce como o nome completo do 
+          +cadastro elegível.                                            
+       98  
+       99  ### 2.4 Domínios de e-mail
+      100  
+
+  Pushed to feat/passo-03-auth, ran 1 shell command (ctrl+o to expand)
+
+● E2 já está commitada e no remoto; agora sigo com a E3, sessão e recuperação no
+  domínio, onde o domínio só recebe o hash do token e a rotação devolve um
+  resultado em vez de lançar exceção, e a recuperação de senha vale 30 minutos,
+  é de uso único e revoga as famílias do usuário ao concluir.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\FamiliaDeSessaoTests.cs)
+  ⎿  Wrote 143 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\FamiliaDeSessaoTests.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Domain.Tests.Identidade;
+       4 
+       5 public class FamiliaDeSessaoTests
+       6 {
+       7     private static readonly DateTimeOffset _login = new(2026, 11
+         , 3, 15, 0, 0, TimeSpan.Zero);
+       8     private static readonly Guid _usuarioId = Guid.CreateVersion
+         7();
+     … +135 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs)
+  ⎿  Wrote 141 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Identidade;
+      3 
+      4 namespace Maxx.Domain.Tests.Identidade;
+      5 
+      6 public class RecuperacaoDeSenhaTests
+      7 {
+      8     private static readonly DateTimeOffset _pedido = new(2026, 11
+        , 3, 15, 0, 0, TimeSpan.Zero);
+      9     private static readonly Curso _cc = new("Ciência da Computaçã
+     … +133 lines (~5 KB) (ctrl+o to expand)
+
+● Agora a implementação.
+
+● Write(apps\api\src\Maxx.Domain\Identidade\FamiliaDeSessao.cs)
+  ⎿  Wrote 146 lines to
+     apps\api\src\Maxx.Domain\Identidade\FamiliaDeSessao.cs
+       1 namespace Maxx.Domain.Identidade;
+       2 
+       3 // Uma sessão, de um login até o logout, o reuso ou a senha rede
+         finida. Cada refresh usado
+       4 // é trocado por outro da mesma família; apresentar de novo um j
+         á trocado é sinal de roubo
+       5 // ou replay e derruba a família inteira (ADR 0006). O domínio s
+         ó vê o hash do refresh:
+       6 // gerar o valor e calcular o hash é da infraestrutura.
+       7 public sealed class FamiliaDeSessao
+     … +139 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\RecuperacaoDeSenha.cs)
+  ⎿  Wrote 85 lines to
+     apps\api\src\Maxx.Domain\Identidade\RecuperacaoDeSenha.cs
+       1 namespace Maxx.Domain.Identidade;
+       2 
+       3 // Um pedido de recuperação de senha, que também é o primeiro ac
+         esso de quem vem do seed
+       4 // (docs/fluxos/06-recuperacao-de-senha.md). Token de uso único,
+          por 30 minutos; o domínio
+       5 // só vê o hash dele.
+       6 public sealed class RecuperacaoDeSenha
+       7 {
+       8     public static readonly TimeSpan Validade = TimeSpan.FromMinu
+     … +78 lines (~2 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E3 está pronta para a sua revisão, sem commit. Os 226 testes do domínio
+  passam, com 20 novos. O dotnet format está limpo.
+
+  O que entrou, em apps/api/src/Maxx.Domain/Identidade/:
+
+  - FamiliaDeSessao.cs:
+    - Abrir (login, com R1 válido por 30 dias) e Revogar(motivo). O motivo é
+      Logout, Reuso ou SenhaRedefinida, e só a primeira revogação fica
+      registrada.
+    - Rotacionar(apresentado, novo), que devolve um ResultadoDoRefresh. A ordem
+      dos testes é: família já revogada; depois token já rotacionado, que é
+      reuso e revoga a família; depois validade vencida; senão rotaciona e emite
+      um refresh novo, válido por 30 dias a partir da rotação.
+    - RefreshToken guarda só o hash do token.
+  - RecuperacaoDeSenha.cs:
+    - Solicitar cria um pedido válido por 30 minutos.
+    - Concluir(usuario, hashNovo, familias) define a senha, marca o token como
+      usado e revoga as famílias com SenhaRedefinida, tudo junto ou nada. O
+      resultado é Concluida, Expirada ou JaUsada.
+    - O primeiro acesso de quem vem do seed é essa mesma conclusão.
+  - Dois casos lançam exceção em vez de devolver resultado, porque indicam bug
+    de quem chama e não ação do usuário: token de outra família, e recuperação
+    ou família de outro usuário.
+
+  Os testes cobrem a sequência do ADR 0006 (R1, R2, R1 de novo), as duas
+  fronteiras de validade (o último instante ainda vale e um segundo depois não),
+  refresh expirado, logout, reset usado duas vezes e reset que revoga as
+  famílias de todos os dispositivos.
+
+  Pontos para você decidir ou confirmar:
+
+  1. Outros pedidos de reset pendentes: depois de uma redefinição concluída, os
+     outros pedidos ainda abertos do mesmo usuário continuam valendo até
+     expirar. Recomendo invalidá-los na conclusão: custa uma linha e evita que
+     um link antigo redefina a senha de novo. Não implementei porque não está
+     decidido.
+  2. Reuso estrito, sem janela de tolerância, como diz o ADR. Consequência: duas
+     abas renovando ao mesmo tempo com o mesmo refresh derrubam a sessão.
+     Proteger contra isso fica a cargo do cliente, que vai serializar a
+     renovação no passo 5. Fica registrado aqui para não virar surpresa.
+  3. Refresh expirado só é recusado e não revoga a família. Não é sinal de
+     roubo.
+  4. Concorrência no banco: duas rotações simultâneas do mesmo token não podem
+     ambas ter sucesso. Isso não é do domínio: entra na E4 (controle de
+     concorrência na linha do token) e é testado na E7.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona família de sessão e recuperação de senha ao domínio
+
+✻ Crunched for 3m 3s · done 21:23
