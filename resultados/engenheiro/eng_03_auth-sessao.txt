@@ -1169,3 +1169,623 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
   feat(api): adiciona família de sessão e recuperação de senha ao domínio
 
 ✻ Crunched for 3m 3s · done 21:23
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E3 aprovada. 1: invalida os outros pedidos de reset pendentes na conclusão,   
+  com teste, e registra no fluxo 06. 2, 3 e 4 ficam como você descreveu: reuso  
+  estrito com a serialização no cliente no passo 5, expirado só recusa,         
+  concorrência na E4 e testada na E7. Commita com a mensagem proposta, push, e  
+  segue para a E4; para para a minha revisão no fim dela.                       
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      /tmp/novo.cs <<'EOF'
+          public static RecuperacaoDeSenha Solicitar(Guid u…)
+  ⎿  38:    public DateTimeOffset? InvalidadaEm { get; private set; }
+     79:        if (InvalidadaEm is not null)
+     107:        if (UsadaEm is null && InvalidadaEm is null)
+  ⎿  Updated apps\api\src\Maxx.Domain\Identidade\RecuperacaoDeSenha.cs (+41
+     -4)
+      34  
+      35      public DateTimeOffset? UsadaEm { get; private set; }
+      36  
+      37 +    // Outro pedido do mesmo usuário foi concluído antes deste.
+      38 +    public DateTimeOffset? InvalidadaEm { get; private set; }  
+      39 +                                                               
+      40      public static RecuperacaoDeSenha Solicitar(Guid usuarioId, 
+          string hash, DateTimeOffset agora) => new(usuarioId, hash, agor
+          a);
+      41  
+      39 -    // Senha nova e todas as sessões do usuário derrubadas, ou 
+         -nada muda. A política já                                       
+      40 -    // passou sobre a senha em claro; aqui chega o hash. famili
+         -asDoUsuario são as famílias                                    
+      41 -    // ativas que quem chama carregou.                         
+      42 +    // Senha nova, todas as sessões do usuário derrubadas e os 
+         +outros pedidos pendentes dele                                  
+      43 +    // invalidados, ou nada muda: um link antigo não redefine a
+         + senha de novo. A política já                                  
+      44 +    // passou sobre a senha em claro; aqui chega o hash. famili
+         +asDoUsuario e                                                  
+      45 +    // outrosPedidosDoUsuario são os que quem chama carregou.  
+      46      public ResultadoDaRecuperacao Concluir(
+      43 -        Usuario usuario, string hashDaSenhaNova, IEnumerable<Fa
+         -miliaDeSessao> familiasDoUsuario, DateTimeOffset agora)        
+      47 +        Usuario usuario,                                       
+      48 +        string hashDaSenhaNova,                                
+      49 +        IEnumerable<FamiliaDeSessao> familiasDoUsuario,        
+      50 +        IEnumerable<RecuperacaoDeSenha> outrosPedidosDoUsuario,
+      51 +        DateTimeOffset agora)                                  
+      52      {
+      53          ArgumentNullException.ThrowIfNull(usuario);
+      54          ArgumentNullException.ThrowIfNull(familiasDoUsuario);
+      55 +        ArgumentNullException.ThrowIfNull(outrosPedidosDoUsuari
+         +o);                                                            
+      56  
+      57          if (usuario.Id != UsuarioId)
+      58          {
+     ...
+      65              throw new ArgumentException("Há família de sessão d
+          e outro usuário.", nameof(familiasDoUsuario));
+      66          }
+      67  
+      68 +        var outrosPedidos = outrosPedidosDoUsuario.Where(pedido
+         + => pedido.Id != Id).ToList();                                 
+      69 +        if (outrosPedidos.Any(pedido => pedido.UsuarioId != Usu
+         +arioId))                                                       
+      70 +        {                                                      
+      71 +            throw new ArgumentException("Há pedido de recuperaç
+         +ão de outro usuário.", nameof(outrosPedidosDoUsuario));        
+      72 +        }                                                      
+      73 +                                                               
+      74          if (UsadaEm is not null)
+      75          {
+     … 40 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && rm -f
+      /tmp/novo.cs &&
+      f=tests/Maxx.Domain.Tests/Identidade/RecuperacaoDeSenhaTes…)
+  ⎿  42:        var resultado = recuperacao.Concluir(ana, "hash-novo", [cel
+     ular, notebook], [], conclusao);
+     63:        recuperacao.Concluir(ana, "hash-novo", [antiga], [], _pedid
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs
+     (+9 -9)
+      39          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+          "T", _pedido);
+      40          var conclusao = _pedido.AddMinutes(10);
+      41  
+      42 -        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         -[celular, notebook], conclusao);                               
+      42 +        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         +[celular, notebook], [], conclusao);                           
+      43  
+      44          Assert.Equal(ResultadoDaRecuperacao.Concluida, resultad
+          o);
+      45          Assert.Equal("hash-novo", ana.HashDaSenha);
+     ...
+      60          antiga.Revogar(MotivoDaRevogacao.Logout, _pedido.AddDay
+          s(-4));
+      61          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+          "T", _pedido);
+      62  
+      63 -        recuperacao.Concluir(ana, "hash-novo", [antiga], _pedid
+         -o.AddMinutes(1));                                              
+      63 +        recuperacao.Concluir(ana, "hash-novo", [antiga], [], _p
+         +edido.AddMinutes(1));                                          
+      64  
+      65          Assert.Equal(MotivoDaRevogacao.Logout, antiga.MotivoDaR
+          evogacao);
+      66      }
+     ...
+      72              CadastroElegivel.Professor("renata@prof.unieduk.com
+          .br", "Renata Albuquerque"), "renataAlbuquerque", _pedido.AddDa
+          ys(-30));
+      73          var recuperacao = RecuperacaoDeSenha.Solicitar(renata.I
+          d, "T", _pedido);
+      74  
+      75 -        var resultado = recuperacao.Concluir(renata, "primeira-
+         -senha", [], _pedido.AddMinutes(5));                            
+      75 +        var resultado = recuperacao.Concluir(renata, "primeira-
+         +senha", [], [], _pedido.AddMinutes(5));                        
+      76  
+      77          Assert.Equal(ResultadoDaRecuperacao.Concluida, resultad
+          o);
+      78          Assert.True(renata.TemSenha);
+     ...
+      85          var familia = FamiliaDeSessao.Abrir(ana.Id, "C1", _pedi
+          do.AddDays(-5));
+      86          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+          "T", _pedido);
+      87  
+      88 -        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         -[familia], _pedido.AddMinutes(30).AddSeconds(1));              
+      88 +        var resultado = recuperacao.Concluir(ana, "hash-novo", 
+         +[familia], [], _pedido.AddMinutes(30).AddSeconds(1));          
+      89  
+      90          Assert.Equal(ResultadoDaRecuperacao.Expirada, resultado
+          );
+      91          Assert.Equal("hash-antigo", ana.HashDaSenha);
+     ...
+       99          var ana = Ana();
+      100          var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id,
+            "T", _pedido);
+      101  
+      102 -        Assert.Equal(ResultadoDaRecuperacao.Concluida, recuper
+          -acao.Concluir(ana, "hash-novo", [], _pedido.AddMinutes(30))); 
+      102 +        Assert.Equal(ResultadoDaRecuperacao.Concluida, recuper
+          +acao.Concluir(ana, "hash-novo", [], [], _pedido.AddMinutes(30)
+          +));                                                           
+      103      }
+      104  
+      105      [Fact]
+     … 28 more lines (ctrl+o to expand)
+
+● Agora os testes novos da invalidação.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs)  ⎿  Added 72 lines
+      138          Assert.Equal("hash-antigo", ana.HashDaSenha);
+      139          Assert.Null(recuperacao.UsadaEm);
+      140      }
+      141 +                                                              
+      142 +    [Fact]                                                    
+      143 +    public void Concluir_invalida_os_outros_pedidos_pendentes_
+          +do_usuario()                                                  
+      144 +    {                                                         
+      145 +        var ana = Ana();                                      
+      146 +        var primeiro = RecuperacaoDeSenha.Solicitar(ana.Id, "T
+          +1", _pedido);                                                 
+      147 +        var segundo = RecuperacaoDeSenha.Solicitar(ana.Id, "T2
+          +", _pedido.AddMinutes(2));                                    
+      148 +        var terceiro = RecuperacaoDeSenha.Solicitar(ana.Id, "T
+          +3", _pedido.AddMinutes(4));                                   
+      149 +        var conclusao = _pedido.AddMinutes(5);                
+      150 +                                                              
+      151 +        segundo.Concluir(ana, "hash-novo", [], [primeiro, segu
+          +ndo, terceiro], conclusao);                                   
+      152 +                                                              
+      153 +        Assert.Equal(conclusao, primeiro.InvalidadaEm);       
+      154 +        Assert.Equal(conclusao, terceiro.InvalidadaEm);       
+      155 +        Assert.Null(segundo.InvalidadaEm);                    
+      156 +        Assert.Equal(conclusao, segundo.UsadaEm);             
+      157 +    }                                                         
+      158 +                                                              
+      159 +    [Fact]                                                    
+      160 +    public void Link_antigo_invalidado_nao_redefine_a_senha_de
+          +_novo()                                                       
+      161 +    {                                                         
+      162 +        var ana = Ana();                                      
+      163 +        var antigo = RecuperacaoDeSenha.Solicitar(ana.Id, "T1"
+          +, _pedido);                                                   
+      164 +        var novo = RecuperacaoDeSenha.Solicitar(ana.Id, "T2", 
+          +_pedido.AddMinutes(1));                                       
+      165 +        novo.Concluir(ana, "hash-novo", [], [antigo], _pedido.
+          +AddMinutes(2));                                               
+      166 +        var sessaoNova = FamiliaDeSessao.Abrir(ana.Id, "S1", _
+          +pedido.AddMinutes(3));                                        
+      167 +                                                              
+      168 +        var resultado = antigo.Concluir(ana, "hash-de-quem-peg
+          +ou-o-link", [sessaoNova], [novo], _pedido.AddMinutes(4));     
+      169 +                                                              
+      170 +        Assert.Equal(ResultadoDaRecuperacao.Invalidada, result
+          +ado);                                                         
+      171 +        Assert.Equal("hash-novo", ana.HashDaSenha);           
+      172 +        Assert.Null(antigo.UsadaEm);                          
+      173 +        Assert.True(sessaoNova.EstaAtiva);                    
+      174 +    }                                                         
+      175 +                                                              
+      176 +    [Fact]                                                    
+      177 +    public void Pedido_ja_usado_nao_vira_invalidado()         
+      178 +    {                                                         
+      179 +        var ana = Ana();                                      
+      180 +        var usado = RecuperacaoDeSenha.Solicitar(ana.Id, "T1",
+          + _pedido);                                                    
+      181 +        usado.Concluir(ana, "hash-1", [], [], _pedido.AddMinut
+          +es(1));                                                       
+      182 +        var depois = RecuperacaoDeSenha.Solicitar(ana.Id, "T2"
+          +, _pedido.AddMinutes(10));                                    
+      183 +                                                              
+      184 +        depois.Concluir(ana, "hash-2", [], [usado], _pedido.Ad
+          +dMinutes(11));                                                
+      185 +                                                              
+      186 +        Assert.Null(usado.InvalidadaEm);                      
+      187 +        Assert.Equal(_pedido.AddMinutes(1), usado.UsadaEm);   
+      188 +    }                                                         
+      189 +                                                              
+      190 +    [Fact]                                                    
+      191 +    public void Pedido_expirado_nao_invalida_ninguem()        
+      192 +    {                                                         
+      193 +        var ana = Ana();                                      
+      194 +        var expirado = RecuperacaoDeSenha.Solicitar(ana.Id, "T
+          +1", _pedido);                                                 
+      195 +        var aberto = RecuperacaoDeSenha.Solicitar(ana.Id, "T2"
+          +, _pedido.AddMinutes(25));                                    
+      196 +                                                              
+      197 +        var resultado = expirado.Concluir(ana, "hash-novo", []
+          +, [aberto], _pedido.AddMinutes(31));                          
+      198 +                                                              
+      199 +        Assert.Equal(ResultadoDaRecuperacao.Expirada, resultad
+          +o);                                                           
+      200 +        Assert.Null(aberto.InvalidadaEm);                     
+      201 +    }                                                         
+      202 +                                                              
+      203 +    [Fact]                                                    
+      204 +    public void Pedido_de_outro_usuario_entre_os_pendentes_e_e
+          +rro_de_quem_chama()                                           
+      205 +    {                                                         
+      206 +        var ana = Ana();                                      
+      207 +        var deOutro = RecuperacaoDeSenha.Solicitar(Guid.Create
+          +Version7(), "O1", _pedido);                                   
+      208 +        var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id,
+          + "T", _pedido);                                               
+      209 +                                                              
+      210 +        Assert.Throws<ArgumentException>(() => recuperacao.Con
+          +cluir(ana, "hash-novo", [], [deOutro], _pedido));             
+      211 +        Assert.Equal("hash-antigo", ana.HashDaSenha);         
+      212 +    }                                                         
+      213  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora o fluxo 06.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/fluxos/06-recuperacao-de-senha.md && sed -i \
+       -e 's/  alt T inexistente, expirado…)
+  ⎿    App->>API: confirma (T + senha nova)
+       API->>DB: busca o token pelo hash de T
+       alt T inexistente, expirado, ja usado ou invalidado
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\06-recuperacao-de-senha.md (+3 -1)
+      26  
+      27    App->>API: confirma (T + senha nova)
+      28    API->>DB: busca o token pelo hash de T
+      29 -  alt T inexistente, expirado ou ja usado                      
+      29 +  alt T inexistente, expirado, ja usado ou invalidado          
+      30      API-->>App: recusado
+      31    else T valido
+      32      API->>API: hash da senha nova com Argon2id
+      33      API->>DB: grava a senha, marca T como usado, revoga todas a
+          s familias de refresh
+      34 +    API->>DB: invalida os outros pedidos pendentes do usuario  
+      35      API-->>App: senha redefinida, entrar de novo
+      36    end
+      37  ```
+     ...
+      47  | Limite de taxa por e-mail | `decisoes/README.md` (Autenticaçã
+          o) |
+      48  | Envio fora da requisição, em segundo plano até a fila do pass
+          o 6 | `decisoes/README.md` (Autenticação) |
+      49  | Senha nova revoga todas as famílias de refresh | `decisoes/RE
+          ADME.md` (Autenticação) |
+      50 +| Concluir um pedido invalida os outros pendentes do mesmo usuá
+         +rio: um link antigo não redefine a senha de novo | Revisão da E
+         +3 do passo 3; `decisoes/README.md` (Autenticação) |            
+      51  | Argon2id; senha e token nunca em log | ADR 0006; `CLAUDE.md` 
+          (Segurança) |
+      52  
+      53  Os códigos HTTP além do 202 ficam para o fechamento do passo 3,
+           junto com os do
+
+● A linha cita decisoes/README.md, então a regra vai também para lá:
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      65  | Assinatura | HS256, com uma chave em variável de ambiente com
+          partilhada pelas duas réplicas. Assimétrica não traz ganho: só 
+          a própria API valida o token. Sem a chave, a API não sobe fora 
+          de desenvolvimento e teste |
+      66  | Refresh | 30 dias, renovados a cada rotação, sem teto absolut
+          o na fase 1. Guardado no banco só como hash SHA-256 |
+      67  | Refresh na web e no nativo | Na web, cookie `HttpOnly`, `Secu
+          re`, `SameSite=Strict`, restrito ao caminho de autenticação; no
+           nativo, no corpo da resposta, para o secure store. O cliente s
+          e identifica por cabeçalho |
+      68 -| Recuperação de senha | Token aleatório de 30 minutos, uso úni
+         -co, guardado só como hash. A resposta ao pedido é sempre a mesm
+         -a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+         -de refresh do usuário |                                        
+      68 +| Recuperação de senha | Token aleatório de 30 minutos, uso úni
+         +co, guardado só como hash. A resposta ao pedido é sempre a mesm
+         +a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+         +de refresh do usuário e invalida os outros pedidos de recuperaç
+         +ão pendentes dele |                                            
+      69  | Hash de senha | Argon2id com `Konscious.Security.Cryptography
+          `, parâmetros do OWASP: 19 MiB de memória, 2 iterações, paralel
+          ismo 1. Login de usuário inexistente calcula um hash fictício, 
+          para o tempo de resposta não revelar quem tem conta |
+      70  | Política de senha | De 8 a 128 caracteres, sem regra de compo
+          sição, na linha do NIST SP 800-63B |
+      71  | E-mail | SMTP genérico com MailKit; Mailpit no compose local.
+           Provedor da VPS escolhido no passo 13 |
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/| Revisão da E3 do passo 3; `decisoes\/README.md` (Autenticação)
+      |/| `decisoes\…)
+  ⎿  A  apps/api/src/Maxx.Domain/Identidade/FamiliaDeSessao.cs
+     A  apps/api/src/Maxx.Domain/Identidade/RecuperacaoDeSenha.cs
+     A  apps/api/tests/Maxx.Domain.Tests/Identidade/FamiliaDeSessaoTests.cs
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\06-recuperacao-de-senha.md (+1 -1)
+      47  | Limite de taxa por e-mail | `decisoes/README.md` (Autenticaçã
+          o) |
+      48  | Envio fora da requisição, em segundo plano até a fila do pass
+          o 6 | `decisoes/README.md` (Autenticação) |
+      49  | Senha nova revoga todas as famílias de refresh | `decisoes/RE
+          ADME.md` (Autenticação) |
+      50 -| Concluir um pedido invalida os outros pendentes do mesmo usuá
+         -rio: um link antigo não redefine a senha de novo | Revisão da E
+         -3 do passo 3; `decisoes/README.md` (Autenticação) |            
+      50 +| Concluir um pedido invalida os outros pendentes do mesmo usuá
+         +rio: um link antigo não redefine a senha de novo | `decisoes/RE
+         +ADME.md` (Autenticação) |                                      
+      51  | Argon2id; senha e token nunca em log | ADR 0006; `CLAUDE.md` 
+          (Segurança) |
+      52  
+      53  Os códigos HTTP além do 202 ficam para o fechamento do passo 3,
+           junto com os do
+
+● E3 está commitada e no remoto (2ef32f6). Para a E4, leio a persistência
+  existente e os testes de integração.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Desenhei as tabelas da E4: usuario, prefixo_reservado (com citext como chave
+  primária, onde mora a unicidade), familia_sessao, refresh_token e
+  recuperacao_senha, ambas com xmin como token de concorrência. As regras do
+  domínio também vão para o banco como check constraints, seguindo o passo 2.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\IdentidadeCo
+       nfiguration.cs)
+  ⎿  Wrote 148 lines to apps\api\src\Maxx.Infrastructure\Persistence\Config
+     urations\IdentidadeConfiguration.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 using Microsoft.EntityFrameworkCore;
+       4 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       5 
+       6 namespace Maxx.Infrastructure.Persistence.Configurations;
+       7 
+       8 // Conta, sessão e recuperação. Os invariantes do domínio repeti
+         dos no banco, como no
+       9 // modelo acadêmico. Dentro do agregado apaga em cascata (usuári
+     … +140 lines (~6 KB) (ctrl+o to expand)
+
+● O varchar(n) do Postgres conta caractere (code point), igual à contagem por
+  rune do domínio. Então o limite certo é 60, não 120:
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\IdentidadeC
+        onfiguration.cs)
+  ⎿  Added 2 lines, removed 1 line
+      36              .OnDelete(DeleteBehavior.Restrict);
+      37  
+      38          builder.Property(usuario => usuario.Papeis).HasConversi
+          on<int>();
+      39 -        builder.Property(usuario => usuario.NomeDeExibicao).Has
+         -MaxLength(Usuario.TamanhoMaximoDoNomeDeExibicao * 2).IsRequired
+         -();                                                            
+      39 +        // varchar(n) no Postgres conta caractere, como o domín
+         +io: um emoji é um.                                             
+      40 +        builder.Property(usuario => usuario.NomeDeExibicao).Has
+         +MaxLength(Usuario.TamanhoMaximoDoNomeDeExibicao).IsRequired(); 
+      41  
+      42          // A unicidade do prefixo mora em prefixo_reservado; aq
+          ui é só o atual, como escrito.
+      43          builder.Property(usuario => usuario.Prefixo).HasColumnT
+          ype("citext").IsRequired();
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      grep -rn "migrations add" README.md docs apps/api 2>/dev/null | head -3;
+      dotnet tool rest…)
+  ⎿  apps/api/src/Maxx.Infrastructure/Persistence/MaxxDbContextDesignTimeFa
+     ctory.cs:6:// Usada só pelo `dotnet ef migrations add`, que não abre c
+     onexão.
+     … +3 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     04002937_Identidade.cs (+194 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class Identidade : Migration               
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.CreateTable(                     
+       15 +                name: "usuario",                              
+       16 +                columns: table => new                         
+       17 +                {                                             
+       18 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       19 +                    cadastro_elegivel_id = table.Column<Guid>(
+          +type: "uuid", nullable: false),                               
+       20 +                    papeis = table.Column<int>(type: "integer"
+          +, nullable: false),                                           
+       21 +                    nome_de_exibicao = table.Column<string>(ty
+          +pe: "character varying(60)", maxLength: 60, nullable: false), 
+       22 +                    prefixo = table.Column<string>(type: "cite
+          +xt", nullable: false),                                        
+       23 +                    sufixo = table.Column<string>(type: "text"
+          +, nullable: false),                                           
+       24 +                    hash_da_senha = table.Column<string>(type:
+          + "text", nullable: true),                                     
+       25 +                    ex_aluno_desde = table.Column<DateTimeOffs
+          +et>(type: "timestamp with time zone", nullable: true),        
+       26 +                    criado_em = table.Column<DateTimeOffset>(t
+          +ype: "timestamp with time zone", nullable: false)             
+       27 +                },                                            
+       28 +                constraints: table =>                         
+       29 +                {                                             
+       30 +                    table.PrimaryKey("pk_usuario", x => x.id);
+       31 +                    table.CheckConstraint("ck_usuario_ex_aluno
+          +", "(ex_aluno_desde IS NULL AND sufixo <> 'EX') OR (ex_aluno_d
+          +esde IS NOT NULL AND papeis = 1 AND sufixo = 'EX')");         
+       32 +                    table.CheckConstraint("ck_usuario_papeis",
+          + "papeis IN (1, 2, 4, 6)");                                   
+       33 +                    table.CheckConstraint("ck_usuario_prefixo"
+          +, "prefixo ~ '^[A-Za-z][A-Za-z0-9]{2,29}$'");                 
+       34 +                    table.ForeignKey(                         
+       35 +                        name: "fk_usuario_cadastro_elegivel_ca
+          +dastro_elegivel_id",                                          
+       36 +                        column: x => x.cadastro_elegivel_id,  
+       37 +                        principalTable: "cadastro_elegivel",  
+       38 +                        principalColumn: "id",                
+       39 +                        onDelete: ReferentialAction.Restrict);
+       40 +                });                                           
+     … 154 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A migração já criou as 5 tabelas com seus índices e checks. Cuidado com xmin,
+  que parece coluna nova mas é do sistema do Postgres; vou escrever os testes de
+  integração para confirmar que o Npgsql a ignora.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\IdentidadePersistenciaTests.cs)
+  ⎿  Wrote 373 lines to apps\api\tests\Maxx.Api.IntegrationTests\Identidade
+     PersistenciaTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Identidade;
+      3 using Maxx.Infrastructure.Persistence;
+      4 using Microsoft.EntityFrameworkCore;
+      5 using Microsoft.Extensions.DependencyInjection;
+      6 using Npgsql;
+      7 using static Maxx.Api.IntegrationTests.BancoDeTeste;
+      8 
+      9 namespace Maxx.Api.IntegrationTests;
+     … +364 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O Docker não está respondendo. Vou verificar se ele está instalado e só
+  parado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O cliente Docker está instalado, mas o daemon não está rodando e o Docker
+  Desktop não está no caminho padrão. Enquanto isso, vou checar sem banco o SQL
+  que a migration gera, para ver se a coluna xmin fica de fora.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O Npgsql deixa o xmin fora do DDL, como esperado. Rodo o lint e o build:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E4 está escrita, mas não consegui rodar os testes de integração, porque o
+  Docker não está de pé nesta máquina. A pasta padrão do Docker Desktop não
+  existe, e o Testcontainers não acha o daemon. Por isso a E4 ainda não está
+  pronta para sua revisão.
+
+  O que já está feito:
+
+  - Configuração em apps/api/src/Maxx.Infrastructure/Persistence/Configurations/
+    IdentidadeConfiguration.cs:
+    - usuario, com índice único em cadastro_elegivel_id (um RA, uma conta). As
+      checks repetem no banco o formato do prefixo, os papéis e a regra do
+      ex-aluno com sufixo EX. nome_de_exibicao é varchar(60), que no Postgres
+      conta caractere, igual ao domínio.
+    - prefixo_reservado: o prefixo citext é a chave primária. É essa chave que
+      decide a corrida entre dois cadastros e que segura a reserva para sempre.
+    - familia_sessao, com índice parcial nas famílias ativas do usuário.
+    - refresh_token, com hash único e xmin como token de concorrência.
+    - recuperacao_senha, com hash único, índice parcial nos pedidos pendentes e
+      xmin.
+  - Migration 20261104002937_Identidade, gerada. O script SQL confirma que o
+    Npgsql deixa o xmin (coluna de sistema) fora do DDL.
+  - dotnet format e build Release limpos, sem nenhum warning.
+  - 16 testes de integração em IdentidadePersistenciaTests.cs, ainda não
+    rodados: dois cadastros simultâneos pelo mesmo prefixo (um só vence),
+    prefixo antigo editado continua reservado, segunda conta para o mesmo RA,
+    prefixo de outro em outra caixa, check de formato direto no SQL, ida e volta
+    de família e reuso, duas renovações simultâneas com o mesmo refresh (a
+    segunda leva DbUpdateConcurrencyException), o mesmo link de reset usado duas
+    vezes ao mesmo tempo, e recuperação gravando senha, revogações e
+    invalidações.
+
+  Uma diferença em relação ao plano: a tabela do arroba se chama
+  prefixo_reservado, e não arroba, porque a unicidade é do prefixo.
+
+  Para fechar a E4, preciso que você suba o Docker (Docker Desktop ou outro
+  engine que exponha npipe://./pipe/docker_engine). Depois me avise ou rode você
+  mesmo:
+
+  ! dotnet test --project apps/api/tests/Maxx.Api.IntegrationTests
+
+  Com os testes rodando, corrijo o que falhar, aplico a migration no contêiner
+  migrator e trago a E4 para sua revisão com o resultado.
+
+✻ Worked for 5m 49s · done 21:32
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> Docker de pé. Roda os testes, aplica a migration no migrator e traz a E4 para 
+  revisão. A tabela prefixo_reservado no lugar de arroba está certa.            
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 92 testes passam. Confirmo que os 16 novos estão entre eles:
+  Ran 1 shell command (ctrl+o to expand)
+
+● São 17 casos, porque a theory de formato tem 4. Agora aplico a migration pelo
+  contêiner migrator:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A E4 está pronta para a sua revisão, sem commit.
+
+  - Testes de integração: os 92 passam no Postgres real via Testcontainers,
+    incluindo os 17 casos novos de IdentidadePersistenciaTests. Os que ficaram
+    verdes provam três coisas:
+    - Concorrência no banco: duas renovações simultâneas com o mesmo refresh, e
+      o mesmo link de reset usado duas vezes ao mesmo tempo, deixam só uma
+      gravação. A outra leva DbUpdateConcurrencyException, pelo xmin.
+    - Corrida pelo prefixo: dois cadastros simultâneos pelo mesmo prefixo deixam
+      um único vencedor, pela chave primária de prefixo_reservado.
+    - Unicidades e reserva: a segunda conta para o mesmo RA é recusada, um
+      prefixo de outra pessoa é recusado mesmo escrito em outra caixa, e um
+      prefixo editado continua reservado ao dono.
+  - Migration aplicada: o contêiner migrator aplicou 20261104002937_Identidade
+    sob o advisory lock e saiu com código 0. O banco local tem as cinco tabelas
+    novas, e o histórico mostra as quatro migrations.
+  - Lint e build: dotnet format limpo e build Release sem warning.
+
+  Arquivos do commit:
+  - apps/api/src/Maxx.Infrastructure/Persistence/Configurations/IdentidadeConfig
+    uration.cs
+  - apps/api/src/Maxx.Infrastructure/Persistence/Migrations/20261104002937_Ident
+    idade.cs, com o .Designer.cs e o snapshot atualizado
+  - apps/api/tests/Maxx.Api.IntegrationTests/IdentidadePersistenciaTests.cs
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona migration de usuário, sessão e recuperação de senha
+
+  Depois do seu ok eu commito, faço o push e sigo para a E5 (infraestrutura de
+  autenticação).
+
+✻ Churned for 1m 45s · done 21:35
+
+※ recap: Estamos no passo 3 (autenticação e autorização), com E1 a E3 commitadas e a E4 pronta: testes de integração passando e migration aplicada no migrator. Falta só o seu ok para eu commitar a E4, fazer o push e seguir para a E5. (disable recaps in /config)
