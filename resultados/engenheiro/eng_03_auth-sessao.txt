@@ -1,0 +1,642 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 3 do plano mestre: autenticação e autorização. Estamos na               
+  rodada/eng_03_auth, saída da main com os passos 1 e 2 mergeados. Antes de     
+  qualquer código, me traga o plano de etapas, com entrega e critério de aceite 
+  por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá: decisão que   
+  não está nos docs não foi tomada, então pergunte antes de assumir. Lembro o   
+  que fecha o passo: cadastro conferindo RA e e-mail na mesma linha do cadastro 
+  elegível, um RA uma conta; geração e unicidade do arroba com sufixo por       
+  papel e reserva permanente do antigo; login por RA ou e-mail com Argon2id,    
+  access token curto, refresh rotativo por família com detecção de reuso e      
+  logout revogando; papéis e escopo de turma do professor checado no banco;     
+  limite de taxa em login, upload e registro de demonstração; flag da           
+  demonstração desligada por padrão, rotas em 404 quando desligada e ausente da 
+  configuração de produção; recuperação de senha por e-mail. Eu reviso o plano  
+  e aí começamos a primeira etapa.                                              
+
+● Vou ler os docs e o estado atual do código antes de montar o plano.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Li o CLAUDE.md, o plano mestre, o produto.md, o ADR 0006, o índice de
+  decisões, o fluxo 01-login.md e o código atual: CadastroElegivel, Papeis,
+  VinculoProfessor, Program.cs, o seeder demo e a factory de testes.
+
+  Passo 3: autenticação e autorização (plano de etapas)
+
+  Branch: feat/passo-03-auth, saindo de rodada/eng_03_auth. Um commit por etapa,
+  um PR no fim.
+
+  Rotas: tudo em /api/v1/.... O /health e o /ready continuam onde estão.
+
+  O plano depende das decisões em aberto listadas no fim. Em cada uma indiquei o
+  que recomendo. As etapas abaixo já assumem as recomendações; se você escolher
+  outra opção, eu ajusto o plano antes de começar.
+
+  Etapas
+
+  E1. Registrar as decisões do passo (docs)
+  - Entrega: as respostas às perguntas abaixo gravadas nos docs: linhas novas em
+    docs/decisoes/README.md, a regra do arroba em produto.md 2.3 e um fluxo
+    novo docs/fluxos/06-recuperacao-de-senha.md.
+  - Aceite: nenhuma etapa seguinte usa uma regra que não esteja escrita. Texto
+    sem travessão.
+
+  E2. Domínio: usuário e arroba (TDD, sem banco)
+  - Entrega:
+    - Usuario, ligado 1:1 a um CadastroElegivel.
+    - Arroba, com geração a partir do nome completo, na ordem: primeiro e último
+      nome, depois com o nome do meio, depois com número sequencial.
+    - Sufixo derivado do papel: sigla do curso, -EX, -PROF ou -UNIMAX.
+    - Troca de sufixo e edição do prefixo, com reserva permanente do arroba
+      antigo.
+    - Validação do formato do prefixo e regra de senha.
+  - Aceite:
+    - Testes xUnit cobrem: acento e partículas na geração, cada caso de colisão,
+      os quatro sufixos, a conta professor+instituição saindo com -PROF, a
+      passagem para ex-aluno, a troca de curso e a comparação sem diferenciar
+      maiúsculas.
+    - Os testes de arquitetura continuam verdes, com Domain sem dependência
+      nenhuma.
+
+  E3. Domínio: sessão e recuperação (TDD, com TimeProvider falso)
+  - Entrega:
+    - FamiliaDeSessao com os refresh tokens: emitir, rotacionar, detectar reuso
+      (que revoga a família inteira), expirar e revogar no logout.
+    - RecuperacaoDeSenha, com token de uso único e prazo de validade.
+  - Aceite: testes cobrem a sequência do ADR 0006 (R1, R2, R1 de novo revoga a
+    família), token expirado, token revogado, reset usado duas vezes, e reset
+    que revoga todas as famílias do usuário.
+
+  E4. Persistência e migration
+  - Entrega:
+    - Tabelas usuario, arroba, familia_sessao, refresh_token e
+      recuperacao_senha.
+    - Índice único em usuario.cadastro_elegivel_id (um RA, uma conta) e em
+      arroba com citext.
+    - Refresh e reset guardados só como hash SHA-256, nunca o valor em claro.
+  - Aceite:
+    - Migration criada e aplicada pelo contêiner migrator.
+    - Testes com Testcontainers provam que a segunda conta para o mesmo cadastro
+      é recusada pelo banco, que dois cadastros simultâneos disputando o mesmo
+      arroba deixam um só vencedor, e que um arroba reservado não pode ser
+      tomado por outra pessoa.
+
+  E5. Infraestrutura de autenticação
+  - Entrega:
+    - Hasher Argon2id.
+    - Emissão e validação de JWT, com a chave lida de variável de ambiente.
+    - TimeProvider registrado.
+    - Validação de entrada na borda com o AddValidation() nativo.
+    - Erros de domínio e de validação mapeados para ProblemDetails.
+    - ForwardedHeaders atrás do Caddy.
+    - Esquema bearer no OpenAPI.
+    - Variáveis novas no .env.example e no compose.
+  - Aceite:
+    - A API não sobe sem a chave fora de Development e Test.
+    - Token expirado ou com assinatura errada responde 401 em ProblemDetails.
+    - O hash roda com os parâmetros escolhidos.
+    - Um teste prova que senha não aparece em log.
+
+  E6. Cadastro
+  - Entrega:
+    - Sugestão de arroba (POST /v1/auth/cadastro/sugestao, com RA e e-mail).
+    - Consulta de disponibilidade do prefixo.
+    - POST /v1/auth/cadastro.
+    - RA e e-mail conferidos na mesma linha do cadastro elegível. RA que já tem
+      conta responde 409 com um código que o cliente usa para levar à
+      recuperação de senha.
+    - OpenAPI e cliente regenerados.
+  - Aceite: testes de integração cobrem: par RA e e-mail válido; RA de uma linha
+    com e-mail de outra (resposta genérica que não revela qual dos dois errou);
+    segunda conta; arroba ocupado; arroba reservado; e o cadastro já devolvendo
+    sessão.
+
+  E7. Login, refresh e logout
+  - Entrega:
+    - POST /v1/auth/login: aluno por RA ou e-mail, professor e instituição só
+      por e-mail.
+    - POST /v1/auth/refresh e POST /v1/auth/logout.
+    - Na web, o refresh vai em cookie HttpOnly; Secure; SameSite=Strict; 
+      Path=/api/v1/auth. No nativo, vai no corpo. A distinção é por um cabeçalho
+      de cliente.
+  - Aceite:
+    - Credencial errada e usuário inexistente dão a mesma resposta, e o tempo é
+      igualado com um hash fictício.
+    - O reuso de R1 revoga a família e responde 401.
+    - Depois do logout, o refresh dá 401.
+    - Ex-aluno continua entrando.
+    - O caso professor por RA é recusado.
+
+  E8. Papéis e escopo de turma
+  - Entrega:
+    - Policies por papel.
+    - GET /v1/eu, que devolve papéis e arroba, para exercitar a autenticação.
+    - IEscopoDeTurma.ProfessorLecionaAsync(usuarioId, turmaId), consultando
+      vinculo_professor no banco, só para o semestre vigente em
+      America/Sao_Paulo.
+    - Seed demo cria as contas de professor e instituição (ver P1).
+  - Aceite:
+    - Testes cobrem: professor com vínculo dá verdadeiro; turma de outro
+      semestre dá falso; vínculo removido tem efeito no request seguinte com o
+      mesmo token.
+    - O token não carrega turma nenhuma (teste inspeciona as claims).
+    - Rota de instituição chamada por aluno dá 403.
+
+  E9. Recuperação de senha
+  - Entrega:
+    - POST /v1/auth/recuperacao, que sempre responde 202.
+    - POST /v1/auth/recuperacao/confirmar.
+    - Abstração IEmailSender, implementação SMTP e Mailpit no compose local.
+    - Envio fora do request.
+  - Aceite:
+    - E-mail existente e inexistente dão a mesma resposta.
+    - Token é de uso único e expira.
+    - Senha nova revoga todas as sessões.
+    - Teste captura o e-mail com um sender falso.
+    - Nenhum token aparece em log.
+
+  E10. Modo de demonstração
+  - Entrega:
+    - DemoOptions.Habilitada, false por padrão e ausente de todos os
+      appsettings*.json.
+    - GET /v1/demo, POST /v1/demo/alunos (nome e curso) e POST /v1/demo/entrar
+      (chave do dispositivo).
+    - Usuário demo marcado por flag e por lote.
+  - Aceite:
+    - Com a flag desligada, as três rotas dão 404 (iguais a uma rota
+      inexistente).
+    - Um teste lê os appsettings*.json versionados e falha se a chave existir.
+    - Com a flag ligada, o aluno demo entra na turma do curso escolhido, recebe
+      sessão e volta pela chave.
+
+  E11. Limite de taxa
+  - Entrega: limitador nativo, por réplica, com policies de login, cadastro,
+    recuperação e registro demo, e a policy de upload declarada.
+  - Aceite:
+    - Testes mostram 429 em ProblemDetails, com Retry-After, ao passar de cada
+      limite.
+    - A chave usa o IP real vindo do X-Forwarded-For do Caddy.
+    - O limite de demo não bloqueia uma banca inteira atrás de um mesmo IP de
+      celular roteado.
+
+  Fechamento do PR: testes verdes, dotnet format e lint limpos, migration
+  aplicada, OpenAPI sem diferença, e docs/fluxos/01-login.md atualizado com os
+  códigos HTTP (o próprio doc deixa isso para o passo 3).
+
+  Decisões em aberto
+
+  Nenhuma delas está nos docs. Para cada uma, a recomendação vem primeiro.
+
+  1. Professor e instituição: como entram?
+     - Recomendo: não se autocadastram. O seed cria a conta sem senha, e o
+       primeiro acesso é pela recuperação de senha, que prova a posse do e-mail.
+     - Alternativa: autocadastro só com o e-mail. Sem verificação de e-mail na
+       fase 1, quem souber o e-mail de um professor toma a conta dele.
+  2. Unicidade do arroba:
+     - Recomendo: pelo prefixo, sem diferenciar maiúsculas.
+       - A troca automática de sufixo (curso ou ex-aluno) nunca colide.
+       - A reserva fica trivial.
+       - Custo: a pessoa com duas contas (pós e docente) recebe um prefixo
+         diferente na segunda.
+     - Alternativa: unicidade pelo arroba completo. Nesse caso preciso de uma
+       regra para quando a troca automática colidir com o arroba de outra
+       pessoa.
+  3. Editar o prefixo no perfil também reserva o antigo?
+     - Recomendo: sim, o antigo fica reservado ao dono. Assim um link antigo não
+       passa a apontar para outra pessoa.
+  4. Formato do prefixo:
+     - Recomendo: letras ASCII e dígitos, de 3 a 30 caracteres, começando por
+       letra.
+     - Na geração: acentos removidos e as partículas da/de/do/das/dos/e
+       ignoradas (Maria da Silva vira mariaSilva). O nome do meio é o primeiro
+       deles.
+  5. Validade dos tokens:
+     - Recomendo: access de 15 minutos. Refresh de 30 dias, renovado a cada
+       rotação, sem teto absoluto na fase 1.
+     - Token de reset de 30 minutos, de uso único.
+  6. Assinatura do JWT:
+     - Recomendo: HS256, com uma chave em variável de ambiente compartilhada
+       pelas duas réplicas. Assimétrica não traz ganho, porque só a API valida o
+       token.
+  7. E-mail:
+     - Recomendo: SMTP genérico (MailKit), com Mailpit no compose local. O
+       provedor da VPS fica para o passo 13.
+     - O envio roda num BackgroundService em memória e migra para a fila do
+       Postgres quando ela nascer no passo 6. Perder um e-mail num restart é
+       aceitável, porque o usuário pede de novo.
+  8. Senha e Argon2id:
+     - Recomendo: mínimo de 8 e máximo de 128 caracteres, sem regra de
+       composição (linha do NIST).
+     - Biblioteca Konscious.Security.Cryptography (dependência nova), com os
+       parâmetros do OWASP: m=19 MiB, t=2, p=1.
+  9. Limites de taxa:
+     - Recomendo:
+
+  | Rota                   | Limite
+    |
+  |------------------------|----------------------------------------------------
+  ---|
+  | Login                  | 5 por minuto por identificador e 30 por minuto por
+  IP |
+  | Cadastro e recuperação | 3 a cada 15 minutos por e-mail ou RA
+    |
+  | Registro demo          | 60 por hora por IP
+    |
+
+     - O registro demo é alto de propósito, porque a banca entra toda pelo mesmo
+       celular roteado.
+     - Cadastro e recuperação não constam nos docs; incluí porque disparam
+       e-mail e consulta à base.
+     - Upload: a policy fica declarada agora, mas é aplicada e testada no passo
+       7, onde o endpoint nasce.
+  10. Demonstração no passo 3:
+      - Recomendo: a API de registro fica aqui e a tela no passo 5.
+      - Volta sem senha: o registro devolve uma chave aleatória do dispositivo,
+        guardada com hash no banco, e é ela que a "lembrança local" guarda.
+      - Foto opcional: fica para o passo 7.
+      - Lote: um valor de configuração Demo__Lote, gravado em cada usuário demo.
+      - Cadastro e turmas: o aluno demo ganha um CadastroElegivel marcado como
+        demo, com RA gerado, porque a Matricula aponta para o cadastro. Ele é
+        matriculado nas turmas do curso no semestre vigente.
+  11. Termo de uso:
+      - Recomendo: deixar o campo de versão aceita para o passo 5, junto com a
+        tela. Nenhum cliente publicado consome o cadastro ainda, então incluir o
+        campo lá não quebra ninguém.
+
+  Pode responder só pelo número, por exemplo "tudo ok menos 2: completo" ou "9:
+  outros números". Com as respostas, ajusto o plano, e só depois da sua
+  aprovação começa a E1.
+
+✻ Brewed for 2m 51s · done 21:07
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> Plano do passo 3 aprovado como está, onze etapas, um PR da feat/passo-03-auth 
+  para a rodada/eng_03_auth. Tudo ok nas onze decisões, pela recomendação: 1,   
+  professor e instituição não se autocadastram, conta criada pelo seed sem      
+  senha e primeiro acesso pela recuperação de senha. 2, unicidade pelo prefixo  
+  sem diferenciar maiúsculas. 3, editar o prefixo reserva o antigo ao dono. 4,  
+  prefixo com letras ASCII e dígitos, 3 a 30, começando por letra, acentos      
+  removidos e partículas ignoradas. 5, access de 15 minutos, refresh de 30 dias 
+  renovado na rotação, reset de 30 minutos de uso único. 6, HS256 com chave em  
+  variável de ambiente. 7, SMTP com MailKit, Mailpit no compose, envio em       
+  BackgroundService até a fila do passo 6. 8, senha de 8 a 128 sem regra de     
+  composição, Argon2id com Konscious e parâmetros do OWASP. 9, os limites da    
+  tabela, com o de upload só declarado. 10, API de demonstração aqui e tela no  
+  passo 5, chave de dispositivo com hash, lote por configuração, cadastro       
+  elegível marcado como demo. 11, versão do termo aceita no passo 5. Tudo isso  
+  vai para os docs na E1, como você propôs. Começa pela E1 e para para a minha  
+  revisão no fim dela.                                                          
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Branch criada. Agora as edições de docs.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 1 line, removed 1 line
+      66  |---|---|
+      67  | **RA** | Identidade interna do aluno e credencial de login. É
+           dado pessoal: nunca aparece para outros alunos e não é buscáve
+          l |
+      68  | **E-mail institucional** | Vem da base abastecida pela faculd
+          ade. O aluno não escolhe e não edita; só a instituição corrige,
+           pela área web |
+      69 -| **Arroba** | Identificador público e único. Formato `@primeir
+         -oNomeUltimoNome-SUFIXO`. Sufixos: a sigla do curso atual para o
+         - aluno (`@guilhermeGimenes-CC`), `-EX` para o ex-aluno, `-PROF`
+         - para professor (inclusive quando a conta acumula professor e i
+         -nstituição) e `-UNIMAX` para a conta só de instituição. O cadas
+         -tro sugere a partir do nome; em colisão, a sugestão inclui o no
+         -me do meio quando houver e, se ainda colidir, acrescenta número
+         - sequencial. O usuário edita apenas a parte antes do hífen, no 
+         -cadastro e depois no perfil. O sufixo muda sozinho quando o alu
+         -no troca de curso ou é marcado como ex-aluno, e o arroba antigo
+         - fica reservado permanentemente ao dono, sem reuso por terceiro
+         -s. Unicidade sem diferenciar maiúsculas; exibição como o usuári
+         -o escreveu |                                                   
+      69 +| **Arroba** | Identificador público e único. Formato `@primeir
+         +oNomeUltimoNome-SUFIXO`. Sufixos: a sigla do curso atual para o
+         + aluno (`@guilhermeGimenes-CC`), `-EX` para o ex-aluno, `-PROF`
+         + para professor (inclusive quando a conta acumula professor e i
+         +nstituição) e `-UNIMAX` para a conta só de instituição. O cadas
+         +tro sugere a partir do nome; em colisão, a sugestão inclui o no
+         +me do meio quando houver e, se ainda colidir, acrescenta número
+         + sequencial. O usuário edita apenas a parte antes do hífen, no 
+         +cadastro e depois no perfil. O sufixo muda sozinho quando o alu
+         +no troca de curso ou é marcado como ex-aluno, e o arroba antigo
+         + fica reservado permanentemente ao dono, sem reuso por terceiro
+         +s. Unicidade sem diferenciar maiúsculas; exibição como o usuári
+         +o escreveu. Regras de formação na seção 2.3.1 |                
+      70  | **Nome de exibição** | Texto livre, editável, não precisa ser
+           único |
+      71  | **Foto de perfil** | Opcional, de aluno e de professor; segue
+           as mesmas regras de assinatura e de derivadas da foto de post.
+           Sem foto, o avatar são as iniciais |
+      72  
+
+● Update(docs\produto.md)
+  ⎿  Added 19 lines
+      70  | **Nome de exibição** | Texto livre, editável, não precisa ser
+           único |
+      71  | **Foto de perfil** | Opcional, de aluno e de professor; segue
+           as mesmas regras de assinatura e de derivadas da foto de post.
+           Sem foto, o avatar são as iniciais |
+      72  
+      73 +#### 2.3.1 Formação e unicidade do arroba                      
+      74 +                                                               
+      75 +- **A unicidade é do prefixo**, a parte antes do hífen, sem dif
+         +erenciar maiúsculas. O                                         
+      76 +  sufixo não conta: `@anaSouza-CC` e `@anaSouza-SI` não convive
+         +m. Por isso a troca                                            
+      77 +  automática de sufixo (curso novo ou ex-aluno) nunca colide co
+         +m ninguém.                                                     
+      78 +- Consequência aceita: quem tem duas contas (pós-graduando e do
+         +cente) recebe prefixos                                         
+      79 +  diferentes nelas, porque a segunda cai na regra de colisão.  
+      80 +- **Formato do prefixo:** letras ASCII e dígitos, de 3 a 30 car
+         +acteres, começando por                                         
+      81 +  letra. Sem acento, sem cedilha, sem ponto, sem hífen (o hífen
+         + separa o sufixo).                                             
+      82 +- **Sugestão a partir do nome completo:** acentos e cedilha rem
+         +ovidos (`João` vira                                            
+      83 +  `joao`), partículas `da`, `de`, `do`, `das`, `dos` e `e` igno
+         +radas, primeiro nome em                                        
+      84 +  minúsculas e os seguintes com inicial maiúscula. `Maria da Si
+         +lva` vira `mariaSilva`.                                        
+      85 +- **Colisão na sugestão:** primeiro nome e último nome; se ocup
+         +ado, primeiro nome, o                                          
+      86 +  primeiro nome do meio e o último nome; se ainda ocupado, prim
+         +eiro e último nome com                                         
+      87 +  número sequencial a partir de 2 (`mariaSilva2`).             
+      88 +- **Reserva permanente:** todo prefixo que o usuário já teve fi
+         +ca reservado a ele, sem                                        
+      89 +  reuso por terceiros. Vale para a troca automática de sufixo e
+         + também para a edição                                          
+      90 +  do prefixo no perfil. O dono pode voltar a um prefixo antigo 
+         +seu.                                                           
+      91 +                                                               
+      92  ### 2.4 Domínios de e-mail
+      93  
+      94  | Domínio | Quem |
+
+● Update(docs\produto.md)
+  ⎿  Added 9 lines
+      115  Professores são cadastrados a cada semestre, por matéria e tur
+           ma, como já acontece no
+      116  app de chamada da UniMax. Contas de instituição vêm do seed.
+      117  
+      118 +**Professor e instituição não se autocadastram.** O cadastro p
+          +elo app é só do aluno,                                        
+      119 +porque RA e e-mail na mesma linha são a prova de identidade de
+          +le, e professor e                                             
+      120 +instituição não têm RA obrigatório. A conta deles nasce do see
+          +d, já com arroba e sem                                        
+      121 +senha, e o primeiro acesso é pela recuperação de senha: o link
+          + que chega ao e-mail                                          
+      122 +institucional é o que prova a posse da conta. Sem isso, e sem 
+          +verificação de e-mail na                                      
+      123 +fase 1, quem soubesse o e-mail de um professor tomaria a conta
+          + dele.                                                        
+      124 +                                                              
+      125 +**Senha:** de 8 a 128 caracteres, sem regra de composição. Qua
+          +lquer caractere vale.                                         
+      126 +                                                              
+      127  Na fase 1 tudo isso entra por seed. No uso real, por CSV. Não 
+           há integração com o
+      128  sistema acadêmico.
+      129  
+
+● Agora o modo de demonstração (seção 11).
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 14 lines
+      544  - O seed traz os professores dos quatro cursos de demonstração
+            e a conta de instituição
+      545    usada para conceder ao vivo durante a apresentação.
+      546  
+      547 +Como isso se traduz no sistema:                               
+      548 +                                                              
+      549 +- **Lembrança sem senha:** o registro devolve uma chave aleató
+          +ria do dispositivo, que o                                     
+      550 +  app guarda localmente. O banco guarda só o hash dela. Entrar
+          + de novo é apresentar a                                       
+      551 +  chave, que abre uma sessão comum, com o mesmo refresh rotati
+          +vo de qualquer usuário.                                       
+      552 +- **Cadastro do aluno de demonstração:** o registro cria uma l
+          +inha no cadastro elegível                                     
+      553 +  marcada como demonstração, com RA gerado (a matrícula aponta
+          + para o cadastro                                              
+      554 +  elegível), e matricula o aluno nas turmas do curso escolhido
+          + no semestre vigente.                                         
+      555 +- **Lote:** valor de configuração, gravado em cada usuário de 
+          +demonstração criado                                           
+      556 +  enquanto ele vale. É a chave da purga.                      
+      557 +- **Foto opcional:** chega com o upload, no passo 7. Até lá, o
+          + registro é nome e curso.                                     
+      558 +- O registro de demonstração não pede aceite do termo de uso e
+          +nquanto o aceite não                                          
+      559 +  existir, no passo 5.                                        
+      560 +                                                              
+      561  ---
+      562  
+      563  ## 12. Decisões assumidas de propósito
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 35 lines, removed 1 line
+      51  | Versionamento | API em `/v1`, mudanças só aditivas, porque o 
+          app instalado atrasa em relação à API |
+      52  | Plataforma | .NET 10 LTS, com a geração de OpenAPI nativa do 
+          framework |
+      53  | Idioma do código | Domínio em português (`Premio`, `Conquista
+          `, `Turma`, `Contestacao`), técnico em inglês (`Repository`, `H
+          andler`, `Options`) |
+      54 -| Limite de taxa | Em login, upload e registro de demonstração,
+         - com o limitador nativo do ASP.NET Core: por réplica, sem estad
+         -o compartilhado |                                              
+      54 +| Limite de taxa | Em login, upload e registro de demonstração,
+         + com o limitador nativo do ASP.NET Core: por réplica, sem estad
+         +o compartilhado. Também em cadastro e recuperação de senha, que
+         + disparam consulta à base e e-mail. Números na seção Autenticaç
+         +ão |                                                           
+      55 +| Validação de entrada | `AddValidation()` nativo do .NET 10 na
+         + borda; erro de validação e de domínio saem em ProblemDetails |
+      56  
+      57 +## Autenticação                                                
+      58 +                                                               
+      59 +Complementa o [ADR 0006](0006-autenticacao-propria.md) com os n
+         +úmeros e as escolhas que                                       
+      60 +ele deixou abertas. Fechadas no plano do passo 3.              
+      61 +                                                               
+      62 +| Decisão | Detalhe |                                          
+      63 +|---|---|                                                      
+      64 +| Access token | JWT de 15 minutos, com `sub` e papéis; nunca a
+         + lista de turmas |                                             
+      65 +| Assinatura | HS256, com uma chave em variável de ambiente com
+         +partilhada pelas duas réplicas. Assimétrica não traz ganho: só 
+         +a própria API valida o token. Sem a chave, a API não sobe fora 
+         +de desenvolvimento e teste |                                   
+      66 +| Refresh | 30 dias, renovados a cada rotação, sem teto absolut
+         +o na fase 1. Guardado no banco só como hash SHA-256 |          
+      67 +| Refresh na web e no nativo | Na web, cookie `HttpOnly`, `Secu
+         +re`, `SameSite=Strict`, restrito ao caminho de autenticação; no
+         + nativo, no corpo da resposta, para o secure store. O cliente s
+         +e identifica por cabeçalho |                                   
+      68 +| Recuperação de senha | Token aleatório de 30 minutos, uso úni
+         +co, guardado só como hash. A resposta ao pedido é sempre a mesm
+         +a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+         +de refresh do usuário |                                        
+      69 +| Hash de senha | Argon2id com `Konscious.Security.Cryptography
+         +`, parâmetros do OWASP: 19 MiB de memória, 2 iterações, paralel
+         +ismo 1. Login de usuário inexistente calcula um hash fictício, 
+         +para o tempo de resposta não revelar quem tem conta |          
+      70 +| Política de senha | De 8 a 128 caracteres, sem regra de compo
+         +sição, na linha do NIST SP 800-63B |                           
+      71 +| E-mail | SMTP genérico com MailKit; Mailpit no compose local.
+         + Provedor da VPS escolhido no passo 13 |                       
+      72 +| Envio de e-mail | Fora da requisição, num `BackgroundService`
+         + com fila em memória, até a fila do Postgres nascer no passo 6,
+         + quando migra para ela. Perder um e-mail num restart é aceito: 
+         +o usuário pede de novo |                                       
+      73 +| Contas de professor e instituição | Criadas pelo seed, sem se
+         +nha; primeiro acesso pela recuperação de senha. Ver `produto.md
+         +` 2.5 |                                                        
+      74 +| Escopo de turma | Verificado no banco a cada mutação, contra 
+         +`vinculo_professor`, só nas turmas do semestre letivo vigente, 
+         +com a data interpretada em `America/Sao_Paulo`. Fora de semestr
+         +e vigente, o professor não tem escopo |                        
+      75 +| Demonstração | Chave aleatória do dispositivo guardada só com
+         +o hash; lote por configuração; cadastro elegível marcado como d
+         +emonstração. Ver `produto.md` 11 |                             
+      76 +                                                               
+      77 +Limites de taxa, por réplica:                                  
+      78 +                                                               
+      79 +| Rota | Limite |                                              
+      80 +|---|---|                                                      
+      81 +| Login | 5 por minuto por identificador informado e 30 por min
+         +uto por IP |                                                   
+      82 +| Cadastro | 3 a cada 15 minutos por RA |                      
+      83 +| Recuperação de senha | 3 a cada 15 minutos por e-mail |      
+      84 +| Registro de demonstração | 60 por hora por IP. Alto de propós
+         +ito: a banca inteira entra pelo mesmo celular roteado |        
+      85 +| Upload | Policy declarada no passo 3; aplicada e testada no p
+         +asso 7, quando o endpoint nasce |                              
+      86 +                                                               
+      87 +O IP vem do `X-Forwarded-For` posto pelo Caddy, aceito só dele.
+         + Estourado o limite, a                                         
+      88 +resposta é 429 em ProblemDetails, com `Retry-After`.           
+      89 +                                                               
+      90  ## Cliente
+      91  
+      92  | Decisão | Detalhe |
+
+● Agora o fluxo de recuperação de senha e o índice.
+
+● Write(docs\fluxos\06-recuperacao-de-senha.md)
+  ⎿  Wrote 52 lines to docs\fluxos\06-recuperacao-de-senha.md
+       1 # Recuperação de senha e primeiro acesso
+       2 
+       3 O mesmo fluxo serve a dois casos: o aluno que esqueceu a senha e
+          o primeiro acesso de
+       4 professor e instituição, cuja conta nasce do seed sem senha. Imp
+         lementado no passo 3; a
+       5 tela chega no passo 5.
+       6 
+       7 ```mermaid
+       8 sequenceDiagram
+     … +44 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\fluxos\README.md)
+  ⎿  Added 1 line
+      12  | Concessão de medalha com recálculo de conquistas | [`03-conce
+          ssao-de-medalha.md`](03-concessao-de-medalha.md) | 6 e 9 |
+      13  | Contestação de prêmio de participação | [`04-contestacao.md`]
+          (04-contestacao.md) | 8 |
+      14  | Ranking | [`05-ranking.md`](05-ranking.md) | 11 |
+      15 +| Recuperação de senha e primeiro acesso | [`06-recuperacao-de-
+         +senha.md`](06-recuperacao-de-senha.md) | 3 |                   
+      16  
+      17  Convenções dos diagramas, as mesmas dos ADRs:
+      18  
+
+● Update(docs\fluxos\README.md)
+  ⎿  Added 1 line, removed 1 line
+      1  # Fluxos do Maxx
+      2  
+      3 -Diagramas de sequência dos cinco fluxos que atravessam mais de u
+        -ma peça do sistema. São                                         
+      3 +Diagramas de sequência dos seis fluxos que atravessam mais de um
+        +a peça do sistema. São                                          
+      4  o desenho decidido, escrito antes do código: cada passo de cada 
+         diagrama aponta para a
+      5  regra de onde saiu, em `docs/produto.md`, nos ADRs ou em `docs/r
+         egras-conquista.md`.
+      6  Nenhum deles cria regra nova.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E1 está pronta para a sua revisão, sem commit. As onze decisões estão
+  registradas nos docs, na branch feat/passo-03-auth. Não rodei nada sobre os
+  arquivos além de procurar travessões neles, e não há nenhum.
+
+  O que mudou
+
+  - docs/produto.md
+    - 2.3: o arroba remete a uma subseção nova, a 2.3.1. Ela traz a unicidade
+      pelo prefixo e a consequência das duas contas, o formato do prefixo, a
+      regra de sugestão (Maria da Silva vira mariaSilva), a ordem de colisão e a
+      reserva permanente, que vale também para a edição do prefixo.
+    - 2.5: professor e instituição não se autocadastram e fazem o primeiro
+      acesso pela recuperação de senha, com o porquê. Também a política de
+      senha.
+    - 11: como a demonstração vira sistema: chave do dispositivo com hash,
+      cadastro elegível marcado como demonstração com RA gerado, matrícula nas
+      turmas do curso no semestre vigente, lote por configuração, foto só no
+      passo 7.
+  - docs/decisoes/README.md
+    - A linha de limite de taxa passa a incluir cadastro e recuperação.
+    - Linha nova sobre a validação de entrada com AddValidation().
+    - Seção nova "Autenticação", complementando o ADR 0006: tokens, HS256,
+      cookie na web e corpo no nativo, recuperação, Argon2id, senha, e-mail,
+      contas do seed, escopo de turma e demonstração.
+    - A tabela de limites, com a origem do IP e a resposta 429.
+  - docs/fluxos/06-recuperacao-de-senha.md (novo): diagrama de sequência que
+    cobre também o primeiro acesso, com a tabela de onde vem cada passo.
+  - docs/fluxos/README.md: o fluxo 06 entra no índice, e "cinco fluxos" virou
+    "seis".
+
+  Três pontos que escrevi além das suas respostas. Confira se concorda:
+
+  1. Escopo de turma fora do semestre: escrevi que, fora de um semestre letivo
+     vigente (férias), o professor fica sem escopo. Isso é consequência de "só
+     nas turmas do semestre vigente" (produto.md 4.7 e 4.8), mas não estava
+     escrito.
+  2. Prefixo antigo: escrevi que o dono pode voltar a um prefixo antigo dele. Me
+     pareceu o sentido natural de "reservado ao dono".
+  3. Termo de uso na demonstração: escrevi que o registro de demonstração não
+     pede aceite do termo até o passo 5.
+
+  Mensagem de commit proposta, sem rodapé de co-autoria:
+
+  docs(docs): registra as decisões de autenticação do passo 3
+
+  Ajusto o que você pedir e faço o commit depois do seu ok. Aí sigo para a E2.
+✻ Churned for 1m 39s · done 21:10

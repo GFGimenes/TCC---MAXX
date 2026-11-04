@@ -2,7 +2,7 @@ ID: eng_03_auth
 Trilha: engenheiro
 Tela: passo 3 do plano mestre (autenticação e autorização; sem tela)
 Data: 2026-11-02
-Origem: texto do Cowork (Anthropic) no molde dos passos 1 e 2, aprovado pelo autor. Sessão nova na `rodada/eng_03_auth` (saída da `main` em `a84a868`). Ambiente conferido com `/model` antes do primeiro prompt (ver registro da rodada).
+Origem: texto do Cowork (Anthropic) no molde dos passos 1 e 2, aprovado pelo autor. Sessão nova na `rodada/eng_03_auth` (saída da `main` em `a84a868`). Ambiente: o cabeçalho da sessão mostra Claude Code v2.1.316 (o CLI atualizou apesar de `DISABLE_AUTOUPDATER=1`; ver `r1`); `/model` antes do primeiro prompt manteve Opus 5.5.
 
 Notas de registro:
 - O prompt relembra o que fecha o passo pelo plano mestre, sem acrescentar regra nova.

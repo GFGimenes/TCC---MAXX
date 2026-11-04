@@ -1,0 +1,12 @@
+ID: eng_03_auth-r1
+Trilha: engenheiro
+Tela: passo 3 (resposta 1 do autor: aprovação do plano de onze etapas e onze decisões pedidas pelo agente)
+Data: 2026-11-03
+Origem: leitura do Cowork (Anthropic) do export da sessão; decisões do autor pela recomendação do agente; redigida pelo Cowork, o autor revisou.
+
+Notas de registro:
+- Ambiente: o cabeçalho da sessão mostra Claude Code v2.1.316, não a 2.1.308 fixada; o CLI atualizou entre a `eng_02_dados` (fim em 03/11 02:20 UTC) e esta sessão, apesar de `DISABLE_AUTOUPDATER=1` (a instalação pode ter vindo de outra janela sem a variável). O `/model` na abertura registrou "Kept model as Opus 5.5"; o cabeçalho mostra "Opus 5.5" sem "(1M context)" (na `eng_02` mostrava com). Decisão do autor, com recomendação do Cowork: seguir com a 2.1.316 declarada a partir desta rodada, já que modelo e esforço são o que se compara; esforço confirmado no `.jsonl` no fechamento.
+- O agente leu CLAUDE.md, plano mestre, produto, ADR 0006, índice de decisões, fluxo 01 e o código do passo 2; propôs onze etapas (docs das decisões; domínio de usuário e arroba; sessão e recuperação; persistência; infraestrutura de auth; cadastro; login/refresh/logout; papéis e escopo; recuperação de senha; modo de demonstração; limite de taxa) e onze decisões, cada uma com recomendação. O autor aceitou as onze recomendações.
+
+---
+Plano do passo 3 aprovado como está, onze etapas, um PR da feat/passo-03-auth para a rodada/eng_03_auth. Tudo ok nas onze decisões, pela recomendação: 1, professor e instituição não se autocadastram, conta criada pelo seed sem senha e primeiro acesso pela recuperação de senha. 2, unicidade pelo prefixo sem diferenciar maiúsculas. 3, editar o prefixo reserva o antigo ao dono. 4, prefixo com letras ASCII e dígitos, 3 a 30, começando por letra, acentos removidos e partículas ignoradas. 5, access de 15 minutos, refresh de 30 dias renovado na rotação, reset de 30 minutos de uso único. 6, HS256 com chave em variável de ambiente. 7, SMTP com MailKit, Mailpit no compose, envio em BackgroundService até a fila do passo 6. 8, senha de 8 a 128 sem regra de composição, Argon2id com Konscious e parâmetros do OWASP. 9, os limites da tabela, com o de upload só declarado. 10, API de demonstração aqui e tela no passo 5, chave de dispositivo com hash, lote por configuração, cadastro elegível marcado como demo. 11, versão do termo aceita no passo 5. Tudo isso vai para os docs na E1, como você propôs. Começa pela E1 e para para a minha revisão no fim dela.
