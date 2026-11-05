@@ -13,3 +13,5 @@ Notas de registro:
 
 ---
 E8 aprovada. Os três desvios ficam: rotas só no host de teste, calendário em volta da data real nos testes de escopo, repositório em memória nos dois testes da E5. As três decisões aceitas: exigência de login no grupo /v1 e não em FallbackPolicy, /v1/eu lendo do banco, seed criando conta para toda linha de professor e instituição. Commita com a mensagem proposta, push, e segue para a E9; para para a minha revisão no fim dela.
+
+Nota posterior (E9, 04/11): o disco C: do computador do autor chegou a 0 GB livres durante a E9. O agente parou antes de fechar a etapa, sem commit, diagnosticou (falhas em suítes não tocadas, `npm run gerar` sem gravar, `git` sem conseguir criar `index.lock`, `dotnet format` removendo um `using` necessário e `git checkout` falhando ao restaurar), apontou que o disco virtual do Docker tem 11,4 GB e que o restante é da máquina, e não liberou nada sozinho porque as imagens podem ser de outros projetos. O autor liberou espaço fora do experimento e mandou uma mensagem curta de retomada (não contada como prompt numerado). O reinício do Docker Desktop na E8 teve provavelmente a mesma causa.
