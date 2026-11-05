@@ -1834,3 +1834,929 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
   refresh no cliente como item obrigatório do passo 5 no plano-mestre.md.
 
 ✻ Cooked for 13m 49s · done 21:06
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt          ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E8 aprovada. Os três desvios ficam: rotas só no host de teste, calendário em  
+  volta da data real nos testes de escopo, repositório em memória nos dois      
+  testes da E5. As três decisões aceitas: exigência de login no grupo /v1 e não 
+  em FallbackPolicy, /v1/eu lendo do banco, seed criando conta para toda linha  
+  de professor e instituição. Commita com a mensagem proposta, push, e segue    
+  para a E9; para para a minha revisão no fim dela.                             
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● E8 is committed and pushed (27a3a2c). Starting E9, password recovery. I'm
+  reading the recovery domain and flow 06 first.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The design is clear from flow 06 and the decisions README. Adding MailKit and
+  checking the Mailpit image first.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet add apps/api/src/Maxx.Infrastructure package MailKit 2>&1 | tail
+      -2; grep -n "Mail…)
+  ⎿  info : Gravando o arquivo de ativos no disco. Caminho: C:\Users\Guilhe
+     rme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\api\src\Maxx.Infr
+     astructure\obj\project.assets.json
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated Directory.Packages.props (+23 -22)
+       1 -<Project>                                                      
+       2 -  <PropertyGroup>                                              
+       3 -    <ManagePackageVersionsCentrally>true</ManagePackageVersions
+         -Centrally>                                                     
+       4 -    <CentralPackageTransitivePinningEnabled>true</CentralPackag
+         -eTransitivePinningEnabled>                                     
+       5 -  </PropertyGroup>                                             
+       6 -  <ItemGroup>                                                  
+       7 -    <PackageVersion Include="EFCore.NamingConventions" Version=
+         -"10.0.1" />                                                    
+       8 -    <PackageVersion Include="Konscious.Security.Cryptography.Ar
+         -gon2" Version="1.3.1" />                                       
+       9 -    <PackageVersion Include="Microsoft.AspNetCore.Authenticatio
+         -n.JwtBearer" Version="10.0.14" />                              
+      10 -    <!-- O provedor Npgsql puxa um EF Core mais antigo que o De
+         -sign: fixa os dois juntos. -->                                 
+      11 -    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Vers
+         -ion="10.0.14" />                                               
+      12 -    <PackageVersion Include="Microsoft.EntityFrameworkCore" Ver
+         -sion="10.0.14" />                                              
+      13 -    <PackageVersion Include="Microsoft.EntityFrameworkCore.Rela
+         -tional" Version="10.0.14" />                                   
+      14 -    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" 
+         -Version="10.0.14" />                                           
+      15 -    <PackageVersion Include="Microsoft.EntityFrameworkCore.Desi
+         -gn" Version="10.0.14" />                                       
+      16 -    <PackageVersion Include="Microsoft.Extensions.ApiDescriptio
+         -n.Server" Version="10.0.14" />                                 
+      17 -    <PackageVersion Include="Microsoft.Extensions.Diagnostics.H
+         -ealthChecks" Version="10.0.14" />                              
+      18 -    <PackageVersion Include="Npgsql.DependencyInjection" Versio
+         -n="10.0.3" />                                                  
+      19 -    <PackageVersion Include="Npgsql.EntityFrameworkCore.Postgre
+         -SQL" Version="10.0.3" />                                       
+      20 -    <PackageVersion Include="Testcontainers.PostgreSql" Version
+         -="4.16.0" />                                                   
+      21 -    <PackageVersion Include="xunit.v3" Version="4.0.2" />      
+      22 -  </ItemGroup>                                                 
+       1 +<Project>                                                      
+       2 +  <PropertyGroup>                                              
+       3 +    <ManagePackageVersionsCentrally>true</ManagePackageVersions
+         +Centrally>                                                     
+       4 +    <CentralPackageTransitivePinningEnabled>true</CentralPackag
+         +eTransitivePinningEnabled>                                     
+       5 +  </PropertyGroup>                                             
+       6 +  <ItemGroup>                                                  
+       7 +    <PackageVersion Include="EFCore.NamingConventions" Version=
+         +"10.0.1" />                                                    
+       8 +    <PackageVersion Include="Konscious.Security.Cryptography.Ar
+         +gon2" Version="1.3.1" />                                       
+       9 +    <PackageVersion Include="MailKit" Version="4.18.2" />      
+      10 +    <PackageVersion Include="Microsoft.AspNetCore.Authenticatio
+         +n.JwtBearer" Version="10.0.14" />                              
+      11 +    <!-- O provedor Npgsql puxa um EF Core mais antigo que o De
+         +sign: fixa os dois juntos. -->                                 
+      12 +    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Vers
+         +ion="10.0.14" />                                               
+      13 +    <PackageVersion Include="Microsoft.EntityFrameworkCore" Ver
+         +sion="10.0.14" />                                              
+      14 +    <PackageVersion Include="Microsoft.EntityFrameworkCore.Rela
+         +tional" Version="10.0.14" />                                   
+      15 +    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" 
+         +Version="10.0.14" />                                           
+      16 +    <PackageVersion Include="Microsoft.EntityFrameworkCore.Desi
+         +gn" Version="10.0.14" />                                       
+      17 +    <PackageVersion Include="Microsoft.Extensions.ApiDescriptio
+         +n.Server" Version="10.0.14" />                                 
+      18 +    <PackageVersion Include="Microsoft.Extensions.Diagnostics.H
+         +ealthChecks" Version="10.0.14" />                              
+     … 6 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Maxx.Infrastructure.csproj
+     (+1 -0)
+       8    <ItemGroup>
+       9      <PackageReference Include="EFCore.NamingConventions" />
+      10      <PackageReference Include="Konscious.Security.Cryptography.
+          Argon2" />
+      11 +    <PackageReference Include="MailKit" />                     
+      12      <PackageReference Include="Microsoft.EntityFrameworkCore.De
+          sign">
+      13        <IncludeAssets>runtime; build; native; contentfiles; anal
+          yzers; buildtransitive</IncludeAssets>
+      14        <PrivateAssets>all</PrivateAssets>
+  ⎿  (timeout 5m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● MailKit 4.18.2 is added, and Mailpit is pinned to v1.33.0. Writing the
+  Application side: ports, e-mail message and the recovery handler.
+
+● Write(apps\api\src\Maxx.Application\Email.cs)
+  ⎿  Wrote 21 lines to apps\api\src\Maxx.Application\Email.cs
+       1 namespace Maxx.Application;
+       2 
+       3 // Um e-mail pronto para sair. O texto pode levar segredo (o lin
+         k de recuperação): nunca
+       4 // vai para log, nem pelo ToString.
+       5 public sealed record MensagemDeEmail(string Para, string Assunto
+         , string Texto)
+       6 {
+       7     public override string ToString() => $"MensagemDeEmail {{ As
+         sunto = {Assunto} }}";
+     … +14 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && node -e '
+      const fs=require("fs");const p="Maxx.Application/Autenticacao/Repo…)
+  ⎿  1
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\CodigosDeRecusa.cs
+     (+4 -0)
+      23      // Refresh ausente, desconhecido, expirado, de família revo
+          gada ou reusado: em todos os
+      24      // casos o cliente volta ao login.
+      25      public const string SessaoInvalida = "sessao-invalida";
+      26 +                                                               
+      27 +    // Token de recuperação desconhecido, expirado, já usado ou
+         + invalidado por outro pedido                                   
+      28 +    // concluído: em todos os casos o cliente oferece pedir um 
+         +link novo.                                                     
+      29 +    public const string RecuperacaoInvalida = "recuperacao-inva
+         +lida";                                                         
+      30  }
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\Repositories.cs
+     (+17 -0)
+       8      // A linha de aluno em que RA e e-mail estão juntos, com o 
+          curso dela. E-mail sem
+       9      // diferenciar maiúsculas.
+      10      Task<(CadastroElegivel Cadastro, Curso Curso)?> BuscarAluno
+          Async(string ra, string email, CancellationToken cancellationTo
+          ken);
+      11 +                                                               
+      12 +    // O e-mail como a faculdade o gravou, para onde vai a recu
+         +peração de senha.                                              
+      13 +    Task<string> EmailAsync(Guid cadastroElegivelId, Cancellati
+         +onToken cancellationToken);                                    
+      14  }
+      15  
+      16  public interface IUsuarioRepository
+     ...
+      39      // A família dona do refresh com este hash, carregada só co
+          m esse token: é o que a
+      40      // rotação e o logout precisam, e a família ganha um token 
+          a cada renovação.
+      41      Task<FamiliaDeSessao?> BuscarPorRefreshAsync(string hashDoR
+          efresh, CancellationToken cancellationToken);
+      42 +                                                               
+      43 +    // As famílias ainda não revogadas do usuário, sem os token
+         +s: a senha redefinida revoga                                   
+      44 +    // todas.                                                  
+      45 +    Task<IReadOnlyList<FamiliaDeSessao>> AtivasDoUsuarioAsync(G
+         +uid usuarioId, CancellationToken cancellationToken);           
+      46 +}                                                              
+      47 +                                                               
+      48 +public interface IRecuperacaoDeSenhaRepository                 
+      49 +{                                                              
+      50 +    void Adicionar(RecuperacaoDeSenha recuperacao);            
+      51 +                                                               
+      52 +    Task<RecuperacaoDeSenha?> BuscarPorHashAsync(string hash, C
+         +ancellationToken cancellationToken);                           
+      53 +                                                               
+      54 +    // Os pedidos do usuário ainda não usados nem invalidados, 
+         +que a conclusão invalida.                                      
+      55 +    Task<IReadOnlyList<RecuperacaoDeSenha>> PendentesDoUsuarioA
+         +sync(Guid usuarioId, CancellationToken cancellationToken);     
+      56  }
+
+● Now the handler.
+
+● Write(apps\api\src\Maxx.Application\Autenticacao\Recuperacao\RecuperacaoHandle
+       r.cs)
+  ⎿  Wrote 121 lines to apps\api\src\Maxx.Application\Autenticacao\Recupera
+     cao\RecuperacaoHandler.cs
+       1 using Maxx.Domain;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Application.Autenticacao.Recuperacao;
+       5 
+       6 // Recuperação de senha e primeiro acesso de quem vem do seed
+       7 // (fluxos/06-recuperacao-de-senha.md).
+       8 public sealed class RecuperacaoHandler(
+       9     IUsuarioRepository usuarios,
+      10     ICadastroElegivelRepository cadastros,
+     … +111 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet add apps/api/src/Maxx.Infrastructure package
+      Microsoft.Extensions.Hosting.Abstract…)
+  ⎿  19:    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstracti
+     ons" Version="10.0.14" />
+  ⎿  Updated Directory.Packages.props (+1 -0)
+      16      <PackageVersion Include="Microsoft.EntityFrameworkCore.Desi
+          gn" Version="10.0.14" />
+      17      <PackageVersion Include="Microsoft.Extensions.ApiDescriptio
+          n.Server" Version="10.0.14" />
+      18      <PackageVersion Include="Microsoft.Extensions.Diagnostics.H
+          ealthChecks" Version="10.0.14" />
+      19 +    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstr
+         +actions" Version="10.0.14" />                                  
+      20      <PackageVersion Include="Npgsql.DependencyInjection" Versio
+          n="10.0.3" />
+      21      <PackageVersion Include="Npgsql.EntityFrameworkCore.Postgre
+          SQL" Version="10.0.3" />
+      22      <PackageVersion Include="Testcontainers.PostgreSql" Version
+          ="4.16.0" />
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Maxx.Infrastructure.csproj
+     (+1 -0)
+      14        <PrivateAssets>all</PrivateAssets>
+      15      </PackageReference>
+      16      <PackageReference Include="Microsoft.Extensions.Diagnostics
+          .HealthChecks" />
+      17 +    <PackageReference Include="Microsoft.Extensions.Hosting.Abs
+         +tractions" />                                                  
+      18      <PackageReference Include="Npgsql.DependencyInjection" />
+      19      <PackageReference Include="Npgsql.EntityFrameworkCore.Postg
+          reSQL" />
+      20    </ItemGroup>
+
+● Now the Infrastructure e-mail pieces: in-memory queue, background sender, SMTP
+  with MailKit.
+
+● Write(apps\api\src\Maxx.Infrastructure\Email\EnvioDeEmail.cs)
+  ⎿  Wrote 122 lines to
+     apps\api\src\Maxx.Infrastructure\Email\EnvioDeEmail.cs
+       1 using System.Threading.Channels;
+       2 using Maxx.Application;
+       3 using MailKit.Net.Smtp;
+       4 using MailKit.Security;
+       5 using Microsoft.Extensions.Hosting;
+       6 using Microsoft.Extensions.Logging;
+       7 using Microsoft.Extensions.Options;
+       8 using MimeKit;
+       9 
+      10 namespace Maxx.Infrastructure.Email;
+     … +112 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && node -e '
+      const fs=require("fs");…)
+  ⎿  ok
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Autenticacao\Repositories.cs
+     (+24 -0)
+      20  
+      21          return encontrado is null ? null : (encontrado.cadastro
+          , encontrado.curso);
+      22      }
+      23 +                                                               
+      24 +    public Task<string> EmailAsync(Guid cadastroElegivelId, Can
+         +cellationToken cancellationToken) =>                           
+      25 +        db.Set<CadastroElegivel>()                             
+      26 +            .Where(cadastro => cadastro.Id == cadastroElegivelI
+         +d)                                                             
+      27 +            .Select(cadastro => cadastro.Email)                
+      28 +            .SingleAsync(cancellationToken);                   
+      29  }
+      30  
+      31  internal sealed class UsuarioRepository(MaxxDbContext db) : IUs
+          uarioRepository
+     ...
+      74              .Include(familia => familia.Tokens.Where(token => t
+          oken.Hash == hashDoRefresh))
+      75              .Where(familia => familia.Tokens.Any(token => token
+          .Hash == hashDoRefresh))
+      76              .SingleOrDefaultAsync(cancellationToken);
+      77 +                                                               
+      78 +    public async Task<IReadOnlyList<FamiliaDeSessao>> AtivasDoU
+         +suarioAsync(Guid usuarioId, CancellationToken cancellationToken
+         +) =>                                                           
+      79 +        await db.Set<FamiliaDeSessao>()                        
+      80 +            .Where(familia => familia.UsuarioId == usuarioId &&
+         + familia.RevogadaEm == null)                                   
+      81 +            .ToListAsync(cancellationToken);                   
+      82 +}                                                              
+      83 +                                                               
+      84 +internal sealed class RecuperacaoDeSenhaRepository(MaxxDbContex
+         +t db) : IRecuperacaoDeSenhaRepository                          
+      85 +{                                                              
+      86 +    public void Adicionar(RecuperacaoDeSenha recuperacao) => db
+         +.Add(recuperacao);                                             
+      87 +                                                               
+      88 +    public Task<RecuperacaoDeSenha?> BuscarPorHashAsync(string 
+         +hash, CancellationToken cancellationToken) =>                  
+      89 +        db.Set<RecuperacaoDeSenha>().SingleOrDefaultAsync(recup
+         +eracao => recuperacao.Hash == hash, cancellationToken);        
+      90 +                                                               
+      91 +    public async Task<IReadOnlyList<RecuperacaoDeSenha>> Penden
+         +tesDoUsuarioAsync(Guid usuarioId, CancellationToken cancellatio
+         +nToken) =>                                                     
+      92 +        await db.Set<RecuperacaoDeSenha>()                     
+      93 +            .Where(recuperacao => recuperacao.UsuarioId == usua
+         +rioId && recuperacao.UsadaEm == null && recuperacao.InvalidadaE
+         +m == null)                                                     
+      94 +            .ToListAsync(cancellationToken);                   
+      95  }
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+8 
+     -0)
+      3  using Maxx.Application.Autorizacao;
+      4  using Maxx.Infrastructure.Autenticacao;
+      5  using Maxx.Infrastructure.Autorizacao;
+      6 +using Maxx.Infrastructure.Email;                                
+      7  using Maxx.Infrastructure.Persistence;
+      8  using Maxx.Infrastructure.Seed;
+      9  using Microsoft.EntityFrameworkCore;
+     ...
+      34          services.AddScoped<IUsuarioRepository, UsuarioRepositor
+          y>();
+      35          services.AddScoped<IFamiliaDeSessaoRepository, FamiliaD
+          eSessaoRepository>();
+      36          services.AddScoped<IEscopoDeTurma, EscopoDeTurma>();
+      37 +        services.AddScoped<IRecuperacaoDeSenhaRepository, Recup
+         +eracaoDeSenhaRepository>();                                    
+      38 +                                                               
+      39 +        // E-mail fora da requisição. As opções (EmailOptions) 
+         +vêm da borda.                                                  
+      40 +        services.AddSingleton<FilaDeEmailEmMemoria>();         
+      41 +        services.AddSingleton<IFilaDeEmail>(provider => provide
+         +r.GetRequiredService<FilaDeEmailEmMemoria>());                 
+      42 +        services.AddSingleton<IEmailSender, SmtpEmailSender>();
+      43 +        services.AddHostedService<EnvioDeEmailService>();      
+      44  
+      45          // Toda verificação registrada aqui entra no /ready.
+      46          services.AddHealthChecks()
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\RecuperacaoEndpoints.cs)
+  ⎿  Wrote 61 lines to
+     apps\api\src\Maxx.Api\Autenticacao\RecuperacaoEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using Maxx.Application.Autenticacao.Recuperacao;
+       3 using Microsoft.AspNetCore.Http.HttpResults;
+       4 
+       5 namespace Maxx.Api.Autenticacao;
+       6 
+       7 // Recuperação de senha e primeiro acesso (fluxos/06-recuperacao
+         -de-senha.md).
+       8 internal static class RecuperacaoEndpoints
+       9 {
+     … +52 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" && node
+      -e '
+      const fs=require("fs");const p="Autenticacao/Autenticacao…)
+  ⎿  108:v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().MapLo
+     ginEndpoints().MapRecuperacaoEndpoints();
+     {
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollecti
+     onExtensions.cs (+28 -0)
+      2  using Maxx.Application.Autenticacao;
+      3  using Maxx.Application.Autenticacao.Cadastro;
+      4  using Maxx.Application.Autenticacao.Login;
+      5 +using Maxx.Application.Autenticacao.Recuperacao;                
+      6 +using Maxx.Infrastructure.Email;                                
+      7  using Microsoft.AspNetCore.Authentication.JwtBearer;
+      8  using Microsoft.IdentityModel.Tokens;
+      9  
+     ...
+      23          builder.Services.AddScoped<LoginHandler>();
+      24          builder.Services.AddScoped<RefreshHandler>();
+      25          builder.Services.AddScoped<LogoutHandler>();
+      26 +        builder.Services.AddScoped<RecuperacaoHandler>();      
+      27 +        builder.Services.AddSingleton<ILinkDoApp>(new LinkDoApp
+         +(LerUrlPublica(builder, exigirChave)));                        
+      28 +        builder.Services.Configure<EmailOptions>(builder.Config
+         +uration.GetSection(EmailOptions.Section));                     
+      29  
+      30          builder.Services.AddAuthentication(JwtBearerDefaults.Au
+          thenticationScheme)
+      31              .AddJwtBearer(options =>
+     ...
+      49          return builder;
+      50      }
+      51  
+      52 +    // Sem ela o link do e-mail de recuperação não teria para o
+         +nde apontar: fora de                                           
+      53 +    // desenvolvimento a API não sobe.                         
+      54 +    private static Uri LerUrlPublica(WebApplicationBuilder buil
+         +der, bool exigir)                                              
+      55 +    {                                                          
+      56 +        var texto = builder.Configuration[$"{LinkDoApp.Section}
+         +:UrlPublica"];                                                 
+      57 +        if (string.IsNullOrWhiteSpace(texto))                  
+      58 +        {                                                      
+      59 +            if (exigir && !builder.Environment.IsDevelopment())
+      60 +            {                                                  
+      61 +                throw new InvalidOperationException($"{LinkDoAp
+         +p.Section}__UrlPublica não configurada: defina a URL pública do
+         + app.");                                                       
+      62 +            }                                                  
+      63 +                                                               
+      64 +            texto = "http://localhost";                        
+      65 +        }                                                      
+      66 +                                                               
+      67 +        if (!Uri.TryCreate(texto.Trim().TrimEnd('/') + "/", Uri
+         +Kind.Absolute, out var url) || url.Scheme is not ("http" or "ht
+         +tps"))                                                         
+      68 +        {                                                      
+      69 +            throw new InvalidOperationException($"{LinkDoApp.Se
+         +ction}__UrlPublica inválida: {texto}.");                       
+      70 +        }                                                      
+      71 +                                                               
+     … 6 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -1)
+      105  // continuar 404 (as rotas da demonstração desligada respondem
+            igual a ela).
+      106  var v1 = api.MapGroup("/v1").RequireAuthorization();
+      107  v1.MapEuEndpoints();
+      108 -v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+          -apLoginEndpoints();                                           
+      108 +v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+          +apLoginEndpoints().MapRecuperacaoEndpoints();                 
+      109  
+      110  if (app.Environment.IsDevelopment())
+      111  {
+  ⎿  Updated apps\api\src\Maxx.Api\appsettings.Development.json (+11 -0)
+       4        "Default": "Information",
+       5        "Microsoft.AspNetCore": "Warning"
+       6      }
+       7 +  },                                                           
+       8 +  "App": {                                                     
+       9 +    "UrlPublica": "http://localhost"                           
+      10 +  },                                                           
+      11 +  "Email": {                                                   
+      12 +    "Remetente": "Maxx <nao-responda@maxx.local>",             
+      13 +    "Smtp": {                                                  
+      14 +      "Host": "localhost",                                     
+      15 +      "Porta": 1025,                                           
+      16 +      "Seguranca": "None"                                      
+      17 +    }                                                          
+      18    }
+      19  }
+  ⎿  (timeout 5m)
+
+● Build is clean. Next: Mailpit in the compose, the API's e-mail and URL
+  settings, and .env.example.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e '
+      const fs=require("fs");let
+      p="docker-compose.yml",s=fs.readFileSync(p,"utf8");…)
+  ⎿  compose-ok
+     9:      App__UrlPublica: http://localhost
+     12:      Email__Remetente: Maxx <nao-responda@maxx.local>
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated .env.example (+12 -0)
+      13  #   openssl rand -base64 48
+      14  # Sem ela a API não sobe. Nunca reutilize a chave da VPS.
+      15  MAXX_JWT_CHAVE=
+      16 +                                                               
+      17 +# URL pública do app, para o link do e-mail de recuperação de s
+         +enha.                                                          
+      18 +MAXX_URL_PUBLICA=http://localhost                              
+      19 +                                                               
+      20 +# SMTP. Vazio, a API manda para o Mailpit do compose, com a cai
+         +xa em                                                          
+      21 +# http://localhost:${MAXX_MAILPIT_PORT}. O provedor da VPS entr
+         +a no passo 13.                                                 
+      22 +MAXX_MAILPIT_PORT=8025                                         
+      23 +MAXX_SMTP_HOST=                                                
+      24 +MAXX_SMTP_PORTA=                                               
+      25 +MAXX_SMTP_SEGURANCA=                                           
+      26 +MAXX_SMTP_USUARIO=                                             
+      27 +MAXX_SMTP_SENHA=                                               
+  ⎿  Updated docker-compose.yml (+18 -1)
+      1 -# Maxx: Postgres, migração, duas réplicas de API e Caddy.       
+      1 +# Maxx: Postgres, migração, duas réplicas de API, Caddy e Mailpi
+        +t.                                                              
+      2  # Uso local: cp .env.example .env && docker compose up --build
+      3  
+      4  name: maxx
+     ...
+      66        Jwt__Chave: ${MAXX_JWT_CHAVE:?defina no .env}
+      67        # X-Forwarded-For só vale vindo da rede interna, onde est
+          á o Caddy.
+      68        Proxy__RedesConfiaveis__0: 172.30.0.0/24
+      69 +      # Para onde aponta o link do e-mail de recuperação de sen
+         +ha.                                                            
+      70 +      App__UrlPublica: ${MAXX_URL_PUBLICA:-http://localhost}   
+      71 +      # SMTP: o Mailpit local por padrão. O provedor da VPS ent
+         +ra no passo 13, pelo .env.                                     
+      72 +      Email__Remetente: ${MAXX_EMAIL_REMETENTE:-Maxx <nao-respo
+         +nda@maxx.local>}                                               
+      73 +      Email__Smtp__Host: ${MAXX_SMTP_HOST:-mailpit}            
+      74 +      Email__Smtp__Porta: ${MAXX_SMTP_PORTA:-1025}             
+      75 +      Email__Smtp__Seguranca: ${MAXX_SMTP_SEGURANCA:-None}     
+      76 +      Email__Smtp__Usuario: ${MAXX_SMTP_USUARIO:-}             
+      77 +      Email__Smtp__Senha: ${MAXX_SMTP_SENHA:-}                 
+      78      deploy:
+      79        replicas: 2
+      80      depends_on:
+     ...
+      82          condition: service_completed_successfully
+      83      restart: unless-stopped
+      84  
+      85 +  # Recebe todo e-mail que a API manda, sem entregar a ninguém.
+         + Caixa em                                                      
+      86 +  # http://localhost:8025, só nesta máquina.                   
+      87 +  mailpit:                                                     
+      88 +    image: axllent/mailpit:v1.33.0                             
+      89 +    ports:                                                     
+      90 +      - "127.0.0.1:${MAXX_MAILPIT_PORT:-8025}:8025"            
+      91 +    restart: unless-stopped                                    
+      92 +                                                               
+      93    caddy:
+      94      build:
+      95        context: .
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|# http://localhost:\${MAXX_MAILPIT_PORT}. O provedor da VPS
+      entra no passo 13.|…)
+  ⎿  # URL pública do app, para o link do e-mail de recuperação de senha.
+     MAXX_URL_PUBLICA=http://localhost
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated .env.example (+1 -1)
+      18  MAXX_URL_PUBLICA=http://localhost
+      19  
+      20  # SMTP. Vazio, a API manda para o Mailpit do compose, com a cai
+          xa em
+      21 -# http://localhost:${MAXX_MAILPIT_PORT}. O provedor da VPS entr
+         -a no passo 13.                                                 
+      21 +# http://localhost:8025 (MAXX_MAILPIT_PORT). O provedor da VPS 
+         +entra no passo 13.                                             
+      22  MAXX_MAILPIT_PORT=8025
+      23  MAXX_SMTP_HOST=
+      24  MAXX_SMTP_PORTA=
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e '
+      const fs=require("fs");let p="MaxxApiF…)
+  ⎿  ./Autenticacao/AccessTokenTests.cs:129:        await using var factory
+      = new MaxxApiFactory(MaxxApiFactory.UnreachableDatabase, "Production"
+     );
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTo
+     kenTests.cs (+1 -1)
+      170          new(
+      171              MaxxApiFactory.UnreachableDatabase,
+      172              ambiente,
+      173 -            configuracao: new Dictionary<string, string> { ["J
+          -wt:Chave"] = chave },                                         
+      173 +            configuracao: new Dictionary<string, string> { ["J
+          +wt:Chave"] = chave, ["App:UrlPublica"] = "https://maxx.teste" 
+          +},                                                            
+      174              servicos: usuario is null ? null : EmMemoria(usuar
+           io));
+      175  
+      176      private static Action<IServiceCollection> EmMemoria(Usuari
+           o usuario) =>
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Autoriza
+     caoTests.cs (+2 -0)
+      168                  "/api/v1/auth/cadastro/sugestao",
+      169                  "/api/v1/auth/login",
+      170                  "/api/v1/auth/logout",
+      171 +                "/api/v1/auth/recuperacao",                   
+      172 +                "/api/v1/auth/recuperacao/confirmar",         
+      173                  "/api/v1/auth/refresh",
+      174              ],
+      175              rotas.Where(rota => rota.Metadata.GetMetadata<IAll
+           owAnonymous>() is not null)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\MaxxApiFactory.cs (+3
+     -1)
+      22      public const string UnreachableDatabase =
+      23          "Host=127.0.0.1;Port=1;Database=maxx;Username=maxx;Pass
+          word=maxx;Timeout=2";
+      24  
+      25 -    // Fora de desenvolvimento a API não sobe sem chave de assi
+         -natura. Gerada por execução.                                   
+      25 +    // Fora de desenvolvimento a API não sobe sem chave de assi
+         +natura (gerada por execução)                                   
+      26 +    // nem sem a URL pública do app.                           
+      27      public static IReadOnlyDictionary<string, string> ChaveDeTe
+          ste { get; } = new Dictionary<string, string>
+      28      {
+      29          ["Jwt:Chave"] = Convert.ToBase64String(System.Security.
+          Cryptography.RandomNumberGenerator.GetBytes(48)),
+      30 +        ["App:UrlPublica"] = "https://maxx.teste",             
+      31      };
+      32  
+      33      // Tudo o que a aplicação escreveu em log, de todos os níve
+          is, já formatado.
+
+● Now the recovery tests, with a fake inbox in place of the SMTP sender, plus
+  one test of the real MailKit sender against a Mailpit container.
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\RecuperacaoTests.c
+       s)
+  ⎿  Wrote 341 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticac
+     ao\RecuperacaoTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using System.Text.Json;
+       4 using System.Text.RegularExpressions;
+       5 using System.Threading.Channels;
+       6 using Maxx.Api.Autenticacao;
+       7 using Maxx.Application;
+       8 using Maxx.Domain.Academico;
+       9 using Maxx.Domain.Identidade;
+      10 using Maxx.Infrastructure.Autenticacao;
+     … +331 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\SmtpEmailSenderTes
+       ts.cs)
+  ⎿  Wrote 52 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticaca
+     o\SmtpEmailSenderTests.cs
+       1 using System.Net.Http.Json;
+       2 using System.Text.Json;
+       3 using DotNet.Testcontainers.Builders;
+       4 using DotNet.Testcontainers.Containers;
+       5 using Maxx.Application;
+       6 using Microsoft.Extensions.DependencyInjection;
+       7 
+       8 namespace Maxx.Api.IntegrationTests.Autenticacao;
+       9 
+      10 // O SMTP de verdade, com MailKit, contra o mesmo Mailpit do com
+     … +43 lines (~2 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● All 40 pass, including the real SMTP against Mailpit. Next: format, full suite
+  and contract.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet format Maxx.sln -v q >/dev/null 2>&1; dotnet format Maxx.sln
+      --verify-no-changes -…)
+  ⎿  format=2
+     2
+     com falha Maxx.Api.IntegrationTests.Autenticacao.CadastroTests.Nome_de
+     … +48 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Email\EnvioDeEmail.cs (+1 -1)
+      1  using System.Threading.Channels;
+      2 -using Maxx.Application;                                         
+      2  using MailKit.Net.Smtp;
+      3  using MailKit.Security;
+      4 +using Maxx.Application;                                         
+      5  using Microsoft.Extensions.Hosting;
+      6  using Microsoft.Extensions.Logging;
+      7  using Microsoft.Extensions.Options;
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DomainEx
+     ceptionHandlerTests.cs (+0 -1)
+      1  using System.Text.Json;
+      2 -using Maxx.Api.Erros;                                           
+      2  using Maxx.Domain;
+      3  using Microsoft.AspNetCore.Http;
+      4  using Microsoft.Extensions.DependencyInjection;
+  ⎿  (timeout 10m)
+
+● dotnet format changed files and the build now reports two diagnostics. Looking
+  at both.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● dotnet format removed a using that DomainExceptionHandlerTests still needs,
+  which broke the build, so that test run used stale binaries. I'm restoring the
+  file and rerunning.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The disk is full ("No space left on device"). That's probably also why Docker
+  restarted earlier and why this test run failed. Checking free space.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Zero bytes free on C:. Before I clean anything up, I'll check where the space
+  is going, starting with Docker.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Stop Task
+  ⎿  docker system df 2>&1 | head; ls -la "/c/Users/Guilherme
+     Gimenes/Documents/Repos/tcc/maxx-engenheiro/.git/index.lock" 2>&1 ·
+     stopped
+
+● Parei a E9 antes de fechar: o disco C: está com 0 GB livres. As falhas da
+  última rodada vêm disso, e não do código.
+
+  Efeitos do disco cheio
+  - A última rodada falhou em suítes que esta etapa não tocou, depois de passos
+    de 10 segundos.
+  - O npm run gerar não chegou a gravar as rotas novas no openapi.json.
+  - O git falhou ao gravar o index.lock. Não ficou trava para trás e o
+    repositório está íntegro, com a E9 inteira só no working tree, sem commit.
+  - O reinício do Docker Desktop durante a E8, que derrubou o Postgres do
+    compose, provavelmente teve a mesma causa.
+  - O dotnet format removeu de DomainExceptionHandlerTests.cs um using ainda
+    necessário, e não sei se foi efeito do disco cheio. O git checkout que eu
+    fiz para restaurar o arquivo também falhou por falta de espaço, então o
+    using continua faltando e o build não compila. Antes do commit eu restauro o
+    arquivo e confiro o resultado do format.
+
+  Onde está o espaço: o disco virtual do Docker tem 11,4 GB, em
+  C:\Users\Guilherme Gimenes\AppData\Local\Docker\wsl\disk\docker_data.vhdx. O
+  resto dos 456 GB usados é da máquina.
+
+  Por que não liberei nada sozinho: limpar imagens e cache do Docker dentro do
+  Docker não devolve espaço ao Windows sem compactar o disco virtual, e essas
+  imagens podem ser de outros projetos seus.
+
+  Opções de limpeza, se quiser:
+  - Pelo Docker Desktop: Troubleshoot, depois "Clean / Purge data".
+  - docker builder prune para o cache das reconstruções do compose.
+  - Apagar as pastas bin e obj do repositório, que se regeneram no próximo
+    build.
+
+  O que a E9 já tem
+  - POST /v1/auth/recuperacao responde 202 sem corpo, exista a conta ou não.
+  - POST /v1/auth/recuperacao/confirmar responde 204, ou 400 com
+    recuperacao-invalida ou senha-fora-da-politica.
+  - O e-mail sai fora da requisição, por um BackgroundService com fila em
+    memória, e é enviado por SMTP com MailKit.
+  - O Mailpit entrou no compose, e .env.example e appsettings.Development.json
+    ganharam as configurações de e-mail e da URL pública.
+  - 13 testes de recuperação e um teste de SMTP real contra um contêiner do
+    Mailpit passaram, 40 de 40 junto com as suítes afetadas, antes de o disco
+    encher.
+
+  O que falta depois que você liberar espaço: restaurar o arquivo de teste e
+  verificar o format, rodar a suíte inteira, regenerar o cliente e fazer a
+  fumaça pelo Caddy olhando a caixa do Mailpit. Aí trago a E9 para a sua
+  revisão, com as decisões que tomei:
+  - token no fragmento do link (#token=), para nunca aparecer em log de acesso;
+  - confirmação sem abrir sessão;
+  - App__UrlPublica obrigatória fora de desenvolvimento;
+  - um código só para todo link inválido.
+
+  Me avise quando o disco tiver espaço que eu continuo de onde parei.
+
+✻ Sautéed for 9m 47s · done 21:18
+
+※ recap: Estamos no passo 3 do Maxx, na E9 (recuperação de senha), com o código pronto mas sem commit e parado porque o disco C: encheu. Libere espaço e me avise, que eu verifico, testo e trago a E9 para sua revisão. (disable recaps in /config)
+
+> Disco liberado. Restaura o arquivo de teste, confere o format, roda a suíte   
+  inteira, regenera o cliente e faz a fumaça com o Mailpit. Aí traz a E9 para   
+  revisão.                                                                      
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● 29,6 GB livres e o arquivo de teste restaurado. O docker info travou, então o
+  Docker ficou num estado ruim depois do disco cheio. Vou reiniciar o Docker
+  Desktop.
+
+● Stop Task
+  ⎿  cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+     powershell -NoProfile -Command "[math]::Round((Get-PSDrive
+     C).Free/1GB,1)"; git checkout… · stopped
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O Docker voltou, e o using está de volta no arquivo. Agora o build, depois só
+  a verificação do format, sem aplicar nada, para ver se ele ainda tenta remover
+  aquele using.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O build compila limpo, mas o format acusa o using como desnecessário
+  (IDE0005). Os dois discordam, e antes da E9 esse arquivo passava no format.
+  Vou ver como o teste usa o tipo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O DomainExceptionHandler é interno e o teste só o acessa via
+  InternalsVisibleTo; suspeito que um arquivo em obj tenha corrompido quando o
+  disco encheu. Vou apagar bin e obj nos projetos da API e reconstruir.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Com bin e obj regenerados, o format passa limpo e os dois builds (Debug e
+  Release) saem sem diagnóstico. Era mesmo arquivo gerado corrompido. Agora a
+  suíte inteira.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 425 testes passam. Agora regenero o cliente.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O cliente está regenerado com as duas rotas novas, e o tsc passa. Agora a
+  fumaça: subo o compose com o Mailpit e a imagem nova da API.
+
+  Ran 1 shell command (ctrl+o to expand)
+● O compose está de pé, com o Mailpit saudável e a API respondendo pelo Caddy.
+  Antes da fumaça confiro se as contas continuam no banco depois do disco cheio.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As contas estão no lugar: a Ana tem senha e as cinco do seed não. Vou cobrir
+  com testes o primeiro acesso de um professor do seed, a resposta igual para
+  e-mail inexistente, o link usado duas vezes e a queda das sessões da Ana.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O primeiro acesso já funciona de ponta a ponta: o e-mail chegou em minúsculas,
+  só um envio saiu, e o link reutilizado foi recusado. Em seguida vou verificar
+  a queda das sessões da Ana e procurar o token nos logs da API.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A verificação do primeiro token no log não valeu: ele começa com -d, e o grep
+  o leu como opção. Refaço com -e.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E9 está pronta para a sua revisão, sem commit.
+
+  Verificação
+  - Testes: os 425 da solução passam, incluindo 13 casos novos em
+    RecuperacaoTests e um em SmtpEmailSenderTests.
+  - Lint, build e contrato: dotnet format limpo, build Release sem warning,
+    OpenAPI e cliente regenerados com as duas rotas novas, e o tsc passa.
+  - Fumaça pelo Caddy, com o Mailpit:
+    - Pedido para e-mail inexistente e para a Renata: os dois 202, e chega uma
+      mensagem só, para ela.
+    - O pedido foi digitado com maiúsculas, mas o e-mail saiu para o endereço
+      gravado na base.
+    - Primeiro acesso da Renata, conta do seed: confirmar dá 204, e o login com
+      a senha nova dá 200. O mesmo link usado de novo dá 400
+      recuperacao-invalida.
+    - Ana: depois da senha nova, o refresh de antes dá 401, a senha velha dá 401
+      e a nova dá 200.
+    - Nos logs da API não aparece o token da Renata nem nenhuma das senhas. O
+      token da Ana ficou sem conferir no log do compose, por um erro no meu
+      grep; o teste de integração cobre esse caso.
+
+  Recuperação depois do disco cheio: reiniciei o Docker Desktop, que tinha
+  travado. A dúvida do format com o using era arquivo gerado corrompido em obj:
+  com bin e obj regenerados, o format passa sem mexer em nada, e o using
+  restaurado fica.
+
+  Endpoints novos
+
+  ┌────────────────────────────────────────┬────────────────────────────────┐
+  │                  Rota                  │              Faz               │
+  ├────────────────────────────────────────┼────────────────────────────────┤
+  │ POST /api/v1/auth/recuperacao {email}  │ Sempre 202, sem corpo          │
+  ├────────────────────────────────────────┼────────────────────────────────┤
+  │ POST                                   │ 204, ou 400 com                │
+  │ /api/v1/auth/recuperacao/confirmar     │ recuperacao-invalida ou        │
+  │ {token, senha}                         │ senha-fora-da-politica         │
+  └────────────────────────────────────────┴────────────────────────────────┘
+
+  Critérios de aceite
+  - Mesma resposta: e-mail com conta, aluno da base ainda sem conta e e-mail
+    inexistente dão o mesmo 202 vazio, e só a conta recebe e-mail.
+  - Uso único e validade: o link vale uma vez e expira em 30 minutos. Concluir
+    um pedido invalida o link anterior. Senha fora da política é recusada, e o
+    link continua valendo.
+  - Senha nova revoga todas as sessões: as duas famílias ficam com motivo
+    SenhaRedefinida.
+  - Sender falso: o teste troca o SMTP por uma caixa em memória e usa o envio em
+    segundo plano de verdade.
+  - Token fora do log: testado, junto com as senhas.
+  - Além do plano:
+    - duas confirmações simultâneas do mesmo link deixam um 204 e um 400;
+    - uma falha no SMTP não muda a resposta e fica no log;
+    - o SMTP real, com MailKit, foi testado contra um contêiner do Mailpit, com
+      acentos.
+
+  Infra: o Mailpit (v1.33.0) entrou no compose, com a caixa em
+  http://localhost:8025, publicada só para esta máquina. A API usa o Mailpit por
+  padrão, e as variáveis MAXX_SMTP_* do .env trocam o provedor no passo 13. A
+  senha do SMTP só por variável de ambiente.
+
+  Desvios do plano:
+  1. Pacote novo: Microsoft.Extensions.Hosting.Abstractions na Infrastructure,
+     que o BackgroundService exige.
+  2. Config dos testes de produção: a configuração de teste para "produção"
+     (ChaveDeTeste e a dos testes de access token) ganhou App:UrlPublica.
+
+  Decisões que tomei e quero confirmar:
+  1. Token no fragmento do link: http://<url-publica>/redefinir-senha#token=....
+     O navegador não manda o que vem depois do # a servidor nenhum, então o
+     token não cai em log de acesso nem em Referer. A rota /redefinir-senha é a
+     tela do passo 5.
+  2. Confirmar não abre sessão: responde 204, e o cliente leva ao login, porque
+     a senha nova acabou de derrubar todas as sessões.
+  3. App__UrlPublica obrigatória fora de desenvolvimento: sem ela a API não
+     sobe. Em desenvolvimento e no compose o padrão é http://localhost.
+  4. Um só código para todo link inválido (recuperacao-invalida): desconhecido,
+     expirado, usado ou invalidado.
+  5. O e-mail vai para o endereço gravado na base, e não para o digitado.
+  6. Falha de envio só vai para o log, sem reenvio até a fila do passo 6. A fila
+     em memória guarda até 1.000 mensagens por réplica, e, cheia, descarta a
+     nova com log de erro.
+  7. A política de senha é conferida antes de buscar o token. O Argon2id só roda
+     se o token existir, e uma vez só, mesmo se a gravação precisar ser
+     repetida por concorrência.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona recuperação de senha com envio de e-mail em segundo plano
+
+✻ Cooked for 7m 22s · done 21:31
