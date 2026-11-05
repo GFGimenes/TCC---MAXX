@@ -3002,3 +3002,173 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
   feat(api): adiciona modo de demonstração atrás de flag
 
 ✻ Baked for 9m 41s · done 21:42
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E10 aprovada. Os três desvios ficam. As sete decisões aceitas: rotas não      
+  mapeadas com a flag desligada, flag só pelo docker-compose.demo.yml, lote     
+  obrigatório, curso pela sigla entre os vigentes, RA DEMO e e-mail em          
+  demonstracao.invalid, sem senha e sem recuperação, chave sempre no corpo.     
+  Registra a purga por lote como procedimento no fechamento, junto com as       
+  decisões. Commita com a mensagem proposta, push, e segue para a E11; para     
+  para a minha revisão no fim dela.                                             
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E10 está commitada e no remoto (15ff8f3). Começo a E11, limite de taxa,
+  relendo o plano aprovado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os limites com chave no corpo não funcionam nas policies do middleware do
+  ASP.NET, porque o particionador roda antes do corpo ser lido. Vou implementar
+  todos como filtro de endpoint sobre os limitadores nativos de
+  System.Threading.RateLimiting.
+
+● Write(apps\api\src\Maxx.Api\LimiteDeTaxa\LimitesDeTaxa.cs)
+  ⎿  Wrote 140 lines to apps\api\src\Maxx.Api\LimiteDeTaxa\LimitesDeTaxa.cs
+       1 using System.Globalization;
+       2 using System.Threading.RateLimiting;
+       3 using Maxx.Api.Erros;
+       4 
+       5 namespace Maxx.Api.LimiteDeTaxa;
+       6 
+       7 // Os limites de taxa (decisoes/README.md, Autenticação), por ré
+         plica e em memória, com os
+       8 // limitadores nativos de System.Threading.RateLimiting. Filtro 
+         de endpoint, e não policy
+     … +132 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O build está limpo. Agora os testes, com um filtro de startup que faz o papel
+  do Caddy: ele define o IP de quem conecta, para exercitar o X-Forwarded-For de
+  verdade.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\LimiteDeTaxaTests.
+       cs)
+  ⎿  Wrote 255 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticac
+     ao\LimiteDeTaxaTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using System.Text.Json;
+       4 using Maxx.Application;
+       5 using Maxx.Domain.Academico;
+       6 using Maxx.Domain.Identidade;
+       7 using Maxx.Infrastructure.Autenticacao;
+       8 using Microsoft.AspNetCore.Builder;
+       9 using Microsoft.AspNetCore.Hosting;
+      10 using Microsoft.AspNetCore.Http;
+     … +245 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os 7 passam. Agora o format, a suíte inteira e o contrato.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 449 testes passaram e o 429 já aparece nos contratos das quatro rotas
+  limitadas. Vou rodar a fumaça pelo Caddy de verdade, conferindo se o login
+  estoura com Retry-After e se um X-Forwarded-For forjado não abre um limite
+  novo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O limite continua seguro, e trocar o X-Forwarded-For a cada pedido não abriu
+  um limite novo. Vou checar os logs para ver qual réplica atendeu, já que
+  vieram 30 tentativas antes do 429 em vez das cerca de 60 esperadas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Todos os 71 pedidos foram para a api-2, porque o Caddy só reconsulta o DNS a
+  cada 5 s e ainda não via a api-1. Vou esperar o limite de um minuto zerar e
+  repetir o teste com as duas réplicas.
+
+  Ran 3 shell commands (ctrl+o to expand)
+● A E11 está pronta para a sua revisão, sem commit. A E10 está commitada e no
+  remoto (15ff8f3).
+
+  Verificação
+  - Testes: os 449 da solução passam, 7 deles novos em LimiteDeTaxaTests.
+  - Lint, build e contrato: dotnet format limpo, build Release sem warning,
+    OpenAPI e cliente regenerados, e o tsc passa. As quatro rotas limitadas
+    declaram o 429 no contrato.
+  - Fumaça pelo Caddy:
+    - O login estoura com 429 em ProblemDetails e Retry-After: 60.
+    - Trocar o X-Forwarded-For a cada pedido não abriu limite novo.
+    - Na segunda rajada o Caddy alternou 35 pedidos para cada réplica. Cada uma
+      conta o seu, então com duas réplicas o limite efetivo pode chegar ao
+      dobro, como decidido ("por réplica").
+    - Na primeira rajada a api-1 tinha acabado de subir e ainda não estava no
+      DNS do Caddy, então a api-2 atendeu tudo.
+
+  Limites aplicados
+
+  ┌─────────────────────┬───────────────────────┬───────────────────────────┐
+  │        Rota         │        Limite         │           Chave           │
+  ├─────────────────────┼───────────────────────┼───────────────────────────┤
+  │ POST /auth/login    │ 30 por minuto, e      │ IP real, depois o         │
+  │                     │ depois 5 por minuto   │ identificador digitado    │
+  ├─────────────────────┼───────────────────────┼───────────────────────────┤
+  │ POST /auth/cadastro │ 3 a cada 15 minutos   │ RA                        │
+  ├─────────────────────┼───────────────────────┼───────────────────────────┤
+  │ POST                │ 3 a cada 15 minutos   │ E-mail                    │
+  │ /auth/recuperacao   │                       │                           │
+  ├─────────────────────┼───────────────────────┼───────────────────────────┤
+  │ POST /demo/alunos   │ 60 por hora           │ IP real                   │
+  ├─────────────────────┼───────────────────────┼───────────────────────────┤
+  │ Upload              │ 30 por hora por       │ Aplicado no passo 7       │
+  │                     │ usuário, só declarado │                           │
+  └─────────────────────┴───────────────────────┴───────────────────────────┘
+
+  Critérios de aceite
+  - 429 em cada limite: o teste de cada um confere status,
+    application/problem+json, codigo: limite-de-taxa e um Retry-After dentro da
+    janela.
+  - IP real do Caddy: vindo da rede do Caddy, o X-Forwarded-For define o IP, e
+    duas pessoas atrás do mesmo Caddy têm limites separados. De fora da rede
+    confiável, mudar o X-Forwarded-For a cada pedido não muda nada: o IP é o da
+    conexão. Esses são os testes que vieram da E5.
+  - Banca: 60 registros de demonstração atrás do mesmo IP passam, e o 61º
+    dá 429.
+  - Além do plano:
+    - o e-mail e o identificador valem em qualquer caixa e com espaços;
+    - e-mail existente e inexistente estouram igual, então o 429 não revela
+      conta;
+    - o log registra só o nome do limite, nunca a chave.
+
+  Decisões que tomei e quero confirmar:
+  1. Filtro de endpoint em vez das policies do middleware. Três chaves estão no
+     corpo, e o particionador do middleware roda antes de o corpo ser lido. Os
+     limitadores continuam sendo os nativos, de System.Threading.RateLimiting,
+     num mecanismo só e com uma única resposta 429.
+  2. Janela fixa e sem fila. Estourou, recusa na hora. Toda tentativa conta,
+     inclusive a que dá certo.
+  3. Chave normalizada: sem espaços nas pontas e em minúsculas, para
+     identificador, RA e e-mail.
+  4. No cadastro, só o POST /cadastro é limitado. Sugestão e disponibilidade
+     ficaram livres, porque o cliente chama a disponibilidade enquanto a pessoa
+     digita, e 3 a cada 15 minutos a travaria. Só que essas duas rotas também
+     respondem diferente para um par de RA e e-mail que existe, então são um
+     caminho de enumeração sem limite. Esta preciso que você decida: deixar como
+     está, ou pôr um limite por IP nas duas, com um número a definir.
+  5. Na recuperação, só o pedido é limitado. O confirmar não, porque o token tem
+     256 bits e não se adivinha por força bruta.
+  6. /demo/entrar fica sem limite, porque a tabela não o cobre e a chave do
+     dispositivo também tem 256 bits.
+  7. Upload com número provisório: 30 por hora por usuário, só para declarar a
+     regra. Revejo no passo 7.
+
+  Próximo passo: o fechamento do PR, com as decisões das E6 a E11 no
+  decisoes/README.md, os códigos HTTP nos fluxos 01 e 06, a purga por lote como
+  procedimento e a serialização do refresh no cliente como item obrigatório do
+  passo 5 no plano-mestre.md.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona limite de taxa por identificador, RA, e-mail e IP
+
+✻ Churned for 6m 7s · done 21:50
