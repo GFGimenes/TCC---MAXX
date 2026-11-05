@@ -2760,3 +2760,245 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
   feat(api): adiciona recuperação de senha com envio de e-mail em segundo plano
 
 ✻ Cooked for 7m 22s · done 21:31
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+> E9 aprovada. Os dois desvios ficam. As sete decisões aceitas: token no        
+  fragmento do link com a rota /redefinir-senha no passo 5, confirmar sem abrir 
+  sessão, App__UrlPublica obrigatória fora de desenvolvimento, um só código     
+  recuperacao-invalida, e-mail para o endereço da base, falha de envio só em    
+  log até a fila do passo 6, política de senha antes do token. Registra 1, 3 e  
+  6 no fechamento. Commita com a mensagem proposta, push, e segue para a E10;   
+  para para a minha revisão no fim dela.                                        
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E9 está commitada e no remoto (6ff97f4). Começo a E10, modo de demonstração,
+  lendo o que os docs já fixaram.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Os docs já definem o essencial: a chave do dispositivo guardada só como hash,
+  lotes por configuração, e matrícula nas turmas do semestre vigente para o
+  cadastro de demonstração. Começo pelo domínio.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora a persistência: as colunas novas, o check e os índices, e depois a
+  migration.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● A migração rodou como esperado. Vou tirar o HasDefaultValue(false) do bool,
+  que faz o EF emitir um warning a cada execução, e gerar a migração de novo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O migrations remove tentou consultar o banco e falhou, então não removeu nada.
+  A migration nunca foi aplicada: apago os dois arquivos gerados, restauro o
+  snapshot pelo git e gero de novo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A migração agora está limpa, só com as colunas, o check e os índices da
+  demonstração. Em seguida, levo a sugestão de arroba do CadastroHandler para um
+  serviço compartilhado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora o handler da demonstração e as portas dele.
+
+● Write(apps\api\src\Maxx.Application\Demonstracao\DemonstracaoHandler.cs)
+  ⎿  Wrote 128 lines to
+     apps\api\src\Maxx.Application\Demonstracao\DemonstracaoHandler.cs
+       1 using System.Security.Cryptography;
+       2 using Maxx.Application.Autenticacao;
+       3 using Maxx.Domain;
+       4 using Maxx.Domain.Academico;
+       5 using Maxx.Domain.Identidade;
+       6 
+       7 namespace Maxx.Application.Demonstracao;
+       8 
+       9 // O modo de demonstração da apresentação (produto.md 11). Só ex
+         iste com a flag ligada; a
+     … +119 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A Application está pronta. Agora a Infrastructure: a consulta de semestre
+  vigente passa a ser compartilhada entre o escopo de turma e a demonstração.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Falta a borda: as opções da flag, as três rotas e a ligação no Program.
+
+● Write(apps\api\src\Maxx.Api\Demonstracao\DemonstracaoEndpoints.cs)
+  ⎿  Wrote 101 lines to
+     apps\api\src\Maxx.Api\Demonstracao\DemonstracaoEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using Maxx.Api.Autenticacao;
+       3 using Maxx.Application.Demonstracao;
+       4 using Microsoft.AspNetCore.Http.HttpResults;
+       5 
+       6 namespace Maxx.Api.Demonstracao;
+       7 
+       8 // A flag da demonstração (CLAUDE.md, Segurança): desligada por 
+         padrão e ausente de todo
+       9 // appsettings versionado. Liga-se só por variável de ambiente, 
+     … +93 lines (~4 KB) (ctrl+o to expand)
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● O build está limpo. Agora o arquivo de compose da apresentação, que liga a
+  flag fora do docker-compose.yml, e o lote no .env.example.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora os testes da demonstração.
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DemonstracaoTests.
+       cs)
+  ⎿  Wrote 322 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticac
+     ao\DemonstracaoTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using System.Security.Cryptography;
+       5 using System.Text;
+       6 using System.Text.Json;
+       7 using System.Text.Json.Nodes;
+       8 using Maxx.Api.Autenticacao;
+       9 using Maxx.Api.Demonstracao;
+      10 using Maxx.Application;
+     … +312 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 12 passam. Faltam os testes de domínio das duas fábricas novas.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Também um teste de que o banco repete a regra do domínio, como nas outras
+  checks.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The build is clean and formatting passes. Running the full suite and
+  regenerating the client next.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 442 testes passam, e as três rotas da demonstração entram no contrato.
+  Agora a fumaça, primeiro com o compose padrão, que deve deixar a demonstração
+  desligada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Com a flag desligada, a demonstração responde igual a uma rota inexistente, e
+  o migrator aplicou a migration nova. Agora ligo pelo arquivo da apresentação,
+  com um lote de fumaça.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo funcionou de ponta a ponta: os quatro cursos do seed aparecem, o aluno
+  sai com @bancaUm-IA, o lote fumaca-e10 e as 4 matrículas, e a chave do
+  dispositivo volta ao mesmo id. Agora apago os dados da fumaça pelo lote, numa
+  transação, e devolvo o compose ao padrão com a flag desligada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A E10 está pronta para a sua revisão, sem commit. A E9 está commitada e no
+  remoto (6ff97f4).
+
+  Verificação
+  - Testes: os 442 da solução passam, incluindo 13 casos novos em
+    DemonstracaoTests e 4 no domínio.
+  - Lint, build e contrato: dotnet format limpo, build Release sem warning,
+    OpenAPI e cliente regenerados com as três rotas, e o tsc passa.
+  - Migration: Demonstracao criada e aplicada pelo migrator no compose.
+  - Fumaça pelo Caddy:
+    - Compose padrão: /api/v1/demo dá o mesmo 404 de /api/v1/nada-aqui.
+    - Com o arquivo da apresentação: os quatro cursos do seed aparecem. O
+      registro de "Banca Um" em IA gera RA DEMO5TW6A8VQ, e-mail
+      @demonstracao.invalid, lote fumaca-e10, 4 matrículas e o arroba
+      @bancaUm-IA.
+    - A chave do dispositivo volta para o mesmo id, e uma chave errada dá 401
+      chave-invalida.
+    - Depois apaguei os dados da fumaça pelo lote, numa transação (restam 0
+      linhas de demonstração), e devolvi o compose ao padrão: /api/v1/demo
+      voltou a dar 404.
+
+  Endpoints novos (só existem com a flag ligada)
+
+  ┌────────────────────────────┬────────────────────────────────────────────┐
+  │            Rota            │                    Faz                     │
+  ├────────────────────────────┼────────────────────────────────────────────┤
+  │ GET /api/v1/demo           │ 200 com os cursos que têm turma no         │
+  │                            │ semestre vigente                           │
+  ├────────────────────────────┼────────────────────────────────────────────┤
+  │ POST /api/v1/demo/alunos   │ 201 com chaveDoDispositivo e a sessão; 404 │
+  │ {nome, curso}              │  curso-indisponivel; 400                   │
+  │                            │ nome-de-exibicao-invalido                  │
+  ├────────────────────────────┼────────────────────────────────────────────┤
+  │ POST /api/v1/demo/entrar   │ 200 com a sessão, ou 401 chave-invalida    │
+  │ {chaveDoDispositivo}       │                                            │
+  └────────────────────────────┴────────────────────────────────────────────┘
+
+  Critérios de aceite
+  - Desligada: as três rotas dão 404 e respondem igual a uma rota inexistente: o
+    teste compara status, tipo de conteúdo e corpo.
+  - Fora da configuração: um teste lê todo appsettings*.json versionado e falha
+    se aparecer qualquer chave Demo. Ele também confere que o docker-compose.yml
+    não menciona Demo__.
+  - Ligada: o aluno entra nas turmas vigentes do curso escolhido, e não na turma
+    do ano passado. Ele recebe sessão e volta pela chave.
+  - Marcação: cadastro_elegivel.demonstracao e usuario.lote_da_demonstracao, com
+    índice no lote para a purga. A chave do dispositivo fica só como SHA-256,
+    com índice único. Uma check no banco exige lote e chave juntos, papel de
+    aluno e nenhuma senha.
+  - Além do plano:
+    - quatro registros simultâneos com o mesmo nome saem com arrobas diferentes;
+    - o aluno de demonstração não entra por senha nem recebe e-mail de
+      recuperação;
+    - na web o refresh vai em cookie.
+
+  Desvios do plano:
+  1. SugestaoDeArroba: a sugestão de arroba saiu do CadastroHandler para um
+     serviço compartilhado, que a demonstração também usa.
+  2. SemestreVigente: a consulta de semestre vigente saiu do EscopoDeTurma para
+     um helper que as duas partes usam.
+  3. Arquivo docker-compose.demo.yml: é ele que liga a flag, por cima do compose
+     de produção, e o lote vem de MAXX_DEMO_LOTE no .env.
+
+  Decisões que tomei e quero confirmar:
+  1. Desligada, as rotas nem são mapeadas. Só assim o 404 é idêntico ao de uma
+     rota inexistente. A geração do OpenAPI as mapeia mesmo assim, para o
+     cliente do passo 5 ter os tipos.
+  2. A flag só liga pelo docker-compose.demo.yml. O docker-compose.yml, que
+     também é o deploy da VPS, nunca a menciona.
+  3. Lote obrigatório com a flag ligada: sem Demo__Lote, a API não sobe.
+  4. Curso escolhido pela sigla, entre os cursos com turma no semestre vigente.
+     Fora de semestre vigente, a lista vem vazia, e o registro dá 404
+     curso-indisponivel.
+  5. Cadastro de demonstração: RA gerado no formato DEMO mais 8 caracteres, fora
+     do formato numérico dos RAs da faculdade. O e-mail fica em
+     <ra>@demonstracao.invalid, um domínio reservado que nunca recebe nada.
+     Semestre 1, e o nome digitado vira nome completo e nome de exibição.
+  6. Sem senha e sem recuperação: o aluno de demonstração entra só pela chave. A
+     recuperação ignora contas de demonstração, sem mudar a resposta 202.
+  7. A chave do dispositivo vai sempre no corpo, na web também, porque o app
+     precisa guardá-la para voltar. A sessão segue a regra de cookie ou corpo de
+     qualquer login.
+
+  Purga: o SQL que usei para limpar a fumaça é a purga por lote, numa transação:
+  famílias de sessão, pedidos de recuperação, usuários, matrículas e cadastros
+  de demonstração. Posso registrá-lo como procedimento de purga no fechamento do
+  passo.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona modo de demonstração atrás de flag
+
+✻ Baked for 9m 41s · done 21:42
