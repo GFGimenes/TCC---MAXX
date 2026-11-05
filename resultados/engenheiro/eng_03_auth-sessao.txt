@@ -941,3 +941,896 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
 
   feat(api): adiciona login, refresh rotativo e logout
 ✻ Crunched for 12m 11s · done 20:30
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_03_auth-sessao.txt
+
+※ recap: A E7 do passo 3 (login, refresh rotativo e logout) está pronta, com os 398 testes passando, e ainda não foi commitada. Falta você revisar e confirmar as sete decisões, principalmente a de que refresh simultâneo conta como reuso e derruba a família. (disable recaps in /config)
+
+> E7 aprovada. O desvio do MaxxApiFactory fica. As sete decisões aceitas:       
+  refresh simultâneo conta como reuso e a serialização no cliente vira item     
+  obrigatório do passo 5; @ decide e-mail ou RA; conta do seed sem senha recebe 
+  o mesmo 401; um só código sessao-invalida; logout sempre 204; cookie só com   
+  o cabeçalho web; login sem política de senha, com teto de 512. Registra 1, 4  
+  e 6 no fechamento, junto com 2 e 3 da E6. Commita com a mensagem proposta,    
+  push, e segue para a E8; para para a minha revisão no fim dela.               
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● E7 is committed and pushed (95b942e). Starting E8: I'm reading the academic
+  model, the seed and the planned P1 note on seed accounts.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● The plan names an institution route, but none exists yet. I'll check the
+  calendar model and the demo seed before deciding how to test the policies.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● I have the E8 details; since no professor or institution route exists yet,
+  I'll test the policies and turma scope through routes registered only inside
+  the test host, leaving the public contract unchanged. Writing that code now.
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\Politicas.cs)
+  ⎿  Wrote 28 lines to apps\api\src\Maxx.Api\Autenticacao\Politicas.cs
+      1 using Microsoft.AspNetCore.Authorization;
+      2 
+      3 namespace Maxx.Api.Autenticacao;
+      4 
+      5 // As policies por papel. O papel vem do token, que o tirou do ca
+        dastro elegível; o escopo
+      6 // de turma do professor nunca: esse é conferido no banco (IEscop
+        oDeTurma).
+      7 internal static class Politicas
+      8 {
+     … +20 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" && sed
+      -i 's/^        builder.Services.AddAuthorization();$/        bu…)
+  ⎿  42:        builder.Services.AddAuthorization(Politicas.Configurar);
+     25:            [MaxxClaims.Papel] = NomesDosPapeis(usuario.Papeis),
+     43:    internal static string[] NomesDosPapeis(Papeis papeis) =>
+     46:            .Where(papel => papeis.HasFlag(papel.Item1))
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollecti
+     onExtensions.cs (+1 -1)
+      39                      RoleClaimType = MaxxClaims.Papel,
+      40                  };
+      41              });
+      42 -        builder.Services.AddAuthorization();                   
+      42 +        builder.Services.AddAuthorization(Politicas.Configurar)
+         +;                                                              
+      43  
+      44          return builder;
+      45      }
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Api\Program.cs)
+  ⎿  Added 5 lines, removed 3 lines
+       96  app.UseAuthorization();
+       97  
+       98  // Origem única (ADR 0001): toda rota da API vive sob /api, e 
+           o Caddy não corta o prefixo.
+       99 +// Tudo exige login (Politicas.FallbackPolicy), menos o que é 
+          +público por natureza: saúde,                                  
+      100 +// entrada na conta e o documento OpenAPI de desenvolvimento. 
+      101  var api = app.MapGroup("/api");
+      100 -api.MapHealthEndpoints();                                     
+      102 +api.MapGroup("").AllowAnonymous().MapHealthEndpoints();       
+      103  
+      104  // Contrato versionado: só mudanças aditivas.
+      105  var v1 = api.MapGroup("/v1");
+      106  v1.MapEuEndpoints();
+      105 -v1.MapGroup("/auth").MapCadastroEndpoints().MapLoginEndpoints(
+          -);                                                            
+      107 +v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+          +apLoginEndpoints();                                           
+      108  
+      109  if (app.Environment.IsDevelopment())
+      110  {
+      109 -    api.MapOpenApi("/openapi/{documentName}.json");           
+      111 +    api.MapOpenApi("/openapi/{documentName}.json").AllowAnonym
+          +ous();                                                        
+      112  }
+      113  
+      114  await app.RunAsync();
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && node -e '
+      const fs=require("fs");const p="Maxx.Api/OpenApi/BearerSecurityTra…)
+  ⎿  33:            if (!metadata.OfType<IAllowAnonymous>().Any())
+  ⎿  Updated apps\api\src\Maxx.Api\OpenApi\BearerSecurityTransformers.cs
+     (+3 -2)
+       5  namespace Maxx.Api.OpenApi;
+       6  
+       7  // O access token no contrato: o esquema bearer no documento e 
+          o requisito em cada
+       8 -// operação que exige autenticação.                            
+       8 +// operação que exige autenticação, que é toda a que não se dec
+         +lara anônima (a                                                
+       9 +// FallbackPolicy de Politicas).                               
+      10  internal static class BearerSecurityTransformers
+      11  {
+      12      public const string Esquema = "Bearer";
+     ...
+      30          options.AddOperationTransformer((operation, context, _)
+           =>
+      31          {
+      32              var metadata = context.Description.ActionDescriptor
+          .EndpointMetadata;
+      32 -            if (metadata.OfType<IAuthorizeData>().Any() && !met
+         -adata.OfType<IAllowAnonymous>().Any())                         
+      33 +            if (!metadata.OfType<IAllowAnonymous>().Any())     
+      34              {
+      35                  operation.Security ??= [];
+      36                  operation.Security.Add(new OpenApiSecurityRequi
+          rement
+
+● Write(apps\api\src\Maxx.Application\Autorizacao\IEscopoDeTurma.cs)
+  ⎿  Wrote 11 lines to
+     apps\api\src\Maxx.Application\Autorizacao\IEscopoDeTurma.cs
+       1 namespace Maxx.Application.Autorizacao;
+       2 
+       3 // O escopo de turma do professor, perguntado ao banco a cada mu
+         tação e nunca lido do
+       4 // token (CLAUDE.md, Segurança; decisoes/README.md, Escopo de tu
+         rma). Vínculo removido vale
+       5 // no pedido seguinte, mesmo com o access token antigo.
+       6 public interface IEscopoDeTurma
+       7 {
+       8     // Verdadeiro só se o usuário está vinculado à turma e a tur
+     … +4 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Autorizacao\EscopoDeTurma.cs)
+  ⎿  Wrote 30 lines to
+     apps\api\src\Maxx.Infrastructure\Autorizacao\EscopoDeTurma.cs
+       1 using Maxx.Application.Autorizacao;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Infrastructure.Persistence;
+       5 using Microsoft.EntityFrameworkCore;
+       6 
+       7 namespace Maxx.Infrastructure.Autorizacao;
+       8 
+       9 // Uma consulta só: vínculo do professor (pela linha de cadastro
+          do usuário) com a turma, e
+     … +21 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's/^using Maxx.Application.Autenticacao;$/using Maxx.Application.Aute…)
+  ⎿  3:using Maxx.Application.Autorizacao;
+     5:using Maxx.Infrastructure.Autorizacao;
+     35:        services.AddScoped<IEscopoDeTurma, EscopoDeTurma>();
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+3 
+     -0)
+      1  using Maxx.Application;
+      2  using Maxx.Application.Autenticacao;
+      3 +using Maxx.Application.Autorizacao;                             
+      4  using Maxx.Infrastructure.Autenticacao;
+      5 +using Maxx.Infrastructure.Autorizacao;                          
+      6  using Maxx.Infrastructure.Persistence;
+      7  using Maxx.Infrastructure.Seed;
+      8  using Microsoft.EntityFrameworkCore;
+     ...
+      32          services.AddScoped<ICadastroElegivelRepository, Cadastr
+          oElegivelRepository>();
+      33          services.AddScoped<IUsuarioRepository, UsuarioRepositor
+          y>();
+      34          services.AddScoped<IFamiliaDeSessaoRepository, FamiliaD
+          eSessaoRepository>();
+      35 +        services.AddScoped<IEscopoDeTurma, EscopoDeTurma>();   
+      36  
+      37          // Toda verificação registrada aqui entra no /ready.
+      38          services.AddHealthChecks()
+
+● The role policies and the database-checked turma scope are written. Now I'm
+  adding the arroba to /v1/eu and creating the seed accounts.
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\EuEndpoints.cs)
+  ⎿  Added 17 lines, removed 8 lines
+       1  using System.Security.Claims;
+       2 +using Maxx.Application.Autenticacao;                           
+       3  using Microsoft.AspNetCore.Http.HttpResults;
+       4  
+       5  namespace Maxx.Api.Autenticacao;
+       6  
+       7  internal static class EuEndpoints
+       8  {
+       8 -    // Quem é o dono do access token. Nasce mínimo na E5 para e
+         -xercitar a autenticação;                                       
+       9 -    // cresce só por acréscimo.                                
+       9 +    // Quem é o dono do access token, lido do banco: o token só
+         + diz quem é, e o arroba pode                                   
+      10 +    // ter mudado depois da emissão. Cresce só por acréscimo.  
+      11      public static IEndpointRouteBuilder MapEuEndpoints(this IEn
+          dpointRouteBuilder routes)
+      12      {
+      12 -        routes.MapGet("/eu", GetEu)                            
+      13 +        routes.MapGet("/eu", GetEuAsync)                       
+      14              .WithName("GetEu")
+      15              .WithTags("Autenticacao")
+      16              .RequireAuthorization()
+     ...
+      19          return routes;
+      20      }
+      21  
+      21 -    private static Ok<EuResponse> GetEu(ClaimsPrincipal usuario
+         -) =>                                                           
+      22 -        TypedResults.Ok(new EuResponse(                        
+      23 -            Guid.Parse(usuario.FindFirstValue(MaxxClaims.Sub)!)
+         -,                                                              
+      24 -            [.. usuario.FindAll(MaxxClaims.Papel).Select(claim 
+         -=> claim.Value)]));                                            
+      22 +    private static async Task<Results<Ok<EuResponse>, Unauthori
+         +zedHttpResult>> GetEuAsync(                                    
+      23 +        ClaimsPrincipal principal, IUsuarioRepository usuarios,
+         + CancellationToken cancellationToken)                          
+      24 +    {                                                          
+      25 +        if (!Guid.TryParse(principal.FindFirstValue(MaxxClaims.
+         +Sub), out var id)                                              
+      26 +            || await usuarios.BuscarAsync(id, cancellationToken
+         +) is not { } usuario)                                          
+      27 +        {                                                      
+      28 +            return TypedResults.Unauthorized();                
+      29 +        }                                                      
+      30 +                                                               
+      31 +        return TypedResults.Ok(new EuResponse(                 
+      32 +            usuario.Id, JwtAccessTokenIssuer.NomesDosPapeis(usu
+         +ario.Papeis), usuario.Arroba.ToString()));                     
+      33 +    }                                                          
+      34  }
+      35  
+      27 -public sealed record EuResponse(Guid Id, IReadOnlyList<string> 
+         -Papeis);                                                       
+      36 +public sealed record EuResponse(Guid Id, IReadOnlyList<string> 
+         +Papeis, string Arroba);                                        
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Seed" && node -e '
+      const fs=require("fs");…)
+  ⎿  9
+     38:    int ContasNovas);
+     13:    MaxxDbContext db, IOptions<SeedOptions> options, ILogger<Databa
+     seSeeder> logger, TimeProvider relogio)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs
+     (+33 -1)
+      1  using Maxx.Domain;
+      2  using Maxx.Domain.Academico;
+      3 +using Maxx.Domain.Identidade;                                   
+      4  using Maxx.Infrastructure.Persistence;
+      5  using Microsoft.EntityFrameworkCore;
+      6  
+     ...
+      42  
+      43          await FalharSeRestricaoSemCursoAsync(demo.Siglas, cance
+          llationToken);
+      44  
+      45 +        demo.ContasDoSeed(relogio.GetUtcNow());                
+      46 +                                                               
+      47          await db.SaveChangesAsync(cancellationToken);
+      48          await transacao.CommitAsync(cancellationToken);
+      49  
+     ...
+      118          private readonly Dictionary<string, CadastroElegivel> 
+           _porRa = new(StringComparer.Ordinal);
+      119          private readonly HashSet<(Guid AlunoId, Guid TurmaId)>
+            _matriculas = [];
+      120          private readonly HashSet<(Guid ProfessorId, Guid Turma
+           Id)> _vinculos = [];
+      121 +        private readonly HashSet<Guid> _cadastrosComConta = []
+          +;                                                             
+      122 +        private readonly HashSet<string> _prefixos = new(Strin
+          +gComparer.OrdinalIgnoreCase);                                 
+      123  
+      124          private int _cursosNovos;
+      125          private int _materiasNovas;
+     ...
+      127          private int _cadastrosNovos;
+      128          private int _matriculasNovas;
+      129          private int _vinculosNovos;
+      130 +        private int _contasNovas;                             
+      131  
+      132          public IEnumerable<string> Siglas => _cursos.Keys;
+      133  
+      134          public ResultadoDoSeedDemo Resultado => new(
+      129 -            _cursosNovos, _materiasNovas, _turmasNovas, _cadas
+          -trosNovos, _matriculasNovas, _vinculosNovos);                 
+      135 +            _cursosNovos, _materiasNovas, _turmasNovas, _cadas
+          +trosNovos, _matriculasNovas, _vinculosNovos, _contasNovas);   
+      136  
+      137          public async Task CarregarAsync(CancellationToken canc
+           ellationToken)
+      138          {
+     ...
+      166              _vinculos.UnionWith(await db.Set<VinculoProfessor>
+           ()
+      167                  .Select(vinculo => new ValueTuple<Guid, Guid>(
+           vinculo.ProfessorId, vinculo.TurmaId))
+      168                  .ToListAsync(cancellationToken));
+      169 +            _cadastrosComConta.UnionWith(await db.Set<Usuario>
+          +()                                                            
+      170 +                .Select(usuario => usuario.CadastroElegivelId)
+     … 33 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs (+1 
+     -1)
+      10  // banco. Uma transação só, sob advisory lock: dois seeds ao me
+          smo tempo esperam um pelo
+      11  // outro, e um seed que falha não deixa nada gravado.
+      12  public sealed partial class DatabaseSeeder(
+      13 -    MaxxDbContext db, IOptions<SeedOptions> options, ILogger<Da
+         -tabaseSeeder> logger)                                          
+      13 +    MaxxDbContext db, IOptions<SeedOptions> options, ILogger<Da
+         +tabaseSeeder> logger, TimeProvider relogio)                    
+      14  {
+      15      // Diferente da chave da migração, para os dois não se conf
+          undirem.
+      16      public const long AdvisoryLockKey = 0x4D41_5858_0002;
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\SeedOptions.cs (+2 -1)
+      34      int TurmasNovas,
+      35      int CadastrosNovos,
+      36      int MatriculasNovas,
+      37 -    int VinculosNovos);                                        
+      37 +    int VinculosNovos,                                         
+      38 +    int ContasNovas);                                          
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/SeedDemoTests.cs && sed -i
+      's/new ResultadoDoS…)
+  ⎿  30:        Assert.Equal(new ResultadoDoSeedDemo(4, 16, 16, 25, 80, 16,
+      5), resultado);
+     93:        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 0, 0, 0, 0),
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs (+5 
+     -4)
+      25          var resultado = await factory.SeedDemoAsync(Ct);
+      26  
+      27          // 4 cursos × 4 matérias, uma turma cada em 2026/2; 20 
+          alunos, 4 professores, 1 instituição;
+      28 -        // cada aluno nas 4 turmas do curso, cada professor nas
+         - 4 turmas do curso.                                            
+      29 -        Assert.Equal(new ResultadoDoSeedDemo(4, 16, 16, 25, 80,
+         - 16), resultado);                                              
+      28 +        // cada aluno nas 4 turmas do curso, cada professor nas
+         + 4 turmas do curso; conta só                                   
+      29 +        // para os 4 professores e a instituição.              
+      30 +        Assert.Equal(new ResultadoDoSeedDemo(4, 16, 16, 25, 80,
+         + 16, 5), resultado);                                           
+      31  
+      32          await using var scope = factory.Services.CreateAsyncSco
+          pe();
+      33          var db = scope.ServiceProvider.GetRequiredService<MaxxD
+          bContext>();
+     ...
+      90  
+      91          var resultado = await factory.SeedDemoAsync(Ct);
+      92  
+      92 -        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 0, 0, 0),
+         - resultado);                                                   
+      93 +        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 0, 0, 0, 
+         +0), resultado);                                                
+      94          Assert.Equal(antes, await ContagensAsync(factory));
+      95      }
+      96  
+     ...
+      145          }));
+      146          var resultado = await factory.SeedDemoAsync(Ct);
+      147  
+      147 -        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 1, 1, 0)
+          -, resultado);                                                 
+      148 +        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 1, 1, 0,
+          + 0), resultado);                                              
+      149      }
+      150  
+      151      [Fact]
+  ⎿  (timeout 5m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AutorizacaoTests.c
+       s)
+  ⎿  Wrote 327 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticac
+     ao\AutorizacaoTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using System.Security.Claims;
+       5 using System.Text;
+       6 using System.Text.Json;
+       7 using Maxx.Api.Autenticacao;
+       8 using Maxx.Application.Autorizacao;
+       9 using Maxx.Domain.Academico;
+      10 using Maxx.Domain.Identidade;
+     … +317 lines (ctrl+o to expand)
+
+● I'm writing the authorization tests now, after correcting the test calendar so
+  that "today" falls mid-semester instead of on its last day.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Autenticacao/AutorizacaoTests.cs && sed
+      -i 's/…)
+  ⎿  194:        var atual = Ano(hoje.Year, hoje.AddDays(-75));
+     254:    private static DateOnly FimDoSemestreVigente(DateOnly hoje) =>
+      hoje.AddDays(-75 + 51 + 49);
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Autoriza
+     caoTests.cs (+2 -2)
+      191          // Ano anterior inteiro no passado; no ano de agora, o
+            semestre 1 contém hoje e o 2
+      192          // ainda não começou.
+      193          var anterior = Ano(hoje.Year - 1, hoje.AddDays(-400));
+      194 -        var atual = Ano(hoje.Year, hoje.AddDays(-100));       
+      194 +        var atual = Ano(hoje.Year, hoje.AddDays(-75));        
+      195          var vigente = atual.Semestres[0];
+      196  
+      197          var cc = new Curso("Ciência da Computação", "CC", 8);
+     ...
+      251      }
+      252  
+      253      // O mesmo cálculo de Ano: fim do bimestre 2 do ano de `ho
+           je`.
+      254 -    private static DateOnly FimDoSemestreVigente(DateOnly hoje
+          -) => hoje.AddDays(-100 + 51 + 49);                            
+      254 +    private static DateOnly FimDoSemestreVigente(DateOnly hoje
+          +) => hoje.AddDays(-75 + 51 + 49);                             
+      255  
+      256      private static DateTimeOffset NoFuso(DateOnly data, int ho
+           ra, int minuto)
+      257      {
+● Now a seed test for the professor and institution accounts.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e '
+      const fs=require("fs");const p="SeedDe…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs (+26
+     -0)
+      1  using System.Text.Json.Nodes;
+      2  using Maxx.Domain.Academico;
+      3 +using Maxx.Domain.Identidade;                                   
+      4  using Maxx.Infrastructure.Persistence;
+      5  using Maxx.Infrastructure.Seed;
+      6  using Microsoft.EntityFrameworkCore;
+     ...
+      130          Assert.Equal(26, (await ContagensAsync(factory)).Cadas
+           tros);
+      131      }
+      132  
+      133 +    [Fact]                                                    
+      134 +    public async Task Professores_e_instituicao_ganham_conta_s
+          +em_senha_e_aluno_nenhum()                                     
+      135 +    {                                                         
+      136 +        await using var factory = await ComBaseAsync();       
+      137 +        await factory.SeedDemoAsync(Ct);                      
+      138 +                                                              
+      139 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      140 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      141 +        var contas = await db.Set<Usuario>().ToListAsync(Ct); 
+      142 +                                                              
+      143 +        // O primeiro acesso é pela recuperação de senha (prod
+          +uto.md 2.5).                                                  
+      144 +        Assert.Equal(5, contas.Count);                        
+      145 +        Assert.All(contas, conta => Assert.False(conta.TemSenh
+          +a));                                                          
+      146 +        Assert.Equal(4, contas.Count(conta => conta.Papeis == 
+          +Papeis.Professor && conta.Sufixo == Sufixo.Professor));       
+      147 +        Assert.Single(contas, conta => conta.Papeis == Papeis.
+          +Instituicao && conta.Sufixo == Sufixo.Instituicao);           
+      148 +        Assert.Equal(5, contas.Select(conta => conta.Prefixo).
+          +Distinct(StringComparer.OrdinalIgnoreCase).Count());          
+      149 +        Assert.Equal(5, await db.Set<PrefixoReservado>().Count
+          +Async(Ct));                                                   
+      150 +                                                              
+      151 +        // De novo, nada muda: nem conta nova, nem o arroba da
+          +s que já existem.                                             
+      152 +        var arrobas = contas.Select(conta => conta.Arroba.ToSt
+          +ring()).Order(StringComparer.Ordinal).ToList();               
+      153 +        Assert.Equal(0, (await factory.SeedDemoAsync(Ct)).Cont
+          +asNovas);                                                     
+      154 +        db.ChangeTracker.Clear();                             
+      155 +        Assert.Equal(arrobas, (await db.Set<Usuario>().ToListA
+          +sync(Ct)).Select(conta => conta.Arroba.ToString()).Order(Strin
+          +gComparer.Ordinal));                                          
+      156 +    }                                                         
+      157 +                                                              
+      158      [Fact]
+      159      public async Task Aluno_novo_no_arquivo_entra_sem_mexer_no
+           _resto()
+      160      {
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● An unknown route returning 401 instead of 404 is a real problem, since the
+  fallback policy would also cover unmatched requests. I'm moving authorization
+  onto the /v1 group and marking /auth anonymous so unknown routes stay at 404.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && git checkout --
+      src/Maxx.Api/OpenApi/BearerSecurityTransformers.cs && node -e '…)
+  ⎿  diff --git a/apps/api/src/Maxx.Api/Program.cs b/apps/api/src/Maxx.Api/
+     Program.cs
+     index fd80dfe..675949a 100644
+     … +19 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\Politicas.cs (+0 -5)
+  ⎿  Updated apps\api\src\Maxx.Api\OpenApi\BearerSecurityTransformers.cs
+     (+2 -3)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+7 -6)
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+
+● Now I'm replacing the fallback test with one that lists every /api/v1 route
+  and checks that only the expected ones are anonymous.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AutorizacaoTests.
+        cs)
+  ⎿  Added 29 lines, removed 5 lines
+      148      }
+      149  
+      150      [Fact]
+      151 -    public async Task Rota_sem_policy_declarada_exige_login_e_
+          -rota_inexistente_continua_404()                               
+      151 +    public async Task Toda_rota_de_v1_exige_login_salvo_as_de_
+          +entrada_na_conta()                                            
+      152      {
+      153 -        var mundo = await MundoAsync(Hoje);                   
+      154 -        await using var factory = mundo.Factory;              
+      153 +        await using var factory = new MaxxApiFactory(MaxxApiFa
+          +ctory.UnreachableDatabase);                                   
+      154 +        var rotas = factory.Services.GetRequiredService<Endpoi
+          +ntDataSource>().Endpoints                                     
+      155 +            .OfType<RouteEndpoint>()                          
+      156 +            .Where(rota => rota.RoutePattern.RawText?.StartsWi
+          +th("/api/v1", StringComparison.Ordinal) == true)              
+      157 +            .ToList();                                        
+      158 +                                                              
+      159 +        Assert.All(rotas, rota => Assert.NotEmpty(rota.Metadat
+          +a.GetOrderedMetadata<IAuthorizeData>()));                     
+      160 +                                                              
+      161 +        // Rota pública nova entra nesta lista de propósito, n
+          +unca por esquecimento.                                        
+      162 +        Assert.Equal(                                         
+      163 +            [                                                 
+      164 +                "/api/v1/auth/cadastro",                      
+      165 +                "/api/v1/auth/cadastro/disponibilidade",      
+      166 +                "/api/v1/auth/cadastro/sugestao",             
+      167 +                "/api/v1/auth/login",                         
+      168 +                "/api/v1/auth/logout",                        
+      169 +                "/api/v1/auth/refresh",                       
+      170 +            ],                                                
+      171 +            rotas.Where(rota => rota.Metadata.GetMetadata<IAll
+          +owAnonymous>() is not null)                                   
+      172 +                .Select(rota => rota.RoutePattern.RawText!)   
+      173 +                .Order(StringComparer.Ordinal));              
+      174 +    }                                                         
+      175 +                                                              
+      176 +    [Fact]                                                    
+      177 +    public async Task Rota_inexistente_continua_404_sem_token(
+          +)                                                             
+      178 +    {                                                         
+      179 +        await using var factory = new MaxxApiFactory(MaxxApiFa
+          +ctory.UnreachableDatabase);                                   
+      180          using var client = factory.CreateClient();
+      181  
+      157 -        Assert.Equal(HttpStatusCode.Unauthorized, (await clien
+          -t.GetAsync(new Uri("/teste/sem-politica", UriKind.Relative), C
+          -t)).StatusCode);                                              
+      158 -        Assert.Equal(HttpStatusCode.OK, (await GetAsync(client
+          -, "/teste/sem-politica", await EntrarAsync(client, _ana))).Sta
+          -tusCode);                                                     
+      182          Assert.Equal(HttpStatusCode.NotFound, (await client.Ge
+           tAsync(new Uri("/api/v1/nada-aqui", UriKind.Relative), Ct)).St
+           atusCode);
+      183 +        Assert.Equal(HttpStatusCode.Unauthorized, (await clien
+          +t.GetAsync(new Uri("/api/v1/eu", UriKind.Relative), Ct)).Statu
+          +sCode);                                                       
+      184      }
+      185  
+      186      [Fact]
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Autenticacao/AutorizacaoTests.cs && sed
+      -i '/r…)
+  ⎿  0
+     com falha Maxx.Api.IntegrationTests.Autenticacao.AutorizacaoTests.Toda
+     _rota_de_v1_exige_login_salvo_as_de_entrada_na_conta (61ms)
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Autoriza
+     caoTests.cs (+2 -1)
+      10  using Maxx.Domain.Identidade;
+      11  using Maxx.Infrastructure.Autenticacao;
+      12  using Maxx.Infrastructure.Persistence;
+      13 +using Microsoft.AspNetCore.Authorization;                      
+      14  using Microsoft.AspNetCore.Builder;
+      15  using Microsoft.AspNetCore.Hosting;
+      16  using Microsoft.AspNetCore.Http;
+      17 +using Microsoft.AspNetCore.Routing;                            
+      18  using Microsoft.EntityFrameworkCore;
+      19  using Microsoft.Extensions.DependencyInjection;
+      20  using static Maxx.Api.IntegrationTests.BancoDeTeste;
+     ...
+      327                  teste.UseAuthorization();
+      328                  teste.UseEndpoints(rotas =>
+      329                  {
+      328 -                    rotas.MapGet("/sem-politica", () => "ok");
+      330                      rotas.MapGet("/instituicao", () => "ok").R
+           equireAuthorization(Politicas.Instituicao);
+      331                      rotas.MapGet(
+      332                              "/turmas/{turmaId:guid}",
+  ⎿  (timeout 10m)
+
+● Only a trailing-slash quirk in RawText (the route itself matches without it,
+  as the E6 tests show). I'm normalizing it in the test and running the full
+  suite.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/AutorizacaoTests.cs
+      && sed -i 's/…)
+  ⎿  174:                .Select(rota => rota.RoutePattern.RawText!.TrimEnd
+     ('/'))
+     format=0
+     … +23 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Autoriza
+     caoTests.cs (+1 -1)
+      171                  "/api/v1/auth/refresh",
+      172              ],
+      173              rotas.Where(rota => rota.Metadata.GetMetadata<IAll
+           owAnonymous>() is not null)
+      174 -                .Select(rota => rota.RoutePattern.RawText!)   
+      174 +                .Select(rota => rota.RoutePattern.RawText!.Tri
+          +mEnd('/'))                                                    
+      175                  .Order(StringComparer.Ordinal));
+      176      }
+      177  
+  ⎿  (timeout 10m)
+
+● Two E5 tests now fail: they call /v1/eu against an unreachable database, and
+  /eu now reads the user from the database. Checking them.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● These tests are meant to run without a database. I'm giving the two that reach
+  /eu an in-memory user repository through the factory's service hook.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Autenticacao" && node -e '
+      const fs=require("fs");co…)
+  ⎿  format=0
+     com falha Maxx.Api.IntegrationTests.CatalogoPersistenciaTests.Campo_de
+     _outro_tipo_ou_campo_proprio_ausente_e_recusado_pelo_banco(codigo: "M0
+     … +32 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTo
+     kenTests.cs (+37 -6)
+      14  namespace Maxx.Api.IntegrationTests.Autenticacao;
+      15  
+      16  // O access token de ponta a ponta, sem banco: emitido pela API
+          , conferido pela API, e
+      17 -// recusado em 401 no formato único quando vencido, mal assinad
+         -o ou ausente.                                                  
+      17 +// recusado em 401 no formato único quando vencido, mal assinad
+         +o ou ausente. O /eu lê o                                       
+      18 +// usuário de um repositório em memória.                       
+      19  public class AccessTokenTests
+      20  {
+      21      private static readonly Uri _eu = new("/api/v1/eu", UriKind
+          .Relative);
+     ...
+      31      [Fact]
+      32      public async Task Token_emitido_pela_api_abre_o_eu_com_id_e
+          _papeis()
+      33      {
+      33 -        await using var factory = ComChave(_chave);            
+      34          var renata = Professora(tambemInstituicao: true);
+      35 +        await using var factory = ComChave(_chave, usuario: ren
+         +ata);                                                          
+      36          var token = Emitir(factory, renata);
+      37          using var client = factory.CreateClient();
+      38  
+     ...
+      42          var eu = await response.Content.ReadFromJsonAsync<EuRes
+          ponse>(Ct);
+      43          Assert.Equal(renata.Id, eu!.Id);
+      44          Assert.Equal(["professor", "instituicao"], eu.Papeis);
+      45 +        Assert.Equal("@renataAlbuquerque-PROF", eu.Arroba);    
+      46      }
+      47  
+      48      [Fact]
+     ...
+      157      [Fact]
+      158      public async Task Em_desenvolvimento_sem_chave_a_api_sobe_
+           com_chave_do_processo()
+      159      {
+      158 -        await using var factory = new MaxxApiFactory(MaxxApiFa
+          -ctory.UnreachableDatabase, "Development");                    
+      159 -        var token = Emitir(factory, Professora(tambemInstituic
+          -ao: false));                                                  
+      160 +        var renata = Professora(tambemInstituicao: false);    
+      161 +        await using var factory = new MaxxApiFactory(         
+      162 +            MaxxApiFactory.UnreachableDatabase, "Development",
+          + servicos: EmMemoria(renata));                                
+      163 +        var token = Emitir(factory, renata);                  
+      164          using var client = factory.CreateClient();
+      165  
+      166          Assert.Equal(HttpStatusCode.OK, (await client.SendAsyn
+           c(Get(token.Valor), Ct)).StatusCode);
+      167      }
+      168  
+      165 -    private static MaxxApiFactory ComChave(string chave, strin
+          -g ambiente = "Development") =>                                
+     … 37 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Failures across unrelated suites point to the environment rather than the
+  code. Checking the error.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● That suite passes on its own, so the earlier failures were transient. The
+  compose Postgres container is also gone from docker ps. Running the full suite
+  again.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● All 412 pass. Next: client regeneration and the compose smoke test, including
+  why the compose Postgres went down.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/packages/api-client" && npm
+      run gerar --silent >/dev/null 2>&1; npx tsc --noEmit -p . ; echo…)
+  ⎿  tsc=0
+      M openapi.json
+      M src/schema.d.ts
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+5 -1)
+      494        "EuResponse": {
+      495          "required": [
+      496            "id",
+      497 -          "papeis"                                            
+      497 +          "papeis",                                           
+      498 +          "arroba"                                            
+      499          ],
+      500          "type": "object",
+      501          "properties": {
+     ...
+      508              "items": {
+      509                "type": "string"
+      510              }
+      511 +          },                                                  
+      512 +          "arroba": {                                         
+      513 +            "type": "string"                                  
+      514            }
+      515          }
+      516        },
+  ⎿  Updated packages\api-client\src\schema.d.ts (+1 -0)
+      171              /** Format: uuid */
+      172              id: string;
+      173              papeis: string[];
+      174 +            arroba: string;                                   
+      175          };
+      176          HealthResponse: {
+      177              status: string;
+  ⎿  (timeout 5m)
+
+● Docker Desktop restarted mid-run, so the compose Postgres exited with code 255
+  and likely caused the transient failures. I'm bringing the stack back up on
+  the E8 code for the smoke test.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Caddy returns an empty reply. Checking the containers.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The API containers had just restarted (they wait on the migrator). Running the
+  smoke test again.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Caddy answers inside the container, so the host port forward is the broken
+  part; I'm recreating the Caddy container to rebind it.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● E8 is ready for your review, not committed. E7 is committed and pushed
+  (95b942e).
+
+  Verificação
+  - Testes: os 412 da solução passam, incluindo 13 casos novos em
+    AutorizacaoTests e um novo em SeedDemoTests.
+  - Lint, build e contrato: dotnet format limpo, build Release sem warning,
+    OpenAPI e cliente regenerados, e o tsc passa.
+  - Fumaça pelo Caddy:
+    - o seed demo criou as 5 contas, sem senha;
+    - o login de professor dá 401 credenciais-invalidas;
+    - o /v1/eu da Ana devolve {"papeis":["aluno"],"arroba":"@anaSouza-CC"};
+    - o /v1/eu sem token dá 401;
+    - uma rota inexistente dá 404.
+  - Ambiente: o Docker Desktop reiniciou durante a primeira rodada completa, o
+    que derrubou o Postgres do compose e deu falhas em suítes que esta etapa não
+    tocou. A segunda rodada passou inteira, e precisei recriar o contêiner do
+    Caddy para a porta do host voltar a responder.
+
+  Entrega
+  - Policies por papel: aluno, professor e instituicao, a partir da claim papel.
+    A conta de professor e instituição juntos passa nas duas.
+  - /v1 fechado por padrão: o grupo /v1 exige login (RequireAuthorization), e
+    /v1/auth declara AllowAnonymous. Um teste lista toda rota de /v1 e confere
+    que as anônimas são exatamente as seis de entrada na conta, então uma rota
+    pública nova obriga a mudar o teste.
+  - IEscopoDeTurma.ProfessorLecionaAsync: faz uma consulta só no banco, ligando
+    o vínculo do professor (pela linha de cadastro do usuário) à turma. Só conta
+    turma de semestre cujos bimestres cobrem a data de hoje em
+    America/Sao_Paulo.
+  - GET /v1/eu: passa a ler o usuário do banco e devolve id, papeis e arroba, um
+    campo novo.
+  - Seed demo: cria conta sem senha para cada professor e para a instituição,
+    com o prefixo sugerido do nome, em ordem de e-mail. Rodar de novo não cria
+    conta nem muda arroba. O resultado do seed ganhou ContasNovas.
+
+  Critérios de aceite
+
+  ┌─────────────────────────────────┬───────────────────────────────────────┐
+  │            Critério             │               Resultado               │
+  ├─────────────────────────────────┼───────────────────────────────────────┤
+  │ Professor com vínculo, semestre │ Passa (200)                           │
+  │  vigente                        │                                       │
+  ├─────────────────────────────────┼───────────────────────────────────────┤
+  │ Turma do ano passado, do        │                                       │
+  │ semestre que não começou, ou de │ Recusada (403)                        │
+  │  outro professor                │                                       │
+  ├─────────────────────────────────┼───────────────────────────────────────┤
+  │ Vínculo removido, mesmo token   │ 403 no pedido seguinte                │
+  ├─────────────────────────────────┼───────────────────────────────────────┤
+  │ Data de São Paulo, não UTC      │ 23h30 do último dia ainda vale; 0h30  │
+  │                                 │ do dia seguinte não                   │
+  ├─────────────────────────────────┼───────────────────────────────────────┤
+  │ Token sem turma                 │ As claims são exatamente aud, exp,    │
+  │                                 │ iat, iss, nbf, papel, sub             │
+  ├─────────────────────────────────┼───────────────────────────────────────┤
+  │                                 │ Aluno e professor dão 403;            │
+  │ Rota de instituição             │ instituição e coordenação (professor  │
+  │                                 │ e instituição) dão 200                │
+  └─────────────────────────────────┴───────────────────────────────────────┘
+
+  Desvios do plano:
+  1. Rotas só no host de teste. O produto ainda não tem rota de professor nem de
+     instituição: elas chegam nos passos 6 e 12. Para cumprir o aceite, os
+     testes registram duas rotas, /teste/instituicao e /teste/turmas/{id}, só no
+     host de teste, usando as policies e o escopo reais. O contrato não ganhou
+     rota nenhuma.
+  2. Calendário próprio nos testes. Os testes de escopo montam um calendário em
+     volta da data real de hoje, e não usam o 2026 do seed. Assim não quebram
+     quando o CI rodar no recesso.
+  3. Testes do E5 sem banco. O /v1/eu agora lê do banco, e dois testes do E5
+     rodam sem banco. Eles ganharam um repositório de usuário em memória.
+
+  Decisões que tomei e quero confirmar:
+  1. Exigir login no grupo, e não numa FallbackPolicy. A primeira versão usava
+     FallbackPolicy, e o teste pegou um problema: ela vale também para pedido
+     sem rota, então uma rota inexistente dava 401. Isso quebraria a regra de
+     que a demonstração desligada responde 404, igual a uma rota inexistente.
+     Com a exigência no grupo /v1, rota inexistente continua 404.
+  2. /v1/eu lê papéis e arroba do banco, e não do token, porque o arroba pode
+     mudar depois da emissão.
+  3. O seed cria conta para toda linha de professor e de instituição que está no
+     banco, e não só para as do arquivo, seguindo a regra do demo de só
+     acrescentar.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona papéis, escopo de turma no banco e contas do seed
+
+  No fechamento do passo, além de registrar as decisões, ponho a serialização do
+  refresh no cliente como item obrigatório do passo 5 no plano-mestre.md.
+
+✻ Cooked for 13m 49s · done 21:06
