@@ -87,6 +87,10 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   Na abertura da `eng_02_dados` (02/11) o `/model` passou a nomear a opção como
   "Opus 5.5 (1M context)", com "Medium effort (default)"; conferido por captura de tela
   antes do primeiro prompt.
+- Versão do CLI, de novo (04/11): a `eng_03_auth` abriu na 2.1.316, apesar de
+  `DISABLE_AUTOUPDATER=1` (provável instalação por uma janela sem a variável). Modelo e
+  esforço iguais. Declarada a partir da `eng_03_auth`; conferir `claude --version`
+  antes de cada sessão e registrar a versão no registro da rodada.
 
 ## Dependências entre fases
 

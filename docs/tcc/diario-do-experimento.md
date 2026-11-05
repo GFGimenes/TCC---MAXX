@@ -349,3 +349,19 @@ também, não mudou nada e ofereceu opções; o autor reconheceu e escolheu quat
 com docs ajustados (`r9`). PR #3 com oito commits, CI verde, merge na `main`
 (`a84a868`). Registro em `resultados/engenheiro/eng_02_dados.md`. Próxima:
 `eng_03_auth`.
+
+03/11 e 04/11: `eng_03_auth` (autenticação e autorização), a rodada mais longa, em duas
+noites. O CLI apareceu na 2.1.316 apesar do `DISABLE_AUTOUPDATER=1`; modelo e esforço
+iguais (Opus 5.5, medium), então a versão foi declarada a partir desta rodada. Plano de
+onze etapas com onze decisões recomendadas, todas aceitas (`auth-r1`). Três interrupções
+de ambiente: janela fechada sem querer (retomada com `--resume`, compactação automática
+do contexto, export em duas partes), Docker Desktop parado, disco C: cheio na E9 (o
+agente parou sem commitar e esperou). Etapas E1 a E11 revisadas (`r2` a `r12`): domínio
+de identidade com TDD, Argon2id e JWT, cadastro com arroba, login com respostas e custo
+iguais, refresh rotativo com reuso provado em corrida real, papéis e escopo de turma no
+banco, recuperação de senha com Mailpit, modo de demonstração atrás de flag com purga
+por lote, limite de taxa. No fechamento o agente declarou que não tinha conferido a CI
+a cada push (E9 e E10 vermelhas por falso positivo do gitleaks) e corrigiu com exceção
+delimitada; o autor fixou a regra da CI verde por etapa (`r13`). PR #4 com 13 commits,
+450 testes, merge na `main` (`5b7cb45`). Registro em
+`resultados/engenheiro/eng_03_auth.md`. Próxima: `eng_04_design`.
