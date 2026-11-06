@@ -68,6 +68,7 @@ aceitas.
 - O autor fez três aprovações visuais (SVG, SVG corrigido, prancha de ícones) e apontou
   um defeito que as métricas do agente (IoU 98,97%) não mostravam: os dois X fundidos no
   cruzamento. Primeiro caso na trilha de revisão por olho do autor mudando o resultado.
+- Disco: depois da rodada o C: estava de novo em 14,7 GB livres (31 GB antes dela). `docker system df` mostrou 15,45 GB de cache de build do compose (249 entradas, nenhuma em uso); limpo com `docker builder prune -a -f`, volumes e imagens intactos. Causa provável do disco cheio na `eng_03_auth`: cada `docker compose up --build` do agente acumula camadas. Rotina adotada: `docker builder prune -f` antes de abrir sessão.
 - A `main` ficou com dois merges de mesma mensagem por um comando repetido do autor;
   mantido como está.
 - Itens para passos futuros: erro de campo, mensagem de `registro-simultaneo`,
