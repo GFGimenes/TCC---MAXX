@@ -1388,3 +1388,979 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
 ✻ Brewed for 15m 4s · done 13:24
 
 ※ recap: Estamos no passo 4, design system: a etapa 1 segue aberta porque o job `api` da CI falhou, e a etapa 2 aguarda sua revisão, sem commit. Falta você escolher como corrigir o job `api` e revisar a etapa 2.
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt      
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
+
+※ recap: Estamos no passo 4, design system: a etapa 1 segue aberta porque a CI falhou no job `api`, e a etapa 2 aguarda revisão, sem commit. Próxima ação: você escolhe como corrigir esse job e revisa a etapa 2.
+  ⎿  Read e2e\tests\fontes.spec.ts (73 lines)
+  ⎿  Read apps\mobile\src\theme\fonts.test.ts (149 lines)
+  ⎿  Read apps\mobile\src\theme\tokens.ts (118 lines)
+  ⎿  Read apps\mobile\src\theme\ThemePreferenceControl.tsx (75 lines)
+  ⎿  Read ..\..\..\..\..\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-G
+     imenes-Documents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e810444c
+     e321\scratchpad\edit-etapa2.js (66 lines)
+
+● Compacted while idle, before the prompt cache expired · turn off with 
+  "idleCompaction": false in settings.json
+
+> Etapa 1 continua aberta, correto não reexecutar. Opção 1: PR                  
+  fix/demonstracao-registro-simultaneo saindo da rodada/eng_04_design e         
+  voltando para ela, assunto único. Traço: em conflito de prefixo o registro    
+  não repete a mesma sugestão, avança para a próxima sugestão livre consultando 
+  os prefixos já reservados; até 10 tentativas; esgotadas, responde 409 com     
+  código amigável, nunca 500; o teste dos quatro simultâneos passa a ser de     
+  oito, e entra um teste que esgota as tentativas e confere o 409. Abre o PR,   
+  eu reviso e mergeio na rodada, você traz a rodada para a                      
+  feat/passo-04-design-system e a CI da etapa 1 roda de novo.                   
+                                                                                
+  Etapa 2 aprovada: as três ressalvas ficam registradas (Archivo "unloaded" até 
+  o primeiro uso, a conferir na vitrine; nativo não testado; npm ci             
+  intermitente sem log). Commita com a mensagem proposta e push, e a CI dela    
+  roda depois do merge da correção, junto com a da etapa 1. Me traz os dois     
+  resultados por job com a etapa 3.                                             
+
+  Pushed to feat/passo-04-design-system, searched for 1 pattern, read 3 files, ran 4 shell commands (ctrl+o to expand)
+
+● Um cat deixado por engano no comando travou o script à espera de entrada. Vou
+  encerrar esse processo e depois rodar o teste de oito registros simultâneos,
+  que deve falhar antes da correção.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste está rodando em segundo plano, três vezes seguidas, e sigo quando ele
+  terminar.
+
+✻ Crunched for 11m 43s · done 14:54
+
+● Background command "Create the fix branch, raise the race test to eight and
+run it three times to see it fail" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro"; cat
+      > "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-
+      Documents-Rep…)
+  ⎿   M apps/api/src/Maxx.Api/Demonstracao/DemonstracaoEndpoints.cs
+      M apps/api/src/Maxx.Application/Autenticacao/CodigosDeRecusa.cs
+      M apps/api/src/Maxx.Application/Autenticacao/SugestaoDeArroba.cs
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Demonstracao\DemonstracaoEndpoints.cs
+     (+1 -0)
+      48              .WithName("RegistrarAlunoDeDemonstracao")
+      49              .ProducesValidationProblem()
+      50              .ProducesProblem(StatusCodes.Status404NotFound)
+      51 +            .ProducesProblem(StatusCodes.Status409Conflict)    
+      52              .ComLimiteDeTaxa(Limite.RegistroDeDemonstracaoPorIp
+          , contexto => LimiteDeTaxaExtensions.Ip(contexto.HttpContext));
+      53  
+      54          demo.MapPost("/entrar", EntrarAsync)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\CodigosDeRecusa.cs
+     (+4 -0)
+      31      // Demonstração: curso que não existe ou sem turma no semes
+          tre vigente.
+      32      public const string CursoDeDemonstracaoIndisponivel = "curs
+          o-indisponivel";
+      33  
+      34 +    // Demonstração: muita gente com o mesmo nome entrando junt
+         +o, e as tentativas acabaram.                                   
+      35 +    // O cliente oferece tentar de novo.                       
+      36 +    public const string RegistroSimultaneo = "registro-simultan
+         +eo";                                                           
+      37 +                                                               
+      38      // Demonstração: a chave guardada no dispositivo não abre c
+          onta nenhuma.
+      39      public const string ChaveDoDispositivoInvalida = "chave-inv
+          alida";
+      40  }
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\SugestaoDeArroba.cs
+     (+10 -2)
+       9      // Quantos candidatos de sugestão por consulta ao banco.
+      10      private const int _loteDeSugestoes = 20;
+      11  
+      12 -    public async Task<string> PrimeiroLivreAsync(string nomeCom
+         -pleto, CancellationToken cancellationToken)                    
+      12 +    public Task<string> PrimeiroLivreAsync(string nomeCompleto,
+         + CancellationToken cancellationToken) =>                       
+      13 +        PrimeiroLivreAsync(nomeCompleto, new HashSet<string>(),
+         + cancellationToken);                                           
+      14 +                                                               
+      15 +    // recusados: prefixos que a gravação já recusou neste pedi
+         +do, pulados sem perguntar ao banco.                            
+      16 +    public async Task<string> PrimeiroLivreAsync(              
+      17 +        string nomeCompleto, IReadOnlySet<string> recusados, Ca
+         +ncellationToken cancellationToken)                             
+      18      {
+      14 -        foreach (var lote in PrefixoDeArroba.Sugestoes(nomeComp
+         -leto).Chunk(_loteDeSugestoes))                                 
+      19 +        ArgumentNullException.ThrowIfNull(recusados);          
+      20 +                                                               
+      21 +        var candidatos = PrefixoDeArroba.Sugestoes(nomeCompleto
+         +).Where(candidato => !recusados.Contains(candidato));          
+      22 +        foreach (var lote in candidatos.Chunk(_loteDeSugestoes)
+         +)                                                              
+      23          {
+      24              var ocupados = await usuarios.PrefixosOcupadosAsync
+          (lote, cancellationToken);
+      25              var livre = lote.FirstOrDefault(candidato => !ocupa
+          dos.Contains(candidato));
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Demonstracao\DemonstracaoHandler.cs (+18
+     -4)
+      19      TimeProvider relogio)
+      20  {
+      21      // Um nome igual de outra pessoa da banca, registrado no me
+          smo instante, pode pegar o
+      22 -    // mesmo prefixo: a gravação recusa, e a sugestão é refeita
+         -.                                                              
+      23 -    private const int _tentativas = 3;                         
+      22 +    // mesmo prefixo: a gravação recusa, e o registro avança pa
+         +ra a próxima sugestão livre.                                   
+      23 +    // Cada recusa de prefixo vem de outro pedido que gravou, e
+         +ntão 10 tentativas cobrem até                                  
+      24 +    // 10 pedidos simultâneos com o mesmo nome.                
+      25 +    private const int _tentativas = 10;                        
+      26  
+      27      private const string _alfabetoDoRa = "ABCDEFGHJKLMNPQRSTUVW
+          XYZ23456789";
+      28  
+     ...
+      48              ?? throw new RecusaException(
+      49                  TipoDeRecusa.NaoEncontrado, CodigosDeRecusa.Cur
+          soDeDemonstracaoIndisponivel, $"Sem turma vigente em {siglaDoCu
+          rso}.");
+      50  
+      51 +        var recusados = new HashSet<string>(StringComparer.Ordi
+         +nalIgnoreCase);                                                
+      52          for (var tentativa = 1; ; tentativa++)
+      53          {
+      54 +            var prefixo = await sugestoes.PrimeiroLivreAsync(no
+         +me, recusados, cancellationToken);                             
+      55              var chave = tokens.Generate();
+      56              var cadastro = CadastroElegivel.AlunoDeDemonstracao
+          (GerarRa(), nome, curso);
+      57              var usuario = Usuario.EntrarNaDemonstracao(
+      58                  cadastro,
+      59                  curso,
+      56 -                await sugestoes.PrimeiroLivreAsync(nome, cancel
+         -lationToken),                                                  
+      60 +                prefixo,                                       
+      61                  chave.Hash,
+      62                  configuracao.Lote,
+      63                  relogio.GetUtcNow());
+     ...
+      76                  await unitOfWork.SalvarAsync(cancellationToken)
+          ;
+      77                  return new RegistroDeDemonstracao(chave.Valor, 
+          sessao);
+      78              }
+      75 -            catch (ConflitoDeUnicidadeException) when (tentativ
+         -a < _tentativas)                                               
+      79 +            catch (ConflitoDeUnicidadeException) when (tentativ
+         +a == _tentativas)                                              
+      80 +            {                                                  
+      81 +                throw new RecusaException(                     
+      82 +                    TipoDeRecusa.Conflito, CodigosDeRecusa.Regi
+         +stroSimultaneo, $"Sem arroba livre depois de {_tentativas} tent
+         +ativas.");                                                     
+      83 +            }                                                  
+      84 +            catch (ConflitoDeUnicidadeException conflito)      
+      85              {
+     … 9 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+33 -3)
+      155          Assert.Equal(8, prefixos.Distinct(StringComparer.Ordin
+           alIgnoreCase).Count());
+      156      }
+      157  
+      158 +    [Fact]                                                    
+      159 +    public async Task Esgotadas_as_tentativas_responde_409_sem
+          +_repetir_sugestao_nem_gravar()                                
+      160 +    {                                                         
+      161 +        var tentados = new List<string>();                    
+      162 +        await using var factory = await MundoAsync(servicos =>
+          + servicos.AddScoped<IUnitOfWork>(                             
+      163 +            provedor => new GravacaoSempreRecusada(provedor.Ge
+          +tRequiredService<MaxxDbContext>(), tentados)));               
+      164 +        using var client = factory.CreateClient();            
+      165 +                                                              
+      166 +        var response = await client.PostAsJsonAsync(_alunos, n
+          +ew { nome = "Ana Paula", curso = "CC" }, Ct);                 
+      167 +                                                              
+      168 +        await AssertRecusaAsync(response, HttpStatusCode.Confl
+          +ict, "registro-simultaneo");                                  
+      169 +        Assert.Equal(                                         
+      170 +            ["anaPaula", "anaPaula2", "anaPaula3", "anaPaula4"
+          +, "anaPaula5", "anaPaula6", "anaPaula7", "anaPaula8", "anaPaul
+          +a9", "anaPaula10"],                                           
+      171 +            tentados);                                        
+      172 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      173 +        Assert.Equal(0, await scope.ServiceProvider.GetRequire
+          +dService<MaxxDbContext>().Set<Usuario>().CountAsync(Ct));     
+      174 +    }                                                         
+      175 +                                                              
+      176      [Theory]
+      177      [InlineData("Ana", "XYZ", HttpStatusCode.NotFound, "curso-
+           indisponivel")]
+      178      [InlineData("Ana", "ADM", HttpStatusCode.NotFound, "curso-
+           indisponivel")]
+     ...
+      206      public async Task Aluno_de_demonstracao_nao_entra_por_senh
+           a_nem_recebe_recuperacao()
+      207      {
+      208          var caixa = new CaixaDeEmail();
+      191 -        await using var factory = await MundoAsync(caixa);    
+      209 +        await using var factory = await MundoAsync(servicos =>
+          + servicos.AddSingleton<IEmailSender>(caixa));                 
+      210          using var client = factory.CreateClient();
+      211          await RegistrarAsync(client, "Ana Paula");
+      212          await using var scope = factory.Services.CreateAsyncSc
+           ope();
+     ...
+      239              "ck_usuario_demonstracao");
+      240      }
+      241  
+      224 -    private async Task<MaxxApiFactory> MundoAsync(CaixaDeEmail
+          -? caixa = null)                                               
+      242 +    private async Task<MaxxApiFactory> MundoAsync(Action<IServ
+          +iceCollection>? servicos = null)                              
+      243      {
+      244          var factory = new MaxxApiFactory(
+      245              await postgres.CreateDatabaseAsync(),
+     … 24 more lines (ctrl+o to expand)
+  ⎿  (timeout 9m 50s)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro"; (cd
+      packages/api-client && npm run gerar 2>&1 | tail -3); git status --short;
+      git diff pack…)
+  ⎿  ✨ openapi-typescript 7.13.0
+     🚀 openapi.json → src/schema.d.ts [73ms]
+      M apps/api/src/Maxx.Api/Demonstracao/DemonstracaoEndpoints.cs
+     … +39 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+10 -0)
+      598                }
+      599              }
+      600            },
+      601 +          "409": {                                            
+      602 +            "description": "Conflict",                        
+      603 +            "content": {                                      
+      604 +              "application/problem+json": {                   
+      605 +                "schema": {                                   
+      606 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+      607 +                }                                             
+      608 +              }                                               
+      609 +            }                                                 
+      610 +          },                                                  
+      611            "429": {
+      612              "description": "Too Many Requests",
+      613              "content": {
+  ⎿  Updated packages\api-client\src\schema.d.ts (+9 -0)
+      846                      "application/problem+json": components["sc
+           hemas"]["ProblemDetails"];
+      847                  };
+      848              };
+      849 +            /** @description Conflict */                      
+      850 +            409: {                                            
+      851 +                headers: {                                    
+      852 +                    [name: string]: unknown;                  
+      853 +                };                                            
+      854 +                content: {                                    
+      855 +                    "application/problem+json": components["sc
+          +hemas"]["ProblemDetails"];                                    
+      856 +                };                                            
+      857 +            };                                                
+      858              /** @description Too Many Requests */
+      859              429: {
+      860                  headers: {
+  ⎿  (timeout 9m 50s)
+
+  Pushed to rodada/eng_04_design, created PR #5 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro"; gh
+      run view 42264129474 --json jobs --jq '.jobs[]|[.name,.conclusion]|@tsv';
+      gh run view 42…)
+  ⎿  api     success
+     api-client      success
+     e2e     failure
+     … +99 lines (ctrl+o to expand)
+  ⎿  Updated .gitattributes (+1 -0)
+  ⎿  Updated apps\api\src\Maxx.Api\Demonstracao\DemonstracaoEndpoints.cs
+     (+0 -1)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\CodigosDeRecusa.cs
+     (+0 -4)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\SugestaoDeArroba.cs
+     (+2 -10)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Demonstracao\DemonstracaoHandler.cs (+4 
+     -18)
+  ⎿  … 38 more files changed
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O PR da correção está aberto e sua CI roda; a etapa 2 disparou a CI, que
+  passou no api mas falhou no e2e. Vou investigar essa falha da etapa 2 agora.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro"; sed
+      -i 's|    // (914 em 100%), então quatro deles a 100 px medem cerca de 410
+      px.|&|' e2e/…)
+  ⎿      // A largura óptica chega ao navegador: em Archivo 800, o M tem 10
+     26 unidades em 112%
+         // (914 em 100%), então quatro deles a 100 px medem cerca de 410 p
+     … +321 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\fontes.spec.ts (+4 -2)
+      53      expect(estados.flat()).toEqual(FAMILIAS.map((f) => `${f}: l
+          oaded`));
+      54  
+      55      // A largura óptica chega ao navegador: em Archivo 800, o M
+           tem 1026 unidades em 112%
+      56 -    // (914 em 100%), então quatro deles a 100 px medem cerca d
+         -e 410 px.                                                      
+      56 +    // (914 em 100%), então quatro deles a 100 px medem cerca d
+         +e 410 px, contra 366 em 100%.                                  
+      57 +    // O Linux da CI arredonda o avanço de cada letra para o pi
+         +xel inteiro (412), daí a folga                                 
+      58 +    // de meio pixel por letra.                                
+      59      const largura = await page.evaluate(() => {
+      60        const medida = document.createElement("span");
+      61        medida.style.cssText =
+     ...
+      66        medida.remove();
+      67        return width;
+      68      });
+      67 -    expect(Math.abs(largura - 410.4)).toBeLessThan(1);         
+      69 +    expect(Math.abs(largura - 410.4)).toBeLessThanOrEqual(2);  
+      70  
+      71      // O texto usa a fonte embarcada, não a do sistema.
+      72      await expect(detalhe).toHaveCSS("font-family", /InstrumentS
+          ans-500/);
+  ⎿  (timeout 3m 20s)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile"; npx expo install
+      react-native-svg 2>&1 | tail -2; git -C ../.. status --short;…)
+  ⎿  Run `npm audit` for details.
+      M apps/mobile/package.json
+      M e2e/tests/fontes.spec.ts
+     … +149 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\package.json (+1 -0)
+      17      "react-native": "0.88.1",
+      18      "react-native-safe-area-context": "~5.10.1",
+      19      "react-native-screens": "~4.30.1",
+      20 +    "react-native-svg": "15.16.0",                             
+      21      "react-native-web": "^0.21.4"
+      22    },
+      23    "devDependencies": {
+  ⎿  Updated package-lock.json (+156 -0)
+      35          "react-native": "0.88.1",
+      36          "react-native-safe-area-context": "~5.10.1",
+      37          "react-native-screens": "~4.30.1",
+      38 +        "react-native-svg": "15.16.0",                         
+      39          "react-native-web": "^0.21.4"
+      40        },
+      41        "devDependencies": {
+     ...
+      7200          "node": ">=0.6"
+      7201        }
+      7202      },
+      7203 +    "node_modules/boolbase": {                               
+      7204 +      "version": "1.0.0",                                    
+      7205 +      "resolved": "https://registry.npmjs.org/boolbase/-/bool
+           +base-1.0.0.tgz",                                             
+      7206 +      "integrity": "sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbzt
+           +M3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==",     
+      7207 +      "license": "ISC"                                       
+      7208 +    },                                                       
+      7209      "node_modules/bplist-creator": {
+      7210        "version": "0.1.0",
+      7211        "resolved": "https://registry.npmjs.org/bplist-creator/
+            -/bplist-creator-0.1.0.tgz",
+     ...
+      7768          "hyphenate-style-name": "^1.0.3"
+      7769        }
+      7770      },
+      7771 +    "node_modules/css-select": {                             
+      7772 +      "version": "5.2.2",                                    
+      7773 +      "resolved": "https://registry.npmjs.org/css-select/-/cs
+           +s-select-5.2.2.tgz",                                         
+      7774 +      "integrity": "sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhq
+           +iQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==",     
+      7775 +      "license": "BSD-2-Clause",                             
+      7776 +      "dependencies": {                                      
+      7777 +        "boolbase": "^1.0.0",                                
+      7778 +        "css-what": "^6.1.0",                                
+      7779 +        "domhandler": "^5.0.2",                              
+      7780 +        "domutils": "^3.0.1",                                
+      7781 +        "nth-check": "^2.0.1"                                
+      7782 +      },                                                     
+      7783 +      "funding": {                                           
+      7784 +        "url": "https://github.com/sponsors/fb55"            
+      7785 +      }                                                      
+      7786 +    },                                                       
+      7787 +    "node_modules/css-tree": {                               
+      7788 +      "version": "1.1.3",                                    
+     … 158 more lines (ctrl+o to expand)
+  ⎿  (timeout 3m)
+
+  Read 1 file (ctrl+o to expand)
+
+● Background command "Wait for the fix branch's CI and print the result by job"
+completed (exit code 0)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\Icon.tsx)
+  ⎿  Wrote 199 lines to apps\mobile\src\components\Icon.tsx
+       1 import { View } from "react-native";
+       2 import Svg, { Circle, Path, Rect } from "react-native-svg";
+       3 
+       4 import { tamanhos } from "../theme/tokens";
+       5 
+       6 // Caminhos do Lucide 1.70.0 (LICENSE-lucide.txt), em grade de 2
+         4. `taca` é o trophy e `fita` é
+       7 // o medal do Lucide. Só entra aqui o ícone que a identidade vis
+         ual usa.
+       8 
+     … +191 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\Icon.test.tsx)
+  ⎿  Wrote 73 lines to apps\mobile\src\components\Icon.test.tsx
+       1 import { render, screen } from "@testing-library/react-native";
+       2 import Svg, { Path, Rect } from "react-native-svg";
+       3 
+       4 import { tamanhos } from "../theme/tokens";
+       5 import { Icon, iconNames } from "./Icon";
+       6 
+       7 test("usa a grade de 24, traço 1.8 e pontas arredondadas, em qua
+         lquer tamanho", async () => {
+       8   await render(<Icon name="home" color="ink" size={tamanhos.icon
+         eNav} />);
+     … +65 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\Screen.tsx)
+  ⎿  Wrote 44 lines to apps\mobile\src\components\Screen.tsx
+       1 import type { ReactNode } from "react";
+       2 import { ScrollView, StyleSheet, View } from "react-native";
+       3 import { useSafeAreaInsets } from "react-native-safe-area-contex
+         t";
+       4 
+       5 import { espacamento } from "../theme/tokens";
+       6 
+       7 interface ScreenProps {
+       8   children: ReactNode;
+       9   // Conteúdo maior que a tela. Sem isso, a tela ocupa a altura 
+     … +36 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\Screen.test.tsx)
+  ⎿  Wrote 50 lines to apps\mobile\src\components\Screen.test.tsx
+       1 import { render, screen } from "@testing-library/react-native";
+       2 import { StyleSheet, Text } from "react-native";
+       3 import { SafeAreaProvider } from "react-native-safe-area-context
+         ";
+       4 
+       5 import { Screen } from "./Screen";
+       6 
+       7 const SEM_RECORTE = { top: 0, bottom: 0, left: 0, right: 0 };
+       8 
+       9 function renderCom(insets: typeof SEM_RECORTE, scroll?: boolean)
+     … +42 lines (~1 KB) (ctrl+o to expand)
+
+● Write(apps\mobile\src\vitrine\VitrineScreen.tsx)
+  ⎿  Wrote 118 lines to apps\mobile\src\vitrine\VitrineScreen.tsx
+      1 import type { ReactNode } from "react";
+      2 import { StyleSheet, Text, View } from "react-native";
+      3 
+      4 import { Icon, iconNames } from "../components/Icon";
+      5 import { Screen } from "../components/Screen";
+      6 import { textStyles } from "../theme/fonts";
+      7 import { ThemePreferenceControl } from "../theme/ThemePreferenceC
+        ontrol";
+      8 import { useTheme } from "../theme/ThemeProvider";
+      9 import { espacamento, tamanhos } from "../theme/tokens";
+     … +109 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\vitrine\VitrineScreen.test.tsx)
+  ⎿  Wrote 31 lines to apps\mobile\src\vitrine\VitrineScreen.test.tsx
+       1 import { act, render, screen } from "@testing-library/react-nati
+         ve";
+       2 import { SafeAreaProvider } from "react-native-safe-area-context
+         ";
+       3 
+       4 import { iconNames } from "../components/Icon";
+       5 import { ThemeProvider } from "../theme/ThemeProvider";
+       6 import { VitrineScreen } from "./VitrineScreen";
+       7 
+       8 test("mostra a escala tipográfica, os ícones nos dois modos e a 
+     … +24 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\app\vitrine.tsx)
+  ⎿  Wrote 12 lines to apps\mobile\src\app\vitrine.tsx
+       1 import { Redirect } from "expo-router";
+       2 import type { ComponentType } from "react";
+       3 
+       4 // Só em desenvolvimento. Com o `require` atrás do __DEV__, a vi
+         trine nem entra no bundle de
+       5 // produção, e a rota volta para o início.
+       6 const VitrineScreen: ComponentType | null = __DEV__
+       7   ? require("../vitrine/VitrineScreen").VitrineScreen
+       8   : null;
+       9 
+     … +3 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\vitrine\rota.test.tsx)
+  ⎿  Wrote 32 lines to apps\mobile\src\vitrine\rota.test.tsx
+       1 import type { ReactElement } from "react";
+       2 
+       3 // A rota decide pelo __DEV__ ao carregar o módulo: cada teste a
+          carrega num registro limpo.
+       4 function carregarRota(dev: boolean) {
+       5   const anterior = __DEV__;
+       6   (globalThis as { __DEV__: boolean }).__DEV__ = dev;
+       7   let rota!: () => ReactElement<{ href?: string }>;
+       8   jest.isolateModules(() => {
+       9     rota = require("../app/vitrine").default;
+     … +23 lines (ctrl+o to expand)
+
+● Write(e2e\tests\vitrine.spec.ts)
+  ⎿  Wrote 22 lines to e2e\tests\vitrine.spec.ts
+       1 import { expect, test } from "@playwright/test";
+       2 
+       3 test(
+       4   "a vitrine não existe no build de produção",
+       5   { tag: ["@desktop", "@celular"] },
+       6   async ({ page, request }) => {
+       7     await page.goto("/vitrine");
+       8 
+       9     await expect(page).toHaveURL(/\/$/);
+      10     await expect(page.getByTestId("estado-api")).toBeVisible();
+     … +12 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro"; cp
+      "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-Do
+      cuments-Repos-…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\mo
+     bile\src\app\vitrine.tsx
+       7:5  warning  A `require()` style import is forbidden  @typescript-e
+     … +60 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\src\components\LICENSE-lucide.txt (+43 -0)
+       1 +ISC License                                                    
+       2 +                                                               
+       3 +Copyright (c) 2026 Lucide Icons and Contributors               
+       4 +                                                               
+       5 +Permission to use, copy, modify, and/or distribute this softwar
+         +e for any                                                      
+       6 +purpose with or without fee is hereby granted, provided that th
+         +e above                                                        
+       7 +copyright notice and this permission notice appear in all copie
+         +s.                                                             
+       8 +                                                               
+       9 +THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL W
+         +ARRANTIES                                                      
+      10 +WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES O
+         +F                                                              
+      11 +MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LI
+         +ABLE FOR                                                       
+      12 +ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY 
+         +DAMAGES                                                        
+      13 +WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+         + IN AN                                                         
+      14 +ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISIN
+         +G OUT OF                                                       
+      15 +OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
+      16 +                                                               
+      17 +---                                                            
+      18 +                                                               
+      19 +The following Lucide icons are derived from the Feather project
+         +:                                                              
+      20 +                                                               
+      21 +airplay, alert-circle, alert-octagon, alert-triangle, aperture,
+         + arrow-down-circle, arrow-down-left, arrow-down-right, arrow-do
+         +wn, arrow-left-circle, arrow-left, arrow-right-circle, arrow-ri
+         +ght, arrow-up-circle, arrow-up-left, arrow-up-right, arrow-up, 
+         +at-sign, calendar, cast, check, chevron-down, chevron-left, che
+         +vron-right, chevron-up, chevrons-down, chevrons-left, chevrons-
+         +right, chevrons-up, circle, clipboard, clock, code, columns, co
+         +mmand, compass, corner-down-left, corner-down-right, corner-lef
+         +t-down, corner-left-up, corner-right-down, corner-right-up, cor
+         +ner-up-left, corner-up-right, crosshair, database, divide-circl
+         +e, divide-square, dollar-sign, download, external-link, feather
+         +, frown, hash, headphones, help-circle, info, italic, key, layo
+         +ut, life-buoy, link-2, link, loader, lock, log-in, log-out, max
+         +imize, meh, minimize, minimize-2, minus-circle, minus-square, m
+         +inus, monitor, moon, more-horizontal, more-vertical, move, musi
+         +c, navigation-2, navigation, octagon, pause-circle, percent, pl
+         +us-circle, plus-square, plus, power, radio, rss, search, server
+         +, share, shopping-bag, sidebar, smartphone, smile, square, tabl
+         +e-2, tablet, target, terminal, trash-2, trash, triangle, tv, ty
+         +pe, upload, x-circle, x-octagon, x-square, x, zoom-in, zoom-out
+      22 +                                                               
+      23 +The MIT License (MIT) (for the icons listed above)             
+      24 +                                                               
+      25 +Copyright (c) 2013-present Cole Bemis                          
+      26 +                                                               
+      27 +Permission is hereby granted, free of charge, to any person obt
+         +aining a copy                                                  
+      28 +of this software and associated documentation files (the "Softw
+         +are"), to deal                                                 
+      29 +in the Software without restriction, including without limitati
+         +on the rights                                                  
+      30 +to use, copy, modify, merge, publish, distribute, sublicense, a
+         +nd/or sell                                                     
+      31 +copies of the Software, and to permit persons to whom the Softw
+         +are is                                                         
+      32 +furnished to do so, subject to the following conditions:       
+      33 +                                                               
+      34 +The above copyright notice and this permission notice shall be 
+         +included in all                                                
+      35 +copies or substantial portions of the Software.                
+      36 +                                                               
+      37 +THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+         + EXPRESS OR                                                    
+      38 +IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHAN
+         +TABILITY,                                                      
+      39 +FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVE
+         +NT SHALL THE                                                   
+      40 +AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES O
+         +R OTHER                                                        
+     … 3 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● A CI do PR passou nos seis jobs e segue aberto para sua revisão. Agora estou
+  na etapa 3, ajustando os testes porque a biblioteca não tem a consulta por
+  tipo usada nos ícones.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src"; cat >
+      "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen…)
+  ⎿  apps/mobile/src/components/Icon.test.tsx 21ms
+
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\mo
+     … +19 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\app\vitrine.tsx (+2 -1)
+       4  // Só em desenvolvimento. Com o `require` atrás do __DEV__, a v
+          itrine nem entra no bundle de
+       5  // produção, e a rota volta para o início.
+       6  const VitrineScreen: ComponentType | null = __DEV__
+       7 -  ? require("../vitrine/VitrineScreen").VitrineScreen          
+       7 +  ? // eslint-disable-next-line @typescript-eslint/no-require-i
+         +mports                                                         
+       8 +    require("../vitrine/VitrineScreen").VitrineScreen          
+       9    : null;
+      10  
+      11  export default function VitrineRoute() {
+  ⎿  Updated apps\mobile\src\components\Icon.test.tsx (+24 -12)
+       1  import { render, screen } from "@testing-library/react-native";
+       2 -import Svg, { Path, Rect } from "react-native-svg";            
+       2  
+       3  import { tamanhos } from "../theme/tokens";
+       4  import { Icon, iconNames } from "./Icon";
+       5  
+       6 +// O desenho do SVG é nativo: aqui, cada elemento vira uma View
+         + com os mesmos props.                                          
+       7 +jest.mock("react-native-svg", () => {                          
+       8 +  const { createElement } = require("react");                  
+       9 +  const { View } = require("react-native");                    
+      10 +  const elemento = (tipo: string) => (props: object) =>        
+      11 +    createElement(View, { testID: tipo, ...props });           
+      12 +  return {                                                     
+      13 +    __esModule: true,                                          
+      14 +    default: elemento("svg"),                                  
+      15 +    Path: elemento("path"),                                    
+      16 +    Circle: elemento("circle"),                                
+      17 +    Rect: elemento("rect"),                                    
+      18 +  };                                                           
+      19 +});                                                            
+      20 +                                                               
+      21 +const OCULTOS = { includeHiddenElements: true };               
+      22 +                                                               
+      23  test("usa a grade de 24, traço 1.8 e pontas arredondadas, em qu
+          alquer tamanho", async () => {
+      24    await render(<Icon name="home" color="ink" size={tamanhos.ico
+          neNav} />);
+      25  
+      10 -  expect(screen.UNSAFE_getByType(Svg).props).toMatchObject({   
+      26 +  expect(screen.getByTestId("svg", OCULTOS).props).toMatchObjec
+         +t({                                                            
+      27      width: 26,
+      28      height: 26,
+      29      viewBox: "0 0 24 24",
+     ...
+      37    await render(<Icon name={name} color="ink" />);
+      38    await render(<Icon name={name} color="ink" filled detailColor
+          ="fundo" />);
+      39  
+      24 -  expect(                                                      
+      25 -    screen.getByTestId(`icone-${name}`, { includeHiddenElements
+         -: true }),                                                     
+      26 -  ).toBeTruthy();                                              
+      40 +  expect(screen.getByTestId(`icone-${name}`, OCULTOS)).toBeTrut
+         +hy();                                                          
+      41  });
+      42  
+     … 35 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\vitrine\VitrineScreen.test.tsx (+1 -1)
+      22  
+      23    expect(screen.getByText("15.020 pts")).toBeTruthy();
+      24    expect(screen.getByText("Último troféu")).toBeTruthy();
+      25 -  expect(screen.getByRole("radiogroup", { name: "Tema" })).toBe
+         -Truthy();                                                      
+      25 +  expect(screen.getByRole("radio", { name: "Sistema" })).toBeTr
+         +uthy();                                                        
+      26    for (const name of iconNames) {
+      27      expect(
+      28        screen.getAllByTestId(`icone-${name}`, { includeHiddenEle
+          ments: true }),
+  ⎿  Updated apps\mobile\src\vitrine\rota.test.tsx (+3 -2)
+       3  // A rota decide pelo __DEV__ ao carregar o módulo: cada teste 
+          a carrega num registro limpo.
+       4  function carregarRota(dev: boolean) {
+       5    const anterior = __DEV__;
+       6 -  (globalThis as { __DEV__: boolean }).__DEV__ = dev;          
+       6 +  (globalThis as unknown as { __DEV__: boolean }).__DEV__ = dev
+         +;                                                              
+       7    let rota!: () => ReactElement<{ href?: string }>;
+       8    jest.isolateModules(() => {
+       9 +    // eslint-disable-next-line @typescript-eslint/no-require-i
+         +mports                                                         
+      10      rota = require("../app/vitrine").default;
+      11    });
+      11 -  (globalThis as { __DEV__: boolean }).__DEV__ = anterior;     
+      12 +  (globalThis as unknown as { __DEV__: boolean }).__DEV__ = ant
+         +erior;                                                         
+      13    return rota;
+      14  }
+      15  
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src"; cat >
+      "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen…)
+  ⎿  Test Suites: 11 passed, 11 total
+     Tests:       118 passed, 118 total
+     36:    "start": "expo start",
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\Icon.test.tsx (+11 -8)
+       5  
+       6  // O desenho do SVG é nativo: aqui, cada elemento vira uma View
+           com os mesmos props.
+       7  jest.mock("react-native-svg", () => {
+       8 -  const { createElement } = require("react");                  
+       9 -  const { View } = require("react-native");                    
+      10 -  const elemento = (tipo: string) => (props: object) =>        
+      11 -    createElement(View, { testID: tipo, ...props });           
+       8 +  const { createElement } = jest.requireActual("react");       
+       9 +  const { View } = jest.requireActual("react-native");         
+      10 +  function elemento(tipo: string) {                            
+      11 +    return function ElementoSvg(props: object) {               
+      12 +      return createElement(View, { testID: tipo, ...props });  
+      13 +    };                                                         
+      14 +  }                                                            
+      15    return {
+      16      __esModule: true,
+      17      default: elemento("svg"),
+     ...
+      62    );
+      63  
+      64    const [folha, linha] = screen.getAllByTestId("path", OCULTOS)
+          ;
+      62 -  expect(folha.props).toMatchObject({ fill: "ink", stroke: "ink
+         -" });                                                          
+      63 -  expect(linha.props).toMatchObject({ fill: "none", stroke: "fu
+         -ndo" });                                                       
+      65 +  expect(folha?.props).toMatchObject({ fill: "ink", stroke: "in
+         +k" });                                                         
+      66 +  expect(linha?.props).toMatchObject({ fill: "none", stroke: "f
+         +undo" });                                                      
+      67  });
+      68  
+      69  test("preenchido, o traço aberto não vira mancha", async () => 
+          {
+      70    await render(<Icon name="taca" color="ink" filled />);
+      71  
+      72    const [bojo, haste] = screen.getAllByTestId("path", OCULTOS);
+      70 -  expect(bojo.props).toMatchObject({ fill: "ink", stroke: "ink"
+         - });                                                           
+      71 -  expect(haste.props).toMatchObject({ fill: "none", stroke: "in
+         -k" });                                                         
+      73 +  expect(bojo?.props).toMatchObject({ fill: "ink", stroke: "ink
+         +" });                                                          
+      74 +  expect(haste?.props).toMatchObject({ fill: "none", stroke: "i
+         +nk" });                                                        
+      75  });
+      76  
+      77  test("com rótulo, é imagem para o leitor de tela", async () => 
+          {
+  ⎿  Updated apps\mobile\src\components\Icon.tsx (+1 -1)
+      147  }: IconProps) {
+      148    const partes: Parte[] = ICONES[name];
+      149    const acessibilidade = label
+      150 -    ? { role: "img" as const, "aria-label": label }           
+      150 +    ? { accessible: true, role: "img" as const, "aria-label": 
+          +label }                                                       
+      151      : { "aria-hidden": true };
+      152  
+      153    return (
+  ⎿  (timeout 5m)
+
+  Made 1 scratchpad edit +34, read 2 files, ran 4 shell commands (ctrl+o to expand)
+
+● Background command "Run the Expo dev server for the vitrine capture" completed
+(exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O npm audit está demorando, e é a última conferência antes do relatório. Vou
+  esperar ele terminar.
+
+✻ Churned for 24m 40s · done 15:20
+
+● Background command "Run the last format, types and audit checks and confirm PR
+and CI state" completed (exit code 0)
+  Read 1 file (ctrl+o to expand)
+
+● PR da correção aberto e etapa 3 pronta para revisão; as etapas 1 e 2 seguem 
+  vermelhas
+
+  O PR ainda não foi mergeado, então a rodada não veio para a feat e a nova CI 
+  das etapas 1 e 2 ainda não rodou. Abaixo estão os resultados que existem hoje,
+  e a etapa 2 tem uma falha nova, que é minha.
+
+  CI por job
+
+  ┌────────────┬─────────────────┬─────────────────┬───────────────────────┐
+  │    Job     │    Etapa 1      │    Etapa 2      │    PR da correção     │
+  │            │    (858a532)    │    (f442155)    │       (eb660d3)       │
+  ├────────────┼─────────────────┼─────────────────┼───────────────────────┤
+  │ api        │ falhou          │ passou          │ passou                │
+  ├────────────┼─────────────────┼─────────────────┼───────────────────────┤
+  │ api-client │ passou          │ passou          │ passou                │
+  ├────────────┼─────────────────┼─────────────────┼───────────────────────┤
+  │ mobile     │ passou          │ passou          │ passou                │
+  ├────────────┼─────────────────┼─────────────────┼───────────────────────┤
+  │ e2e        │ passou          │ falhou          │ passou                │
+  ├────────────┼─────────────────┼─────────────────┼───────────────────────┤
+  │ segurança  │ passou          │ passou          │ passou                │
+  ├────────────┼─────────────────┼─────────────────┼───────────────────────┤
+  │ build      │ passou          │ passou          │ passou                │
+  └────────────┴─────────────────┴─────────────────┴───────────────────────┘
+
+  A etapa 2 rodou antes do merge, ao contrário do que você combinou, porque a CI
+  dispara em todo push. O api verde dela não prova nada, porque o defeito é
+  intermitente e a correção ainda não está nessa branch.
+
+  A falha do e2e na etapa 2 é do meu teste
+
+  - O que falhou: fontes.spec.ts, nos projetos de desktop e celular. Na CI, os
+    quatro "M" medem 412 px, e a tolerância que escrevi era de 1 px em torno de
+    410,4.
+  - Causa provável: o Linux da CI arredonda cada letra para o pixel inteiro (4 x
+    103 = 412). É dedução pelo valor, não confirmei. A fonte continua certa,
+    porque em 100% ela mediria cerca de 366 px.
+  - Ajuste, ainda sem commit: a tolerância passa a 2 px, meio pixel por letra.
+    Passou localmente, mas no Windows a medida nunca reproduziu o 412, então só
+    a CI confirma.
+
+  PR #5: correção do registro simultâneo
+
+  https://github.com/GFGimenes/maxx-engenheiro/pull/5, um commit, CI verde nos
+  seis jobs.
+
+  - Causa confirmada: com oito registros simultâneos, o teste falhou em 3 de 3
+    execuções antes da correção, com 500. Depois dela, a classe de testes da
+    demonstração passou em 5 de 5.
+  - Segue o seu traço: o registro não repete a sugestão recusada e avança para a
+    próxima livre, com até 10 tentativas. Esgotadas, responde 409.
+  - Teste novo: com toda gravação recusada, são 10 tentativas com 10 prefixos
+    diferentes, 409 e nada gravado.
+  - Suítes locais: domínio 235 de 235, integração 212 de 212. O OpenAPI e o
+    cliente foram regenerados com o 409.
+
+  Três pontos para você olhar:
+  - Nome do código: escolhi registro-simultaneo, porque prefixo-indisponivel já
+    significa outra coisa no cadastro.
+  - Limite real: cada recusa de prefixo vem de outro pedido que gravou, então 10
+    tentativas cobrem até 10 pedidos simultâneos com o mesmo nome. Acima disso,
+    alguns podem receber o 409.
+  - Rodada no remoto: a rodada/eng_04_design só existia localmente, então fiz o
+    push dela sem mudanças, para servir de base do PR. A CI dela passou, o que
+    também mostra que o defeito é intermitente.
+
+  Etapa 3: base e vitrine (sem commit)
+
+  O que entrou
+  - react-native-svg 15.16.0.
+  - Icon: 15 ícones com caminhos do Lucide 1.70.0, traço 1.8 em grade de 24 e
+    pontas arredondadas, em contorno e preenchido. A licença do Lucide vai
+    junto, e taca e fita seguem o glossário.
+  - Screen: margem de 16, respiro de 24 e área segura do aparelho, com ou sem
+    rolagem.
+  - /vitrine: só em __DEV__. Em produção a rota volta para o início.
+
+  Verificação local
+
+  ┌────────────────────────────────────┬─────────────┐
+  │            Verificação             │  Resultado  │
+  ├────────────────────────────────────┼─────────────┤
+  │ Prettier, ESLint, typecheck        │ limpos      │
+  ├────────────────────────────────────┼─────────────┤
+  │ npm audit --audit-level=high       │ sem achados │
+  ├────────────────────────────────────┼─────────────┤
+  │ Jest                               │ 118 de 118  │
+  ├────────────────────────────────────┼─────────────┤
+  │ Playwright contra o build do Caddy │ 16 de 16    │
+  └────────────────────────────────────┴─────────────┘
+
+  O e2e também confirma que o texto da vitrine não viaja no bundle de produção.
+
+  Capturas
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e810444ce321\scratchp
+    ad\shots\etapa3-vitrine-claro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e810444ce321\scratchp
+    ad\shots\etapa3-vitrine-escuro.png
+
+  O que olhar na revisão
+  - Preenchido com recorte: a prancheta mostra o jornal cheio com as linhas
+    internas vazadas, então criei a prop detailColor para pintar esse desenho na
+    cor do fundo. Quem usar o ícone precisa informar essa cor; na navegação,
+    será navHighlight.
+  - Ícone fita: usei o medal do Lucide, com as fitas acima do círculo, porque é
+    o mais parecido com a prancheta.
+  - Ícones na lista: só entraram os que a identidade visual ou as próximas
+    etapas pedem. alert e inbox são escolha minha para ErrorState e EmptyState.
+  - Área segura no Screen: ele sempre soma a área segura inferior. Com a
+    navegação da etapa 5, isso pode contar em dobro, e confiro lá.
+  - ApiStatusScreen: não migrei para o Screen, porque é uma tela provisória.
+
+  Ressalvas registradas na etapa 2
+  - Archivo "unloaded": na vitrine, em desenvolvimento, a largura do título
+    ficou igual em todos os cerca de 150 quadros medidos, desde a primeira
+    pintura, nas duas medições em cada tema. Portanto, não há troca visível de
+    fonte. Em produção segue sem conferir, porque nenhuma tela real usa Archivo
+    ainda.
+  - Nativo: continua sem teste, e agora isso inclui o react-native-svg.
+  - npm ci: a intermitência não voltou a aparecer.
+
+  O que preciso de você
+
+  1. Revisar e mergear o PR #5. Depois disso, trago a rodada para a feat.
+  2. Aprovar o ajuste do teste de fontes como commit próprio, sem reescrever o
+     da etapa 2: test(mobile): tolera o arredondamento de avanço no linux. Sem
+     ele, o e2e da etapa 2 segue vermelho mesmo depois do merge. Esse commit é
+     um segundo commit da etapa 2, fora do "um commit por etapa", por isso
+     pergunto.
+  3. Revisar a etapa 3. A mensagem proposta é feat(mobile): adiciona ícones, 
+     screen e vitrine de desenvolvimento.
+
+  Com os três, sigo esta ordem: subo o ajuste e o merge da rodada, trago o
+  resultado por job das etapas 1 e 2 e faço o commit da etapa 3. A etapa 4 só
+  começa quando você liberar.
+
+✻ Brewed for 30s · done 15:20
