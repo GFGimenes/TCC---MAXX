@@ -365,3 +365,18 @@ a cada push (E9 e E10 vermelhas por falso positivo do gitleaks) e corrigiu com e
 delimitada; o autor fixou a regra da CI verde por etapa (`r13`). PR #4 com 13 commits,
 450 testes, merge na `main` (`5b7cb45`). Registro em
 `resultados/engenheiro/eng_03_auth.md`. Próxima: `eng_04_design`.
+
+05/11 e 06/11: `eng_04_design` (design system), oito etapas em duas sessões de trabalho,
+CLI 2.1.316 e Opus 5.5 medium conferidos antes do prompt. Dez prompts de abertura dos
+passos 4 a 13 rascunhados em `prompts/engenheiro/rascunhos/`. A regra da CI verde por
+etapa pegou na primeira aplicação um defeito intermitente do passo 3 (registro
+simultâneo de demonstração com o mesmo nome dando 500): o agente não reexecutou a CI,
+mostrou que já falhava na `main` e corrigiu em PR separado (#5) com traço do autor.
+Etapas: tema persistido, fontes instanciadas por script, ícones próprios e vitrine de
+desenvolvimento, controles, navegação e estados, prêmios, ícone e splash a partir do
+logo vetorizado do PNG. Três aprovações visuais do autor; numa delas o autor viu os dois
+X fundidos no cruzamento, defeito que a métrica do agente não mostrava, e o traçado foi
+corrigido. Identificador do app `tech.gimenes.maxx`. Docker Desktop caiu de novo (uma
+vez reiniciado pelo agente, com aviso). PR #6 com CI verde, merge na `main`
+(`3818816`). Registro em `resultados/engenheiro/eng_04_design.md`. Próxima:
+`eng_05_login`, as primeiras telas reais.
