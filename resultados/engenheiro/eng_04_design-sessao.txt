@@ -4622,3 +4622,385 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
      disser nada, sigo com o token.
 
 ✻ Brewed for 2m 19s · done 17:38
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt      
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
+
+> Traçado aprovado. Ouro do token, #F5B400, no SVG. Registra que o SVG veio do  
+  PNG de 338 px por potrace, com os dois cortes do XX reabertos em 1 px, e que  
+  pode ser substituído pelo vetor original se existir, sem mudar código. Gera   
+  ícone, adaptativo, splash e favicon com o recorte do XX e me traz as capturas 
+  para aprovação visual antes do commit.                                        
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(design\icones\gerar.js)
+  ⎿  Wrote 79 lines to design\icones\gerar.js
+       1 // Gera ícone, adaptativo, splash e favicon do app a partir de d
+         esign/assets/maxx-ouro.svg.
+       2 // Rode da raiz, com o npm ci feito: node design/icones/gerar.js
+       3 // Trocar o SVG e rodar de novo basta: nenhum código depende do 
+         desenho.
+       4 const fs = require("node:fs");
+       5 const path = require("node:path");
+       6 
+       7 const raiz = path.resolve(__dirname, "../..");
+       8 const { chromium } = require(
+     … +71 lines (ctrl+o to expand)
+
+  Made 1 scratchpad edit +60 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro";
+      S="/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-
+      Documents-Repos-t…)
+  ⎿  › Added config plugin: expo-splash-screen
+     icon.png 30504 bytes
+     android-icon-foreground.png 26558 bytes
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\app.json (+18 -3)
+      11      },
+      12      "android": {
+      13        "adaptiveIcon": {
+      14 -        "backgroundColor": "#E6F4FE",                          
+      14 +        "backgroundColor": "#0B2A55",                          
+      15          "foregroundImage": "./assets/android-icon-foreground.pn
+          g",
+      16 -        "backgroundImage": "./assets/android-icon-background.pn
+         -g",                                                            
+      16          "monochromeImage": "./assets/android-icon-monochrome.pn
+          g"
+      17        },
+      18        "predictiveBackGestureEnabled": false
+     ...
+      22        "bundler": "metro",
+      23        "output": "single"
+      24      },
+      26 -    "plugins": ["expo-router", "expo-font"],                   
+      25 +    "plugins": [                                               
+      26 +      "expo-router",                                           
+      27 +      "expo-font",                                             
+      28 +      [                                                        
+      29 +        "expo-splash-screen",                                  
+      30 +        {                                                      
+      31 +          "image": "./assets/splash-icon.png",                 
+      32 +          "imageWidth": 200,                                   
+      33 +          "resizeMode": "contain",                             
+      34 +          "backgroundColor": "#FFFFFF",                        
+      35 +          "dark": {                                            
+      36 +            "image": "./assets/splash-icon.png",               
+      37 +            "backgroundColor": "#06142A"                       
+      38 +          }                                                    
+      39 +        }                                                      
+      40 +      ]                                                        
+      41 +    ],                                                         
+      42      "scheme": "maxx"
+      43    }
+      44  }
+  ⎿  Updated apps\mobile\package.json (+1 -0)
+      11      "expo-font": "~58.0.11",
+      12      "expo-linking": "~58.0.15",
+      13      "expo-router": "~58.0.29",
+      14 +    "expo-splash-screen": "~58.0.13",                          
+      15      "expo-status-bar": "~58.0.4",
+      16      "react": "19.3.0",
+      17      "react-dom": "19.3.0",
+  ⎿  Updated design\README.md (+13 -1)
+      10  | `telas/` | As seis telas (login, feed, perfil, mural, troféus
+           e medalhas, rankings) mais cadastro, cada uma em tema claro e 
+          escuro, em PNG de 780 x 1688 (390 x 844 em escala 2x), e `padra
+          o-visual.png` (1280 x 1400 em 2x) com a prancheta do padrão vis
+          ual |
+      11  | `tokens.json` | Cores por tema, tipografia, espaçamentos, rai
+          os, estilos de tier e raridade, extraídos das telas finais |
+      12  | `identidade-visual.md` | As regras da identidade: paleta Mari
+          nho e Ouro, fontes, medalhões, navegação, estados, o que nunca 
+          fazer |
+      13 -| `assets/` | Logos (`maxx-ouro.png`, `maxx-branco.png`) e selo
+         - `unimax.png` |                                                
+      13 +| `assets/` | Logos (`maxx-ouro.png`, `maxx-ouro.svg`, `maxx-br
+         +anco.png`) e selo `unimax.png` |                               
+      14 +| `icones/gerar.js` | Gera ícone, adaptativo, splash e favicon 
+         +do app a partir de `assets/maxx-ouro.svg` |                    
+      15  
+      16  Telas sem desenho (entrada da demonstração, aceite de termos, b
+          usca, editar perfil,
+      17  perfil do professor, turmas do professor, modal de medalha, áre
+          a web da instituição)
+     ...
+      39  texto. Paleta clara: fundo `#FFFFFF`, superfície `#F3F5F9`, tin
+          ta `#0B1B33`, marinho
+      40  `#0B2A55`, ouro `#F5B400`. Paleta escura: fundo `#06142A`, supe
+          rfície `#0D2142`, tinta
+      41  `#F2F5FA`, ouro `#F5B400`. Valores completos em `tokens.json`.
+      42 +                                                               
+      43 +## Vetor do logo                                               
+      44 +                                                               
+      45 +Não há vetor original do logo no repositório. `assets/maxx-ouro
+         +.svg` foi vetorizado de                                        
+      46 +`assets/maxx-ouro.png`, de 338 x 89 px, com potrace 2.1.8: o al
+         +fa ampliado 8 vezes, com                                       
+      47 +desfoque gaussiano de 0,6 px do original e os dois cortes do XX
+         + reabertos em 1 px pelo eixo                                   
+      48 +lido no alfa do PNG. A cor é o `gold` de `tokens.json`, `#F5B40
+         +0`; o PNG é `#FAB301`. O                                       
+      49 +traçado tem os cantos levemente arredondados, e o autor o aprov
+         +ou por captura.                                                
+      50 +                                                               
+      51 +Se o vetor original aparecer, ele pode substituir esse arquivo 
+         +sem mudança de código: basta                                   
+      52 +trocar o SVG, mantendo o `viewBox` na origem, e rodar `node des
+         +ign/icones/gerar.js`.                                          
+  ⎿  Updated package-lock.json (+19 -4)
+      29          "expo-font": "~58.0.11",
+      30          "expo-linking": "~58.0.15",
+      31          "expo-router": "~58.0.29",
+      32 +        "expo-splash-screen": "~58.0.13",                      
+      33          "expo-status-bar": "~58.0.4",
+      34          "react": "19.3.0",
+      35          "react-dom": "19.3.0",
+     ...
+      1899        }
+      1900      },
+      1901      "node_modules/@expo/config-plugins": {
+      1901 -      "version": "58.0.11",                                  
+      1902 -      "resolved": "https://registry.npmjs.org/@expo/config-pl
+           -ugins/-/config-plugins-58.0.11.tgz",                         
+      1903 -      "integrity": "sha512-lenBm4ajWMPW+Hol3xiHHoSZEO/mA3T7X/
+           -NU3XNqm96XepwjXh2CMpIvROGLoh0amfVEIXIW3Qj3gnDS3cK/nw==",     
+      1902 +      "version": "58.0.12",                                  
+      1903 +      "resolved": "https://registry.npmjs.org/@expo/config-pl
+           +ugins/-/config-plugins-58.0.12.tgz",                         
+      1904 +      "integrity": "sha512-nqnoPBARpKdKLY8+c+N2mizJgiWjlQGWeD
+           +hEOqMOZnQcpMmU79H1Svc9QOzcE1yX7obzw0Hf2YVlfW67g58Ucg==",     
+      1905        "license": "MIT",
+      1906        "dependencies": {
+      1907          "@expo/config-types": "^58.0.3",
+     ...
+      1912          "chalk": "^4.1.2",
+      1913          "debug": "^4.3.5",
+      1914          "getenv": "^2.0.0",
+      1914 -        "glob": "^13.0.0",                                   
+      1915          "semver": "^7.7.4",
+      1916          "slugify": "^1.6.6",
+      1917 +        "tinyglobby": "^0.2.15",                             
+      1918          "xcode": "^4.0.0",
+      1919          "xml2js": "0.6.0"
+      1920        }
+     ...
+      9653          "node": "^22.13.0 || ^24.3.0 || ^26.0.0 || >=27.0.0"
+      9654        }
+      9655      },
+      9656 +    "node_modules/expo-splash-screen": {                     
+      9657 +      "version": "58.0.13",                                  
+      9658 +      "resolved": "https://registry.npmjs.org/expo-splash-scr
+           +een/-/expo-splash-screen-58.0.13.tgz",                       
+      9659 +      "integrity": "sha512-RsvDF13tU1wQIy2blzmdbZoWpPWNTYks2A
+           +0CUq2AENR7i7u8elSSEfQOdh5TeC0lrrFVbiWfPj2JiM7y/m08Ig==",     
+      9660 +      "license": "MIT",                                      
+      9661 +      "dependencies": {                                      
+      9662 +        "@expo/config-plugins": "~58.0.12",                  
+      9663 +        "@expo/image-utils": "^0.12.6",                      
+     … 9 more lines (ctrl+o to expand)
+  ⎿  … 6 more files changed
+  ⎿  (timeout 4m 40s)
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro"; git
+      diff --stat -- apps/mobile/package.json | tail -1; git diff
+      apps/mobile/package.json |…)
+  ⎿   1 file changed, 1 insertion(+)
+     +    "expo-splash-screen": "~58.0.13",
+     --- a/apps/mobile/app.json
+     … +34 lines (ctrl+o to expand)
+  ⎿  Updated design\icones\gerar.js (+2 -1)
+      24  // O logo, ou o recorte do XX, na largura pedida. `cor` troca o
+           ouro, no ícone monocromático.
+      25  function logo({ w, cor, xx = false }) {
+      26    let conteudo = svg;
+      27 -  if (cor) conteudo = conteudo.replace(/fill="#[0-9A-Fa-f]{6}"/
+         -, `fill="${cor}"`);                                            
+      27 +  if (cor)                                                     
+      28 +    conteudo = conteudo.replace(/fill="#[0-9A-Fa-f]{6}"/, `fill
+         +="${cor}"`);                                                   
+      29    if (xx) {
+      30      const x = Math.round(largura * INICIO_DO_XX);
+      31      conteudo = conteudo.replace(
+  ⎿  (timeout 1m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile"; S="/c/Users/GUIL
+      HE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-Docum…)
+  ⎿  › Android package name: com.anonymous.maxx
+     - Creating native directory (./android)
+     ✔ Created native directory
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\app.json (+2 -1)
+      15          "foregroundImage": "./assets/android-icon-foreground.pn
+          g",
+      16          "monochromeImage": "./assets/android-icon-monochrome.pn
+          g"
+      17        },
+      18 -      "predictiveBackGestureEnabled": false                    
+      18 +      "predictiveBackGestureEnabled": false,                   
+      19 +      "package": "com.anonymous.maxx"                          
+      20      },
+      21      "web": {
+      22        "favicon": "./assets/favicon.png",
+  ⎿  Updated apps\mobile\package.json (+2 -2)
+      35    },
+      36    "scripts": {
+      37      "start": "expo start",
+      38 -    "android": "expo start --android",                         
+      39 -    "ios": "expo start --ios",                                 
+      38 +    "android": "expo run:android",                             
+      39 +    "ios": "expo run:ios",                                     
+      40      "web": "expo start --web",
+      41      "export:web": "expo export -p web",
+      42      "lint": "expo lint",
+  ⎿  (timeout 4m 40s)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile"; S="/c/Users/GUIL
+      HE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-Docum…)
+  ⎿  Files app.json and /c/Users/GUILHE~1/AppData/Local/Temp/claude/C--User
+     s-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro/1b9eb21c-2a7a-
+     43c5-840d-e810444ce321/scratchpad/app.json.bak differ
+     … +53 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\app.json (+1 -2)
+      15          "foregroundImage": "./assets/android-icon-foreground.pn
+          g",
+      16          "monochromeImage": "./assets/android-icon-monochrome.pn
+          g"
+      17        },
+      18 -      "predictiveBackGestureEnabled": false,                   
+      19 -      "package": "com.anonymous.maxx"                          
+      18 +      "predictiveBackGestureEnabled": false                    
+      19      },
+      20      "web": {
+      21        "favicon": "./assets/favicon.png",
+  ⎿  Updated apps\mobile\package.json (+2 -2)
+      35    },
+      36    "scripts": {
+      37      "start": "expo start",
+      38 -    "android": "expo run:android",                             
+      39 -    "ios": "expo run:ios",                                     
+      38 +    "android": "expo start --android",                         
+      39 +    "ios": "expo start --ios",                                 
+      40      "web": "expo start --web",
+      41      "export:web": "expo export -p web",
+      42      "lint": "expo lint",
+  ⎿  (timeout 9m 50s)
+
+● Os 20 e2e passaram, e o expo prebuild concluiu sem erro para Android. Removi
+  as pastas geradas e restaurei a configuração. Falta confirmar que o favicon
+  novo é o que o build web serve.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Ícones gerados para a sua aprovação visual, sem commit
+
+  Prancha de revisão: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilh
+  erme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e8104
+  44ce321\scratchpad\shots-xx\etapa7-icones.png
+
+  A prancha simula máscaras e telas a partir dos PNGs gerados. Nada disso rodou 
+  em aparelho ou emulador, e essa conferência continua pendente, como previsto
+  no plano.
+
+  O que foi gerado
+
+  ┌─────────────────────────────┬────────────────────────────────────────────┐
+  │           Arquivo           │                  Conteúdo                  │
+  ├─────────────────────────────┼────────────────────────────────────────────┤
+  │ icon.png                    │ 1024 px, logo em ouro sobre marinho        │
+  │                             │ #0B2A55, com 760 px de largura             │
+  ├─────────────────────────────┼────────────────────────────────────────────┤
+  │                             │ logo com 620 px de largura, dentro do      │
+  │ android-icon-foreground.png │ círculo seguro do adaptativo, sobre        │
+  │                             │ backgroundColor marinho                    │
+  ├─────────────────────────────┼────────────────────────────────────────────┤
+  │ android-icon-monochrome.png │ o mesmo logo em branco, para os ícones     │
+  │                             │ temáticos do Android 13+                   │
+  ├─────────────────────────────┼────────────────────────────────────────────┤
+  │                             │ logo em ouro sem fundo, com fundo #FFFFFF  │
+  │ splash-icon.png             │ no claro e #06142A no escuro, vindos do    │
+  │                             │ app.json                                   │
+  ├─────────────────────────────┼────────────────────────────────────────────┤
+  │ favicon.png                 │ 64 px, recorte do XX em ouro sobre marinho │
+  │                             │  com cantos arredondados                   │
+  └─────────────────────────────┴────────────────────────────────────────────┘
+
+  - Script: design/icones/gerar.js gera tudo a partir do SVG, com as cores do
+    tokens.json. Duas execuções saíram com os mesmos bytes em icon, favicon e
+    splash-icon.
+  - Procedência do SVG: está registrada no design/README.md, como você pediu,
+    com a nota de que o vetor original pode substituí-lo sem mudar código.
+    Depois da troca, basta rodar o script de novo.
+  - Dependência e limpeza: entrou expo-splash-screen, e saiu o
+    android-icon-background.png, porque o fundo agora é só a cor.
+
+  Verificação
+
+  ┌───────────────────────────────┬─────────────────────────────────────────┐
+  │          Verificação          │                Resultado                │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ Prettier em apps/mobile,      │ limpos                                  │
+  │ typecheck                     │                                         │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ Jest                          │ 201 de 201                              │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ Playwright contra o Caddy     │ 20 de 20                                │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ Favicon no build web          │ o Caddy serve o favicon.ico novo, com o │
+  │                               │  XX                                     │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ npm audit --audit-level=high  │ sem achados                             │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ expo prebuild                 │ concluiu sem erro, só Android, porque   │
+  │                               │ aqui é Windows                          │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ iOS                           │ não gerado nem conferido                │
+  └───────────────────────────────┴─────────────────────────────────────────┘
+
+  No Android gerado, conferi as cores do splash nos dois temas e o adaptativo
+  com fundo, frente e monocromático. O prebuild alterou o app.json e o
+  package.json e criou a pasta android/; restaurei os dois arquivos e removi a
+  pasta, então nada disso fica no repositório.
+
+  Decisões que preciso de você
+
+  1. Os ícones estão aprovados? Olhe em especial o favicon em 16 px: o XX vira
+     quase um bloco, e os cortes finos deixam de aparecer.
+  2. Favicon sobre marinho? Sua resposta só definia o recorte do XX. Usei
+     marinho com cantos arredondados, para o ouro não perder contraste em aba
+     clara. A alternativa é o XX sem fundo.
+  3. Instalar expo-system-ui? (recomendo) O prebuild avisou: userInterfaceStyle:
+     Install expo-system-ui in your project to enable this feature. Sem ele, o
+     userInterfaceStyle do Android não se aplica, e o modo Sistema pode não
+     seguir o aparelho lá. Isso não foi testado em aparelho. É uma dependência
+     fora do plano, por isso pergunto.
+  4. Qual identificador do app? Os docs não definem. Sem ele, o prebuild usou
+     com.anonymous.maxx, valor padrão que não restaurei no app.json. O build
+     para emulador funciona assim, mas a publicação em loja precisa de um
+     definitivo. Pode ser, por exemplo, br.com.unimax.maxx, ou deixo para o
+     passo 13?
+
+  Limite do splash
+
+  O splash nativo segue o tema do aparelho, não a preferência escolhida no app.
+  Quem usa o aparelho no escuro e o app em Claro vê o splash escuro por um
+  instante. Isso vem do sistema, antes de o app abrir.
+
+  Próximo passo
+
+  Com a aprovação, faço o commit feat(mobile): adiciona ícone, splash e favicon 
+  a partir do logo vetorial, o push e acompanho a CI. Depois vem a etapa 8, de
+  fechamento, quando você liberar. A conferência em emulador ainda precisa de um
+  build nativo, que relato à parte, como combinado no plano.
+
+✻ Churned for 8m 14s · done 17:50
+
+※ recap: Fechando o design system do passo 4: a etapa 7 está sem commit, com ícones, splash e favicon gerados. Falta você aprovar a prancha e responder sobre fundo do favicon, `expo-system-ui` e identificador do app.
