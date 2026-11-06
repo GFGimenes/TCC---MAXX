@@ -684,3 +684,108 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
   e2e no build real.
   Ran 2 shell commands (ctrl+o to expand)
   ⎿  Interrupted · What should Claude do instead?
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt      
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
+
+※ recap: Estamos no passo 4, o design system, e o plano de oito etapas está pronto, sem nenhum código escrito. Falta você aprovar o plano e responder às dez decisões; para começar a etapa 1, basta a troca de tema (item 3). (disable recaps in /config)
+
+> Interrupção acidental minha. Continua de onde parou: as duas conferências e o 
+  relatório da etapa 1.                                                         
+
+  Read 2 files, ran 3 shell commands (ctrl+o to expand)
+
+● Etapa 1: pronta para sua revisão, ainda sem commit
+
+  Pelo plano, a etapa só fecha depois do seu ok, do commit e da CI verde. A CI 
+  ainda não rodou. As duas conferências passaram.
+
+  As duas conferências
+
+  - Regra de cor literal: dispara. Um arquivo de teste com #123456 e rgba(...)
+    deu 2 erros no ESLint. A primeira checagem não imprimiu nada porque foi mal
+    invocada; a regra em si não tinha problema. O arquivo de teste já foi
+    apagado.
+  - e2e no build real: 8 de 8 passaram contra o build servido pelo Caddy, com o
+    compose subido por docker compose up --build.
+
+  Resultado local
+
+  ┌──────────────────────────────┬───────────────────────────────┐
+  │         Verificação          │           Resultado           │
+  ├──────────────────────────────┼───────────────────────────────┤
+  │ Prettier (apps/mobile, e2e)  │ limpo                         │
+  ├──────────────────────────────┼───────────────────────────────┤
+  │ ESLint (apps/mobile)         │ limpo                         │
+  ├──────────────────────────────┼───────────────────────────────┤
+  │ Typecheck (mobile, e2e)      │ limpo                         │
+  ├──────────────────────────────┼───────────────────────────────┤
+  │ Jest                         │ 34 de 34                      │
+  ├──────────────────────────────┼───────────────────────────────┤
+  │ Playwright, nos 4 projetos   │ 8 de 8                        │
+  ├──────────────────────────────┼───────────────────────────────┤
+  │ npm audit --audit-level=high │ sem achados altos ou críticos │
+  └──────────────────────────────┴───────────────────────────────┘
+
+  O que mudou
+
+  - src/theme/tokens.ts: cores e tiers vêm direto do JSON. Tamanhos, raios e
+    tipografia viram constantes, e o tokens.test.ts confere cada uma contra o
+    texto do JSON.
+  - src/theme/ThemeProvider.tsx: tem Sistema, Claro e Escuro, com padrão
+    Sistema, e guarda a escolha no AsyncStorage. Se a leitura ou a gravação
+    falhar, o app não trava.
+  - src/theme/ThemePreferenceControl.tsx: o controle de tema, por enquanto na
+    tela de status.
+  - Removido e migrado: useThemeColors saiu, e PhoneFrame, a tela de status e a
+    barra de status agora usam o novo tema.
+  - eslint.config.js: cor literal em src/ agora é erro de lint, o que cobre o
+    critério de aceite.
+  - design/tokens.json: frase de raios.regra corrigida (sua resposta 10).
+  - e2e novo: a troca vale na hora, sobrevive à recarga, e Sistema volta a
+    seguir o aparelho ao vivo.
+  - Dependência nova: @react-native-async-storage/async-storage 2.2.0, a versão
+    indicada pelo Expo 58. Ela traz merge-options e is-plain-obj como
+    transitivas.
+
+  O que olhar na revisão
+
+  - Capturas: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gim
+    enes-Documents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e810444ce32
+    1\scratchpad\shots\etapa1-claro.png e C:\Users\GUILHE~1\AppData\Local\Temp\c
+    laude\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\1b9eb21
+    c-2a7a-43c5-840d-e810444ce321\scratchpad\shots\etapa1-escuro.png. A fonte
+    ainda é a do sistema, porque as nossas só entram na etapa 2.
+  - Controle provisório: ele é um segmentado simples, e pretendo trocá-lo pelo
+    SegmentedControl na etapa 4. O segmento ativo tem sombra só no claro, como
+    manda a regra.
+  - Token sem origem no JSON: raios.segmentoAtivo (8) vem da
+    identidade-visual.md, porque o JSON só traz o raio do trilho.
+  - Tela em branco na abertura: o provedor não desenha nada até ler a
+    preferência, para não piscar o tema errado. Na web a espera é imperceptível.
+    No nativo, o splash da etapa 7 deve cobrir esse intervalo, mas isso só se
+    confirma lá.
+
+  O que não foi verificado
+
+  - Nativo: nada rodou em Android ou iOS. A persistência e a barra de status no
+    nativo só têm cobertura indireta por Jest com o mock do AsyncStorage.
+  - Barra de status: ThemedStatusBar não tem teste próprio.
+
+  Estado do ambiente
+
+  O compose continua de pé na sua máquina, porta 80, com a imagem desta etapa.
+  Não derrubei nem mexi em volumes.
+
+  Próximo passo
+
+  Com o seu ok, faço o commit abaixo, o push da feat/passo-04-design-system,
+  acompanho a CI e te trago o resultado de cada job:
+
+  feat(mobile): adiciona tokens tipados e troca de tema persistida
+
+✻ Worked for 3m 24s · done 12:24
+
+※ recap: Passo 4, design system: a etapa 1 (tokens tipados e troca de tema) está pronta, com testes locais e e2e verdes, aguardando sua revisão. Com o seu ok, faço o commit, o push e acompanho a CI. (disable recaps in /config)
