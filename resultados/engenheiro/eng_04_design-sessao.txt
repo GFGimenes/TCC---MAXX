@@ -2,7 +2,7 @@
 ▝▜██████▀  Opus 5.5 · Claude Max
  ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
 
-‼ Your login expires in 3 days · run /login to renew
+‼ Your login expires in 2 days · run /login to renew
 
 > /model 
   ⎿  Kept model as Opus 5.5
@@ -195,4 +195,492 @@
   item 1 trava só a etapa 7, então posso começar a etapa 1 assim que você
   aprovar o plano. Para a etapa 1, só preciso da resposta do item 3.
 
-✻ Churned for 4m 0s · done 21:46
+✻ Churned for 4m 0s · done quinta-feira, 21:46
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt      
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
+
+※ recap: O plano de etapas do passo 4, o design system, está pronto e aguarda sua revisão, sem nenhum código escrito. Falta você aprovar o plano e responder às dez decisões, principalmente a da troca de tema, que libera a etapa 1. (disable recaps in /config)
+
+> Plano do passo 4 aprovado como está, oito etapas, um PR da                    
+  feat/passo-04-design-system para a rodada/eng_04_design. Respostas: 1, não há 
+  vetor do logo; vetoriza o maxx-ouro.png, guarda o SVG em design/assets/ e eu  
+  aprovo o resultado por captura antes de gerar os ícones. 2, logo em ouro      
+  sobre marinho no ícone e no adaptativo, splash com o logo em ouro sobre o bg  
+  de cada tema, favicon com o recorte do XX; os três passam pela minha          
+  aprovação visual na etapa 7. 3, Sistema, Claro e Escuro, padrão Sistema,      
+  persistido com AsyncStorage, controle na vitrine e na tela de status por      
+  enquanto, lugar definitivo no perfil no passo 7. 4, só react-native-svg com   
+  os caminhos do Lucide num componente nosso. 5, vitrine só em __DEV__. 6,      
+  segue o produto: TrilhaFamilia por itens, até 5 passos, rolando na            
+  horizontal. 7, anel de foco pelo token, com os 2 px de afastamento. 8,        
+  desativado com surface2 e ink3, pressionado com opacidade 0,85. 9, avatar só  
+  com o token. 10, raio 8 e corrige a frase do tokens.json. As cinco premissas  
+  ficam. Registra 3 a 10 nos docs no fechamento. Começa pela etapa 1 e para     
+  para a minha revisão no fim dela.                                             
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git status --short; git branch --show-current; cd apps/mobile && npx expo
+      install @react-…)
+  ⎿  feat/passo-04-design-system
+     To address all issues (including breaking changes), run:
+       npm audit fix --force
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\package.json (+1 -0)
+       4    "main": "expo-router/entry",
+       5    "dependencies": {
+       6      "@maxx/api-client": "*",
+       7 +    "@react-native-async-storage/async-storage": "2.2.0",      
+       8      "@tanstack/react-query": "^5.105.1",
+       9      "expo": "~58.0.22",
+      10      "expo-constants": "~58.0.14",
+  ⎿  Deleted apps\mobile\src\theme\useThemeColors.ts (+0 -11)
+       1 -import { useColorScheme } from "react-native";                 
+       2 -                                                               
+       3 -import tokens from "../../../../design/tokens.json";           
+       4 -                                                               
+       5 -// Provisório até o passo 4 (tema tipado e troca de tema): lê a
+         -s cores direto do                                              
+       6 -// tokens.json e segue o tema do sistema.                      
+       7 -export type ThemeColors = typeof tokens.cores.claro;           
+       8 -                                                               
+       9 -export function useThemeColors(): ThemeColors {                
+      10 -  return useColorScheme() === "dark" ? tokens.cores.escuro : to
+         -kens.cores.claro;                                              
+      11 -}                                                              
+  ⎿  Updated package-lock.json (+34 -0)
+      22        "version": "0.0.0",
+      23        "dependencies": {
+      24          "@maxx/api-client": "*",
+      25 +        "@react-native-async-storage/async-storage": "2.2.0",  
+      26          "@tanstack/react-query": "^5.105.1",
+      27          "expo": "~58.0.22",
+      28          "expo-constants": "~58.0.14",
+     ...
+      5177          }
+      5178        }
+      5179      },
+      5180 +    "node_modules/@react-native-async-storage/async-storage":
+           + {                                                           
+      5181 +      "version": "2.2.0",                                    
+      5182 +      "resolved": "https://registry.npmjs.org/@react-native-a
+           +sync-storage/async-storage/-/async-storage-2.2.0.tgz",       
+      5183 +      "integrity": "sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfm
+           +b445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw==",     
+      5184 +      "license": "MIT",                                      
+      5185 +      "dependencies": {                                      
+      5186 +        "merge-options": "^3.0.4"                            
+      5187 +      },                                                     
+      5188 +      "peerDependencies": {                                  
+      5189 +        "react-native": "^0.0.0-0 || >=0.65 <1.0"            
+      5190 +      }                                                      
+      5191 +    },                                                       
+      5192      "node_modules/@react-native-masked-view/masked-view": {
+      5193        "version": "0.3.2",
+      5194        "resolved": "https://registry.npmjs.org/@react-native-m
+            asked-view/masked-view/-/masked-view-0.3.2.tgz",
+     ...
+      10813          "url": "https://github.com/sponsors/ljharb"
+      10814        }
+      10815      },
+      10816 +    "node_modules/is-plain-obj": {                          
+      10817 +      "version": "2.1.0",                                   
+      10818 +      "resolved": "https://registry.npmjs.org/is-plain-obj/-
+            +/is-plain-obj-2.1.0.tgz",                                   
+      10819 +      "integrity": "sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkH
+            +vjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA==",   
+      10820 +      "license": "MIT",                                     
+      10821 +      "engines": {                                          
+      10822 +        "node": ">=8"                                       
+      10823 +      }                                                     
+      10824 +    },                                                      
+      10825      "node_modules/is-potential-custom-element-name": {
+      10826        "version": "1.0.1",
+      10827        "resolved": "https://registry.npmjs.org/is-potential-c
+             ustom-element-name/-/is-potential-custom-element-name-1.0.1.
+             tgz",
+     … 18 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Write(apps\mobile\src\theme\tokens.ts)
+  ⎿  Wrote 109 lines to apps\mobile\src\theme\tokens.ts
+       1 import json from "../../../../design/tokens.json";
+       2 
+       3 // Camada tipada sobre design/tokens.json, a fonte dos valores. 
+         Cores e tiers vêm direto do
+       4 // JSON. Tamanhos, raios e tipografia estão lá em texto livre ("
+         28/32, Archivo 800"), então
+       5 // viram números aqui; tokens.test.ts confere cada um contra o t
+         exto do JSON.
+       6 
+       7 export type ThemeName = "claro" | "escuro";
+     … +102 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\tokens.test.ts)
+  ⎿  Wrote 115 lines to apps\mobile\src\theme\tokens.test.ts
+       1 import json from "../../../../design/tokens.json";
+       2 import {
+       3   cores,
+       4   espacamento,
+       5   raios,
+       6   tamanhos,
+       7   tiers,
+       8   tipografia,
+       9   type EstiloDeTexto,
+      10   type Tier,
+     … +105 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\ThemeProvider.tsx)
+  ⎿  Wrote 74 lines to apps\mobile\src\theme\ThemeProvider.tsx
+       1 import AsyncStorage from "@react-native-async-storage/async-stor
+         age";
+       2 import {
+       3   createContext,
+       4   useCallback,
+       5   useContext,
+       6   useEffect,
+       7   useMemo,
+       8   useState,
+       9   type ReactNode,
+     … +65 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\ThemePreferenceControl.tsx)
+  ⎿  Wrote 70 lines to apps\mobile\src\theme\ThemePreferenceControl.tsx
+       1 import { Pressable, StyleSheet, Text, View } from "react-native"
+         ;
+       2 
+       3 import { useTheme, type ThemePreference } from "./ThemeProvider"
+         ;
+       4 import { raios, tamanhos } from "./tokens";
+       5 
+       6 const OPTIONS: { value: ThemePreference; label: string }[] = [
+       7   { value: "sistema", label: "Sistema" },
+       8   { value: "claro", label: "Claro" },
+     … +62 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\test\renderWithTheme.tsx)
+  ⎿  Wrote 17 lines to apps\mobile\src\test\renderWithTheme.tsx
+       1 import { act, render } from "@testing-library/react-native";
+       2 import type { ReactElement } from "react";
+       3 
+       4 import { ThemeProvider } from "../theme/ThemeProvider";
+       5 
+       6 // Renderiza dentro do ThemeProvider e espera a leitura da prefe
+         rência guardada.
+       7 export async function renderWithTheme(ui: ReactElement) {
+       8   const wrap = (element: ReactElement) => (
+       9     <ThemeProvider>{element}</ThemeProvider>
+     … +8 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\ThemeProvider.test.tsx)
+  ⎿  Wrote 107 lines to apps\mobile\src\theme\ThemeProvider.test.tsx
+       1 import AsyncStorage from "@react-native-async-storage/async-stor
+         age";
+       2 import { act, render, screen } from "@testing-library/react-nati
+         ve";
+       3 import { Text } from "react-native";
+       4 
+       5 import { renderWithTheme } from "../test/renderWithTheme";
+       6 import {
+       7   THEME_STORAGE_KEY,
+       8   useTheme,
+     … +99 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\ThemePreferenceControl.test.tsx)
+  ⎿  Wrote 33 lines to
+     apps\mobile\src\theme\ThemePreferenceControl.test.tsx
+       1 import AsyncStorage from "@react-native-async-storage/async-stor
+         age";
+       2 import { fireEvent, screen } from "@testing-library/react-native
+         ";
+       3 
+       4 import { renderWithTheme } from "../test/renderWithTheme";
+       5 import { ThemePreferenceControl } from "./ThemePreferenceControl
+         ";
+       6 import { THEME_STORAGE_KEY } from "./ThemeProvider";
+       7 
+     … +26 lines (ctrl+o to expand)
+
+  Made 1 scratchpad edit +150 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git status --short | head -5; node
+      "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-…)
+  ⎿   M apps/mobile/package.json
+     D  apps/mobile/src/theme/useThemeColors.ts
+      M package-lock.json
+     … +47 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\eslint.config.js (+13 -0)
+       8    // Formatação é do Prettier: desliga as regras de estilo que 
+          brigariam com ele.
+       9    prettierConfig,
+      10    { ignores: ["dist/*", ".expo/*"] },
+      11 +  // Toda cor vem dos tokens (design/tokens.json), nos dois tem
+         +as.                                                            
+      12 +  {                                                            
+      13 +    files: ["src/**/*.{ts,tsx}"],                              
+      14 +    rules: {                                                   
+      15 +      "no-restricted-syntax": [                                
+      16 +        "error",                                               
+      17 +        {                                                      
+      18 +          selector: "Literal[value=/^(#[0-9a-fA-F]{3,8}|rgba?\\
+         +(|hsla?\\()/]",                                                
+      19 +          message: "Cor literal: use os tokens do tema.",      
+      20 +        },                                                     
+      21 +      ],                                                       
+      22 +    },                                                         
+      23 +  },                                                           
+      24  ]);
+  ⎿  Updated apps\mobile\package.json (+4 -1)
+      41    },
+      42    "private": true,
+      43    "jest": {
+      44 -    "preset": "jest-expo"                                      
+      44 +    "preset": "jest-expo",                                     
+      45 +    "moduleNameMapper": {                                      
+      46 +      "^@react-native-async-storage/async-storage$": "@react-na
+         +tive-async-storage/async-storage/jest/async-storage-mock"      
+      47 +    }                                                          
+      48    }
+      49  }
+  ⎿  Updated apps\mobile\src\app\_layout.tsx (+13 -4)
+       9    defaultBaseUrl,
+      10  } from "../api/ApiClientProvider";
+      11  import { PhoneFrame } from "../components/PhoneFrame";
+      12 +import { ThemeProvider, useTheme } from "../theme/ThemeProvider
+         +";                                                             
+      13 +                                                               
+      14 +// A barra de status segue o tema do app, que pode diferir do t
+         +ema do aparelho.                                               
+      15 +function ThemedStatusBar() {                                   
+      16 +  const { name } = useTheme();                                 
+      17 +  return <StatusBar style={name === "escuro" ? "light" : "dark"
+         +} />;                                                          
+      18 +}                                                              
+      19  
+      20  export default function RootLayout() {
+      21    const [queryClient] = useState(() => new QueryClient());
+     ...
+      24    return (
+      25      <QueryClientProvider client={queryClient}>
+      26        <ApiClientProvider client={apiClient}>
+      20 -        <PhoneFrame>                                           
+      21 -          <Slot />                                             
+      22 -        </PhoneFrame>                                          
+      23 -        <StatusBar style="auto" />                             
+      27 +        <ThemeProvider>                                        
+      28 +          <PhoneFrame>                                         
+      29 +            <Slot />                                           
+      30 +          </PhoneFrame>                                        
+      31 +          <ThemedStatusBar />                                  
+      32 +        </ThemeProvider>                                       
+      33        </ApiClientProvider>
+      34      </QueryClientProvider>
+      35    );
+  ⎿  Updated apps\mobile\src\components\PhoneFrame.test.tsx (+3 -2)
+      1 -import { render, screen } from "@testing-library/react-native"; 
+      1 +import { screen } from "@testing-library/react-native";         
+      2  import { Platform, StyleSheet, Text } from "react-native";
+      3  
+      4 +import { renderWithTheme } from "../test/renderWithTheme";      
+      5  import { PhoneFrame } from "./PhoneFrame";
+      6  
+      7  // O `react-native` exporta o hook por getter, então o mock vai 
+         no módulo de origem.
+     ...
+      14  function renderAt(os: typeof Platform.OS, width: number, height
+          : number) {
+      15    jest.replaceProperty(Platform, "OS", os);
+      16    Object.assign(mockWindow, { width, height });
+      16 -  return render(                                               
+      17 +  return renderWithTheme(                                      
+      18      <PhoneFrame>
+      19        <Text>conteúdo</Text>
+      20      </PhoneFrame>,
+  ⎿  Updated apps\mobile\src\components\PhoneFrame.tsx (+2 -2)
+      1  import type { ReactNode } from "react";
+      2  import { Platform, StyleSheet, View, useWindowDimensions } from 
+         "react-native";
+      3  
+      4 -import { useThemeColors } from "../theme/useThemeColors";       
+      4 +import { useTheme } from "../theme/ThemeProvider";              
+      5  
+      6  // Moldura de celular no desktop: a partir de 600 px de janela, 
+         coluna de 390 px
+      7  // (a largura das pranchetas) com teto de 844 px de altura, cent
+         ralizada nos dois eixos.
+     ...
+      10  export const FRAME_MAX_HEIGHT = 844;
+      11  
+      12  export function PhoneFrame({ children }: { children: ReactNode 
+          }) {
+      13 -  const colors = useThemeColors();                             
+      13 +  const { colors } = useTheme();                               
+      14    const { width, height } = useWindowDimensions();
+      15  
+      16    if (Platform.OS !== "web" || width < FRAME_MIN_WINDOW_WIDTH) 
+          {
+  ⎿  … 4 more files changed
+  ⎿  (timeout 6m 40s)
+
+● Write(apps\mobile\src\theme\ThemeProvider.test.tsx)
+  ⎿  Added 32 lines, removed 30 lines
+       1  import AsyncStorage from "@react-native-async-storage/async-sto
+          rage";
+       2 -import { act, render, screen } from "@testing-library/react-nat
+         -ive";                                                          
+       3 -import { Text } from "react-native";                           
+       2 +import { act, renderHook } from "@testing-library/react-native"
+         +;                                                              
+       3  
+       5 -import { renderWithTheme } from "../test/renderWithTheme";     
+       4  import {
+       5    THEME_STORAGE_KEY,
+       6 +  ThemeProvider,                                               
+       7    useTheme,
+       8    type ThemePreference,
+       9  } from "./ThemeProvider";
+     ...
+      15    default: () => mockSystem,
+      16  }));
+      17  
+      19 -let theme: ReturnType<typeof useTheme>;                        
+      20 -function Probe() {                                             
+      21 -  theme = useTheme();                                          
+      22 -  return <Text>{theme.name}</Text>;                            
+      18 +// Espera a leitura da preferência guardada, que é o que libera
+         + os filhos do provedor.                                        
+      19 +async function renderTheme() {                                 
+      20 +  const hook = await renderHook(() => useTheme(), { wrapper: Th
+         +emeProvider });                                                
+      21 +  await act(async () => {});                                   
+      22 +  return hook;                                                 
+      23  }
+      24  
+      25  beforeEach(async () => {
+     ...
+      29  
+      30  test("sem preferência guardada, o padrão é Sistema e segue o ap
+          arelho", async () => {
+      31    mockSystem = "dark";
+      32 -  await renderWithTheme(<Probe />);                            
+      32 +  const { result } = await renderTheme();                      
+      33  
+      34 -  expect(theme.preference).toBe("sistema");                    
+      35 -  expect(theme.name).toBe("escuro");                           
+      36 -  expect(theme.colors).toEqual(cores.escuro);                  
+      34 +  expect(result.current.preference).toBe("sistema");           
+      35 +  expect(result.current.name).toBe("escuro");                  
+      36 +  expect(result.current.colors).toEqual(cores.escuro);         
+      37  });
+      38  
+      39  test("Sistema acompanha a troca de tema do aparelho", async () 
+          => {
+      40 -  const { rerender } = await renderWithTheme(<Probe />);       
+      41 -  expect(theme.name).toBe("claro");                            
+      40 +  const { result, rerender } = await renderTheme();            
+      41 +  expect(result.current.name).toBe("claro");                   
+      42  
+      43    mockSystem = "dark";
+      44 -  await rerender(<Probe />);                                   
+      44 +  await rerender({});                                          
+      45  
+      46 -  expect(theme.name).toBe("escuro");                           
+      46 +  expect(result.current.name).toBe("escuro");                  
+      47 +  expect(result.current.colors).toEqual(cores.escuro);         
+      48  });
+      49  
+      50  test.each<[ThemePreference, "light" | "dark"]>([
+     ...
+       55    async (preference, system) => {
+       56      mockSystem = system;
+       57      await AsyncStorage.setItem(THEME_STORAGE_KEY, preference);
+       57 -    await renderWithTheme(<Probe />);                         
+       58 +    const { result } = await renderTheme();                   
+       59  
+       59 -    expect(theme.preference).toBe(preference);                
+       60 -    expect(theme.name).toBe(preference);                      
+       60 +    expect(result.current.preference).toBe(preference);       
+       61 +    expect(result.current.name).toBe(preference);             
+       62    },
+       63  );
+       64  
+       65  test("a troca aplica na hora e fica guardada", async () => {
+       65 -  await renderWithTheme(<Probe />);                           
+       66 +  const { result } = await renderTheme();                     
+       67  
+       67 -  await act(async () => theme.setPreference("escuro"));       
+       68 +  await act(async () => result.current.setPreference("escuro")
+          +);                                                            
+       69  
+       69 -  expect(screen.getByText("escuro")).toBeTruthy();            
+       70 +  expect(result.current.name).toBe("escuro");                 
+       71 +  expect(result.current.colors).toEqual(cores.escuro);        
+       72    expect(await AsyncStorage.getItem(THEME_STORAGE_KEY)).toBe("
+           escuro");
+       73  });
+       74  
+       75  test("valor desconhecido guardado cai no padrão", async () => 
+           {
+       76    await AsyncStorage.setItem(THEME_STORAGE_KEY, "sepia");
+       75 -  await renderWithTheme(<Probe />);                           
+       77 +  const { result } = await renderTheme();                     
+       78  
+       77 -  expect(theme.preference).toBe("sistema");                   
+       79 +  expect(result.current.preference).toBe("sistema");          
+       80  });
+       81  
+       82  test("falha ao ler o armazenamento não trava o app", async () 
+           => {
+       83    jest
+       84      .mocked(AsyncStorage.getItem)
+       85      .mockRejectedValueOnce(new Error("sem disco"));
+       84 -  await renderWithTheme(<Probe />);                           
+       86 +  const { result } = await renderTheme();                     
+       87  
+       86 -  expect(theme.preference).toBe("sistema");                   
+       87 -  expect(screen.getByText("claro")).toBeTruthy();             
+       88 +  expect(result.current.preference).toBe("sistema");          
+       89 +  expect(result.current.name).toBe("claro");                  
+       90  });
+       91  
+       92  test("falha ao gravar mantém a troca até fechar o app", async 
+           () => {
+       91 -  await renderWithTheme(<Probe />);                           
+       93 +  const { result } = await renderTheme();                     
+       94    jest
+       95      .mocked(AsyncStorage.setItem)
+       96      .mockRejectedValueOnce(new Error("sem disco"));
+       97  
+       96 -  await act(async () => theme.setPreference("escuro"));       
+       98 +  await act(async () => result.current.setPreference("escuro")
+          +);                                                            
+       99  
+       98 -  expect(theme.name).toBe("escuro");                          
+      100 +  expect(result.current.name).toBe("escuro");                 
+      101  });
+      102  
+      103  test("useTheme fora do provedor avisa com erro claro", async (
+           ) => {
+      104    const silence = jest.spyOn(console, "error").mockImplementat
+           ion(() => {});
+      105  
+      104 -  await expect(render(<Probe />)).rejects.toThrow(/ThemeProvid
+          -er/);                                                         
+      106 +  await expect(renderHook(() => useTheme())).rejects.toThrow(/
+          +ThemeProvider/);                                              
+      107  
+      108    silence.mockRestore();
+      109  });
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os testes, o lint e os tipos passam. Ainda faltam duas conferências: se a
+  regra de cor literal dispara mesmo, porque a checagem não imprimiu nada, e o
+  e2e no build real.
+  Ran 2 shell commands (ctrl+o to expand)
+  ⎿  Interrupted · What should Claude do instead?
