@@ -2364,3 +2364,138 @@ and CI state" completed (exit code 0)
   começa quando você liberar.
 
 ✻ Brewed for 30s · done 15:20
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt      
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
+
+※ recap: Passo 4 do design system: etapa 3 pronta sem commit, etapas 1 e 2 ainda com CI vermelha. Falta você revisar e mergear o PR #5, aprovar o ajuste do teste de fontes e revisar a etapa 3.
+
+> PR #5 mergeado na rodada. O código registro-simultaneo e o limite de 10       
+  ficam, registra o limite nos docs no fechamento. Ajuste do teste de fontes    
+  aprovado como commit próprio, com a mensagem proposta; é correção de CI       
+  depois de revisão, dentro da regra do passo 3. Etapa 3 aprovada: detailColor, 
+  o medal como fita, alert e inbox, área segura a conferir na etapa 5,          
+  ApiStatusScreen fora do Screen. Segue a ordem que propôs: sobe o ajuste, traz 
+  a rodada para a feat, me traz o resultado por job das etapas 1, 2 e 3, e      
+  para antes da etapa 4.                                                        
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro"; git
+      branch --show-current; git add e2e/tests/fontes.spec.ts && git commit -q
+      -m "test(mobil…)
+  ⎿  feat/passo-04-design-system
+     e88b977 Merge pull request #5 from GFGimenes/fix/demonstracao-registro
+     -simultaneo
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Demonstracao\DemonstracaoEndpoints.cs
+     (+1 -0)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\CodigosDeRecusa.cs
+     (+4 -0)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\SugestaoDeArroba.cs
+     (+10 -2)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Demonstracao\DemonstracaoHandler.cs (+18
+     -4)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+35 -5)
+  ⎿  … 2 more files changed
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O ajuste e o merge da rodada subiram em adfae37, e a CI está rodando. Só faço
+  o commit e o push da etapa 3 quando ela terminar, porque um novo push na mesma
+  branch cancelaria a execução em andamento.
+
+✻ Cogitated for 22s · done 15:25
+
+※ recap: Estamos fechando as etapas 1 a 3 do passo 4 (design system), com a CI de `adfae37` ainda rodando. Quando ela terminar, faço o commit e o push da etapa 3 e trago o resultado por job, parando antes da etapa 4.
+
+● Background command "Wait for the merged branch's CI and print the result by
+job" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Verde em adfae37, que contém as etapas 1 e 2 com a correção. Agora subo o
+  commit da etapa 3 e acompanho a CI dele.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Aguardando a CI da etapa 3.
+
+✻ Worked for 26s · done 15:30
+
+※ recap: Estamos no passo 4, o design system, com as etapas 1 e 2 verdes na CI e o commit da etapa 3 enviado. Falta o resultado da CI dela para eu trazer os três por job e parar antes da etapa 4.
+
+● Background command "Commit and push step 3, then wait for its CI by job"
+completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Etapas 1, 2 e 3 com CI verde; paro antes da etapa 4
+
+  Os seis jobs passaram nas duas execuções, e a árvore de trabalho está limpa e
+  sincronizada com o remoto.
+
+  ┌────────────┬───────────────────────────────┬────────────────────────────┐
+  │    Job     │  Etapas 1 e 2 (adfae37, run   │   Etapa 3 (1467003, run    │
+  │            │         42270612386)          │        42271268590)        │
+  ├────────────┼───────────────────────────────┼────────────────────────────┤
+  │ api        │ passou                        │ passou                     │
+  ├────────────┼───────────────────────────────┼────────────────────────────┤
+  │ api-client │ passou                        │ passou                     │
+  ├────────────┼───────────────────────────────┼────────────────────────────┤
+  │ mobile     │ passou                        │ passou                     │
+  ├────────────┼───────────────────────────────┼────────────────────────────┤
+  │ e2e        │ passou                        │ passou                     │
+  ├────────────┼───────────────────────────────┼────────────────────────────┤
+  │ segurança  │ passou                        │ passou                     │
+  ├────────────┼───────────────────────────────┼────────────────────────────┤
+  │ build      │ passou                        │ passou                     │
+  └────────────┴───────────────────────────────┴────────────────────────────┘
+
+  - Etapas 1 e 2 juntas: elas não têm execuções verdes separadas. Os commits
+    858a532 e f442155 continuam vermelhos no histórico, e o verde vem de
+    adfae37, que contém os dois, mais o ajuste do teste e a correção da rodada.
+  - Teste de corrida: um verde isolado não provaria nada num teste intermitente.
+    A evidência mais forte é o contraste no local: com oito pedidos
+    simultâneos, ele falhou em 3 de 3 execuções antes da correção e passou nas 5
+    execuções depois dela. Na CI, o teste já passou nas três execuções que têm
+    a correção: a do PR e estas duas.
+  - Teste de fontes: com a tolerância de 2 px, o e2e passou nas duas execuções.
+    Isso é compatível com o arredondamento de letra por letra no Linux, mas não
+    prova essa causa.
+
+  Commits novos na feat/passo-04-design-system
+
+  - 46944ad test(mobile): tolera o arredondamento de avanço no linux
+  - adfae37 chore(api): traz a correção do registro simultâneo da rodada
+  - 1467003 feat(mobile): adiciona ícones, screen e vitrine de desenvolvimento
+
+  Para o fechamento, na etapa 8
+
+  - Respostas de decisão: as respostas 3 a 10 do plano.
+  - Raio do segmento ativo: o valor vem da identidade visual.
+  - Registro simultâneo: o limite de 10 tentativas e o código
+    registro-simultaneo.
+
+  Pendências
+
+  - Etapa 5: conferir se a área segura inferior do Screen conta em dobro com a
+    navegação.
+  - Produção: conferir a Archivo "unloaded" quando a primeira tela real usar
+    essa fonte.
+  - Nativo: Android e iOS seguem sem teste, agora incluindo o react-native-svg.
+  - npm ci: a intermitência no build segue sem causa conhecida e não voltou a
+    aparecer.
+  - Passo 5: a tela de entrada da demonstração precisa de uma mensagem amigável
+    para registro-simultaneo.
+
+  Fico parado aqui até você liberar a etapa 4, a dos controles: Button,
+  TextField, SegmentedControl e FilterChip.
+
+✻ Sautéed for 16s · done 15:35
+
+※ recap: Estamos no passo 4 do Maxx, o design system: as etapas 1, 2 e 3 estão com a CI verde nos seis jobs. O próximo passo é você liberar a etapa 4, dos controles.
