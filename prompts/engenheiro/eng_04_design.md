@@ -1,8 +1,8 @@
 ID: eng_04_design
 Trilha: engenheiro
 Tela: passo 4 do plano mestre (design system; primeira rodada com peso visual)
-Data: a preencher no envio
-Origem: rascunho do Cowork (Anthropic) no molde dos passos 1 a 3, a partir do plano mestre do repo em 05/11/2026 (`main` em `5b7cb45`). Antes do envio, conferir contra o plano mestre atualizado, porque passos anteriores podem ter acrescentado itens a este. Ao enviar, mover para `prompts/engenheiro/eng_04_design.md`, preencher a data e registrar o ambiente (`claude --version`, `/model`).
+Data: 2026-11-05
+Origem: texto do Cowork (Anthropic) no molde dos passos 1 a 3, conferido contra o plano mestre em `5b7cb45`, aprovado pelo autor. Sessão nova na `rodada/eng_04_design` (saída da `main` em `5b7cb45`). Ambiente conferido antes do primeiro prompt: Claude Code 2.1.316 (`claude --version`), `/model` com Opus 5.5 e esforço medium, auto mode, `DISABLE_AUTOUPDATER=1` e `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` na janela.
 
 Notas de registro:
 - Texto relembra o que fecha o passo pelo plano mestre, sem regra nova, mais a regra da CI verde por etapa fixada na `eng_03_auth-r13`.
