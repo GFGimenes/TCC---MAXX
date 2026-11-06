@@ -1,0 +1,198 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+‼ Your login expires in 3 days · run /login to renew
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 4 do plano mestre: design system. Estamos na rodada/eng_04_design,      
+  saída da main com os passos 1 a 3 mergeados. Antes de qualquer código, me     
+  traga o plano de etapas, com entrega e critério de aceite por etapa, como     
+  combinamos no CLAUDE.md. Vale tudo que está lá: decisão que não está nos docs 
+  não foi tomada, então pergunte antes de assumir. Uma regra que fixei no       
+  passo 3 e vale daqui em diante: cada etapa só é dada como pronta depois de a  
+  CI do push dela passar, e o resultado da CI entra no relatório da etapa.      
+  Lembro o que fecha o passo: tokens.json tipado com tema claro e escuro e      
+  troca de tema; Archivo instanciada em largura óptica 112% e embarcada, mais   
+  Instrument Sans; os componentes listados no plano mestre (botão discreto e    
+  grande, campo com mostrar senha, controle segmentado, chip de filtro,         
+  navegação de cinco abas com realce e bolinha de novidade, medalhão com tier e 
+  raridade, selo de pílula do post, faixa de prêmio, trilha com cadeado,        
+  avatar de iniciais, estado vazio, estado de erro amigável); grade de 4 px,    
+  margem lateral de 16 e respiro de 24 antes da navegação; ícones e splash      
+  reais do app no lugar dos PNGs do template, como ficou anotado no passo 1. A  
+  referência visual é a pasta design/, com as pranchetas e o README. Eu reviso  
+  o plano e aí começamos a primeira etapa.                                      
+
+● Vou ler o plano mestre, a pasta design/ e o estado atual do app antes de
+  montar o plano.
+
+  Searched for 1 pattern, read 11 files, ran 7 shell commands (ctrl+o to expand)
+
+● Já li os docs e as pranchetas. Falta só conferir o tamanho das famílias de
+  trilha e já te trago o plano.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Passo 4: plano de etapas
+
+  Branch: feat/passo-04-design-system, saindo de rodada/eng_04_design e voltando
+  para ela por PR. Nenhum código foi escrito.
+
+  Ciclo de cada etapa:
+  1. Mostro o resultado e você revisa.
+  2. Faço o commit, sem rodapé de co-autoria, como manda o CLAUDE.md, e o push.
+  3. Acompanho a CI até o fim e faço o relatório com o resultado de cada job.
+
+  A etapa só fica pronta com a CI verde. Se a CI falhar, a correção passa pela
+  sua revisão e vira commit próprio, como aconteceu com o gitleaks no passo 3.
+
+  Etapas
+
+  #: 1. Tema
+  Entrega: Tokens tipados em src/theme/, provedor de tema, troca de tema e
+  preferência persistida. PhoneFrame e a tela de status migrados;
+  useThemeColors provisório removido.
+  Critério de aceite: Sem cor literal fora dos tokens. Jest cobre a resolução do
+
+  tema, a troca e a persistência. Um teste compara os valores tipados com o
+  tokens.json. O e2e atual continua passando nos quatro projetos.
+  ────────────────────────────────────────
+  #: 2. Fontes
+  Entrega: Script versionado que instancia Archivo em 112% (700, 800 e 800
+  itálico) e Instrument Sans (400 a 700). TTFs e licença OFL no repositório,
+  carga pelo expo-font e estilos da escala tipográfica.
+  Critério de aceite: Um teste confirma que os TTFs não têm fvar e que têm tnum.
+
+  O e2e confirma que as fontes vêm do build servido pelo Caddy, sem CDN.
+  ────────────────────────────────────────
+  #: 3. Base e vitrine
+  Entrega: react-native-svg, conjunto de ícones (traço 1.8, grade 24), Screen
+  com
+  margem de 16 e respiro de 24, e a rota de vitrine.
+  Critério de aceite: Medidas verificadas em teste. Vitrine abre em claro e
+  escuro.
+  ────────────────────────────────────────
+  #: 4. Controles
+  Entrega: Button (discreto e grande), TextField com mostrar senha,
+  SegmentedControl, FilterChip.
+  Critério de aceite: 32 de altura visual e 44 de toque; 50 no grande; 48 no
+  campo. Estados padrão, pressionado, foco e desativado. Sombra só no
+  segmentado do claro.
+  ────────────────────────────────────────
+  #: 5. Navegação e estados
+  Entrega: BottomNav de cinco abas, Avatar de iniciais, EmptyState, ErrorState.
+  Critério de aceite: 84 de altura, realce de 44 x 44 com raio 14, bolinha de 8
+  com halo em qualquer estado. Avatar nunca usa cor de tier. Erro com ação de
+  tentar de novo e like só no ícone.
+  ────────────────────────────────────────
+  #: 6. Prêmios
+  Entrega: Medalhao, SeloPremio, FaixaPremio, TrilhaFamilia.
+  Critério de aceite: Matriz de 4 tiers por 4 raridades nos dois temas. Glifo de
+
+  taça ou fita. Anéis em rarityRing. Trilha funciona de 2 a 5 passos. Gradiente
+   só aqui.
+  ────────────────────────────────────────
+  #: 7. Ícones e splash
+  Entrega: PNGs do template substituídos e app.json atualizado (ícone,
+  adaptativo, monocromático, favicon, splash).
+  Critério de aceite: Nenhum PNG do template restante. Build web com o favicon
+  novo. expo prebuild sem erro. Conferência em emulador Android feita por você
+  ou comigo, relatada à parte.
+  ────────────────────────────────────────
+  #: 8. Fechamento
+  Entrega: Decisões registradas em docs/decisoes/README.md,
+  apps/mobile/README.md
+  atualizado e PR aberto.
+  Critério de aceite: Definição de pronto conferida item a item. Sem migration
+  nem mudança de OpenAPI, porque o passo não toca na API, e o job api-client
+  confirma isso.
+
+  A navegação fica só como componente nesta etapa. Ligá-la às rotas depende das
+  telas, que começam no passo 5.
+
+  Decisões que preciso de você
+
+  Os itens 1 a 5 não estão nos docs. Os itens 6 a 10 são contradições entre as
+  fontes de design.
+
+  Sem decisão nos docs
+
+  1. Origem do ícone e do splash. Só há PNGs pequenos do logo (338 x 89), e um
+     ícone de 1024 ficaria borrado. A exportação com os fontes está fora do
+     repositório. Você tem SVG ou versão maior?
+     - Recomendo que você forneça esse arquivo. Se não houver, vetorizo o PNG e
+       você aprova o resultado.
+  2. Arte do ícone. O logo inteiro fica minúsculo no favicon de 48 px, abaixo da
+     altura mínima de 22 px da identidade.
+     - Recomendo: logo em ouro sobre marinho #0B2A55 no ícone e no adaptativo, e
+       um favicon com recorte do "XX". Esse recorte mexe na marca, então a
+       decisão é sua.
+     - Splash: logo em ouro sobre bg de cada tema.
+  3. Troca de tema. Não há definição de opções, de padrão nem de lugar na
+     interface.
+     - Recomendo três opções (Sistema, Claro, Escuro), com padrão Sistema,
+       persistidas com AsyncStorage.
+     - No passo 4 o controle aparece na vitrine e na tela de status. O lugar
+       definitivo seria o menu do perfil, no passo 7.
+  4. Dependência de ícones. Recomendo só react-native-svg, com os caminhos do
+     Lucide (licença ISC) num Icone nosso, por três motivos:
+     - as versões preenchidas da navegação e a fita não saem prontas do Lucide;
+     - o Lucide traria um Trophy no código, nome que o glossário proíbe;
+     - evita peso no bundle, risco já anotado no plano mestre.
+  5. Vitrine. Recomendo uma rota só de desenvolvimento (__DEV__), fora do build
+     de produção, sem flag nova.
+     - A revisão visual fica por capturas locais em claro e escuro, ao lado das
+       pranchetas.
+     - O custo é que a CI cobre os componentes só por Jest. O e2e cobre fontes e
+       tema sobre o build real.
+
+  Contradições no design
+
+  6. Trilha. A identidade visual fala em tiers e em "conquista repetida sobe de
+     tier". O produto.md 4.4 diz que essa regra foi substituída por família, com
+     até 5 passos.
+     - Recomendo seguir o produto: TrilhaFamilia recebe itens. Além do próximo
+       com cadeado, os demais passos também ficam tracejados. Com 5 passos, a
+       trilha rola na horizontal.
+  7. Anel de foco no claro. O tokens.json diz marinho, mas a prancheta mostra
+     ouro em volta do botão.
+     - Recomendo seguir o token, com um afastamento de 2 px para o anel não
+       sumir no botão marinho.
+  8. Pressionado e desativado. Não há token para esses estados, e a prancheta só
+     os mostra no claro, cortada no fim.
+     - Recomendo desativado com surface2 e ink3, como aparece na prancheta, e
+       pressionado com opacidade de 0,85 nos dois temas.
+     - Se você tiver a prancheta inteira, ela decide.
+  9. Cores de avatar. Rankings e feed mostram avatares em marrom, azul e cinza.
+     O token só tem avatarBg, e o marrom lembra cor de tier, o que a regra
+     proíbe.
+     - Recomendo só o token. O anel dourado do próprio aluno fica para os passos
+       7 e 11.
+  10. Raio do chip. O texto de raios.regra admite pill no ranking, mas a
+      identidade e a prancheta usam raio 8.
+      - Recomendo raio 8 e corrigir essa frase no tokens.json.
+
+  Premissas (me corrija se discordar)
+
+  - tokens.json sem mudança de estrutura. Cores, tiers e espaçamento são
+    importados direto, e o e2e já lê esse arquivo. Tamanhos e tipografia estão
+    em texto livre ("28/32, Archivo 800"), então viram constantes tipadas, e um
+    teste as confere contra o JSON.
+  - Fontes instanciadas com fontTools em contêiner Docker. Esta máquina não tem
+    Python. Os TTFs ficam no repositório, então a CI não precisa de Python.
+  - Pranchetas não servem de referência de fonte. Elas parecem renderizadas com
+    fonte substituta, não com Archivo e Instrument Sans. Comparo layout e
+    medidas, e a tipografia segue o tokens.json.
+  - Nomes dos componentes. Inglês nos técnicos (Button) e português nos de
+    domínio (Medalhao), como no CLAUDE.md.
+  - Altura da navegação. Mínimo de 84, crescendo só se a área segura exigir
+    mais.
+
+  Me responda os itens 1 a 10, ou só "ok" nos que aceitar como recomendados. O
+  item 1 trava só a etapa 7, então posso começar a etapa 1 assim que você
+  aprovar o plano. Para a etapa 1, só preciso da resposta do item 3.
+
+✻ Churned for 4m 0s · done 21:46
