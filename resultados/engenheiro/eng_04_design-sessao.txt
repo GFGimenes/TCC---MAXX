@@ -789,3 +789,602 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
 ✻ Worked for 3m 24s · done 12:24
 
 ※ recap: Passo 4, design system: a etapa 1 (tokens tipados e troca de tema) está pronta, com testes locais e e2e verdes, aguardando sua revisão. Com o seu ok, faço o commit, o push e acompanho a CI. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt      
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_04_design-sessao.txt
+
+> Etapa 1 aprovada. O raio do segmento ativo vindo da identidade visual fica,   
+  registra isso no fechamento. Commita com a mensagem proposta, push, acompanha 
+  a CI e me traz o resultado por job junto com a etapa 2; para para a minha     
+  revisão no fim dela.                                                          
+
+  Pushed to feat/passo-04-design-system, ran 2 shell commands (ctrl+o to expand)
+  ⎿  PostToolUse:Bash says: Tip: Run /ultrareview before you push to catch bugs 
+     with a cloud-based multi-agent review — 3 free reviews left.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      S="/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-
+      Documents-Repos…)
+  ⎿  0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053 *a.tt
+     f
+     305d13b4eb80e62f7d517f78d7c045250d977552a420f2dbed906f314e761305 *ai.t
+     … +23 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\app.json (+4 -1)
+      23        "bundler": "metro",
+      24        "output": "single"
+      25      },
+      26 -    "plugins": ["expo-router"],                                
+      26 +    "plugins": [                                               
+      27 +      "expo-router",                                           
+      28 +      "expo-font"                                              
+      29 +    ],                                                         
+      30      "scheme": "maxx"
+      31    }
+      32  }
+  ⎿  Updated apps\mobile\package.json (+1 -0)
+       8      "@tanstack/react-query": "^5.105.1",
+       9      "expo": "~58.0.22",
+      10      "expo-constants": "~58.0.14",
+      11 +    "expo-font": "~58.0.11",                                   
+      12      "expo-linking": "~58.0.15",
+      13      "expo-router": "~58.0.29",
+      14      "expo-status-bar": "~58.0.4",
+  ⎿  Updated package-lock.json (+1 -0)
+      26          "@tanstack/react-query": "^5.105.1",
+      27          "expo": "~58.0.22",
+      28          "expo-constants": "~58.0.14",
+      29 +        "expo-font": "~58.0.11",                               
+      30          "expo-linking": "~58.0.15",
+      31          "expo-router": "~58.0.29",
+      32          "expo-status-bar": "~58.0.4",
+  ⎿  (timeout 5m)
+
+● Write(design\fontes\instanciar.py)
+  ⎿  Wrote 113 lines to design\fontes\instanciar.py
+       1 """Gera as fontes estáticas do app a partir das variáveis do Goo
+         gle Fonts.
+       2 
+       3 React Native não expõe eixo de fonte variável, então cada combin
+         ação de largura, peso e
+       4 itálico vira um arquivo (docs/decisoes/README.md, Tipografia). R
+         oda dentro do contêiner de
+       5 gerar.sh; a saída é determinística e vai para o repositório, sem
+          Python na CI.
+       6 """
+     … +107 lines (ctrl+o to expand)
+
+● Write(design\fontes\gerar.sh)
+  ⎿  Wrote 15 lines to design\fontes\gerar.sh
+       1 #!/usr/bin/env bash
+       2 # Regenera apps/mobile/assets/fonts a partir das fontes variávei
+         s, em versões travadas.
+       3 # Precisa só de Docker: quem usa o app não roda isto, os arquivo
+         s ficam no repositório.
+       4 set -euo pipefail
+       5 
+       6 raiz="$(cd "$(dirname "$0")/../.." && pwd)"
+       7 saida="$raiz/apps/mobile/assets/fonts"
+       8 mkdir -p "$saida"
+     … +7 lines (ctrl+o to expand)
+
+  Made 1 scratchpad edit +9 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      bash design/fontes/gerar.sh 2>&1 | tail -9; (cd apps/mobile/assets/fonts
+      && sha256sum *.t…)
+  ⎿  Archivo112-700.ttf: 118 KB
+     Archivo112-800.ttf: 118 KB
+     Archivo112-800Italic.ttf: 130 KB
+     … +16 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\assets\fonts\OFL-Archivo.txt (+93 -0)
+       1 +Copyright 2020 The Archivo Project Authors (https://github.com/
+         +Omnibus-Type/Archivo)                                          
+       2 +                                                               
+       3 +This Font Software is licensed under the SIL Open Font License,
+         + Version 1.1.                                                  
+       4 +This license is copied below, and is also available with a FAQ 
+         +at:                                                            
+       5 +http://scripts.sil.org/OFL                                     
+       6 +                                                               
+       7 +                                                               
+       8 +-----------------------------------------------------------    
+       9 +SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007           
+      10 +-----------------------------------------------------------    
+      11 +                                                               
+      12 +PREAMBLE                                                       
+      13 +The goals of the Open Font License (OFL) are to stimulate world
+         +wide                                                           
+      14 +development of collaborative font projects, to support the font
+         + creation                                                      
+      15 +efforts of academic and linguistic communities, and to provide 
+         +a free and                                                     
+      16 +open framework in which fonts may be shared and improved in par
+         +tnership                                                       
+      17 +with others.                                                   
+      18 +                                                               
+      19 +The OFL allows the licensed fonts to be used, studied, modified
+         + and                                                           
+      20 +redistributed freely as long as they are not sold by themselves
+         +. The                                                          
+      21 +fonts, including any derivative works, can be bundled, embedded
+         +,                                                              
+      22 +redistributed and/or sold with any software provided that any r
+         +eserved                                                        
+      23 +names are not used by derivative works. The fonts and derivativ
+         +es,                                                            
+      24 +however, cannot be released under any other type of license. Th
+         +e                                                              
+      25 +requirement for fonts to remain under this license does not app
+         +ly                                                             
+      26 +to any document created using the fonts or their derivatives.  
+      27 +                                                               
+      28 +DEFINITIONS                                                    
+      29 +"Font Software" refers to the set of files released by the Copy
+         +right                                                          
+      30 +Holder(s) under this license and clearly marked as such. This m
+         +ay                                                             
+      31 +include source files, build scripts and documentation.         
+      32 +                                                               
+      33 +"Reserved Font Name" refers to any names specified as such afte
+         +r the                                                          
+      34 +copyright statement(s).                                        
+      35 +                                                               
+      36 +"Original Version" refers to the collection of Font Software co
+         +mponents as                                                    
+      37 +distributed by the Copyright Holder(s).                        
+      38 +                                                               
+      39 +"Modified Version" refers to any derivative made by adding to, 
+         +deleting,                                                      
+      40 +or substituting -- in part or in whole -- any of the components
+         + of the                                                        
+     … 53 more lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\assets\fonts\OFL-InstrumentSans.txt (+93 -0)
+       1 +Copyright 2022 The Instrument Sans Project Authors (https://git
+         +hub.com/Instrument/instrument-sans)                            
+       2 +                                                               
+       3 +This Font Software is licensed under the SIL Open Font License,
+         + Version 1.1.                                                  
+       4 +This license is copied below, and is also available with a FAQ 
+         +at:                                                            
+       5 +https://scripts.sil.org/OFL                                    
+       6 +                                                               
+       7 +                                                               
+       8 +-----------------------------------------------------------    
+       9 +SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007           
+      10 +-----------------------------------------------------------    
+      11 +                                                               
+      12 +PREAMBLE                                                       
+      13 +The goals of the Open Font License (OFL) are to stimulate world
+         +wide                                                           
+      14 +development of collaborative font projects, to support the font
+         + creation                                                      
+      15 +efforts of academic and linguistic communities, and to provide 
+         +a free and                                                     
+      16 +open framework in which fonts may be shared and improved in par
+         +tnership                                                       
+      17 +with others.                                                   
+      18 +                                                               
+      19 +The OFL allows the licensed fonts to be used, studied, modified
+         + and                                                           
+      20 +redistributed freely as long as they are not sold by themselves
+         +. The                                                          
+      21 +fonts, including any derivative works, can be bundled, embedded
+         +,                                                              
+      22 +redistributed and/or sold with any software provided that any r
+         +eserved                                                        
+      23 +names are not used by derivative works. The fonts and derivativ
+         +es,                                                            
+      24 +however, cannot be released under any other type of license. Th
+         +e                                                              
+      25 +requirement for fonts to remain under this license does not app
+         +ly                                                             
+      26 +to any document created using the fonts or their derivatives.  
+      27 +                                                               
+      28 +DEFINITIONS                                                    
+      29 +"Font Software" refers to the set of files released by the Copy
+         +right                                                          
+      30 +Holder(s) under this license and clearly marked as such. This m
+         +ay                                                             
+      31 +include source files, build scripts and documentation.         
+      32 +                                                               
+      33 +"Reserved Font Name" refers to any names specified as such afte
+         +r the                                                          
+      34 +copyright statement(s).                                        
+      35 +                                                               
+      36 +"Original Version" refers to the collection of Font Software co
+         +mponents as                                                    
+      37 +distributed by the Copyright Holder(s).                        
+      38 +                                                               
+      39 +"Modified Version" refers to any derivative made by adding to, 
+         +deleting,                                                      
+      40 +or substituting -- in part or in whole -- any of the components
+         + of the                                                        
+     … 53 more lines (ctrl+o to expand)
+  ⎿  … 7 more files changed
+  ⎿  (timeout 6m 40s)
+
+● As fontes foram geradas: 7 arquivos, 644 KB, com gerações idênticas. O "M" em
+  peso 800 foi de 914 para 1026 unidades, confirmando os 112%. Próximo passo:
+  ligar as fontes ao app e escrever os testes.
+
+● Write(apps\mobile\src\theme\fonts.ts)
+  ⎿  Wrote 51 lines to apps\mobile\src\theme\fonts.ts
+       1 import type { TextStyle } from "react-native";
+       2 
+       3 import { tipografia, type EstiloDeTexto } from "./tokens";
+       4 
+       5 // Os arquivos gerados por design/fontes/gerar.sh. A chave é o n
+         ome da família no React
+       6 // Native: cada peso é uma família, porque o Android não escolhe
+          arquivo por `fontWeight`.
+       7 export const fontAssets = {
+       8   "Archivo112-700": require("../../assets/fonts/Archivo112-700.t
+     … +44 lines (~2 KB) (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\FontGate.tsx)
+  ⎿  Wrote 14 lines to apps\mobile\src\theme\FontGate.tsx
+      1 import { useFonts } from "expo-font";
+      2 import type { ReactNode } from "react";
+      3 
+      4 import { fontAssets } from "./fonts";
+      5 
+      6 // Segura a primeira pintura até as fontes carregarem, para o tex
+        to não trocar de forma na
+      7 // frente do usuário. Se a carga falhar, segue com a fonte do sis
+        tema: o app nunca trava.
+      8 export function FontGate({ children }: { children: ReactNode }) {
+     … +6 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\FontGate.test.tsx)
+  ⎿  Wrote 36 lines to apps\mobile\src\theme\FontGate.test.tsx
+       1 import { render, screen } from "@testing-library/react-native";
+       2 import { useFonts } from "expo-font";
+       3 import { Text } from "react-native";
+       4 
+       5 import { FontGate } from "./FontGate";
+       6 import { fontAssets } from "./fonts";
+       7 
+       8 jest.mock("expo-font", () => ({ useFonts: jest.fn() }));
+       9 
+      10 async function renderGate(state: [boolean, Error | null]) {
+     … +26 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\theme\fonts.test.ts)
+  ⎿  Wrote 146 lines to apps\mobile\src\theme\fonts.test.ts
+       1 /// <reference types="node" />
+       2 import { readdirSync, readFileSync } from "node:fs";
+       3 import { join } from "node:path";
+       4 
+       5 import { fontAssets, fontFamily, textStyles, type FontFamily } f
+         rom "./fonts";
+       6 import { tipografia } from "./tokens";
+       7 
+       8 const PASTA = join(__dirname, "../../assets/fonts");
+       9 
+     … +137 lines (ctrl+o to expand)
+
+● Write(e2e\tests\fontes.spec.ts)
+  ⎿  Wrote 51 lines to e2e\tests\fontes.spec.ts
+       1 import { expect, test } from "@playwright/test";
+       2 
+       3 const FAMILIAS = [
+       4   "Archivo112-700",
+       5   "Archivo112-800",
+       6   "Archivo112-800Italic",
+       7   "InstrumentSans-400",
+       8   "InstrumentSans-500",
+       9   "InstrumentSans-600",
+      10   "InstrumentSans-700",
+     … +41 lines (ctrl+o to expand)
+
+  Made 1 scratchpad edit +66 (ctrl+o to expand)
+
+● Background command "Wait for the stage 1 CI run and report each job" completed
+(exit code 0)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimene
+      s-Documents-Rep…)
+  ⎿  exit=1
+     failure
+     segurança: success
+     … +31 lines (ctrl+o to expand)
+  ⎿  Updated .gitattributes (+1 -0)
+      1  * text=auto eol=lf
+      2  *.png binary
+      3 +*.ttf binary                                                    
+  ⎿  Updated apps\mobile\app.json (+1 -4)
+      23        "bundler": "metro",
+      24        "output": "single"
+      25      },
+      26 -    "plugins": [                                               
+      27 -      "expo-router",                                           
+      28 -      "expo-font"                                              
+      29 -    ],                                                         
+      26 +    "plugins": ["expo-router", "expo-font"],                   
+      27      "scheme": "maxx"
+      28    }
+      29  }
+  ⎿  Updated apps\mobile\package.json (+1 -0)
+      22    "devDependencies": {
+      23      "@testing-library/react-native": "^14.1.0",
+      24      "@types/jest": "^30.0.0",
+      25 +    "@types/node": "^26.6.6",                                  
+      26      "@types/react": "~19.3.0",
+      27      "eslint": "^9.39.5",
+      28      "eslint-config-expo": "^58.0.4",
+  ⎿  Updated apps\mobile\src\app\_layout.tsx (+4 -1)
+       9    defaultBaseUrl,
+      10  } from "../api/ApiClientProvider";
+      11  import { PhoneFrame } from "../components/PhoneFrame";
+      12 +import { FontGate } from "../theme/FontGate";                  
+      13  import { ThemeProvider, useTheme } from "../theme/ThemeProvider
+          ";
+      14  
+      15  // A barra de status segue o tema do app, que pode diferir do t
+          ema do aparelho.
+     ...
+      27        <ApiClientProvider client={apiClient}>
+      28          <ThemeProvider>
+      29            <PhoneFrame>
+      29 -            <Slot />                                           
+      30 +            <FontGate>                                         
+      31 +              <Slot />                                         
+      32 +            </FontGate>                                        
+      33            </PhoneFrame>
+      34            <ThemedStatusBar />
+      35          </ThemeProvider>
+  ⎿  Updated apps\mobile\src\status\ApiStatusScreen.tsx (+7 -3)
+       8  } from "react-native";
+       9  
+      10  import { useHealth } from "../api/useHealth";
+      11 +import { fontFamily, textStyles } from "../theme/fonts";       
+      12  import { ThemePreferenceControl } from "../theme/ThemePreferenc
+          eControl";
+      13  import { useTheme } from "../theme/ThemeProvider";
+      14  
+     ...
+      80    },
+      81    logo: { width: 106, height: 28 },
+      82    status: { alignItems: "center", gap: 8 },
+      82 -  message: { fontSize: 14, lineHeight: 20, textAlign: "center" 
+         -},                                                             
+      83 -  detail: { fontSize: 12, lineHeight: 16, textAlign: "center" }
+         -,                                                              
+      83 +  message: { ...textStyles.corpo, textAlign: "center" },       
+      84 +  detail: { ...textStyles.legenda, textAlign: "center" },      
+      85    // Botão discreto da identidade: 32 de altura visual, raio 8,
+           texto 13, 44 de toque.
+      86    button: {
+      87      height: 32,
+     ...
+      90      justifyContent: "center",
+      91      marginTop: 8,
+      92    },
+      92 -  buttonText: { fontSize: 13, fontWeight: "600" },             
+      93 +  buttonText: {                                                
+      94 +    fontFamily: fontFamily({ familia: "Instrument Sans", peso: 
+         +600 }),                                                        
+      95 +    fontSize: 13,                                              
+      96 +  },                                                           
+      97  });
+  ⎿  … 4 more files changed
+  ⎿  (timeout 6m 40s)
+
+● A CI da etapa 1 falhou no job api, e os outros cinco passaram. Pela sua regra,
+  a etapa 1 ainda não está pronta. A etapa não mexeu na API, mas vou ler o log
+  antes de tirar qualquer conclusão.
+  Ran 4 shell commands (ctrl+o to expand)
+
+● A falha vem de um defeito do passo 3 já presente na main, não da etapa 1; vou
+  registrar isso no relatório e seguir com a verificação e2e e a amostra visual
+  das fontes.
+
+  Read 1 file, ran 5 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat > /tmp/ed.js <<'EOF'
+      const fs=require("fs");const f="e2e/tests/fontes.spec.ts";let s=…)
+  ⎿  Running 12 tests using 6 workers
+
+       ok  2 [desktop-claro] › tests\fontes.spec.ts:13:5 › as fontes vêm do
+     … +45 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\fontes.spec.ts (+28 -7)
+      11  ];
+      12  
+      13  test(
+      14 -  "as fontes vêm do próprio build, sem CDN, e chegam a ser usad
+         -as",                                                           
+      14 +  "as fontes vêm do próprio build, sem CDN, e a Archivo chega e
+         +m 112%",                                                       
+      15    { tag: ["@desktop", "@celular"] },
+      16    async ({ page, baseURL }) => {
+      17      const origem = new URL(baseURL!).origin;
+     ...
+      37        expect(arquivo?.status, `arquivo de ${familia}`).toBe(200
+          );
+      38      }
+      39  
+      40 -    // `document.fonts.check` responde true até para fonte inex
+         -istente: vale o estado da face.                                
+      41 -    const carregadas = await page.evaluate(() =>               
+      42 -      [...document.fonts]                                      
+      43 -        .filter((face) => face.status === "loaded")            
+      44 -        .map((face) => face.family.replace(/"/g, "")),         
+      40 +    // `document.fonts.check` responde true até para fonte inex
+         +istente, e uma face fora de uso                                
+      41 +    // pode ficar "unloaded" mesmo com o arquivo já baixado: va
+         +le pedir a face e ver o que volta.                             
+      42 +    const estados = await page.evaluate(                       
+      43 +      (familias) =>                                            
+      44 +        Promise.all(                                           
+      45 +          familias.map(async (familia) =>                      
+      46 +            (await document.fonts.load(`16px "${familia}"`, "M"
+         +)).map(                                                        
+      47 +              (face) => `${face.family.replace(/"/g, "")}: ${fa
+         +ce.status}`,                                                   
+      48 +            ),                                                 
+      49 +          ),                                                   
+      50 +        ),                                                     
+      51 +      FAMILIAS,                                                
+      52      );
+      46 -    expect(carregadas).toEqual(expect.arrayContaining(FAMILIAS)
+         -);                                                             
+      53 +    expect(estados.flat()).toEqual(FAMILIAS.map((f) => `${f}: l
+         +oaded`));                                                      
+      54 +                                                               
+      55 +    // A largura óptica chega ao navegador: em Archivo 800, o M
+         + tem 1026 unidades em 112%                                     
+      56 +    // (914 em 100%), então quatro deles a 100 px medem cerca d
+         +e 410 px.                                                      
+      57 +    const largura = await page.evaluate(() => {                
+      58 +      const medida = document.createElement("span");           
+      59 +      medida.style.cssText =                                   
+      60 +        'position:absolute;visibility:hidden;font:100px "Archiv
+         +o112-800"';                                                    
+      61 +      medida.textContent = "MMMM";                             
+      62 +      document.body.append(medida);                            
+     … 8 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Read 1 file (ctrl+o to expand)
+
+● Etapa 1 não fechou: a CI falhou. Etapa 2 pronta para revisão, sem commit
+
+  CI da etapa 1 (858a532, run 42249803101): vermelha
+
+  ┌────────────┬───────────────────────────┐
+  │    Job     │         Resultado         │
+  ├────────────┼───────────────────────────┤
+  │ mobile     │ passou                    │
+  ├────────────┼───────────────────────────┤
+  │ api-client │ passou                    │
+  ├────────────┼───────────────────────────┤
+  │ e2e        │ passou                    │
+  ├────────────┼───────────────────────────┤
+  │ segurança  │ passou                    │
+  ├────────────┼───────────────────────────┤
+  │ build      │ passou                    │
+  ├────────────┼───────────────────────────┤
+  │ api        │ falhou: 449 de 450 testes │
+  └────────────┴───────────────────────────┘
+
+  Pela sua regra, a etapa 1 continua aberta. Não reexecutei a CI, porque uma
+  nova execução podia sair verde por sorte e esconder o defeito abaixo.
+
+  A causa é um defeito do passo 3, não da etapa 1
+
+  - Teste que falha: DemonstracaoTests.Mesmo_nome_registrado_ao_mesmo_tempo_ganh
+    a_arrobas_diferentes, com um dos quatro pedidos respondendo 500.
+  - Já estava assim antes: o mesmo teste falhou na main (5b7cb45) e na
+    rodada/eng_03_auth (11bf764). Ele passou em 46e5bd5, então é intermitente. A
+    etapa 1 não mexeu na API.
+  - Erro no log: ConflitoDeUnicidadeException em pk_prefixo_reservado, saindo de
+    DemonstracaoHandler.RegistrarAsync.
+  - Causa provável: o handler tenta 3 vezes (_tentativas = 3). Com 4 registros
+    simultâneos de mesmo nome, cada rodada só garante um vencedor, então o
+    último pode precisar de 4 tentativas. Essa conta é dedução minha a partir do
+    código e do log; não reproduzi localmente.
+
+  O defeito é real, não só do teste: duas pessoas da banca com o mesmo nome,
+  entrando juntas, podem receber erro 500. Isso também quebra a regra de que
+  todo erro em tela vira mensagem amigável.
+
+  Etapa 2: fontes
+
+  Resultado local
+
+  ┌────────────────────────────────────┬───────────┐
+  │            Verificação             │ Resultado │
+  ├────────────────────────────────────┼───────────┤
+  │ Prettier, ESLint, typecheck        │ limpos    │
+  ├────────────────────────────────────┼───────────┤
+  │ Jest                               │ 91 de 91  │
+  ├────────────────────────────────────┼───────────┤
+  │ Playwright contra o build do Caddy │ 12 de 12  │
+  └────────────────────────────────────┴───────────┘
+
+  A CI desta etapa ainda não rodou, porque ela só sobe depois do seu ok.
+
+  O que mudou
+  - design/fontes/: gerar.sh e instanciar.py rodam em contêiner, com imagem,
+    fontTools e commits do Google Fonts travados, e conferem o hash do que
+    baixam. Duas gerações saíram com os mesmos bytes.
+  - apps/mobile/assets/fonts/: 7 TTFs, 644 KB no total, com as licenças OFL das
+    duas famílias. Nenhuma das duas tem nome reservado, então renomear os
+    arquivos é permitido.
+  - src/theme/fonts.ts: os estilos da escala tipográfica, com uma família por
+    peso, porque o Android não escolhe arquivo por fontWeight.
+  - FontGate: segura a primeira pintura até as fontes carregarem. Se a carga
+    falhar, segue com a fonte do sistema.
+  - Dependências e config: expo-font, @types/node para o teste que lê os TTFs,
+    *.ttf binary no .gitattributes. O expo install também acrescentou o plugin
+    expo-font ao app.json, e mantive.
+
+  Critérios de aceite
+  - Sem fvar e com tnum: confirmado nos 7 arquivos por um leitor de TTF no Jest.
+    Cada arquivo também tem nome PostScript próprio, que o iOS exige para não
+    confundir as fontes.
+  - Sem CDN: o e2e não encontrou nenhuma resposta de outra origem, e os 7
+    arquivos vieram do próprio build com status 200.
+  - 112% de verdade: no navegador, quatro "M" em Archivo 800 a 100 px medem
+    cerca de 410 px, o esperado para 112% (seriam cerca de 366 px em 100%).
+
+  O que olhar na revisão
+  - Amostra da escala: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guil
+    herme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e8
+    10444ce321\scratchpad\shots\etapa2-amostra-claro.png e
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e810444ce321\scratchp
+    ad\shots\etapa2-amostra-escuro.png. É uma página montada só para a captura,
+    não entra no repositório.
+  - Tela de status com a fonte nova: C:\Users\GUILHE~1\AppData\Local\Temp\claude
+    \C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7
+    a-43c5-840d-e810444ce321\scratchpad\shots\etapa2-status-claro.png e
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\1b9eb21c-2a7a-43c5-840d-e810444ce321\scratchp
+    ad\shots\etapa2-status-escuro.png.
+  - Algarismos tabulares: ficam definidos só no estilo de pontos, como diz o
+    token.
+
+  Pendências e ressalvas
+  - Archivo volta a "unloaded" na web: a Archivo baixa, mas o navegador a marca
+    como "unloaded" até o primeiro uso, enquanto a Instrument fica "loaded". Não
+    investiguei a causa. Ela carrega ao ser pedida, e o e2e confirma isso, mas
+    ainda nenhuma tela real usa Archivo. Vou olhar se há troca visível de fonte
+    na vitrine, na etapa 3.
+  - Nativo não testado: nada rodou em Android ou iOS. As fontes entram pelo
+    useFonts com require, e a tela de status ainda não usa Archivo.
+  - npm ci falhou uma vez: o build da imagem do Caddy quebrou nesse passo e
+    passou na tentativa seguinte, sem nenhuma mudança minha. Não guardei o log e
+    não sei a causa.
+
+  Decisão que preciso de você
+
+  Como corrigir o job api? A falha é intermitente, então enquanto ela existir
+  qualquer etapa pode ficar vermelha sem ter culpa.
+
+  1. PR separado (recomendo): fix/demonstracao-registro-simultaneo, saindo da
+     rodada/eng_04_design e voltando para ela, com um único assunto.
+     - Ajusta as tentativas no handler e devolve erro amigável se elas acabarem,
+       em vez de 500.
+     - Depois trago a rodada para a feat/passo-04-design-system e a CI da etapa
+       1 roda de novo.
+     - Traço o número de tentativas e o formato do erro antes de codar.
+  2. Commit nesta branch: é mais rápido, mas mistura API num PR de design,
+     contra o "PR de assunto único".
+  3. Reexecutar até passar: libera a etapa 1 pela letra da regra, mas o defeito
+     continua e a main segue vermelha. Não recomendo.
+
+  Próximo passo
+
+  Fico parado aqui. Preciso da sua escolha sobre o job api e da revisão da etapa
+  2. Com o ok, o commit dela seria:
+
+  feat(mobile): embarca archivo em 112% e instrument sans
+
+✻ Brewed for 15m 4s · done 13:24
+
+※ recap: Estamos no passo 4, design system: a etapa 1 segue aberta porque o job `api` da CI falhou, e a etapa 2 aguarda sua revisão, sem commit. Falta você escolher como corrigir o job `api` e revisar a etapa 2.
