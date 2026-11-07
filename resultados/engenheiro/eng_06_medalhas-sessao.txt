@@ -6017,3 +6017,571 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
 ✻ Cogitated for 13m 23s · done 19:36
 
 ※ recap: Passo 6 (medalhas, fila e worker): as etapas 1 a 7 estão commitadas, com CI verde. A etapa 8, cliente do professor com capturas da lista e do modal, espera sua revisão; com o seu ok, commito, faço o push e sigo para a tela de Troféus. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 8 aprovada. Commita com a mensagem proposta, push, acompanha a CI e     
+  segue para a etapa 9; para para a minha revisão no fim dela, com capturas da  
+  tela de Troféus nas duas abas.                                                
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 8 commitada (e389889); CI rodando. Começo a etapa 9, a tela de Troféus
+  com a navegação de cinco abas (decisão H), lendo os componentes prontos do
+  passo 4.
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Primeiro, uma mudança aditiva na API: GET /v1/eu passa a trazer o nome de
+  exibição, que o avatar da aba Perfil precisa para as iniciais.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Autenticacao/EuEndpoints.cs && sed -i 's/
+        usuario.Id,…)
+  ⎿  // NomeDeExibicao entrou no passo 6, para as iniciais do avatar na nav
+     egação: só acréscimo.
+     public sealed record EuResponse(Guid Id, IReadOnlyList<string> Papeis,
+      string Arroba, string NomeDeExibicao);
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\EuEndpoints.cs (+3 -2)
+      29          }
+      30  
+      31          return TypedResults.Ok(new EuResponse(
+      32 -            usuario.Id, JwtAccessTokenIssuer.NomesDosPapeis(usu
+         -ario.Papeis), usuario.Arroba.ToString()));                     
+      32 +            usuario.Id, JwtAccessTokenIssuer.NomesDosPapeis(usu
+         +ario.Papeis), usuario.Arroba.ToString(), usuario.NomeDeExibicao
+         +));                                                            
+      33      }
+      34  }
+      35  
+      36 -public sealed record EuResponse(Guid Id, IReadOnlyList<string> 
+         -Papeis, string Arroba);                                        
+      36 +// NomeDeExibicao entrou no passo 6, para as iniciais do avatar
+         + na navegação: só acréscimo.                                   
+      37 +public sealed record EuResponse(Guid Id, IReadOnlyList<string> 
+         +Papeis, string Arroba, string NomeDeExibicao);                 
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/AccessTokenTests.cs
+      && sed -i '45…)
+  ⎿          Assert.Equal(["professor", "instituicao"], eu.Papeis);
+             Assert.Equal("@renataAlbuquerque-PROF", eu.Arroba);
+             Assert.Equal(renata.NomeDeExibicao, eu.NomeDeExibicao);
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTo
+     kenTests.cs (+1 -0)
+      43          Assert.Equal(renata.Id, eu!.Id);
+      44          Assert.Equal(["professor", "instituicao"], eu.Papeis);
+      45          Assert.Equal("@renataAlbuquerque-PROF", eu.Arroba);
+      46 +        Assert.Equal(renata.NomeDeExibicao, eu.NomeDeExibicao);
+      47      }
+      48  
+      49      [Fact]
+  ⎿  Updated packages\api-client\openapi.json (+5 -1)
+      1140          "required": [
+      1141            "id",
+      1142            "papeis",
+      1143 -          "arroba"                                           
+      1143 +          "arroba",                                          
+      1144 +          "nomeDeExibicao"                                   
+      1145          ],
+      1146          "type": "object",
+      1147          "properties": {
+     ...
+      1157            },
+      1158            "arroba": {
+      1159              "type": "string"
+      1160 +          },                                                 
+      1161 +          "nomeDeExibicao": {                                
+      1162 +            "type": "string"                                 
+      1163            }
+      1164          }
+      1165        },
+  ⎿  Updated packages\api-client\src\schema.d.ts (+1 -0)
+      376              id: string;
+      377              papeis: string[];
+      378              arroba: string;
+      379 +            nomeDeExibicao: string;                           
+      380          };
+      381          FamiliaResponse: {
+      382              codigo: string;
+  ⎿  (timeout 10m)
+
+● API ajustada e cliente regenerado. Agora a navegação de cinco abas, as telas
+  "Em breve" e a tela de Troféus, começando pela lógica pura da tela, que dá
+  para testar isolada.
+
+● Write(apps\mobile\src\trofeus\montagem.ts)
+  ⎿  Wrote 131 lines to apps\mobile\src\trofeus\montagem.ts
+       1 import type { components } from "@maxx/api-client";
+       2 
+       3 import type { Raridade, Tier } from "../theme/tokens";
+       4 
+       5 export type PremiosDoAluno = components["schemas"]["PremiosDoAlu
+         noResponse"];
+       6 export type ItemDoAluno = components["schemas"]["ItemDoAlunoResp
+         onse"];
+       7 export type Familia = components["schemas"]["FamiliaResponse"];
+       8 
+     … +123 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os tipos batem. Agora o hook, a tela de Troféus e as peças dela.
+
+● Write(apps\mobile\src\trofeus\usePremios.ts)
+  ⎿  Wrote 22 lines to apps\mobile\src\trofeus\usePremios.ts
+      1 import { useQuery } from "@tanstack/react-query";
+      2 
+      3 import { useApiClient } from "../api/ApiClientProvider";
+      4 import { FalhaDaApi } from "../api/FalhaDaApi";
+      5 
+      6 // O catálogo do próprio aluno, com critério, raridade e o que el
+        e já obteve. Só o dono vê
+      7 // os faltantes (produto.md 9.1): a rota é de /eu. `ativo` falso 
+        para quem não é aluno.
+      8 export function usePremios(ativo: boolean) {
+     … +14 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\trofeus\AbasSublinhadas.tsx)
+  ⎿  Wrote 86 lines to apps\mobile\src\trofeus\AbasSublinhadas.tsx
+       1 import { Pressable, StyleSheet, Text, View } from "react-native"
+         ;
+       2 
+       3 import { noOutline, focusRingStyle, useFocusRing } from "../comp
+         onents/focusRing";
+       4 import { textStyles } from "../theme/fonts";
+       5 import { useTheme } from "../theme/ThemeProvider";
+       6 import { tamanhos } from "../theme/tokens";
+       7 
+       8 interface AbasSublinhadasProps<T extends string> {
+     … +78 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\trofeus\LinhaDePremio.tsx)
+  ⎿  Wrote 78 lines to apps\mobile\src\trofeus\LinhaDePremio.tsx
+       1 import { StyleSheet, Text, View } from "react-native";
+       2 
+       3 import { Medalhao } from "../premios/Medalhao";
+       4 import { rotulosDeRaridade, rotulosDeTier } from "../premios/rot
+         ulos";
+       5 import { textStyles } from "../theme/fonts";
+       6 import { useTheme } from "../theme/ThemeProvider";
+       7 import { tiers, type Tier } from "../theme/tokens";
+       8 import {
+       9   detalheDaLinha,
+     … +69 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\trofeus\TrofeusScreen.tsx)
+  ⎿  Wrote 140 lines to apps\mobile\src\trofeus\TrofeusScreen.tsx
+       1 import { useState } from "react";
+       2 import { ActivityIndicator, StyleSheet, Switch, Text, View } fro
+         m "react-native";
+       3 
+       4 import { falhaParaTela } from "../api/FalhaDaApi";
+       5 import { useEu } from "../api/useEu";
+       6 import { Screen } from "../components/Screen";
+       7 import { EmptyState, ErrorState } from "../components/StateMessa
+         ge";
+       8 import { Logo } from "../marca/Logo";
+     … +132 lines (ctrl+o to expand)
+
+● Agora o layout das cinco abas, as telas "Em breve" e as rotas.
+
+● Write(apps\mobile\src\navegacao\LayoutDasAbas.tsx)
+  ⎿  Wrote 48 lines to apps\mobile\src\navegacao\LayoutDasAbas.tsx
+       1 import { Slot, usePathname, useRouter, type Href } from "expo-ro
+         uter";
+       2 import { StyleSheet, View } from "react-native";
+       3 
+       4 import { useEu } from "../api/useEu";
+       5 import { BottomNav, type Aba } from "../components/BottomNav";
+       6 import { useTheme } from "../theme/ThemeProvider";
+       7 
+       8 const ROTAS: Record<Aba, Href> = {
+       9   home: "/",
+     … +39 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\navegacao\EmBreve.tsx)
+  ⎿  Wrote 52 lines to apps\mobile\src\navegacao\EmBreve.tsx
+       1 import { StyleSheet, View } from "react-native";
+       2 
+       3 import { type IconName } from "../components/Icon";
+       4 import { Screen } from "../components/Screen";
+       5 import { EmptyState } from "../components/StateMessage";
+       6 
+       7 // A aba que ainda não chegou: diz o que vem, em vez de uma tela
+          vazia que pareça travada.
+       8 export function EmBreve({
+       9   icone,
+     … +43 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/app/(app)" &&
+      mkdir -p "(abas)" && git mv index.tsx "(abas)/index.tsx" && sed…)  ⎿  _layout.tsx
+     busca.tsx
+     index.tsx
+     … +10 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\src\app\(app)\(abas)\_layout.tsx (+3 -0)
+      1 +import { LayoutDasAbas } from "../../../navegacao/LayoutDasAbas"
+        +;                                                               
+      2 +                                                                
+      3 +export default LayoutDasAbas;                                   
+  ⎿  Created apps\mobile\src\app\(app)\(abas)\busca.tsx (+3 -0)
+      1 +import { BuscaEmBreve } from "../../../navegacao/EmBreve";      
+      2 +                                                                
+      3 +export default BuscaEmBreve;                                    
+  ⎿  Created apps\mobile\src\app\(app)\(abas)\index.tsx (+3 -0)
+      1 +import { InicioProvisorio } from "../../../inicio/InicioProvisor
+        +io";                                                            
+      2 +                                                                
+      3 +export default InicioProvisorio;                                
+  ⎿  Created apps\mobile\src\app\(app)\(abas)\mural.tsx (+3 -0)
+      1 +import { MuralEmBreve } from "../../../navegacao/EmBreve";      
+      2 +                                                                
+      3 +export default MuralEmBreve;                                    
+  ⎿  Created apps\mobile\src\app\(app)\(abas)\perfil.tsx (+3 -0)
+      1 +import { PerfilEmBreve } from "../../../navegacao/EmBreve";     
+      2 +                                                                
+      3 +export default PerfilEmBreve;                                   
+  ⎿  … 7 more files changed
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i
+      '/activeThumbColor={colors.bg}/d' src/trofeus/TrofeusScreen.tsx && npm…)
+  ⎿  Updated apps\mobile\src\trofeus\TrofeusScreen.tsx (+0 -1)
+       94                onValueChange={setMostrarNaoObtidos}
+       95                trackColor={{ false: colors.surface2, true: colo
+           rs.primaryBg }}
+       96                thumbColor={colors.bg}
+       97 -              activeThumbColor={colors.bg}                    
+       97              />
+       98            </View>
+       99  
+  ⎿  (timeout 5m)
+
+● Typecheck e lint limpos. Escrevo os testes da montagem, da tela de Troféus e
+  da navegação.
+
+● Write(apps\mobile\src\trofeus\trofeus.test.tsx)
+  ⎿  Wrote 210 lines to apps\mobile\src\trofeus\trofeus.test.tsx
+       1 import { act, fireEvent, screen, within } from "@testing-library
+         /react-native";
+       2 
+       3 import { abaDaRota } from "../navegacao/LayoutDasAbas";
+       4 import { json, renderComApi } from "../test/renderComApi";
+       5 import {
+       6   detalheDaLinha,
+       7   itensDaAba,
+       8   textoDaRaridade,
+       9   trilhasDaAba,
+     … +201 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx prettier
+      --write src/trofeus > /dev/null; npx jest src/trofeus 2>&1 | gre…)
+  ⎿    ● tela de Troféus › abre em Troféus, com os pontos, o critério e a r
+     aridade do que falta
+         Expected instance to have prop:
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+55 -15)
+      16    useRouter: () => ({ push: jest.fn(), navigate: jest.fn() }),
+      17  }));
+      18  
+      19 -function item(parcial: Partial<ItemDoAluno> & Pick<ItemDoAluno,
+         - "codigo">): ItemDoAluno {                                     
+      19 +function item(                                                 
+      20 +  parcial: Partial<ItemDoAluno> & Pick<ItemDoAluno, "codigo">, 
+      21 +): ItemDoAluno {                                               
+      22    return {
+      23      tipo: "medalha",
+      24      nome: parcial.codigo,
+     ...
+      45  const PREMIOS: PremiosDoAluno = {
+      46    pontos: 15020,
+      47    familias: [
+      46 -    { codigo: "nota-prova", nome: "Nota 10 em prova", descricao
+         -: "", passos: 3 },                                             
+      47 -    { codigo: "participacao", nome: "Vida acadêmica", descricao
+         -: "", passos: 2 },                                             
+      48 +    {                                                          
+      49 +      codigo: "nota-prova",                                    
+      50 +      nome: "Nota 10 em prova",                                
+      51 +      descricao: "",                                           
+      52 +      passos: 3,                                               
+      53 +    },                                                         
+      54 +    {                                                          
+      55 +      codigo: "participacao",                                  
+      56 +      nome: "Vida acadêmica",                                  
+      57 +      descricao: "",                                           
+      58 +      passos: 2,                                               
+      59 +    },                                                         
+      60    ],
+      61    itens: [
+      62      item({
+     ...
+      103  
+      104  describe("montagem da tela", () => {
+      105    it("separa as abas: medalha numa, prêmio de participação e c
+           onquista na outra", () => {
+       94 -    expect(itensDaAba(PREMIOS.itens, "medalhas", true).map((i)
+          - => i.codigo)).toEqual(["M01", "M03"]);                       
+       95 -    expect(itensDaAba(PREMIOS.itens, "trofeus", true).map((i) 
+          -=> i.codigo)).toEqual(["C05", "C02", "P01"]);                 
+      106 +    expect(                                                   
+      107 +      itensDaAba(PREMIOS.itens, "medalhas", true).map((i) => i
+          +.codigo),                                                     
+      108 +    ).toEqual(["M01", "M03"]);                                
+      109 +    expect(                                                   
+      110 +      itensDaAba(PREMIOS.itens, "trofeus", true).map((i) => i.
+          +codigo),                                                      
+     … 98 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -n
+      183,187p src/trofeus/trofeus.test.tsx && sed -i '183,186{N;N;N; s/…)
+  ⎿      expect(screen.getByRole("tab", { name: "Troféus" })).toHaveProp(
+           "aria-selected",
+           true,
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+3 -4)
+      180      await renderComApi(<TrofeusScreen />, api);
+      181  
+      182      expect(await screen.findByText("15.020 pts")).toBeOnTheScr
+           een();
+      183 -    expect(screen.getByRole("tab", { name: "Troféus" })).toHav
+          -eProp(                                                        
+      184 -      "aria-selected",                                        
+      185 -      true,                                                   
+      186 -    );                                                        
+      183 +    expect(                                                   
+      184 +      screen.getByRole("tab", { name: "Troféus", selected: tru
+          +e }),                                                         
+      185 +    ).toBeOnTheScreen();                                      
+      186      const c05 = screen.getByTestId("premio-C05");
+      187      expect(within(c05).getByText("Nota 10 em tudo")).toBeOnThe
+           Screen();
+      188      expect(
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O app inteiro passa (317 testes). Agora preparo dados no compose (medalhas
+  para a Juliana, concedidas pela Renata) e tiro as capturas das duas abas.
+
+  Made 1 scratchpad edit +69, read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Duas correções nas capturas: os passos da trilha estavam truncados (a
+  prancheta usa o nome do tier) e o botão "Mostrar não obtidos" saiu
+  azul-esverdeado na web. Corrijo os dois e refaço.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && cat >
+      "$TEMP/e9a.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  128:      trilha!.passos.map((p) => [p.id, p.rotulo, p.obtido, p.glifo
+     , p.detalhes]),
+     Tests:       11 passed, 11 total
+  ⎿  Updated apps\mobile\src\trofeus\TrofeusScreen.tsx (+2 -0)
+       94                onValueChange={setMostrarNaoObtidos}
+       95                trackColor={{ false: colors.surface2, true: colo
+           rs.primaryBg }}
+       96                thumbColor={colors.bg}
+       97 +              // Na web, o polegar ligado tem cor própria, for
+          +a dos tokens.                                                 
+       98 +              {...{ activeThumbColor: colors.bg }}            
+       99              />
+      100            </View>
+      101  
+  ⎿  Updated apps\mobile\src\trofeus\montagem.ts (+3 -1)
+      1  import type { components } from "@maxx/api-client";
+      2  
+      3 +import { rotulosDeTier } from "../premios/rotulos";             
+      4  import type { Raridade, Tier } from "../theme/tokens";
+      5  
+      6  export type PremiosDoAluno = components["schemas"]["PremiosDoAlu
+         noResponse"];
+     ...
+      85          )}`,
+      86          passos: itens.map((item, indice) => ({
+      87            id: item.codigo,
+      87 -          rotulo: item.nome,                                   
+      88 +          // Como na prancheta, o passo diz o tier; o nome do i
+         +tem está na lista abaixo.                                      
+      89 +          rotulo: rotulosDeTier[item.tier as Tier],            
+      90            tier: item.tier as Tier,
+      91            glifo: glifoDe(item),
+      92            obtido: obtido(item),
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+10 -4)
+      125      expect(trilha!.titulo).toBe("Nota 10 em prova");
+      126      expect(trilha!.resumo).toBe("1 de 3 · 60 pts");
+      127      expect(
+      128 -      trilha!.passos.map((p) => [p.id, p.obtido, p.glifo, p.de
+          -talhes]),                                                     
+      128 +      trilha!.passos.map((p) => [                             
+      129 +        p.id,                                                 
+      130 +        p.rotulo,                                             
+      131 +        p.obtido,                                             
+      132 +        p.glifo,                                              
+      133 +        p.detalhes,                                           
+      134 +      ]),                                                     
+      135      ).toEqual([
+      130 -      ["M01", true, "fita", ["+60 pts"]],                     
+      131 -      ["C02", false, "taca", ["40 pts", "próximo"]],          
+      132 -      ["C05", false, "taca", ["110 pts"]],                    
+      136 +      ["M01", "Bronze", true, "fita", ["+60 pts"]],           
+      137 +      ["C02", "Prata", false, "taca", ["40 pts", "próximo"]], 
+      138 +      ["C05", "Diamante", false, "taca", ["110 pts"]],        
+      139      ]);
+      140    });
+      141  
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Wait for etapa 8 CI run" completed (exit code 0)
+
+  Read 2 files (ctrl+o to expand)
+
+● Ajuste final: no escuro, o polegar do botão ficou marinho; a prancheta mostra
+  branco nos dois temas. Uso o bg do tema claro e refaço as capturas.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && cat >
+      "$TEMP/e9b.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  0
+     Estruturas de Dados juliana M09 201
+  ⎿  Updated apps\mobile\src\trofeus\TrofeusScreen.tsx (+7 -3)
+      15  import { TrilhaFamilia } from "../premios/TrilhaFamilia";
+      16  import { textStyles } from "../theme/fonts";
+      17  import { useTheme } from "../theme/ThemeProvider";
+      18 +import { cores } from "../theme/tokens";                       
+      19  import { AbasSublinhadas } from "./AbasSublinhadas";
+      20  import { LinhaDePremio } from "./LinhaDePremio";
+      21  import {
+     ...
+      26  } from "./montagem";
+      27  import { usePremios } from "./usePremios";
+      28  
+      29 +const POLEGAR = cores.claro.bg;                                
+      30 +                                                               
+      31  const ABAS = [
+      32    { valor: "trofeus", rotulo: "Troféus" },
+      33    { valor: "medalhas", rotulo: "Medalhas" },
+     ...
+       96                value={mostrarNaoObtidos}
+       97                onValueChange={setMostrarNaoObtidos}
+       98                trackColor={{ false: colors.surface2, true: colo
+           rs.primaryBg }}
+       96 -              thumbColor={colors.bg}                          
+       97 -              // Na web, o polegar ligado tem cor própria, for
+          -a dos tokens.                                                 
+       98 -              {...{ activeThumbColor: colors.bg }}            
+       99 +              // Polegar branco nos dois temas, como na pranch
+          +eta. Na web, o ligado tem                                     
+      100 +              // cor própria, e precisa ser dito também.      
+      101 +              thumbColor={POLEGAR}                            
+      102 +              {...{ activeThumbColor: POLEGAR }}              
+      103              />
+      104            </View>
+      105  
+  ⎿  (timeout 10m)
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● A etapa 9 está pronta para a sua revisão. Localmente passam os 317 testes do
+  app e os 557 da API, com Prettier, lint, typecheck e dotnet format limpos.
+  Ainda não fiz commit nem push dela.
+
+  Etapa 8: CI verde
+
+  A CI do commit e389889 feat(mobile): adiciona turmas, alunos e modal de 
+  concessão do professor (run 42422186092) passou nos seis jobs.
+
+  Etapa 9: tela de Troféus (sem commit)
+
+  Navegação de cinco abas (decisão H)
+  - Home, Busca, Mural, Troféus e Perfil, na ordem do design, com o BottomNav do
+    passo 4 e o avatar de iniciais na aba Perfil.
+  - Home continua sendo o início provisório.
+  - Busca, Mural e Perfil mostram "Em breve.", cada uma com uma frase do que vai
+    aparecer ali.
+  - /turmas fica fora das abas, como tela interna com voltar.
+  - Mudança aditiva na API: GET /v1/eu passou a trazer nomeDeExibicao, para as
+    iniciais do avatar. O teste do /eu confere o campo novo, e o cliente foi
+    regenerado. Ela vai no mesmo commit da etapa.
+
+  Tela de Troféus, seguindo a prancheta:
+  - Topo: logo, "Troféus e medalhas" e os pontos ("150 pts", no formato
+    brasileiro). A posição no ranking, o sininho e a bolinha de prêmio novo
+    ficam para os passos 10 e 11.
+  - Abas sublinhadas: Troféus (prêmio de participação e conquista) e Medalhas.
+  - "Mostrar não obtidos": ligado por padrão, para o aluno novo ver o catálogo.
+  - Trilhas: só das famílias em que o aluno já tem algum item, com resumo ("1 de
+    5 · 60 pts") e passos rotulados pelo tier, como na prancheta. O próximo
+    passo leva cadeado e "próximo".
+  - Lista: os obtidos primeiro e depois os que faltam, cada grupo do maior valor
+    para o menor. Cada linha tem:
+    - medalhão com tier e o ornamento da raridade;
+    - nome;
+    - "Bronze · Épico · 1,3% dos alunos";
+    - o critério, ou, na medalha obtida, de onde veio a mais recente ("Banco de
+      Dados · 4º bimestre · 2 vezes");
+    - pontos "+60" à direita.
+  - O que falta aparece apagado, com o valor do catálogo sem o "+".
+  - Sem raridade calculada ainda, a linha mostra só o tier.
+  - Professor na aba vê "Troféus e medalhas são dos alunos.", e a tela nem pede
+    os prêmios.
+  - Estados: lista vazia explica como ver o que falta; erro tem mensagem
+    amigável e Tentar de novo.
+
+  Testes: 11 novos no Jest.
+  - Montagem: separação das abas, filtro de não obtidos, trilha com tier,
+    próximo e resumo, detalhe da medalha obtida, percentual em pt-BR, e a aba
+    que acende em cada rota.
+  - Tela: abertura em Troféus com pontos, raridade e critério; aba Medalhas com
+    "+60", origem e trilha; desligar "Mostrar não obtidos"; erro com
+    retentativa; professor sem chamada aos prêmios.
+
+  Capturas, no compose local, como a aluna Juliana, depois de a Renata conceder
+  medalhas pela API e o worker recalcular a raridade:
+  - Aba Troféus: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-
+    Gimenes-Documents-Repos-tcc-maxx-engenheiro\31e8808d-0a36-4342-8599-977d5e0c
+    cc1e\scratchpad\capturas\trofeus-aba-trofeus-claro.png e
+    trofeus-aba-trofeus-escuro.png
+  - Aba Medalhas: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme
+    -Gimenes-Documents-Repos-tcc-maxx-engenheiro\31e8808d-0a36-4342-8599-977d5e0
+    ccc1e\scratchpad\capturas\trofeus-aba-medalhas-claro.png e
+    trofeus-aba-medalhas-escuro.png
+
+  As primeiras capturas mostraram três defeitos, que corrigi antes desta versão:
+  - os passos da trilha vinham rotulados pelo nome do item e ficavam truncados;
+    agora usam o nome do tier, como na prancheta;
+  - na web, o botão de "Mostrar não obtidos" ligado ficava verde-azulado, a cor
+    padrão do react-native-web;
+  - no escuro, o polegar do botão ficava marinho; agora é branco nos dois temas,
+    como na prancheta.
+
+  Para você decidir
+  - As capturas mostram que a trilha "Nota 10 em prova" aparece nas duas abas,
+    porque a família mistura medalha (M01) e conquistas (C02 em diante). Não há
+    regra nos docs sobre isso; se preferir que cada trilha apareça só numa aba,
+    eu ajusto.
+  - Na aba Troféus, o topo da lista é ocupado pelos itens Diamante ainda não
+    obtidos, todos Lendário com 0%, porque nenhum prêmio de participação ou
+    conquista existe antes dos passos 8 e 9.
+
+  Commit proposto: feat(mobile): adiciona tela de Troféus e navegação de cinco 
+  abas. Com seu ok, faço o commit e o push, trago a CI e sigo para a etapa 10, o
+  e2e e os docs.
+
+✻ Crunched for 11m 11s · done 19:57
