@@ -4080,3 +4080,598 @@ code 0)
   para a etapa 6.
 
 ✻ Cooked for 38m 22s · done 16:19
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+> Etapa 5 aprovada. Os passos 2 e 3 sem prancheta ficam como estão. O check do  
+  Lucide no Icon e o desligamento da coleta de cache no cliente de teste ficam. 
+  Commita com a mensagem proposta, push, acompanha a CI e segue para a etapa    
+  6; para para a minha revisão no fim dela.                                     
+
+  Pushed to feat/passo-05-login, ran 1 shell command (ctrl+o to expand)
+
+● A etapa 5 já está na CI, então começo a etapa 6, a recuperação de senha, com
+  /esqueci-senha no grupo público e /redefinir-senha fora dos grupos.
+
+● Write(apps\mobile\src\recuperacao\EsqueciSenhaScreen.tsx)
+  ⎿  Wrote 109 lines to apps\mobile\src\recuperacao\EsqueciSenhaScreen.tsx
+       1 import { useMutation } from "@tanstack/react-query";
+       2 import { useRouter } from "expo-router";
+       3 import { useState } from "react";
+       4 import { StyleSheet, Text, View } from "react-native";
+       5 
+       6 import { useApiClient } from "../api/ApiClientProvider";
+       7 import { FalhaDaApi, falhaParaTela } from "../api/FalhaDaApi";
+       8 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       9 import { TelaDeAutenticacao } from "../autenticacao/TelaDeAutent
+         icacao";
+     … +100 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\recuperacao\RedefinirSenhaScreen.tsx)
+  ⎿  Wrote 131 lines to
+     apps\mobile\src\recuperacao\RedefinirSenhaScreen.tsx
+       1 import { useMutation } from "@tanstack/react-query";
+       2 import { useRouter } from "expo-router";
+       3 import { useState } from "react";
+       4 import { StyleSheet, Text, View } from "react-native";
+       5 
+       6 import { useApiClient } from "../api/ApiClientProvider";
+       7 import { FalhaDaApi, falhaParaTela } from "../api/FalhaDaApi";
+       8 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       9 import { TelaDeAutenticacao } from "../autenticacao/TelaDeAutent
+         icacao";
+     … +122 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\recuperacao\tokenDoFragmento.ts)
+  ⎿  Wrote 22 lines to apps\mobile\src\recuperacao\tokenDoFragmento.ts
+       1 import { Platform } from "react-native";
+       2 
+       3 // O token do link de recuperação vem depois do "#" (decisoes/RE
+         ADME.md, Link de
+       4 // recuperação): o navegador não o manda a servidor nenhum. Lido
+          uma vez e apagado da
+       5 // barra de endereço e do histórico, para não ficar à vista nem 
+         voltar com o "voltar".
+       6 // No nativo não há fragmento: o link do e-mail abre no navegado
+         r.
+     … +16 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && printf '%s\n'
+      'import { EsqueciSenhaScreen } from "../../recuperacao/EsqueciS…)
+  ⎿  Created apps\mobile\src\app\(publico)\esqueci-senha.tsx (+3 -0)
+      1 +import { EsqueciSenhaScreen } from "../../recuperacao/EsqueciSen
+        +haScreen";                                                      
+      2 +                                                                
+      3 +export default EsqueciSenhaScreen;                              
+  ⎿  Created apps\mobile\src\app\redefinir-senha.tsx (+11 -0)
+       1 +import { useState } from "react";                              
+       2 +                                                               
+       3 +import { RedefinirSenhaScreen } from "../recuperacao/RedefinirS
+         +enhaScreen";                                                   
+       4 +import { tomarTokenDoFragmento } from "../recuperacao/tokenDoFr
+         +agmento";                                                      
+       5 +                                                               
+       6 +// Fora dos grupos: o link do e-mail pode ser aberto com ou sem
+         + sessão. O token é lido                                        
+       7 +// uma vez, na primeira renderização, e some da URL.           
+       8 +export default function RedefinirSenhaRoute() {                
+       9 +  const [token] = useState(tomarTokenDoFragmento);             
+      10 +  return <RedefinirSenhaScreen token={token} />;               
+      11 +}                                                              
+  ⎿  Updated apps\mobile\src\recuperacao\EsqueciSenhaScreen.tsx (+4 -1)
+      47      <TelaDeAutenticacao>
+      48        <View style={styles.coluna}>
+      49          <View style={styles.cabecalho}>
+      50 -          <Text role="heading" style={[textStyles.titulo, { col
+         -or: colors.ink }]}>                                            
+      50 +          <Text                                                
+      51 +            role="heading"                                     
+      52 +            style={[textStyles.titulo, { color: colors.ink }]} 
+      53 +          >                                                    
+      54              Esqueci minha senha
+      55            </Text>
+      56            <Text style={[textStyles.corpo, { color: colors.ink2 
+          }]}>
+  ⎿  Updated apps\mobile\src\recuperacao\RedefinirSenhaScreen.tsx (+9 -4)
+      42      },
+      43      onError: (erro) => {
+      44        // A política é conferida antes do token: o link continua
+           valendo.
+      45 -      if (erro instanceof FalhaDaApi && erro.codigo === "senha-
+         -fora-da-politica") {                                           
+      45 +      if (                                                     
+      46 +        erro instanceof FalhaDaApi &&                          
+      47 +        erro.codigo === "senha-fora-da-politica"               
+      48 +      ) {                                                      
+      49          setErroSenha(erro.message);
+      50        }
+      51      },
+     ...
+       91            <>
+       92              <View role="alert" style={styles.texto}>
+       93                <Text style={[textStyles.secao, { color: colors.
+           ink }]}>
+       91 -                {token ? "Esse link não vale mais." : "Esse li
+          -nk está incompleto."}                                         
+       94 +                {token                                        
+       95 +                  ? "Esse link não vale mais."                
+       96 +                  : "Esse link está incompleto."}             
+       97                </Text>
+       98                <Text style={[textStyles.corpo, { color: colors.
+           ink2 }]}>
+       94 -                O link vale por 30 minutos e uma vez só. Abra 
+          -o link mais recente                                           
+       95 -                do e-mail, ou peça um novo.                   
+       99 +                O link vale por 30 minutos e uma vez só. Abra 
+          +o link mais                                                   
+      100 +                recente do e-mail, ou peça um novo.           
+      101                </Text>
+      102              </View>
+      103              <Button label="Pedir link novo" size="large" onPre
+           ss={pedirOutro} />
+  ⎿  (timeout 5m)
+
+● Tipos e lint limpos. Agora os testes das duas telas e da leitura do fragmento.
+
+● Write(apps\mobile\src\recuperacao\recuperacao.test.tsx)
+  ⎿  Wrote 162 lines to apps\mobile\src\recuperacao\recuperacao.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 
+       3 import { caminhos, json, renderComApi } from "../test/renderComA
+         pi";
+       4 import { EsqueciSenhaScreen } from "./EsqueciSenhaScreen";
+       5 import { RedefinirSenhaScreen } from "./RedefinirSenhaScreen";
+       6 
+       7 const mockRoteador = { push: jest.fn(), replace: jest.fn(), back
+         : jest.fn() };
+     … +155 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\recuperacao\tokenDoFragmento.test.ts)
+  ⎿  Wrote 59 lines to apps\mobile\src\recuperacao\tokenDoFragmento.test.ts
+       1 import { Platform } from "react-native";
+       2 
+       3 import { tomarTokenDoFragmento } from "./tokenDoFragmento";
+       4 
+       5 // Um navegador mínimo: a barra de endereço e o histórico.
+       6 function navegador(url: string) {
+       7   const local = new URL(url);
+       8   const replaceState = jest.fn((_estado: unknown, _titulo: strin
+         g, nova: string) => {
+       9     const proxima = new URL(nova, local);
+     … +50 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src >/dev/null && cd apps/mobile &&
+      timeout 200 npx jest…)
+  ⎿  Tests:       12 passed, 12 total
+     saida=0
+  ⎿  Updated apps\mobile\src\recuperacao\recuperacao.test.tsx (+8 -5)
+      110  
+      111      await salvar("12345678");
+      112  
+      113 -    expect(screen.getByLabelText("Senha nova").props["aria-inv
+          -alid"]).toBe(true);                                           
+      113 +    expect(screen.getByLabelText("Senha nova").props["aria-inv
+          +alid"]).toBe(                                                 
+      114 +      true,                                                   
+      115 +    );                                                        
+      116      expect(screen.getByRole("button", { name: "Salvar senha" }
+           )).toBeTruthy();
+      117    });
+      118  
+     ...
+      135    });
+      136  
+      137    it("com uma sessão aberta no aparelho, a senha nova a encerr
+           a", async () => {
+      136 -    api.mockImplementation(async (pedido: Request) =>         
+      137 -      new Response(null, {                                    
+      138 -        status: new URL(pedido.url).pathname.endsWith("/logout
+          -") ? 204 : 204,                                               
+      139 -      }),                                                     
+      138 +    api.mockImplementation(                                   
+      139 +      async (pedido: Request) =>                              
+      140 +        new Response(null, {                                  
+      141 +          status: new URL(pedido.url).pathname.endsWith("/logo
+          +ut") ? 204 : 204,                                             
+      142 +        }),                                                   
+      143      );
+      144      const { gerenciador } = await renderComApi(
+      145        <RedefinirSenhaScreen token="tok-123" />,
+  ⎿  Updated apps\mobile\src\recuperacao\tokenDoFragmento.test.ts (+13 -7)
+       5  // Um navegador mínimo: a barra de endereço e o histórico.
+       6  function navegador(url: string) {
+       7    const local = new URL(url);
+       8 -  const replaceState = jest.fn((_estado: unknown, _titulo: stri
+         -ng, nova: string) => {                                         
+       9 -    const proxima = new URL(nova, local);                      
+      10 -    local.hash = proxima.hash;                                 
+      11 -    local.pathname = proxima.pathname;                         
+      12 -    local.search = proxima.search;                             
+      13 -  });                                                          
+       8 +  const replaceState = jest.fn(                                
+       9 +    (_estado: unknown, _titulo: string, nova: string) => {     
+      10 +      const proxima = new URL(nova, local);                    
+      11 +      local.hash = proxima.hash;                               
+      12 +      local.pathname = proxima.pathname;                       
+      13 +      local.search = proxima.search;                           
+      14 +    },                                                         
+      15 +  );                                                           
+      16    Object.defineProperty(globalThis, "window", {
+      17      configurable: true,
+      18      value: {
+     ...
+      42  
+      43    expect(tomarTokenDoFragmento()).toBe("abc_DEF-123");
+      44    expect(local.href).toBe("http://localhost/redefinir-senha");
+      43 -  expect(replaceState).toHaveBeenCalledWith({ chave: 1 }, "", "
+         -/redefinir-senha");                                            
+      45 +  expect(replaceState).toHaveBeenCalledWith(                   
+      46 +    { chave: 1 },                                              
+      47 +    "",                                                        
+      48 +    "/redefinir-senha",                                        
+      49 +  );                                                           
+      50  });
+      51  
+      52  test("fragmento sem token, ou vazio, não é token", () => {
+  ⎿  (timeout 5m)
+
+● Simplifico uma condição redundante que deixei no último teste.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/recuperacao/recuperacao.test.ts…)
+  ⎿  Tests:       12 passed, 12 total
+  ⎿  Updated apps\mobile\src\recuperacao\recuperacao.test.tsx (+2 -6)
+      135    });
+      136  
+      137    it("com uma sessão aberta no aparelho, a senha nova a encerr
+           a", async () => {
+      138 -    api.mockImplementation(                                   
+      139 -      async (pedido: Request) =>                              
+      140 -        new Response(null, {                                  
+      141 -          status: new URL(pedido.url).pathname.endsWith("/logo
+          -ut") ? 204 : 204,                                             
+      142 -        }),                                                   
+      143 -    );                                                        
+      138 +    // Confirmação e logout respondem 204.                    
+      139 +    api.mockImplementation(async () => new Response(null, { st
+          +atus: 204 }));                                                
+      140      const { gerenciador } = await renderComApi(
+      141        <RedefinirSenhaScreen token="tok-123" />,
+      142        api,
+  ⎿  (timeout 5m)
+
+● Agora o e2e da recuperação, lendo o e-mail de verdade pelo Mailpit do compose.
+
+● Write(e2e\tests\apoio\mailpit.ts)
+  ⎿  Wrote 51 lines to e2e\tests\apoio\mailpit.ts
+       1 import { expect, type APIRequestContext } from "@playwright/test
+         ";
+       2 
+       3 // A caixa do Mailpit do compose, que recebe todo e-mail que a A
+         PI manda. Só na máquina
+       4 // local e na CI: na VPS não há Mailpit.
+       5 const MAILPIT = `http://localhost:${process.env.MAXX_MAILPIT_POR
+         T ?? "8025"}`;
+       6 
+       7 // O link de senha nova do e-mail mais recente para este endereç
+     … +45 lines (~1 KB) (ctrl+o to expand)
+
+● Write(e2e\tests\recuperacao.spec.ts)
+  ⎿  Wrote 122 lines to e2e\tests\recuperacao.spec.ts
+       1 import { expect, test, type Page } from "@playwright/test";
+       2 
+       3 import { arroba, novaConta, novoElegivel } from "./apoio/contas"
+         ;
+       4 import { linkDeRecuperacao, quantosEmails } from "./apoio/mailpi
+         t";
+       5 
+       6 // O fluxo inteiro passa pelo e-mail que chega ao Mailpit do com
+         pose. Só no celular, claro
+       7 // e escuro: o pedido tem limite de 3 a cada 15 minutos por e-ma
+     … +116 lines (~4 KB) (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Dos testes novos, 5 falharam. Vejo o contexto de cada falha antes de mexer.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O token chega nulo de forma intermitente porque o fragmento some da URL antes
+  da montagem; vou ler o token uma só vez, na abertura da página. Também corrijo
+  o teste, que troca só o fragmento sem recarregar a página, quando o link do
+  e-mail abre uma página nova.
+
+● Write(apps\mobile\src\recuperacao\tokenDoFragmento.ts)
+  ⎿  Added 17 lines, removed 11 lines
+       1  import { Platform } from "react-native";
+       2  
+       3  // O token do link de recuperação vem depois do "#" (decisoes/R
+          EADME.md, Link de
+       4 -// recuperação): o navegador não o manda a servidor nenhum. Lid
+         -o uma vez e apagado da                                         
+       5 -// barra de endereço e do histórico, para não ficar à vista nem
+         - voltar com o "voltar".                                        
+       6 -// No nativo não há fragmento: o link do e-mail abre no navegad
+         -or.                                                            
+       7 -export function tomarTokenDoFragmento(): string | null {       
+       4 +// recuperação): o navegador não o manda a servidor nenhum. Lid
+         +o e apagado da barra de                                        
+       5 +// endereço e do histórico, para não ficar à vista nem voltar c
+         +om o "voltar". No nativo                                       
+       6 +// não há fragmento: o link do e-mail abre no navegador.       
+       7 +export function capturarTokenDoFragmento(): string | null {    
+       8    if (Platform.OS !== "web" || typeof window === "undefined") {
+       9      return null;
+      10    }
+      11  
+      12 -  const token = new URLSearchParams(window.location.hash.slice(
+         -1)).get("token");                                              
+      13 -  if (window.location.hash) {                                  
+      14 -    window.history.replaceState(                               
+      15 -      window.history.state,                                    
+      16 -      "",                                                      
+      17 -      window.location.pathname + window.location.search,       
+      18 -    );                                                         
+      12 +  const { hash, pathname, search } = window.location;          
+      13 +  if (!pathname.endsWith("/redefinir-senha") || !hash) {       
+      14 +    return null;                                               
+      15    }
+      16  
+      17 +  const token = new URLSearchParams(hash.slice(1)).get("token")
+         +;                                                              
+      18 +  window.history.replaceState(window.history.state, "", pathnam
+         +e + search);                                                   
+      19    return token && token.trim() !== "" ? token : null;
+      20  }
+      21 +                                                               
+      22 +// Capturado uma vez, quando o bundle carrega: antes de o rotea
+         +dor mexer na URL e antes de                                    
+      23 +// qualquer montagem da tela, que pode acontecer mais de uma ve
+         +z.                                                             
+      24 +const tokenDaAbertura = capturarTokenDoFragmento();            
+      25 +                                                               
+      26 +export function tokenDoLinkDeRecuperacao(): string | null {    
+      27 +  return tokenDaAbertura;                                      
+      28 +}                                                              
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');…)
+  ⎿  import { RedefinirSenhaScreen } from "../recuperacao/RedefinirSenhaScr
+     een";
+     import { tokenDoLinkDeRecuperacao } from "../recuperacao/tokenDoFragme
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\app\redefinir-senha.tsx (+4 -7)
+       1 -import { useState } from "react";                              
+       2 -                                                               
+       1  import { RedefinirSenhaScreen } from "../recuperacao/RedefinirS
+          enhaScreen";
+       4 -import { tomarTokenDoFragmento } from "../recuperacao/tokenDoFr
+         -agmento";                                                      
+       2 +import { tokenDoLinkDeRecuperacao } from "../recuperacao/tokenD
+         +oFragmento";                                                   
+       3  
+       6 -// Fora dos grupos: o link do e-mail pode ser aberto com ou sem
+         - sessão. O token é lido                                        
+       7 -// uma vez, na primeira renderização, e some da URL.           
+       4 +// Fora dos grupos: o link do e-mail pode ser aberto com ou sem
+         + sessão. O token foi lido                                      
+       5 +// quando a página abriu, e já saiu da URL.                    
+       6  export default function RedefinirSenhaRoute() {
+       9 -  const [token] = useState(tomarTokenDoFragmento);             
+      10 -  return <RedefinirSenhaScreen token={token} />;               
+       7 +  return <RedefinirSenhaScreen token={tokenDoLinkDeRecuperacao(
+         +)} />;                                                         
+       8  }
+  ⎿  Updated apps\mobile\src\recuperacao\tokenDoFragmento.test.ts (+13 -5)
+      1  import { Platform } from "react-native";
+      2  
+      3 -import { tomarTokenDoFragmento } from "./tokenDoFragmento";     
+      3 +import { capturarTokenDoFragmento } from "./tokenDoFragmento";  
+      4  
+      5  // Um navegador mínimo: a barra de endereço e o histórico.
+      6  function navegador(url: string) {
+     ...
+      40      "http://localhost/redefinir-senha#token=abc_DEF-123",
+      41    );
+      42  
+      43 -  expect(tomarTokenDoFragmento()).toBe("abc_DEF-123");         
+      43 +  expect(capturarTokenDoFragmento()).toBe("abc_DEF-123");      
+      44    expect(local.href).toBe("http://localhost/redefinir-senha");
+      45    expect(replaceState).toHaveBeenCalledWith(
+      46      { chave: 1 },
+     ...
+      52  test("fragmento sem token, ou vazio, não é token", () => {
+      53    naWeb();
+      54    navegador("http://localhost/redefinir-senha#outra=1");
+      55 -  expect(tomarTokenDoFragmento()).toBeNull();                  
+      55 +  expect(capturarTokenDoFragmento()).toBeNull();               
+      56  
+      57    navegador("http://localhost/redefinir-senha#token=");
+      58 -  expect(tomarTokenDoFragmento()).toBeNull();                  
+      58 +  expect(capturarTokenDoFragmento()).toBeNull();               
+      59 +});                                                            
+      60 +                                                               
+      61 +test("só lê na rota de senha nova", () => {                    
+      62 +  naWeb();                                                     
+      63 +  const { replaceState } = navegador("http://localhost/login#to
+         +ken=abc");                                                     
+      64 +                                                               
+      65 +  expect(capturarTokenDoFragmento()).toBeNull();               
+      66 +  expect(replaceState).not.toHaveBeenCalled();                 
+      67  });
+      68  
+      69  test("no nativo não há fragmento para ler", () => {
+      70    Object.defineProperty(Platform, "OS", { value: "android" });
+      71  
+      64 -  expect(tomarTokenDoFragmento()).toBeNull();                  
+      72 +  expect(capturarTokenDoFragmento()).toBeNull();               
+      73  });
+  ⎿  Updated e2e\tests\recuperacao.spec.ts (+4 -2)
+      65      await page.getByRole("button", { name: "Salvar senha" }).cl
+          ick();
+      66      await expect(page.getByText("Senha nova salva.")).toBeVisib
+          le();
+      67  
+      68 -    await page.goto(link);                                     
+      69 -    await page.getByLabel("Senha nova").fill(`${aluno.senha}-2`
+         -);                                                             
+      68 +    // Como quem clica de novo no e-mail: uma página nova, não 
+         +só o fragmento trocado.                                        
+      69 +    const outraVez = await page.context().newPage();           
+      70 +    await outraVez.goto(link);                                 
+      71 +    await outraVez.getByLabel("Senha nova").fill(`${aluno.senha
+         +}-2`);                                                         
+      72      await page.getByRole("button", { name: "Salvar senha" }).cl
+          ick();
+      73  
+      74      await expect(page.getByText("Esse link não vale mais.")).to
+          BeVisible();
+
+● Background command "Watch stage 5 CI" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 5 (58b2fb2) passou nos seis jobs. Reconstruo o web e rodo o spec
+  da recuperação três vezes seguidas, para confirmar que a falha intermitente
+  sumiu.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O teste intermitente sumiu, e a falha que resta é um erro meu no próprio
+  teste: a segunda troca do script não pegou, então o clique em "Salvar senha"
+  ainda vai para a página antiga. Vou corrigir isso agora.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(e2e\tests\recuperacao.spec.ts)
+  ⎿  Added 4 lines, removed 4 lines
+      69      const outraVez = await page.context().newPage();
+      70      await outraVez.goto(link);
+      71      await outraVez.getByLabel("Senha nova").fill(`${aluno.senha
+          }-2`);
+      72 -    await page.getByRole("button", { name: "Salvar senha" }).cl
+         -ick();                                                         
+      72 +    await outraVez.getByRole("button", { name: "Salvar senha" }
+         +).click();                                                     
+      73  
+      74 -    await expect(page.getByText("Esse link não vale mais.")).to
+         -BeVisible();                                                   
+      75 -    await page.getByRole("button", { name: "Pedir link novo" })
+         -.click();                                                      
+      76 -    await expect(page).toHaveURL(/\/esqueci-senha$/);          
+      74 +    await expect(outraVez.getByText("Esse link não vale mais.")
+         +).toBeVisible();                                               
+      75 +    await outraVez.getByRole("button", { name: "Pedir link novo
+         +" }).click();                                                  
+      76 +    await expect(outraVez).toHaveURL(/\/esqueci-senha$/);      
+      77    },
+      78  );
+      79  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A recuperação passou nas três repetições (36 de 36), e o e2e completo passa
+  com 55 testes e 1 pulado de propósito. Rodo a suíte inteira do cliente e tiro
+  uma captura das duas telas novas.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● As capturas estão certas nos dois temas, mas o texto de abertura do "Esqueci
+  minha senha" diz "Mandamos um link" antes de a pessoa pedir. Ajusto a frase.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\recuperacao\EsqueciSenhaScreen.tsx)
+  ⎿  Added 2 lines, removed 2 lines
+      54              Esqueci minha senha
+      55            </Text>
+      56            <Text style={[textStyles.corpo, { color: colors.ink2 
+          }]}>
+      57 -            Mandamos um link para o seu e-mail institucional. N
+         -o primeiro acesso                                              
+      58 -            de professor, é por aqui que se cria a senha.      
+      57 +            Informe o seu e-mail institucional e mandamos um li
+         +nk para criar uma                                              
+      58 +            senha nova. No primeiro acesso de professor, é por 
+         +aqui também.                                                   
+      59            </Text>
+      60          </View>
+      61  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 6 está pronta para a sua revisão, sem commit. A etapa 5 fechou: a CI
+  do 58b2fb2 passou nos seis jobs.
+
+  Etapa 6: recuperação de senha
+
+  /esqueci-senha, no grupo público:
+  - Pede o link pelo e-mail institucional, com o texto do primeiro acesso de
+    professor.
+  - A resposta é a mesma exista a conta ou não: "Confira o seu e-mail. Se esse
+    e-mail tiver conta no Maxx, o link chega em instantes. Ele vale por 30
+    minutos."
+  - E-mail vazio vira erro no campo, sem ir à API. Limite de taxa e falta de
+    rede aparecem abaixo do botão.
+  - Os links da etapa 4 (no login) e da etapa 5 (RA com conta) agora chegam a
+    esta tela.
+
+  /redefinir-senha, fora dos grupos, porque o link pode ser aberto com ou sem 
+  sessão:
+  - O token é lido do #token= e apagado da barra de endereço com replaceState,
+    sem ir para o histórico.
+  - Senha fora de 8 a 128 caracteres fica no campo, sem gastar o link. Se a API
+    recusar pela política, o erro também fica no campo e o link continua
+    valendo.
+  - Link usado ou vencido mostra "Esse link não vale mais." com "Pedir link
+    novo". Link sem token, ou o app nativo, que não recebe o fragmento, mostra
+    "Esse link está incompleto." sem formulário.
+  - Depois de salvar: "Senha nova salva." e o botão Entrar. Se havia uma sessão
+    aberta no aparelho, ela é encerrada, porque a senha nova já derrubou todas
+    no servidor.
+
+  Uma falha encontrada pelo e2e e corrigida: a tela às vezes recebia o token
+  como nulo, porque o fragmento já tinha sumido da URL quando ela montava. Agora
+  o token é capturado uma única vez, quando o bundle carrega, antes de o
+  roteador mexer na URL e de qualquer montagem. A leitura só acontece na rota
+  /redefinir-senha.
+
+  Testes:
+  - Jest: 282 de 282, com 13 novos (as duas telas e a leitura do fragmento).
+  - e2e com o e-mail real do Mailpit do compose (e2e/tests/apoio/mailpit.ts):
+    - o fluxo inteiro: pedir o link, abrir o e-mail, ver o token sumir da URL,
+      trocar a senha, a antiga falhar e a nova entrar;
+    - o mesmo link usado duas vezes, aberto numa página nova como quem clica de
+      novo no e-mail;
+    - senha curta mantendo o link válido;
+    - e-mail sem conta recebendo a mesma resposta, sem nenhum e-mail enviado;
+    - link sem token.
+  - O spec da recuperação passou em 3 repetições seguidas (36 de 36), e o e2e
+    completo passou com 55 testes e 1 pulado de propósito.
+  - Lint, tsc e Prettier passaram.
+
+  Capturas das três telas (pedido, link enviado e senha nova com erro):
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\recuperacao-claro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\recuperacao-escuro.png
+
+  Depois das capturas, troquei a frase de abertura do pedido, que dizia
+  "Mandamos um link" antes de a pessoa pedir. Agora é: "Informe o seu e-mail
+  institucional e mandamos um link para criar uma senha nova. No primeiro acesso
+  de professor, é por aqui também." As capturas ainda mostram a frase antiga.
+
+  Com a sua aprovação, faço o commit feat(mobile): adiciona recuperação de senha
+  com link pelo fragmento, o push e o acompanhamento da CI, e sigo para a etapa
+  7.
+
+✻ Churned for 12m 50s · done 16:35
