@@ -3541,3 +3541,542 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
   e sigo para a etapa 5.
 
 ✻ Baked for 8m 19s · done 15:37
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+> Etapa 4 aprovada. O bloco pode ficar como está; a prancheta é referência de   
+  layout, não de medida. Os links para /cadastro e /esqueci-senha ficam assim   
+  até as etapas 5 e 6. Commita com a mensagem proposta, push, acompanha a CI e  
+  segue para a etapa 5; para para a minha revisão no fim dela, com as três      
+  telas do cadastro em captura.                                                 
+
+  Pushed to feat/passo-05-login, ran 1 shell command (ctrl+o to expand)
+
+● O commit 0159ab3 está na CI. Começo a etapa 5: as três telas do cadastro, com
+  os dados em memória num contexto do fluxo. A senha nunca vai para a URL nem
+  para o armazenamento.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Escrevo as regras do lado do cliente (espelho do domínio) e o fluxo do
+  cadastro.
+
+● Write(apps\mobile\src\cadastro\regras.ts)
+  ⎿  Wrote 27 lines to apps\mobile\src\cadastro\regras.ts
+       1 // As formas que o domínio confere (PoliticaDeSenha, PrefixoDeAr
+         roba, Usuario), repetidas
+       2 // aqui só para responder na hora e não gastar consulta à toa. Q
+         uem decide é a API.
+       3 
+       4 // Conta caractere, não unidade de UTF-16, como o domínio: um em
+         oji é um.
+       5 const tamanho = (texto: string) => Array.from(texto).length;
+       6 
+       7 export function erroDaSenha(senha: string): string | undefined {
+     … +20 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\api\FalhaDaApi.ts)
+  ⎿  Wrote 27 lines to apps\mobile\src\api\FalhaDaApi.ts
+      1 import { codigoDoErro, mensagemDaFalha, mensagemDeErro } from "./
+        erros";
+      2 
+      3 // Uma recusa da API, já com a mensagem amigável. O código fica p
+        ara a tela decidir onde
+      4 // mostrar (num campo, abaixo do botão, levando a outra rota).
+      5 export class FalhaDaApi extends Error {
+      6   constructor(readonly codigo: string | undefined) {
+      7     super(mensagemDeErro(codigo));
+      8     this.name = "FalhaDaApi";
+     … +19 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\cadastro\CadastroContext.tsx)
+  ⎿  Wrote 48 lines to apps\mobile\src\cadastro\CadastroContext.tsx
+       1 import { createContext, useContext, useState, type ReactNode } f
+         rom "react";
+       2 
+       3 // O que o cadastro junta nas três telas. Fica só em memória: a 
+         senha não vai para a URL
+       4 // nem para o armazenamento, e recarregar a página recomeça do p
+         rimeiro passo.
+       5 export interface DadosDoCadastro {
+       6   ra: string;
+       7   email: string;
+     … +41 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\cadastro\useDisponibilidadeDoPrefixo.ts)
+  ⎿  Wrote 73 lines to
+     apps\mobile\src\cadastro\useDisponibilidadeDoPrefixo.ts
+       1 import { useQuery } from "@tanstack/react-query";
+       2 import { useEffect, useState } from "react";
+       3 
+       4 import { useApiClient } from "../api/ApiClientProvider";
+       5 import { FalhaDaApi } from "../api/FalhaDaApi";
+       6 import { erroDoPrefixo } from "./regras";
+       7 
+       8 // Espera a digitação parar antes de perguntar: sugestão e dispo
+         nibilidade somam 60
+       9 // consultas por minuto por IP (decisoes/README.md, Limites de t
+     … +65 lines (~2 KB) (ctrl+o to expand)
+
+● Write(apps\mobile\src\cadastro\PassoDoCadastro.tsx)
+  ⎿  Wrote 42 lines to apps\mobile\src\cadastro\PassoDoCadastro.tsx
+       1 import { StyleSheet, Text, View } from "react-native";
+       2 
+       3 import { TextLink } from "../components/TextLink";
+       4 import { textStyles } from "../theme/fonts";
+       5 import { useTheme } from "../theme/ThemeProvider";
+       6 
+       7 // O cabeçalho dos passos 2 e 3: onde a pessoa está e como volta
+         r, sem perder o que já
+       8 // digitou.
+       9 export function PassoDoCadastro({
+     … +33 lines (ctrl+o to expand)
+
+● Agora as três telas.
+
+● Write(apps\mobile\src\cadastro\DadosScreen.tsx)
+  ⎿  Wrote 139 lines to apps\mobile\src\cadastro\DadosScreen.tsx
+       1 import { useMutation } from "@tanstack/react-query";
+       2 import { useRouter } from "expo-router";
+       3 import { useState } from "react";
+       4 import { StyleSheet, Text, View } from "react-native";
+       5 
+       6 import { useApiClient } from "../api/ApiClientProvider";
+       7 import { FalhaDaApi, falhaParaTela } from "../api/FalhaDaApi";
+       8 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       9 import { SegmentadoDeAcesso } from "../autenticacao/SegmentadoDe
+         Acesso";
+     … +130 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\cadastro\ArrobaScreen.tsx)
+  ⎿  Wrote 153 lines to apps\mobile\src\cadastro\ArrobaScreen.tsx
+       1 import { Redirect, useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import { StyleSheet, Text, View } from "react-native";
+       4 
+       5 import { TelaDeAutenticacao } from "../autenticacao/TelaDeAutent
+         icacao";
+       6 import { Button } from "../components/Button";
+       7 import { Icon } from "../components/Icon";
+       8 import { TextField } from "../components/TextField";
+       9 import { textStyles } from "../theme/fonts";
+     … +144 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Não existe ícone de confirmação. Acrescento o check do Lucide 1.70.0 ao Icon,
+  no mesmo formato dos outros.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/components/Icon.tsx';let s=fs.r…)
+  ⎿  111:  // O check do Lucide: confirmação curta, como o arroba livre no
+     cadastro.
+     112:  check: [{ d: "M20 6 9 17l-5-5", modo: "aberto" }],
+  ⎿  Updated apps\mobile\src\components\Icon.tsx (+2 -0)
+      108      { x: 3, y: 11, width: 18, height: 11, rx: 2 },
+      109      { d: "M7 11V7a5 5 0 0 1 10 0v4", modo: "aberto" },
+      110    ],
+      111 +  // O check do Lucide: confirmação curta, como o arroba livre
+          + no cadastro.                                                 
+      112 +  check: [{ d: "M20 6 9 17l-5-5", modo: "aberto" }],          
+      113    alert: [
+      114      { cx: 12, cy: 12, r: 10 },
+      115      { d: "M12 8v4", modo: "detalhe" },
+
+● Write(apps\mobile\src\termo\TextoDoTermo.tsx)
+  ⎿  Wrote 39 lines to apps\mobile\src\termo\TextoDoTermo.tsx
+       1 import { StyleSheet, Text, View } from "react-native";
+       2 
+       3 import { textStyles } from "../theme/fonts";
+       4 import { useTheme } from "../theme/ThemeProvider";
+       5 
+       6 // O texto do termo como vem da API: parágrafos separados por li
+         nha em branco, e o que
+       7 // começa por "## " é título de seção. Nada além disso, de propó
+         sito.
+       8 export function TextoDoTermo({ texto }: { texto: string }) {
+     … +31 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\termo\useTermoDeUso.ts)
+  ⎿  Wrote 20 lines to apps\mobile\src\termo\useTermoDeUso.ts
+       1 import { useQuery } from "@tanstack/react-query";
+       2 
+       3 import { useApiClient } from "../api/ApiClientProvider";
+       4 import { FalhaDaApi } from "../api/FalhaDaApi";
+       5 
+       6 // O termo vigente, sempre da API: o app instalado atrasa, e o a
+         ceite é do texto que vale.
+       7 export function useTermoDeUso() {
+       8   const client = useApiClient();
+       9 
+     … +11 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\cadastro\TermoScreen.tsx)
+  ⎿  Wrote 104 lines to apps\mobile\src\cadastro\TermoScreen.tsx
+       1 import { useMutation } from "@tanstack/react-query";
+       2 import { Redirect, useRouter } from "expo-router";
+       3 import { ActivityIndicator, StyleSheet, View } from "react-nativ
+         e";
+       4 
+       5 import { useApiClient } from "../api/ApiClientProvider";
+       6 import { FalhaDaApi, falhaParaTela } from "../api/FalhaDaApi";
+       7 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       8 import { TelaDeAutenticacao } from "../autenticacao/TelaDeAutent
+         icacao";
+     … +96 lines (ctrl+o to expand)
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && mkdir -p
+      "src/app/(publico)/cadastro" && printf '%s\n' 'import { Slot } from…)
+  ⎿  Created apps\mobile\src\app\(publico)\cadastro\_layout.tsx (+12 -0)
+       1 +import { Slot } from "expo-router";                            
+       2 +                                                               
+       3 +import { CadastroProvider } from "../../../cadastro/CadastroCon
+         +text";                                                         
+       4 +                                                               
+       5 +// Os três passos do cadastro dividem os dados em memória.     
+       6 +export default function CadastroLayout() {                     
+       7 +  return (                                                     
+       8 +    <CadastroProvider>                                         
+       9 +      <Slot />                                                 
+      10 +    </CadastroProvider>                                        
+      11 +  );                                                           
+      12 +}                                                              
+  ⎿  Created apps\mobile\src\app\(publico)\cadastro\arroba.tsx (+3 -0)
+      1 +import { ArrobaScreen } from "../../../cadastro/ArrobaScreen";  
+      2 +                                                                
+      3 +export default ArrobaScreen;                                    
+  ⎿  Created apps\mobile\src\app\(publico)\cadastro\index.tsx (+3 -0)
+      1 +import { DadosScreen } from "../../../cadastro/DadosScreen";    
+      2 +                                                                
+      3 +export default DadosScreen;                                     
+  ⎿  Created apps\mobile\src\app\(publico)\cadastro\termo.tsx (+3 -0)
+      1 +import { TermoScreen } from "../../../cadastro/TermoScreen";    
+      2 +                                                                
+      3 +export default TermoScreen;                                     
+  ⎿  Updated apps\mobile\src\cadastro\DadosScreen.tsx (+2 -1)
+      61    const enviar = () => {
+      62      const novos = {
+      63        ra: ra.trim() === "" ? "Informe o RA." : undefined,
+      64 -      email: email.trim() === "" ? "Informe o e-mail institucio
+         -nal." : undefined,                                             
+      64 +      email:                                                   
+      65 +        email.trim() === "" ? "Informe o e-mail institucional."
+         + : undefined,                                                  
+      66        senha: erroDaSenha(senha),
+      67      };
+      68      setErros(novos);
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+● Tipos e lint limpos. Agora os testes. Crio um apoio de teste comum, com tema,
+  área segura, sessão e API simulada, para as telas do cadastro.
+
+● Write(apps\mobile\src\test\renderComApi.tsx)
+  ⎿  Wrote 67 lines to apps\mobile\src\test\renderComApi.tsx
+      1 import { QueryClient, QueryClientProvider } from "@tanstack/react
+        -query";
+      2 import { act, render } from "@testing-library/react-native";
+      3 import type { ReactElement } from "react";
+      4 import { SafeAreaProvider } from "react-native-safe-area-context"
+        ;
+      5 
+      6 import { ApiClientProvider, createApiClient } from "../api/ApiCli
+        entProvider";
+      7 import { GerenciadorDeSessao } from "../sessao/GerenciadorDeSessa
+     … +61 lines (~2 KB) (ctrl+o to expand)
+
+● Write(apps\mobile\src\cadastro\cadastro.test.tsx)
+  ⎿  Wrote 423 lines to apps\mobile\src\cadastro\cadastro.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 import { useEffect } from "react";
+       3 
+       4 import {
+       5   caminhos,
+       6   json,
+       7   renderComApi,
+       8 } from "../test/renderComApi";
+       9 import { ArrobaScreen } from "./ArrobaScreen";
+     … +414 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch stage 4 CI" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI da etapa 4 (0159ab3) passou nos seis jobs. Já os testes do cadastro
+  passaram de 5 minutos, o que indica travamento. O suspeito são os relógios
+  falsos do Jest. Vou ver o que já saiu.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run the cadastro tests" completed (exit code 0)
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Monitor(cadastro jest run finishing)
+  ⎿  Monitor started · task b68468b1m · timeout 700s
+
+● Enquanto o Jest roda de novo, escrevo o e2e do cadastro.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');const p='e2e/tests/apoio/contas.ts';let
+      s=fs.readFileSyn…)
+  ⎿  export function versoesAceitas(aluno: Aluno): number[] {
+       return sql(
+         `SELECT a.versao FROM aceite_de_termo a
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\apoio\contas.ts (+14 -0)
+       83    return aluno;
+       84  }
+       85  
+       86 +// As versões do termo que o aluno aceitou, lidas do banco.   
+       87 +export function versoesAceitas(aluno: Aluno): number[] {      
+       88 +  return sql(                                                 
+       89 +    `SELECT a.versao FROM aceite_de_termo a                   
+       90 +     JOIN usuario u ON u.id = a.usuario_id                    
+       91 +     JOIN cadastro_elegivel c ON c.id = u.cadastro_elegivel_id
+       92 +     WHERE c.ra = '${aluno.ra}' ORDER BY a.versao;`,          
+       93 +  )                                                           
+       94 +    .split("                                                  
+       95 +")                                                            
+       96 +    .filter(Boolean)                                          
+       97 +    .map(Number);                                             
+       98 +}                                                             
+       99 +                                                              
+      100  // Como o arroba aparece: o sufixo é o do curso.
+      101  export const arroba = (aluno: Aluno) => `@${aluno.prefixo}-CC`
+           ;
+
+● O escape do \n saiu errado. Corrijo com a ferramenta de edição.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(e2e\tests\apoio\contas.ts)
+  ⎿  Added 1 line, removed 2 lines
+      91       JOIN cadastro_elegivel c ON c.id = u.cadastro_elegivel_id
+      92       WHERE c.ra = '${aluno.ra}' ORDER BY a.versao;`,
+      93    )
+      94 -    .split("                                                   
+      95 -")                                                             
+      94 +    .split("\n")                                               
+      95      .filter(Boolean)
+      96      .map(Number);
+      97  }
+
+● Write(e2e\tests\cadastro.spec.ts)
+  ⎿  Wrote 105 lines to e2e\tests\cadastro.spec.ts
+      1 import { expect, test, type Page } from "@playwright/test";
+      2 
+      3 import {
+      4   arroba,
+      5   novaConta,
+      6   novoElegivel,
+      7   versoesAceitas,
+      8   type Aluno,
+      9 } from "./apoio/contas";
+     … +96 lines (ctrl+o to expand)
+
+● O spec do cadastro está escrito. Aguardo o resultado do Jest.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Rerun cadastro tests saving the full log" completed (exit
+code 0)
+
+● Desta vez o Jest levou 3 segundos, então a demora anterior não era travamento
+  dos testes. Restam 5 falhas, e vou olhar cada uma.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Monitor "cadastro jest run finishing" stream ended
+
+● As falhas vêm do tempo das consultas, não das telas, então vou trocar as
+  asserções por findBy e fazer o apertar esperar o botão.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Duas rodadas seguidas passaram (19 de 19), mas a terceira travou de novo. Como
+  isso também aconteceu na primeira rodada, preciso entender antes de seguir.
+  Paro a rodada presa e investigo.
+
+● Stop Task
+  ⎿  cd "/c/Users/Guilherme
+     Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+     const fs=require('fs');const p='src/cadastro/cadastro.test.tsx';let… ·
+     stopped
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Ficou um processo do Jest vivo desde 16:03. Encerro e rodo de novo gravando a
+  saída inteira, para ver em que teste ele para.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os testes passam, mas o Jest não encerra o processo; suspeito do temporizador
+  de coleta de cache do TanStack Query e vou conferir no log.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/test/renderComApi.tsx';let s=fs…)
+  ⎿  saida=0
+  ⎿  Updated apps\mobile\src\test\renderComApi.tsx (+5 -1)
+      38      trava: (renovacao) => renovacao(),
+      39      fetch: api,
+      40    });
+      41 +  // Sem coleta de cache: o temporizador dela (5 minutos) segur
+         +a o Jest depois dos testes.                                    
+      42    const queryClient = new QueryClient({
+      42 -    defaultOptions: { queries: { retry: false } },             
+      43 +    defaultOptions: {                                          
+      44 +      queries: { retry: false, gcTime: Infinity },             
+      45 +      mutations: { gcTime: Infinity },                         
+      46 +    },                                                         
+      47    });
+      48  
+      49    const resultado = await render(
+  ⎿  (timeout 3m 20s)
+
+● O Jest agora sai sozinho. Rodo a suíte inteira, o lint e os tipos. Depois
+  reconstruo o web e rodo o e2e.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src e2e >/dev/null; cd apps/mobile &&
+      timeout 400 npx je…)
+  ⎿  Tests:       269 passed, 269 total
+     jest=0
+     0
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\cadastro.spec.ts (+3 -1)
+      68      await expect(
+      69        page.getByText("Esse arroba já tem dono. Tente outro."),
+      70      ).toBeVisible();
+      71 -    await expect(page.getByRole("button", { name: "Continuar" }
+         -)).toBeDisabled();                                             
+      71 +    await expect(                                              
+      72 +      page.getByRole("button", { name: "Continuar" }),         
+      73 +    ).toBeDisabled();                                          
+      74    },
+      75  );
+      76  
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O e2e local passa inteiro: 43 testes e 1 pulado de propósito. Agora as
+  capturas das três telas do cadastro, em claro e escuro, com o passo 1 ao lado
+  da prancheta.
+
+  Made 1 scratchpad edit +119, read 3 files, ran 1 shell command (ctrl+o to expand)
+
+● A etapa 5 está pronta para a sua revisão, sem commit. A etapa 4 fechou: a CI
+  do 0159ab3 passou nos seis jobs.
+
+  Etapa 5: cadastro, arroba e termo
+
+  Rotas /cadastro, /cadastro/arroba e /cadastro/termo, dentro do grupo público.
+  Os dados ficam só em memória, num contexto do fluxo: a senha não vai para a
+  URL nem para o armazenamento, e recarregar no meio volta ao passo 1.
+
+  Passo 1, dados:
+  - Segue a prancheta (RA, e-mail institucional, "Crie uma senha", com os mesmos
+    placeholders), com o botão "Continuar" (decisão 1).
+  - Campo vazio e senha fora de 8 a 128 caracteres são apontados no próprio
+    campo, sem ir à API. A contagem trata emoji como um caractere, como o
+    domínio.
+  - "Continuar" pede a sugestão de arroba, que já confere RA e e-mail na mesma
+    linha da base.
+  - RA com conta mostra a mensagem com o link Esqueci minha senha. Par de RA e
+    e-mail fora da base, limite de taxa e falta de rede aparecem abaixo do
+    botão.
+
+  Passo 2, arroba:
+  - Pede o nome de exibição e mostra o arroba sugerido pronto. A pessoa edita a
+    parte antes do hífen e vê a prévia, por exemplo @anaLima-CC, com "Está
+    livre.".
+  - A disponibilidade só é consultada 500 ms depois de a digitação parar, e cada
+    consulta nova cancela a anterior.
+  - Arroba fora da forma é recusado no campo sem consulta, e a sugestão não é
+    consultada de novo.
+  - Arroba ocupado é recusado no campo e desativa o Continuar.
+  - Um 429 ou falta de rede na consulta não trava: a tela avisa que o cadastro
+    confere de novo ao criar a conta.
+  - Para isso, acrescentei ao Icon o check do Lucide 1.70.0.
+
+  Passo 3, termo:
+  - O texto vem da API, com as seções como títulos. "Aceitar e criar conta" cria
+    a conta com a versão lida e já entra.
+  - Se o termo mudou durante a leitura, a tela mostra o texto novo e pede o
+    aceite de novo.
+  - Se outra pessoa tomou o arroba no último instante, a tela oferece "Escolher
+    outro arroba".
+
+  Peças novas de apoio:
+  - FalhaDaApi: a recusa da API já com a mensagem amigável.
+  - TextoDoTermo e useTermoDeUso: serão reaproveitados na demonstração.
+  - renderComApi: o apoio de teste comum.
+
+  Testes:
+  - Jest: 269 de 269, com 19 testes novos do cadastro, incluindo "digitação
+    rápida faz uma consulta só" e "arroba fora da forma não gasta consulta",
+    ambos com relógio falso.
+  - e2e local: 43 passaram e 1 foi pulado de propósito. Os testes novos cobrem:
+    - os três passos até entrar, com o aceite da versão vigente conferido no
+      banco;
+    - arroba de outra pessoa recusado no campo;
+    - RA com conta levando à recuperação;
+    - recarregar no meio voltando ao passo 1 com a senha vazia.
+  - Lint, tsc (mobile e e2e) e Prettier passaram.
+
+  Dois problemas que apareceram no caminho, já resolvidos:
+  - Cinco testes falhavam porque conferiam a tela antes de a resposta simulada
+    da API chegar. Passaram a esperar o elemento aparecer (findBy).
+  - Os testes passavam, mas o Jest não terminava: o temporizador de coleta de
+    cache do TanStack Query (5 minutos) segurava o processo. O cliente de teste
+    agora desliga essa coleta. Isso explica a demora da primeira rodada, que
+    parecia travamento.
+
+  Capturas
+
+  Passo 1 ao lado da prancheta:
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\cadastro-1-lado-a-lado-claro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\cadastro-1-lado-a-lado-escuro.png
+
+  Passo 2 e passo 3 (topo e fim do termo):
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\cadastro-2-e-3-claro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\cadastro-2-e-3-escuro.png
+
+  O passo 1 bate com a prancheta. As diferenças são o botão "Continuar" no lugar
+  de "Criar conta" (decisão 1) e o texto do primeiro acesso (decisão 2).
+
+  Os passos 2 e 3 não têm prancheta e seguem a identidade. Eles mostram "Voltar"
+  e "2 de 3" ou "3 de 3" no alto e um título na escala titulo. No passo 3, o
+  termo inteiro rola dentro da moldura, com "Aceitar e criar conta" no fim,
+  depois de todo o texto.
+
+  A captura e o e2e deixaram linhas de teste no cadastro elegível do banco
+  local, como já acontecia desde a etapa 4. Não afetam a CI, que sobe um banco
+  novo a cada execução.
+
+  Com a sua aprovação, faço o commit feat(mobile): adiciona cadastro em três 
+  passos com arroba e aceite do termo, o push e o acompanhamento da CI, e sigo
+  para a etapa 6.
+
+✻ Cooked for 38m 22s · done 16:19
