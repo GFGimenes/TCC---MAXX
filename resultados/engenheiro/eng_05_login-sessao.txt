@@ -4675,3 +4675,615 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
   7.
 
 ✻ Churned for 12m 50s · done 16:35
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+> Etapa 6 aprovada, com a frase nova do pedido. Commita com a mensagem          
+  proposta, push, acompanha a CI e segue para a etapa 7; para para a minha      
+  revisão no fim dela, com captura da entrada da demonstração.                  
+
+  Pushed to feat/passo-05-login, ran 1 shell command (ctrl+o to expand)
+
+● O commit 9f7f1b1 está na CI. Começo a etapa 7, a entrada da demonstração.
+  Primeiro confiro o FilterChip, que vou usar na escolha do curso, e como a CI
+  sobe o compose.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo as peças da demonstração. O FilterChip ganha um papel opcional de
+  radio, porque a escolha do curso é única.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/components/FilterChip.tsx';let…)
+  ⎿  14:  role?: "checkbox" | "radio";
+     22:  role = "checkbox",
+     39:      role={role}
+  ⎿  Updated apps\mobile\src\components\FilterChip.tsx (+4 -1)
+      10    selected: boolean;
+      11    onPress: () => void;
+      12    disabled?: boolean;
+      13 +  // `radio` quando o grupo é de escolha única, como o curso da
+         + demonstração.                                                 
+      14 +  role?: "checkbox" | "radio";                                 
+      15  }
+      16  
+      17  export function FilterChip({
+     ...
+      19    selected,
+      20    onPress,
+      21    disabled = false,
+      22 +  role = "checkbox",                                           
+      23  }: FilterChipProps) {
+      24    const { colors } = useTheme();
+      25    const { focusVisible, focusProps } = useFocusRing();
+     ...
+      36  
+      37    return (
+      38      <Pressable
+      36 -      role="checkbox"                                          
+      39 +      role={role}                                              
+      40        aria-checked={selected}
+      41        aria-label={label}
+      42        disabled={disabled}
+
+● Write(apps\mobile\src\demonstracao\contasDoDispositivo.ts)
+  ⎿  Wrote 17 lines to apps\mobile\src\demonstracao\contasDoDispositivo.ts
+       1 import * as SecureStore from "expo-secure-store";
+       2 
+       3 import { analisarContas, type ContaDeDemonstracao } from "./cont
+         as";
+       4 
+       5 const CHAVE = "maxx.demo.contas";
+       6 
+       7 // Nativo: as contas de demonstração deste aparelho no secure st
+         ore, porque a chave abre a
+       8 // conta sem senha.
+     … +9 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\demonstracao\contasDoDispositivo.web.ts)
+  ⎿  Wrote 17 lines to
+     apps\mobile\src\demonstracao\contasDoDispositivo.web.ts
+       1 import AsyncStorage from "@react-native-async-storage/async-stor
+         age";
+       2 
+       3 import { analisarContas, type ContaDeDemonstracao } from "./cont
+         as";
+       4 
+       5 const CHAVE = "maxx.demo.contas";
+       6 
+       7 // Web: no armazenamento local do navegador (produto.md 11, lemb
+         rança local). A chave só
+     … +10 lines (ctrl+o to expand)
+● Write(apps\mobile\src\demonstracao\contas.ts)
+  ⎿  Wrote 31 lines to apps\mobile\src\demonstracao\contas.ts
+       1 // Uma conta de demonstração lembrada neste aparelho: a chave qu
+         e abre a conta sem senha,
+       2 // e o que mostrar na lista para a pessoa reconhecer a sua.
+       3 export interface ContaDeDemonstracao {
+       4   chave: string;
+       5   nome: string;
+       6   curso: string;
+       7 }
+       8 
+       9 // O que estiver guardado e não tiver a forma esperada é descart
+     … +23 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\demonstracao\useDemonstracao.ts)
+  ⎿  Wrote 21 lines to apps\mobile\src\demonstracao\useDemonstracao.ts
+       1 import { useQuery } from "@tanstack/react-query";
+       2 
+       3 import { useApiClient } from "../api/ApiClientProvider";
+       4 
+       5 // A demonstração existe? A API responde com os cursos só com a 
+         flag ligada; desligada, a
+       6 // rota nem existe e responde 404. O app não carrega flag nenhum
+         a no bundle: pergunta.
+       7 export function useDemonstracao() {
+       8   const client = useApiClient();
+     … +13 lines (ctrl+o to expand)
+
+● Agora a tela da demonstração e o botão no login.
+
+● Write(apps\mobile\src\demonstracao\DemonstracaoScreen.tsx)
+  ⎿  Wrote 294 lines to apps\mobile\src\demonstracao\DemonstracaoScreen.tsx
+       1 import { useMutation } from "@tanstack/react-query";
+       2 import { Redirect, useRouter } from "expo-router";
+       3 import { useEffect, useState } from "react";
+       4 import { ActivityIndicator, StyleSheet, Text, View } from "react
+         -native";
+       5 
+       6 import { useApiClient } from "../api/ApiClientProvider";
+       7 import { FalhaDaApi, falhaParaTela } from "../api/FalhaDaApi";
+       8 import { mensagemDeErro } from "../api/erros";
+       9 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+     … +285 lines (ctrl+o to expand)
+
+● Tiro uma exportação que não serve para nada e faço o rótulo "Curso" usar a
+  mesma fonte do rótulo dos campos.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/demonstracao/DemonstracaoScreen…)
+  ⎿  127:          Primeiro acesso? Aluno cria a conta em Cadastrar. Profes
+     sor define a
+     128-          senha em Esqueci minha senha.
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\autenticacao\LoginScreen.tsx (+3 -0)
+       8  import { Button } from "../components/Button";
+       9  import { TextField } from "../components/TextField";
+      10  import { TextLink } from "../components/TextLink";
+      11 +import { useDemonstracao } from "../demonstracao/useDemonstraca
+         +o";                                                            
+      12  import { useSessao } from "../sessao/SessaoProvider";
+      13  import { textStyles } from "../theme/fonts";
+      14  import { useTheme } from "../theme/ThemeProvider";
+     ...
+      36    const [senha, setSenha] = useState("");
+      37    const [vazios, setVazios] = useState({ identificador: false, 
+          senha: false });
+      38    const [falha, setFalha] = useState<Falha | null>(null);
+      39 +  // Só com a flag ligada a API responde, e só então o botão ap
+         +arece.                                                         
+      40 +  const demonstracao = useDemonstracao();                      
+      41  
+      42    const entrar = useMutation({
+      43      mutationFn: async () => {
+  ⎿  Updated apps\mobile\src\demonstracao\DemonstracaoScreen.tsx (+7 -8)
+       5  
+       6  import { useApiClient } from "../api/ApiClientProvider";
+       7  import { FalhaDaApi, falhaParaTela } from "../api/FalhaDaApi";
+       8 -import { mensagemDeErro } from "../api/erros";                 
+       8  import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       9  import { TelaDeAutenticacao } from "../autenticacao/TelaDeAuten
+          ticacao";
+      10  import { erroDoNome } from "../cadastro/regras";
+     ...
+      16  import { useSessao } from "../sessao/SessaoProvider";
+      17  import { TextoDoTermo } from "../termo/TextoDoTermo";
+      18  import { useTermoDeUso } from "../termo/useTermoDeUso";
+      20 -import { textStyles } from "../theme/fonts";                   
+      19 +import { fontFamily, textStyles } from "../theme/fonts";       
+      20  import { useTheme } from "../theme/ThemeProvider";
+      21  import type { ContaDeDemonstracao } from "./contas";
+      22  import * as dispositivo from "./contasDoDispositivo";
+     ...
+      277    );
+      278  }
+      279  
+      281 -// Para quem lê a mensagem fora daqui, como o teste.          
+      282 -export const mensagemDoRegistroSimultaneo = mensagemDeErro(   
+      283 -  "registro-simultaneo",                                      
+      284 -);                                                            
+      285 -                                                              
+      280  const styles = StyleSheet.create({
+      281    coluna: { gap: 24 },
+      282    cabecalho: { gap: 8 },
+      283    secao: { gap: 12 },
+      284    cursos: { gap: 8 },
+      291 -  rotulo: { ...textStyles.corpo, fontWeight: "600" },         
+      285 +  // O rótulo dos campos (TextField).                         
+      286 +  rotulo: {                                                   
+      287 +    fontFamily: fontFamily({ familia: "Instrument Sans", peso:
+          + 600 }),                                                      
+      288 +    fontSize: 14,                                             
+      289 +    lineHeight: 20,                                           
+      290 +  },                                                          
+      291    chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+      292    voltar: { alignItems: "center" },
+      293  });
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\autenticacao\LoginScreen.tsx)
+  ⎿  Added 8 lines
+      127            Primeiro acesso? Aluno cria a conta em Cadastrar. Pr
+           ofessor define a
+      128            senha em Esqueci minha senha.
+      129          </Text>
+      130 +                                                              
+      131 +        {demonstracao.data && (                               
+      132 +          <Button                                             
+      133 +            label="Entrar na demonstração"                    
+      134 +            variant="secondary"                               
+      135 +            onPress={() => router.push("/demonstracao")}      
+      136 +          />                                                  
+      137 +        )}                                                    
+      138        </View>
+      139      </TelaDeAutenticacao>
+      140    );
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && printf '%s\n'
+      'import { DemonstracaoScreen } from "../../demonstracao/Demonst…)
+  ⎿  Tests:       4 failed, 5 passed, 9 total
+  ⎿  Created apps\mobile\src\app\(publico)\demonstracao.tsx (+5 -0)
+      1 +import { DemonstracaoScreen } from "../../demonstracao/Demonstra
+        +caoScreen";                                                     
+      2 +                                                                
+      3 +export default function DemonstracaoRoute() {                   
+      4 +  return <DemonstracaoScreen />;                                
+      5 +}                                                               
+  ⎿  Updated apps\mobile\src\demonstracao\DemonstracaoScreen.tsx (+11 -4)
+      120        }
+      121        // Guardada antes de entrar: se a sessão cair, a pessoa 
+           ainda volta por aqui.
+      122        await guardar([
+      123 -        { chave: data.chaveDoDispositivo, nome: nome.trim(), c
+          -urso: curso ?? "" },                                          
+      123 +        {                                                     
+      124 +          chave: data.chaveDoDispositivo,                     
+      125 +          nome: nome.trim(),                                  
+      126 +          curso: curso ?? "",                                 
+      127 +        },                                                    
+      128          ...contas,
+      129        ]);
+      130        await iniciar(data.sessao);
+     ...
+      211      <TelaDeAutenticacao>
+      212        <View style={styles.coluna}>
+      213          <View style={styles.cabecalho}>
+      210 -          <Text role="heading" style={[textStyles.titulo, { co
+          -lor: colors.ink }]}>                                          
+      214 +          <Text                                               
+      215 +            role="heading"                                    
+      216 +            style={[textStyles.titulo, { color: colors.ink }]}
+      217 +          >                                                   
+      218              Demonstração
+      219            </Text>
+      220            <Text style={[textStyles.corpo, { color: colors.ink2
+            }]}>
+      214 -            Entre como aluno de teste, sem senha. As contas de
+          - teste são apagadas                                           
+      215 -            ao fim da avaliação do projeto.                   
+      221 +            Entre como aluno de teste, sem senha. As contas de
+          + teste são                                                    
+      222 +            apagadas ao fim da avaliação do projeto.          
+      223            </Text>
+      224          </View>
+      225  
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os testes do login falharam porque a tela agora também consulta GET 
+  /api/v1/demo na API simulada. Vou separar a resposta da demonstração da do
+  login no teste e acrescentar os casos do botão.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/autenticacao/LoginScreen.test.t…)
+  ⎿  Tests:       11 passed, 11 total
+     src/autenticacao/LoginScreen.test.tsx(39,3): error TS2322: Type 'Mock<
+     Promise<Response>, [], any>' is not assignable to type 'Mock<Promise<R
+     esponse>, [Request], any>'.
+  ⎿  Updated apps\mobile\src\autenticacao\LoginScreen.test.tsx (+39 -7)
+      26    });
+      27  }
+      28  
+      29 +// A API simulada: o login responde o que cada teste mandar; a 
+         +demonstração, 404 (flag                                        
+      30 +// desligada), salvo quando o teste a liga.                    
+      31 +let login: jest.Mock<Promise<Response>, [Request]>;            
+      32 +let demo: jest.Mock<Promise<Response>, [Request]>;             
+      33  let api: jest.Mock<Promise<Response>, [Request]>;
+      34  let gerenciador: GerenciadorDeSessao;
+      35  
+      36  beforeEach(() => {
+      37    jest.clearAllMocks();
+      34 -  api = jest.fn();                                             
+      38 +  login = jest.fn();                                           
+      39 +  demo = jest.fn(async () => new Response(null, { status: 404 }
+         +));                                                            
+      40 +  api = jest.fn((pedido: Request) =>                           
+      41 +    new URL(pedido.url).pathname === "/api/v1/demo"            
+      42 +      ? demo(pedido)                                           
+      43 +      : login(pedido),                                         
+      44 +  );                                                           
+      45    gerenciador = new GerenciadorDeSessao({
+      46      baseUrl: BASE,
+      47      web: false,
+     ...
+      116  
+      117    expect(screen.getByText("Informe o RA ou o e-mail.")).toBeTr
+           uthy();
+      118    expect(screen.getByText("Informe a senha.")).toBeTruthy();
+      109 -  expect(api).not.toHaveBeenCalled();                         
+      119 +  expect(login).not.toHaveBeenCalled();                       
+      120  });
+      121  
+      122  test("entra com o identificador sem espaços e abre a sessão", 
+           async () => {
+      113 -  api.mockResolvedValue(json(200, sessao));                   
+      123 +  login.mockResolvedValue(json(200, sessao));                 
+      124    await renderizar();
+      125  
+      126    await preencherEEntrar(" 2023001 ", "senha-boa-123");
+      127  
+      118 -  const pedido = api.mock.calls[0]![0];                       
+      128 +  const pedido = login.mock.calls[0]![0];                     
+      129    expect(new URL(pedido.url).pathname).toBe("/api/v1/auth/logi
+           n");
+     … 51 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -n 36,42p
+      src/autenticacao/LoginScreen.test.tsx; sed -i 's/  demo = jest.…)
+  ⎿  beforeEach(() => {
+       jest.clearAllMocks();
+       login = jest.fn();
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\autenticacao\LoginScreen.test.tsx (+3 -1)
+      36  beforeEach(() => {
+      37    jest.clearAllMocks();
+      38    login = jest.fn();
+      39 -  demo = jest.fn(async () => new Response(null, { status: 404 }
+         -));                                                            
+      39 +  demo = jest.fn(                                              
+      40 +    async (_pedido: Request) => new Response(null, { status: 40
+         +4 }),                                                          
+      41 +  );                                                           
+      42    api = jest.fn((pedido: Request) =>
+      43      new URL(pedido.url).pathname === "/api/v1/demo"
+      44        ? demo(pedido)
+  ⎿  (timeout 3m 20s)
+
+● Tipos e lint limpos. Agora os testes da tela da demonstração.
+
+● Write(apps\mobile\src\demonstracao\demonstracao.test.tsx)
+  ⎿  Wrote 214 lines to apps\mobile\src\demonstracao\demonstracao.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 
+       3 import { caminhos, json, renderComApi } from "../test/renderComA
+         pi";
+       4 import { analisarContas, type ContaDeDemonstracao } from "./cont
+         as";
+       5 import { DemonstracaoScreen } from "./DemonstracaoScreen";
+       6 
+       7 const mockRoteador = { push: jest.fn(), replace: jest.fn(), back
+     … +208 lines (~7 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src >/dev/null && cd apps/mobile &&
+      timeout 300 npx jest…)
+  ⎿    ● mostra os cursos da API como escolha única
+     Tests:       1 failed, 7 passed, 8 total
+  ⎿  Updated apps\mobile\src\demonstracao\demonstracao.test.tsx (+15 -4)
+      74  
+      75  test("sem a flag, a API responde 404 e a tela volta ao login", 
+          async () => {
+      76    demo.mockResolvedValue(new Response(null, { status: 404 }));
+      77 -  await renderComApi(<DemonstracaoScreen contasDoDispositivo={a
+         -parelho()} />, api);                                           
+      77 +  await renderComApi(                                          
+      78 +    <DemonstracaoScreen contasDoDispositivo={aparelho()} />,   
+      79 +    api,                                                       
+      80 +  );                                                           
+      81  
+      82    expect(await screen.findByText("redireciona para /login")).to
+          BeTruthy();
+      83  });
+      84  
+      85  test("mostra os cursos da API como escolha única", async () => 
+          {
+      83 -  await renderComApi(<DemonstracaoScreen contasDoDispositivo={a
+         -parelho()} />, api);                                           
+      86 +  await renderComApi(                                          
+      87 +    <DemonstracaoScreen contasDoDispositivo={aparelho()} />,   
+      88 +    api,                                                       
+      89 +  );                                                           
+      90  
+      91    expect(await screen.findByRole("radiogroup", { name: "Curso" 
+          })).toBeTruthy();
+      92    await fireEvent.press(screen.getByRole("radio", { name: "Admi
+          nistração" }));
+     ...
+      103  });
+      104  
+      105  test("nome e curso faltando são apontados antes do termo", asy
+           nc () => {
+      100 -  await renderComApi(<DemonstracaoScreen contasDoDispositivo={
+          -aparelho()} />, api);                                         
+      106 +  await renderComApi(                                         
+      107 +    <DemonstracaoScreen contasDoDispositivo={aparelho()} />,  
+      108 +    api,                                                      
+      109 +  );                                                          
+      110  
+      111    await apertar("Continuar");
+      112  
+     ...
+      128    );
+      129  
+      130    await ateOTermo(" Ana Paula ");
+      122 -  expect(await screen.findByRole("heading", { name: "Demonstra
+          -ção" })).toBeTruthy();                                        
+      131 +  expect(                                                     
+      132 +    await screen.findByRole("heading", { name: "Demonstração" 
+          +}),                                                           
+      133 +  ).toBeTruthy();                                             
+      134    await apertar("Aceitar e entrar");
+     … 2 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O grupo role="radiogroup" não é elemento de acessibilidade nos testes nativos,
+  e torná-lo acessível esconderia os rádios do VoiceOver no iOS, então o papel
+  fica só na web. Vou remover essa asserção.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/demonstracao/demonstracao.test.…)
+  ⎿  Tests:       8 passed, 8 total
+     Tests:       292 passed, 292 total
+     0
+  ⎿  Updated apps\mobile\src\demonstracao\demonstracao.test.tsx (+1 -1)
+      88      api,
+      89    );
+      90  
+      91 -  expect(await screen.findByRole("radiogroup", { name: "Curso" 
+         -})).toBeTruthy();                                              
+      91 +  await screen.findByRole("radio", { name: "Administração" }); 
+      92    await fireEvent.press(screen.getByRole("radio", { name: "Admi
+          nistração" }));
+      93    await fireEvent.press(
+      94      screen.getByRole("radio", { name: "Ciência da Computação" }
+          ),
+  ⎿  (timeout 10m)
+
+● Os testes do cliente passaram (292), e agora vou rodar o e2e. Os testes com a
+  flag ligada, marcados com @demo, vão numa segunda passada com
+  docker-compose.demo.yml, e a passada normal os exclui.
+
+● Write(e2e\tests\demonstracao.spec.ts)
+  ⎿  Wrote 88 lines to e2e\tests\demonstracao.spec.ts
+       1 import { expect, test } from "@playwright/test";
+       2 
+       3 // A demonstração existe só com a flag. Os testes @demo rodam nu
+         ma passada própria, com o
+       4 // docker-compose.demo.yml por cima; a passada normal os exclui 
+         (--grep-invert @demo) e
+       5 // confere a flag desligada.
+       6 
+       7 const CONTAS = "maxx.demo.contas";
+       8 
+     … +80 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 16 lines, removed 1 line
+      107        - name: Seed demo
+      108          run: docker compose run --rm seeder seed demo
+      109        - run: npx -w @maxx/e2e playwright install --with-deps c
+           hromium
+      110 -      - run: npm test -w @maxx/e2e                            
+      110 +      - name: e2e com a demonstração desligada, como em produç
+          +ão                                                            
+      111 +        run: npm test -w @maxx/e2e -- --grep-invert @demo     
+      112 +      # A mesma pilha com o docker-compose.demo.yml por cima, 
+          +como na apresentação: só a                                    
+      113 +      # API muda, e o lote é descartável, como a chave.       
+      114 +      - name: Liga a demonstração                             
+      115 +        run: |                                                
+      116 +          sed -i "s|^MAXX_DEMO_LOTE=.*|MAXX_DEMO_LOTE=e2e-ci-$
+          +{{ github.run_id }}|" .env                                    
+      117 +          docker compose -f docker-compose.yml -f docker-compo
+          +se.demo.yml up -d                                             
+      118 +          for i in $(seq 1 60); do                            
+      119 +            curl -sf http://localhost/api/v1/demo > /dev/null 
+          +&& exit 0                                                     
+      120 +            sleep 2                                           
+      121 +          done                                                
+      122 +          echo "A demonstração não ficou pronta a tempo."     
+      123 +          exit 1                                              
+      124 +      - name: e2e da demonstração                             
+      125 +        run: npm test -w @maxx/e2e -- --grep @demo            
+      126        - name: Logs do compose
+      127          if: failure()
+      128          run: docker compose logs --no-color
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch stage 6 CI" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+● A CI da etapa 6 passou nos seis jobs e os testes @demo passam com a flag
+  ligada (4 de 4). Vou usar essa demonstração para as capturas de login, conta
+  lembrada e termo.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● As capturas estão certas nos dois temas. Devolvo o compose local ao estado
+  normal, sem a demonstração, e faço a última conferência.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 7 está pronta para a sua revisão, sem commit. A etapa 6 fechou: a CI
+  do 9f7f1b1 passou nos seis jobs.
+
+  Etapa 7: entrada da demonstração
+
+  Botão no login:
+  - O app pergunta GET /api/v1/demo, que só responde com a flag ligada. O botão
+    "Entrar na demonstração" (discreto, abaixo do texto do primeiro acesso) só
+    aparece com resposta 200.
+  - O bundle não carrega flag nenhuma. Com resposta 404 ou falta de rede, o
+    botão não aparece.
+
+  /demonstracao, no grupo público:
+  - Com a flag desligada, a tela devolve ao login.
+  - Mostra um título e um aviso de que as contas de teste são apagadas ao fim da
+    avaliação.
+  - Neste aparelho: a lista das contas já criadas, com "Entrar como Ana Paula ·
+    CC", que entra sem senha pela chave guardada.
+  - Criar outra conta de teste: o nome e o curso, escolhido entre os que a API
+    devolve, depois o termo de uso vigente e "Aceitar e entrar".
+  - A chave fica guardada antes de entrar: se a sessão cair, a pessoa ainda
+    volta pela lista.
+
+  Mensagens de erro:
+  - registro-simultaneo (pendência do passo 4): mostra "Muita gente entrou com
+    esse nome agora. Tente de novo em instantes." e o botão "Tentar de novo".
+  - chave-invalida (conta apagada pela purga): a conta some da lista do
+    aparelho, com "Essa conta de demonstração não existe mais.".
+  - curso-indisponivel: volta à escolha do curso.
+  - termo-desatualizado: mostra o texto novo e pede o aceite de novo.
+
+  Onde a chave fica guardada: na web, no armazenamento local do navegador; no
+  nativo, no secure store. Uma lista guardada fora do formato esperado vira
+  lista vazia, nunca uma tela quebrada.
+
+  FilterChip: ganhou um papel opcional radio, porque o curso é escolha única. O
+  grupo também tem o papel de grupo de rádios, que vale na web; no nativo, ele
+  não vira elemento de acessibilidade, para não esconder os rádios do leitor de
+  tela.
+
+  CI: o job e2e agora roda em duas passadas.
+  1. A pilha normal, com a demonstração desligada como em produção
+     (--grep-invert @demo).
+  2. A mesma pilha com docker-compose.demo.yml por cima e um lote descartável
+     por execução (--grep @demo).
+
+  Testes:
+  - Jest: 292 de 292, com 10 testes novos:
+    - 2 do botão, desligado e ligado;
+    - 8 da tela: o 404 que volta ao login, a escolha única do curso, a
+      validação, o registro que grava a chave, registro-simultaneo com nova
+      tentativa, a volta pela chave, chave-invalida tirando a conta da lista e a
+      lista guardada fora do formato.
+  - e2e local:
+    - Flag desligada: 59 passaram e 1 foi pulado de propósito. O teste novo
+      confere que não há botão, que /demonstracao volta ao login e que a API
+      responde 404.
+    - Flag ligada: 4 de 4. Os testes registram, entram, saem e voltam sem senha
+      pela conta lembrada, e conferem que a conta purgada some da lista.
+  - Lint, tsc e Prettier passaram.
+
+  Capturas (login com o botão, entrada com uma conta lembrada e o curso
+  escolhido, fim do termo com "Aceitar e entrar"):
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\demonstracao-claro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\demonstracao-escuro.png
+
+  O compose local voltou ao estado normal, sem a demonstração (GET /api/v1/demo
+  responde 404). Os testes e as capturas deixaram alguns alunos de demonstração
+  no banco local, nos lotes e2e-local e no lote vazio do registro feito para a
+  captura. Se quiser, apago esses alunos com o SQL da purga do README.
+
+  Com a sua aprovação, faço o commit feat(mobile): adiciona entrada da 
+  demonstração com lembrança local do aparelho, o push e o acompanhamento da CI,
+  que vai exercitar as duas passadas novas pela primeira vez. Depois sigo para
+  a etapa 8.
+
+✻ Baked for 9m 9s · done 16:46
