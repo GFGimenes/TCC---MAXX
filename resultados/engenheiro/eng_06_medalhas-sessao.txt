@@ -3114,3 +3114,538 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
   5.
 
 ✻ Sautéed for 9m 12s · done 18:21
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 4 aprovada. Os trabalhos sem handler até a etapa 6 e a ampliação do     
+  teste de mensagens na etapa 8 ficam como você descreveu. Acrescenta no        
+  produto.md 4.8 que no passo 6 a concessão entra pela lista da turma e que o   
+  perfil do aluno passa a ser outra entrada a partir do passo 7. Commita com a  
+  mensagem proposta, push, acompanha a CI e segue para a etapa 5; para para a   
+  minha revisão no fim dela.                                                    
+
+● Update(docs\produto.md)
+  ⎿  Added 3 lines, removed 1 line
+      333  
+      334  ### 4.8 Medalha: concessão e anulação
+      335  
+      336 -O professor concede pelo perfil do aluno, escolhendo o item do
+          - catálogo. A medalha grava                                    
+      336 +O professor concede escolhendo o item do catálogo. No passo 6,
+          + a concessão entra pela                                       
+      337 +lista de alunos da turma do professor; a partir do passo 7, o 
+          +perfil do aluno passa a ser                                   
+      338 +outra entrada para a mesma concessão. A medalha grava         
+      339  turma e matéria (do professor que concede) e bimestre (da data
+           ). Só nas turmas do
+      340  semestre vigente.
+      341  
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Etapa 4 commitada (e9abe4f); CI rodando. Começo a etapa 5: anulação por
+  comando administrativo e a purga com medalhas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Medalhas\AnularMedalhaHandler.cs)
+  ⎿  Wrote 57 lines to
+     apps\api\src\Maxx.Application\Medalhas\AnularMedalhaHandler.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Application.Fila;
+       3 using Maxx.Domain.Academico;
+       4 
+       5 namespace Maxx.Application.Medalhas;
+       6 
+       7 // Anulação de medalha pela instituição (produto.md 4.8): ato ad
+         ministrativo, sem motivo
+       8 // público e sem averiguação. Na fase 1, por comando administrat
+         ivo, até a área web do
+     … +49 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Medalhas\ComandoDeAnulacao.cs)
+  ⎿  Wrote 52 lines to apps\api\src\Maxx.Api\Medalhas\ComandoDeAnulacao.cs
+       1 using Maxx.Application;
+       2 using Maxx.Application.Medalhas;
+       3 
+       4 namespace Maxx.Api.Medalhas;
+       5 
+       6 // `Maxx.Api anular-medalha <id-da-medalha> --instituicao <e-mai
+         l>`: a anulação da fase 1,
+       7 // até a área web da instituição no passo 12. No compose:
+       8 //   docker compose run --rm seeder anular-medalha <id> --instit
+         uicao <e-mail>
+     … +44 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e5a.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+18 -3)
+      18  // `Maxx.Api seed <base|demo>` grava os dados de data/ e sai. I
+          dempotente.
+      19  var isSeed = args is ["seed", ..];
+      20  
+      21 +// `Maxx.Api anular-medalha <id> --instituicao <e-mail>` anula 
+         +uma medalha e sai: a anulação                                  
+      22 +// da fase 1, por comando administrativo (ComandoDeAnulacao).  
+      23 +var isAnulacao = args is [ComandoDeAnulacao.Nome, ..];         
+      24 +                                                               
+      25  // `Maxx.Api worker` consome a fila de trabalhos do Postgres (A
+          DR 0008), sem servidor HTTP.
+      26  // É o comando do contêiner do worker; as réplicas da API só en
+          fileiram.
+      27  if (args is ["worker", ..])
+     ...
+      41  var isOpenApiGeneration = Assembly.GetEntryAssembly()?.GetName(
+          ).Name == "GetDocument.Insider";
+      42  
+      43  var builder = WebApplication.CreateBuilder(
+      40 -    isMigrate ? args[1..] : isSeed ? args[Math.Min(2, args.Leng
+         -th)..] : args);                                                
+      44 +    isMigrate ? args[1..]                                      
+      45 +    : isSeed ? args[Math.Min(2, args.Length)..]                
+      46 +    : isAnulacao ? args[Math.Min(ComandoDeAnulacao.Argumentos, 
+         +args.Length)..]                                                
+      47 +    : args);                                                   
+      48  
+      49  var connectionString = builder.Configuration.GetConnectionStrin
+          g("Maxx")
+      50      ?? (isOpenApiGeneration ? "Host=openapi-generation" : null)
+     ...
+      75  builder.Services.AddExceptionHandler<RecusaExceptionHandler>();
+      76  builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+      77  
+      71 -builder.AddAutenticacao(exigirChave: !isMigrate && !isSeed && !
+         -isOpenApiGeneration);                                          
+      72 -var demonstracao = builder.AddDemonstracao(servindo: !isMigrate
+         - && !isSeed && !isOpenApiGeneration, gerandoOpenApi: isOpenApiG
+         -eneration);                                                    
+      78 +var servindo = !isMigrate && !isSeed && !isAnulacao && !isOpenA
+         +piGeneration;                                                  
+      79 +builder.AddAutenticacao(exigirChave: servindo);                
+      80 +var demonstracao = builder.AddDemonstracao(servindo: servindo, 
+         +gerandoOpenApi: isOpenApiGeneration);                          
+      81  builder.Services.AddProxyConfiavel(builder.Configuration);
+      82  builder.Services.AddLimitesDeTaxa();
+      83  builder.Services.AddScoped<Maxx.Application.Medalhas.ConcederMe
+          dalhaHandler>();
+      84 +builder.Services.AddScoped<Maxx.Application.Medalhas.AnularMeda
+         +lhaHandler>();                                                 
+      85  
+      86  var app = builder.Build();
+      87  
+     ...
+      116      return 0;
+      117  }
+      118  
+      119 +if (isAnulacao)                                               
+     … 8 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\CodigosDaMedalha.cs (+6
+     -0)
+      24      // O aluno já tem, nessa matéria e nesse período, tantas me
+          dalhas desse item quanto o
+      25      // limite do catálogo.
+      26      public const string LimiteAtingido = "limite-atingido";
+      27 +                                                               
+      28 +    // Anulação: o id não é de medalha nenhuma.                
+      29 +    public const string MedalhaNaoEncontrada = "medalha-nao-enc
+         +ontrada";                                                      
+      30 +                                                               
+      31 +    // Anulação: o e-mail informado não é de uma conta com o pa
+         +pel de instituição.                                            
+      32 +    public const string SemContaDeInstituicao = "sem-conta-de-i
+         +nstituicao";                                                   
+      33  }
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Pr
+     emiosConfiguration.cs (+3 -0)
+      52          builder.HasOne<SemestreLetivo>().WithMany().HasForeignK
+          ey(medalha => medalha.SemestreLetivoId).OnDelete(DeleteBehavior
+          .Restrict);
+      53          builder.HasOne<Bimestre>().WithMany().HasForeignKey(med
+          alha => medalha.BimestreId).OnDelete(DeleteBehavior.Restrict);
+      54  
+      55 +        // Duas anulações da mesma medalha ao mesmo tempo: o xm
+         +in deixa só a primeira gravar.                                 
+      56 +        builder.Property<uint>("Versao").IsRowVersion();       
+      57 +                                                               
+      58          builder.Ignore(medalha => medalha.EstaAtiva);
+      59      }
+      60  }
+  ⎿  Updated docs\decisoes\README.md (+1 -0)
+      123    FROM usuario WHERE lote_da_demonstracao = :'lote';
+      124  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario
+           _id FROM alvo);
+      125  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      126 +DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM 
+          +alvo);                                                        
+      127  DELETE FROM usuario WHERE id IN (SELECT usuario_id FROM alvo);
+      128  DELETE FROM matricula WHERE aluno_id IN (SELECT cadastro_id FR
+           OM alvo);
+      129  DELETE FROM cadastro_elegivel WHERE id IN (SELECT cadastro_id 
+           FROM alvo) AND demonstracao;
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      migrations add MedalhaVersao --project src/Maxx.Infrastructure --start…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+             protected override void Up(MigrationBuilder migrationBuilder)
+             {
+     … +16 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     07212603_MedalhaVersao.cs (+30 -0)
+       1 +using Microsoft.EntityFrameworkCore.Migrations;                
+       2 +                                                               
+       3 +#nullable disable                                              
+       4 +                                                               
+       5 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       6 +{                                                              
+       7 +    /// <inheritdoc />                                         
+       8 +    public partial class MedalhaVersao : Migration             
+       9 +    {                                                          
+      10 +        /// <inheritdoc />                                     
+      11 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      12 +        {                                                      
+      13 +            migrationBuilder.AddColumn<uint>(                  
+      14 +                name: "xmin",                                  
+      15 +                table: "medalha",                              
+      16 +                type: "xid",                                   
+      17 +                rowVersion: true,                              
+      18 +                nullable: false,                               
+      19 +                defaultValue: 0u);                             
+      20 +        }                                                      
+      21 +                                                               
+      22 +        /// <inheritdoc />                                     
+      23 +        protected override void Down(MigrationBuilder migration
+         +Builder)                                                       
+      24 +        {                                                      
+      25 +            migrationBuilder.DropColumn(                       
+      26 +                name: "xmin",                                  
+      27 +                table: "medalha");                             
+      28 +        }                                                      
+      29 +    }                                                          
+      30 +}                                                              
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+6 -0)
+      669                          .HasColumnType("uuid")
+      670                          .HasColumnName("turma_id");
+      671  
+      672 +                    b.Property<uint>("Versao")                
+      673 +                        .IsConcurrencyToken()                 
+      674 +                        .ValueGeneratedOnAddOrUpdate()        
+      675 +                        .HasColumnType("xid")                 
+      676 +                        .HasColumnName("xmin");               
+      677 +                                                              
+      678                      b.Property<int>("VersaoDoItem")
+      679                          .HasColumnType("integer")
+      680                          .HasColumnName("versao_do_item");
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\CatalogoDeMedalhas.cs)
+  ⎿  Wrote 45 lines to apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\Ca
+     talogoDeMedalhas.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Infrastructure.Persistence;
+       3 using Maxx.Infrastructure.Seed;
+       4 
+       5 namespace Maxx.Api.IntegrationTests.Medalhas;
+       6 
+       7 // Duas medalhas do catálogo, como linhas de item_catalogo, para
+          os testes que concedem sem
+       8 // rodar o seed inteiro: M01, repetível com duas vagas no bimest
+         re, e M03, uma vaga só.
+     … +37 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e5b.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\ConcessaoDeM
+     edalhaTests.cs (+2 -36)
+      12  using Maxx.Infrastructure.Autenticacao;
+      13  using Maxx.Infrastructure.Fila;
+      14  using Maxx.Infrastructure.Persistence;
+      15 -using Maxx.Infrastructure.Seed;                                
+      15  using Microsoft.EntityFrameworkCore;
+      16  using Microsoft.Extensions.DependencyInjection;
+      17  using static Maxx.Api.IntegrationTests.BancoDeTeste;
+     ...
+      278              contaDaAna,
+      279              contaDaCarla,
+      280              contaDoDiego,
+      282 -            Item(new ItemMedalha                              
+      283 -            {                                                 
+      284 -                Codigo = "M01",                               
+      285 -                Nome = "Nota 10 em prova",                    
+      286 -                Descricao = "Tirar 10 em uma prova da matéria.
+          -",                                                            
+      287 -                Base = BaseDaMedalha.Nota,                    
+      288 -                Tier = Tier.Bronze,                           
+      289 -                Pontos = 30,                                  
+      290 -                PeriodoDeReferencia = Periodo.Bimestre,       
+      291 -                Repetivel = true,                             
+      292 -                LimitePorPeriodo = 2,                         
+      293 -                ChaveDeDeduplicacao =                         
+      294 -                [                                             
+      295 -                    CampoDeDeduplicacao.Aluno, CampoDeDeduplic
+          -acao.Item, CampoDeDeduplicacao.Materia,                       
+      296 -                    CampoDeDeduplicacao.Bimestre, CampoDeDedup
+          -licacao.Ocorrencia,                                           
+      297 -                ],                                            
+      298 -            }),                                               
+      299 -            Item(new ItemMedalha                              
+      300 -            {                                                 
+      301 -                Codigo = "M03",                               
+      302 -                Nome = "Presença integral no bimestre",       
+      303 -                Descricao = "Não faltar a nenhuma aula da maté
+          -ria no bimestre.",                                            
+      304 -                Base = BaseDaMedalha.Presenca,                
+      305 -                Tier = Tier.Bronze,                           
+      306 -                Pontos = 25,                                  
+      307 -                PeriodoDeReferencia = Periodo.Bimestre,       
+      308 -                Repetivel = false,                            
+      309 -                LimitePorPeriodo = 1,                         
+      310 -                ChaveDeDeduplicacao =                         
+      311 -                [                                             
+     … 16 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Comando de anulação ligado e migration de versão da medalha criada; agora
+  escrevo os testes da anulação e amplio o teste da purga.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\AnulacaoDeMedalhaTests
+       .cs)
+  ⎿  Wrote 205 lines to apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\A
+     nulacaoDeMedalhaTests.cs
+       1 using Maxx.Api.Medalhas;
+       2 using Maxx.Application.Medalhas;
+       3 using Maxx.Domain.Academico;
+       4 using Maxx.Domain.Identidade;
+       5 using Maxx.Domain.Premios;
+       6 using Maxx.Infrastructure.Fila;
+       7 using Maxx.Infrastructure.Persistence;
+       8 using Microsoft.EntityFrameworkCore;
+       9 using Microsoft.Extensions.DependencyInjection;
+      10 using static Maxx.Api.IntegrationTests.BancoDeTeste;
+     … +195 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e5c.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\tests\Maxx.Api.IntegrationTests\Autenticacao\DemonstracaoTests.cs(30
+     8,17): error CS0136: Um local ou um parâmetro denominado "db" não pode
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+36 -3)
+       9  using Maxx.Api.Autenticacao;
+      10  using Maxx.Api.Demonstracao;
+      11  using Maxx.Application;
+      12 +using Maxx.Application.Medalhas;                               
+      13  using Maxx.Domain.Academico;
+      14  using Maxx.Domain.Identidade;
+      15 +using Maxx.Domain.Premios;                                     
+      16  using Maxx.Infrastructure.Persistence;
+      17  using Microsoft.EntityFrameworkCore;
+      18  using Microsoft.Extensions.DependencyInjection;
+     ...
+      284  
+      285      // O SQL é o do README das decisões, o que será rodado dep
+           ois da apresentação.
+      286      [Fact]
+      285 -    public async Task A_purga_do_readme_apaga_o_lote_com_os_ac
+          -eites_e_mantem_o_termo_e_o_que_nao_e_do_lote()                
+      287 +    public async Task A_purga_do_readme_apaga_o_lote_com_aceit
+          +es_e_medalhas_e_mantem_o_termo_e_o_que_nao_e_do_lote()        
+      288      {
+      289          await using var factory = await MundoAsync();
+      290          using var client = factory.CreateClient();
+     ...
+      299              await mudarLote.ExecuteNonQueryAsync(Ct);
+      300          }
+      301  
+      302 +        // Uma medalha para um aluno do lote e outra para quem
+          + é de outro lote.                                             
+      303 +        var renata = CadastroElegivel.Professor("renata@prof.u
+          +nieduk.com.br", "Renata Albuquerque");                        
+      304 +        var contaDaRenata = Usuario.CriarPeloSeed(renata, "ren
+          +ataA", DateTimeOffset.UtcNow);                                
+      305 +        Guid turma;                                           
+      306 +        await using (var scope = factory.Services.CreateAsyncS
+          +cope())                                                       
+      307 +        {                                                     
+      308 +            var db = scope.ServiceProvider.GetRequiredService<
+          +MaxxDbContext>();                                             
+      309 +            var cadastroDaAna = (await db.Set<Usuario>().Singl
+          +eAsync(usuario => usuario.NomeDeExibicao == "Ana Paula", Ct)).
+          +CadastroElegivelId;                                           
+      310 +            turma = await db.Set<Matricula>()                 
+      311 +                .Where(matricula => matricula.AlunoId == cadas
+          +troDaAna)                                                     
+      312 +                .Join(db.Set<Turma>(), matricula => matricula.
+          +TurmaId, linha => linha.Id, (_, linha) => linha)              
+      313 +                .Where(linha => linha.Materia.Nome == "Banco d
+          +e Dados")                                                     
+      314 +                .Select(linha => linha.Id)                    
+      315 +                .SingleAsync(Ct);                             
+      316 +            await SalvarAsync(                                
+      317 +                factory,                                      
+      318 +                renata,                                       
+      319 +                contaDaRenata,                                
+      320 +                new VinculoProfessor(renata, await db.Set<Turm
+          +a>().Include(linha => linha.Materia).SingleAsync(linha => linh
+          +a.Id == turma, Ct)),                                          
+     … 27 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/DemonstracaoTests.cs
+      && sed -i '3…)
+  ⎿  9:            var banco = scope.ServiceProvider.GetRequiredService<Max
+     xDbContext>();
+     10:            var cadastroDaAna = (await banco.Set<Usuario>().SingleA
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+5 -5)
+      305          Guid turma;
+      306          await using (var scope = factory.Services.CreateAsyncS
+           cope())
+      307          {
+      308 -            var db = scope.ServiceProvider.GetRequiredService<
+          -MaxxDbContext>();                                             
+      309 -            var cadastroDaAna = (await db.Set<Usuario>().Singl
+          -eAsync(usuario => usuario.NomeDeExibicao == "Ana Paula", Ct)).
+          -CadastroElegivelId;                                           
+      310 -            turma = await db.Set<Matricula>()                 
+      308 +            var banco = scope.ServiceProvider.GetRequiredServi
+          +ce<MaxxDbContext>();                                          
+      309 +            var cadastroDaAna = (await banco.Set<Usuario>().Si
+          +ngleAsync(usuario => usuario.NomeDeExibicao == "Ana Paula", Ct
+          +)).CadastroElegivelId;                                        
+      310 +            turma = await banco.Set<Matricula>()              
+      311                  .Where(matricula => matricula.AlunoId == cadas
+           troDaAna)
+      312 -                .Join(db.Set<Turma>(), matricula => matricula.
+          -TurmaId, linha => linha.Id, (_, linha) => linha)              
+      312 +                .Join(banco.Set<Turma>(), matricula => matricu
+          +la.TurmaId, linha => linha.Id, (_, linha) => linha)           
+      313                  .Where(linha => linha.Materia.Nome == "Banco d
+           e Dados")
+      314                  .Select(linha => linha.Id)
+      315                  .SingleAsync(Ct);
+     ...
+      317                  factory,
+      318                  renata,
+      319                  contaDaRenata,
+      320 -                new VinculoProfessor(renata, await db.Set<Turm
+          -a>().Include(linha => linha.Materia).SingleAsync(linha => linh
+          -a.Id == turma, Ct)),                                          
+      320 +                new VinculoProfessor(renata, await banco.Set<T
+          +urma>().Include(linha => linha.Materia).SingleAsync(linha => l
+          +inha.Id == turma, Ct)),                                       
+      321                  Medalhas.CatalogoDeMedalhas.M03());
+      322          }
+      323  
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Testes de anulação (7), concessão (11) e demonstração com a purga (17) passam.
+  Confiro o comando de verdade no contêiner e rodo a suite inteira.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Background command "Wait for etapa 4 CI run" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A etapa 5 está pronta para a sua revisão: build sem aviso, formatação limpa,
+  530 testes passando localmente e cliente gerado sem diferença. Ainda não fiz
+  commit nem push dela.
+
+  Etapa 4: CI verde
+
+  A CI do commit e9abe4f feat(api): adiciona turmas, alunos e concessão de 
+  medalha do professor (run 42415674683) passou nos seis jobs. O commit inclui
+  as duas frases no produto.md 4.8: a regra F e a concessão entrando pela lista
+  da turma no passo 6, com o perfil do aluno como outra entrada a partir do
+  passo 7.
+
+  Etapa 5: anulação por comando administrativo (sem commit)
+
+  Comando (decisão L): Maxx.Api anular-medalha <id-da-medalha> --instituicao 
+  <e-mail>. No compose: docker compose run --rm seeder anular-medalha <id> 
+  --instituicao <e-mail>.
+
+  ┌────────────────────────────┬──────────────────────────────┬─────────────┐
+  │          Situação          │            Saída             │ Código de   │
+  │                            │                              │    saída    │
+  ├────────────────────────────┼──────────────────────────────┼─────────────┤
+  │ Medalha anulada            │ "Medalha X anulada."         │ 0           │
+  ├────────────────────────────┼──────────────────────────────┼─────────────┤
+  │ Medalha já estava anulada  │ "Medalha X já estava         │ 0           │
+  │ (nada muda)                │ anulada."                    │             │
+  ├────────────────────────────┼──────────────────────────────┼─────────────┤
+  │ E-mail sem conta de        │ "e-mail não é uma conta da   │ 1           │
+  │ instituição                │ instituição."                │             │
+  ├────────────────────────────┼──────────────────────────────┼─────────────┤
+  │ Medalha inexistente        │ "Nenhuma medalha com o id    │ 1           │
+  │                            │ X."                          │             │
+  ├────────────────────────────┼──────────────────────────────┼─────────────┤
+  │ Uso errado                 │ a linha de uso               │ 2           │
+  └────────────────────────────┴──────────────────────────────┴─────────────┘
+
+  - Contas que são professor e instituição ao mesmo tempo também anulam.
+  - O comando sobe sem exigir chave JWT nem URL pública, como o seed e o
+    migrate.
+
+  O que a anulação faz (AnularMedalhaHandler):
+  - Grava quem anulou e quando e enfileira recalcular-raridade, na mesma
+    transação.
+  - A reavaliação de conquistas fica para o passo 9 e o ranking para o 11, como
+    no ADR 0005.
+  - A medalha anulada sai do índice de vagas, então libera a vaga para uma nova
+    concessão.
+
+  Duas anulações ao mesmo tempo: a medalha ganhou controle de concorrência pelo
+  xmin, na migration MedalhaVersao, que não cria coluna real. A segunda relê a
+  medalha, vê que já está anulada e responde "já estava anulada". Só uma grava.
+
+  Purga: o SQL do README de decisões ganhou DELETE FROM medalha WHERE aluno_id 
+  IN (...), antes de apagar o usuário. A tabela de notificação entra nessa lista
+  na etapa 6, quando nascer.
+
+  Testes
+  - 7 testes novos do comando:
+    - anula e grava quem e quando, mantendo quem concedeu, e enfileira o
+      recálculo;
+    - a anulada libera a vaga;
+    - anular de novo não muda nada;
+    - duas anulações simultâneas gravam uma só;
+    - conta de professor e instituição anula;
+    - professor e e-mail desconhecido recebem 1 sem anular;
+    - medalha inexistente dá 1, e uso errado e id inválido dão 2.
+  - O teste da purga, que roda o SQL tirado do próprio README, agora concede
+    medalha a um aluno do lote e a um de outro lote, e confere que só a do lote
+    sai.
+  - As duas medalhas de teste (M01 e M03) foram para um arquivo compartilhado,
+    CatalogoDeMedalhas.cs, usado pelos testes de concessão, anulação e purga.
+  - No contêiner real, o comando respondeu 2 com a linha de uso quando faltaram
+    argumentos e 1 com "Nenhuma medalha com o id …" para um id inexistente.
+
+  Commit proposto: feat(api): adiciona anulação de medalha por comando 
+  administrativo. Com seu ok, faço o commit e o push, trago a CI e sigo para a
+  etapa 6.
+✻ Sautéed for 7m 27s · done 18:31
