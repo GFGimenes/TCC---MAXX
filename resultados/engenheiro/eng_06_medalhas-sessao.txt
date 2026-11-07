@@ -3649,3 +3649,954 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
   administrativo. Com seu ok, faço o commit e o push, trago a CI e sigo para a
   etapa 6.
 ✻ Sautéed for 7m 27s · done 18:31
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 5 aprovada. Commita com a mensagem proposta, push, acompanha a CI e     
+  segue para a etapa 6; para para a minha revisão no fim dela.                  
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Commitei a etapa 5 (dab5094) e o CI está rodando. Agora começo a etapa 6, pelo
+  domínio: classificação de raridade e notificação de medalha, com testes.
+
+● Write(apps\api\src\Maxx.Domain\Catalogo\Raridade.cs)
+  ⎿  Wrote 36 lines to apps\api\src\Maxx.Domain\Catalogo\Raridade.cs
+       1 namespace Maxx.Domain.Catalogo;
+       2 
+       3 // O segundo eixo do medalhão, derivado da escassez (produto.md 
+         4.3). Não é campo do
+       4 // catálogo: o worker recalcula, e o prêmio nunca a congela (ADR
+          0007).
+       5 public enum Raridade
+       6 {
+       7     Comum,
+       8     Raro,
+     … +28 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Notificacoes\Notificacao.cs)
+  ⎿  Wrote 52 lines to apps\api\src\Maxx.Domain\Notificacoes\Notificacao.cs
+       1 using Maxx.Domain.Premios;
+       2 
+       3 namespace Maxx.Domain.Notificacoes;
+       4 
+       5 // Registro no banco, mostrado no sininho do feed a partir do pa
+         sso 10 (produto.md 8). No
+       6 // passo 6 nasce o primeiro tipo, a medalha recebida. A referênc
+         ia aponta para o que gerou
+       7 // a notificação (a medalha, aqui); o texto é do cliente, a part
+         ir do tipo.
+     … +45 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Catalogo\RaridadeTests.cs)
+  ⎿  Wrote 30 lines to
+     apps\api\tests\Maxx.Domain.Tests\Catalogo\RaridadeTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 
+       3 namespace Maxx.Domain.Tests.Catalogo;
+       4 
+       5 // As faixas de produto.md 4.3, com as fronteiras exatas: "abaix
+         o de" é estrito.
+       6 public class RaridadeTests
+       7 {
+       8     [Theory]
+       9     [InlineData(0, 3200, Raridade.Lendario)]
+     … +21 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Notificacoes\NotificacaoTests.cs)
+  ⎿  Wrote 48 lines to
+     apps\api\tests\Maxx.Domain.Tests\Notificacoes\NotificacaoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 using Maxx.Domain.Notificacoes;
+       4 using Maxx.Domain.Premios;
+       5 using Maxx.Domain.Tests.Academico;
+       6 using Maxx.Domain.Tests.Catalogo;
+       7 
+       8 namespace Maxx.Domain.Tests.Notificacoes;
+       9 
+      10 public class NotificacaoTests
+     … +38 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Domain.Tests/Notificacoes/NotificacaoTests.cs && sed
+      -i 's/…)
+  ⎿    total: 278
+       falhou: 0
+       concluído com êxito: 278
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Notificacoes\NotificacaoTests.cs (+1 
+     -1)
+      19              CadastroElegivel.Professor("renata@prof.unieduk.com
+          .br", "Renata Albuquerque"), "renataA", _agora);
+      20          var aluna = Usuario.CadastrarAluno(
+      21              CadastroElegivel.Aluno("20260101", "ana.souza@al.un
+          ieduk.com.br", "Ana Souza", cc, 3), cc, "Ana", "anaSouza", "has
+          h", _agora);
+      22 -        return Premios.Medalha.Conceder(                       
+      22 +        return Domain.Premios.Medalha.Conceder(                
+      23              CatalogoDeTeste.M01, 1, aluna, "CC", new Turma(new 
+          Materia(cc, "Banco de Dados"), semestre), semestre, professor, 
+          [], _agora).Medalha!;
+      24      }
+      25  
+  ⎿  (timeout 6m 40s)
+
+● Domínio pronto (278 testes). Agora a persistência e os dois handlers do
+  worker.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e6a.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  ok
+  ⎿  Updated apps\api\src\Maxx.Application\Fila\FilaDeTrabalhos.cs (+3 -2)
+      10  }
+      11  
+      12  // Enfileira na unidade de trabalho de quem chama: o trabalho s
+          ó existe se a escrita que o
+      13 -// originou gravar, no mesmo IUnitOfWork.SalvarAsync. Nada sai 
+         -daqui sozinho.                                                 
+      13 +// originou gravar, no mesmo IUnitOfWork.SalvarAsync. Nada sai 
+         +daqui sozinho. disponivelEm                                    
+      14 +// adia o trabalho; sem ele, fica disponível já.               
+      15  public interface IFilaDeTrabalhos
+      16  {
+      16 -    void Enfileirar<TCarga>(TCarga carga)                      
+      17 +    void Enfileirar<TCarga>(TCarga carga, DateTimeOffset? dispo
+         +nivelEm = null)                                                
+      18          where TCarga : ICargaDeTrabalho;
+      19  }
+      20  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Fila\FilaDeTrabalhos.cs (+2 
+     -2)
+       8  // Só acrescenta a linha ao DbContext do escopo: grava junto co
+          m a escrita de quem chamou.
+       9  internal sealed class FilaDeTrabalhos(MaxxDbContext db, TimePro
+          vider clock) : IFilaDeTrabalhos
+      10  {
+      11 -    public void Enfileirar<TCarga>(TCarga carga)               
+      11 +    public void Enfileirar<TCarga>(TCarga carga, DateTimeOffset
+         +? disponivelEm = null)                                         
+      12          where TCarga : ICargaDeTrabalho
+      13      {
+      14          ArgumentNullException.ThrowIfNull(carga);
+     ...
+      18              Tipo = TCarga.Tipo,
+      19              Carga = JsonSerializer.Serialize(carga, JsonSeriali
+          zerOptions.Web),
+      20              CriadoEm = agora,
+      21 -            DisponivelEm = agora,                              
+      21 +            DisponivelEm = disponivelEm ?? agora,              
+      22          });
+      23      }
+      24  }
+
+● Write(apps\api\src\Maxx.Application\Notificacoes\NotificarMedalhaRecebidaHandl
+       er.cs)
+  ⎿  Wrote 36 lines to apps\api\src\Maxx.Application\Notificacoes\Notificar
+     MedalhaRecebidaHandler.cs
+      1 using Maxx.Application.Fila;
+      2 using Maxx.Application.Medalhas;
+      3 using Maxx.Domain.Notificacoes;
+      4 
+      5 namespace Maxx.Application.Notificacoes;
+      6 
+      7 public interface INotificacaoRepository
+      8 {
+      9     void Adicionar(Notificacao notificacao);
+     … +27 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Raridade\RecalculoDeRaridade.cs)
+  ⎿  Wrote 124 lines to
+     apps\api\src\Maxx.Infrastructure\Raridade\RecalculoDeRaridade.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Application.Medalhas;
+       3 using Maxx.Domain.Academico;
+       4 using Maxx.Domain.Catalogo;
+       5 using Maxx.Domain.Identidade;
+       6 using Maxx.Domain.Premios;
+       7 using Maxx.Infrastructure.Fila;
+       8 using Maxx.Infrastructure.Persistence;
+       9 using Maxx.Infrastructure.Seed;
+      10 using Microsoft.EntityFrameworkCore;
+     … +114 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && ls
+      src/Maxx.Infrastructure; mkdir -p src/Maxx.Infrastructure/Catalogo && git
+      mv…)
+  ⎿  Autenticacao
+     Autorizacao
+     Demonstracao
+     … +12 lines (ctrl+o to expand)
+  ⎿  Created
+     apps\api\src\Maxx.Infrastructure\Catalogo\RecalculoDeRaridade.cs (+126
+     -0)
+        1 +using Maxx.Application.Fila;                                  
+        2 +using Maxx.Application.Medalhas;                              
+        3 +using Maxx.Domain.Academico;                                  
+        4 +using Maxx.Domain.Catalogo;                                   
+        5 +using Maxx.Domain.Identidade;                                 
+        6 +using Maxx.Domain.Premios;                                    
+        7 +using Maxx.Infrastructure.Fila;                               
+        8 +using Maxx.Infrastructure.Persistence;                        
+        9 +using Maxx.Infrastructure.Seed;                               
+       10 +using Microsoft.EntityFrameworkCore;                          
+       11 +                                                              
+       12 +namespace Maxx.Infrastructure.Catalogo;                       
+       13 +                                                              
+       14 +// A raridade atual de um item do catálogo, escrita só pelo wo
+          +rker (ADR 0005). A leitura                                    
+       15 +// nunca calcula nada: lê esta linha.                         
+       16 +public sealed class RaridadeDoItemRow                         
+       17 +{                                                             
+       18 +    public required string ItemCodigo { get; set; }           
+       19 +                                                              
+       20 +    public int AlunosComItem { get; set; }                    
+       21 +                                                              
+       22 +    public int AlunosElegiveis { get; set; }                  
+       23 +                                                              
+       24 +    public required string Raridade { get; set; }             
+       25 +                                                              
+       26 +    public DateTimeOffset CalculadaEm { get; set; }           
+       27 +}                                                             
+       28 +                                                              
+       29 +// Quando cada recálculo do worker rodou pela última vez: é o 
+          +que limita a coalescência.                                    
+       30 +public sealed class RecalculoRow                              
+       31 +{                                                             
+       32 +    public required string Nome { get; set; }                 
+       33 +                                                              
+       34 +    public DateTimeOffset? UltimaExecucaoEm { get; set; }     
+       35 +}                                                             
+       36 +                                                              
+       37 +// No worker: recalcula a raridade de todos os itens do catálo
+          +go (produto.md 4.3), com                                      
+       38 +// coalescência (ADR 0005). Os outros pedidos pendentes de rec
+          +álculo viram este, porque a                                   
+       39 +// conta lê o estado de agora; e se a última execução foi há m
+          +enos de dez segundos, este não                                
+       40 +// calcula e deixa um pedido só para quando os dez segundos fe
+          +charem.                                                       
+     … 86 more lines (ctrl+o to expand)
+  ⎿  Deleted
+     apps\api\src\Maxx.Infrastructure\Raridade\RecalculoDeRaridade.cs (+0 
+     -124)
+        1 -using Maxx.Application.Fila;                                  
+        2 -using Maxx.Application.Medalhas;                              
+        3 -using Maxx.Domain.Academico;                                  
+        4 -using Maxx.Domain.Catalogo;                                   
+        5 -using Maxx.Domain.Identidade;                                 
+        6 -using Maxx.Domain.Premios;                                    
+        7 -using Maxx.Infrastructure.Fila;                               
+        8 -using Maxx.Infrastructure.Persistence;                        
+        9 -using Maxx.Infrastructure.Seed;                               
+       10 -using Microsoft.EntityFrameworkCore;                          
+       11 -                                                              
+       12 -namespace Maxx.Infrastructure.Raridade;                       
+       13 -                                                              
+       14 -// A raridade atual de um item do catálogo, escrita só pelo wo
+          -rker (ADR 0005). A leitura                                    
+       15 -// nunca calcula nada: lê esta linha.                         
+       16 -public sealed class RaridadeDoItemRow                         
+       17 -{                                                             
+       18 -    public required string ItemCodigo { get; set; }           
+       19 -                                                              
+       20 -    public int AlunosComItem { get; set; }                    
+       21 -                                                              
+       22 -    public int AlunosElegiveis { get; set; }                  
+       23 -                                                              
+       24 -    public required string Raridade { get; set; }             
+       25 -                                                              
+       26 -    public DateTimeOffset CalculadaEm { get; set; }           
+       27 -}                                                             
+       28 -                                                              
+       29 -// Quando cada recálculo do worker rodou pela última vez: é o 
+          -que limita a coalescência.                                    
+       30 -public sealed class RecalculoRow                              
+       31 -{                                                             
+       32 -    public required string Nome { get; set; }                 
+       33 -                                                              
+       34 -    public DateTimeOffset? UltimaExecucaoEm { get; set; }     
+       35 -}                                                             
+       36 -                                                              
+       37 -// No worker: recalcula a raridade de todos os itens do catálo
+          -go (produto.md 4.3), com                                      
+       38 -// coalescência (ADR 0005). Os outros pedidos pendentes de rec
+          -álculo viram este, porque a                                   
+       39 -// conta lê o estado de agora; e se a última execução foi há m
+          -enos de dez segundos, este não                                
+       40 -// calcula e deixa um pedido só para quando os dez segundos fe
+          -charem.                                                       
+     … 84 more lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\NotificacaoE
+       RaridadeConfiguration.cs)
+  ⎿  Wrote 62 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\NotificacaoERaridadeConfiguration.cs
+      1 using Maxx.Domain.Catalogo;
+      2 using Maxx.Domain.Identidade;
+      3 using Maxx.Domain.Notificacoes;
+      4 using Maxx.Infrastructure.Catalogo;
+      5 using Maxx.Infrastructure.Seed;
+      6 using Microsoft.EntityFrameworkCore;
+      7 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+      8 
+      9 namespace Maxx.Infrastructure.Persistence.Configurations;
+     … +53 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Notificacoes\NotificacaoRepository.cs)
+  ⎿  Wrote 16 lines to
+     apps\api\src\Maxx.Infrastructure\Notificacoes\NotificacaoRepository.cs
+       1 using Maxx.Application.Notificacoes;
+       2 using Maxx.Domain.Notificacoes;
+       3 using Maxx.Infrastructure.Persistence;
+       4 using Microsoft.EntityFrameworkCore;
+       5 
+       6 namespace Maxx.Infrastructure.Notificacoes;
+       7 
+       8 internal sealed class NotificacaoRepository(MaxxDbContext db) : 
+         INotificacaoRepository
+       9 {
+     … +7 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e6b.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Infrastructure\Seed\CatalogoReader.cs(7,41): error CS0118:
+     "Catalogo" é um namespace, mas é usado como um tipo [C:\Users\Guilherm
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\Abstractions.cs (+1 -2)
+      54  
+      55  public sealed record MedalhaNaTurma(Guid Id, string Item, int B
+          imestre, DateTimeOffset ConcedidaEm);
+      56  
+      57 -// Os trabalhos que a concessão enfileira, na mesma transação. 
+         -Os handlers chegam com a                                       
+      58 -// notificação e a raridade.                                   
+      57 +// Os trabalhos que a concessão e a anulação enfileiram, na mes
+         +ma transação.                                                  
+      58  public sealed record NotificarMedalhaRecebida(Guid MedalhaId) :
+           ICargaDeTrabalho
+      59  {
+      60      public static string Tipo => "notificar-medalha-recebida";
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+6 
+     -0)
+       5  using Maxx.Application.Demonstracao;
+       6  using Maxx.Application.Fila;
+       7  using Maxx.Application.Medalhas;
+       8 +using Maxx.Application.Notificacoes;                           
+       9  using Maxx.Infrastructure.Autenticacao;
+      10  using Maxx.Infrastructure.Autorizacao;
+      11 +using Maxx.Infrastructure.Catalogo;                            
+      12  using Maxx.Infrastructure.Demonstracao;
+      13  using Maxx.Infrastructure.Email;
+      14  using Maxx.Infrastructure.Fila;
+      15  using Maxx.Infrastructure.Medalhas;
+      16 +using Maxx.Infrastructure.Notificacoes;                        
+      17  using Maxx.Infrastructure.Persistence;
+      18  using Maxx.Infrastructure.Seed;
+      19  using Microsoft.EntityFrameworkCore;
+     ...
+      49          services.AddScoped<IDemonstracaoRepository, Demonstraca
+          oRepository>();
+      50          services.AddScoped<IMedalhaRepository, MedalhaRepositor
+          y>();
+      51          services.AddScoped<IConsultaDoProfessor, ConsultaDoProf
+          essor>();
+      52 +        services.AddScoped<INotificacaoRepository, NotificacaoR
+         +epository>();                                                  
+      53  
+      54          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      55          services.AddOptions<FilaOptions>();
+     ...
+      61          // e o link do app (ILinkDoApp) vêm da borda.
+      62          services.AddSingleton<IEmailSender, SmtpEmailSender>();
+      63          services.AddTrabalho<EmailDeRecuperacao, EmailDeRecuper
+          acaoHandler>();
+      64 +        services.AddTrabalho<NotificarMedalhaRecebida, Notifica
+         +rMedalhaRecebidaHandler>();                                    
+      65 +        services.AddTrabalho<RecalcularRaridade, RecalculoDeRar
+         +idade>();                                                      
+      66  
+      67          // Toda verificação registrada aqui entra no /ready.
+      68          services.AddHealthChecks()
+  ⎿  Updated docs\decisoes\README.md (+1 -0)
+      123    FROM usuario WHERE lote_da_demonstracao = :'lote';
+      124  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario
+           _id FROM alvo);
+      125  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      126 +DELETE FROM notificacao WHERE usuario_id IN (SELECT usuario_id
+          + FROM alvo);                                                  
+      127  DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM 
+           alvo);
+      128  DELETE FROM usuario WHERE id IN (SELECT usuario_id FROM alvo);
+      129  DELETE FROM matricula WHERE aluno_id IN (SELECT cadastro_id FR
+           OM alvo);
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && mkdir -p RaridadeDosItens && mv
+      Catalogo/RecalculoDeRari…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeRaridade.cs(7,1)
+     : error IDE0005: O uso da diretiva é desnecessário. (https://learn.mic
+     … +3 lines (ctrl+o to expand)
+  ⎿  Deleted
+     apps\api\src\Maxx.Infrastructure\Catalogo\RecalculoDeRaridade.cs (+0 
+     -126)
+        1 -using Maxx.Application.Fila;                                  
+        2 -using Maxx.Application.Medalhas;                              
+        3 -using Maxx.Domain.Academico;                                  
+        4 -using Maxx.Domain.Catalogo;                                   
+        5 -using Maxx.Domain.Identidade;                                 
+        6 -using Maxx.Domain.Premios;                                    
+        7 -using Maxx.Infrastructure.Fila;                               
+        8 -using Maxx.Infrastructure.Persistence;                        
+        9 -using Maxx.Infrastructure.Seed;                               
+       10 -using Microsoft.EntityFrameworkCore;                          
+       11 -                                                              
+       12 -namespace Maxx.Infrastructure.Catalogo;                       
+       13 -                                                              
+       14 -// A raridade atual de um item do catálogo, escrita só pelo wo
+          -rker (ADR 0005). A leitura                                    
+       15 -// nunca calcula nada: lê esta linha.                         
+       16 -public sealed class RaridadeDoItemRow                         
+       17 -{                                                             
+       18 -    public required string ItemCodigo { get; set; }           
+       19 -                                                              
+       20 -    public int AlunosComItem { get; set; }                    
+       21 -                                                              
+       22 -    public int AlunosElegiveis { get; set; }                  
+       23 -                                                              
+       24 -    public required string Raridade { get; set; }             
+       25 -                                                              
+       26 -    public DateTimeOffset CalculadaEm { get; set; }           
+       27 -}                                                             
+       28 -                                                              
+       29 -// Quando cada recálculo do worker rodou pela última vez: é o 
+          -que limita a coalescência.                                    
+       30 -public sealed class RecalculoRow                              
+       31 -{                                                             
+       32 -    public required string Nome { get; set; }                 
+       33 -                                                              
+       34 -    public DateTimeOffset? UltimaExecucaoEm { get; set; }     
+       35 -}                                                             
+       36 -                                                              
+       37 -// No worker: recalcula a raridade de todos os itens do catálo
+          -go (produto.md 4.3), com                                      
+       38 -// coalescência (ADR 0005). Os outros pedidos pendentes de rec
+          -álculo viram este, porque a                                   
+       39 -// conta lê o estado de agora; e se a última execução foi há m
+          -enos de dez segundos, este não                                
+       40 -// calcula e deixa um pedido só para quando os dez segundos fe
+          -charem.                                                       
+     … 86 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -1)
+       8  using Maxx.Application.Notificacoes;
+       9  using Maxx.Infrastructure.Autenticacao;
+      10  using Maxx.Infrastructure.Autorizacao;
+      11 -using Maxx.Infrastructure.Catalogo;                            
+      11 +using Maxx.Infrastructure.RaridadeDosItens;                    
+      12  using Maxx.Infrastructure.Demonstracao;
+      13  using Maxx.Infrastructure.Email;
+      14  using Maxx.Infrastructure.Fila;
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\No
+     tificacaoERaridadeConfiguration.cs (+1 -1)
+      1  using Maxx.Domain.Catalogo;
+      2  using Maxx.Domain.Identidade;
+      3  using Maxx.Domain.Notificacoes;
+      4 -using Maxx.Infrastructure.Catalogo;                             
+      4 +using Maxx.Infrastructure.RaridadeDosItens;                     
+      5  using Maxx.Infrastructure.Seed;
+      6  using Microsoft.EntityFrameworkCore;
+      7  using Microsoft.EntityFrameworkCore.Metadata.Builders;
+  ⎿  Created apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeR
+     aridade.cs (+126 -0)
+        1 +using Maxx.Application.Fila;                                  
+        2 +using Maxx.Application.Medalhas;                              
+        3 +using Maxx.Domain.Academico;                                  
+        4 +using Maxx.Domain.Catalogo;                                   
+        5 +using Maxx.Domain.Identidade;                                 
+        6 +using Maxx.Domain.Premios;                                    
+        7 +using Maxx.Infrastructure.Fila;                               
+        8 +using Maxx.Infrastructure.Persistence;                        
+        9 +using Maxx.Infrastructure.Seed;                               
+       10 +using Microsoft.EntityFrameworkCore;                          
+       11 +                                                              
+       12 +namespace Maxx.Infrastructure.RaridadeDosItens;               
+       13 +                                                              
+       14 +// A raridade atual de um item do catálogo, escrita só pelo wo
+          +rker (ADR 0005). A leitura                                    
+       15 +// nunca calcula nada: lê esta linha.                         
+       16 +public sealed class RaridadeDoItemRow                         
+       17 +{                                                             
+       18 +    public required string ItemCodigo { get; set; }           
+       19 +                                                              
+       20 +    public int AlunosComItem { get; set; }                    
+       21 +                                                              
+       22 +    public int AlunosElegiveis { get; set; }                  
+       23 +                                                              
+       24 +    public required string Raridade { get; set; }             
+       25 +                                                              
+       26 +    public DateTimeOffset CalculadaEm { get; set; }           
+       27 +}                                                             
+       28 +                                                              
+       29 +// Quando cada recálculo do worker rodou pela última vez: é o 
+          +que limita a coalescência.                                    
+       30 +public sealed class RecalculoRow                              
+       31 +{                                                             
+       32 +    public required string Nome { get; set; }                 
+       33 +                                                              
+       34 +    public DateTimeOffset? UltimaExecucaoEm { get; set; }     
+       35 +}                                                             
+       36 +                                                              
+       37 +// No worker: recalcula a raridade de todos os itens do catálo
+          +go (produto.md 4.3), com                                      
+       38 +// coalescência (ADR 0005). Os outros pedidos pendentes de rec
+          +álculo viram este, porque a                                   
+       39 +// conta lê o estado de agora; e se a última execução foi há m
+          +enos de dez segundos, este não                                
+       40 +// calcula e deixa um pedido só para quando os dez segundos fe
+          +charem.                                                       
+     … 86 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -n 7p
+      apps/api/src/Maxx.Infrastructure/RaridadeDosItens/RecalculoDeRaridade.cs
+      && sed…)
+  ⎿  using Maxx.Infrastructure.Fila;
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeR
+     aridade.cs (+0 -1)
+       4  using Maxx.Domain.Catalogo;
+       5  using Maxx.Domain.Identidade;
+       6  using Maxx.Domain.Premios;
+       7 -using Maxx.Infrastructure.Fila;                                
+       7  using Maxx.Infrastructure.Persistence;
+       8  using Maxx.Infrastructure.Seed;
+       9  using Microsoft.EntityFrameworkCore;
+  ⎿  (timeout 5m)
+
+● Handlers da notificação e da raridade compilam; agora gero a migration e
+  escrevo os testes de integração do worker.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      migrations add NotificacaoERaridade --project src/Maxx.Infrastructure…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+                     name: "notificacao",
+                         table.CheckConstraint("ck_notificacao_tipo", "tipo
+     … +12 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     07213745_NotificacaoERaridade.cs (+92 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class NotificacaoERaridade : Migration      
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "notificacao",                           
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    id = table.Column<Guid>(type: "uuid", nulla
+         +ble: false),                                                   
+      19 +                    usuario_id = table.Column<Guid>(type: "uuid
+         +", nullable: false),                                           
+      20 +                    tipo = table.Column<string>(type: "text", n
+         +ullable: false),                                               
+      21 +                    referencia_id = table.Column<Guid>(type: "u
+         +uid", nullable: false),                                        
+      22 +                    criada_em = table.Column<DateTimeOffset>(ty
+         +pe: "timestamp with time zone", nullable: false),              
+      23 +                    lida_em = table.Column<DateTimeOffset>(type
+         +: "timestamp with time zone", nullable: true)                  
+      24 +                },                                             
+      25 +                constraints: table =>                          
+      26 +                {                                              
+      27 +                    table.PrimaryKey("pk_notificacao", x => x.i
+         +d);                                                            
+      28 +                    table.CheckConstraint("ck_notificacao_tipo"
+         +, "tipo IN ('medalhaRecebida')");                              
+      29 +                    table.ForeignKey(                          
+      30 +                        name: "fk_notificacao_usuario_usuario_i
+         +d",                                                            
+      31 +                        column: x => x.usuario_id,             
+      32 +                        principalTable: "usuario",             
+      33 +                        principalColumn: "id",                 
+      34 +                        onDelete: ReferentialAction.Restrict); 
+      35 +                });                                            
+      36 +                                                               
+      37 +            migrationBuilder.CreateTable(                      
+      38 +                name: "raridade_do_item",                      
+      39 +                columns: table => new                          
+      40 +                {                                              
+     … 52 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+111 -0)
+      604                          });
+      605                  });
+      606  
+      607 +            modelBuilder.Entity("Maxx.Domain.Notificacoes.Noti
+          +ficacao", b =>                                                
+      608 +                {                                             
+      609 +                    b.Property<Guid>("Id")                    
+      610 +                        .HasColumnType("uuid")                
+      611 +                        .HasColumnName("id");                 
+      612 +                                                              
+      613 +                    b.Property<DateTimeOffset>("CriadaEm")    
+      614 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      615 +                        .HasColumnName("criada_em");          
+      616 +                                                              
+      617 +                    b.Property<DateTimeOffset?>("LidaEm")     
+      618 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      619 +                        .HasColumnName("lida_em");            
+      620 +                                                              
+      621 +                    b.Property<Guid>("ReferenciaId")          
+      622 +                        .HasColumnType("uuid")                
+      623 +                        .HasColumnName("referencia_id");      
+      624 +                                                              
+      625 +                    b.Property<string>("Tipo")                
+      626 +                        .IsRequired()                         
+      627 +                        .HasColumnType("text")                
+      628 +                        .HasColumnName("tipo");               
+      629 +                                                              
+      630 +                    b.Property<Guid>("UsuarioId")             
+      631 +                        .HasColumnType("uuid")                
+      632 +                        .HasColumnName("usuario_id");         
+      633 +                                                              
+      634 +                    b.HasKey("Id")                            
+      635 +                        .HasName("pk_notificacao");           
+      636 +                                                              
+      637 +                    b.HasIndex("UsuarioId", "Tipo", "Referenci
+          +aId")                                                         
+      638 +                        .IsUnique()                           
+      639 +                        .HasDatabaseName("ix_notificacao_usuar
+          +io_id_tipo_referencia_id");                                   
+      640 +                                                              
+      641 +                    b.ToTable("notificacao", null, t =>       
+      642 +                        {                                     
+      643 +                            t.HasCheckConstraint("ck_notificac
+          +ao_tipo", "tipo IN ('medalhaRecebida')");                     
+     … 95 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e6c.js" <<'EOF'
+      const fs = require("fs");…)  ⎿  ok
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeR
+     aridade.cs (+11 -3)
+       7  using Maxx.Infrastructure.Persistence;
+       8  using Maxx.Infrastructure.Seed;
+       9  using Microsoft.EntityFrameworkCore;
+      10 +using Microsoft.Extensions.Logging;                            
+      11  
+      12  namespace Maxx.Infrastructure.RaridadeDosItens;
+      13  
+     ...
+      43  // ex-alunos. O divisor são os alunos com conta, ativos e ex-al
+          unos, os de demonstração
+      44  // inclusive: o campus inteiro para item aberto, o curso atual 
+          para item restrito. Prêmio de
+      45  // participação e conquista entram no numerador quando nascerem
+           (passos 8 e 9).
+      45 -internal sealed class RecalculoDeRaridade(MaxxDbContext db, IFi
+         -laDeTrabalhos fila, TimeProvider relogio)                      
+      46 +internal sealed partial class RecalculoDeRaridade(             
+      47 +    MaxxDbContext db, IFilaDeTrabalhos fila, TimeProvider relog
+         +io, ILogger<RecalculoDeRaridade> logger)                       
+      48      : ITrabalhoHandler<RecalcularRaridade>
+      49  {
+      50      public const string Nome = "raridade";
+     ...
+      78              return;
+      79          }
+      80  
+      79 -        await RecalcularAsync(agora, cancellationToken);       
+      81 +        var itens = await RecalcularAsync(agora, cancellationTo
+         +ken);                                                          
+      82          estado.UltimaExecucaoEm = agora;
+      83          await db.SaveChangesAsync(cancellationToken);
+      84 +        LogRecalculada(logger, itens);                         
+      85      }
+      86  
+      84 -    private async Task RecalcularAsync(DateTimeOffset agora, Ca
+         -ncellationToken cancellationToken)                             
+      87 +    private async Task<int> RecalcularAsync(DateTimeOffset agor
+         +a, CancellationToken cancellationToken)                        
+      88      {
+      89          var alunosPorCurso = await (
+      90                  from usuario in db.Set<Usuario>()
+     ...
+      124              linha.Raridade = NomeJson.De(Raridades.De(com, ele
+           giveis));
+      125              linha.CalculadaEm = agora;
+      126          }
+      127 +                                                              
+      128 +        return itens.Count;                                   
+      129      }
+      130 +                                                              
+      131 +    [LoggerMessage(Level = LogLevel.Information, Message = "Ra
+          +ridade recalculada para {Itens} itens.")]                     
+      132 +    private static partial void LogRecalculada(ILogger logger,
+          + int itens);                                                  
+     … 1 more lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\TrabalhosDaMedalhaTest
+       s.cs)
+  ⎿  Wrote 248 lines to apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\T
+     rabalhosDaMedalhaTests.cs
+       1 using Maxx.Application.Medalhas;
+       2 using Maxx.Application.Notificacoes;
+       3 using Maxx.Domain.Academico;
+       4 using Maxx.Domain.Identidade;
+       5 using Maxx.Domain.Notificacoes;
+       6 using Maxx.Domain.Premios;
+       7 using Maxx.Infrastructure.Fila;
+       8 using Maxx.Infrastructure.Persistence;
+       9 using Maxx.Infrastructure.RaridadeDosItens;
+      10 using Microsoft.EntityFrameworkCore;
+     … +238 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Medalhas/TrabalhosDaMedalhaTest
+      s.cs && sed -i…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\tests\Maxx.Api.IntegrationTests\Medalhas\TrabalhosDaMedalhaTests.cs(
+     6,1): error IDE0005: O uso da diretiva é desnecessário. (https://learn
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\TrabalhosDaM
+     edalhaTests.cs (+3 -3)
+      1  using Maxx.Application.Medalhas;
+      2 -using Maxx.Application.Notificacoes;                            
+      2 +using Maxx.Application.Fila;                                    
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Identidade;
+      5  using Maxx.Domain.Notificacoes;
+     ...
+      32          await EsvaziarAsync(factory);
+      33          await using (var scope = factory.Services.CreateAsyncSc
+          ope())
+      34          {
+      35 -            await scope.ServiceProvider.GetRequiredService<Noti
+         -ficarMedalhaRecebidaHandler>()                                 
+      35 +            await scope.ServiceProvider.GetRequiredService<ITra
+         +balhoHandler<NotificarMedalhaRecebida>>()                      
+      36                  .ExecutarAsync(new NotificarMedalhaRecebida(med
+          alha), Ct);
+      37          }
+      38  
+     ...
+      116          // Não recalculou: deixou um pedido só, para quando os
+            dez segundos fecharem.
+      117          Assert.Single(factory.Log.Linhas, linha => linha.Conta
+           ins(_recalculada, StringComparison.Ordinal));
+      118          var adiado = Assert.Single(await LinhasAsync<Trabalho>
+           (factory));
+      119 -        Assert.Equal((RecalcularRaridade.Tipo, primeira + Reca
+          -lculoDeRaridade.IntervaloMinimo), (adiado.Tipo, adiado.Disponi
+          -velEm));                                                      
+      119 +        Assert.Equal((RecalcularRaridade.Tipo, primeira + Time
+          +Span.FromSeconds(10)), (adiado.Tipo, adiado.DisponivelEm));   
+      120          Assert.Equal(1, (await LinhasAsync<RaridadeDoItemRow>(
+           factory)).Single(linha => linha.ItemCodigo == "M01").AlunosCom
+           Item);
+      121  
+      122          mundo.Relogio.Avancar(TimeSpan.FromSeconds(7));
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Medalhas/TrabalhosDaMedalhaTest
+      s.cs && sed -n…)
+  ⎿  using Maxx.Domain.Premios;
+       total: 5
+       falhou: 0
+       concluído com êxito: 5
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -1)
+       8  using Maxx.Application.Notificacoes;
+       9  using Maxx.Infrastructure.Autenticacao;
+      10  using Maxx.Infrastructure.Autorizacao;
+      11 -using Maxx.Infrastructure.RaridadeDosItens;                    
+      11  using Maxx.Infrastructure.Demonstracao;
+      12  using Maxx.Infrastructure.Email;
+      13  using Maxx.Infrastructure.Fila;
+      14  using Maxx.Infrastructure.Medalhas;
+      15  using Maxx.Infrastructure.Notificacoes;
+      16  using Maxx.Infrastructure.Persistence;
+      17 +using Maxx.Infrastructure.RaridadeDosItens;                    
+      18  using Maxx.Infrastructure.Seed;
+      19  using Microsoft.EntityFrameworkCore;
+      20  using Microsoft.Extensions.DependencyInjection;
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\TrabalhosDaM
+     edalhaTests.cs (+1 -2)
+      1 -using Maxx.Application.Medalhas;                                
+      1  using Maxx.Application.Fila;
+      2 +using Maxx.Application.Medalhas;                                
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Identidade;
+      5  using Maxx.Domain.Notificacoes;
+      6 -using Maxx.Domain.Premios;                                      
+      6  using Maxx.Infrastructure.Fila;
+      7  using Maxx.Infrastructure.Persistence;
+      8  using Maxx.Infrastructure.RaridadeDosItens;
+  ⎿  (timeout 10m)
+
+● Os 5 testes do worker passam (notificação, raridade, rajada e janela de 10 s).
+  Rodo a suite inteira e a formatação.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Antes de fechar, faço o teste da purga também passar pelas notificações.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e6d.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿    falhou: 0
+       concluído com êxito: 1
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+9 -0)
+      12  using Maxx.Application.Medalhas;
+      13  using Maxx.Domain.Academico;
+      14  using Maxx.Domain.Identidade;
+      15 +using Maxx.Domain.Notificacoes;                                
+      16  using Maxx.Domain.Premios;
+      17 +using Maxx.Infrastructure.Fila;                                
+      18  using Maxx.Infrastructure.Persistence;
+      19  using Microsoft.EntityFrameworkCore;
+      20  using Microsoft.Extensions.DependencyInjection;
+     ...
+      331              await scope.ServiceProvider.GetRequiredService<Con
+           cederMedalhaHandler>().ConcederAsync(contaDaRenata.Id, turma, 
+           aluno.Id, "M03", Ct);
+      332          }
+      333  
+      334 +        // O worker grava as notificações de medalha recebida,
+          + que a purga também leva.                                     
+      335 +        var consumidor = factory.Services.GetRequiredService<C
+          +onsumidorDeTrabalhos>();                                      
+      336 +        while (await consumidor.ProcessarProximoAsync(Ct))    
+      337 +        {                                                     
+      338 +        }                                                     
+      339 +                                                              
+      340          var readme = await File.ReadAllTextAsync(Path.Combine(
+           Repositorio.Raiz, "docs", "decisoes", "README.md"), Ct);
+      341          var purga = Regex.Match(readme, @"```sql\s+(BEGIN;.*?C
+           OMMIT;)\s+```", RegexOptions.Singleline, TimeSpan.FromSeconds(
+           5));
+      342          Assert.True(purga.Success);
+     ...
+      354          Assert.Equal("Carla Dias", restante.NomeDeExibicao);
+      355          Assert.Equal(restante.Id, (await db.Set<AceiteDeTermo>
+           ().SingleAsync(Ct)).UsuarioId);
+      356          Assert.Equal(restante.Id, (await db.Set<Medalha>().Sin
+           gleAsync(Ct)).AlunoId);
+      357 +        Assert.Equal(restante.Id, (await db.Set<Notificacao>()
+          +.SingleAsync(Ct)).UsuarioId);                                 
+      358          Assert.Equal(1, await db.Set<CadastroElegivel>().Count
+           Async(cadastro => cadastro.Papeis == Papeis.Aluno, Ct));
+      359          Assert.Equal(1, await db.Set<TermoDeUso>().CountAsync(
+           Ct));
+      360      }
+  ⎿  (timeout 10m)
+
+  Read 1 file (ctrl+o to expand)
+
+● Background command "Wait for etapa 5 CI run" completed (exit code 0)
+
+● A etapa 6 está pronta para a sua revisão: build sem aviso, formatação limpa,
+  550 testes passando localmente e cliente gerado sem diferença. Ainda não fiz
+  commit nem push dela.
+
+  Etapa 5: CI verde
+
+  A CI do commit dab5094 feat(api): adiciona anulação de medalha por comando 
+  administrativo (run 42416500059) passou nos seis jobs.
+
+  Etapa 6: o que o worker faz depois da medalha (sem commit)
+
+  Notificação de medalha recebida
+  - Uma tabela nova, notificacao, com usuário, tipo, referência ao fato, criada
+    em e lida em.
+  - O handler grava uma notificação para o aluno. Um índice único por usuário,
+    tipo e referência garante que o trabalho rodando de novo não duplica.
+  - Medalha anulada antes de o trabalho rodar, ou apagada pela purga, não
+    notifica.
+  - O texto exibido não fica no banco: o cliente monta pelo tipo no passo 10,
+    junto com o sininho.
+
+  Raridade por escassez
+  - Classificação (domínio, Raridades.De): faixas do produto.md 4.3 calculadas
+    em números inteiros, com "abaixo de" estrito nas fronteiras de 1%, 5% e 20%.
+    Item que ninguém tem é Lendário.
+  - Tabela raridade_do_item: uma linha por item do catálogo, com alunos com o
+    item, alunos elegíveis, raridade e quando foi calculada. A leitura da etapa
+    7 só lê essa tabela.
+  - Numerador: alunos distintos com ao menos uma medalha ativa do item, contando
+    ex-alunos. Prêmio de participação e conquista entram nos passos 8 e 9.
+  - Divisor (decisão J): alunos com conta, ativos e ex-alunos, incluindo os de
+    demonstração. Para item restrito, só os do curso atual.
+  - Uma decisão minha: quem trocou de curso leva a medalha de item restrito ao
+    curso antigo, e por isso o numerador é limitado ao divisor. Está comentado
+    no código; vale você confirmar.
+
+  Coalescência (ADR 0005)
+  - Uma linha travada na tabela recalculo impede dois cálculos ao mesmo tempo.
+  - Ao rodar, o recálculo apaga os outros pedidos pendentes de recálculo, porque
+    a conta lê o estado de agora.
+  - Se a última execução foi há menos de 10 s, ele não calcula e deixa um pedido
+    só, para quando a janela fechar.
+  - Para isso, Enfileirar ganhou um parâmetro opcional de quando o trabalho fica
+    disponível.
+
+  Purga: o SQL do README ganhou DELETE FROM notificacao WHERE usuario_id IN 
+  (...). O teste da purga agora processa a fila antes de purgar e confere que só
+  a notificação de fora do lote fica.
+
+  Testes
+  - Domínio: 15 novos. São 13 casos de raridade (fronteiras exatas em 3.200
+    alunos, 0 de 0, 1 de 100 e 1 de 101), o erro de quem chama, e 2 de
+    notificação.
+  - Integração: 5 novos.
+    - A notificação é gravada uma vez, mesmo rodando o handler de novo.
+    - Medalha anulada antes do trabalho não notifica.
+    - Contagens:
+      - M01: 2 de 4. Ana com duas medalhas conta uma vez, e Carla, que virou
+        ex-aluna, conta. Eva, sem conta, fica fora do divisor.
+      - M03: 0 de 4, Lendário, porque a única medalha foi anulada.
+      - M90, restrita a CC: 1 de 3.
+    - Uma rajada de 5 concessões vira um recálculo só, com 5 notificações e fila
+      vazia.
+    - Um pedido 3 s depois do recálculo espera: fica um trabalho para o instante
+      da última execução mais 10 s. Ao passar 7 s, recalcula.
+
+  Commit proposto: feat(api): adiciona notificação de medalha recebida e 
+  raridade por escassez no worker. Com seu ok, faço o commit e o push, trago a
+  CI e sigo para a etapa 7.
+
+✻ Crunched for 7m 52s · done 18:42
+
+※ recap: Estamos no passo 6 do Maxx (medalhas, fila e worker), com as etapas 1 a 5 commitadas e CI verde. A etapa 6, notificação de medalha e raridade no worker, está pronta e espera sua revisão para eu commitar e seguir para a 7. (disable recaps in /config)
