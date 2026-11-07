@@ -4600,3 +4600,430 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
 ✻ Crunched for 7m 52s · done 18:42
 
 ※ recap: Estamos no passo 6 do Maxx (medalhas, fila e worker), com as etapas 1 a 5 commitadas e CI verde. A etapa 6, notificação de medalha e raridade no worker, está pronta e espera sua revisão para eu commitar e seguir para a 7. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 6 aprovada. Confirmo o numerador limitado ao divisor nos itens          
+  restritos quando o aluno trocou de curso; registra isso nos docs no           
+  fechamento. Commita com a mensagem proposta, push, acompanha a CI e segue     
+  para a etapa 7; para para a minha revisão no fim dela.                        
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 6 commitada (1b44566); CI rodando. Começo a etapa 7, a leitura do aluno
+  para a tela de Troféus. Primeiro olho o seeder, para garantir que a raridade
+  exista desde a subida.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e7a.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs (+26 
+     -1)
+       1 +using Maxx.Application.Fila;                                   
+       2 +using Maxx.Application.Medalhas;                               
+       3  using Maxx.Domain.Academico;
+       4  using Maxx.Domain.Identidade;
+       5 +using Maxx.Infrastructure.Fila;                                
+       6  using Maxx.Infrastructure.Persistence;
+       7 +using Maxx.Infrastructure.RaridadeDosItens;                    
+       8  using Microsoft.EntityFrameworkCore;
+       9  using Microsoft.Extensions.Logging;
+      10  using Microsoft.Extensions.Options;
+     ...
+      15  // banco. Uma transação só, sob advisory lock: dois seeds ao me
+          smo tempo esperam um pelo
+      16  // outro, e um seed que falha não deixa nada gravado.
+      17  public sealed partial class DatabaseSeeder(
+      14 -    MaxxDbContext db, IOptions<SeedOptions> options, ILogger<Da
+         -tabaseSeeder> logger, TimeProvider relogio)                    
+      18 +    MaxxDbContext db, IFilaDeTrabalhos fila, IOptions<SeedOptio
+         +ns> options, ILogger<DatabaseSeeder> logger, TimeProvider relog
+         +io)                                                            
+      19  {
+      20      // Diferente da chave da migração, para os dois não se conf
+          undirem.
+      21      public const long AdvisoryLockKey = 0x4D41_5858_0002;
+     ...
+      59          var (itensNovos, itensAtualizados, itensInalterados) = 
+          await GravarItensAsync(catalogo.Catalogo!, cancellationToken);
+      60          var (anosNovos, anosAtualizados) = await GravarCalendar
+          ioAsync(calendario, cancellationToken);
+      61          var termosNovos = await GravarTermosAsync(termos, cance
+          llationToken);
+      62 +        await PedirRaridadeAsync(itensNovos + itensAtualizados 
+         +> 0, cancellationToken);                                       
+      63          await db.SaveChangesAsync(cancellationToken);
+      64  
+      65          await transacao.CommitAsync(cancellationToken);
+     ...
+      70          return resultado;
+      71      }
+      72  
+      73 +    // Item novo, item mudado ou item ainda sem raridade calcul
+         +ada: um pedido de recálculo ao                                 
+      74 +    // worker, para a tela nunca ficar sem raridade (produto.md
+         + 4.3). Só um: com um pedido                                    
+      75 +    // pendente, rodar de novo não acrescenta nada, e o seed se
+         +gue idempotente.                                               
+      76 +    private async Task PedirRaridadeAsync(bool catalogoMudou, C
+         +ancellationToken cancellationToken)                            
+      77 +    {                                                          
+      78 +        var pendente = await db.Set<Trabalho>()                
+      79 +            .AnyAsync(trabalho => trabalho.Tipo == RecalcularRa
+         +ridade.Tipo && trabalho.Estado == EstadoDoTrabalho.Pendente, ca
+         +ncellationToken);                                              
+      80 +        if (pendente)                                          
+      81 +        {                                                      
+      82 +            return;                                            
+      83 +        }                                                      
+      84 +                                                               
+     … 11 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Seeder pede o recálculo quando falta raridade. Agora a consulta dos prêmios do
+  aluno e a rota GET /v1/eu/premios.
+
+● Write(apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs)
+  ⎿  Wrote 40 lines to
+     apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs
+       1 using Maxx.Domain.Catalogo;
+       2 
+       3 namespace Maxx.Application.Premios;
+       4 
+       5 // O que a tela de Troféus lê para o próprio aluno: o catálogo i
+         nteiro, com o critério e a
+       6 // raridade de cada item, e o que ele já obteve. Faltantes só pa
+         ra o dono (produto.md 9.1):
+       7 // não há rota que mostre o catálogo de outro aluno. Só consulta
+         , sem regra.
+     … +33 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs)
+  ⎿  Wrote 71 lines to
+     apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+      1 using Maxx.Application.Premios;
+      2 using Maxx.Domain.Academico;
+      3 using Maxx.Domain.Catalogo;
+      4 using Maxx.Domain.Identidade;
+      5 using Maxx.Domain.Premios;
+      6 using Maxx.Infrastructure.Persistence;
+      7 using Maxx.Infrastructure.RaridadeDosItens;
+      8 using Maxx.Infrastructure.Seed;
+      9 using Microsoft.EntityFrameworkCore;
+     … +62 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Premios\PremiosEndpoints.cs)
+  ⎿  Wrote 74 lines to apps\api\src\Maxx.Api\Premios\PremiosEndpoints.cs
+       1 using System.Security.Claims;
+       2 using Maxx.Api.Autenticacao;
+       3 using Maxx.Api.Medalhas;
+       4 using Maxx.Application.Premios;
+       5 using Microsoft.AspNetCore.Http.HttpResults;
+       6 
+       7 namespace Maxx.Api.Premios;
+       8 
+       9 // A tela de Troféus do próprio aluno: o catálogo com o critério
+          e a raridade, o que falta
+     … +65 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e7b.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+2 -0)
+       7  using Maxx.Api.LimiteDeTaxa;
+       8  using Maxx.Api.Medalhas;
+       9  using Maxx.Api.OpenApi;
+      10 +using Maxx.Api.Premios;                                        
+      11  using Maxx.Infrastructure;
+      12  using Maxx.Infrastructure.Fila;
+      13  using Maxx.Infrastructure.Persistence;
+     ...
+      145  v1.MapEuEndpoints();
+      146  v1.MapTermoDeUsoEndpoints();
+      147  v1.MapProfessorEndpoints();
+      148 +v1.MapPremiosEndpoints();                                     
+      149  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      150  if (demonstracao)
+      151  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+3 
+     -0)
+       6  using Maxx.Application.Fila;
+       7  using Maxx.Application.Medalhas;
+       8  using Maxx.Application.Notificacoes;
+       9 +using Maxx.Application.Premios;                                
+      10  using Maxx.Infrastructure.Autenticacao;
+      11  using Maxx.Infrastructure.Autorizacao;
+      12  using Maxx.Infrastructure.Demonstracao;
+     ...
+      14  using Maxx.Infrastructure.Fila;
+      15  using Maxx.Infrastructure.Medalhas;
+      16  using Maxx.Infrastructure.Notificacoes;
+      17 +using Maxx.Infrastructure.Premios;                             
+      18  using Maxx.Infrastructure.Persistence;
+      19  using Maxx.Infrastructure.RaridadeDosItens;
+      20  using Maxx.Infrastructure.Seed;
+     ...
+      52          services.AddScoped<IMedalhaRepository, MedalhaRepositor
+          y>();
+      53          services.AddScoped<IConsultaDoProfessor, ConsultaDoProf
+          essor>();
+      54          services.AddScoped<INotificacaoRepository, NotificacaoR
+          epository>();
+      55 +        services.AddScoped<IConsultaDePremios, ConsultaDePremio
+         +s>();                                                          
+      56  
+      57          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      58          services.AddOptions<FilaOptions>();
+  ⎿  (timeout 5m)
+
+● Rota compila; agora os testes de integração da leitura do aluno, com o
+  catálogo real do seed.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\PremiosDoAlunoTests.cs
+       )
+  ⎿  Wrote 192 lines to apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\P
+     remiosDoAlunoTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using Maxx.Api.Autenticacao;
+       5 using Maxx.Api.Premios;
+       6 using Maxx.Application.Medalhas;
+       7 using Maxx.Domain.Academico;
+       8 using Maxx.Domain.Identidade;
+       9 using Maxx.Domain.Premios;
+      10 using Maxx.Infrastructure.Autenticacao;
+     … +182 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat > "$TEMP/e7c.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿    falhou: 0
+       concluído com êxito: 5
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\PremiosDoAlu
+     noTests.cs (+3 -2)
+      85      [Fact]
+      86      public async Task O_seed_de_novo_nao_pede_outro_calculo()
+      87      {
+      88 -        var mundo = await MundoAsync();                        
+      89 -        await using var factory = mundo.Factory;               
+      88 +        await using var factory = await MigradoAsync(postgres);
+      89 +        await factory.SeedBaseAsync(Ct);                       
+      90 +        Assert.Equal(1, await PedidosDeRaridadeAsync(factory));
+      91  
+      92          await factory.SeedBaseAsync(Ct);
+      93          Assert.Equal(1, await PedidosDeRaridadeAsync(factory));
+  ⎿  (timeout 10m)
+
+● Os 5 testes da leitura passam. Regenero o cliente e rodo a suite inteira (o
+  seeder agora também enfileira, então confiro os testes de seed).
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client > /dev/null 2>&1; npx prettier --check
+      packages 2>&1 |…)
+  ⎿  All matched files use Prettier code style!
+
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+210 -0)
+      120          }
+      121        }
+      122      },
+      123 +    "/api/v1/eu/premios": {                                   
+      124 +      "get": {                                                
+      125 +        "tags": [                                             
+      126 +          "Premios"                                           
+      127 +        ],                                                    
+      128 +        "operationId": "GetMeusPremios",                      
+      129 +        "responses": {                                        
+      130 +          "200": {                                            
+      131 +            "description": "OK",                              
+      132 +            "content": {                                      
+      133 +              "application/json": {                           
+      134 +                "schema": {                                   
+      135 +                  "$ref": "#/components/schemas/PremiosDoAluno
+          +Response"                                                     
+      136 +                }                                             
+      137 +              }                                               
+      138 +            }                                                 
+      139 +          },                                                  
+      140 +          "403": {                                            
+      141 +            "description": "Forbidden",                       
+      142 +            "content": {                                      
+      143 +              "application/problem+json": {                   
+      144 +                "schema": {                                   
+      145 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+      146 +                }                                             
+      147 +              }                                               
+      148 +            }                                                 
+      149 +          }                                                   
+      150 +        },                                                    
+      151 +        "security": [                                         
+      152 +          {                                                   
+      153 +            "Bearer": [ ]                                     
+      154 +          }                                                   
+      155 +        ]                                                     
+      156 +      }                                                       
+      157 +    },                                                        
+      158      "/api/v1/professor/turmas": {
+      159        "get": {
+     … 206 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+89 -0)
+      68          patch?: never;
+      69          trace?: never;
+      70      };
+      71 +    "/api/v1/eu/premios": {                                    
+      72 +        parameters: {                                          
+      73 +            query?: never;                                     
+      74 +            header?: never;                                    
+      75 +            path?: never;                                      
+      76 +            cookie?: never;                                    
+      77 +        };                                                     
+      78 +        get: operations["GetMeusPremios"];                     
+      79 +        put?: never;                                           
+      80 +        post?: never;                                          
+      81 +        delete?: never;                                        
+      82 +        options?: never;                                       
+      83 +        head?: never;                                          
+      84 +        patch?: never;                                         
+      85 +        trace?: never;                                         
+      86 +    };                                                         
+      87      "/api/v1/professor/turmas": {
+      88          parameters: {
+      89              query?: never;
+     ...
+      377              papeis: string[];
+      378              arroba: string;
+      379          };
+      380 +        FamiliaResponse: {                                    
+      381 +            codigo: string;                                   
+      382 +            nome: string;                                     
+      383 +            descricao: string;                                
+      384 +            /** Format: int32 */                              
+      385 +            passos: number;                                   
+      386 +        };                                                    
+      387          HealthResponse: {
+      388              status: string;
+      389          };
+     ...
+      414              /** Format: int32 */
+      415              limitePorPeriodo: number;
+      416          };
+      417 +        ItemDoAlunoResponse: {                                
+      418 +            codigo: string;                                   
+     … 85 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet format Maxx.sln --diagnostics IMPORTS > /dev/null 2>&1; dotnet
+      format Maxx.sln --v…)
+  ⎿  done
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -1)
+      14  using Maxx.Infrastructure.Fila;
+      15  using Maxx.Infrastructure.Medalhas;
+      16  using Maxx.Infrastructure.Notificacoes;
+      17 -using Maxx.Infrastructure.Premios;                             
+      17  using Maxx.Infrastructure.Persistence;
+      18 +using Maxx.Infrastructure.Premios;                             
+      19  using Maxx.Infrastructure.RaridadeDosItens;
+      20  using Maxx.Infrastructure.Seed;
+      21  using Microsoft.EntityFrameworkCore;
+  ⎿  (timeout 5m)
+
+● A etapa 7 está pronta localmente: 555 testes passando, formatação limpa e
+  cliente regenerado. Ainda espero a CI da etapa 6 (1b44566), que segue rodando.
+  Quando ela terminar, trago o resultado junto com o relatório da etapa 7.
+
+✻ Crunched for 6m 11s · done 19:20
+
+● Background command "Wait for etapa 6 CI run" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A etapa 7 está pronta para a sua revisão: build sem aviso, formatação limpa,
+  555 testes passando localmente, e o cliente regenerado passa no typecheck e no
+  Prettier. Ainda não fiz commit nem push dela.
+
+  Etapa 6: CI verde
+
+  A CI do commit 1b44566 feat(api): adiciona notificação de medalha recebida e 
+  raridade por escassez no worker (run 42419659175) passou nos seis jobs. O
+  numerador limitado ao divisor nos itens restritos entra nos docs na etapa 10,
+  como você pediu.
+
+  Etapa 7: leitura do aluno (sem commit)
+
+  Rota GET /api/v1/eu/premios. Só para quem tem o papel de aluno; professor
+  recebe 403 e sem token, 401. Como é uma rota de /eu, cada aluno só vê os
+  próprios faltantes, como pede o produto.md 9.1. Nenhuma rota mostra o catálogo
+  de outro aluno. O nome evita "troféu", que só existe na interface.
+
+  O que a resposta traz:
+  - pontos: a soma das medalhas ativas do aluno, para o cabeçalho "x pts". A
+    posição no ranking fica para o passo 11.
+  - familias: as 8 trilhas, com código, nome, descrição e número de passos.
+  - itens: os 46 itens do catálogo. Cada um traz:
+    - código, tipo, nome, critério (a descrição do item), tier e pontos do
+      catálogo;
+    - família e ordem na família;
+    - a raridade, com o nível e o percentual com uma casa decimal, para "x% dos
+      alunos";
+    - o que o aluno já obteve: id, tier e pontos do momento da concessão,
+      matéria, bimestre e data, do mais recente para o mais antigo.
+  - Medalha anulada não aparece e não soma pontos.
+  - A raridade vem nula enquanto o worker não calculou.
+
+  Duas decisões minhas que valem conferir
+  - Itens restritos a outro curso ficam de fora da lista, porque o aluno não
+    pode ganhá-los. A exceção é o item que o aluno já tem por ter trocado de
+    curso. O catálogo real hoje não tem nenhum item restrito.
+  - O seed base agora pede o primeiro cálculo de raridade. Sem isso, a tela
+    ficaria sem raridade até a primeira medalha.
+    - Ele só enfileira um recálculo quando há item novo ou mudado, ou item ainda
+      sem raridade calculada.
+    - Se já existe um pedido pendente, não acrescenta outro. Assim, rodar o seed
+      de novo continua não mudando nada.
+
+  Ponto em aberto, que não mexi: um aluno novo criando conta, inclusive pela
+  demonstração, muda o divisor da raridade. Isso não está entre os eventos que o
+  ADR 0005 lista para o recálculo, então o percentual fica um pouco
+  desatualizado até a próxima concessão ou anulação. A faixa só mudaria perto de
+  uma fronteira. Se quiser, o cadastro e o registro da demonstração passam a
+  enfileirar o recálculo também.
+
+  5 testes de integração, com o catálogo real do seed
+  - Leitura completa:
+    - os 46 itens, com o M90 restrito a ADM fora, e as 8 famílias;
+    - 30 pontos;
+    - M01 com tipo, tier, família, ordem, critério e o obtido: 30 pontos, Banco
+      de Dados, bimestre 4, data da concessão;
+    - a M03 anulada fora dos obtidos;
+    - conquistas e prêmios de participação presentes, sem obtidos.
+  - Raridade: nula antes do worker. Depois dele, M01 "comum" com 50% (Ana de 2
+    alunos com conta) e M03 "lendario" com 0%, porque a anulada não conta. Todos
+    os itens ficam com raridade.
+  - Seed duas vezes: deixa um pedido de recálculo só. Depois do worker, um novo
+    seed não pede nada.
+  - Outro aluno: a medalha da Ana não aparece nos obtidos dele, e os pontos dele
+    são 0.
+  - Acesso: professor recebe 403 e sem token, 401.
+
+  Commit proposto: feat(api): adiciona leitura dos prêmios do aluno com critério
+  e raridade. Com seu ok, faço o commit e o push, trago a CI e sigo para a
+  etapa 8, o cliente do professor.
+
+✻ Cooked for 18s · done 19:22
