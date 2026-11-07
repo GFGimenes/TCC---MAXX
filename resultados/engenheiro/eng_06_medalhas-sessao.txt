@@ -1,0 +1,236 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 6 do plano mestre: medalhas, fila e worker. Estamos na                  
+  rodada/eng_06_medalhas, saída da main com os passos 1 a 5 mergeados. Antes de 
+  qualquer código, me traga o plano de etapas, com entrega e critério de        
+  aceite por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá:        
+  decisão que não está nos docs não foi tomada, então pergunte antes de         
+  assumir. Uma regra que fixei no passo 3 e vale daqui em diante: cada etapa só 
+  é dada como pronta depois de a CI do push dela passar, e o resultado da CI    
+  entra no relatório da etapa. Lembro o que fecha o passo: lista de turmas e    
+  alunos do professor e modal de concessão a partir do catálogo; concessão      
+  gravando matéria, bimestre, tier e pontos do momento, respeitando limite por  
+  período e chave de deduplicação; auditoria de concessão e de anulação; fila   
+  na tabela do Postgres com worker consumindo por SKIP LOCKED, como no ADR      
+  0008, e o envio de e-mail migrando da fila em memória para ela; notificação   
+  de medalha recebida gravada no banco; tela de Troféus com o catálogo, o que   
+  falta, o critério e a raridade por escassez recalculada no worker; anulação   
+  de medalha pela instituição por comando administrativo. A posição no ranking  
+  fica para o passo 11. Antes do plano, um ajuste de docs que ficou do passo 5, 
+  em commit próprio na branch do passo: no docs/decisoes/README.md, a linha     
+  "Banca" e a justificativa do limite de 60 registros de demonstração por hora  
+  por IP ainda falam em wifi do campus e banca entrando pelo mesmo celular;     
+  reescreve as duas para a avaliação remota, cada avaliador na própria conexão, 
+  mantendo o limite. Eu reviso o plano e aí começamos a primeira etapa.         
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      30  | Storage | Cloudflare R2 com a CDN da Cloudflare |
+      31  | Migrations | Contêiner separado com advisory lock, antes de s
+          ubir as réplicas. Nunca no startup da aplicação |
+      32  | Backup | `pg_dump` noturno para o bucket, mais dump manual ob
+          rigatório antes de cada migration, com restauração testada uma 
+          vez |
+      33 -| Banca | Sem plano B local: a VPS é o único ambiente. Se o wif
+         -i do campus falhar, a banca entra pela rede móvel e o notebook 
+         -é roteado pelo celular |                                       
+      33 +| Avaliação | Sem plano B local: a VPS é o único ambiente. A av
+         +aliação é remota, antes de 05/12, sem apresentação presencial: 
+         +cada avaliador entra na VPS pela própria conexão, e não há rede
+         + do campus nem aparelho compartilhado de que dependa. O ensaio 
+         +do passo 13 confirma o acesso de fora, por conexões diferentes 
+         +|                                                              
+      34  | CI | GitHub Actions, seis jobs: api, mobile, api-client, e2e,
+           segurança e build (imagens da API e do Caddy com o build web) 
+          |
+      35  
+      36  ## Dados
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+       98  | Cadastro | 3 a cada 15 minutos por RA |
+       99  | Sugestão e disponibilidade do arroba | 60 por minuto por IP,
+            somadas as duas: elas respondem diferente para um par de RA e
+            e-mail que existe. Cabe na digitação porque o cliente do pass
+           o 5 faz debounce antes de perguntar |
+      100  | Recuperação de senha | 3 a cada 15 minutos por e-mail, só no
+            pedido. A confirmação não tem limite: o token tem 256 bits |
+      101 -| Registro de demonstração | 60 por hora por IP. Alto de propó
+          -sito: a banca inteira entra pelo mesmo celular roteado. A entr
+          -ada pela chave do dispositivo não tem limite: a chave tem 256 
+          -bits |                                                        
+      101 +| Registro de demonstração | 60 por hora por IP. Alto de propó
+          +sito: na avaliação remota, cada avaliador entra pela própria c
+          +onexão, mas a rede móvel costuma pôr muitos aparelhos atrás do
+          + mesmo IP (CGNAT da operadora), e o ensaio do passo 13 cria vá
+          +rias contas a partir de poucas conexões. Um limite baixo recus
+          +aria avaliador legítimo. A entrada pela chave do dispositivo n
+          +ão tem limite: a chave tem 256 bits |                         
+      102  | Upload | 30 por hora por usuário, número provisório. Declara
+           do no passo 3; aplicado, testado e revisto no passo 7, quando 
+           o endpoint nasce |
+      103  
+      104  O IP vem do `X-Forwarded-For` posto pelo Caddy, aceito só dele
+           . Estourado o limite, a
+
+● Ajuste de docs aplicado na branch feat/passo-06-medalhas (ainda sem commit,
+  aguardando sua revisão). Agora estou lendo produto, ADRs, catálogo e código
+  atual para montar o plano.
+
+  Read 1 file, ran 6 shell commands (ctrl+o to expand)
+
+● Ajuste de docs feito, e o plano do passo 6 está abaixo. Nada de código foi
+  escrito e nada foi commitado.
+
+  Ajuste de docs do passo 5 (aguardando sua revisão para commitar)
+
+  Criei a branch feat/passo-06-medalhas a partir da rodada/eng_06_medalhas e
+  editei docs/decisoes/README.md:
+
+  - Linha 33: o rótulo mudou de "Banca" para "Avaliação". O texto agora diz:
+    "Sem plano B local: a VPS é o único ambiente. A avaliação é remota, antes de
+    05/12, sem apresentação presencial: cada avaliador entra na VPS pela 
+    própria conexão, e não há rede do campus nem aparelho compartilhado de que 
+    dependa. O ensaio do passo 13 confirma o acesso de fora, por conexões 
+    diferentes."
+  - Linha 101: o limite continua em 60 por hora por IP, com esta justificativa:
+    "Alto de propósito: na avaliação remota, cada avaliador entra pela própria 
+    conexão, mas a rede móvel costuma pôr muitos aparelhos atrás do mesmo IP 
+    (CGNAT da operadora), e o ensaio do passo 13 cria várias contas a partir de 
+    poucas conexões. Um limite baixo recusaria avaliador legítimo."
+
+  Commit proposto: docs(docs): reescreve avaliação e limite da demonstração para
+  a avaliação remota. Depois dele vem o push e o resultado da CI.
+
+  Fora do seu pedido, "banca" ainda aparece em ADR 0001 (QR code na
+  apresentação), ADR 0005, ADR 0008 e produto.md 1, 6.2, 11 e 12. Não mexi
+  nesses trechos. Se quiser, eles entram neste mesmo commit.
+
+  Plano de etapas do passo 6
+
+  #: 1
+  Entrega: Fila e worker. Tabela trabalho (tipo, carga, estado, tentativas,
+  disponível em) com migration. Enfileiramento dentro da transação de quem
+  escreve. Worker consumindo com FOR UPDATE SKIP LOCKED, com retentativa, recuo
+   exponencial e estado de falha definitiva. Serviço worker no compose.
+  Critério de aceite: Testes de integração: dois consumidores nunca pegam o
+  mesmo
+  trabalho; transação revertida não deixa trabalho; falha volta com recuo;
+  trabalho envenenado para no limite de tentativas. CI verde.
+  ────────────────────────────────────────
+  #: 2
+  Entrega: E-mail migra para a fila. A fila em memória sai, a recuperação
+  enfileira um trabalho e o worker envia. Decisões de e-mail atualizadas no
+  README.
+  Critério de aceite: Testes de recuperação e e2e com Mailpit passando; nenhum
+  segredo em repouso na fila (ver decisão B); CI verde.
+  ────────────────────────────────────────
+  #: 3
+  Entrega: Domínio da medalha (TDD). Medalha com snapshot de tier, pontos e
+  versão do item, matéria, turma e bimestre; limite por período; ocorrência;
+  recusa a ex-aluno e fora do período; anulação.
+  Critério de aceite: Testes unitários por regra e por fronteira de bimestre em
+  America/Sao_Paulo, sem banco. CI verde.
+  ────────────────────────────────────────
+  #: 4
+  Entrega: Concessão na API. Migration de medalha com índice único da chave de
+  deduplicação. Rotas de turmas do professor, alunos da turma, medalhas do
+  catálogo e concessão. Escopo checado no banco. Auditoria. Enfileira
+  notificação e recálculo de raridade na mesma transação. OpenAPI e cliente
+  regenerados.
+  Critério de aceite: Testes de integração: fora do escopo recusa; limite
+  estourado recusa; duas concessões simultâneas não furam o limite (409, nunca
+  500); quem e quando gravados; trabalhos enfileirados. Cliente gerado sem
+  diferença. CI verde.
+  ────────────────────────────────────────
+  #: 5
+  Entrega: Anulação por comando administrativo. Novo comando Maxx.Api ao lado de
+
+  migrate e seed, gravando quem anulou e quando e enfileirando o recálculo. A
+  purga da demonstração ganha medalha e notificacao.
+  Critério de aceite: Teste de integração do comando; medalha anulada deixa de
+  contar e libera a vaga (decisão D); purga testada. CI verde.
+  ────────────────────────────────────────
+  #: 6
+  Entrega: Trabalhos do worker. Notificação de medalha recebida em tabela
+  notificacao. Raridade por item em tabela própria, com coalescência de no
+  máximo uma execução a cada 10 s.
+  Critério de aceite: Testes de integração: notificação gravada uma vez mesmo
+  com
+  retentativa; percentuais e faixas corretos, incluindo item sem dono (Lendário
+   0%) e item restrito a curso; rajada de disparos vira uma execução. CI verde.
+  ────────────────────────────────────────
+  #: 7
+  Entrega: Leitura do aluno. Catálogo com critério e raridade, mais as medalhas
+  do próprio aluno. Faltantes só para o dono (produto.md 9.1). OpenAPI
+  regenerado.
+  Critério de aceite: Testes de integração de visibilidade e formato; cliente
+  gerado sem diferença. CI verde.
+  ────────────────────────────────────────
+  #: 8
+  Entrega: Cliente do professor. Lista de turmas, alunos da turma e modal de
+  concessão a partir do catálogo, em claro e escuro, com erros amigáveis.
+  Critério de aceite: Jest com Testing Library: lista, modal, limite estourado e
+
+  falha de rede; todo código novo da API com mensagem em erros.ts. CI verde.
+  ────────────────────────────────────────
+  #: 9
+  Entrega: Tela de Troféus. Abas Troféus e Medalhas, "Mostrar não obtidos",
+  trilha da família, critério, raridade e pontos (sem #posição até o passo 11).
+  Critério de aceite: Jest nos dois temas: vazio, erro, obtido e não obtido. CI
+  verde.
+  ────────────────────────────────────────
+  #: 10
+  Entrega: e2e e docs. Professor concede, aluno vê a medalha em Troféus, comando
+
+  anula e ela some. README de decisões, fluxos e plano mestre atualizados.
+  Critério de aceite: Playwright verde na CI; docs sem travessão.
+
+  Decisões que não estão nos docs (minha recomendação entre parênteses)
+
+  - A. Onde roda o worker. (Contêiner próprio, mesma imagem, comando worker, uma
+    réplica. As duas réplicas da API ficam sem consumidor.)
+  - B. Segredo do e-mail na fila. O link de recuperação leva o token, e gravá-lo
+    na carga desfaz o "token só como hash". (O trabalho leva só o id do pedido,
+    e o worker gera o token, grava o hash e envia. Uma retentativa gera outro
+    token.)
+  - C. Retentativa. (5 tentativas, recuo de 10 s, 20 s, 40 s e 80 s; esgotadas,
+    o trabalho fica como falho, com o erro no log e na linha.)
+  - D. Ocorrência e anulação. (A ocorrência é atribuída pelo sistema, a próxima
+    livre até o limite; o professor não escolhe. Medalha anulada libera a vaga
+    para uma nova concessão.)
+  - E. Concessão fora de bimestre. Pode haver data no semestre vigente fora dos
+    dois bimestres. (Recusar com código próprio. M10 e M11, de período semestre,
+    também gravam o bimestre da data.)
+  - F. Aluno sem conta. A matrícula aponta para o cadastro elegível. (A lista
+    mostra só alunos com conta e não ex-alunos; quem não tem conta não recebe
+    medalha.)
+  - G. Entrada do professor. O perfil do aluno só chega no passo 7. (A concessão
+    parte da lista de alunos da turma, e o início provisório ganha "Minhas
+    turmas" para quem é professor.)
+  - H. Navegação para Troféus. (A navegação de cinco abas entra agora, com Home
+    levando ao início provisório e Busca, Mural e Perfil em estado vazio "Em
+    breve" até os passos deles.)
+  - I. Bolinha de novidade em Troféus. (Fica para o passo 10, junto com o
+    sininho; aqui a notificação só é gravada.)
+  - J. Divisor da raridade. "Alunos que já passaram pela base": (usuários alunos
+    com conta, ativos e ex-alunos, contando os de demonstração, que estão nos
+    mesmos rankings. Medalha anulada sai do numerador.)
+  - K. Auditoria. (Colunas de quem e quando na própria medalha, para concessão e
+    anulação, em vez de tabela genérica de auditoria.)
+  - L. Forma do comando de anulação. (Maxx.Api anular-medalha <id> --instituicao
+    <e-mail>, recusando e-mail sem papel de instituição, rodado com docker 
+    compose run --rm.)
+
+  Revise o ajuste de docs e as decisões A a L. Com seu ok, faço o commit e o
+  push dos docs, trago o resultado da CI e começo a etapa 1.
+
+✻ Churned for 2m 7s · done 17:30
