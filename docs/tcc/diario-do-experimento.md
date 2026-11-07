@@ -396,3 +396,15 @@ ajustado para a avaliação remota. Três bugs do agente pegos pelos próprios t
 deles com CI vermelha e fix separado. 292 Jest, 63 e2e em duas passadas. PR #7, merge
 na `main` (`9115368`). Registro em `resultados/engenheiro/eng_05_login.md`. Próxima:
 `eng_06_medalhas`, com dois trechos do README de decisões a ajustar na abertura.
+
+07/11 (noite): `eng_06_medalhas` fechada em 3 h 04 min, dez etapas, a rodada mais
+limpa até aqui: nenhuma falha de CI, nenhuma interrupção, todas as correções do agente
+antes do commit. Abertura com o ajuste de docs da avaliação remota em todos os
+documentos. Fila no Postgres e worker, e-mail na fila com token emitido no worker,
+domínio e API da medalha com concorrência provada, anulação por comando, notificação e
+raridade por escassez com coalescência, leitura do aluno, telas do professor e de
+Troféus, navegação de cinco abas, e2e de ponta a ponta. Doze decisões no plano, todas
+pela recomendação; o agente levantou e o autor acolheu o recálculo de raridade no
+cadastro, fora da lista original do ADR 0005. PR #8 com onze commits verdes, merge na
+`main` (`a225e29`). Registro em `resultados/engenheiro/eng_06_medalhas.md`. Próxima:
+`eng_07_posts`.
