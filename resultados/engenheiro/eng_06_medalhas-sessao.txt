@@ -961,3 +961,1080 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
   com skip locked. Com seu ok, faço o commit e o push e trago a CI.
 
 ✻ Cogitated for 12m 54s · done 17:46
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 1 aprovada. A regra F na etapa 4 está certo. O ruído do "relation       
+  trabalho does not exist" no teste do worker hospedado pode ficar, registrado. 
+  Commita com a mensagem proposta, push, acompanha a CI e segue para a etapa    
+  2; para para a minha revisão no fim dela.                                     
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 1 commitada (4ff1d2d) e enviada; CI rodando. Começo a etapa 2 lendo a
+  recuperação de senha.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Agora mudo o domínio da recuperação: o pedido nasce sem token, e o worker
+  emite o token na hora de enviar (decisão B).
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && node -e '
+      const fs=require("fs");const p="src/Maxx.Domain/Identidade/Recuperacao…)
+  ⎿  63:    public ResultadoDaRecuperacao Concluir(
+     64-        Usuario usuario,
+     65-        string hashDaSenhaNova,
+  ⎿  Updated apps\api\src\Maxx.Domain\Identidade\RecuperacaoDeSenha.cs (+24
+     -7)
+      2  
+      3  // Um pedido de recuperação de senha, que também é o primeiro ac
+         esso de quem vem do seed
+      4  // (docs/fluxos/06-recuperacao-de-senha.md). Token de uso único,
+          por 30 minutos; o domínio
+      5 -// só vê o hash dele.                                           
+      5 +// só vê o hash dele. O pedido nasce sem token: o worker o emite
+        + na hora de mandar o e-mail,                                    
+      6 +// para nenhum token esperar em claro na fila (decisoes/README.m
+        +d, Envio de e-mail).                                            
+      7  public sealed class RecuperacaoDeSenha
+      8  {
+      9      public static readonly TimeSpan Validade = TimeSpan.FromMinu
+         tes(30);
+     ...
+      11      // Para o EF Core materializar do banco.
+      12      private RecuperacaoDeSenha()
+      13      {
+      13 -        Hash = null!;                                          
+      14      }
+      15  
+      16 -    private RecuperacaoDeSenha(Guid usuarioId, string hash, Dat
+         -eTimeOffset agora)                                             
+      16 +    private RecuperacaoDeSenha(Guid usuarioId, DateTimeOffset a
+         +gora)                                                          
+      17      {
+      18          Id = Guid.CreateVersion7();
+      19          UsuarioId = usuarioId;
+      20 -        Hash = Texto.Obrigatorio(hash, "O hash do token de recu
+         -peração");                                                     
+      20          SolicitadaEm = agora;
+      21          ExpiraEm = agora + Validade;
+      22      }
+     ...
+      25  
+      26      public Guid UsuarioId { get; private set; }
+      27  
+      29 -    public string Hash { get; private set; }                   
+      28 +    // Nulo até o token ser emitido: um pedido sem token não é 
+         +encontrado por link nenhum.                                    
+      29 +    public string? Hash { get; private set; }                  
+      30  
+      31      public DateTimeOffset SolicitadaEm { get; private set; }
+      32  
+     ...
+      37      // Outro pedido do mesmo usuário foi concluído antes deste.
+      38      public DateTimeOffset? InvalidadaEm { get; private set; }
+      39  
+      40 -    public static RecuperacaoDeSenha Solicitar(Guid usuarioId, 
+         -string hash, DateTimeOffset agora) => new(usuarioId, hash, agor
+         -a);                                                            
+      40 +    // Nem usado nem invalidado: ainda pode receber token e ser
+         + concluído.                                                    
+      41 +    public bool EstaAberta => UsadaEm is null && InvalidadaEm i
+         +s null;                                                        
+      42 +                                                               
+     … 26 more lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && for f in
+      tests/Maxx.Domain.Tests/Identidade/RecuperacaoDeSenhaTests.cs tests/Max…)
+  ⎿  20
+     3
+     14:public sealed class IdentidadePersistenciaTests(PostgresFixture pos
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\IdentidadePersistenci
+     aTests.cs (+3 -3)
+      255          await SalvarAsync(
+      256              factory,
+      257              FamiliaDeSessao.Abrir(ana.Id, "C1", _agora),
+      258 -            RecuperacaoDeSenha.Solicitar(ana.Id, "T1", _agora)
+          -,                                                             
+      259 -            RecuperacaoDeSenha.Solicitar(ana.Id, "T2", _agora.
+          -AddMinutes(1)));                                              
+      258 +            ComToken(ana.Id, "T1", _agora),                   
+      259 +            ComToken(ana.Id, "T2", _agora.AddMinutes(1)));    
+      260  
+      261          await using (var scope = factory.Services.CreateAsyncS
+           cope())
+      262          {
+     ...
+      291      {
+      292          await using var factory = await MigradoAsync(postgres)
+           ;
+      293          var (_, ana) = await AnaGravadaAsync(factory);
+      294 -        await SalvarAsync(factory, RecuperacaoDeSenha.Solicita
+          -r(ana.Id, "T1", _agora));                                     
+      294 +        await SalvarAsync(factory, ComToken(ana.Id, "T1", _ago
+          +ra));                                                         
+      295  
+      296          await using var scopeA = factory.Services.CreateAsyncS
+           cope();
+      297          await using var scopeB = factory.Services.CreateAsyncS
+           cope();
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs
+     (+28 -20)
+      21      {
+      22          var ana = Ana();
+      23  
+      24 -        var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+         -"T", _pedido);                                                 
+      24 +        var recuperacao = ComToken(ana.Id, "T", _pedido);      
+      25  
+      26          Assert.Equal(ana.Id, recuperacao.UsuarioId);
+      27          Assert.Equal("T", recuperacao.Hash);
+     ...
+      36          var ana = Ana();
+      37          var celular = FamiliaDeSessao.Abrir(ana.Id, "C1", _pedi
+          do.AddDays(-5));
+      38          var notebook = FamiliaDeSessao.Abrir(ana.Id, "N1", _ped
+          ido.AddDays(-1));
+      39 -        var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+         -"T", _pedido);                                                 
+      39 +        var recuperacao = ComToken(ana.Id, "T", _pedido);      
+      40          var conclusao = _pedido.AddMinutes(10);
+      41  
+      42          var resultado = recuperacao.Concluir(ana, "hash-novo", 
+          [celular, notebook], [], conclusao);
+     ...
+      58          var ana = Ana();
+      59          var antiga = FamiliaDeSessao.Abrir(ana.Id, "A1", _pedid
+          o.AddDays(-5));
+      60          antiga.Revogar(MotivoDaRevogacao.Logout, _pedido.AddDay
+          s(-4));
+      61 -        var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+         -"T", _pedido);                                                 
+      61 +        var recuperacao = ComToken(ana.Id, "T", _pedido);      
+      62  
+      63          recuperacao.Concluir(ana, "hash-novo", [antiga], [], _p
+          edido.AddMinutes(1));
+      64  
+     ...
+      70      {
+      71          var renata = Usuario.CriarPeloSeed(
+      72              CadastroElegivel.Professor("renata@prof.unieduk.com
+          .br", "Renata Albuquerque"), "renataAlbuquerque", _pedido.AddDa
+          ys(-30));
+      73 -        var recuperacao = RecuperacaoDeSenha.Solicitar(renata.I
+         -d, "T", _pedido);                                              
+      73 +        var recuperacao = ComToken(renata.Id, "T", _pedido);   
+      74  
+      75          var resultado = recuperacao.Concluir(renata, "primeira-
+          senha", [], [], _pedido.AddMinutes(5));
+      76  
+     ...
+      83      {
+      84          var ana = Ana();
+      85          var familia = FamiliaDeSessao.Abrir(ana.Id, "C1", _pedi
+          do.AddDays(-5));
+      86 -        var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+         -"T", _pedido);                                                 
+      86 +        var recuperacao = ComToken(ana.Id, "T", _pedido);      
+      87  
+      88          var resultado = recuperacao.Concluir(ana, "hash-novo", 
+          [familia], [], _pedido.AddMinutes(30).AddSeconds(1));
+      89  
+     … 95 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && node -e '
+      const fs=require("fs");…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\IdentidadePersistenci
+     aTests.cs (+7 -0)
+      348      }
+      349  
+      350      // Dois alunos de CC e uma professora, ainda sem conta.
+      351 +    private static RecuperacaoDeSenha ComToken(Guid usuarioId,
+          + string hash, DateTimeOffset agora)                           
+      352 +    {                                                         
+      353 +        var recuperacao = RecuperacaoDeSenha.Solicitar(usuario
+          +Id, agora);                                                   
+      354 +        recuperacao.EmitirToken(hash, agora);                 
+      355 +        return recuperacao;                                   
+      356 +    }                                                         
+      357 +                                                              
+      358      private sealed class Mundo
+      359      {
+      360          public Curso Computacao { get; } = new("Ciência da Com
+           putação", "CC", 8);
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Identidade\RecuperacaoDeSenhaTests.cs
+     (+43 -4)
+      17          _pedido.AddDays(-60));
+      18  
+      19      [Fact]
+      20 -    public void Pedido_vale_30_minutos()                       
+      20 +    public void Pedido_nasce_aberto_e_sem_token()              
+      21      {
+      22          var ana = Ana();
+      23  
+      24 -        var recuperacao = ComToken(ana.Id, "T", _pedido);      
+      24 +        var recuperacao = RecuperacaoDeSenha.Solicitar(ana.Id, 
+         +_pedido);                                                      
+      25  
+      26          Assert.Equal(ana.Id, recuperacao.UsuarioId);
+      27 -        Assert.Equal("T", recuperacao.Hash);                   
+      27 +        Assert.Null(recuperacao.Hash);                         
+      28 +        Assert.True(recuperacao.EstaAberta);                   
+      29          Assert.Equal(_pedido, recuperacao.SolicitadaEm);
+      29 -        Assert.Equal(_pedido.AddMinutes(30), recuperacao.Expira
+         -Em);                                                           
+      30          Assert.Null(recuperacao.UsadaEm);
+      31      }
+      32  
+      33 +    [Fact]                                                     
+      34 +    public void Token_vale_30_minutos_contados_do_envio()      
+      35 +    {                                                          
+      36 +        var recuperacao = RecuperacaoDeSenha.Solicitar(Ana().Id
+         +, _pedido);                                                    
+      37 +        var envio = _pedido.AddMinutes(2);                     
+      38 +                                                               
+      39 +        recuperacao.EmitirToken("T", envio);                   
+      40 +                                                               
+      41 +        Assert.Equal("T", recuperacao.Hash);                   
+      42 +        Assert.Equal(_pedido, recuperacao.SolicitadaEm);       
+      43 +        Assert.Equal(envio.AddMinutes(30), recuperacao.ExpiraEm
+         +);                                                             
+      44 +    }                                                          
+      45 +                                                               
+      46 +    [Fact]                                                     
+      47 +    public void Nova_emissao_troca_o_token_e_o_prazo()         
+      48 +    {                                                          
+      49 +        var recuperacao = ComToken(Ana().Id, "T1", _pedido);   
+      50 +                                                               
+      51 +        recuperacao.EmitirToken("T2", _pedido.AddMinutes(1));  
+      52 +                                                               
+     … 22 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Domínio e testes ajustados; agora a Application: pedido enfileira só o id, e
+  um handler do worker emite o token e envia.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && node -e '
+      const fs=require("fs");…)
+  ⎿  9:public sealed class RecuperacaoHandler(
+     93:}
+     99:}
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\Recuperacao\Recuper
+     acaoHandler.cs (+51 -10)
+      1 +using Maxx.Application.Fila;                                    
+      2  using Maxx.Domain;
+      3  using Maxx.Domain.Identidade;
+      4  
+     ...
+       8  // (fluxos/06-recuperacao-de-senha.md).
+       9  public sealed class RecuperacaoHandler(
+      10      IUsuarioRepository usuarios,
+      10 -    ICadastroElegivelRepository cadastros,                     
+      11      IRecuperacaoDeSenhaRepository recuperacoes,
+      12      IFamiliaDeSessaoRepository familias,
+      13      ITokenGenerator tokens,
+      14      ISenhaHasher senhas,
+      15 -    ILinkDoApp links,                                          
+      16 -    IFilaDeEmail emails,                                       
+      15 +    IFilaDeTrabalhos fila,                                     
+      16      IUnitOfWork unitOfWork,
+      17      TimeProvider relogio)
+      18  {
+     ...
+      30              return;
+      31          }
+      32  
+      34 -        var token = tokens.Generate();                         
+      35 -        recuperacoes.Adicionar(RecuperacaoDeSenha.Solicitar(usu
+         -ario.Id, token.Hash, relogio.GetUtcNow()));                    
+      33 +        // O pedido e o trabalho do e-mail gravam juntos. O tok
+         +en só nasce no worker, na hora                                 
+      34 +        // do envio: a fila leva o id do pedido, nunca um segre
+         +do.                                                            
+      35 +        var recuperacao = RecuperacaoDeSenha.Solicitar(usuario.
+         +Id, relogio.GetUtcNow());                                      
+      36 +        recuperacoes.Adicionar(recuperacao);                   
+      37 +        fila.Enfileirar(new EmailDeRecuperacao(recuperacao.Id))
+         +;                                                              
+      38          await unitOfWork.SalvarAsync(cancellationToken);
+      37 -                                                               
+      38 -        // Só depois de gravado: o link do e-mail sempre tem um
+         - pedido no banco.                                              
+      39 -        var para = await cadastros.EmailAsync(usuario.CadastroE
+         -legivelId, cancellationToken);                                 
+      40 -        emails.Enfileirar(MensagemDeRecuperacao(para, usuario, 
+         -links.RedefinicaoDeSenha(token.Valor)));                       
+      39      }
+      40  
+      41      public async Task ConfirmarAsync(NovaSenha pedido, Cancella
+          tionToken cancellationToken)
+     ...
+       90  
+       91      private static RecusaException Invalida(string motivo) =>
+       92          new(TipoDeRecusa.Invalido, CodigosDeRecusa.Recuperacao
+           Invalida, $"Recuperação recusada: {motivo}.");
+       93 +}                                                             
+     … 49 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\Repositories.cs (+2
+     -0)
+      55  {
+      56      void Adicionar(RecuperacaoDeSenha recuperacao);
+      57  
+      58 +    Task<RecuperacaoDeSenha?> BuscarAsync(Guid id, Cancellation
+         +Token cancellationToken);                                      
+      59 +                                                               
+      60      Task<RecuperacaoDeSenha?> BuscarPorHashAsync(string hash, C
+          ancellationToken cancellationToken);
+      61  
+      62      // Os pedidos do usuário ainda não usados nem invalidados, 
+          que a conclusão invalida.
+  ⎿  Updated apps\api\src\Maxx.Application\Email.cs (+3 -8)
+       7      public override string ToString() => $"MensagemDeEmail {{ A
+          ssunto = {Assunto} }}";
+       8  }
+       9  
+      10 -// Entrega um e-mail ao servidor SMTP. Chamado só pelo envio em
+         - segundo plano.                                                
+      10 +// Entrega um e-mail ao servidor SMTP. Chamado só por handler d
+         +e trabalho, no worker: quem                                    
+      11 +// pede o e-mail enfileira um trabalho na fila do Postgres e re
+         +sponde (decisoes/README.md,                                    
+      12 +// Envio de e-mail). Falha lança, e o trabalho volta com recuo.
+      13  public interface IEmailSender
+      14  {
+      15      Task EnviarAsync(MensagemDeEmail mensagem, CancellationToke
+          n cancellationToken);
+      16  }
+      15 -                                                               
+      16 -// Envio fora da requisição: quem pede só enfileira e responde.
+         - Fila em memória até a fila                                    
+      17 -// do Postgres do passo 6; perder um e-mail num restart é aceit
+         -o (decisoes/README.md).                                        
+      18 -public interface IFilaDeEmail                                  
+      19 -{                                                              
+      20 -    void Enfileirar(MensagemDeEmail mensagem);                 
+      21 -}                                                              
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Autenticacao\Repositories.cs
+     (+3 -0)
+      91  {
+      92      public void Adicionar(RecuperacaoDeSenha recuperacao) => db
+          .Add(recuperacao);
+      93  
+      94 +    public Task<RecuperacaoDeSenha?> BuscarAsync(Guid id, Cance
+         +llationToken cancellationToken) =>                             
+      95 +        db.Set<RecuperacaoDeSenha>().SingleOrDefaultAsync(recup
+         +eracao => recuperacao.Id == id, cancellationToken);            
+      96 +                                                               
+      97      public Task<RecuperacaoDeSenha?> BuscarPorHashAsync(string 
+          hash, CancellationToken cancellationToken) =>
+      98          db.Set<RecuperacaoDeSenha>().SingleOrDefaultAsync(recup
+          eracao => recuperacao.Hash == hash, cancellationToken);
+      99  
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && node -e '
+      const fs=require("fs");…)
+  ⎿  1:using MailKit.Net.Smtp;
+     2:using MailKit.Security;
+     3:using Maxx.Application;
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+4 
+     -4)
+      1  using Maxx.Application;
+      2  using Maxx.Application.Autenticacao;
+      3 +using Maxx.Application.Autenticacao.Recuperacao;                
+      4  using Maxx.Application.Autorizacao;
+      5  using Maxx.Application.Demonstracao;
+      6  using Maxx.Application.Fila;
+     ...
+      49          services.AddSingleton<TiposDeTrabalho>();
+      50          services.AddSingleton<ConsumidorDeTrabalhos>();
+      51  
+      51 -        // E-mail fora da requisição. As opções (EmailOptions) 
+         -vêm da borda.                                                  
+      52 -        services.AddSingleton<FilaDeEmailEmMemoria>();         
+      53 -        services.AddSingleton<IFilaDeEmail>(provider => provide
+         -r.GetRequiredService<FilaDeEmailEmMemoria>());                 
+      52 +        // Os tipos de trabalho. O e-mail sai só por eles, no w
+         +orker; as opções (EmailOptions)                                
+      53 +        // e o link do app (ILinkDoApp) vêm da borda.          
+      54          services.AddSingleton<IEmailSender, SmtpEmailSender>();
+      55 -        services.AddHostedService<EnvioDeEmailService>();      
+      55 +        services.AddTrabalho<EmailDeRecuperacao, EmailDeRecuper
+         +acaoHandler>();                                                
+      56  
+      57          // Toda verificação registrada aqui entra no /ready.
+      58          services.AddHealthChecks()
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Email\EnvioDeEmail.cs (+4 
+     -57)
+      1 -using System.Threading.Channels;                                
+      1  using MailKit.Net.Smtp;
+      2  using MailKit.Security;
+      3  using Maxx.Application;
+      5 -using Microsoft.Extensions.Hosting;                             
+      4  using Microsoft.Extensions.Logging;
+      5  using Microsoft.Extensions.Options;
+      6  using MimeKit;
+     ...
+      33  }
+      34  
+      35  // Uma conexão por mensagem: o volume da fase 1 é de e-mails de
+           recuperação, não de lote.
+      38 -internal sealed class SmtpEmailSender(IOptions<EmailOptions> op
+         -tions) : IEmailSender                                          
+      36 +// Roda só no worker, dentro de um trabalho da fila: a falha so
+         +be para a retentativa.                                         
+      37 +internal sealed partial class SmtpEmailSender(IOptions<EmailOpt
+         +ions> options, ILogger<SmtpEmailSender> logger) : IEmailSender 
+      38  {
+      39      public async Task EnviarAsync(MensagemDeEmail mensagem, Can
+          cellationToken cancellationToken)
+      40      {
+     ...
+       60  
+       61          await smtp.SendAsync(mime, cancellationToken);
+       62          await smtp.DisconnectAsync(quit: true, cancellationTok
+           en);
+       64 -    }                                                         
+       65 -}                                                             
+       66 -                                                              
+       67 -// A fila em memória, por réplica. Cheia, recusa a mensagem no
+          -va em vez de segurar o pedido:                                
+       68 -// o usuário pede o link de novo.                             
+       69 -internal sealed partial class FilaDeEmailEmMemoria(ILogger<Fil
+          -aDeEmailEmMemoria> logger) : IFilaDeEmail                     
+       70 -{                                                             
+       71 -    public const int Capacidade = 1000;                       
+       72 -                                                              
+       73 -    private readonly Channel<MensagemDeEmail> _canal = Channel
+          -.CreateBounded<MensagemDeEmail>(                              
+       74 -        new BoundedChannelOptions(Capacidade) { SingleReader =
+          - true, FullMode = BoundedChannelFullMode.Wait });             
+       75 -                                                              
+       76 -    public ChannelReader<MensagemDeEmail> Leitor => _canal.Rea
+          -der;                                                          
+       77 -                                                              
+       78 -    public void Enfileirar(MensagemDeEmail mensagem)          
+       79 -    {                                                         
+       80 -        if (!_canal.Writer.TryWrite(mensagem))                
+       81 -        {                                                     
+       82 -            LogFilaCheia(logger, mensagem.Assunto);           
+       83 -        }                                                     
+     … 41 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && node -e '
+      const fs=require("fs");…)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollecti
+     onExtensions.cs (+13 -4)
+      27          builder.Services.AddScoped<RefreshHandler>();
+      28          builder.Services.AddScoped<LogoutHandler>();
+      29          builder.Services.AddScoped<RecuperacaoHandler>();
+      30 -        builder.Services.AddSingleton<ILinkDoApp>(new LinkDoApp
+         -(LerUrlPublica(builder, exigirChave)));                        
+      31 -        builder.Services.Configure<EmailOptions>(builder.Config
+         -uration.GetSection(EmailOptions.Section));                     
+      30 +        builder.AddEnvioDeEmail(exigirChave);                  
+      31  
+      32          builder.Services.AddAuthentication(JwtBearerDefaults.Au
+          thenticationScheme)
+      33              .AddJwtBearer(options =>
+     ...
+      51          return builder;
+      52      }
+      53  
+      54 +    // O que o handler do e-mail de recuperação precisa da bord
+         +a: SMTP e URL pública do app.                                  
+      55 +    // Na API e no worker: quem executa o trabalho é o worker, 
+         +e a API e os testes de                                         
+      56 +    // integração montam os mesmos tipos de trabalho.          
+      57 +    public static IHostApplicationBuilder AddEnvioDeEmail(this 
+         +IHostApplicationBuilder builder, bool exigirUrl)               
+      58 +    {                                                          
+      59 +        builder.Services.AddSingleton<ILinkDoApp>(new LinkDoApp
+         +(LerUrlPublica(builder, exigirUrl)));                          
+      60 +        builder.Services.Configure<EmailOptions>(builder.Config
+         +uration.GetSection(EmailOptions.Section));                     
+      61 +        return builder;                                        
+      62 +    }                                                          
+      63 +                                                               
+      64      // Sem ela o link do e-mail de recuperação não teria para o
+          nde apontar: fora de
+      56 -    // desenvolvimento a API não sobe.                         
+      57 -    private static Uri LerUrlPublica(WebApplicationBuilder buil
+         -der, bool exigir)                                              
+      65 +    // desenvolvimento nem a API nem o worker sobem.           
+      66 +    private static Uri LerUrlPublica(IHostApplicationBuilder bu
+         +ilder, bool exigir)                                            
+      67      {
+      68          var texto = builder.Configuration[$"{LinkDoApp.Section}
+          :UrlPublica"];
+      69          if (string.IsNullOrWhiteSpace(texto))
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      26      worker.Services.AddInfrastructure(
+      27          worker.Configuration.GetConnectionString("Maxx")
+      28              ?? throw new InvalidOperationException("ConnectionS
+          trings:Maxx não configurada."));
+      29 +    worker.AddEnvioDeEmail(exigirUrl: true);                   
+      30      worker.Services.AddWorker();
+      31      await worker.Build().RunAsync();
+      32      return 0;
+  ⎿  (timeout 5m)
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && node -e '
+      const fs=require("fs");const p="src/Maxx.Infrastructure/Persistence/Co…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+             protected override void Up(MigrationBuilder migrationBuilder)
+             {
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Id
+     entidadeConfiguration.cs (+4 -1)
+      175              table.HasCheckConstraint("ck_recuperacao_senha_val
+           idade", "expira_em > solicitada_em");
+      176              table.HasCheckConstraint(
+      177                  "ck_recuperacao_senha_encerramento", "usada_em
+            IS NULL OR invalidada_em IS NULL");
+      178 +                                                              
+      179 +            // Só se usa um pedido cujo token foi emitido.    
+      180 +            table.HasCheckConstraint("ck_recuperacao_senha_tok
+          +en", "usada_em IS NULL OR hash IS NOT NULL");                 
+      181          });
+      182          builder.HasKey(recuperacao => recuperacao.Id);
+      183          builder.Property(recuperacao => recuperacao.Id).ValueG
+           eneratedNever();
+      184  
+      182 -        builder.Property(recuperacao => recuperacao.Hash).IsRe
+          -quired();                                                     
+      185 +        // Nulo até o worker emitir o token; o índice único ig
+          +nora os nulos.                                                
+      186          builder.HasIndex(recuperacao => recuperacao.Hash).IsUn
+           ique();
+      187  
+      188          // "Os outros pedidos pendentes do usuário", que a con
+           clusão invalida.
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     07205356_TokenEmitidoNoWorker.cs (+45 -0)
+       1 +using Microsoft.EntityFrameworkCore.Migrations;                
+       2 +                                                               
+       3 +#nullable disable                                              
+       4 +                                                               
+       5 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       6 +{                                                              
+       7 +    /// <inheritdoc />                                         
+       8 +    public partial class TokenEmitidoNoWorker : Migration      
+       9 +    {                                                          
+      10 +        /// <inheritdoc />                                     
+      11 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      12 +        {                                                      
+      13 +            migrationBuilder.AlterColumn<string>(              
+      14 +                name: "hash",                                  
+      15 +                table: "recuperacao_senha",                    
+      16 +                type: "text",                                  
+      17 +                nullable: true,                                
+      18 +                oldClrType: typeof(string),                    
+      19 +                oldType: "text");                              
+      20 +                                                               
+      21 +            migrationBuilder.AddCheckConstraint(               
+      22 +                name: "ck_recuperacao_senha_token",            
+      23 +                table: "recuperacao_senha",                    
+      24 +                sql: "usada_em IS NULL OR hash IS NOT NULL");  
+      25 +        }                                                      
+      26 +                                                               
+      27 +        /// <inheritdoc />                                     
+      28 +        protected override void Down(MigrationBuilder migration
+         +Builder)                                                       
+      29 +        {                                                      
+      30 +            migrationBuilder.DropCheckConstraint(              
+      31 +                name: "ck_recuperacao_senha_token",            
+      32 +                table: "recuperacao_senha");                   
+      33 +                                                               
+      34 +            migrationBuilder.AlterColumn<string>(              
+      35 +                name: "hash",                                  
+      36 +                table: "recuperacao_senha",                    
+      37 +                type: "text",                                  
+      38 +                nullable: false,                               
+      39 +                defaultValue: "",                              
+      40 +                oldClrType: typeof(string),                    
+     … 5 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+2 -1)
+      406                          .HasColumnName("expira_em");
+      407  
+      408                      b.Property<string>("Hash")
+      409 -                        .IsRequired()                         
+      409                          .HasColumnType("text")
+      410                          .HasColumnName("hash");
+      411  
+     ...
+      446                          {
+      447                              t.HasCheckConstraint("ck_recuperac
+           ao_senha_encerramento", "usada_em IS NULL OR invalidada_em IS 
+           NULL");
+      448  
+      449 +                            t.HasCheckConstraint("ck_recuperac
+          +ao_senha_token", "usada_em IS NULL OR hash IS NOT NULL");     
+      450 +                                                              
+      451                              t.HasCheckConstraint("ck_recuperac
+           ao_senha_validade", "expira_em > solicitada_em");
+      452                          });
+      453                  });
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Ajustando os testes de recuperação para o worker de verdade (o comando
+  anterior quebrou na citação do shell; refaço por arquivo).
+
+  Made 1 scratchpad edit +163, ran 3 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen
+      es-Documents-Re…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Recupera
+     caoTests.cs (+109 -19)
+       7  using Maxx.Application;
+       8  using Maxx.Domain.Academico;
+       9  using Maxx.Domain.Identidade;
+      10 +using Maxx.Application.Autenticacao.Recuperacao;               
+      11  using Maxx.Infrastructure.Autenticacao;
+      12 +using Maxx.Infrastructure.Fila;                                
+      13  using Maxx.Infrastructure.Persistence;
+      14  using Microsoft.EntityFrameworkCore;
+      15  using Microsoft.Extensions.DependencyInjection;
+     ...
+      18  namespace Maxx.Api.IntegrationTests.Autenticacao;
+      19  
+      20  // Recuperação de senha e primeiro acesso pela API, contra o Po
+          stgres real. O SMTP é trocado
+      19 -// por uma caixa em memória; o envio em segundo plano é o de ve
+         -rdade.                                                         
+      21 +// por uma caixa em memória; a fila e o worker que mandam o e-m
+         +ail são os de verdade.                                         
+      22  public sealed partial class RecuperacaoTests(PostgresFixture po
+          stgres) : IClassFixture<PostgresFixture>
+      23  {
+      24      private const string _senha = "senha-boa-123";
+     ...
+      53  
+      54          // A fila é uma só e em ordem: se os dois primeiros tiv
+          essem gerado e-mail, ele
+      55          // chegaria antes.
+      54 -        var email = await caixa.ProximoAsync();                
+      56 +        var email = await RecebidoAsync(factory, caixa);       
+      57          Assert.Equal(_ana, email.Para);
+      58          Assert.False(caixa.TemMais);
+      59      }
+     ...
+      66          using var client = factory.CreateClient();
+      67  
+      68          await PedirAsync(client, _ana);
+      67 -        var email = await caixa.ProximoAsync();                
+      69 +        var email = await RecebidoAsync(factory, caixa);       
+      70  
+      71          Assert.Equal("Maxx: defina sua senha", email.Assunto);
+      72          Assert.Contains("Olá, Ana.", email.Texto, StringCompari
+          son.Ordinal);
+     ...
+      89          var notebook = await EntrarAsync(client, _ana, _senha);
+      90  
+      91          await PedirAsync(client, _ana);
+      90 -        var response = await ConfirmarAsync(client, Token(await
+         - caixa.ProximoAsync()), _senhaNova);                           
+      92 +        var response = await ConfirmarAsync(client, Token(await
+         + RecebidoAsync(factory, caixa)), _senhaNova);                  
+      93  
+      94          Assert.Equal(HttpStatusCode.NoContent, response.StatusC
+          ode);
+     … 195 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Suite completa passando (494). Agora passo as variáveis de e-mail para o
+  worker no compose e confiro o fluxo real com o Mailpit.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat > "$TEMP/compose.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  20:# SMTP. Vazio, a API manda para o Mailpit do compose, com a caixa e
+     m
+     21-# http://localhost:8025 (MAXX_MAILPIT_PORT). O provedor da VPS entr
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated docker-compose.yml (+12 -9)
+      66        Jwt__Chave: ${MAXX_JWT_CHAVE:?defina no .env}
+      67        # X-Forwarded-For só vale vindo da rede interna, onde est
+          á o Caddy.
+      68        Proxy__RedesConfiaveis__0: 172.30.0.0/24
+      69 -      # Para onde aponta o link do e-mail de recuperação de sen
+         -ha.                                                            
+      69 +      # Para onde aponta o link do e-mail de recuperação de sen
+         +ha. Sem ela a API não sobe;                                    
+      70 +      # quem manda o e-mail é o worker, que tem o SMTP.        
+      71        App__UrlPublica: ${MAXX_URL_PUBLICA:-http://localhost}
+      71 -      # SMTP: o Mailpit local por padrão. O provedor da VPS ent
+         -ra no passo 13, pelo .env.                                     
+      72 -      Email__Remetente: ${MAXX_EMAIL_REMETENTE:-Maxx <nao-respo
+         -nda@maxx.local>}                                               
+      73 -      Email__Smtp__Host: ${MAXX_SMTP_HOST:-mailpit}            
+      74 -      Email__Smtp__Porta: ${MAXX_SMTP_PORTA:-1025}             
+      75 -      Email__Smtp__Seguranca: ${MAXX_SMTP_SEGURANCA:-None}     
+      76 -      Email__Smtp__Usuario: ${MAXX_SMTP_USUARIO:-}             
+      77 -      Email__Smtp__Senha: ${MAXX_SMTP_SENHA:-}                 
+      72      deploy:
+      73        replicas: 2
+      74      depends_on:
+     ...
+       84      environment:
+       85        <<: *api-env
+       86        DOTNET_ENVIRONMENT: Production
+       87 +      # O e-mail sai daqui, por um trabalho da fila. Sem a URL
+          + o worker não sobe.                                           
+       88 +      App__UrlPublica: ${MAXX_URL_PUBLICA:-http://localhost}  
+       89 +      # SMTP: o Mailpit local por padrão. O provedor da VPS en
+          +tra no passo 13, pelo .env.                                   
+       90 +      Email__Remetente: ${MAXX_EMAIL_REMETENTE:-Maxx <nao-resp
+          +onda@maxx.local>}                                             
+       91 +      Email__Smtp__Host: ${MAXX_SMTP_HOST:-mailpit}           
+       92 +      Email__Smtp__Porta: ${MAXX_SMTP_PORTA:-1025}            
+       93 +      Email__Smtp__Seguranca: ${MAXX_SMTP_SEGURANCA:-None}    
+       94 +      Email__Smtp__Usuario: ${MAXX_SMTP_USUARIO:-}            
+       95 +      Email__Smtp__Senha: ${MAXX_SMTP_SENHA:-}                
+       96      depends_on:
+       97        seeder:
+       98          condition: service_completed_successfully
+       99      restart: unless-stopped
+      100  
+       98 -  # Recebe todo e-mail que a API manda, sem entregar a ninguém
+          -. Caixa em                                                    
+      101 +  # Recebe todo e-mail que o worker manda, sem entregar a ning
+          +uém. Caixa em                                                 
+      102    # http://localhost:8025, só nesta máquina.
+      103    mailpit:
+      104      image: axllent/mailpit:v1.33.0
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^# SMTP. Vazio, a API manda para o Mailpit do compose, com a
+      caixa em$/# SMTP d…)
+  ⎿  MAXX_URL_PUBLICA=http://localhost
+
+     # SMTP do worker, que manda os e-mails. Vazio, vai para o Mailpit do c
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated .env.example (+1 -1)
+      17  # URL pública do app, para o link do e-mail de recuperação de s
+          enha.
+      18  MAXX_URL_PUBLICA=http://localhost
+      19  
+      20 -# SMTP. Vazio, a API manda para o Mailpit do compose, com a cai
+         -xa em                                                          
+      20 +# SMTP do worker, que manda os e-mails. Vazio, vai para o Mailp
+         +it do compose, com a caixa em                                  
+      21  # http://localhost:8025 (MAXX_MAILPIT_PORT). O provedor da VPS 
+          entra no passo 13.
+      22  MAXX_MAILPIT_PORT=8025
+      23  MAXX_SMTP_HOST=
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/RecuperacaoTests.cs
+      && sed -i '39…)
+  ⎿      {
+             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+             using var corpo = JsonDocument.Parse(await response.Content.Re
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Recupera
+     caoTests.cs (+0 -10)
+      388          Assert.Equal(codigo, corpo.RootElement.GetProperty("co
+           digo").GetString());
+      389      }
+      390  
+      391 -    private static async Task Esperar(Func<bool> condicao)    
+      392 -    {                                                         
+      393 -        using var limite = CancellationTokenSource.CreateLinke
+          -dTokenSource(Ct);                                             
+      394 -        limite.CancelAfter(TimeSpan.FromSeconds(10));         
+      395 -        while (!condicao())                                   
+      396 -        {                                                     
+      397 -            await Task.Delay(20, limite.Token);               
+      398 -        }                                                     
+      399 -    }                                                         
+      400 -                                                              
+      391      // No lugar do SMTP: guarda o que o envio em segundo plano
+            entregou.
+      392      private sealed class CaixaDeEmail : IEmailSender
+      393      {
+
+● Agora reconstruo o compose local e peço uma recuperação de verdade, para ver o
+  e-mail chegar ao Mailpit pelo worker.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|    // No lugar do SMTP: guarda o que o envio em segundo plano
+      entregou.|    //…)
+  ⎿   Container maxx-worker-1 Started
+      Container maxx-api-1 Started
+     claudio.fonseca@prof.unieduk.com.br
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Recupera
+     caoTests.cs (+1 -1)
+      388          Assert.Equal(codigo, corpo.RootElement.GetProperty("co
+           digo").GetString());
+      389      }
+      390  
+      391 -    // No lugar do SMTP: guarda o que o envio em segundo plano
+          - entregou.                                                    
+      391 +    // No lugar do SMTP: guarda o que o worker entregou.      
+      392      private sealed class CaixaDeEmail : IEmailSender
+      393      {
+      394          private readonly Channel<MensagemDeEmail> _recebidos =
+            Channel.CreateUnbounded<MensagemDeEmail>();
+  ⎿  (timeout 10m)
+
+● Background command "Wait for etapa 1 CI run" completed (exit code 0)
+
+● Etapa 1 com CI verde (seis jobs). Sigo com o teste de fumaça da recuperação no
+  compose.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O e-mail saiu pelo worker e chegou ao Mailpit, e a fila esvaziou. Falta
+  atualizar as decisões de e-mail no README, como previsto na etapa 2, e o fluxo
+  de recuperação.
+
+  Made 1 scratchpad edit +85, ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node "$TEMP/claude/C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-eng
+      enheiro/31e8808…)
+  ⎿  docs/decisoes/0006-autenticacao-propria.md:8:token curto em memória e
+     refresh rotativo cujo reuso derruba a sessão inteira. O
+     docs/decisoes/README.md:144:| Cache | Consulta com stale-while-revalid
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+2 -2)
+      69  | Cookie só com o cabeçalho | Na web, o cookie do refresh só é 
+          lido quando o pedido traz `X-Maxx-Cliente: web`: um formulário 
+          de outro site não manda cabeçalho próprio, defesa somada ao `Sa
+          meSite=Strict`. Refresh recusado e logout apagam o cookie |
+      70  | Refresh simultâneo | Conta como reuso. Quem perde a corrida r
+          elê o banco, encontra o token já trocado e derruba a família: s
+          imultâneo ou em sequência, o resultado é o mesmo. Por isso o cl
+          iente serializa o refresh (passo 5) |
+      71  | Sessão recusada | Um só código, `sessao-invalida`, para refre
+          sh ausente, desconhecido, expirado, de família revogada ou reus
+          ado: em todos os casos o cliente volta ao login. O motivo exato
+           fica só no log |
+      72 -| Recuperação de senha | Token aleatório de 30 minutos, uso úni
+         -co, guardado só como hash. A resposta ao pedido é sempre a mesm
+         -a, exista o e-mail ou não. Senha nova revoga todas as famílias 
+         -de refresh do usuário e invalida os outros pedidos de recuperaç
+         -ão pendentes dele |                                            
+      72 +| Recuperação de senha | Token aleatório de 30 minutos contados
+         + do envio, uso único, guardado só como hash e emitido pelo work
+         +er na hora de mandar o e-mail (ver Envio de e-mail). A resposta
+         + ao pedido é sempre a mesma, exista o e-mail ou não. Senha nova
+         + revoga todas as famílias de refresh do usuário e invalida os o
+         +utros pedidos de recuperação pendentes dele |                  
+      73  | Link de recuperação | `<App__UrlPublica>/redefinir-senha#toke
+          n=...`, com o token no fragmento: o navegador não manda a servi
+          dor nenhum o que vem depois do `#`, e o token não cai em log de
+           acesso nem em `Referer`. A tela é do passo 5. Sem `App__UrlPub
+          lica`, a API não sobe fora de desenvolvimento |
+      74  | Hash de senha | Argon2id com `Konscious.Security.Cryptography
+          `, parâmetros do OWASP: 19 MiB de memória, 2 iterações, paralel
+          ismo 1. Login de usuário inexistente calcula um hash fictício, 
+          para o tempo de resposta não revelar quem tem conta |
+      75  | Política de senha | De 8 a 128 caracteres, sem regra de compo
+          sição, na linha do NIST SP 800-63B |
+     ...
+      77  | Tolerância de relógio | 30 segundos na validação do access to
+          ken; as réplicas estão no mesmo host |
+      78  | Chave em desenvolvimento | Sem `Jwt__Chave` em Development, a
+           API gera uma chave por processo, que some no restart. Nenhuma 
+          chave versionada, nem a de desenvolvimento |
+      79  | E-mail | SMTP genérico com MailKit; Mailpit no compose local.
+           Provedor da VPS escolhido no passo 13 |
+      80 -| Envio de e-mail | Fora da requisição, num `BackgroundService`
+         - com fila em memória, até a fila do Postgres nascer no passo 6,
+         - quando migra para ela. Perder um e-mail num restart é aceito: 
+         -o usuário pede de novo. Falha de envio vai só para o log, sem r
+         -eenvio, até a fila do passo 6. A fila em memória guarda até 1.0
+         -00 mensagens por réplica; cheia, descarta a nova com log de err
+         -o |                                                            
+      80 +| Envio de e-mail | Desde o passo 6, por um trabalho da fila do
+         + Postgres (ADR 0008), executado só pelo worker, que é quem tem 
+         +o SMTP. O pedido de recuperação grava o pedido sem token e enfi
+         +leira só o id dele, na mesma transação: nenhum segredo espera e
+         +m claro na fila. O worker emite o token, grava o hash e manda o
+         + e-mail na transação do trabalho. Falha de envio desfaz o hash 
+         +e volta com o recuo da fila; a retentativa emite outro token. P
+         +edido já encerrado quando o trabalho roda (outro link trocou a 
+         +senha) não gera e-mail. Se o envio sai e a transação não fecha,
+         + o link que chegou não vale, e o usuário pede outro |          
+      81  | Contas de professor e instituição | Criadas pelo seed demo, s
+          em senha, para toda linha de professor e de instituição que est
+          iver no banco, não só as do arquivo; primeiro acesso pela recup
+          eração de senha. Ver `produto.md` 2.5 |
+      82  | Login exigido | Toda rota de `/v1` exige login, e a pública d
+          eclara `AllowAnonymous`. A exigência fica no grupo `/v1`, e não
+           numa `FallbackPolicy`, porque a fallback vale também para pedi
+          do sem endpoint, e rota inexistente tem de continuar 404 |
+      83  | `GET /v1/eu` | Lê papéis e arroba do banco, não do token: o a
+          rroba pode mudar depois da emissão |
+  ⎿  Updated docs\fluxos\06-recuperacao-de-senha.md (+13 -8)
+       2  
+       3  O mesmo fluxo serve a dois casos: o aluno que esqueceu a senha 
+          e o primeiro acesso de
+       4  professor e instituição, cuja conta nasce do seed sem senha. A 
+          API é do passo 3; as telas,
+       5 -do passo 5.                                                    
+       5 +do passo 5. Desde o passo 6, o e-mail sai pela fila do Postgres
+         +, no worker.                                                   
+       6  
+       7  ```mermaid
+       8  sequenceDiagram
+       9    participant App as App (web ou nativo)
+      10    participant API
+      11    participant DB as Postgres
+      12 -  participant Envio as Envio em segundo plano                  
+      12 +  participant W as Worker                                      
+      13    participant SMTP
+      14  
+      15    App->>API: pede recuperacao (e-mail)
+      16    Note over API: limite de taxa por e-mail, por replica
+      17    API->>DB: busca o usuario pelo e-mail
+      18    alt usuario existe
+      19 -    API->>DB: grava o hash do token T, validade de 30 minutos  
+      20 -    API->>Envio: enfileira o e-mail com o link de T            
+      19 +    API->>DB: grava o pedido sem token e enfileira o id dele, n
+         +a mesma transacao                                              
+      20    end
+      21    API-->>App: 202, a mesma resposta exista o e-mail ou nao
+      22  
+      24 -  Envio->>SMTP: envia o link com T                             
+      25 -  Note over Envio: fora da requisicao; fila em memoria ate o pa
+         -sso 6                                                          
+      23 +  W->>DB: pega o trabalho (SKIP LOCKED)                        
+      24 +  alt pedido ainda aberto                                      
+      25 +    W->>DB: grava o hash do token T, validade de 30 minutos a p
+         +artir daqui                                                    
+      26 +    W->>SMTP: envia o link com T                               
+      27 +    Note over W: falha no envio desfaz o hash e volta com recuo
+      28 +  else pedido ja encerrado                                     
+      29 +    W->>W: nada a enviar                                       
+      30 +  end                                                          
+      31  
+      32    App->>API: confirma (T + senha nova)
+      33    API->>DB: busca o token pelo hash de T
+     ...
+      48  | Recuperação por e-mail desde a fase 1 | `produto.md` 2.5 |
+      49  | Primeiro acesso de professor e instituição por este fluxo | `
+          produto.md` 2.5; `decisoes/README.md` (Autenticação) |
+     … 9 more lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet format Maxx.sln --diagnostics IMPORTS 2>&1 | tail -2; dotnet format
+      Maxx.sln --ver…)
+  ⎿  using System.Net;
+     using System.Net.Http.Json;
+     using System.Text.Json;
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Recupera
+     caoTests.cs (+1 -1)
+       5  using System.Threading.Channels;
+       6  using Maxx.Api.Autenticacao;
+       7  using Maxx.Application;
+       8 +using Maxx.Application.Autenticacao.Recuperacao;               
+       9  using Maxx.Domain.Academico;
+      10  using Maxx.Domain.Identidade;
+      10 -using Maxx.Application.Autenticacao.Recuperacao;               
+      11  using Maxx.Infrastructure.Autenticacao;
+      12  using Maxx.Infrastructure.Fila;
+      13  using Maxx.Infrastructure.Persistence;
+  ⎿  (timeout 5m)
+
+● A etapa 2 está pronta para a sua revisão: build sem aviso, formatação limpa e
+  494 testes passando localmente. Ainda não fiz commit nem push dela.
+
+  Etapa 1: CI verde
+
+  A CI do commit 4ff1d2d feat(api): adiciona fila de trabalhos no postgres e 
+  worker com skip locked (run 42412983533) passou nos seis jobs: api, mobile,
+  api-client, e2e, segurança e build. O ruído do "relation trabalho does not
+  exist" ficou como você combinou; ele entra no README de decisões na etapa 10.
+
+  Etapa 2: e-mail migra para a fila (sem commit)
+
+  O que muda no fluxo (decisão B)
+  - Pedido (POST /v1/auth/recuperacao): grava o pedido sem token e enfileira só
+    o id dele, na mesma transação. A resposta continua 202 para todos.
+  - Worker (EmailDeRecuperacaoHandler): pega o trabalho, emite o token, grava o
+    hash e manda o e-mail, tudo na transação do trabalho.
+    - Pedido já encerrado quando o trabalho roda (outro link trocou a senha) não
+      gera e-mail.
+    - Falha no SMTP desfaz o hash, e o trabalho volta com o recuo da etapa 1. A
+      retentativa emite outro token.
+  - Validade: os 30 minutos agora contam do envio, não do pedido. Fazia sentido
+    porque o envio pode atrasar até uns 2,5 minutos com retentativa. É uma
+    mudança de regra pequena; está registrada no README e no fluxo, e vale você
+    confirmar.
+  - Risco aceito: se o e-mail sai e a transação do trabalho não fecha, o link
+    que chegou não vale, e o usuário pede outro. Também está no README.
+
+  Código
+  - Domínio, RecuperacaoDeSenha: o pedido nasce aberto e sem token. EmitirToken
+    troca o hash e o prazo e recusa pedido encerrado. A nova propriedade
+    EstaAberta diz se ainda está aberto.
+  - Migration TokenEmitidoNoWorker: o hash passa a aceitar nulo, e a constraint
+    ck_recuperacao_senha_token impede pedido usado sem token.
+  - A fila em memória e o EnvioDeEmailService saíram, junto com a interface
+    IFilaDeEmail. O log "E-mail enviado" passou para o SmtpEmailSender, com o
+    assunto e sem destinatário.
+  - Configuração:
+    - SMTP e URL pública agora vêm de um método só (AddEnvioDeEmail), usado pela
+      API e pelo worker.
+    - No compose, as variáveis de SMTP saíram da API e foram para o worker. A
+      API não guarda mais a senha do SMTP.
+    - App__UrlPublica ficou nos dois, porque a API continua não subindo sem ela,
+      como já está documentado.
+  - Docs: as linhas "Envio de e-mail" e "Recuperação de senha" do README de
+    decisões, o fluxo 06-recuperacao-de-senha.md e o comentário do .env.example.
+
+  Verificação
+  - Domínio: 4 testes novos (nasce sem token; validade conta do envio; nova
+    emissão troca token e prazo; pedido encerrado não recebe token).
+  - Integração: 3 testes novos.
+    - A carga do trabalho é só {"recuperacaoId": ...}, com hash nulo até o
+      worker rodar.
+    - Pedido encerrado antes do envio não manda e-mail e sai da fila.
+    - SMTP fora do ar: 202 igual, tentativa 1 com o erro gravado, hash não
+      gravado, e o token do e-mail que falhou é recusado.
+  - Os testes de recuperação que já existiam agora rodam com o worker de verdade
+    consumindo a fila. Rodei a classe três vezes, sem intermitência.
+  - Compose local: um pedido real de recuperação para um professor do seed
+    respondeu 202. O worker registrou "enviado", o e-mail chegou ao Mailpit, a
+    fila ficou vazia e o hash foi gravado com validade de 30 minutos a partir do
+    envio.
+  - Cliente gerado sem diferença.
+
+  Commit proposto: feat(api): migra o envio de e-mail para a fila com o token 
+  emitido no worker. Com seu ok, faço o commit e o push e trago a CI, que também
+  roda o e2e de recuperação via Mailpit.
+
+✻ Churned for 10m 28s · done 18:00
