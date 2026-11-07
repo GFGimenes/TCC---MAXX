@@ -1780,3 +1780,1135 @@ completed (exit code 0)
   a etapa 3.
 
 ✻ Brewed for 8m 6s · done 14:59
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+※ recap: Estamos no passo 5 (login, cadastro, termo e demonstração): a etapa 1 já passou na CI, e a etapa 2 (sessão com refresh serializado) está pronta e testada, esperando a sua revisão. Com a sua aprovação, faço o commit, o push e acompanho a CI. (disable recaps in /config)
+
+● Monitor event: "failing integration tests in the rerun log"
+  [Monitor expired after 30m with 1 event delivered. Re-arm it if you still need
+  the watch.]
+
+● A etapa 2 continua aguardando a sua revisão, sem commit nem push.
+
+  O aviso que acabou de chegar não traz nada novo: é só o vigia da rodada de
+  integração da etapa 1 encerrando por tempo. Aquela rodada já tinha terminado,
+  e as duas seguintes passaram inteiras. A etapa 1 continua fechada, com a CI do
+  c326993 verde nos seis jobs.
+
+  Com a sua aprovação, sigo assim:
+  1. Faço o commit feat(mobile): adiciona sessão com refresh serializado entre 
+     pedidos e abas.
+  2. Faço o push e acompanho a CI.
+  3. Sigo para a etapa 3.
+
+✻ Cogitated for 4s · done 15:06
+
+> Etapa 2 aprovada. O teste que lê CodigosDeRecusa.cs e falha com código sem    
+  mensagem fica como regra. Os 33 achados do npm audit abaixo do corte ficam    
+  registrados. Commita com a mensagem proposta, push, acompanha a CI e segue    
+  para a etapa 3; para para a minha revisão no fim dela.                        
+
+  Pushed to feat/passo-05-login, ran 1 shell command (ctrl+o to expand)
+
+● A CI do commit 2617e36 está rodando. Enquanto isso, começo a etapa 3 lendo os
+  testes e a vitrine dos componentes que vou estender.
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\TextField.tsx)
+  ⎿  Added 40 lines, removed 1 line
+      22    // Esconde o texto e oferece o botão de mostrar.
+      23    password?: boolean;
+      24    disabled?: boolean;
+      25 +  // O que está errado neste campo, em frase curta. Sem isso, o
+         + campo está bom.                                               
+      26 +  error?: string;                                              
+      27  }
+      28  
+      29  const RECUO = 14;
+      30 +const ICONE_DO_ERRO = 16;                                      
+      31  
+      32  export function TextField({
+      33    label,
+      34    password = false,
+      35    disabled = false,
+      36 +  error,                                                       
+      37    onFocus,
+      38    onBlur,
+      39    ...input
+     ...
+      42    const [focused, setFocused] = useState(false);
+      43    const [revealed, setRevealed] = useState(false);
+      44    const borda = focused ? interacao.bordaDeCampoEmFoco : intera
+          cao.bordaDeCampo;
+      45 +  const comErro = !!error;                                     
+      46  
+      47 +  // Exceção registrada à regra do `like` só em ícone: a borda 
+         +do campo com erro também é                                     
+      48 +  // `like`, para o erro aparecer no próprio campo. O texto do 
+         +erro fica em `ink`.                                            
+      49 +  const corDaBorda = comErro                                   
+      50 +    ? colors.like                                              
+      51 +    : focused                                                  
+      52 +      ? colors.focus                                           
+      53 +      : colors.fieldLine;                                      
+      54 +                                                               
+      55    return (
+      56      <View style={styles.coluna}>
+      57        <Text style={[styles.rotulo, { color: colors.ink }]}>{lab
+          el}</Text>
+     ...
+      61            styles.caixa,
+      62            {
+      63              borderWidth: borda,
+      51 -            borderColor: focused ? colors.focus : colors.fieldL
+         -ine,                                                           
+      64 +            borderColor: corDaBorda,                           
+      65              backgroundColor: disabled ? colors.surface2 : color
+          s.fieldBg,
+      66              // A borda mais grossa do foco não pode empurrar o 
+          texto.
+      67              paddingLeft: RECUO - borda,
+     ...
+      73            autoCorrect={password ? false : undefined}
+      74            {...input}
+      75            aria-label={label}
+      76 +          aria-invalid={comErro}                               
+      77 +          // No nativo, o leitor de tela lê o erro junto do cam
+         +po.                                                            
+      78 +          accessibilityHint={error}                            
+      79            editable={!disabled}
+      80            secureTextEntry={password && !revealed}
+      81            placeholderTextColor={colors.ink3}
+     ...
+      101            />
+      102          )}
+      103        </View>
+      104 +      {comErro && (                                           
+      105 +        // Anunciado quando aparece; ícone e texto juntos, nun
+          +ca só a cor.                                                  
+      106 +        <View                                                 
+      107 +          testID="campo-erro"                                 
+      108 +          role="alert"                                        
+      109 +          aria-live="polite"                                  
+      110 +          accessible                                          
+      111 +          style={styles.erro}                                 
+      112 +        >                                                     
+      113 +          <Icon name="alert" color={colors.like} size={ICONE_D
+          +O_ERRO} />                                                    
+      114 +          <Text style={[styles.textoDoErro, { color: colors.in
+          +k }]}>                                                        
+      115 +            {error}                                           
+      116 +          </Text>                                             
+      117 +        </View>                                               
+      118 +      )}                                                      
+      119      </View>
+      120    );
+      121  }
+     ...
+      184      alignItems: "center",
+      185      justifyContent: "center",
+      186    },
+      187 +  erro: { flexDirection: "row", alignItems: "flex-start", gap:
+          + 6 },                                                         
+      188 +  // A linha do texto acompanha o ícone de 16.                
+      189 +  textoDoErro: {                                              
+      190 +    flex: 1,                                                  
+      191 +    fontFamily: fontFamily({ familia: "Instrument Sans", peso:
+          + 400 }),                                                      
+      192 +    fontSize: 13,                                             
+      193 +    lineHeight: 16,                                           
+      194 +  },                                                          
+      195  });
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Estou montando os componentes da etapa 3. O texto do erro do campo passa a
+  usar a escala legenda do token, em vez de um tamanho avulso.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/components/TextField.tsx';let s…)
+  ⎿  11:import { fontFamily, textStyles } from "../theme/fonts";
+     115:            style={[textStyles.legenda, styles.textoDoErro, { colo
+     r: colors.ink }]}
+     191:  textoDoErro: {
+  ⎿  Updated apps\mobile\src\components\TextField.tsx (+4 -2)
+       8    type TextInputProps,
+       9  } from "react-native";
+      10  
+      11 -import { fontFamily } from "../theme/fonts";                   
+      11 +import { fontFamily, textStyles } from "../theme/fonts";       
+      12  import { useTheme } from "../theme/ThemeProvider";
+      13  import { interacao, raios, tamanhos } from "../theme/tokens";
+      14  import { focusRingStyle, noOutline, useFocusRing } from "./focu
+          sRing";
+     ...
+      111            style={styles.erro}
+      112          >
+      113            <Icon name="alert" color={colors.like} size={ICONE_D
+           O_ERRO} />
+      114 -          <Text style={[styles.textoDoErro, { color: colors.in
+          -k }]}>                                                        
+      114 +          <Text                                               
+      115 +            style={[textStyles.legenda, styles.textoDoErro, { 
+          +color: colors.ink }]}                                         
+      116 +          >                                                   
+      117              {error}
+      118            </Text>
+      119          </View>
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/components/TextField.tsx';let s…)
+  ⎿    erro: { flexDirection: "row", alignItems: "flex-start", gap: 6 },
+       // Legenda tem linha de 16, a altura do ícone.
+       textoDoErro: { flex: 1 },
+     });
+  ⎿  Updated apps\mobile\src\components\TextField.tsx (+2 -7)
+      187      justifyContent: "center",
+      188    },
+      189    erro: { flexDirection: "row", alignItems: "flex-start", gap:
+            6 },
+      190 -  // A linha do texto acompanha o ícone de 16.                
+      191 -  textoDoErro: {                                              
+      192 -    flex: 1,                                                  
+      193 -    fontFamily: fontFamily({ familia: "Instrument Sans", peso:
+          - 400 }),                                                      
+      194 -    fontSize: 13,                                             
+      195 -    lineHeight: 16,                                           
+      196 -  },                                                          
+      190 +  // Legenda tem linha de 16, a altura do ícone.              
+      191 +  textoDoErro: { flex: 1 },                                   
+      192  });
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/  erro: { flexDirection: "row", alignItems: "flex-start", gap: 6
+      },/  erro: { f…)
+  ⎿  63:  const navegador = await chromium.launch();
+     64:  for (const { nome, lado, fundo, raio = 0, logo: desenho } of ARQU
+     IVOS) {
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\TextField.tsx (+1 -1)
+      186      alignItems: "center",
+      187      justifyContent: "center",
+      188    },
+      189 -  erro: { flexDirection: "row", alignItems: "flex-start", gap:
+          - 6 },                                                         
+      189 +  erro: { flexDirection: "row", alignItems: "flex-start", gap:
+          + 8 },                                                         
+      190    // Legenda tem linha de 16, a altura do ícone.
+      191    textoDoErro: { flex: 1 },
+      192  });
+
+● Write(design\icones\logoVetor.js)
+  ⎿  Wrote 44 lines to design\icones\logoVetor.js
+       1 // Gera apps/mobile/src/marca/logoVetor.ts a partir de design/as
+         sets/maxx-ouro.svg: o
+       2 // traçado do logo para o componente Logo desenhar com react-nat
+         ive-svg, na cor do tema.
+       3 // Roda junto com gerar.js, ou sozinho: node design/icones/logoV
+         etor.js
+       4 const fs = require("node:fs");
+       5 const path = require("node:path");
+       6 
+       7 const raiz = path.resolve(__dirname, "../..");
+     … +37 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\marca\Logo.tsx)
+  ⎿  Wrote 30 lines to apps\mobile\src\marca\Logo.tsx
+       1 import Svg, { Path } from "react-native-svg";
+       2 
+       3 import { useTheme } from "../theme/ThemeProvider";
+       4 import { logoVetor } from "./logoVetor";
+       5 
+       6 // Altura mínima do logo (identidade-visual.md, Logo e imagens).
+       7 export const ALTURA_MINIMA_DO_LOGO = 22;
+       8 
+       9 // O logo em vetor, nítido em qualquer densidade de tela. Em our
+         o sobre o fundo dos dois
+     … +21 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\TextLink.tsx)
+  ⎿  Wrote 49 lines to apps\mobile\src\components\TextLink.tsx
+       1 import { Pressable, StyleSheet, Text } from "react-native";
+       2 
+       3 import { textStyles } from "../theme/fonts";
+       4 import { useTheme } from "../theme/ThemeProvider";
+       5 import { interacao, raios, tamanhos } from "../theme/tokens";
+       6 import { focusRingStyle, noOutline, useFocusRing } from "./focus
+         Ring";
+       7 
+       8 interface TextLinkProps {
+       9   label: string;
+     … +40 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\autenticacao\TelaDeAutenticacao.tsx)
+  ⎿  Wrote 71 lines to apps\mobile\src\autenticacao\TelaDeAutenticacao.tsx
+       1 import type { ReactNode } from "react";
+       2 import { Image, StyleSheet, Text, View } from "react-native";
+       3 
+       4 import { Screen } from "../components/Screen";
+       5 import { Logo } from "../marca/Logo";
+       6 import { textStyles } from "../theme/fonts";
+       7 import { useTheme } from "../theme/ThemeProvider";
+       8 
+       9 // Largura do logo nas pranchetas de login e cadastro.
+      10 const LARGURA_DO_LOGO = 245;
+     … +61 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');…)
+  ⎿  apps\mobile\src\marca\logoVetor.ts gerado
+     // Gerado por design/icones/logoVetor.js a partir de design/assets/max
+     x-ouro.svg.
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\autenticacao\TelaDeAutenticacao.tsx (+3 -3)
+       4  import { Screen } from "../components/Screen";
+       5  import { Logo } from "../marca/Logo";
+       6  import { textStyles } from "../theme/fonts";
+       7 +import { raios } from "../theme/tokens";                       
+       8  import { useTheme } from "../theme/ThemeProvider";
+       9  
+      10  // Largura do logo nas pranchetas de login e cadastro.
+     ...
+      32          <View style={styles.conteudo}>
+      33            <View style={styles.marca}>
+      34              <Logo largura={LARGURA_DO_LOGO} />
+      34 -            <Text style={[textStyles.corpo, styles.frase, { col
+         -or: colors.ink2 }]}>                                           
+      35 +            <Text style={[textStyles.corpo, { color: colors.ink
+         +2 }]}>                                                         
+      36                A rede de conquistas da UniMax
+      37              </Text>
+      38            </View>
+     ...
+      60    tela: { flexGrow: 1, justifyContent: "space-between", gap: 32
+           },
+      61    conteudo: { gap: 24, paddingTop: 72 },
+      62    marca: { alignItems: "center", gap: 8 },
+      62 -  frase: { fontSize: 16, lineHeight: 22 },                     
+      63    rodape: {
+      64      flexDirection: "row",
+      65      alignItems: "center",
+     ...
+      67      gap: 12,
+      68      paddingTop: 16,
+      69    },
+      70 -  selo: { width: SELO, height: SELO, borderRadius: 6 },        
+      70 +  selo: { width: SELO, height: SELO, borderRadius: raios.botoes
+         + },                                                            
+      71  });
+  ⎿  Updated apps\mobile\src\components\Button.tsx (+2 -1)
+       9    label: string;
+      10    onPress: () => void;
+      11    variant?: "primary" | "secondary";
+      12 -  // `large` é só o Entrar do login. O discreto ocupa a largura
+         - que o pai der.                                                
+      12 +  // `large` é só a ação principal das telas de autenticação. O
+         + discreto ocupa a largura                                      
+      13 +  // que o pai der.                                            
+      14    size?: "compact" | "large";
+      15    disabled?: boolean;
+      16  }
+  ⎿  Updated apps\mobile\src\components\Screen.tsx (+3 -1)
+      32        <ScrollView
+      33          testID="tela"
+      34          style={styles.fill}
+      35 -        contentContainerStyle={padding}                        
+      35 +        contentContainerStyle={[padding, styles.cheio]}        
+      36        >
+      37          {children}
+      38        </ScrollView>
+     ...
+      48  
+      49  const styles = StyleSheet.create({
+      50    fill: { flex: 1 },
+      51 +  // O conteúdo ocupa ao menos a altura da tela: um pé de págin
+         +a fica no fim quando cabe.                                     
+      52 +  cheio: { flexGrow: 1 },                                      
+      53  });
+  ⎿  Created apps\mobile\src\marca\logoVetor.ts (+8 -0)
+      1 +// Gerado por design/icones/logoVetor.js a partir de design/asse
+        +ts/maxx-ouro.svg.                                               
+      2 +// Não editar: troque o SVG e rode node design/icones/gerar.js. 
+      3 +export const logoVetor = {                                      
+      4 +  largura: 2704,                                                
+      5 +  altura: 712,                                                  
+      6 +  caminho:                                                      
+      7 +    "M 125.373 6.341 C 125.731 9.829, 127.225 16.466, 128.694 21
+        +.091 L 131.365 29.500 131.734 70.252 C 132.085 108.929, 131.999 
+        +111.376, 130.052 118.315 C 128.602 123.482, 128 128.585, 128 135
+        +.708 C 128 142.706, 127.420 147.733, 126.103 152.145 C 125.060 1
+        +55.640, 123.949 162.550, 123.633 167.500 C 123.318 172.450, 122.
+        +377 178.975, 121.542 182 C 120.707 185.025, 120.018 189.890, 120
+        +.012 192.812 C 120.005 195.734, 119.122 202.259, 118.049 207.312
+        + C 114.303 224.959, 112.844 233.569, 112.003 243 C 111.538 248.2
+        +25, 110.639 253.850, 110.007 255.500 C 109.375 257.150, 108.460 
+        +261.979, 107.975 266.231 C 107.489 270.484, 106.171 276.944, 105
+        +.046 280.587 C 103.921 284.230, 103 288.386, 103 289.823 C 103 2
+        +91.260, 102.134 296.050, 101.075 300.468 C 98.706 310.353, 95 33
+        +3.283, 95 338.059 C 95 339.995, 94.284 344.262, 93.408 347.540 C
+        + 92.533 350.818, 91.196 357.775, 90.437 363 C 87.936 380.226, 86
+        +.317 389.420, 84.714 395.500 C 82.360 404.426, 78.992 423.919, 7
+        +8.996 428.591 C 78.998 430.841, 78.306 434.891, 77.458 437.591 C
+        + 75.614 443.460, 71 469.022, 71 473.367 C 71 475.055, 70.132 480
+        +.050, 69.072 484.468 C 65.922 497.592, 63 513.716, 63 517.975 C 
+        +63 520.164, 61.930 524.797, 60.622 528.272 C 59.314 531.747, 57.
+        +923 537.044, 57.531 540.045 C 56.633 546.909, 53.394 561.834, 52
+        +.014 565.463 C 51.440 566.974, 50.277 572.550, 49.430 577.855 C 
+        +48.584 583.160, 46.606 591.325, 45.036 596 C 43.465 600.675, 41.
+        +678 606.940, 41.064 609.922 C 35.229 638.256, 14.564 683.879, 3.
+        +605 692.624 C 0.403 695.179, 0 696.015, 0 700.108 L -0 704.715 6
+        +.147 705.358 C 17.173 706.510, 115.395 706.107, 118.872 704.895 
+        +C 124.490 702.936, 125.283 698.675, 121.987 688.161 C 120.894 68
+        +4.674, 120 679.273, 120 676.158 C 120 673.042, 119.100 667.346, 
+        +118 663.500 C 115.108 653.386, 115.108 626.614, 118 616.500 C 11
+        +9.623 610.823, 120.001 606.493, 120.007 593.503 C 120.012 580.98
+        +5, 120.448 575.690, 122.007 569.187 C 123.103 564.614, 124 558.9
+        +05, 124 556.500 C 124 554.095, 124.897 548.386, 125.993 543.813 
+        +C 127.089 539.24 … [+22035 chars]                               
+      8 +} as const;                                                     
+  ⎿  Updated design\icones\gerar.js (+4 -1)
+      1 -// Gera ícone, adaptativo, splash e favicon do app a partir de d
+        -esign/assets/maxx-ouro.svg.                                     
+      1 +// Gera ícone, adaptativo, splash e favicon do app a partir de d
+        +esign/assets/maxx-ouro.svg,                                     
+      2 +// e o traçado do logo para o componente Logo (logoVetor.js).   
+      3  // Rode da raiz, com o npm ci feito: node design/icones/gerar.js
+      4  // Trocar o SVG e rodar de novo basta: nenhum código depende do 
+         desenho.
+      5  const fs = require("node:fs");
+     ...
+      10    require.resolve("@playwright/test", { paths: [path.join(raiz,
+           "e2e")] }),
+      11  );
+      12  const tokens = require(path.join(raiz, "design/tokens.json"));
+      13 +const { gerarLogoVetor } = require("./logoVetor");             
+      14  
+      15  const MARINHO = tokens.cores.claro.hero;
+      16  const saida = path.join(raiz, "apps/mobile/assets");
+     ...
+      62  ];
+      63  
+      64  (async () => {
+      65 +  gerarLogoVetor();                                            
+      66    const navegador = await chromium.launch();
+      67    for (const { nome, lado, fundo, raio = 0, logo: desenho } of 
+          ARQUIVOS) {
+      68      const pagina = await navegador.newPage({
+
+● O vetor do logo foi gerado. Agora escrevo os testes dos componentes novos e a
+  seção da vitrine.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && cat >>
+      src/components/TextField.test.tsx <<'EOF'…)
+  ⎿  src/test/renderWithTheme.tsx:7:export async function renderWithTheme(u
+     i: ReactElement) {
+     src/theme/ThemeProvider.tsx:15:export type ThemePreference = "sistema"
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\TextField.test.tsx (+49 -0)
+       94    );
+       95    expect(entrada.props.secureTextEntry).toBe(true);
+       96  });
+       97 +                                                              
+       98 +test("sem erro, não há mensagem nem marca de inválido", async 
+          +() => {                                                       
+       99 +  await renderWithTheme(<TextField label="RA" />);            
+      100 +                                                              
+      101 +  expect(screen.queryByTestId("campo-erro")).toBeNull();      
+      102 +  expect(campo("RA").props["aria-invalid"]).toBe(false);      
+      103 +});                                                           
+      104 +                                                              
+      105 +test("com erro, a borda vira like, o ícone sai em like e o tex
+          +to em ink", async () => {                                     
+      106 +  await renderWithTheme(                                      
+      107 +    <TextField label="Senha" password error="A senha precisa t
+          +er de 8 a 128 caracteres." />,                                
+      108 +  );                                                          
+      109 +                                                              
+      110 +  expect(caixa()).toMatchObject({ borderColor: cores.claro.lik
+          +e, borderWidth: 1 });                                         
+      111 +  const mensagem = screen.getByText("A senha precisa ter de 8 
+          +a 128 caracteres.");                                          
+      112 +  expect(StyleSheet.flatten(mensagem.props.style).color).toBe(
+          +cores.claro.ink);                                             
+      113 +  expect(screen.getByTestId("icone-alert", { includeHiddenElem
+          +ents: true })).toBeTruthy();                                  
+      114 +});                                                           
+      115 +                                                              
+      116 +test("com erro, a borda continua like no foco, com a espessura
+          + do foco", async () => {                                      
+      117 +  await renderWithTheme(<TextField label="RA" error="Confira o
+          + RA." />);                                                    
+      118 +                                                              
+      119 +  await fireEvent(campo("RA"), "focus");                      
+      120 +                                                              
+      121 +  expect(caixa()).toMatchObject({ borderColor: cores.claro.lik
+          +e, borderWidth: 1.5 });                                       
+      122 +});                                                           
+      123 +                                                              
+      124 +test("o erro é anunciado e fica ligado ao campo", async () => 
+          +{                                                             
+      125 +  await renderWithTheme(<TextField label="RA" error="Confira o
+          + RA." />);                                                    
+      126 +                                                              
+      127 +  expect(screen.getByRole("alert")).toHaveTextContent("Confira
+          + o RA.");                                                     
+      128 +  expect(campo("RA").props["aria-invalid"]).toBe(true);       
+      129 +  expect(campo("RA").props.accessibilityHint).toBe("Confira o 
+          +RA.");                                                        
+      130 +});                                                           
+      131 +                                                              
+      132 +test("a caixa do campo tem a mesma altura com e sem erro", asy
+          +nc () => {                                                    
+      133 +  const { rerender } = await renderWithTheme(<TextField label=
+          +"RA" />);                                                     
+     … 12 more lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -n 1,12p
+      src/components/SegmentedControl.test.tsx | grep import; grep -n…)
+  ⎿  import AsyncStorage from "@react-native-async-storage/async-storage";
+     import { fireEvent, screen } from "@testing-library/react-native";
+     import { StyleSheet } from "react-native";
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\TextField.test.tsx (+5 -1)
+       1  import { fireEvent, screen } from "@testing-library/react-nativ
+          e";
+       2  import { StyleSheet } from "react-native";
+       3  
+       4 +import AsyncStorage from "@react-native-async-storage/async-sto
+         +rage";                                                         
+       5 +                                                               
+       6  import { renderWithTheme } from "../test/renderWithTheme";
+       7 +import { THEME_STORAGE_KEY } from "../theme/ThemeProvider";    
+       8  import { cores } from "../theme/tokens";
+       9  import { TextField } from "./TextField";
+      10  
+     ...
+      142  });
+      143  
+      144  test("no escuro, a borda do erro é o like do escuro", async ()
+            => {
+      142 -  await renderWithTheme(<TextField label="RA" error="Confira o
+          - RA." />, "escuro");                                          
+      145 +  await AsyncStorage.setItem(THEME_STORAGE_KEY, "escuro");    
+      146 +  await renderWithTheme(<TextField label="RA" error="Confira o
+          + RA." />);                                                    
+      147  
+      148    expect(caixa().borderColor).toBe(cores.escuro.like);
+      149  });
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/components/TextField.test.tsx';…)
+  ⎿  import AsyncStorage from "@react-native-async-storage/async-storage";
+     import { fireEvent, screen } from "@testing-library/react-native";
+     import { StyleSheet } from "react-native";
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\TextField.test.tsx (+3 -2)
+      1 +import AsyncStorage from "@react-native-async-storage/async-stor
+        +age";                                                           
+      2  import { fireEvent, screen } from "@testing-library/react-native
+         ";
+      3  import { StyleSheet } from "react-native";
+      4  
+      4 -import AsyncStorage from "@react-native-async-storage/async-stor
+        -age";                                                           
+      5 -                                                                
+      5  import { renderWithTheme } from "../test/renderWithTheme";
+      6  import { THEME_STORAGE_KEY } from "../theme/ThemeProvider";
+      7  import { cores } from "../theme/tokens";
+     ...
+      11    StyleSheet.flatten(screen.getByTestId("campo-caixa").props.st
+          yle);
+      12  const campo = (name: string) => screen.getByLabelText(name);
+      13  
+      14 +beforeEach(() => AsyncStorage.clear());                        
+      15 +                                                               
+      16  test("tem 48 de altura, raio 8 e borda fieldLine", async () => 
+          {
+      17    await renderWithTheme(<TextField label="RA ou e-mail" />);
+      18  
+
+● Write(apps\mobile\src\marca\Logo.test.tsx)
+  ⎿  Wrote 56 lines to apps\mobile\src\marca\Logo.test.tsx
+       1 import AsyncStorage from "@react-native-async-storage/async-stor
+         age";
+       2 import { screen } from "@testing-library/react-native";
+       3 import { readFileSync } from "fs";
+       4 import { join } from "path";
+       5 
+       6 import { renderWithTheme } from "../test/renderWithTheme";
+       7 import { THEME_STORAGE_KEY } from "../theme/ThemeProvider";
+       8 import { cores } from "../theme/tokens";
+       9 import { ALTURA_MINIMA_DO_LOGO, Logo } from "./Logo";
+     … +47 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\TextLink.test.tsx)
+  ⎿  Wrote 37 lines to apps\mobile\src\components\TextLink.test.tsx
+      1 import { fireEvent, screen } from "@testing-library/react-native"
+        ;
+      2 import { StyleSheet } from "react-native";
+      3 
+      4 import { renderWithTheme } from "../test/renderWithTheme";
+      5 import { cores } from "../theme/tokens";
+      6 import { TextLink } from "./TextLink";
+      7 
+      8 const texto = (label: string) =>
+      9   StyleSheet.flatten(screen.getByText(label).props.style);
+     … +28 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\autenticacao\TelaDeAutenticacao.test.tsx)
+  ⎿  Wrote 39 lines to
+     apps\mobile\src\autenticacao\TelaDeAutenticacao.test.tsx
+       1 import { act, render, screen } from "@testing-library/react-nati
+         ve";
+       2 import { Text } from "react-native";
+       3 import { SafeAreaProvider } from "react-native-safe-area-context
+         ";
+       4 
+       5 import { ThemeProvider } from "../theme/ThemeProvider";
+       6 import { TelaDeAutenticacao } from "./TelaDeAutenticacao";
+       7 
+       8 async function renderizar(segmentado?: React.ReactNode) {
+     … +31 lines (ctrl+o to expand)
+
+● Agora a seção da vitrine.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/vitrine/VitrineScreen.tsx';let…)
+  ⎿  347:const styles = StyleSheet.create({
+     348:  coluna: { gap: 24, paddingTop: 16 },
+     349:  cabecalho: { gap: 4 },
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\vitrine\VitrineScreen.tsx (+16 -0)
+      10  import { SegmentedControl } from "../components/SegmentedContro
+          l";
+      11  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      12  import { TextField } from "../components/TextField";
+      13 +import { TextLink } from "../components/TextLink";             
+      14 +import { Logo } from "../marca/Logo";                          
+      15  import { FaixaPremio } from "../premios/FaixaPremio";
+      16  import { Medalhao } from "../premios/Medalhao";
+      17  import { SeloPremio } from "../premios/SeloPremio";
+     ...
+      155            onChangeText={setSenha}
+      156          />
+      157          <TextField label="Curso" value="ADS" disabled />
+      158 +        <TextField                                            
+      159 +          label="Crie uma senha"                              
+      160 +          password                                            
+      161 +          value="curta"                                       
+      162 +          error="A senha precisa ter de 8 a 128 caracteres."  
+      163 +        />                                                    
+      164 +      </Secao>                                                
+      165 +                                                              
+      166 +      <Secao titulo="Marca e links">                          
+      167 +        <View style={styles.centro}>                          
+      168 +          <Logo largura={245} />                              
+      169 +        </View>                                               
+      170 +        <TextLink label="Esqueci minha senha" onPress={nada} /
+          +>                                                             
+      171 +        <TextLink label="Esqueci minha senha" onPress={nada} d
+          +isabled />                                                    
+      172        </Secao>
+      173  
+      174        <Secao titulo="Controle segmentado">
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's/^
+      cabecalho: { gap: 4 },$/  cabecalho: { gap: 4 },\n  centro: { al…)
+  ⎿    ● guarda a proporção do desenho e se anuncia como Maxx
+       ● sai no ouro do tema claro
+       ● sai no ouro do tema escuro
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\TextField.test.tsx (+19 -5)
+      108  
+      109  test("com erro, a borda vira like, o ícone sai em like e o tex
+           to em ink", async () => {
+      110    await renderWithTheme(
+      111 -    <TextField label="Senha" password error="A senha precisa t
+          -er de 8 a 128 caracteres." />,                                
+      111 +    <TextField                                                
+      112 +      label="Senha"                                           
+      113 +      password                                                
+      114 +      error="A senha precisa ter de 8 a 128 caracteres."      
+      115 +    />,                                                       
+      116    );
+      117  
+      114 -  expect(caixa()).toMatchObject({ borderColor: cores.claro.lik
+          -e, borderWidth: 1 });                                         
+      115 -  const mensagem = screen.getByText("A senha precisa ter de 8 
+          -a 128 caracteres.");                                          
+      118 +  expect(caixa()).toMatchObject({                             
+      119 +    borderColor: cores.claro.like,                            
+      120 +    borderWidth: 1,                                           
+      121 +  });                                                         
+      122 +  const mensagem = screen.getByText(                          
+      123 +    "A senha precisa ter de 8 a 128 caracteres.",             
+      124 +  );                                                          
+      125    expect(StyleSheet.flatten(mensagem.props.style).color).toBe(
+           cores.claro.ink);
+      117 -  expect(screen.getByTestId("icone-alert", { includeHiddenElem
+          -ents: true })).toBeTruthy();                                  
+      126 +  expect(                                                     
+      127 +    screen.getByTestId("icone-alert", { includeHiddenElements:
+          + true }),                                                     
+      128 +  ).toBeTruthy();                                             
+      129  });
+      130  
+      131  test("com erro, a borda continua like no foco, com a espessura
+            do foco", async () => {
+     ...
+      133  
+      134    await fireEvent(campo("RA"), "focus");
+      135  
+      125 -  expect(caixa()).toMatchObject({ borderColor: cores.claro.lik
+          -e, borderWidth: 1.5 });                                       
+      136 +  expect(caixa()).toMatchObject({                             
+      137 +    borderColor: cores.claro.like,                            
+      138 +    borderWidth: 1.5,                                         
+      139 +  });                                                         
+      140  });
+      141  
+      142  test("o erro é anunciado e fica ligado ao campo", async () => 
+           {
+  ⎿  Updated apps\mobile\src\components\TextField.tsx (+5 -1)
+      112          >
+      113            <Icon name="alert" color={colors.like} size={ICONE_D
+           O_ERRO} />
+      114            <Text
+      115 -            style={[textStyles.legenda, styles.textoDoErro, { 
+          -color: colors.ink }]}                                         
+      115 +            style={[                                          
+      116 +              textStyles.legenda,                             
+      117 +              styles.textoDoErro,                             
+      118 +              { color: colors.ink },                          
+      119 +            ]}                                                
+      120            >
+      121              {error}
+      122            </Text>
+  ⎿  Updated apps\mobile\src\components\TextLink.tsx (+4 -1)
+      32        ]}
+      33      >
+      34        <Text
+      35 -        style={[textStyles.corpo, { color: disabled ? colors.in
+         -k3 : colors.ink2 }]}                                           
+      35 +        style={[                                               
+      36 +          textStyles.corpo,                                    
+      37 +          { color: disabled ? colors.ink3 : colors.ink2 },     
+      38 +        ]}                                                     
+      39        >
+      40          {label}
+      41        </Text>
+  ⎿  Updated apps\mobile\src\marca\Logo.test.tsx (+3 -3)
+      49      await AsyncStorage.setItem(THEME_STORAGE_KEY, tema);
+      50      await renderWithTheme(<Logo largura={245} />);
+      51  
+      52 -    expect(                                                    
+      53 -      screen.UNSAFE_getByProps({ fillRule: "evenodd" }).props.f
+         -ill,                                                           
+      54 -    ).toBe(cores[tema].gold);                                  
+      52 +    expect(screen.UNSAFE_getByProps({ fillRule: "evenodd" }).pr
+         +ops.fill).toBe(                                                
+      53 +      cores[tema].gold,                                        
+      54 +    );                                                         
+      55    },
+      56  );
+  ⎿  Updated apps\mobile\src\vitrine\VitrineScreen.test.tsx (+8 -1)
+      29    expect(screen.getByLabelText("Senha")).toBeTruthy();
+      30    expect(screen.getByRole("checkbox", { name: "Todos" })).toBeT
+          ruthy();
+      31    expect(screen.getByRole("tab", { name: "Mural, com novidade" 
+          })).toBeTruthy();
+      32 -  expect(screen.getByRole("alert")).toBeTruthy();              
+      32 +  expect(screen.getAllByRole("alert")).toHaveLength(2);        
+      33 +  expect(                                                      
+      34 +    screen.getByText("A senha precisa ter de 8 a 128 caracteres
+         +."),                                                           
+      35 +  ).toBeTruthy();                                              
+      36 +  expect(screen.getByRole("img", { name: "Maxx" })).toBeTruthy(
+         +);                                                             
+      37 +  expect(                                                      
+      38 +    screen.getAllByRole("link", { name: "Esqueci minha senha" }
+         +),                                                             
+      39 +  ).toHaveLength(2);                                           
+      40    expect(screen.getByText("Nenhum aviso por aqui")).toBeTruthy(
+          );
+      41    for (const name of iconNames) {
+      42      expect(
+  ⎿  … 1 more file changed
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O Svg nativo não aparece como elemento acessível nos testes. Vou envolvê-lo
+  numa View com o papel de imagem, como o Icon já faz.
+
+● Write(apps\mobile\src\marca\Logo.tsx)
+  ⎿  Added 20 lines, removed 7 lines
+      1 +import { View } from "react-native";                            
+      2  import Svg, { Path } from "react-native-svg";
+      3  
+      4  import { useTheme } from "../theme/ThemeProvider";
+     ...
+      15      ALTURA_MINIMA_DO_LOGO,
+      16      Math.round((largura * logoVetor.altura) / logoVetor.largura
+          ),
+      17    );
+      18 +  const larguraFinal = (altura * logoVetor.largura) / logoVetor
+         +.altura;                                                       
+      19  
+      20 +  // O papel de imagem fica na View: o Svg nativo não é element
+         +o de acessibilidade.                                           
+      21    return (
+      19 -    <Svg                                                       
+      22 +    <View                                                      
+      23 +      testID="logo"                                            
+      24 +      accessible                                               
+      25        role="img"
+      26        aria-label="Maxx"
+      22 -      testID="logo"                                            
+      23 -      width={(altura * logoVetor.largura) / logoVetor.altura}  
+      24 -      height={altura}                                          
+      25 -      viewBox={`0 0 ${logoVetor.largura} ${logoVetor.altura}`} 
+      27 +      style={{ width: larguraFinal, height: altura }}          
+      28      >
+      27 -      <Path d={logoVetor.caminho} fill={colors.gold} fillRule="
+         -evenodd" />                                                    
+      28 -    </Svg>                                                     
+      29 +      <Svg                                                     
+      30 +        width={larguraFinal}                                   
+      31 +        height={altura}                                        
+      32 +        viewBox={`0 0 ${logoVetor.largura} ${logoVetor.altura}`
+         +}                                                              
+      33 +      >                                                        
+      34 +        <Path                                                  
+      35 +          testID="logo-tracado"                                
+      36 +          d={logoVetor.caminho}                                
+      37 +          fill={colors.gold}                                   
+      38 +          fillRule="evenodd"                                   
+      39 +        />                                                     
+      40 +      </Svg>                                                   
+      41 +    </View>                                                    
+      42    );
+      43  }
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/marca/Logo.test.tsx';let s=fs.r…)
+  ⎿    ● sai no ouro do tema claro
+       ● sai no ouro do tema escuro
+       ● sai no ouro do tema claro
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\marca\Logo.test.tsx (+8 -6)
+      2  import { screen } from "@testing-library/react-native";
+      3  import { readFileSync } from "fs";
+      4  import { join } from "path";
+      5 +import { StyleSheet } from "react-native";                      
+      6  
+      7  import { renderWithTheme } from "../test/renderWithTheme";
+      8  import { THEME_STORAGE_KEY } from "../theme/ThemeProvider";
+     ...
+      12  
+      13  beforeEach(() => AsyncStorage.clear());
+      14  
+      14 -const logo = () => screen.getByTestId("logo");                 
+      15 +const logo = () => StyleSheet.flatten(screen.getByTestId("logo"
+         +).props.style);                                                
+      16  
+      17  test("o traçado é o do SVG do design: trocar o SVG sem gerar de
+           novo falha aqui", () => {
+      18    const svg = readFileSync(
+     ...
+      30    await renderWithTheme(<Logo largura={245} />);
+      31  
+      32    expect(screen.getByRole("img", { name: "Maxx" })).toBeTruthy(
+          );
+      32 -  const { width, height } = logo().props;                      
+      33 +  const { width, height } = logo();                            
+      34    expect(Number(width) / Number(height)).toBeCloseTo(
+      35      logoVetor.largura / logoVetor.altura,
+      36      1,
+     ...
+      41  test("nunca fica abaixo da altura mínima da identidade", async 
+          () => {
+      42    await renderWithTheme(<Logo largura={40} />);
+      43  
+      43 -  expect(Number(logo().props.height)).toBe(ALTURA_MINIMA_DO_LOG
+         -O);                                                            
+      44 +  expect(Number(logo().height)).toBe(ALTURA_MINIMA_DO_LOGO);   
+      45  });
+      46  
+      47  test.each(["claro", "escuro"] as const)(
+     ...
+      50      await AsyncStorage.setItem(THEME_STORAGE_KEY, tema);
+      51      await renderWithTheme(<Logo largura={245} />);
+      52  
+      52 -    expect(screen.UNSAFE_getByProps({ fillRule: "evenodd" }).pr
+         -ops.fill).toBe(                                                
+      53 -      cores[tema].gold,                                        
+      54 -    );                                                         
+      53 +    expect(                                                    
+      54 +      screen.getByTestId("logo-tracado", { includeHiddenElement
+         +s: true }).props                                               
+      55 +        .fill,                                                 
+     … 3 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O fill chega processado pelo react-native-svg (0xFFF5B400). Uso no teste do
+  logo o mesmo mock que o Icon.test já usa.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/marca/Logo.test.tsx';let s=fs.r…)
+  ⎿  Test Suites: 25 passed, 25 total
+     Tests:       241 passed, 241 total
+     All matched files use Prettier code style!
+  ⎿  Updated apps\mobile\src\marca\Logo.test.tsx (+13 -0)
+      10  import { ALTURA_MINIMA_DO_LOGO, Logo } from "./Logo";
+      11  import { logoVetor } from "./logoVetor";
+      12  
+      13 +// O desenho do SVG é nativo: aqui, cada elemento vira uma View
+         + com os mesmos props, como                                     
+      14 +// no teste do Icon.                                           
+      15 +jest.mock("react-native-svg", () => {                          
+      16 +  const { createElement } = jest.requireActual("react");       
+      17 +  const { View } = jest.requireActual("react-native");         
+      18 +  function elemento(tipo: string) {                            
+      19 +    return function ElementoSvg(props: object) {               
+      20 +      return createElement(View, { testID: tipo, ...props });  
+      21 +    };                                                         
+      22 +  }                                                            
+      23 +  return { __esModule: true, default: elemento("svg"), Path: el
+         +emento("path") };                                              
+      24 +});                                                            
+      25 +                                                               
+      26  beforeEach(() => AsyncStorage.clear());
+      27  
+      28  const logo = () => StyleSheet.flatten(screen.getByTestId("logo"
+          ).props.style);
+  ⎿  (timeout 6m 40s)
+
+● Todos os testes, o lint, os tipos e o Prettier passaram. Antes das capturas da
+  vitrine em claro e escuro, confiro a CI da etapa 2.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch stage 2 CI until it finishes" completed (exit code
+0)
+
+● A CI da etapa 2 falhou no e2e, então a etapa 2 não está pronta. Vou ver o que
+  quebrou antes de seguir.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A causa está no meu código da etapa 2: sem cookie, o refresh dá 401, a sessão
+  vira "anônimo" e o queryClient.clear() apaga a consulta do /health. Vou
+  restringir essa limpeza à saída de uma sessão autenticada e cobrir com um
+  teste.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\sessao\SessaoProvider.tsx)
+  ⎿  Added 5 lines, removed 2 lines
+      41      void gerenciador.restaurar();
+      42    }, [gerenciador]);
+      43  
+      44 -  // Dado de uma conta não pode aparecer para a próxima que ent
+         -rar no mesmo aparelho.                                         
+      44 +  // Dado de uma conta não pode aparecer para a próxima que ent
+         +rar no mesmo aparelho. Só                                      
+      45 +  // na saída de uma sessão: abrir o app sem sessão não apaga o
+         + que já está carregando.                                       
+      46 +  const anterior = useRef(estado);                             
+      47    useEffect(() => {
+      46 -    if (estado === "anonimo") {                                
+      48 +    if (anterior.current === "autenticado" && estado !== "auten
+         +ticado") {                                                     
+      49        queryClient.clear();
+      50      }
+      51 +    anterior.current = estado;                                 
+      52    }, [estado, queryClient]);
+      53  
+      54    const sessao = useMemo<Sessao>(
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's/
+      useMemo,\n  useSyncExternalStore,/&/; s/^  useMemo,$/  useMemo,\n…)
+  ⎿  7:  useRef,
+     47:  const anterior = useRef(estado);
+     Tests:       20 passed, 20 total
+  ⎿  Updated apps\mobile\src\sessao\SessaoProvider.test.tsx (+15 -0)
+       97      expect(screen.getByTestId("estado")).toHaveTextContent("an
+           onimo");
+       98      expect(queryClient.getQueryData(["eu"])).toBeUndefined();
+       99    });
+      100 +  it("abrir sem sessão não apaga as consultas que já estão no 
+          +cache", async () => {                                         
+      101 +    const fetch = jest.fn(                                    
+      102 +      async () =>                                             
+      103 +        new Response(JSON.stringify({ codigo: "sessao-invalida
+          +" }), {                                                       
+      104 +          status: 401,                                        
+      105 +        }),                                                   
+      106 +    );                                                        
+      107 +    const { gerenciador, queryClient } = montar("r0", fetch); 
+      108 +    queryClient.setQueryData(["health"], { status: "ok" });   
+      109 +                                                              
+      110 +    await renderizar(gerenciador, queryClient);               
+      111 +                                                              
+      112 +    expect(screen.getByTestId("estado")).toHaveTextContent("an
+          +onimo");                                                      
+      113 +    expect(queryClient.getQueryData(["health"])).toEqual({ sta
+          +tus: "ok" });                                                 
+      114 +  });                                                         
+      115  });
+  ⎿  Updated apps\mobile\src\sessao\SessaoProvider.tsx (+1 -0)
+       4    useContext,
+       5    useEffect,
+       6    useMemo,
+       7 +  useRef,                                                      
+       8    useSyncExternalStore,
+       9    type ReactNode,
+      10  } from "react";
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');const
+      p='apps/mobile/src/sessao/SessaoProvider.test.tsx'…)
+  ⎿  build=0
+       20 passed (12.9s)
+  ⎿  Updated apps\mobile\src\sessao\SessaoProvider.test.tsx (+1 -0)
+       97      expect(screen.getByTestId("estado")).toHaveTextContent("an
+           onimo");
+       98      expect(queryClient.getQueryData(["eu"])).toBeUndefined();
+       99    });
+      100 +                                                              
+      101    it("abrir sem sessão não apaga as consultas que já estão no 
+           cache", async () => {
+      102      const fetch = jest.fn(
+      103        async () =>
+  ⎿  (timeout 10m)
+● O e2e local passa inteiro (20 de 20). Faço o commit só da correção, separado
+  do trabalho da etapa 3, como combinamos para falha de CI depois do push.
+
+  Pushed to feat/passo-05-login, ran 1 shell command (ctrl+o to expand)
+
+● A correção (4755c70) está na CI. Enquanto ela roda, tiro as capturas da
+  vitrine em claro e escuro, servindo o app em desenvolvimento.
+
+  Made 1 scratchpad edit +49, read 2 files, ran 2 shell commands (ctrl+o to expand)
+
+● A captura não chegou até a seção "Marca e links", mas os campos estão corretos
+  nos dois temas. Vou fazer uma segunda captura para o logo e os links.
+
+  Read 2 files, ran 2 shell commands (ctrl+o to expand)
+
+● O logo sai nítido em vetor, no ouro do tema, nos dois temas. Encerro o
+  servidor de desenvolvimento e confiro a CI da correção.
+
+● Stop Task
+  ⎿  cd "/c/Users/Guilherme
+     Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && CI=1 npx
+     expo start --web --port 8099 > "/c/Users/GUILHE~1/AppData/Local/Temp…
+     · stopped
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI for the stage 2 fix" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 3 está pronta para a sua revisão, sem commit. Antes dela, um ponto da
+  etapa 2.
+
+  Etapa 2: falhou na CI e foi corrigida
+
+  A CI do 2617e36 falhou no e2e. O teste de troca de tema recarrega a página e
+  não achava mais "A API respondeu 200.". O erro era meu:
+  - Na web, o app abre sem sessão e a renovação volta 401, então o estado passa
+    de "restaurando" para "anônimo".
+  - Essa passagem esvaziava o cache de consultas e apagava o /health que ainda
+    estava carregando.
+
+  A correção esvazia o cache só quando se sai de uma sessão autenticada, e um
+  teste novo cobre o caso. Ela entrou num commit separado, 4755c70 fix(mobile): 
+  esvazia o cache só ao sair de uma sessão autenticada, sem amend nem force
+  push. O e2e local passou em 20 de 20, e a CI do 4755c70 passou nos seis jobs.
+  Com isso a etapa 2 fecha, mas com dois commits em vez de um, como prevíamos
+  para falha depois do push.
+
+  Etapa 3: peças da autenticação
+
+  O que entrou:
+  - TextField com error:
+    - Borda em like, inclusive com o campo em foco (aí com a espessura do foco).
+      É a exceção que você aprovou, registrada no próprio código.
+    - Ícone de alerta em like e texto em ink, no estilo legenda do token.
+    - A mensagem é anunciada ao leitor de tela, e o campo fica com aria-invalid
+      e com o erro como dica de acessibilidade.
+    - A caixa do campo tem a mesma altura com e sem erro.
+  - Logo em vetor: desenhado com react-native-svg no gold do tema, sem ficar
+    abaixo dos 22 de altura mínima da identidade.
+    - O traçado vem de design/assets/maxx-ouro.svg por um script novo,
+      design/icones/logoVetor.js, que o gerar.js agora também roda. Assim
+      continua valendo trocar o SVG e rodar o gerador, sem mexer em código.
+    - Um teste falha se o SVG mudar sem o vetor ser gerado de novo.
+  - TextLink: ação em texto, como o "Esqueci minha senha", em ink2, com 44 de
+    toque, anel de foco e estado desativado.
+  - TelaDeAutenticacao: a moldura comum das telas de autenticação, com logo e
+    frase no alto, espaço para o segmentado, o conteúdo e o selo "Rede UniEduk ·
+    UniMax e UniFaj" no pé, como nas pranchetas.
+    - Para o pé ficar no fim da tela quando o conteúdo cabe, o Screen com
+      rolagem passou a ocupar ao menos a altura da tela. As telas que já rolavam
+      não mudam de aparência.
+  - Button: o comentário agora diz que o tamanho grande é da ação principal das
+    telas de autenticação (decisão 8). A frase da identidade visual muda na
+    etapa 8.
+  - Vitrine: ganhou o campo com erro, o logo e os links.
+
+  Verificações:
+  - Jest: 241 de 241, com 15 testes novos.
+  - ESLint, tsc e Prettier passaram.
+
+  Capturas da vitrine em 390 de largura, para você conferir:
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\vitrine-etapa3-claro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\vitrine-etapa3-escuro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\vitrine-marca-claro.png
+  - C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\e325b8fe-be89-44f9-b3a6-dcd18562bced\scratchp
+    ad\vitrine-marca-escuro.png
+
+  A TelaDeAutenticacao ainda não tem captura própria, porque nenhuma tela a usa
+  até a etapa 4. Ela vai aparecer nas capturas do login, ao lado das pranchetas.
+
+  Com a sua aprovação, faço o commit feat(mobile): adiciona erro de campo, logo 
+  vetorial, link em texto e moldura da autenticação, o push e o acompanhamento
+  da CI, e sigo para a etapa 4.
+
+✻ Baked for 14m 58s · done 15:24
