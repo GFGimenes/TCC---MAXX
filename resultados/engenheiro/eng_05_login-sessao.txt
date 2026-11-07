@@ -5287,3 +5287,510 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
   a etapa 8.
 
 ✻ Baked for 9m 9s · done 16:46
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+> Etapa 7 aprovada. Apaga os alunos de demonstração do banco local com o SQL da 
+  purga do README e registra a contagem apagada. Commita com a mensagem         
+  proposta, push, acompanha a CI com as duas passadas e segue para a etapa 8, o 
+  fechamento: decisões do passo no README das decisões, fluxos e                
+  apps/mobile/README.md, ajustes em produto.md 11, identidade visual e lista da 
+  purga, riscos registrados incluindo a avaliação antes de 05/12 sem            
+  apresentação presencial, e o PR da feat/passo-05-login para a                 
+  rodada/eng_05_login com a descrição listando as oito etapas e os dois fixes.  
+  Eu reviso e faço o merge.                                                     
+
+● Começo pela purga. Antes, confiro quais lotes existem no banco local.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● São três alunos, todos no lote e2e-local, incluindo o criado para a captura, o
+  que corrige meu relatório anterior. Vou rodar o SQL de purga do README
+  exatamente como está documentado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A purga apagou os 3 usuários do lote e2e-local, 5 sessões, 12 matrículas e 3
+  cadastros de demonstração, junto com os aceites e prefixos em cascata. Agora
+  sigo para o commit da etapa 7 e a CI.
+
+  Pushed to feat/passo-05-login, ran 1 shell command (ctrl+o to expand)
+
+● O commit 5ba31cf está na CI, que vai exercitar pela primeira vez as duas
+  passadas do e2e. Enquanto isso, começo a etapa 8 lendo o que ainda não li dos
+  documentos a ajustar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo as mudanças dos documentos num script de edição que falha se algum
+  trecho de origem não for encontrado, para nada ser trocado no lugar errado.
+
+  Made 1 scratchpad edit +226, ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen
+      es-Documents-Re…)
+  ⎿  ok
+     warning: in the working copy of 'design/identidade-visual.md', CRLF wi
+     ll be replaced by LF the next time Git touches it
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\README.md (+32 -0)
+      49  node design/icones/gerar.js
+      50  ```
+      51  
+      52 +## Autenticação (passo 5)                                      
+      53 +                                                               
+      54 +As decisões estão em `docs/decisoes/README.md`, em "Autenticaçã
+         +o no cliente (passo 5)".                                       
+      55 +                                                               
+      56 +| Onde | O quê |                                               
+      57 +| --- | --- |                                                  
+      58 +| `src/app/(publico)/` | Login, cadastro em três passos, esquec
+         +i-senha e demonstração: só para quem não entrou |              
+      59 +| `src/app/(app)/` | O que exige sessão; por enquanto, o início
+         + provisório em `/` |                                           
+      60 +| `src/app/status.tsx`, `src/app/redefinir-senha.tsx` | Fora do
+         +s grupos, com ou sem sessão |                                  
+      61 +| `src/sessao/` | `GerenciadorDeSessao` (access em memória, ref
+         +resh serializado, fila entre abas na web) e `SessaoProvider` | 
+      62 +| `src/api/erros.ts`, `src/api/FalhaDaApi.ts` | Código da API p
+         +ara mensagem amigável |                                        
+      63 +| `src/autenticacao/`, `src/cadastro/`, `src/recuperacao/`, `sr
+         +c/demonstracao/` | As telas e as regras de cada fluxo |        
+      64 +| `src/termo/` | O texto do termo vigente, lido da API |       
+      65 +| `src/marca/` | O logo em vetor, gerado de `design/assets/maxx
+         +-ouro.svg` |                                                   
+      66 +                                                               
+      67 +### e2e                                                        
+      68 +                                                               
+      69 +Contra o compose local de pé, com o mundo de demonstração:     
+      70 +                                                               
+      71 +```bash                                                        
+      72 +docker compose run --rm seeder seed demo                       
+      73 +npm test -w @maxx/e2e -- --grep-invert @demo                   
+      74 +                                                               
+      75 +# A demonstração, com a flag ligada por cima e um lote descartá
+         +vel:                                                           
+      76 +MAXX_DEMO_LOTE=e2e-local docker compose -f docker-compose.yml -
+         +f docker-compose.demo.yml up -d                                
+      77 +npm test -w @maxx/e2e -- --grep @demo                          
+      78 +docker compose up -d   # desliga de novo                       
+      79 +```                                                            
+      80 +                                                               
+      81 +Os testes criam linhas no cadastro elegível e alunos de demonst
+         +ração no banco local. Os de                                    
+      82 +demonstração saem com a purga de `docs/decisoes/README.md`, com
+         + o lote usado.                                                 
+      83 +                                                               
+      84  ## Nativo
+      85  
+      86  O identificador do app é `tech.gimenes.maxx`, no Android e no i
+          OS. `npx expo prebuild` gera
+  ⎿  Updated design\identidade-visual.md (+6 -2)
+      49  ## Componentes
+      50  
+      51  - Botões discretos: 32 px de altura visual, raio 8, texto 13, c
+          om 44 px de área de
+      52 -  toque. O Entrar do login é o único botão grande (50 px, raio 
+         -8). Estados: padrão,                                           
+      52 +  toque. O botão grande (50 px, raio 8) é só o da ação principa
+         +l das telas de                                                 
+      53 +  autenticação: Entrar, Continuar, Aceitar e criar conta, Envia
+         +r link, Salvar senha,                                          
+      54 +  Aceitar e entrar. Estados: padrão,                           
+      55    pressionado, foco (anel em `focus`), desativado.
+      56  - Campos: 48 px, raio 8, borda `fieldLine`; em foco, borda de 1
+          .5px em `focus`;
+      55 -  placeholder em `ink3`. Senha com botão de mostrar.           
+      57 +  placeholder em `ink3`. Senha com botão de mostrar. Com erro, 
+         +borda em `like` (a única                                       
+      58 +  exceção ao `like` só em ícone), ícone de alerta em `like` e a
+         + frase do erro em `ink`,                                       
+      59 +  abaixo do campo.                                             
+      60  - Controle segmentado (Entrar / Cadastrar): trilho em `surface`
+           com raio 10, segmento
+      61    ativo em `segmentOn` com raio 8.
+      62  - Chips de filtro: raio 8, ativo em `primaryBg` com texto `prim
+          aryFg`, inativos em
+  ⎿  Updated docs\decisoes\README.md (+32 -4)
+      86  | Flag da demonstração | `Demo__Habilitada` só pelo `docker-com
+          pose.demo.yml`, por cima do `docker-compose.yml`, que nunca a m
+          enciona. Desligada, as rotas nem são mapeadas, e o 404 é o de u
+          ma rota inexistente; a geração do OpenAPI as mapeia mesmo assim
+          , para o cliente ter os tipos. Ligada, `Demo__Lote` é obrigatór
+          io, ou a API não sobe |
+      87  | Aluno de demonstração | Escolhe o curso pela sigla, entre os 
+          que têm turma no semestre vigente, e é matriculado nas turmas v
+          igentes dele. RA gerado no formato `DEMO` mais 8 caracteres, fo
+          ra do formato numérico dos RAs da faculdade; e-mail `<ra>@demon
+          stracao.invalid`, domínio reservado que nunca recebe nada; seme
+          stre 1. Sem senha e sem recuperação: entra só pela chave do dis
+          positivo, que vai sempre no corpo da resposta, na web também |
+      88  | Registro simultâneo | Mesmo nome registrado ao mesmo tempo: e
+          m conflito de prefixo, o registro não repete a sugestão recusad
+          a e avança para a próxima livre, consultando os prefixos já res
+          ervados. Até 10 tentativas. Cada recusa vem de outro pedido que
+           gravou, então o limite cobre até 10 pedidos simultâneos com o 
+          mesmo nome; acima disso, alguns podem receber a recusa. Esgotad
+          as, responde 409 com `registro-simultaneo`, nunca 500 |
+      89 +| Termo de uso | Um arquivo por versão em `data/termos/termo-de
+         +-uso.v<n>.md`, gravado pelo seed base em `termo_de_uso` e servi
+         +do por `GET /v1/termo-de-uso`, sem login: o app instalado atras
+         +a, e o texto do aceite tem de ser o vigente. A vigente é a vers
+         +ão de número mais alto. Versão publicada não muda nem sai: text
+         +o alterado ou arquivo apagado faz o seed falhar sem gravar nada
+         +, e texto novo entra como a versão seguinte. O fim de linha do 
+         +checkout não conta como mudança. O texto usa só parágrafos e tí
+         +tulos `## `. Sem termo publicado, a rota responde 404 com `term
+         +o-indisponivel` |                                              
+      90 +| Aceite do termo | Aceitam o cadastro do aluno e o registro da
+         + demonstração; professor e instituição não aceitam no primeiro 
+         +acesso, e versão nova não pede novo aceite na fase 1. O aceite 
+         +grava usuário, versão e instante em `aceite_de_termo`, na mesma
+         + transação da conta, e sai em cascata com o usuário. Uma versão
+         + aceita por alguém não pode ser apagada. Aceite de versão que n
+         +ão é a vigente: 409 com `termo-desatualizado`, e a conta não na
+         +sce |                                                          
+      91 +| Exceção às mudanças aditivas | `versaoDoTermo` entrou como ca
+         +mpo obrigatório em `POST /v1/auth/cadastro` e `POST /v1/demo/al
+         +unos` no passo 5, quando nenhum app consumia essas rotas. Opcio
+         +nal, ele deixaria criar conta sem aceite. Exceção única e regis
+         +trada: daqui em diante, só mudanças aditivas |                 
+      92  
+      93  Limites de taxa, por réplica:
+      94  
+     ...
+      129  COMMIT;
+      130  ```
+      131  
+      129 -Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+          -os reservados e os refresh                                    
+      130 -saem em cascata com o usuário e a família. A lista cresce com 
+          -os passos que gravam dados                                    
+      132 +Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+          +os reservados, os aceites do                                  
+      133 +termo e os refresh saem em cascata com o usuário e a família. 
+          +A lista cresce com os passos que gravam dados                 
+      134  do aluno (posts, curtidas, prêmios, pontos): cada um acrescent
+           a aqui a tabela dele, antes
+      135  de `usuario`.
+      136  
+     ...
+      165  | Pressionado e desativado | Pressionado com opacidade 0,85, e
+           mbora a prancheta escureça. Desativado em `surface2` com `ink3
+           `. O segmento ativo desativado mantém `segmentOn`, sem sombra,
+            para a escolha continuar visível |
+      166  | Avatar | Iniciais com as cores do token, do primeiro e do úl
+           timo nome, em Archivo 700 a 40% do tamanho. O anel dourado do 
+           próprio aluno fica para os passos 7 e 11 |
+      167  | Raios | 8 nos chips. O segmento ativo tem raio 8, valor que 
+           vem de `identidade-visual.md`, porque o JSON só traz o raio do
+            trilho |
+      165 -| Botão | Discreto com 32 de altura, 44 de toque e texto 13. O
+          - grande tem 50, em Instrument Sans 700 tamanho 15 |           
+      166 -| Campo | Texto em 16, fora da escala, porque abaixo disso o S
+          -afari do iPhone dá zoom ao focar. Rótulo em 14, peso 600. O er
+          -ro de campo entra no passo 5, com o login |                   
+      168 +| Botão | Discreto com 32 de altura, 44 de toque e texto 13. O
+          + grande tem 50, em Instrument Sans 700 tamanho 15. Desde o pas
+          +so 5, o grande é o da ação principal das telas de autenticação
+          + |                                                            
+      169 +| Campo | Texto em 16, fora da escala, porque abaixo disso o S
+          +afari do iPhone dá zoom ao focar. Rótulo em 14, peso 600. O er
+          +ro de campo entrou no passo 5 (ver Autenticação no cliente) | 
+      170  | Controle segmentado | Borda de 1 px em `line` no trilho, com
+           o na prancheta, nos dois temas |
+      171  | Chip de filtro | Inativo em contorno, como na identidade e n
+           a prancheta. 32 de altura e 44 de toque |
+      172  | Navegação | Altura de 50 mais a área segura, com mínimo de 8
+           4. Halo da bolinha sempre em `bg`. A novidade também vai no ró
+           tulo de acessibilidade. Acima da navegação, o `Screen` não som
+           a a área segura de baixo (`aboveNav`) |
+     ...
+      179  | Limite do splash | O splash nativo segue o tema do aparelho,
+            não a preferência escolhida no app, porque aparece antes de o
+            app abrir |
+      180  | Tema no Android | `expo-system-ui`, sem o qual o `userInterf
+           aceStyle` não se aplica no Android |
+      181  
+      182 +### Autenticação no cliente (passo 5)                         
+      183 +                                                              
+      184 +As telas de login, cadastro, termo, recuperação e demonstração
+          +, e a sessão por trás delas.                                  
+      185 +As telas sem prancheta (termo, recuperação, demonstração e os 
+          +passos 2 e 3 do cadastro)                                     
+      186 +seguem a identidade visual.                                   
+      187 +                                                              
+      188 +| Decisão | Detalhe |                                         
+      189 +|---|---|                                                     
+     … 23 more lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\01-login.md (+18 -1)
+      1  # Login, refresh rotativo e logout
+      2  
+      3  Login próprio, sem cadastro público nem login social. O aluno en
+         tra por RA ou por
+      4 -e-mail; professor e instituição, por e-mail. Implementado no pas
+        -so 3.                                                           
+      4 +e-mail; professor e instituição, por e-mail. A API é do passo 3;
+        + as telas e a sessão no                                         
+      5 +cliente, do passo 5.                                            
+      6  
+      7  ```mermaid
+      8  sequenceDiagram
+     ...
+      76    revogada não mudam a resposta. Na web, o refresh recusado e o
+           logout apagam o cookie.
+      77  - **Limites:** login, 5 por minuto por identificador e 30 por m
+          inuto por IP; o 429 traz
+      78    `Retry-After` (`decisoes/README.md`, Autenticação).
+      79 +                                                               
+      80 +## No cliente (passo 5)                                        
+      81 +                                                               
+      82 +- **Access token só em memória.** Renovado antes de vencer, com
+         + 30 segundos de folga, e                                       
+      83 +  uma vez depois de um 401, com o pedido repetido uma vez só.  
+      84 +- **Um refresh por vez.** Quem chega durante a renovação espera
+         + o resultado dela. Na web,                                     
+      85 +  a Web Locks API põe as abas em fila: todas mandam o mesmo coo
+         +kie, e duas renovações                                         
+      86 +  juntas seriam reuso.                                         
+      87 +- **Abertura do app.** Na web, a sessão é restaurada pelo cooki
+         +e; no nativo, pelo refresh                                     
+      88 +  do secure store. `sessao-invalida` leva ao login; falha de re
+         +de mostra "Sem conexão",                                       
+      89 +  sem apagar a sessão guardada.                                
+      90 +- **Telas.** `/login`, com o segmentado para `/cadastro` e o li
+         +nk para                                                        
+      91 +  `/esqueci-senha`. Credencial errada aparece no campo da senha
+         +; limite de taxa e falta                                       
+      92 +  de rede, abaixo do botão.                                    
+      93 +                                                               
+      94 +Detalhes em `decisoes/README.md`, Autenticação no cliente.     
+  ⎿  Updated docs\fluxos\06-recuperacao-de-senha.md (+12 -3)
+      1  # Recuperação de senha e primeiro acesso
+      2  
+      3  O mesmo fluxo serve a dois casos: o aluno que esqueceu a senha e
+          o primeiro acesso de
+      4 -professor e instituição, cuja conta nasce do seed sem senha. Imp
+        -lementado no passo 3; a                                         
+      5 -tela chega no passo 5.                                          
+      4 +professor e instituição, cuja conta nasce do seed sem senha. A A
+        +PI é do passo 3; as telas,                                      
+      5 +do passo 5.                                                     
+      6  
+      7  ```mermaid
+      8  sequenceDiagram
+     ...
+      63    inexistente e aluno de demonstração recebem o mesmo 202, sem 
+          e-mail. O link vai para o
+      64    endereço gravado na base, não para o digitado.
+      65  - **Link:** `<App__UrlPublica>/redefinir-senha#token=...`, com 
+          o token no fragmento, que
+      66 -  o navegador não manda a servidor nenhum. A tela é do passo 5.
+      66 +  o navegador não manda a servidor nenhum. A tela lê o token um
+         +a vez, quando a página                                         
+      67 +  abre, e o apaga da barra de endereço.                        
+      68  - **`recuperacao-invalida`:** token desconhecido, expirado, já 
+          usado ou invalidado por
+      69    outro pedido concluído. Duas confirmações simultâneas do mesm
+          o link deixam um 204 e um
+      70    400, como em sequência.
+     ...
+      73  - **Sem sessão:** a senha nova acabou de derrubar todas, e o cl
+          iente leva ao login.
+      74  - **Limite:** 3 pedidos a cada 15 minutos por e-mail, exista el
+          e ou não, com
+      75    `Retry-After`. A confirmação não tem limite: o token tem 256 
+          bits.
+      76 +                                                               
+      77 +## Telas (passo 5)                                             
+      78 +                                                               
+      79 +- `/esqueci-senha`, no grupo público: pede o link pelo e-mail i
+         +nstitucional e diz o mesmo                                     
+      80 +  exista a conta ou não.                                       
+      81 +- `/redefinir-senha`, fora dos grupos, porque o link pode ser a
+         +berto com ou sem sessão:                                       
+      82 +  senha fora da política fica no campo, sem gastar o link; link
+         + usado ou vencido oferece                                      
+      83 +  pedir outro; salvar a senha nova encerra a sessão aberta no a
+         +parelho e leva ao login.                                       
+  ⎿  … 3 more files changed
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/README.md >/dev/null && npx prettier
+      --check apps/mobile…)
+  ⎿  All matched files use Prettier code style!
+     warning: in the working copy of 'design/identidade-visual.md', CRLF wi
+     ll be replaced by LF the next time Git touches it
+     … +87 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\README.md (+10 -10)
+      53  
+      54  As decisões estão em `docs/decisoes/README.md`, em "Autenticaçã
+          o no cliente (passo 5)".
+      55  
+      56 -| Onde | O quê |                                               
+      57 -| --- | --- |                                                  
+      58 -| `src/app/(publico)/` | Login, cadastro em três passos, esquec
+         -i-senha e demonstração: só para quem não entrou |              
+      59 -| `src/app/(app)/` | O que exige sessão; por enquanto, o início
+         - provisório em `/` |                                           
+      60 -| `src/app/status.tsx`, `src/app/redefinir-senha.tsx` | Fora do
+         -s grupos, com ou sem sessão |                                  
+      61 -| `src/sessao/` | `GerenciadorDeSessao` (access em memória, ref
+         -resh serializado, fila entre abas na web) e `SessaoProvider` | 
+      62 -| `src/api/erros.ts`, `src/api/FalhaDaApi.ts` | Código da API p
+         -ara mensagem amigável |                                        
+      63 -| `src/autenticacao/`, `src/cadastro/`, `src/recuperacao/`, `sr
+         -c/demonstracao/` | As telas e as regras de cada fluxo |        
+      64 -| `src/termo/` | O texto do termo vigente, lido da API |       
+      65 -| `src/marca/` | O logo em vetor, gerado de `design/assets/maxx
+         --ouro.svg` |                                                   
+      56 +| Onde                                                         
+         +                 | O quê                                       
+         +                                                              |
+      57 +| -------------------------------------------------------------
+         +---------------- | --------------------------------------------
+         +------------------------------------------------------------- |
+      58 +| `src/app/(publico)/`                                         
+         +                 | Login, cadastro em três passos, esqueci-senh
+         +a e demonstração: só para quem não entrou                     |
+      59 +| `src/app/(app)/`                                             
+         +                 | O que exige sessão; por enquanto, o início p
+         +rovisório em `/`                                              |
+      60 +| `src/app/status.tsx`, `src/app/redefinir-senha.tsx`          
+         +                 | Fora dos grupos, com ou sem sessão          
+         +                                                              |
+      61 +| `src/sessao/`                                                
+         +                 | `GerenciadorDeSessao` (access em memória, re
+         +fresh serializado, fila entre abas na web) e `SessaoProvider` |
+      62 +| `src/api/erros.ts`, `src/api/FalhaDaApi.ts`                  
+         +                 | Código da API para mensagem amigável        
+         +                                                              |
+      63 +| `src/autenticacao/`, `src/cadastro/`, `src/recuperacao/`, `sr
+         +c/demonstracao/` | As telas e as regras de cada fluxo          
+         +                                                              |
+      64 +| `src/termo/`                                                 
+         +                 | O texto do termo vigente, lido da API       
+         +                                                              |
+      65 +| `src/marca/`                                                 
+         +                 | O logo em vetor, gerado de `design/assets/ma
+         +xx-ouro.svg`                                                  |
+      66  
+      67  ### e2e
+      68  
+
+● As mudanças dos documentos passaram no Prettier e não têm travessões. Confiro
+  a CI da etapa 7, que precisa estar verde antes do commit da etapa 8.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch stage 7 CI" completed (exit code 0)
+
+● A etapa 7 passou nos seis jobs da CI, com o e2e rodando lá pela primeira vez
+  (59 passaram e 1 pulado de propósito sem a demonstração; 4 de 4 com ela).
+  Estou fazendo o commit da etapa 8.
+
+  Pushed to feat/passo-05-login, ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 8 (f88a419) passou nos seis jobs. Abro o PR para a rodada.
+
+  Made 1 scratchpad edit +51, ran 1 shell command (ctrl+o to expand)
+
+● O GitHub recusou porque a base rodada/eng_05_login não existe no remoto.
+  Confiro antes de agir.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A rama rodada/eng_05_login existe só localmente e aponta para o mesmo commit
+  da main (3818816), então vou publicá-la como está e abrir o PR.
+
+  Pushed to rodada/eng_05_login, created PR #7, ran 1 shell command (ctrl+o to expand)
+
+● O passo 5 está fechado e o PR está aberto para você revisar e fazer o merge:
+  #7 (https://github.com/GFGimenes/maxx-engenheiro/pull/7), da
+  feat/passo-05-login para a rodada/eng_05_login, com 9 commits e sem conflitos.
+
+  Para abrir o PR, publiquei a rodada/eng_05_login no GitHub. Ela só existia na
+  máquina local, e o GitHub não aceita PR para uma base que não está lá. Subiu
+  como estava, no mesmo commit da main, sem nenhum commit novo, como as rodadas
+  anteriores.
+
+  Uma divergência no PR: você pediu dois fixes, mas há só um commit de fix na
+  branch, o 4755c70, da falha de CI da etapa 2. Na descrição, ele aparece numa
+  seção "Correções" junto com duas correções feitas antes do commit da etapa:
+  - o código 23001 no teste da etapa 1;
+  - o token da senha nova, que às vezes chegava nulo na etapa 6, problema achado
+    pelo e2e.
+
+  Se você contava outro fix, me diga qual e ajusto a descrição.
+
+  Purga do banco local
+
+  Rodei o SQL da purga do README com o lote e2e-local. Ele apagou, na mesma
+  transação:
+
+  ┌──────────────────────────────────┬────────┐
+  │              Tabela              │ Linhas │
+  ├──────────────────────────────────┼────────┤
+  │ usuario                          │ 3      │
+  ├──────────────────────────────────┼────────┤
+  │ familia_sessao                   │ 5      │
+  ├──────────────────────────────────┼────────┤
+  │ recuperacao_senha                │ 0      │
+  ├──────────────────────────────────┼────────┤
+  │ matricula                        │ 12     │
+  ├──────────────────────────────────┼────────┤
+  │ cadastro_elegivel (demonstração) │ 3      │
+  └──────────────────────────────────┴────────┘
+
+  Os aceites do termo e os prefixos reservados saíram em cascata com os
+  usuários. Depois disso, o banco não tem nenhum aluno, cadastro ou aceite de
+  demonstração. Corrijo o relatório da etapa 7: o aluno criado para a captura
+  ficou no lote e2e-local, e não num lote vazio.
+
+  CI das etapas 7 e 8
+
+  - Etapa 7 (5ba31cf): passou nos seis jobs. As duas passadas do e2e funcionaram
+    na CI na primeira vez: com a demonstração desligada, 59 passaram e 1 foi
+    pulado de propósito; com ela ligada, 4 de 4.
+  - Etapa 8 (f88a419): passou nos seis jobs.
+
+  Etapa 8: o que mudou nos documentos
+
+  - docs/decisoes/README.md:
+    - Três linhas novas em Autenticação: o termo de uso, o aceite e a exceção às
+      mudanças só aditivas.
+    - Os aceites entram na frase da purga sobre o que sai em cascata.
+    - Seção nova "Autenticação no cliente (passo 5)", com 16 decisões, da sessão
+      ao e2e.
+    - Linha "Etapa pronta" em Processo: só com a CI verde, e falha depois do
+      push vira commit fix separado.
+  - Fluxos: o 01 e o 06 ganharam a parte do cliente, e o índice aponta os passos
+    3 (API) e 5 (telas).
+  - apps/mobile/README.md: onde fica cada peça da autenticação e como rodar o
+    e2e local, com e sem a demonstração.
+  - produto.md:
+    - Na seção 2.6: quem aceita o termo.
+    - Na seção 11: o registro da demonstração pede o aceite.
+    - Na seção 13: a pendência de LGPD, contato e prazo de guarda.
+  - Identidade visual: o botão grande vale para a ação principal das telas de
+    autenticação, e o campo com erro usa borda like, como exceção registrada.
+  - Plano mestre:
+    - Quatro riscos novos, entre eles o do semestre vigente, com a avaliação
+      antes de 05/12 e sem apresentação presencial.
+    - A mesma pendência do termo em Fase 2.
+    - Os 33 achados do npm audit na lista do passo 13.
+
+  Dois pontos para você decidir
+
+  - O risco "Rede do campus na apresentação" e o ensaio do passo 13 com a banca
+    entrando por rede móvel supõem uma apresentação presencial, que não vai
+    acontecer. Não mexi neles, porque reescrever o passo 13 é decisão sua.
+  - O TermoDeUso e o AceiteDeTermo são termos novos do domínio e não estão no
+    glossário do CLAUDE.md. Não editei o CLAUDE.md porque ele não estava na
+    lista do passo. Se quiser, acrescento as duas linhas.
+
+✻ Worked for 15m 16s · done 17:05
