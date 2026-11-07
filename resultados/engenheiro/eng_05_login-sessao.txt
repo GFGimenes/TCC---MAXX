@@ -1,0 +1,253 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+‼ Your login expires in 1 day · run /login to renew
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 5 do plano mestre: login, cadastro, termos e entrada da demonstração.   
+  Estamos na rodada/eng_05_login, saída da main com os passos 1 a 4 mergeados.  
+  Antes de qualquer código, me traga o plano de etapas, com entrega e critério  
+  de aceite por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá:     
+  decisão que não está nos docs não foi tomada, então pergunte antes de         
+  assumir. Uma regra que fixei no passo 3 e vale daqui em diante: cada etapa só 
+  é dada como pronta depois de a CI do push dela passar, e o resultado da CI    
+  entra no relatório da etapa. Lembro o que fecha o passo: login e cadastro em  
+  claro e escuro conforme as pranchetas; aceite do termo de uso versionado      
+  dentro da identidade visual; entrada da demonstração com botão só com a flag  
+  ligada, registro simples e lembrança local do dispositivo; refresh            
+  serializado no cliente, obrigatório, como está no plano mestre e no README    
+  das decisões; debounce na sugestão e na disponibilidade do arroba; tela de    
+  senha nova em /redefinir-senha lendo o token do fragmento; e2e de cadastro,   
+  login, recuperação de senha e entrada de demonstração. Entram também as       
+  pendências que o passo 4 deixou para cá: erro de campo nos controles e        
+  mensagem amigável para o código registro-simultaneo na entrada da             
+  demonstração. Eu reviso o plano e aí começamos a primeira etapa.              
+
+● Vou ler os documentos do passo e o estado atual do código antes de montar o
+  plano.
+
+  Searched for 1 pattern, read 11 files, ran 7 shell commands (ctrl+o to expand)
+
+● Li os documentos, as pranchetas e o código dos passos 3 e 4. Nenhum arquivo
+  foi alterado. O plano tem 8 etapas, mas depende de 8 decisões suas, porque os
+  docs não as resolvem ou se contradizem.
+
+  O que encontrei
+
+  1. Termo de uso: não existe nada na API, nem tabela, nem rota, nem texto. O
+     passo 5 precisa de migration, e produto.md 11 indica que o registro da
+     demonstração também passa a pedir o aceite.
+  2. Prancheta de cadastro: ela só tem RA, e-mail e senha, mas produto.md 2.5 e
+     a API exigem também nome de exibição e arroba.
+  3. Texto da prancheta: "vinculam a conta pelo Portal UniMax" contradiz o
+     produto. Não há integração com o portal, o aluno se cadastra no app e o
+     professor entra pela recuperação de senha.
+  4. Refresh com duas abas: serializar só em memória não basta na web. Cada aba
+     renova na abertura com o mesmo cookie, e isso conta como reuso e derruba a
+     sessão. É preciso serializar entre abas também.
+  5. Massa do e2e: cada cadastro consome uma linha do cadastro elegível, e o
+     seed tem só 5 alunos por curso. Com 4 projetos, repetição na CI e limite de
+     3 cadastros por RA, o e2e precisa de linhas próprias. A CI também ainda
+     não roda o seed demo nem o compose com a flag.
+  6. Erro de campo: o token like é "só ícone, nunca texto", e não há outra cor
+     de erro.
+  7. Specs atuais: estado-api, controles e vitrine dependem da tela de status em
+     /, e essa rota vai mudar.
+
+  Decisões que preciso de você
+
+  #: 1
+  Decisão: Onde entram nome e arroba no cadastro
+  Minha recomendação: Três telas: a da prancheta com o botão "Continuar", depois
+
+  nome e arroba, depois o termo com "Aceitar e criar conta". A conta só nasce
+  na última
+  ────────────────────────────────────────
+  #: 2
+  Decisão: Texto no lugar do Portal UniMax
+  Minha recomendação: "Primeiro acesso? Aluno cria a conta em Cadastrar.
+  Professor define a senha em Esqueci minha senha.", sem link
+  ────────────────────────────────────────
+  #: 3
+  Decisão: Texto e guarda do termo
+  Minha recomendação: Eu redijo a v1 a partir de produto.md 2.6 e 9.2, e você
+  aprova. O arquivo fica em data/termos/, vai ao banco pelo seed base e é
+  servido pela API, para o app instalado não mostrar texto velho. Não é revisão
+   jurídica
+  ────────────────────────────────────────
+  #: 4
+  Decisão: Quem aceita, e se há novo aceite
+  Minha recomendação: Aceitam o cadastro e o registro da demonstração. Professor
+
+  e instituição não aceitam no primeiro acesso, e versão nova não pede novo
+  aceite na fase 1. Com isso, a versão fica registrada, mas nada obriga a
+  aceitar a v2
+  ────────────────────────────────────────
+  #: 5
+  Decisão: versaoDoTermo obrigatório em duas rotas
+  Minha recomendação: Aceitar como exceção registrada à regra "só aditivas",
+  porque nenhum app consome essas rotas ainda. Se o campo fosse opcional, daria
+   para criar conta sem aceite
+  ────────────────────────────────────────
+  #: 6
+  Decisão: O que aparece depois de entrar, já que o feed só chega no passo 7
+  Minha recomendação: / sem sessão vai para /login. Com sessão, mostra um início
+
+  provisório com arroba, controle de tema e Sair. A tela de status vai para
+  /status
+  ────────────────────────────────────────
+  #: 7
+  Decisão: Aparência do erro de campo
+  Minha recomendação: Ícone alert em like, texto em ink abaixo do campo e
+  aria-invalid, com a borda sem mudança. Segue a regra à risca, mas o destaque
+  fica mais discreto. A alternativa é permitir borda em like e registrar a
+  exceção
+  ────────────────────────────────────────
+  #: 8
+  Decisão: Botão grande: a identidade diz "só o Entrar", a prancheta usa também
+  em "Criar conta"
+  Minha recomendação: Vale a prancheta: a ação principal das telas de
+  autenticação usa o botão grande, e eu corrijo a frase na identidade
+
+  Etapas
+
+  Tudo em feat/passo-05-login, saindo da rodada, com um commit por etapa e um PR
+  no fim.
+
+  Etapa 1: termo de uso na API
+  - Entrega:
+    - TermoDeUso e AceiteDeTermo no domínio, com migration e seed.
+    - Rota anônima GET /v1/termo-de-uso.
+    - versaoDoTermo no cadastro e no registro da demonstração.
+    - Recusa termo-desatualizado.
+    - OpenAPI regenerado.
+  - Aceite:
+    - O aceite grava usuário, versão e instante na mesma transação da conta.
+    - Sem o campo, a resposta é 400. Com versão antiga, é a recusa própria, sem
+      criar conta.
+    - O seed é idempotente.
+    - A purga da demonstração continua funcionando, testada com o SQL do README.
+    - npm run verificar não acusa diferença.
+
+  Etapa 2: sessão e refresh serializado
+  - Entrega:
+    - Pasta src/sessao/, com access token só em memória.
+    - Refresh em expo-secure-store no nativo e cookie com X-Maxx-Cliente: web na
+      web.
+    - Middleware do openapi-fetch: 401 renova uma vez e repete o pedido.
+    - Na web, navigator.locks serializa entre abas. Dentro da aba, os pedidos
+      compartilham o refresh em voo.
+    - SessaoProvider com os estados restaurando, anônimo e autenticado.
+    - Tabela única de código para mensagem, incluindo registro-simultaneo.
+  - Aceite (Jest):
+    - 5 pedidos com 401 geram 1 refresh, e os 5 são repetidos com o token novo.
+    - sessao-invalida leva a anônimo.
+    - Falha de rede não encerra a sessão e oferece tentar de novo.
+    - As rotas /auth/* não entram no ciclo de renovação.
+    - Nenhum token vai para armazenamento persistente na web.
+
+  Etapa 3: peças da autenticação
+  - Entrega:
+    - TextField com erro, Logo, link em texto e o layout comum (logo, frase,
+      segmentado, rodapé).
+    - Tudo também na vitrine.
+  - Aceite:
+    - Testes de aria-invalid, anúncio ao leitor de tela e altura do campo
+      inalterada sem erro.
+    - Claro e escuro conferidos na vitrine por captura.
+
+  Etapa 4: login e portão de rotas
+  - Entrega:
+    - Tela de login, redirecionamentos, início provisório, Sair e /status.
+    - Specs antigos ajustados.
+    - Base do e2e: linhas únicas de elegível inseridas por psql no setup,
+      leitura do Mailpit e seed demo na CI.
+  - Aceite:
+    - e2e entra por RA e por e-mail, recarrega e continua logado, e sai.
+    - e2e com duas abas abrindo juntas: a sessão sobrevive.
+    - Credencial errada e 429 mostram mensagem amigável.
+    - Capturas em claro e escuro ao lado das pranchetas, para sua revisão.
+
+  Etapa 5: cadastro, arroba e termo
+  - Entrega:
+    - As três telas da decisão 1.
+    - A sugestão é pedida ao avançar da primeira tela.
+    - A disponibilidade usa debounce de 500 ms, cancela o pedido anterior e
+      confere o formato antes de consultar.
+  - Aceite:
+    - Teste com relógio falso: digitação rápida gera 1 consulta, e prefixo
+      malformado não gera nenhuma.
+    - conta-existente leva à recuperação, e 429 na consulta não trava o envio.
+    - e2e do cadastro até entrar logado, com o aceite conferido no banco.
+
+  Etapa 6: recuperação de senha
+  - Entrega:
+    - Tela de pedido, que é uma superfície nova sem prancheta.
+    - /redefinir-senha, que lê #token= e o apaga da URL com replaceState.
+  - Aceite:
+    - e2e completo pelo Mailpit: pede o link, abre, troca a senha, a senha
+      antiga falha e a nova entra.
+    - Link reusado cai em "peça um link novo".
+    - Senha fora da política mantém o link válido.
+    - No nativo, sem fragmento, a tela oferece pedir um link novo em vez de
+      quebrar.
+
+  Etapa 7: entrada da demonstração
+  - Entrega:
+    - O botão aparece conforme a resposta de GET /v1/demo, sem flag no bundle.
+    - Registro com nome, curso e aceite do termo.
+    - Lista local das contas do dispositivo: entrar em uma delas ou criar outra.
+    - Chave em localStorage na web e no secure store no nativo.
+    - Passada do e2e na CI com docker-compose.demo.yml.
+  - Aceite:
+    - Flag desligada: sem botão, /demonstracao volta ao login e a rota da API
+      responde 404.
+    - Flag ligada: e2e registra, sai e volta sem senha.
+    - registro-simultaneo mostra mensagem amigável e tentar de novo.
+    - chave-invalida tira a conta da lista.
+
+  Etapa 8: fechamento
+  - Entrega:
+    - Decisões do passo em decisoes/README.md, fluxos e apps/mobile/README.md.
+    - Ajustes em produto.md 11, na identidade e na lista da purga.
+    - Abertura do PR para a rodada.
+  - Aceite: toda a definição de pronto conferida item a item, e nada escrito nos
+    docs que o código não faça. Não há p95 neste passo, porque ele não tem
+    decisão de cache.
+
+  Como cada etapa fecha
+
+  A ordem é: testes e lint locais, sua revisão, commit, push, CI verde e
+  relatório com o link e o resultado de cada job. Só então a etapa conta como
+  pronta.
+
+  Se a CI falhar depois do push, corrijo num commit fix separado, sem amend nem
+  force push, como já aconteceu nos passos 3 e 4. Isso abre exceção ao "um
+  commit por etapa", e o relatório vai registrar. Os commits saem sem rodapé de
+  co-autoria, como manda o CLAUDE.md.
+
+  Riscos que ficam
+
+  - Resposta perdida no refresh: se a rede cair ou a página recarregar no meio,
+    o cliente fica com o token antigo, a próxima renovação conta como reuso e a
+    pessoa volta ao login. A decisão atual não tem janela de tolerância, e não
+    proponho mudá-la aqui, mas isso pode acontecer na rede móvel da banca. Entra
+    no ensaio do passo 13.
+  - Limites de taxa no e2e: para não estourar, os fluxos com cadastro e login
+    rodam só em @celular, claro e escuro. O @desktop confere só a moldura e a
+    tela.
+  - Calendário: o e2e da demonstração depende de haver semestre vigente. No
+    recesso de dezembro, GET /v1/demo vem sem cursos e o teste falha, a menos
+    que o calendário mude. A mesma condição vale para a apresentação, então a
+    data da banca precisa cair dentro de um semestre.
+  - Nativo: este passo cobre o nativo só com Jest, porque o Maestro chega no
+    passo 13. Secure store e deep link não serão testados em aparelho, a menos
+    que você queira fazer essa conferência.
+
+  Pode responder só com os números que quer mudar, e o que não for citado sigo
+  como recomendei. Com o plano aprovado, começo pela etapa 1.
+
+✻ Crunched for 4m 32s · done 23:15

@@ -380,3 +380,8 @@ corrigido. Identificador do app `tech.gimenes.maxx`. Docker Desktop caiu de novo
 vez reiniciado pelo agente, com aviso). PR #6 com CI verde, merge na `main`
 (`3818816`). Registro em `resultados/engenheiro/eng_04_design.md`. Próxima:
 `eng_05_login`, as primeiras telas reais.
+
+06/11 (noite): abertura da `eng_05_login`. Decisão de contexto do autor: não haverá
+apresentação presencial do TCC; a avaliação acontece antes de 05/12/2026. O ensaio com a
+banca previsto no passo 13 passa a ser ensaio de demonstração remota, e o risco do
+calendário em recesso, apontado pelo agente no plano do passo 5, deixa de se aplicar.
