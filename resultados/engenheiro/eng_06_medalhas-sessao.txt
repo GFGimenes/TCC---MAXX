@@ -5027,3 +5027,993 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
   etapa 8, o cliente do professor.
 
 ✻ Cooked for 18s · done 19:22
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 7 aprovada. As duas decisões ficam: item restrito a outro curso fora da 
+  lista salvo o já obtido, e o seed base pedindo o primeiro recálculo. Sobre o  
+  ponto em aberto: sim, cadastro de aluno e registro de demonstração passam a   
+  enfileirar o recálculo de raridade, e o ADR 0005 ganha esse evento na lista,  
+  no mesmo commit. Commita com a mensagem proposta, push, acompanha a CI e      
+  segue para a etapa 8; para para a minha revisão no fim dela, com capturas da  
+  lista e do modal.                                                             
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Cadastro e registro da demonstração passam a enfileirar o recálculo; aplico,
+  testo e atualizo o ADR 0005.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e7d.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  # ADR 0005 · Ranking e raridade em tabela, escritos pelo worker com co
+     alescência
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Autenticacao\Cadastro\CadastroHandler.cs
+     (+6 -0)
+      1  using Maxx.Application.Autenticacao.Termos;
+      2 +using Maxx.Application.Fila;                                    
+      3 +using Maxx.Application.Medalhas;                                
+      4  using Maxx.Domain;
+      5  using Maxx.Domain.Academico;
+      6  using Maxx.Domain.Identidade;
+     ...
+      16      SessaoService sessoes,
+      17      SugestaoDeArroba sugestoes,
+      18      TermoDeUsoHandler termos,
+      19 +    IFilaDeTrabalhos fila,                                     
+      20      IUnitOfWork unitOfWork,
+      21      TimeProvider relogio)
+      22  {
+     ...
+      56              cadastro, curso, pedido.NomeDeExibicao, pedido.Pref
+          ixo, senhas.Hash(pedido.Senha), relogio.GetUtcNow());
+      57          usuario.AceitarTermo(termo, relogio.GetUtcNow());
+      58          usuarios.Adicionar(usuario);
+      59 +                                                               
+      60 +        // Aluno novo muda o divisor da raridade (ADR 0005): o 
+         +recálculo grava junto.                                         
+      61 +        fila.Enfileirar(new RecalcularRaridade());             
+      62          var sessao = sessoes.Abrir(usuario);
+      63  
+      64          try
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Demonstracao\DemonstracaoHandler.cs (+5 
+     -0)
+      16      SessaoService sessoes,
+      17      TermoDeUsoHandler termos,
+      18      ITokenGenerator tokens,
+      19 +    IFilaDeTrabalhos fila,                                     
+      20      IUnitOfWork unitOfWork,
+      21      ConfiguracaoDaDemonstracao configuracao,
+      22      TimeProvider relogio)
+     ...
+      75              }
+      76  
+      77              usuarios.Adicionar(usuario);
+      78 +                                                               
+      79 +            // Aluno novo muda o divisor da raridade (ADR 0005)
+         +. Na nova tentativa, o                                         
+      80 +            // Descartar leva o pedido junto, e ele é feito de 
+         +novo aqui.                                                     
+      81 +            fila.Enfileirar(new RecalcularRaridade());         
+      82              var sessao = sessoes.Abrir(usuario);
+      83  
+      84              try
+  ⎿  Updated docs\decisoes\0005-ranking-por-worker.md (+6 -1)
+      1  # ADR 0005 · Ranking e raridade em tabela, escritos pelo worker 
+         com coalescência
+      2  
+      3 -Status: aceito · 01/11/2026 · revisado em 02/11/2026 (eventos qu
+        -e enfileiram o recálculo)                                       
+      3 +Status: aceito · 01/11/2026 · revisado em 02/11/2026 (eventos qu
+        +e enfileiram o recálculo) · revisado em 07/11/2026 (aluno novo m
+        +uda o divisor da raridade)                                      
+      4  
+      5  ## Contexto
+      6  
+     ...
+      40  - anulação de medalha;
+      41  - conquista concedida ou removida pelo worker.
+      42  
+      43 +A raridade tem ainda um evento só dela, porque o divisor é o nú
+         +mero de alunos com conta:                                      
+      44 +**aluno novo**, pelo cadastro ou pelo registro da demonstração,
+         + enfileira o recálculo da                                      
+      45 +raridade na mesma transação da conta. Ele não muda pontuação, e
+         + por isso não move o                                           
+      46 +ranking.                                                       
+      47 +                                                               
+      48  A coalescência é o que torna isso barato: uma rajada de eventos
+           no mesmo intervalo vira
+      49  uma execução só por visão. O diagrama abaixo mostra a medalha, 
+          o caso da demonstração; os
+      50  outros eventos seguem o mesmo caminho, e os diagramas de `docs/
+          fluxos/` mostram cada um.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e7e.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿    falhou: 0   concluído com êxito: 26
+       falhou: 0   concluído com êxito: 18
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Demonstracao\DemonstracaoHandler.cs (+2 
+     -0)
+      1  using System.Security.Cryptography;
+      2  using Maxx.Application.Autenticacao;
+      3  using Maxx.Application.Autenticacao.Termos;
+      4 +using Maxx.Application.Fila;                                    
+      5 +using Maxx.Application.Medalhas;                                
+      6  using Maxx.Domain;
+      7  using Maxx.Domain.Academico;
+      8  using Maxx.Domain.Identidade;
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs
+     (+15 -0)
+       5  using System.Text;
+       6  using System.Text.Json;
+       7  using Maxx.Api.Autenticacao;
+       8 +using Maxx.Application.Medalhas;                               
+       9  using Maxx.Domain.Academico;
+      10  using Maxx.Domain.Identidade;
+      11 +using Maxx.Infrastructure.Fila;                                
+      12  using Maxx.Infrastructure.Persistence;
+      13  using Microsoft.EntityFrameworkCore;
+      14  using Microsoft.Extensions.DependencyInjection;
+     ...
+      33  
+      34      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      35  
+      36 +    [Fact]                                                     
+      37 +    public async Task Conta_nova_pede_o_recalculo_da_raridade_n
+         +a_mesma_gravacao()                                             
+      38 +    {                                                          
+      39 +        await using var factory = await MundoAsync();          
+      40 +        using var client = factory.CreateClient();             
+      41 +                                                               
+      42 +        await CadastrarAsync(client, _ana);                    
+      43 +                                                               
+      44 +        await using var scope = factory.Services.CreateAsyncSco
+         +pe();                                                          
+      45 +        var trabalho = await scope.ServiceProvider.GetRequiredS
+         +ervice<MaxxDbContext>().Set<Trabalho>().SingleAsync(Ct);       
+      46 +        Assert.Equal(RecalcularRaridade.Tipo, trabalho.Tipo);  
+      47 +    }                                                          
+      48 +                                                               
+      49      [Fact]
+      50      public async Task Sugestao_parte_do_nome_do_cadastro_com_o_
+          sufixo_do_curso()
+      51      {
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+13 -0)
+      36  
+      37      private static DateOnly Hoje => FusoHorario.DataLocal(DateT
+          imeOffset.UtcNow);
+      38  
+      39 +    [Fact]                                                     
+      40 +    public async Task Registro_pede_o_recalculo_da_raridade_na_
+         +mesma_gravacao()                                               
+      41 +    {                                                          
+      42 +        await using var factory = await MundoAsync();          
+      43 +        using var client = factory.CreateClient();             
+      44 +                                                               
+      45 +        await RegistrarAsync(client, "Ana Paula");             
+      46 +                                                               
+      47 +        await using var scope = factory.Services.CreateAsyncSco
+         +pe();                                                          
+      48 +        var trabalho = await scope.ServiceProvider.GetRequiredS
+         +ervice<MaxxDbContext>().Set<Trabalho>().SingleAsync(Ct);       
+      49 +        Assert.Equal(RecalcularRaridade.Tipo, trabalho.Tipo);  
+      50 +    }                                                          
+      51 +                                                               
+      52      [Fact]
+      53      public async Task Desligada_as_tres_rotas_respondem_igual_a
+          _uma_rota_inexistente()
+      54      {
+  ⎿  (timeout 10m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O "client 1" vem só do cliente regenerado ainda não commitado da etapa 7, que
+  entra neste commit. Commito e envio.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 7 está commitada (50ee7b7) e a CI segue rodando; agora começo a etapa 8,
+  o cliente do professor, lendo a estrutura do app.
+
+  Ran 8 shell commands (ctrl+o to expand)
+
+● Li os componentes e tokens do app; agora escrevo os hooks, as telas de turmas
+  e alunos e o modal de concessão. Primeiro vejo o formato dos ícones, para
+  acrescentar voltar, fechar e seta.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && cat >
+      "$TEMP/e8a.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  ok
+  ⎿  Updated apps\mobile\src\components\Icon.tsx (+8 -0)
+      115      { d: "M12 8v4", modo: "detalhe" },
+      116      { d: "M12 16h.01", modo: "detalhe" },
+      117    ],
+      118 +  // Voltar no cabeçalho, entrar numa linha da lista e fechar 
+          +a folha: chevron-left,                                        
+      119 +  // chevron-right e x do Lucide.                             
+      120 +  voltar: [{ d: "m15 18-6-6 6-6", modo: "aberto" }],          
+      121 +  avancar: [{ d: "m9 18 6-6-6-6", modo: "aberto" }],          
+      122 +  fechar: [                                                   
+      123 +    { d: "M18 6 6 18", modo: "aberto" },                      
+      124 +    { d: "m6 6 12 12", modo: "aberto" },                      
+      125 +  ],                                                          
+      126    inbox: [
+      127      {
+      128        d: "M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l
+           -3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",
+
+● Write(apps\mobile\src\professor\api.ts)
+  ⎿  Wrote 80 lines to apps\mobile\src\professor\api.ts
+       1 import { useMutation, useQuery, useQueryClient } from "@tanstack
+         /react-query";
+       2 
+       3 import { useApiClient } from "../api/ApiClientProvider";
+       4 import { FalhaDaApi } from "../api/FalhaDaApi";
+       5 
+       6 // As consultas e a concessão do professor (passo 6). O escopo d
+         e turma é conferido pela
+       7 // API no banco: uma turma que não é dele responde 403 com `fora
+         -do-escopo`.
+     … +73 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo o cabeçalho com voltar, as duas telas e o modal de concessão.
+
+● Write(apps\mobile\src\components\Cabecalho.tsx)
+  ⎿  Wrote 63 lines to apps\mobile\src\components\Cabecalho.tsx
+       1 import { useRouter, type Href } from "expo-router";
+       2 import { Pressable, StyleSheet, Text, View } from "react-native"
+         ;
+       3 
+       4 import { textStyles } from "../theme/fonts";
+       5 import { useTheme } from "../theme/ThemeProvider";
+       6 import { tamanhos } from "../theme/tokens";
+       7 import { Icon } from "./Icon";
+       8 
+       9 interface CabecalhoProps {
+     … +54 lines (ctrl+o to expand)
+● Write(apps\mobile\src\professor\TurmasScreen.tsx)
+  ⎿  Wrote 88 lines to apps\mobile\src\professor\TurmasScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import {
+       3   ActivityIndicator,
+       4   Pressable,
+       5   StyleSheet,
+       6   Text,
+       7   View,
+       8 } from "react-native";
+       9 
+      10 import { falhaParaTela } from "../api/FalhaDaApi";
+     … +78 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\professor\textos.ts)
+  ⎿  Wrote 26 lines to apps\mobile\src\professor\textos.ts
+       1 // Os textos curtos das telas do professor, em português do Bras
+         il e sem emoji.
+       2 
+       3 export function plural(n: number, singular: string, varios: stri
+         ng) {
+       4   return `${n.toLocaleString("pt-BR")} ${n === 1 ? singular : va
+         rios}`;
+       5 }
+       6 
+       7 export function descreverTurma(turma: {
+     … +19 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\professor\ModalDeConcessao.tsx)
+  ⎿  Wrote 229 lines to apps\mobile\src\professor\ModalDeConcessao.tsx
+       1 import { useState } from "react";
+       2 import {
+       3   ActivityIndicator,
+       4   Modal,
+       5   Pressable,
+       6   ScrollView,
+       7   StyleSheet,
+       8   Text,
+       9   View,
+      10 } from "react-native";
+     … +219 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\professor\TurmaScreen.tsx)
+  ⎿  Wrote 127 lines to apps\mobile\src\professor\TurmaScreen.tsx
+       1 import { useState } from "react";
+       2 import { ActivityIndicator, StyleSheet, Text, View } from "react
+         -native";
+       3 
+       4 import { falhaParaTela } from "../api/FalhaDaApi";
+       5 import { Avatar } from "../components/Avatar";
+       6 import { Button } from "../components/Button";
+       7 import { Cabecalho } from "../components/Cabecalho";
+       8 import { Icon } from "../components/Icon";
+       9 import { Screen } from "../components/Screen";
+     … +118 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && cat >
+      "$TEMP/e8b.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  377:            papeis: string[];
+
+     > @maxx/mobile@0.0.0 typecheck
+     > tsc --noEmit
+  ⎿  Created apps\mobile\src\app\(app)\turmas\[turmaId].tsx (+8 -0)
+      1 +import { useLocalSearchParams } from "expo-router";             
+      2 +                                                                
+      3 +import { TurmaScreen } from "../../../professor/TurmaScreen";   
+      4 +                                                                
+      5 +export default function Turma() {                               
+      6 +  const { turmaId } = useLocalSearchParams<{ turmaId: string }>(
+        +);                                                              
+      7 +  return <TurmaScreen turmaId={turmaId} />;                     
+      8 +}                                                               
+  ⎿  Created apps\mobile\src\app\(app)\turmas\index.tsx (+3 -0)
+      1 +import { TurmasScreen } from "../../../professor/TurmasScreen"; 
+      2 +                                                                
+      3 +export default TurmasScreen;                                    
+  ⎿  Updated apps\mobile\src\components\Button.tsx (+4 -0)
+      13    // que o pai der.
+      14    size?: "compact" | "large";
+      15    disabled?: boolean;
+      16 +  // Quando o rótulo visível não diz o bastante fora de context
+         +o ("Conceder" a quem?).                                        
+      17 +  accessibilityLabel?: string;                                 
+      18  }
+      19  
+      20  export function Button({
+     ...
+      23    variant = "primary",
+      24    size = "compact",
+      25    disabled = false,
+      26 +  accessibilityLabel,                                          
+      27  }: ButtonProps) {
+      28    const { colors } = useTheme();
+      29    const { focusVisible, focusProps } = useFocusRing();
+     ...
+      37    return (
+      38      <Pressable
+      39        role="button"
+      40 +      accessibilityLabel={accessibilityLabel}                  
+      41        disabled={disabled}
+      42        onPress={onPress}
+      43        {...focusProps}
+  ⎿  Updated apps\mobile\src\inicio\InicioProvisorio.tsx (+7 -1)
+      1 +import { useRouter } from "expo-router";                        
+      2  import { ActivityIndicator, StyleSheet, Text, View } from "react
+         -native";
+      3  
+      4  import { useEu } from "../api/useEu";
+     ...
+      11  import { ThemePreferenceControl } from "../theme/ThemePreferenc
+          eControl";
+      12  import { useTheme } from "../theme/ThemeProvider";
+      13  
+      13 -// O início até o feed chegar, no passo 7: quem entrou, o tema 
+         -e a saída.                                                     
+      14 +// O início até o feed chegar, no passo 7: quem entrou, o tema 
+         +e a saída. Para o professor,                                   
+      15 +// a entrada das turmas e da concessão de medalha no passo 6.  
+      16  export function InicioProvisorio() {
+      17    const { colors } = useTheme();
+      18 +  const router = useRouter();                                  
+      19    const { sair } = useSessao();
+      20    const eu = useEu();
+      21  
+     ...
+      44              </Text>
+      45            </View>
+      46          )}
+      47 +        {eu.isSuccess && eu.data.papeis.includes("professor") &
+         +& (                                                            
+      48 +          <Button label="Minhas turmas" onPress={() => router.p
+         +ush("/turmas")} />                                             
+      49 +        )}                                                     
+      50  
+      51          <ThemePreferenceControl />
+      52          <Button label="Sair" variant="secondary" onPress={() =>
+           void sair()} />
+  ⎿  (timeout 5m)
+
+● Telas e rotas passam no typecheck. Agora as mensagens dos códigos novos e o
+  teste ampliado para ler todos os arquivos de códigos.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && cat >
+      "$TEMP/e8c.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  13:// Os arquivos de códigos de recusa da Application (CodigosDeRecusa
+     .cs,
+     14:// CodigosDaMedalha.cs, ...), onde quer que estejam: código novo nu
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.test.ts (+21 -6)
+      1 -import { readFileSync } from "fs";                              
+      1 +import { readdirSync, readFileSync } from "fs";                 
+      2  import { join } from "path";
+      3  
+      4  import {
+     ...
+      10  
+      11  const API = join(__dirname, "../../../api/src");
+      12  
+      13 +// Os arquivos de códigos de recusa da Application (CodigosDeRe
+         +cusa.cs,                                                       
+      14 +// CodigosDaMedalha.cs, ...), onde quer que estejam: código nov
+         +o num arquivo novo também                                      
+      15 +// precisa de mensagem.                                        
+      16 +function arquivosDeCodigos(): string[] {                       
+      17 +  const raiz = join(API, "Maxx.Application");                  
+      18 +  return readdirSync(raiz, { recursive: true, encoding: "utf8" 
+         +})                                                             
+      19 +    .filter((caminho) => /(^|[\/])Codigosw*.cs$/.test(caminho))
+      20 +    .map((caminho) => join(raiz, caminho));                    
+      21 +}                                                              
+      22 +                                                               
+      23  // Os códigos que a API pode mandar, lidos do próprio código de
+          la.
+      24  function codigosDaApi(): string[] {
+      15 -  const recusas = readFileSync(                                
+      16 -    join(API, "Maxx.Application/Autenticacao/CodigosDeRecusa.cs
+         -"),                                                            
+      17 -    "utf8",                                                    
+      18 -  );                                                           
+      25 +  const recusas = arquivosDeCodigos()                          
+      26 +    .map((arquivo) => readFileSync(arquivo, "utf8"))           
+      27 +    .join("                                                    
+      28 +");                                                            
+      29    const erros = readFileSync(
+      30      join(API, "Maxx.Api/Erros/DomainExceptionHandler.cs"),
+      31      "utf8",
+     ...
+      43    it("todo código que a API manda tem mensagem própria", () => 
+          {
+      44      const daApi = codigosDaApi();
+      45  
+      46 +    expect(arquivosDeCodigos()).toHaveLength(2);               
+      47      expect(daApi).toEqual(
+      37 -      expect.arrayContaining(["registro-simultaneo", "dados-inv
+         -alidos"]),                                                     
+      48 +      expect.arrayContaining([                                 
+      49 +        "registro-simultaneo",                                 
+      50 +        "limite-atingido",                                     
+     … 5 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.ts (+12 -0)
+      21    "registro-simultaneo":
+      22      "Muita gente entrou com esse nome agora. Tente de novo em i
+          nstantes.",
+      23    "chave-invalida": "Essa conta de demonstração não existe mais
+          .",
+      24 +  // Medalhas (CodigosDaMedalha.cs)                            
+      25 +  "fora-do-escopo": "Essa turma não é sua neste semestre.",    
+      26 +  "aluno-fora-da-turma": "Esse aluno não está nesta turma.",   
+      27 +  "item-nao-encontrado": "Essa medalha não está no catálogo.", 
+      28 +  "ex-aluno": "Ex-aluno não recebe medalha.",                  
+      29 +  "fora-do-periodo": "Não há bimestre em andamento para esta tu
+         +rma hoje.",                                                    
+      30 +  "item-fora-de-vigencia": "Essa medalha não está valendo agora
+         +.",                                                            
+      31 +  "item-de-outro-curso": "Essa medalha é de outro curso.",     
+      32 +  "limite-atingido":                                           
+      33 +    "Esse aluno já recebeu essa medalha o máximo de vezes no pe
+         +ríodo.",                                                       
+      34 +  "medalha-nao-encontrada": "Essa medalha não existe mais.",   
+      35 +  "sem-conta-de-instituicao": "Só a instituição pode fazer isso
+         +.",                                                            
+      36    // Genéricos, pelo status (DomainExceptionHandler.cs)
+      37    "requisicao-invalida": "Confira os dados e tente de novo.",
+      38    "dados-invalidos": "Confira os dados e tente de novo.",
+  ⎿  (timeout 5m)
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\api\erros.test.ts)
+  ⎿  Added 2 lines, removed 3 lines
+      16  function arquivosDeCodigos(): string[] {
+      17    const raiz = join(API, "Maxx.Application");
+      18    return readdirSync(raiz, { recursive: true, encoding: "utf8" 
+          })
+      19 -    .filter((caminho) => /(^|[\/])Codigosw*.cs$/.test(caminho))
+      19 +    .filter((caminho) => /(^|[\\/])Codigos\w*\.cs$/.test(caminh
+         +o))                                                            
+      20      .map((caminho) => join(raiz, caminho));
+      21  }
+      22  
+     ...
+      24  function codigosDaApi(): string[] {
+      25    const recusas = arquivosDeCodigos()
+      26      .map((arquivo) => readFileSync(arquivo, "utf8"))
+      27 -    .join("                                                    
+      28 -");                                                            
+      27 +    .join("\n");                                               
+      28    const erros = readFileSync(
+      29      join(API, "Maxx.Api/Erros/DomainExceptionHandler.cs"),
+      30      "utf8",
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Mensagens cobertas e teste ampliado passando. Agora os testes Jest das telas
+  do professor.
+
+● Write(apps\mobile\src\professor\professor.test.tsx)
+  ⎿  Wrote 206 lines to apps\mobile\src\professor\professor.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 
+       3 import { caminhos, json, renderComApi } from "../test/renderComA
+         pi";
+       4 import { TurmaScreen } from "./TurmaScreen";
+       5 import { TurmasScreen } from "./TurmasScreen";
+       6 
+       7 const mockRoteador = {
+       8   push: jest.fn(),
+     … +198 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && cat >
+      "$TEMP/e8d.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  Tests:       10 passed, 10 total
+  ⎿  Updated apps\mobile\src\professor\professor.test.tsx (+12 -5)
+      78    });
+      79  }
+      80  
+      81 +// Botão pelo nome acessível, que no Button é o próprio rótulo.
+      82 +async function apertarBotao(nome: string) {                    
+      83 +  await act(async () => {                                      
+      84 +    fireEvent.press(await screen.findByRole("button", { name: n
+         +ome }));                                                       
+      85 +  });                                                          
+      86 +}                                                              
+      87 +                                                               
+      88  describe("lista de turmas", () => {
+      89    it("mostra cada turma vigente com curso, semestre e alunos e 
+          abre a turma", async () => {
+      90      await renderComApi(<TurmasScreen />, api);
+     ...
+      110      expect(
+      111        await screen.findByText("Sem conexão. Confira a internet
+            e tente de novo."),
+      112      ).toBeOnTheScreen();
+      106 -    await apertar("Tentar de novo");                          
+      113 +    await apertarBotao("Tentar de novo");                     
+      114      expect(await screen.findByText("Banco de Dados")).toBeOnTh
+           eScreen();
+      115    });
+      116  });
+     ...
+      145      expect(screen.getByText("Uma vez no semestre, por matéria"
+           )).toBeOnTheScreen();
+      146  
+      147      await apertar(/^Nota 10 em prova, Bronze, 30 pontos/);
+      141 -    await apertar("Conceder");                                
+      148 +    await apertarBotao("Conceder");                           
+      149  
+      150      expect(concessao).toHaveBeenCalledTimes(1);
+      151      expect(await concessao.mock.calls[0]![0].json()).toEqual({
+            alunoId: ANA, item: "M01" });
+     ...
+      161      await apertar("Conceder medalha a Ana Souza");
+      162      await screen.findByText("Para Ana Souza");
+      163  
+      157 -    await apertar("Conceder");                                
+      164 +    await apertarBotao("Conceder");                           
+      165  
+      166      expect(concessao).not.toHaveBeenCalled();
+      167    });
+     ...
+      174      await apertar("Conceder medalha a Ana Souza");
+      175      await apertar(/^Nota 10 em prova/);
+      176  
+     … 13 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Os 10 testes das telas do professor passam. Acrescento um teste da entrada
+  "Minhas turmas" no início e rodo o pacote mobile inteiro.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && cat >>
+      src/professor/professor.test.tsx <<'EOF'…)
+  ⎿  Tests:       11 passed, 11 total
+  ⎿  Updated apps\mobile\src\professor\professor.test.tsx (+21 -0)
+      1  import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+      2  
+      3 +import { InicioProvisorio } from "../inicio/InicioProvisorio";  
+      4  import { caminhos, json, renderComApi } from "../test/renderComA
+         pi";
+      5  import { TurmaScreen } from "./TurmaScreen";
+      6  import { TurmasScreen } from "./TurmasScreen";
+     ...
+      212      expect(await screen.findByText("Nenhum aluno com conta nes
+           ta turma.")).toBeOnTheScreen();
+      213    });
+      214  });
+      215 +                                                              
+      216 +describe("entrada pelo início", () => {                       
+      217 +  it("o professor vê Minhas turmas; o aluno, não", async () =>
+          + {                                                            
+      218 +    const comPapeis = (papeis: string[]) =>                   
+      219 +      jest.fn(async (pedido: Request) =>                      
+      220 +        new URL(pedido.url).pathname === "/api/v1/eu"         
+      221 +          ? json(200, { id: ANA, papeis, arroba: "@renataA-PRO
+          +F" })                                                         
+      222 +          : new Response(null, { status: 404 }),              
+      223 +      );                                                      
+      224 +                                                              
+      225 +    const professor = await renderComApi(<InicioProvisorio />,
+          + comPapeis(["professor"]));                                   
+      226 +    await apertarBotao("Minhas turmas");                      
+      227 +    expect(mockRoteador.push).toHaveBeenCalledWith("/turmas");
+      228 +    professor.unmount();                                      
+      229 +                                                              
+      230 +    await renderComApi(<InicioProvisorio />, comPapeis(["aluno
+          +"]));                                                         
+      231 +    expect(await screen.findByTestId("arroba")).toBeOnTheScree
+          +n();                                                          
+      232 +    expect(screen.queryByRole("button", { name: "Minhas turmas
+          +" })).toBeNull();                                             
+      233 +  });                                                         
+      234 +});                                                           
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src > /dev/null && npx prettier --check
+      apps/mobile 2>&1…)
+  ⎿  All matched files use Prettier code style!
+
+     > @maxx/mobile@0.0.0 lint
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\inicio\InicioProvisorio.tsx (+4 -1)
+      45            </View>
+      46          )}
+      47          {eu.isSuccess && eu.data.papeis.includes("professor") &
+          & (
+      48 -          <Button label="Minhas turmas" onPress={() => router.p
+         -ush("/turmas")} />                                             
+      48 +          <Button                                              
+      49 +            label="Minhas turmas"                              
+      50 +            onPress={() => router.push("/turmas")}             
+      51 +          />                                                   
+      52          )}
+      53  
+      54          <ThemePreferenceControl />
+  ⎿  Updated apps\mobile\src\professor\ModalDeConcessao.tsx (+19 -5)
+      19  import { rotulosDeTier } from "../premios/rotulos";
+      20  import { textStyles } from "../theme/fonts";
+      21  import { useTheme } from "../theme/ThemeProvider";
+      22 -import { espacamento, raios, tamanhos, tiers, type Tier } from 
+         -"../theme/tokens";                                             
+      22 +import {                                                       
+      23 +  espacamento,                                                 
+      24 +  raios,                                                       
+      25 +  tamanhos,                                                    
+      26 +  tiers,                                                       
+      27 +  type Tier,                                                   
+      28 +} from "../theme/tokens";                                      
+      29  import { useConcederMedalha, useMedalhasDoCatalogo } from "./ap
+          i";
+      30  import { descreverLimite } from "./textos";
+      31  
+     ...
+       96              styles.folha,
+       97              {
+       98                backgroundColor: colors.bg,
+       93 -              paddingBottom: espacamento.respiroAntesDaNavegac
+          -ao + insets.bottom,                                           
+       99 +              paddingBottom:                                  
+      100 +                espacamento.respiroAntesDaNavegacao + insets.b
+          +ottom,                                                        
+      101              },
+      102            ]}
+      103          >
+     ...
+      170                            {` · ${medalha.pontos} pts`}
+      171                          </Text>
+      172                        </Text>
+      166 -                      <Text style={[textStyles.legenda, { colo
+          -r: colors.ink2 }]}>                                           
+      173 +                      <Text                                   
+      174 +                        style={[textStyles.legenda, { color: c
+          +olors.ink2 }]}                                                
+      175 +                      >                                       
+      176                          {medalha.descricao}
+      177                        </Text>
+      169 -                      <Text style={[textStyles.legenda, { colo
+          -r: colors.ink3 }]}>                                           
+      170 -                        {descreverLimite(medalha.limitePorPeri
+          -odo, medalha.periodo)}                                        
+      178 +                      <Text                                   
+      179 +                        style={[textStyles.legenda, { color: c
+          +olors.ink3 }]}                                                
+      180 +                      >                                       
+      181 +                        {descreverLimite(                     
+      182 +                          medalha.limitePorPeriodo,           
+      183 +                          medalha.periodo,                    
+     … 4 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\professor\TurmaScreen.tsx (+7 -2)
+      40        {confirmacao && (
+      41          <View role="status" aria-live="polite" style={styles.co
+          nfirmacao}>
+      42            <Icon name="check" color={colors.ink} size={16} />
+      43 -          <Text style={[textStyles.legenda, styles.flex, { colo
+         -r: colors.ink }]}>                                             
+      43 +          <Text                                                
+      44 +            style={[textStyles.legenda, styles.flex, { color: c
+         +olors.ink }]}                                                  
+      45 +          >                                                    
+      46              {confirmacao}
+      47            </Text>
+      48          </View>
+     ...
+      90                accessibilityLabel={`Conceder medalha a ${linha.n
+          omeDeExibicao}`}
+      91                onPress={() => {
+      92                  setConfirmacao(null);
+      91 -                setAluno({ id: linha.id, nomeDeExibicao: linha.
+         -nomeDeExibicao });                                             
+      93 +                setAluno({                                     
+      94 +                  id: linha.id,                                
+      95 +                  nomeDeExibicao: linha.nomeDeExibicao,        
+      96 +                });                                            
+      97                }}
+      98              />
+      99            </View>
+  ⎿  Updated apps\mobile\src\professor\professor.test.tsx (+70 -19)
+      16  const TURMA = "0193a000-0000-7000-8000-0000000000aa";
+      17  const ANA = "0193a000-0000-7000-8000-0000000000b1";
+      18  const TURMAS = [
+      19 -  { id: TURMA, materia: "Banco de Dados", curso: "CC", semestre
+         -: "2026/2", alunos: 1 },                                       
+      19 +  {                                                            
+      20 +    id: TURMA,                                                 
+      21 +    materia: "Banco de Dados",                                 
+      22 +    curso: "CC",                                               
+      23 +    semestre: "2026/2",                                        
+      24 +    alunos: 1,                                                 
+      25 +  },                                                           
+      26  ];
+      27  const ALUNOS = [
+      22 -  { id: ANA, nomeDeExibicao: "Ana Souza", arroba: "@anaSouza-CC
+         -", medalhas: [] },                                             
+      28 +  {                                                            
+      29 +    id: ANA,                                                   
+      30 +    nomeDeExibicao: "Ana Souza",                               
+      31 +    arroba: "@anaSouza-CC",                                    
+      32 +    medalhas: [],                                              
+      33 +  },                                                           
+      34  ];
+      35  const MEDALHAS = [
+      36    {
+     ...
+      77    api = jest.fn(async (pedido: Request) => {
+      78      const caminho = new URL(pedido.url).pathname;
+      79      if (caminho === "/api/v1/professor/turmas") return turmas(p
+          edido);
+      69 -    if (caminho === `/api/v1/professor/turmas/${TURMA}/alunos`)
+         - return alunos(pedido);                                        
+      80 +    if (caminho === `/api/v1/professor/turmas/${TURMA}/alunos`)
+      81 +      return alunos(pedido);                                   
+      82      if (caminho === "/api/v1/professor/medalhas") return json(2
+          00, MEDALHAS);
+      71 -    if (caminho === `/api/v1/professor/turmas/${TURMA}/medalhas
+         -`) return concessao(pedido);                                   
+      83 +    if (caminho === `/api/v1/professor/turmas/${TURMA}/medalhas
+         +`)                                                             
+      84 +      return concessao(pedido);                                
+      85      return new Response(null, { status: 404 });
+      86    });
+      87  });
+     ...
+      114      turmas.mockResolvedValue(json(200, []));
+      115      await renderComApi(<TurmasScreen />, api);
+      116  
+      104 -    expect(await screen.findByText("Nenhuma turma neste semest
+          -re.")).toBeOnTheScreen();                                     
+     … 130 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/mobile/src/professor/professor.test.tsx && sed -n 63,70p $f && sed
+      -i '63,75{s/tur…)
+  ⎿  beforeEach(() => {
+       jest.clearAllMocks();
+       turmas = jest.fn(async () => json(200, TURMAS));
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\professor\professor.test.tsx (+3 -3)
+      62  
+      63  beforeEach(() => {
+      64    jest.clearAllMocks();
+      65 -  turmas = jest.fn(async () => json(200, TURMAS));             
+      66 -  alunos = jest.fn(async () => json(200, ALUNOS));             
+      67 -  concessao = jest.fn(async () =>                              
+      65 +  turmas = jest.fn(async (_pedido: Request) => json(200, TURMAS
+         +));                                                            
+      66 +  alunos = jest.fn(async (_pedido: Request) => json(200, ALUNOS
+         +));                                                            
+      67 +  concessao = jest.fn(async (_pedido: Request) =>              
+      68      json(201, {
+      69        id: "0193a000-0000-7000-8000-0000000000c1",
+      70        item: "M01",
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Lint, typecheck e os 306 testes do app passam. Agora preparo o compose local
+  para tirar as capturas da lista e do modal.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Background command "Wait for etapa 7 CI run" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● CI da etapa 7 verde. Escrevo o script que prepara os dados locais e tira as
+  capturas com o Playwright, no claro e no escuro.
+
+  Made 1 scratchpad edit +80, read 4 files, ran 1 shell command (ctrl+o to expand)
+
+● As capturas saíram, mas o estilo rotulo deixa nomes e matérias em caixa alta,
+  o que não cabe para nome de pessoa. Confiro a escala tipográfica para escolher
+  o estilo certo.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Uso secao (Archivo 700, 15 px), que a identidade indica para nomes e títulos,
+  no lugar do rotulo, e refaço as capturas.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/textStyles\.rotulo/textStyles.secao/g'
+      apps/mobile/src/professor/TurmasScreen.t…)
+  ⎿  apps/mobile/src/professor/ModalDeConcessao.tsx:2
+     apps/mobile/src/professor/TurmaScreen.tsx:1
+     apps/mobile/src/professor/TurmasScreen.tsx:1
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\professor\ModalDeConcessao.tsx (+1 -1)
+      159                    >
+      160                      <Medalhao tier={tier} glifo="fita" size={4
+           0} />
+      161                      <View style={styles.textoDoItem}>
+      162 -                      <Text style={[textStyles.rotulo, { color
+          -: colors.ink }]}>                                             
+      162 +                      <Text style={[textStyles.secao, { color:
+          + colors.ink }]}>                                              
+      163                          {medalha.nome}
+      164                        </Text>
+      165                        <Text style={textStyles.legenda}>
+  ⎿  Updated apps\mobile\src\professor\TurmaScreen.tsx (+1 -1)
+      72            >
+      73              <Avatar nome={linha.nomeDeExibicao} />
+      74              <View style={styles.flex}>
+      75 -              <Text style={[textStyles.rotulo, { color: colors.
+         -ink }]}>                                                       
+      75 +              <Text style={[textStyles.secao, { color: colors.i
+         +nk }]}>                                                        
+      76                  {linha.nomeDeExibicao}
+      77                </Text>
+      78                <Text style={[textStyles.legenda, { color: colors
+          .ink2 }]}>
+  ⎿  Updated apps\mobile\src\professor\TurmasScreen.tsx (+1 -1)
+      59              onPress={() => router.push(`/turmas/${turma.id}`)}
+      60            >
+      61              <View style={styles.texto}>
+      62 -              <Text style={[textStyles.rotulo, { color: colors.
+         -ink }]}>                                                       
+      62 +              <Text style={[textStyles.secao, { color: colors.i
+         +nk }]}>                                                        
+      63                  {turma.materia}
+      64                </Text>
+      65                <Text style={[textStyles.legenda, { color: colors
+          .ink2 }]}>
+  ⎿  (timeout 10m)
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● A etapa 8 está pronta para a sua revisão: Prettier, lint e typecheck limpos e
+  os 306 testes do app passando. Ainda não fiz commit nem push dela.
+
+  Etapa 7: CI verde
+
+  A CI do commit 50ee7b7 feat(api): adiciona leitura dos prêmios do aluno com 
+  critério e raridade (run 42420649011) passou nos seis jobs. O commit inclui o
+  recálculo de raridade no cadastro e no registro da demonstração, com o evento
+  novo no ADR 0005 e um teste para cada caminho.
+
+  Etapa 8: cliente do professor (sem commit)
+
+  Telas
+  - Entrada (decisão G): o início provisório mostra "Minhas turmas" só para quem
+    tem o papel de professor.
+  - /turmas: as turmas do semestre vigente, com matéria, "CC · 2026/2 · 5
+    alunos" e seta para entrar. Sem turma, mostra "Nenhuma turma neste
+    semestre."; com erro, mensagem amigável e Tentar de novo.
+  - /turmas/[id]: cabeçalho com voltar e o nome da matéria, e a lista de alunos
+    com avatar de iniciais, nome, arroba, quantas medalhas o aluno já tem nesta
+    turma e o botão "Conceder".
+    - Turma sem aluno com conta explica por quê, coerente com a regra F.
+    - Turma de outro professor mostra "Essa turma não é sua neste semestre."
+  - Modal de concessão: uma folha que sobe de baixo, como as do Instagram, com
+    "Conceder medalha / Para Juliana Rocha" e o botão de fechar.
+    - Cada medalha do catálogo aparece com medalhão do tier, nome, "Bronze · 30
+      pts" (tier na cor de texto do token), critério e limite ("Até 2 por
+      bimestre, por matéria").
+    - O professor escolhe o item e não digita valor.
+    - "Conceder" só fica ativo com um item escolhido.
+    - Recusa e falta de conexão aparecem dentro do modal, sem fechá-lo.
+    - Concedida, a folha fecha, aparece "Medalha Nota 10 em prova concedida a
+      Juliana Rocha." e a lista da turma é recarregada.
+
+  Componentes
+  - O Cabecalho é novo e reaproveitável.
+  - O Icon ganhou voltar, avancar e fechar, do Lucide.
+  - O Button aceita um accessibilityLabel opcional, para o leitor de tela
+    anunciar "Conceder medalha a Juliana Rocha".
+
+  Mensagens de erro
+  - Os oito códigos da concessão têm mensagem em erros.ts, e os dois do comando
+    de anulação também, porque o teste exige mensagem para todo código.
+  - O teste de mensagens agora lê todos os arquivos Codigos*.cs da Application,
+    como combinado na etapa 4. Ele falha se aparecer código sem mensagem ou
+    arquivo novo de códigos.
+
+  Testes: 12 novos no Jest.
+  - 11 das telas:
+    - turma aberta pela lista;
+    - estado vazio e erro com retentativa;
+    - lista de alunos com contagem de medalhas;
+    - concessão completa, conferindo o corpo {alunoId, item}, a confirmação e a
+      recarga da lista;
+    - botão bloqueado sem item escolhido;
+    - limite atingido e falta de conexão dentro do modal;
+    - escopo recusado e turma sem aluno;
+    - "Minhas turmas" só para professor.
+  - 1 a mais em erros.test.ts.
+
+  Capturas, no compose local, em 390×844, com a professora Renata do seed demo,
+  o primeiro acesso feito pelo Mailpit e quatro alunos cadastrados pela API na
+  turma de Banco de Dados:
+  - Lista de turmas: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilhe
+    rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\31e8808d-0a36-4342-8599-977d
+    5e0ccc1e\scratchpad\capturas\turmas-claro.png e turmas-escuro.png
+  - Alunos da turma: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilhe
+    rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\31e8808d-0a36-4342-8599-977d
+    5e0ccc1e\scratchpad\capturas\turma-claro.png e turma-escuro.png
+  - Modal, com a Nota 10 escolhida: C:\Users\GUILHE~1\AppData\Local\Temp\claude\
+    C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\31e8808d-0a36
+    -4342-8599-977d5e0ccc1e\scratchpad\capturas\modal-claro.png e
+    modal-escuro.png
+
+  Na primeira rodada das capturas, nomes e matérias saíram em caixa alta, porque
+  eu tinha usado o estilo rotulo. Troquei por secao (Archivo 700, 15 px), que a
+  identidade visual indica para nomes e títulos, e refiz as seis capturas.
+
+  Commit proposto: feat(mobile): adiciona turmas, alunos e modal de concessão do
+  professor. Com seu ok, faço o commit e o push, trago a CI e sigo para a etapa
+  9, a tela de Troféus.
+
+✻ Cogitated for 13m 23s · done 19:36
+
+※ recap: Passo 6 (medalhas, fila e worker): as etapas 1 a 7 estão commitadas, com CI verde. A etapa 8, cliente do professor com capturas da lista e do modal, espera sua revisão; com o seu ok, commito, faço o push e sigo para a tela de Troféus. (disable recaps in /config)
