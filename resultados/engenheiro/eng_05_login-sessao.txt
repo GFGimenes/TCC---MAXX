@@ -5794,3 +5794,113 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
     lista do passo. Se quiser, acrescento as duas linhas.
 
 ✻ Worked for 15m 16s · done 17:05
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+> PR conferido; o "dois fixes" foi engano meu, só há o da etapa 2 e a descrição 
+  está certa. Dois ajustes antes do merge, num commit docs separado: 1, no      
+  plano mestre, troca o risco "Rede do campus na apresentação" e o item de      
+  ensaio do passo 13 pela realidade nova: não há apresentação presencial, a     
+  avaliação é remota antes de 05/12, cada avaliador entra pela própria conexão; 
+  o ensaio passa a ser de demonstração remota, com a purga de ensaio mantida.   
+  2, acrescenta TermoDeUso e AceiteDeTermo ao glossário do CLAUDE.md. Push,     
+  confere a CI e me avisa. Depois eu faço o merge no GitHub e fecho a rodada.   
+  Passo 5 encerrado.                                                            
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 4 lines, removed 3 lines
+      245  - Backup: `pg_dump` noturno para o bucket e dump manual antes 
+           de migration, com
+      246    restauração testada uma vez.
+      247  - APK gerado e fumaça mínima com Maestro.
+      248 -- Ensaio da apresentação com a banca entrando por rede móvel e
+          - o notebook roteado pelo                                      
+      249 -  celular.                                                    
+      250 -- Purga de ensaio testada, para a purga real do dia seguinte s
+          -er rotina.                                                    
+      248 +- Ensaio da demonstração remota: não há apresentação presencia
+          +l, a avaliação é remota,                                      
+      249 +  antes de 05/12, e cada avaliador entra pela própria conexão.
+          + O ensaio entra na VPS de                                     
+      250 +  fora, por conexões diferentes, com a demonstração ligada.   
+      251 +- Purga de ensaio testada, para a purga real, ao fim da avalia
+          +ção, ser rotina.                                              
+      252  - Avaliar a troca do Node 22 (em manutenção até abril de 2027)
+            pelo Node 24 LTS no
+      253    `.nvmrc`, no `engines` e na CI.
+      254  - Revisar os 33 achados do `npm audit` abaixo do corte alto ou
+            crítico (1 baixo e 32
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 1 line, removed 1 line
+      271  
+      272  | Risco | Onde é tratado |
+      273  |---|---|
+      274 -| Rede do campus na apresentação | Passo 13, ensaio por rede m
+          -óvel. Não há ambiente local alternativo |                     
+      274 +| Conexão de cada avaliador na avaliação remota | Não há apres
+          +entação presencial: a avaliação é remota, antes de 05/12, e ca
+          +da avaliador entra pela própria conexão na VPS. Passo 13, ensa
+          +io da demonstração remota. Não há ambiente local alternativo |
+      275  | Worker morto congela ranking sem erro em tela | Passo 13, ve
+           rificação de saúde e alerta |
+      276  | Bundle da web grande no primeiro acesso | Passo 13, medição 
+           no ensaio com celular real |
+      277  | Fila disputando I/O com o feed no pico | Passo 13, primeiro 
+           lugar a olhar se o p95 não bater |
+
+● Update(CLAUDE.md)
+  ⎿  Added 2 lines
+      102  | `Turma` | Matéria mais semestre letivo |
+      103  | `Matricula` | Vínculo aluno e turma. Única fonte de "quantas
+            matérias o aluno tem" |
+      104  | `CadastroElegivel` | Base com RA, e-mail e curso que a facul
+           dade abastece. Estar nela não é ter conta |
+      105 +| `TermoDeUso` | Texto do termo, versionado. Versão publicada 
+          +não muda; a vigente é a de número mais alto |                 
+      106 +| `AceiteDeTermo` | Quem aceitou qual versão do termo, e quand
+          +o. Gravado no cadastro e no registro da demonstração |        
+      107  | Semestre letivo | 2026/2, corta o ranking. Diferente do seme
+           stre do aluno, que é só perfil |
+      108  
+      109  Não invente sinônimo: nada de `Award`, `Prize`, `Badge`, `Rewa
+           rd`, `Trophy` no código.
+
+  Pushed to feat/passo-05-login (ctrl+o to expand)
+
+● Os dois ajustes estão no commit af1f260, separado e já no PR #7, e a CI dele
+  passou nos seis jobs. O PR está pronto para o seu merge.
+
+  Plano mestre:
+  - Risco: "Rede do campus na apresentação" virou "Conexão de cada avaliador na
+    avaliação remota". O texto diz que não há apresentação presencial, que a
+    avaliação é remota antes de 05/12 e que cada avaliador entra na VPS pela
+    própria conexão, e mantém "não há ambiente local alternativo".
+  - Passo 13: o ensaio com rede móvel e notebook roteado virou "Ensaio da
+    demonstração remota", que entra na VPS de fora, por conexões diferentes, com
+    a demonstração ligada.
+  - Purga de ensaio: mantida. Troquei só "a purga real do dia seguinte" por "a
+    purga real, ao fim da avaliação".
+
+  Glossário do CLAUDE.md: duas linhas novas, depois de CadastroElegivel.
+  - TermoDeUso: o texto do termo, versionado. Uma versão publicada não muda, e a
+    vigente é a de número mais alto.
+  - AceiteDeTermo: quem aceitou qual versão do termo, e quando. É gravado no
+    cadastro e no registro da demonstração.
+
+  Dois outros trechos ainda supõem apresentação presencial, e não mexi neles
+  porque estão fora do que você pediu:
+  - Em docs/decisoes/README.md, a linha "Banca" fala do wifi do campus e do
+    notebook roteado pelo celular.
+  - No mesmo arquivo, a justificativa do limite de 60 registros de demonstração
+    por hora por IP diz que a banca inteira entra pelo mesmo celular. Com cada
+    avaliador na própria conexão, o limite continua folgado, mas o motivo
+    escrito deixou de valer.
+
+  Ficam para quando você quiser revisar.
+
+✻ Cooked for 7m 46s · done 17:15

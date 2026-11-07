@@ -385,3 +385,14 @@ vez reiniciado pelo agente, com aviso). PR #6 com CI verde, merge na `main`
 apresentação presencial do TCC; a avaliação acontece antes de 05/12/2026. O ensaio com a
 banca previsto no passo 13 passa a ser ensaio de demonstração remota, e o risco do
 calendário em recesso, apontado pelo agente no plano do passo 5, deixa de se aplicar.
+
+07/11: `eng_05_login` fechada, as primeiras telas reais. Queda de rede de madrugada
+deixou o turno preso 15 horas na etapa 1; retomado com Esc na mesma sessão. Oito
+etapas: termo de uso na API (texto redigido pelo agente e aprovado pelo autor com a
+seção "Demonstração"), sessão com refresh serializado entre abas, peças da autenticação,
+login pela prancheta, cadastro em três passos, recuperação pelo Mailpit, entrada da
+demonstração com a mensagem de `registro-simultaneo`, fechamento com o plano mestre
+ajustado para a avaliação remota. Três bugs do agente pegos pelos próprios testes, um
+deles com CI vermelha e fix separado. 292 Jest, 63 e2e em duas passadas. PR #7, merge
+na `main` (`9115368`). Registro em `resultados/engenheiro/eng_05_login.md`. Próxima:
+`eng_06_medalhas`, com dois trechos do README de decisões a ajustar na abertura.
