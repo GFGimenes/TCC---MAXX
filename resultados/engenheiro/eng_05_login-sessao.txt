@@ -2,7 +2,6 @@
 ▝▜██████▀  Opus 5.5 · Claude Max
  ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
 
-‼ Your login expires in 1 day · run /login to renew
 
 > /model 
   ⎿  Kept model as Opus 5.5
@@ -250,4 +249,1534 @@
   Pode responder só com os números que quer mudar, e o que não for citado sigo
   como recomendei. Com o plano aprovado, começo pela etapa 1.
 
-✻ Crunched for 4m 32s · done 23:15
+✻ Crunched for 4m 32s · done sexta-feira, 23:15
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+> /login                                                                        
+  ⎿  Login successful
+
+> Plano do passo 5 aprovado, oito etapas, um PR da feat/passo-05-login para a   
+  rodada/eng_05_login. Decisões 1 a 6 e 8 pela sua recomendação: três telas de  
+  cadastro com a conta nascendo na última; texto do primeiro acesso sem link no 
+  lugar do Portal UniMax; você redige a v1 do termo a partir do produto.md e    
+  eu aprovo, arquivo em data/termos/, seed base, servido pela API; aceitam      
+  cadastro e registro da demonstração, professor e instituição não, sem novo    
+  aceite na fase 1; versaoDoTermo obrigatório como exceção registrada; início   
+  provisório com arroba, tema e Sair, status em /status; botão grande na ação   
+  principal das telas de autenticação, com a identidade corrigida. Na 7, a      
+  alternativa: borda em like no campo com erro, além do ícone e do texto,       
+  registrada como exceção à regra do like só em ícone. Sobre o calendário: a    
+  avaliação acontece antes de 05/12 e não há apresentação presencial, então o   
+  semestre vigente cobre; registra isso no risco. Os outros três riscos ficam   
+  registrados. Começa pela etapa 1 e para para a minha revisão no fim dela, com 
+  o texto do termo para eu aprovar.                                             
+
+● Vou criar a branch e ler como o seed, o EF e os testes de integração estão
+  montados, para a etapa 1 seguir o mesmo padrão.
+
+  Read 1 file, ran 5 shell commands (ctrl+o to expand)
+
+● O shell recusou o script inteiro antes de executar, então nada foi alterado.
+  Vou gravar os arquivos com a ferramenta de escrita.
+
+● Write(data\termos\termo-de-uso.v1.md)
+  ⎿  Wrote 29 lines to data\termos\termo-de-uso.v1.md
+      1 O Maxx é a rede de conquistas da UniMax, para alunos, professores
+         e a instituição. Para usar o Maxx, é preciso aceitar este termo.
+      2 
+      3 ## O que fica visível
+      4 
+      5 Quem tem conta no Maxx vê o seu nome de exibição, o seu arroba, o
+         seu curso, os seus pontos, a sua posição no ranking e os prêmios
+         que você conquistou. Também vê os seus posts, curtidas e comentá
+        rios.
+      6 
+     … +23 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Identidade\TermoDeUso.cs)
+  ⎿  Wrote 47 lines to apps\api\src\Maxx.Domain\Identidade\TermoDeUso.cs
+       1 namespace Maxx.Domain.Identidade;
+       2 
+       3 // O termo que o aluno aceita ao criar a conta (produto.md 2.6).
+          Uma versão publicada nunca
+       4 // muda: quem a aceitou, aceitou aquele texto. A vigente é a de 
+         número mais alto.
+       5 public sealed class TermoDeUso
+       6 {
+       7     // Para o EF Core materializar do banco.
+       8     private TermoDeUso()
+     … +39 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Autenticacao\Termos\TermoDeUsoHandler.cs)
+  ⎿  Wrote 22 lines to
+     apps\api\src\Maxx.Application\Autenticacao\Termos\TermoDeUsoHandler.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Application.Autenticacao.Termos;
+       4 
+       5 // O termo de uso vigente, e a conferência do que o aluno disse 
+         ter aceitado.
+       6 public sealed class TermoDeUsoHandler(ITermoDeUsoRepository term
+         os)
+       7 {
+       8     public async Task<TermoDeUso> VigenteAsync(CancellationToken
+     … +15 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\Autenticacao\TermoDeUsoEndpoints.cs)
+  ⎿  Wrote 28 lines to
+     apps\api\src\Maxx.Api\Autenticacao\TermoDeUsoEndpoints.cs
+       1 using Maxx.Application.Autenticacao.Termos;
+       2 using Microsoft.AspNetCore.Http.HttpResults;
+       3 
+       4 namespace Maxx.Api.Autenticacao;
+       5 
+       6 // O texto vem da API, e não do bundle: o app instalado atrasa, 
+         e o aceite tem de ser do
+       7 // texto vigente. Público, porque quem o lê ainda não tem conta.
+       8 internal static class TermoDeUsoEndpoints
+       9 {
+     … +19 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\TermoDeUsoReader.cs)
+  ⎿  Wrote 36 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\TermoDeUsoReader.cs
+       1 using System.Globalization;
+       2 using System.Text.RegularExpressions;
+       3 
+       4 namespace Maxx.Infrastructure.Seed;
+       5 
+       6 // Lê data/termos/termo-de-uso.v<versão>.md, um arquivo por vers
+         ão.
+       7 public static partial class TermoDeUsoReader
+       8 {
+       9     public static IReadOnlyDictionary<int, string> Ler(string di
+     … +28 lines (~1 KB) (ctrl+o to expand)
+
+  Made 1 scratchpad edit +163 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen
+      es-Documents-Re…)
+  ⎿  ok
+      M apps/api/src/Maxx.Api/Autenticacao/AutenticacaoServiceCollectionExt
+     ensions.cs
+     … +83 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollecti
+     onExtensions.cs (+2 -0)
+      3  using Maxx.Application.Autenticacao.Cadastro;
+      4  using Maxx.Application.Autenticacao.Login;
+      5  using Maxx.Application.Autenticacao.Recuperacao;
+      6 +using Maxx.Application.Autenticacao.Termos;                     
+      7  using Maxx.Infrastructure.Email;
+      8  using Microsoft.AspNetCore.Authentication.JwtBearer;
+      9  using Microsoft.IdentityModel.Tokens;
+     ...
+      21          builder.Services.AddSingleton<IAccessTokenIssuer, JwtAc
+          cessTokenIssuer>();
+      22          builder.Services.AddScoped<SessaoService>();
+      23          builder.Services.AddScoped<SugestaoDeArroba>();
+      24 +        builder.Services.AddScoped<TermoDeUsoHandler>();       
+      25          builder.Services.AddScoped<CadastroHandler>();
+      26          builder.Services.AddScoped<LoginHandler>();
+      27          builder.Services.AddScoped<RefreshHandler>();
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\CadastroEndpoints.cs (+3 
+     -2)
+      53          CadastroRequest pedido, CadastroHandler handler, HttpCo
+          ntext httpContext, CancellationToken cancellationToken)
+      54      {
+      55          var sessao = await handler.CadastrarAsync(
+      56 -            new NovoCadastro(pedido.Ra, pedido.Email, pedido.No
+         -meDeExibicao, pedido.Prefixo, pedido.Senha), cancellationToken)
+         -;                                                              
+      56 +            new NovoCadastro(pedido.Ra, pedido.Email, pedido.No
+         +meDeExibicao, pedido.Prefixo, pedido.Senha, pedido.VersaoDoTerm
+         +o), cancellationToken);                                        
+      57          return TypedResults.Created((string?)null, SessaoHttp.E
+          screver(httpContext, sessao));
+      58      }
+      59  }
+     ...
+      74      [property: Required, StringLength(254)] string Email,
+      75      [property: Required(AllowEmptyStrings = true), StringLength
+          (240)] string NomeDeExibicao,
+      76      [property: Required(AllowEmptyStrings = true), StringLength
+          (64)] string Prefixo,
+      77 -    [property: Required(AllowEmptyStrings = true), StringLength
+         -(512)] string Senha)                                           
+      77 +    [property: Required(AllowEmptyStrings = true), StringLength
+         +(512)] string Senha,                                           
+      78 +    [property: Range(1, int.MaxValue)] int VersaoDoTermo)      
+      79  {
+      80      public override string ToString() => $"CadastroRequest {{ R
+          a = {Ra}, Prefixo = {Prefixo} }}";
+      81  }
+  ⎿  Updated apps\api\src\Maxx.Api\Demonstracao\DemonstracaoEndpoints.cs
+     (+3 -2)
+      68      private static async Task<Created<RegistroDeDemonstracaoRes
+          ponse>> RegistrarAsync(
+      69          RegistroDeDemonstracaoRequest pedido, DemonstracaoHandl
+          er handler, HttpContext httpContext, CancellationToken cancella
+          tionToken)
+      70      {
+      71 -        var registro = await handler.RegistrarAsync(pedido.Nome
+         -, pedido.Curso, cancellationToken);                            
+      71 +        var registro = await handler.RegistrarAsync(pedido.Nome
+         +, pedido.Curso, pedido.VersaoDoTermo, cancellationToken);      
+      72          return TypedResults.Created(
+      73              (string?)null,
+      74              new RegistroDeDemonstracaoResponse(registro.ChaveDo
+          Dispositivo, SessaoHttp.Escrever(httpContext, registro.Sessao))
+          );
+     ...
+      89  // O nome tem a forma do nome de exibição, conferida no domínio
+          .
+      90  public sealed record RegistroDeDemonstracaoRequest(
+      91      [property: Required(AllowEmptyStrings = true), StringLength
+          (240)] string Nome,
+      92 -    [property: Required, StringLength(16)] string Curso);      
+      92 +    [property: Required, StringLength(16)] string Curso,       
+      93 +    [property: Range(1, int.MaxValue)] int VersaoDoTermo);     
+      94  
+      95  public sealed record EntradaDeDemonstracaoRequest([property: Re
+          quired, StringLength(128)] string ChaveDoDispositivo)
+      96  {
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      109  // continuar 404 (as rotas da demonstração desligada respondem
+            igual a ela).
+      110  var v1 = api.MapGroup("/v1").RequireAuthorization();
+      111  v1.MapEuEndpoints();
+      112 +v1.MapTermoDeUsoEndpoints();                                  
+      113  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      114  if (demonstracao)
+      115  {
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Autenticacao\Cadastro\CadastroHandler.cs
+     (+5 -1)
+      1 +using Maxx.Application.Autenticacao.Termos;                     
+      2  using Maxx.Domain;
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Identidade;
+     ...
+      13      ISenhaHasher senhas,
+      14      SessaoService sessoes,
+      15      SugestaoDeArroba sugestoes,
+      16 +    TermoDeUsoHandler termos,                                  
+      17      IUnitOfWork unitOfWork,
+      18      TimeProvider relogio)
+      19  {
+     ...
+      42          Validar(() => PrefixoDeArroba.Validar(pedido.Prefixo), 
+          CodigosDeRecusa.PrefixoInvalido);
+      43          Validar(() => Usuario.ValidarNomeDeExibicao(pedido.Nome
+          DeExibicao), CodigosDeRecusa.NomeDeExibicaoInvalido);
+      44  
+      45 +        var termo = await termos.ConferirAceiteAsync(pedido.Ver
+         +saoDoTermo, cancellationToken);                                
+      46          var (cadastro, curso) = await BuscarSemContaAsync(pedid
+          o.Ra, pedido.Email, cancellationToken);
+      47          if ((await usuarios.PrefixosOcupadosAsync([pedido.Prefi
+          xo], cancellationToken)).Count > 0)
+      48          {
+     ...
+      51  
+      52          var usuario = Usuario.CadastrarAluno(
+      53              cadastro, curso, pedido.NomeDeExibicao, pedido.Pref
+          ixo, senhas.Hash(pedido.Senha), relogio.GetUtcNow());
+      54 +        usuario.AceitarTermo(termo, relogio.GetUtcNow());      
+      55          usuarios.Adicionar(usuario);
+      56          var sessao = sessoes.Abrir(usuario);
+      57  
+     ...
+      107  }
+      108  
+      109  // A senha em claro existe só neste pedido, a caminho do hash.
+      106 -public sealed record NovoCadastro(string Ra, string Email, str
+          -ing NomeDeExibicao, string Prefixo, string Senha)             
+      110 +public sealed record NovoCadastro(string Ra, string Email, str
+          +ing NomeDeExibicao, string Prefixo, string Senha, int VersaoDo
+          +Termo)                                                        
+      111  {
+      112      // Nunca imprimir a senha, nem por acidente num log de obj
+           eto.
+      113      public override string ToString() => $"NovoCadastro {{ Ra 
+           = {Ra}, Prefixo = {Prefixo} }}";
+  ⎿  … 18 more files changed
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && grep -n
+      "AssertRecusaAsync(HttpResp\|Task Assert…)
+  ⎿  Autenticacao/CadastroTests.cs:354:    private static async Task Assert
+     RecusaAsync(HttpResponseMessage response, HttpStatusCode status, strin
+     g codigo)
+     … +52 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs
+     (+1 -0)
+      329          var cc = new Curso("Ciência da Computação", "CC", 8);
+      330          await SalvarAsync(
+      331              factory,
+      332 +            TermoVigente(),                                   
+      333              cc,
+      334              CadastroElegivel.Aluno(_ana.Ra, _ana.Email, "Ana S
+           ouza", cc, 3),
+      335              CadastroElegivel.Aluno(_bruno.Ra, _bruno.Email, "B
+           runo Lima", cc, 3),
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\LimiteDe
+     TaxaTests.cs (+1 -0)
+      211          var ana = CadastroElegivel.Aluno("20260101", _ana, "An
+           a Souza", cc, 3);
+      212          await SalvarAsync(
+      213              factory,
+      214 +            TermoVigente(),                                   
+      215              ano,
+      216              cc,
+      217              bd,
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\LoginTests.cs
+     (+1 -0)
+      346          contaDaRenata.DefinirSenha(new Argon2idSenhaHasher().H
+           ash(_senhaDaRenata));
+      347          await SalvarAsync(
+      348              factory,
+      349 +            TermoVigente(),                                   
+      350              cc,
+      351              CadastroElegivel.Aluno(_ana.Ra, _ana.Email, "Ana S
+           ouza", cc, 3),
+      352              renata,
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\TermoDeUsoTests.cs)
+  ⎿  Wrote 65 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\TermoDeUsoTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Identidade;
+      3 
+      4 namespace Maxx.Domain.Tests.Identidade;
+      5 
+      6 public class TermoDeUsoTests
+      7 {
+      8     private static readonly DateTimeOffset _agora = new(2026, 11,
+         6, 15, 0, 0, TimeSpan.Zero);
+      9     private static readonly Curso _cc = new("Ciência da Computaçã
+     … +57 lines (~2 KB) (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\TermoDeUsoTests.cs
+       )
+  ⎿  Wrote 64 lines to apps\api\tests\Maxx.Api.IntegrationTests\Autenticaca
+     o\TermoDeUsoTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using System.Text.Json;
+       4 using Maxx.Api.Autenticacao;
+       5 using Maxx.Domain.Identidade;
+       6 using static Maxx.Api.IntegrationTests.BancoDeTeste;
+       7 
+       8 namespace Maxx.Api.IntegrationTests.Autenticacao;
+       9 
+      10 // A leitura do termo vigente. O aceite é testado no cadastro e 
+     … +55 lines (~2 KB) (ctrl+o to expand)
+
+  Made 1 scratchpad edit +250 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node "/c/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen
+      es-Documents-Re…)
+  ⎿  ok
+     1:using System.Net;
+     2:using System.Net.Http.Headers;
+     … +85 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     07022712_TermoDeUso.cs (+69 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class TermoDeUso : Migration                
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "termo_de_uso",                          
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    versao = table.Column<int>(type: "integer",
+         + nullable: false),                                             
+      19 +                    conteudo = table.Column<string>(type: "text
+         +", nullable: false),                                           
+      20 +                    publicado_em = table.Column<DateTimeOffset>
+         +(type: "timestamp with time zone", nullable: false)            
+      21 +                },                                             
+      22 +                constraints: table =>                          
+      23 +                {                                              
+      24 +                    table.PrimaryKey("pk_termo_de_uso", x => x.
+         +versao);                                                       
+      25 +                    table.CheckConstraint("ck_termo_de_uso_vers
+         +ao", "versao >= 1");                                           
+      26 +                });                                            
+      27 +                                                               
+      28 +            migrationBuilder.CreateTable(                      
+      29 +                name: "aceite_de_termo",                       
+      30 +                columns: table => new                          
+      31 +                {                                              
+      32 +                    usuario_id = table.Column<Guid>(type: "uuid
+         +", nullable: false),                                           
+      33 +                    versao = table.Column<int>(type: "integer",
+         + nullable: false),                                             
+      34 +                    aceito_em = table.Column<DateTimeOffset>(ty
+         +pe: "timestamp with time zone", nullable: false)               
+      35 +                },                                             
+      36 +                constraints: table =>                          
+      37 +                {                                              
+      38 +                    table.PrimaryKey("pk_aceite_de_termo", x =>
+         + new { x.usuario_id, x.versao });                              
+      39 +                    table.ForeignKey(                          
+      40 +                        name: "fk_aceite_de_termo_termo_de_uso_
+         +versao",                                                       
+     … 29 more lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs
+     (+65 -0)
+      322          Assert.Equal(1, await db.Set<FamiliaDeSessao>().CountA
+           sync(Ct));
+      323      }
+      324  
+      325 +    [Fact]                                                    
+      326 +    public async Task Cadastro_grava_quem_aceitou_qual_versao_
+          +e_quando()                                                    
+      327 +    {                                                         
+      328 +        await using var factory = await MundoAsync();         
+      329 +        using var client = factory.CreateClient();            
+      330 +        var antes = DateTimeOffset.UtcNow;                    
+      331 +                                                              
+      332 +        await CadastrarAsync(client, _ana);                   
+      333 +                                                              
+      334 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      335 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      336 +        var usuario = await db.Set<Usuario>().Include(usuario 
+          +=> usuario.AceitesDeTermo).SingleAsync(Ct);                   
+      337 +        var aceite = Assert.Single(usuario.AceitesDeTermo);   
+      338 +        Assert.Equal(VersaoDoTermo, aceite.Versao);           
+      339 +        Assert.InRange(aceite.AceitoEm, antes, DateTimeOffset.
+          +UtcNow);                                                      
+      340 +    }                                                         
+      341 +                                                              
+      342 +    [Fact]                                                    
+      343 +    public async Task Cadastro_sem_a_versao_do_termo_e_recusad
+          +o_na_borda_e_a_conta_nao_nasce()                              
+      344 +    {                                                         
+      345 +        await using var factory = await MundoAsync();         
+      346 +        using var client = factory.CreateClient();            
+      347 +                                                              
+      348 +        var response = await client.PostAsJsonAsync(          
+      349 +            _cadastro, new { ra = _ana.Ra, email = _ana.Email,
+          + nomeDeExibicao = "Ana", prefixo = "anaSouza", senha = _senha 
+          +}, Ct);                                                       
+      350 +                                                              
+      351 +        await AssertRecusaAsync(response, HttpStatusCode.BadRe
+          +quest, "dados-invalidos");                                    
+      352 +        await AssertSemContaAsync(factory);                   
+      353 +    }                                                         
+      354 +                                                              
+      355 +    [Fact]                                                    
+      356 +    public async Task Aceite_de_versao_que_nao_e_a_vigente_e_r
+          +ecusado_e_a_conta_nao_nasce()                                 
+      357 +    {                                                         
+      358 +        await using var factory = await MundoAsync();         
+      359 +        await SalvarAsync(factory, new TermoDeUso(VersaoDoTerm
+          +o + 1, "Texto novo.", DateTimeOffset.UtcNow));                
+      360 +        using var client = factory.CreateClient();            
+      361 +                                                              
+     … 31 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+79 -0)
+       5  using System.Text;
+       6  using System.Text.Json;
+       7  using System.Text.Json.Nodes;
+       8 +using System.Text.RegularExpressions;                          
+       9  using Maxx.Api.Autenticacao;
+      10  using Maxx.Api.Demonstracao;
+      11  using Maxx.Application;
+     ...
+      14  using Maxx.Infrastructure.Persistence;
+      15  using Microsoft.EntityFrameworkCore;
+      16  using Microsoft.Extensions.DependencyInjection;
+      17 +using Npgsql;                                                  
+      18  using static Maxx.Api.IntegrationTests.BancoDeTeste;
+      19  
+      20  namespace Maxx.Api.IntegrationTests.Autenticacao;
+     ...
+      241              "ck_usuario_demonstracao");
+      242      }
+      243  
+      244 +    [Fact]                                                    
+      245 +    public async Task Registro_grava_o_aceite_da_versao_vigent
+          +e_e_a_volta_nao_pede_de_novo()                                
+      246 +    {                                                         
+      247 +        await using var factory = await MundoAsync();         
+      248 +        using var client = factory.CreateClient();            
+      249 +                                                              
+      250 +        var registro = await RegistrarAsync(client, "Ana Paula
+          +");                                                           
+      251 +        await SalvarAsync(factory, new TermoDeUso(VersaoDoTerm
+          +o + 1, "Texto novo.", DateTimeOffset.UtcNow));                
+      252 +        var volta = await client.PostAsJsonAsync(_entrar, new 
+          +{ chaveDoDispositivo = registro.ChaveDoDispositivo }, Ct);    
+      253 +                                                              
+      254 +        Assert.Equal(HttpStatusCode.OK, volta.StatusCode);    
+      255 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      256 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      257 +        var usuario = await db.Set<Usuario>().Include(usuario 
+          +=> usuario.AceitesDeTermo).SingleAsync(Ct);                   
+      258 +        Assert.Equal(VersaoDoTermo, Assert.Single(usuario.Acei
+          +tesDeTermo).Versao);                                          
+      259 +    }                                                         
+      260 +                                                              
+      261 +    [Fact]                                                    
+      262 +    public async Task Registro_sem_a_versao_ou_com_versao_anti
+          +ga_nao_cria_aluno()                                           
+      263 +    {                                                         
+      264 +        await using var factory = await MundoAsync();         
+      265 +        await SalvarAsync(factory, new TermoDeUso(VersaoDoTerm
+          +o + 1, "Texto novo.", DateTimeOffset.UtcNow));                
+      266 +        using var client = factory.CreateClient();            
+     … 57 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs (+84
+     -0)
+      1  using System.Text.Json.Nodes;
+      2  using Maxx.Domain.Academico;
+      3 +using Maxx.Domain.Identidade;                                   
+      4  using Maxx.Infrastructure.Persistence;
+      5  using Maxx.Infrastructure.Seed;
+      6  using Microsoft.EntityFrameworkCore;
+     ...
+      223              .ToDictionaryAsync(item => item.Codigo, item => (i
+           tem.Versao, item.Pontos), Ct);
+      224      }
+      225  
+      226 +    [Fact]                                                    
+      227 +    public async Task Versao_nova_do_termo_entra_e_passa_a_ser
+          +_a_vigente_sem_mexer_na_antiga()                              
+      228 +    {                                                         
+      229 +        await using var factory = await MigradoAsync(postgres,
+          + Dados);                                                      
+      230 +        await factory.SeedBaseAsync(Ct);                      
+      231 +        var primeira = await TermosAsync(factory);            
+      232 +                                                              
+      233 +        await File.WriteAllTextAsync(Path.Combine(Dados, "term
+          +os", "termo-de-uso.v2.md"), "Texto novo.\n", Ct);             
+      234 +        var resultado = await factory.SeedBaseAsync(Ct);      
+      235 +                                                              
+      236 +        Assert.Equal(new ResultadoDoSeedBase(0, 0, 46, 0, 0, 0
+          +, 0, 1), resultado);                                          
+      237 +        var termos = await TermosAsync(factory);              
+      238 +        Assert.Equal(primeira[1], termos[1]);                 
+      239 +        Assert.Equal("Texto novo.", termos[2]);               
+      240 +    }                                                         
+      241 +                                                              
+      242 +    [Fact]                                                    
+      243 +    public async Task Texto_de_versao_publicada_nao_muda_e_nad
+          +a_e_gravado()                                                 
+      244 +    {                                                         
+      245 +        await using var factory = await MigradoAsync(postgres,
+          + Dados);                                                      
+      246 +        await factory.SeedBaseAsync(Ct);                      
+      247 +        var antes = await TermosAsync(factory);               
+      248 +                                                              
+      249 +        await File.AppendAllTextAsync(ArquivoDoTermo, "Frase a
+          +crescentada.\n", Ct);                                         
+      250 +        await File.WriteAllTextAsync(Path.Combine(Dados, "term
+          +os", "termo-de-uso.v2.md"), "Texto novo.\n", Ct);             
+      251 +        var falha = await Assert.ThrowsAsync<SeedException>(()
+          + => factory.SeedBaseAsync(Ct));                               
+      252 +                                                              
+      253 +        Assert.Contains("v1", falha.Message, StringComparison.
+          +Ordinal);                                                     
+      254 +        Assert.Equal(antes, await TermosAsync(factory));      
+      255 +    }                                                         
+      256 +                                                              
+     … 55 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/var outroLote = await RegistrarAsync(client, "Carla
+      Dias");/await RegistrarAsyn…)
+  ⎿  > openapi-typescript openapi.json -o src/schema.d.ts
+
+     ✨ openapi-typescript 7.13.0
+     … +102 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+1 -2)
+      288          using var client = factory.CreateClient();
+      289          await RegistrarAsync(client, "Ana Paula");
+      290          await RegistrarAsync(client, "Bruno Lima");
+      291 -        var outroLote = await RegistrarAsync(client, "Carla Di
+          -as");                                                         
+      291 +        await RegistrarAsync(client, "Carla Dias");           
+      292          await using (var scope = factory.Services.CreateAsyncS
+           cope())
+      293          {
+      294              var dados = scope.ServiceProvider.GetRequiredServi
+           ce<NpgsqlDataSource>();
+     ...
+      315          Assert.Equal(restante.Id, (await db.Set<AceiteDeTermo>
+           ().SingleAsync(Ct)).UsuarioId);
+      316          Assert.Equal(1, await db.Set<CadastroElegivel>().Count
+           Async(Ct));
+      317          Assert.Equal(1, await db.Set<TermoDeUso>().CountAsync(
+           Ct));
+      318 -        Assert.False(string.IsNullOrEmpty(outroLote.ChaveDoDis
+          -positivo));                                                   
+      318      }
+      319  
+      320      private async Task<MaxxApiFactory> MundoAsync(Action<IServ
+           iceCollection>? servicos = null)
+  ⎿  Updated packages\api-client\openapi.json (+62 -2)
+       90          ]
+       91        }
+       92      },
+       93 +    "/api/v1/termo-de-uso": {                                 
+       94 +      "get": {                                                
+       95 +        "tags": [                                             
+       96 +          "Autenticacao"                                      
+       97 +        ],                                                    
+       98 +        "operationId": "GetTermoDeUso",                       
+       99 +        "responses": {                                        
+      100 +          "200": {                                            
+      101 +            "description": "OK",                              
+      102 +            "content": {                                      
+      103 +              "application/json": {                           
+      104 +                "schema": {                                   
+      105 +                  "$ref": "#/components/schemas/TermoDeUsoResp
+          +onse"                                                         
+      106 +                }                                             
+      107 +              }                                               
+      108 +            }                                                 
+      109 +          },                                                  
+      110 +          "404": {                                            
+      111 +            "description": "Not Found",                       
+      112 +            "content": {                                      
+      113 +              "application/problem+json": {                   
+      114 +                "schema": {                                   
+      115 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+      116 +                }                                             
+      117 +              }                                               
+      118 +            }                                                 
+      119 +          }                                                   
+      120 +        }                                                     
+      121 +      }                                                       
+      122 +    },                                                        
+      123      "/api/v1/auth/cadastro/sugestao": {
+      124        "post": {
+      125          "tags": [
+     ...
+      710            "email",
+      711            "nomeDeExibicao",
+      712            "prefixo",
+      683 -          "senha"                                             
+     … 60 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+54 -0)
+      52          patch?: never;
+      53          trace?: never;
+      54      };
+      55 +    "/api/v1/termo-de-uso": {                                  
+      56 +        parameters: {                                          
+      57 +            query?: never;                                     
+      58 +            header?: never;                                    
+      59 +            path?: never;                                      
+      60 +            cookie?: never;                                    
+      61 +        };                                                     
+      62 +        get: operations["GetTermoDeUso"];                      
+      63 +        put?: never;                                           
+      64 +        post?: never;                                          
+      65 +        delete?: never;                                        
+      66 +        options?: never;                                       
+      67 +        head?: never;                                          
+      68 +        patch?: never;                                         
+      69 +        trace?: never;                                         
+      70 +    };                                                         
+      71      "/api/v1/auth/cadastro/sugestao": {
+      72          parameters: {
+      73              query?: never;
+     ...
+      254              nomeDeExibicao: string;
+      255              prefixo: string;
+      256              senha: string;
+      257 +            /** Format: int32 */                              
+      258 +            versaoDoTermo: number;                            
+      259          };
+      260          ConfirmacaoRequest: {
+      261              token: string;
+     ...
+      324          RegistroDeDemonstracaoRequest: {
+      325              nome: string;
+      326              curso: string;
+      327 +            /** Format: int32 */                              
+      328 +            versaoDoTermo: number;                            
+      329          };
+      330          RegistroDeDemonstracaoResponse: {
+      331              chaveDoDispositivo: string;
+     ...
+      344              sufixo: string;
+      345              arroba: string;
+     … 44 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os testes da API estão rodando em segundo plano. A suíte com Postgres real
+  passa de 10 minutos. Enquanto isso, confiro o diff e aplico a migration no
+  banco do compose local.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Os testes ainda estão rodando, porque a saída passa por um tail que só imprime
+  no fim. Aguardo a conclusão.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run domain, architecture and integration tests" completed
+(exit code 0)
+
+● A suíte de integração teve 116 falhas em 588 testes, enquanto domínio e
+  arquitetura passaram. Vou rodar de novo gravando a saída completa em arquivo
+  para ver quais falharam.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Monitor(failing integration tests in the rerun log)
+  ⎿  Monitor started · task b5tnr9mts · timeout 1800s
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Rerun integration tests saving the full log" completed
+(exit code 0)
+
+● Monitor event: "failing integration tests in the rerun log"
+  Resumo da execução de teste: Falhou!
+  total: 229
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A segunda rodada passou com 228 de 229 testes em 54 segundos, e as 116 falhas
+  anteriores parecem vir de uma suspensão da máquina. Vou corrigir o teste,
+  porque o Postgres devolve 23001 para o DELETE em chave RESTRICT, não 23503.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && node -e "
+      const fs=require('fs');const p='Autent…)
+  ⎿      0 Aviso(s)
+         0 Erro(s)
+       total: 229
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs
+     (+4 -2)
+      10  using Maxx.Infrastructure.Persistence;
+      11  using Microsoft.EntityFrameworkCore;
+      12  using Microsoft.Extensions.DependencyInjection;
+      13 +using Npgsql;                                                  
+      14  using static Maxx.Api.IntegrationTests.BancoDeTeste;
+      15  
+      16  namespace Maxx.Api.IntegrationTests.Autenticacao;
+     ...
+      377  
+      378          AssertChaveEstrangeira(
+      379              await FalhaNoSqlAsync(factory, "UPDATE aceite_de_t
+           ermo SET versao = 99"), "fk_aceite_de_termo_termo_de_uso_versa
+           o");
+      379 -        AssertChaveEstrangeira(                               
+      380 -            await FalhaNoSqlAsync(factory, "DELETE FROM termo_
+          -de_uso"), "fk_aceite_de_termo_termo_de_uso_versao");          
+      380 +        var apagar = await FalhaNoSqlAsync(factory, "DELETE FR
+          +OM termo_de_uso");                                            
+      381 +        Assert.Equal(PostgresErrorCodes.RestrictViolation, apa
+          +gar.SqlState);                                                
+      382 +        Assert.Equal("fk_aceite_de_termo_termo_de_uso_versao",
+          + apagar.ConstraintName);                                      
+      383      }
+      384  
+      385      private static async Task AssertSemContaAsync(MaxxApiFacto
+           ry factory)
+  ⎿  (timeout 10m)
+
+● Os 229 testes de integração passaram. Agora rodo domínio e arquitetura de novo
+  e subo o compose local, para aplicar a migration e ver a rota de verdade.
+
+  Ran 1 shell command (ctrl+o to expand)
+  ⎿  Interrupted · What should Claude do instead?
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+> A conexão caiu durante a etapa 1 e o turno ficou travado por horas. Os 229    
+  testes de integração já tinham passado. Continua de onde parou: domínio e     
+  arquitetura, compose com a migration, a rota de verdade, e o relatório da     
+  etapa 1 com o texto do termo para eu aprovar.                                 
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Domínio e arquitetura passaram. Agora subo o compose em segundo plano, para um
+  travamento não prender o turno.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Rebuild and start the compose stack with the new
+migration" completed (exit code 0)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa 1 está pronta para a sua revisão. Nada foi commitado ainda, e a CI só
+  roda depois do commit e do push.
+
+  Etapa 1: termo de uso na API
+
+  O que entrou:
+  - Domínio: TermoDeUso (versão a partir de 1, texto obrigatório) e
+    AceiteDeTermo (usuário, versão e instante). Usuario.AceitarTermo registra
+    cada versão uma vez só.
+  - Banco: a migration 20261107022712_TermoDeUso cria termo_de_uso e
+    aceite_de_termo.
+    - Apagar o usuário apaga os aceites dele, então o SQL da purga não precisa
+      mudar.
+    - Uma versão que alguém aceitou não pode sair do banco.
+  - Seed base: lê data/termos/termo-de-uso.v<n>.md.
+    - Uma versão publicada não muda nem some: texto alterado ou arquivo apagado
+      faz o seed falhar sem gravar nada.
+    - Texto novo entra como o arquivo da versão seguinte.
+    - A diferença de fim de linha entre Windows e Linux não conta como mudança.
+  - API:
+    - GET /api/v1/termo-de-uso não exige login e devolve a versão de número mais
+      alto. Sem termo publicado, responde 404 termo-indisponivel.
+    - O cadastro e o registro da demonstração passam a exigir versaoDoTermo. Sem
+      o campo, a resposta é 400 dados-invalidos. Com uma versão que não é a
+      vigente, é 409 termo-desatualizado. Nos dois casos a conta não nasce.
+    - O aceite é gravado na mesma transação que cria a conta.
+    - Voltar pela chave do dispositivo não pede o aceite de novo.
+  - Cliente gerado: openapi.json e schema.d.ts foram regenerados.
+
+  Testes:
+
+  ┌──────────────────────────────┬────────────┐
+  │            Camada            │ Resultado  │
+  ├──────────────────────────────┼────────────┤
+  │ Domínio                      │ 242 de 242 │
+  ├──────────────────────────────┼────────────┤
+  │ Arquitetura                  │ 4 de 4     │
+  ├──────────────────────────────┼────────────┤
+  │ Integração com Postgres real │ 229 de 229 │
+  └──────────────────────────────┴────────────┘
+
+  Os testes novos cobrem o aceite gravado, a recusa sem a versão e com versão
+  antiga, as regras de publicação no seed e as chaves estrangeiras. Um deles
+  roda o SQL da purga tirado do próprio README contra um banco real: ele apaga o
+  lote com os aceites e mantém o termo e o que é de outro lote.
+
+  Uma rodada anterior de integração mostrou 116 falhas, mas registrou 15 horas
+  de duração, que bate com a conexão caída. Ao rodar de novo, sobrou uma falha
+  real, minha: apagar uma versão protegida devolve o código 23001 do Postgres, e
+  não o 23503 que o teste esperava. Corrigi o teste, e as duas rodadas
+  seguintes passaram inteiras.
+
+  Lint, tipos e compose:
+  - dotnet format, build com aviso tratado como erro, Prettier em data e
+    packages e o typecheck do api-client e do mobile passaram.
+  - No compose local, o migrator aplicou a migration (1 pendente) e o seed
+    publicou o termo v1.
+  - Conferi as respostas de verdade pelo Caddy: GET /api/v1/termo-de-uso devolve
+    a v1, cadastro sem versão responde 400 e cadastro com versaoDoTermo: 7
+    responde 409.
+
+  Texto do termo v1, para aprovar
+
+  Arquivo data/termos/termo-de-uso.v1.md, redigido só a partir de produto.md
+  2.6, 4.7, 5, 6.1 e 9:
+
+  ▎ O Maxx é a rede de conquistas da UniMax, para alunos, professores e a 
+  ▎ instituição. Para usar o Maxx, é preciso aceitar este termo.
+  ▎
+  ▎ O que fica visível
+  ▎ Quem tem conta no Maxx vê o seu nome de exibição, o seu arroba, o seu curso,
+  ▎ os seus pontos, a sua posição no ranking e os prêmios que você conquistou. 
+  ▎ Também vê os seus posts, curtidas e comentários.
+  ▎
+  ▎ Ranking
+  ▎ Todo aluno aparece nos rankings. Não há opção de ficar de fora. Quem vira 
+  ▎ ex-aluno sai do ranking do semestre e continua no histórico.
+  ▎
+  ▎ Fotos
+  ▎ Toda foto enviada ao Maxx fica pública para quem tem o link, mesmo sem 
+  ▎ conta. Isso vale para a foto de perfil, a foto de post e a foto que comprova
+  ▎ um prêmio de participação. Envie só o que pode ficar exposto.
+  ▎ A comprovação de um prêmio de participação é um post público desde o envio, 
+  ▎ com a marca de pendente. Se o prêmio for reprovado ou revogado, o post 
+  ▎ continua como post comum, até você apagar.
+  ▎
+  ▎ O que fica reservado
+  ▎ O seu RA não aparece para outros alunos e não pode ser buscado. Só você e a 
+  ▎ instituição têm acesso a ele.
+  ▎ O seu progresso nas conquistas e os prêmios que ainda faltam aparecem só 
+  ▎ para você. Prêmio em averiguação ou revogado aparece só para você e para a 
+  ▎ instituição.
+  ▎
+  ▎ O papel da instituição
+  ▎ A instituição pode remover post e comentário impróprios, contestar e revogar
+  ▎ prêmio de participação e anular medalha concedida por erro.
+  ▎
+  ▎ Registro do aceite
+  ▎ Guardamos qual versão deste termo você aceitou e quando.
+
+  O texto não fala de LGPD, direitos do titular, contato, prazo de guarda dos
+  dados nem de a demonstração ser apagada depois da avaliação, porque os docs
+  não decidem nada disso. Se quiser algum desses pontos, me diga o conteúdo.
+
+  Depois que o termo for publicado, mudar o texto da v1 faz o seed falhar. Por
+  isso esta revisão vale antes do commit. Uma correção depois exige uma v2.
+
+  Próximo passo
+
+  Com a sua aprovação, faço o commit feat(api): adiciona termo de uso versionado
+  com aceite no cadastro e na demonstração, sem rodapé de co-autoria, e o push.
+  A etapa só conta como pronta depois que a CI passar, e o resultado entra no
+  relatório.
+
+  O registro dos riscos, incluindo a avaliação antes de 05/12 sem apresentação
+  presencial, fica na etapa 8, que reúne a documentação do passo.
+
+✻ Sautéed for 7m 16s · done 14:47
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_05_login-sessao.txt
+
+> Etapa 1 aprovada. Texto do termo v1 aprovado com um acréscimo, antes de       
+  "Registro do aceite": uma seção "Demonstração" dizendo que contas criadas no  
+  modo de demonstração são de teste e que os dados delas são apagados ao fim da 
+  avaliação do projeto. LGPD, contato e prazo de guarda ficam fora da fase 1,   
+  registrados como pendência. A correção do código 23001 no teste fica. Commita 
+  com a mensagem proposta, push, acompanha a CI e segue para a etapa 2; para    
+  para a minha revisão no fim dela.                                             
+
+● Update(data\termos\termo-de-uso.v1.md)
+  ⎿  Added 4 lines
+      24  
+      25  A instituição pode remover post e comentário impróprios, contes
+          tar e revogar prêmio de participação e anular medalha concedida
+           por erro.
+      26  
+      27 +## Demonstração                                                
+      28 +                                                               
+      29 +Contas criadas no modo de demonstração são de teste. Os dados d
+         +elas são apagados ao fim da avaliação do projeto.              
+      30 +                                                               
+      31  ## Registro do aceite
+      32  
+      33  Guardamos qual versão deste termo você aceitou e quando.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O compose local já publicou a v1 com o texto antigo; vou apagar essa linha e
+  rodar o seed de novo, antes do commit e do push, para evitar a falha de versão
+  imutável na próxima subida.
+
+  Pushed to feat/passo-05-login (ctrl+o to expand)
+● A imagem do seeder ainda carrega o data/ antigo, então o seed acabou de
+  publicar de novo o texto anterior. Vou reconstruir a imagem e republicar.
+  Enquanto isso, acompanho a CI.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Commit c326993 foi para o remoto, e a CI está em andamento. Enquanto ela roda,
+  começo a explorar a etapa 2 (sessão e refresh serializado no cliente).
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Rebuild API image and republish the approved term locally"
+completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● O compose local já serve o termo v1 aprovado, com a seção "Demonstração".
+  Começo a etapa 2 instalando expo-secure-store pela versão que o Expo 58
+  indica.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx expo
+      install expo-secure-store 2>&1 | tail -3; cd ../.. && git diff --sta…)
+  ⎿  Run `npm audit` for details.
+     › Added config plugin: expo-secure-store
+      apps/mobile/app.json     |  3 ++-
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\app.json (+2 -1)
+      39              "backgroundColor": "#06142A"
+      40            }
+      41          }
+      42 -      ]                                                        
+      42 +      ],                                                       
+      43 +      "expo-secure-store"                                      
+      44      ],
+      45      "scheme": "maxx"
+      46    }
+  ⎿  Updated apps\mobile\package.json (+1 -0)
+      11      "expo-font": "~58.0.11",
+      12      "expo-linking": "~58.0.15",
+      13      "expo-router": "~58.0.29",
+      14 +    "expo-secure-store": "~58.0.2",                            
+      15      "expo-splash-screen": "~58.0.13",
+      16      "expo-status-bar": "~58.0.4",
+      17      "expo-system-ui": "~58.0.7",
+  ⎿  Updated package-lock.json (+10 -0)
+      29          "expo-font": "~58.0.11",
+      30          "expo-linking": "~58.0.15",
+      31          "expo-router": "~58.0.29",
+      32 +        "expo-secure-store": "~58.0.2",                        
+      33          "expo-splash-screen": "~58.0.13",
+      34          "expo-status-bar": "~58.0.4",
+      35          "expo-system-ui": "~58.0.7",
+     ...
+      9646        "integrity": "sha512-RRieF6IyxQBkcK6pP8xOHprLTPW6QjRkbG
+            dImtqNme+/hYVwCZkLQLdlZGOhUqXwkS9IEynaGvPJtv6XB/cz0Q==",
+      9647        "license": "MIT"
+      9648      },
+      9649 +    "node_modules/expo-secure-store": {                      
+      9650 +      "version": "58.0.2",                                   
+      9651 +      "resolved": "https://registry.npmjs.org/expo-secure-sto
+           +re/-/expo-secure-store-58.0.2.tgz",                          
+      9652 +      "integrity": "sha512-VupWWEuQF6IiQ06McSymtn7/tehs8ifThh
+           +FwAU4UK8poomZcaa2S0UVt/y7G2XozBdkI3xpiPSx+r0pS2zsuYQ==",     
+      9653 +      "license": "MIT",                                      
+      9654 +      "peerDependencies": {                                  
+      9655 +        "expo": "*"                                          
+      9656 +      }                                                      
+      9657 +    },                                                       
+      9658      "node_modules/expo-server": {
+      9659        "version": "58.0.6",
+      9660        "resolved": "https://registry.npmjs.org/expo-server/-/e
+            xpo-server-58.0.6.tgz",
+  ⎿  (timeout 5m)
+
+● Write(apps\mobile\src\sessao\GerenciadorDeSessao.ts)
+  ⎿  Wrote 248 lines to apps\mobile\src\sessao\GerenciadorDeSessao.ts
+       1 import type { components } from "@maxx/api-client";
+       2 
+       3 export type SessaoResponse = components["schemas"]["SessaoRespon
+         se"];
+       4 
+       5 // Restaurando: o app ainda não sabe se há sessão. Sem conexão: 
+         havia como saber, mas a
+       6 // rede falhou; a sessão guardada continua valendo para a próxim
+         a tentativa.
+       7 export type EstadoDaSessao =
+     … +241 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\sessao\plataforma.ts)
+  ⎿  Wrote 20 lines to apps\mobile\src\sessao\plataforma.ts
+       1 import * as SecureStore from "expo-secure-store";
+       2 
+       3 import type {
+       4   ArmazenamentoDoRefresh,
+       5   TravaDoRefresh,
+       6 } from "./GerenciadorDeSessao";
+       7 
+       8 const CHAVE = "maxx.refresh";
+       9 
+      10 // Nativo: o refresh no secure store (Keychain no iOS, Keystore 
+     … +11 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\sessao\plataforma.web.ts)
+  ⎿  Wrote 22 lines to apps\mobile\src\sessao\plataforma.web.ts
+       1 import type {
+       2   ArmazenamentoDoRefresh,
+       3   TravaDoRefresh,
+       4 } from "./GerenciadorDeSessao";
+       5 
+       6 // Web: o refresh mora no cookie HttpOnly, fora do alcance do Ja
+         vaScript. Nada a guardar.
+       7 export const armazenamentoDaPlataforma: ArmazenamentoDoRefresh =
+          {
+       8   ler: async () => null,
+     … +14 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\sessao\SessaoProvider.tsx)
+  ⎿  Wrote 72 lines to apps\mobile\src\sessao\SessaoProvider.tsx
+      1 import { useQueryClient } from "@tanstack/react-query";
+      2 import {
+      3   createContext,
+      4   useContext,
+      5   useEffect,
+      6   useMemo,
+      7   useSyncExternalStore,
+      8   type ReactNode,
+      9 } from "react";
+     … +63 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\api\erros.ts)
+  ⎿  Wrote 60 lines to apps\mobile\src\api\erros.ts
+       1 // Todo erro em tela vira mensagem amigável (CLAUDE.md, Interfac
+         e). A API manda o código
+       2 // estável em `codigo` (decisoes/README.md, Formato de erro); aq
+         ui ele vira texto.
+       3 
+       4 const MENSAGENS = {
+       5   // Autenticação (CodigosDeRecusa.cs)
+       6   "cadastro-nao-encontrado": "Não achamos esse RA com esse e-mai
+         l. Confira os dois.",
+       7   "conta-existente": "Esse RA já tem conta. Use Esqueci minha se
+     … +54 lines (~3 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');…)
+  ⎿  Updated apps\mobile\src\app\_layout.tsx (+22 -1)
+       9    defaultBaseUrl,
+      10  } from "../api/ApiClientProvider";
+      11  import { PhoneFrame } from "../components/PhoneFrame";
+      12 +import { GerenciadorDeSessao } from "../sessao/GerenciadorDeSes
+         +sao";                                                          
+      13 +import {                                                       
+      14 +  armazenamentoDaPlataforma,                                   
+      15 +  ehWeb,                                                       
+      16 +  travaDaPlataforma,                                           
+      17 +} from "../sessao/plataforma";                                 
+      18 +import { SessaoProvider } from "../sessao/SessaoProvider";     
+      19  import { FontGate } from "../theme/FontGate";
+      20  import { ThemeProvider, useTheme } from "../theme/ThemeProvider
+          ";
+      21  
+     ...
+      27  
+      28  export default function RootLayout() {
+      29    const [queryClient] = useState(() => new QueryClient());
+      23 -  const [apiClient] = useState(() => createApiClient(defaultBas
+         -eUrl()));                                                      
+      30 +  const [gerenciador] = useState(                              
+      31 +    () =>                                                      
+      32 +      new GerenciadorDeSessao({                                
+      33 +        baseUrl: defaultBaseUrl(),                             
+      34 +        web: ehWeb,                                            
+      35 +        armazenamento: armazenamentoDaPlataforma,              
+      36 +        trava: travaDaPlataforma,                              
+      37 +        fetch: (request) => globalThis.fetch(request),         
+      38 +      }),                                                      
+      39 +  );                                                           
+      40 +  const [apiClient] = useState(() =>                           
+      41 +    createApiClient(defaultBaseUrl(), { fetch: gerenciador.fetc
+         +h }),                                                          
+      42 +  );                                                           
+      43  
+      44    return (
+      45      <QueryClientProvider client={queryClient}>
+      46 +      <SessaoProvider gerenciador={gerenciador}>               
+      47        <ApiClientProvider client={apiClient}>
+      48          <ThemeProvider>
+      49            <PhoneFrame>
+     ...
+      54            <ThemedStatusBar />
+      55          </ThemeProvider>
+      56        </ApiClientProvider>
+     … 4 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\index.ts (+6 -2)
+       5  
+       6  export type { components, paths } from "./schema";
+       7  
+       8 -export function createApiClient(baseUrl: string) {             
+       9 -  return createClient<paths>({ baseUrl });                     
+       8 +// `fetch` troca o fetch global: é por onde o app põe o access 
+         +token e renova a sessão.                                       
+       9 +export function createApiClient(                               
+      10 +  baseUrl: string,                                             
+      11 +  options: { fetch?: (request: Request) => Promise<Response> } 
+         += {},                                                          
+      12 +) {                                                            
+      13 +  return createClient<paths>({ baseUrl, fetch: options.fetch })
+         +;                                                              
+      14  }
+      15  
+      16  export type ApiClient = ReturnType<typeof createApiClient>;
+
+● Agora os testes da sessão, com um servidor falso que rotaciona o refresh como
+  a API faz e conta reuso.
+
+● Write(apps\mobile\src\sessao\GerenciadorDeSessao.test.ts)
+  ⎿  Wrote 430 lines to apps\mobile\src\sessao\GerenciadorDeSessao.test.ts
+       1 import {
+       2   FalhaNaRenovacao,
+       3   GerenciadorDeSessao,
+       4   type ArmazenamentoDoRefresh,
+       5   type SessaoResponse,
+       6   type TravaDoRefresh,
+       7 } from "./GerenciadorDeSessao";
+       8 
+       9 const BASE = "http://maxx.test";
+      10 const AGORA = Date.parse("2026-11-07T12:00:00Z");
+     … +420 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && node -e "
+      const fs=require('fs');const p='src/sessao/GerenciadorDeSessao.test…)
+  ⎿  Test Suites: 1 passed, 1 total
+     Tests:       16 passed, 16 total
+     Snapshots:   0 total
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\sessao\GerenciadorDeSessao.test.ts (+4 -4)
+      49        emAndamento++;
+      50        if (emAndamento > 1) sobreposicoes++;
+      51        try {
+      52 -        await new Promise((resolve) => setTimeout(resolve, 5));
+      53 -        if (statusDoRefresh !== null) return json(statusDoRefre
+         -sh, {});                                                       
+      52 +        // O cookie vai com o pedido: é o que o navegador tinha
+         + no instante do envio.                                         
+      53          const apresentado = web
+      54            ? request.headers.get("X-Maxx-Cliente") === "web"
+      55              ? cookie.valor
+      56              : null
+      57            : ((await request.json()) as { refreshToken: string |
+           null })
+      58                .refreshToken;
+      59 +        await new Promise((resolve) => setTimeout(resolve, 5));
+      60 +        if (statusDoRefresh !== null) return json(statusDoRefre
+         +sh, {});                                                       
+      61          refreshs.push(String(apresentado));
+      62          if (!familiaViva || apresentado !== `r${versao}`) {
+      63            familiaViva = false;
+     ...
+      345  
+      346    it("no nativo, o refresh novo é gravado antes de o pedido se
+           r repetido", async () => {
+      347      const api = apiFalsa();
+      347 -    const { armazenamento, atual } = memoria("r1");           
+      348 +    const { armazenamento } = memoria("r1");                  
+      349      const sessaoAtual = gerenciador(api, { armazenamento });
+      350      const ordem: string[] = [];
+      351      (armazenamento.gravar as jest.Mock).mockImplementation(asy
+           nc () => {
+     ...
+      359      await sessaoAtual.renovar();
+      360  
+      361      expect(ordem).toEqual(["refresh", "gravou"]);
+      361 -    expect(atual()).toBe("r1");                               
+      362      expect(armazenamento.gravar).toHaveBeenCalledWith("r2");
+      363    });
+      364  
+  ⎿  (timeout 5m)
+
+● Background command "Watch the CI run until it finishes" completed (exit code
+0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 1 passou em todos os seis jobs, em cerca de 4 minutos. Agora
+  sigo para a etapa 2, com os 16 testes da sessão já verdes, e vou escrever os
+  testes de mensagens e do provider.
+
+● Write(apps\mobile\src\api\erros.test.ts)
+  ⎿  Wrote 80 lines to apps\mobile\src\api\erros.test.ts
+      1 import { readFileSync } from "fs";
+      2 import { join } from "path";
+      3 
+      4 import {
+      5   codigoDoErro,
+      6   codigosConhecidos,
+      7   mensagemDaFalha,
+      8   mensagemDeErro,
+      9 } from "./erros";
+     … +71 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\sessao\SessaoProvider.test.tsx)
+  ⎿  Wrote 100 lines to apps\mobile\src\sessao\SessaoProvider.test.tsx
+      1 import { QueryClient, QueryClientProvider } from "@tanstack/react
+        -query";
+      2 import { act, render, screen } from "@testing-library/react-nativ
+        e";
+      3 import { Text } from "react-native";
+      4 
+      5 import {
+      6   GerenciadorDeSessao,
+      7   type SessaoResponse,
+      8 } from "./GerenciadorDeSessao";
+     … +92 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src packages/api-client/src >/dev/null &&
+      cd apps/mobile…)
+  ⎿    ● mensagens de erro › todo código que a API manda tem mensagem própr
+     ia
+       ● mensagens de erro › código desconhecido, ou nenhum, cai na mensage
+     … +19 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.ts (+8 -4)
+       3  
+       4  const MENSAGENS = {
+       5    // Autenticação (CodigosDeRecusa.cs)
+       6 -  "cadastro-nao-encontrado": "Não achamos esse RA com esse e-ma
+         -il. Confira os dois.",                                         
+       7 -  "conta-existente": "Esse RA já tem conta. Use Esqueci minha s
+         -enha para entrar.",                                            
+       6 +  "cadastro-nao-encontrado":                                   
+       7 +    "Não achamos esse RA com esse e-mail. Confira os dois.",   
+       8 +  "conta-existente":                                           
+       9 +    "Esse RA já tem conta. Use Esqueci minha senha para entrar.
+         +",                                                             
+      10    "prefixo-invalido": "Use de 3 a 30 letras ou números, começan
+          do por letra.",
+      11    "prefixo-indisponivel": "Esse arroba já tem dono. Tente outro
+          .",
+      12    "senha-fora-da-politica": "A senha precisa ter de 8 a 128 car
+          acteres.",
+      13    "nome-de-exibicao-invalido": "O nome precisa ter de 1 a 60 ca
+          racteres.",
+      14    "termo-indisponivel": "Não deu para carregar o termo de uso a
+          gora.",
+      13 -  "termo-desatualizado": "O termo de uso mudou. Leia a versão n
+         -ova para continuar.",                                          
+      15 +  "termo-desatualizado":                                       
+      16 +    "O termo de uso mudou. Leia a versão nova para continuar.",
+      17    "credenciais-invalidas": "RA, e-mail ou senha não conferem.",
+      18    "sessao-invalida": "Sua sessão terminou. Entre de novo.",
+      19    "recuperacao-invalida": "Esse link não vale mais. Peça um lin
+          k novo.",
+     ...
+      27    "nao-autenticado": "Sua sessão terminou. Entre de novo.",
+      28    "sem-permissao": "Você não tem acesso a isso.",
+      29    "nao-encontrado": "Não encontramos o que você procurou.",
+      27 -  "limite-de-taxa": "Muitas tentativas seguidas. Espere um pouc
+         -o e tente de novo.",                                           
+      30 +  "limite-de-taxa":                                            
+      31 +    "Muitas tentativas seguidas. Espere um pouco e tente de nov
+         +o.",                                                           
+      32    indisponivel: "O Maxx está fora do ar agora. Tente de novo em
+           instantes.",
+      33    "erro-interno": "Não deu certo agora. Tente de novo em instan
+          tes.",
+      34    // Do cliente: o pedido nem chegou à API.
+  ⎿  Updated apps\mobile\src\app\_layout.tsx (+10 -10)
+      44    return (
+      45      <QueryClientProvider client={queryClient}>
+      46        <SessaoProvider gerenciador={gerenciador}>
+      47 -      <ApiClientProvider client={apiClient}>                   
+      48 -        <ThemeProvider>                                        
+      49 -          <PhoneFrame>                                         
+      50 -            <FontGate>                                         
+      51 -              <Slot />                                         
+      52 -            </FontGate>                                        
+      53 -          </PhoneFrame>                                        
+      54 -          <ThemedStatusBar />                                  
+      55 -        </ThemeProvider>                                       
+      56 -      </ApiClientProvider>                                     
+      47 +        <ApiClientProvider client={apiClient}>                 
+      48 +          <ThemeProvider>                                      
+      49 +            <PhoneFrame>                                       
+      50 +              <FontGate>                                       
+      51 +                <Slot />                                       
+      52 +              </FontGate>                                      
+      53 +            </PhoneFrame>                                      
+      54 +            <ThemedStatusBar />                                
+      55 +          </ThemeProvider>                                     
+      56 +        </ApiClientProvider>                                   
+      57        </SessaoProvider>
+      58      </QueryClientProvider>
+      59    );
+  ⎿  Updated apps\mobile\src\sessao\GerenciadorDeSessao.test.ts (+1 -3)
+      261      const resposta = await sessaoAtual.fetch(get("/api/v1/eu")
+           );
+      262  
+      263      expect(resposta.status).toBe(401);
+      264 -    const caminhos = api.fetch.mock.calls.map(                
+      265 -      ([r]) => new URL(r.url).pathname,                       
+      266 -    );                                                        
+      264 +    const caminhos = api.fetch.mock.calls.map(([r]) => new URL
+          +(r.url).pathname);                                            
+      265      expect(caminhos.slice(-3)).toEqual([
+      266        "/api/v1/eu",
+      267        "/api/v1/auth/refresh",
+  ⎿  Updated apps\mobile\src\sessao\GerenciadorDeSessao.ts (+7 -6)
+       5  // Restaurando: o app ainda não sabe se há sessão. Sem conexão:
+           havia como saber, mas a
+       6  // rede falhou; a sessão guardada continua valendo para a próxi
+          ma tentativa.
+       7  export type EstadoDaSessao =
+       8 -  | "restaurando"                                              
+       9 -  | "anonimo"                                                  
+      10 -  | "autenticado"                                              
+      11 -  | "sem-conexao";                                             
+       8 +  "restaurando" | "anonimo" | "autenticado" | "sem-conexao";   
+       9  
+      10  // Onde o refresh fica entre aberturas do app. No nativo, o sec
+          ure store; na web, nada:
+      11  // o refresh anda em cookie HttpOnly, que o JavaScript nem enxe
+          rga.
+     ...
+       92  
+       93    async sair(): Promise<void> {
+       94      try {
+       98 -      const refresh = this.deps.web ? null : await this.deps.a
+          -rmazenamento.ler();                                           
+       95 +      const refresh = this.deps.web                           
+       96 +        ? null                                                
+       97 +        : await this.deps.armazenamento.ler();                
+       98        await this.deps.fetch(this.pedidoDeAutenticacao("logout"
+           , refresh));
+       99      } catch {
+      100        // Sem rede, o logout no servidor fica para trás; aqui a
+            sessão acaba do mesmo jeito.
+     ...
+      132  
+      133      const copia = request.clone();
+      134      const tokenUsado = this.accessToken;
+      136 -    const resposta = await this.deps.fetch(this.autorizado(req
+          -uest, tokenUsado));                                           
+      135 +    const resposta = await this.deps.fetch(                   
+      136 +      this.autorizado(request, tokenUsado),                   
+      137 +    );                                                        
+      138      if (resposta.status !== 401 || tokenUsado === null) {
+      139        return resposta;
+      140      }
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste do toString pegou um bug de verdade: codigo in MENSAGENS também aceita
+  propriedades herdadas. Corrijo com Object.hasOwn e acerto o caminho do
+  arquivo da API.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && grep -rln
+      '"dados-invalidos"' ../api/src --include=*.cs | grep -v /obj/; sed…)
+  ⎿  ../api/src/Maxx.Api/Erros/DomainExceptionHandler.cs
+     55:  return codigo !== undefined && Object.hasOwn(MENSAGENS, codigo)
+  ⎿  Updated apps\mobile\src\api\erros.ts (+1 -1)
+      52  
+      53  // Código desconhecido (API mais nova que o app instalado) cai 
+          na mensagem padrão.
+      54  export function mensagemDeErro(codigo: string | undefined): str
+          ing {
+      55 -  return codigo !== undefined && codigo in MENSAGENS           
+      55 +  return codigo !== undefined && Object.hasOwn(MENSAGENS, codig
+         +o)                                                             
+      56      ? MENSAGENS[codigo as CodigoDeErro]
+      57      : PADRAO;
+      58  }
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && grep -n
+      '"[a-z]*-[a-z-]*"' ../api/src/Maxx.Api/Erros/DomainExceptionHandler.c…)  ⎿  ../api/src/Maxx.Api/Erros/DomainExceptionHandler.cs:13:    public cons
+     t string Codigo = "requisicao-invalida";
+     ../api/src/Maxx.Api/Erros/DomainExceptionHandler.cs:63:
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.test.ts (+4 -1)
+      16      join(API, "Maxx.Application/Autenticacao/CodigosDeRecusa.cs
+          "),
+      17      "utf8",
+      18    );
+      19 -  const erros = readFileSync(join(API, "Maxx.Api/Erros/Erro.cs"
+         -), "utf8");                                                    
+      19 +  const erros = readFileSync(                                  
+      20 +    join(API, "Maxx.Api/Erros/DomainExceptionHandler.cs"),     
+      21 +    "utf8",                                                    
+      22 +  );                                                           
+      23    const literais = (texto: string, padrao: RegExp) =>
+      24      [...texto.matchAll(padrao)].map((m) => m[1]!);
+      25  
+  ⎿  Updated apps\mobile\src\api\erros.ts (+1 -1)
+      21    "registro-simultaneo":
+      22      "Muita gente entrou com esse nome agora. Tente de novo em i
+          nstantes.",
+      23    "chave-invalida": "Essa conta de demonstração não existe mais
+          .",
+      24 -  // Genéricos, pelo status (Erro.cs)                          
+      24 +  // Genéricos, pelo status (DomainExceptionHandler.cs)        
+      25    "requisicao-invalida": "Confira os dados e tente de novo.",
+      26    "dados-invalidos": "Confira os dados e tente de novo.",
+      27    "nao-autenticado": "Sua sessão terminou. Entre de novo.",
+  ⎿  (timeout 3m 20s)
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● A etapa 2 está pronta para a sua revisão. Ela ainda não foi commitada nem
+  enviada. A etapa 1 já está fechada: o commit c326993, com a seção
+  "Demonstração" no termo, passou nos seis jobs da CI (execução 42398387645
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42398387645)).
+
+  Etapa 2: sessão e refresh serializado no cliente
+
+  O que entrou:
+  - Gerenciador de sessão (apps/mobile/src/sessao/GerenciadorDeSessao.ts):
+    - O access token fica só em memória.
+    - Só uma renovação sai por vez, e quem chega durante ela espera o mesmo
+      resultado.
+    - Todo pedido protegido leva o token. Se o token está a menos de 30 segundos
+      de vencer, a sessão é renovada antes do pedido.
+    - Um 401 provoca uma renovação e uma única repetição do pedido, com o mesmo
+      corpo.
+    - As rotas de /api/v1/auth/* passam sem token e sem renovação.
+  - Por plataforma:
+    - No nativo (plataforma.ts), o refresh fica no expo-secure-store, e o
+      refresh novo é gravado antes de valer.
+    - Na web (plataforma.web.ts), nada fica guardado pelo JavaScript: o refresh
+      anda no cookie, e todo pedido leva o cabeçalho X-Maxx-Cliente: web. A Web
+      Locks API põe as abas em fila. Sem ela (página fora de HTTPS), fica só a
+      fila da própria aba.
+    - Conferi o bundle web exportado: ele usa a fila entre abas e não inclui o
+      secure store.
+  - Estados da sessão (SessaoProvider): restaurando, anônimo, autenticado e sem
+    conexão.
+    - Falha de rede, 429 ou 5xx não encerram a sessão. Só sessao-invalida
+      encerra.
+    - Ao sair ou quando a sessão cai, o cache de consultas é esvaziado.
+  - Mensagens de erro (src/api/erros.ts): uma tabela única de código para
+    mensagem, que inclui registro-simultaneo, os dois códigos novos do termo e a
+    falha de rede. Código desconhecido cai na mensagem padrão.
+  - Pacote do cliente: createApiClient ganhou um fetch opcional, e o layout raiz
+    liga tudo isso. As telas continuam as mesmas, porque o uso da sessão começa
+    na etapa 4.
+
+  Critérios de aceite, cobertos por 25 testes novos:
+  - Cinco pedidos que voltam 401 juntos geram um refresh só, e os cinco são
+    repetidos com o token novo.
+  - Duas abas abrindo juntas na web renovam uma depois da outra, e a sessão
+    sobrevive. Um teste de contraste mostra que, sem a fila entre abas, as
+    mesmas duas abas derrubam a sessão.
+  - sessao-invalida leva ao anônimo e apaga o refresh guardado.
+  - Falha de rede na abertura deixa o estado "sem conexão", com o refresh
+    preservado, e tentar de novo entra.
+  - Nenhum token vai para armazenamento na web.
+  - Todo código que a API manda tem mensagem. Esse teste lê CodigosDeRecusa.cs e
+    DomainExceptionHandler.cs, então um código novo na API sem mensagem no app
+    quebra o teste.
+
+  Um desses testes pegou um bug meu: codigo in MENSAGENS aceitava "toString",
+  que o objeto herda. Já está corrigido com Object.hasOwn.
+
+  Verificações:
+  - Jest: 226 de 226.
+  - ESLint, tsc (mobile e api-client) e Prettier passaram.
+  - npm audit --audit-level=high passa no corte da CI. Há 33 achados (1 baixo e
+    32 moderados), todos abaixo desse corte. Não comparei com a contagem
+    anterior para saber se o expo-secure-store acrescentou algum.
+
+  Fica para a etapa 4, onde já estava no plano: o e2e com duas abas reais no
+  navegador. Hoje essa garantia vem de um teste unitário com uma fila simulada,
+  não de um navegador.
+
+  Com a sua aprovação, faço o commit feat(mobile): adiciona sessão com refresh 
+  serializado entre pedidos e abas, o push e o acompanhamento da CI, e sigo para
+  a etapa 3.
+
+✻ Brewed for 8m 6s · done 14:59
