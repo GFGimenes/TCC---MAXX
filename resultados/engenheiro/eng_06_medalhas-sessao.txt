@@ -2214,3 +2214,903 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
   para a etapa 4.
 
 ✻ Cogitated for 18s · done 18:10
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 3 aprovada. Commita com a mensagem proposta, push, acompanha a CI e     
+  segue para a etapa 4; para para a minha revisão no fim dela, com a regra F no 
+  produto.md.                                                                   
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 3 commitada (f129e21); CI rodando. Começo a etapa 4 lendo o escopo de
+  turma, um endpoint existente e o tratamento de erros.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Ainda na etapa 4: o desenho está fechado, e agora escrevo a Application da
+  concessão (handler, repositórios, consultas e códigos de recusa).
+
+● Write(apps\api\src\Maxx.Application\Medalhas\Abstractions.cs)
+  ⎿  Wrote 67 lines to
+     apps\api\src\Maxx.Application\Medalhas\Abstractions.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Catalogo;
+       4 using Maxx.Domain.Identidade;
+       5 using Maxx.Domain.Premios;
+       6 
+       7 namespace Maxx.Application.Medalhas;
+       8 
+       9 public interface IMedalhaRepository
+      10 {
+     … +57 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Medalhas\CodigosDaMedalha.cs)
+  ⎿  Wrote 29 lines to
+     apps\api\src\Maxx.Application\Medalhas\CodigosDaMedalha.cs
+       1 namespace Maxx.Application.Medalhas;
+       2 
+       3 // Os códigos de recusa da medalha, como o cliente os recebe em 
+         ProblemDetails.
+       4 public static class CodigosDaMedalha
+       5 {
+       6     // A turma não é do professor, ou não é do semestre vigente.
+       7     public const string ForaDoEscopo = "fora-do-escopo";
+       8 
+       9     // O aluno não tem conta, não está matriculado na turma ou n
+     … +21 lines (ctrl+o to expand)
+● Write(apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs)
+  ⎿  Wrote 102 lines to
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Application.Autorizacao;
+       3 using Maxx.Application.Fila;
+       4 using Maxx.Domain.Premios;
+       5 
+       6 namespace Maxx.Application.Medalhas;
+       7 
+       8 // Concessão de medalha pelo professor (fluxos/03-concessao-de-m
+         edalha.md): escopo de turma
+       9 // no banco, aluno com conta matriculado na turma, item do catál
+     … +94 lines (~4 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e4a.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  ok
+  ⎿  Updated apps\api\src\Maxx.Api\Erros\RecusaExceptionHandler.cs (+1 -0)
+      22              TipoDeRecusa.NaoEncontrado => StatusCodes.Status404
+          NotFound,
+      23              TipoDeRecusa.Conflito => StatusCodes.Status409Confl
+          ict,
+      24              TipoDeRecusa.NaoAutorizado => StatusCodes.Status401
+          Unauthorized,
+      25 +            TipoDeRecusa.Proibido => StatusCodes.Status403Forbi
+         +dden,                                                          
+      26              _ => StatusCodes.Status400BadRequest,
+      27          };
+      28  
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\CodigosDaMedalha.cs (+0
+     -2)
+      24      // O aluno já tem, nessa matéria e nesse período, tantas me
+          dalhas desse item quanto o
+      25      // limite do catálogo.
+      26      public const string LimiteAtingido = "limite-atingido";
+      27 -                                                               
+      28 -    public const string MedalhaNaoEncontrada = "medalha-nao-enc
+         -ontrada";                                                      
+      27  }
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs (+2 
+     -2)
+      26          {
+      27              return await TentarAsync(professorId, turmaId, alun
+          oId, itemCodigo.Trim(), cancellationToken);
+      28          }
+      29 -        catch (ConflitoDeUnicidadeException)                   
+      29 +        catch (ConflitoDeUnicidadeException { Unicidade: Unicid
+         +ade.MedalhaAtiva })                                            
+      30          {
+      31              // Outra concessão do mesmo item ao mesmo aluno gra
+          vou a mesma vaga entre a
+      32              // leitura e a gravação. Relida, a próxima vaga liv
+          re, se houver, é outra.
+     ...
+      35              {
+      36                  return await TentarAsync(professorId, turmaId, 
+          alunoId, itemCodigo.Trim(), cancellationToken);
+      37              }
+      38 -            catch (ConflitoDeUnicidadeException falha)         
+      38 +            catch (ConflitoDeUnicidadeException { Unicidade: Un
+         +icidade.MedalhaAtiva } falha)                                  
+      39              {
+      40                  throw new RecusaException(
+      41                      TipoDeRecusa.Conflito, CodigosDaMedalha.Lim
+          iteAtingido, $"Concessões simultâneas: {falha.Message}");
+  ⎿  Updated apps\api\src\Maxx.Application\Recusa.cs (+6 -0)
+      38      NaoEncontrado,
+      39      Conflito,
+      40      NaoAutorizado,
+      41 +                                                               
+      42 +    // Autenticado, mas sem direito sobre o recurso: o escopo d
+         +e turma do professor.                                          
+      43 +    Proibido,                                                  
+      44  }
+      45  
+      46  // Gravação recusada por uma unicidade do banco: a corrida que 
+          a checagem prévia não
+     ...
+      73      Outra,
+      74      ContaPorCadastro,
+      75      Prefixo,
+      76 +                                                               
+      77 +    // Duas medalhas ativas com a mesma chave de deduplicação: 
+         +a mesma vaga do período.                                       
+      78 +    MedalhaAtiva,                                              
+      79  }
+      80  
+      81  // Gravação recusada porque a linha mudou desde a leitura (xmin
+          ): outro pedido chegou
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs (+1
+     -0)
+      12      {
+      13          ["ix_usuario_cadastro_elegivel_id"] = Unicidade.ContaPo
+          rCadastro,
+      14          ["pk_prefixo_reservado"] = Unicidade.Prefixo,
+      15 +        ["ix_medalha_chave_ativa"] = Unicidade.MedalhaAtiva,   
+      16      };
+      17  
+      18      public async Task SalvarAsync(CancellationToken cancellatio
+          nToken)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PremiosConfi
+       guration.cs)
+  ⎿  Wrote 57 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\PremiosConfiguration.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Catalogo;
+      3 using Maxx.Domain.Identidade;
+      4 using Maxx.Domain.Premios;
+      5 using Maxx.Infrastructure.Seed;
+      6 using Microsoft.EntityFrameworkCore;
+      7 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+      8 
+      9 namespace Maxx.Infrastructure.Persistence.Configurations;
+     … +48 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e4b.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  32:        builder.HasKey(item => item.Codigo);
+     81:        builder.HasKey(familia => familia.Codigo);
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\CatalogoRowMapper.cs
+     (+38 -0)
+      55          return row;
+      56      }
+      57  
+      58 +    // O caminho de volta, para a medalha: a linha de item_cata
+         +logo como item do domínio.                                     
+      59 +    public static ItemMedalha ParaMedalha(ItemCatalogoRow row) 
+      60 +    {                                                          
+      61 +        ArgumentNullException.ThrowIfNull(row);                
+      62 +        if (row.Tipo != NomeJson.De(TipoDeItem.Medalha))       
+      63 +        {                                                      
+      64 +            throw new InvalidOperationException($"O item {row.C
+         +odigo} é {row.Tipo}, não medalha.");                           
+      65 +        }                                                      
+      66 +                                                               
+      67 +        return new ItemMedalha                                 
+      68 +        {                                                      
+      69 +            Codigo = row.Codigo,                               
+      70 +            Nome = row.Nome,                                   
+      71 +            Descricao = row.Descricao,                         
+      72 +            Tier = Ler<Tier>(row.Tier, row.Codigo),            
+      73 +            Pontos = row.Pontos,                               
+      74 +            Familia = row.FamiliaCodigo,                       
+      75 +            OrdemNaFamilia = row.OrdemNaFamilia,               
+      76 +            RestricaoCurso = row.RestricaoCurso,               
+      77 +            Vigencia = new Vigencia(row.VigenciaInicio, row.Vig
+         +enciaFim),                                                     
+      78 +            Base = Ler<BaseDaMedalha>(row.Base, row.Codigo),   
+      79 +            PeriodoDeReferencia = Ler<Periodo>(row.Periodo, row
+         +.Codigo),                                                      
+      80 +            Repetivel = row.Repetivel ?? throw Incompleta(row.C
+         +odigo, "repetivel"),                                           
+      81 +            LimitePorPeriodo = row.LimitePorPeriodo ?? throw In
+         +completa(row.Codigo, "limitePorPeriodo"),                      
+      82 +            ChaveDeDeduplicacao = [.. (row.ChaveDeDeduplicacao 
+         +?? throw Incompleta(row.Codigo, "chaveDeDeduplicacao"))        
+      83 +                .Select(campo => Ler<CampoDeDeduplicacao>(campo
+         +, row.Codigo))],                                               
+      84 +        };                                                     
+      85 +    }                                                          
+      86 +                                                               
+      87 +    private static T Ler<T>(string? texto, string codigo)      
+      88 +        where T : struct, Enum =>                              
+      89 +        NomeJson.TentarLer<T>(texto, out var valor)            
+      90 +            ? valor                                            
+      91 +            : throw new InvalidOperationException($"O item {cod
+         +igo} tem {typeof(T).Name} desconhecido: {texto}.");            
+      92 +                                                               
+      93 +    private static InvalidOperationException Incompleta(string 
+         +codigo, string campo) =>                                       
+      94 +        new($"A medalha {codigo} está sem {campo} no banco."); 
+     … 4 more lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Medalhas\MedalhaRepository.cs)
+  ⎿  Wrote 60 lines to
+     apps\api\src\Maxx.Infrastructure\Medalhas\MedalhaRepository.cs
+       1 using Maxx.Application.Medalhas;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Catalogo;
+       4 using Maxx.Domain.Identidade;
+       5 using Maxx.Domain.Premios;
+       6 using Maxx.Infrastructure.Persistence;
+       7 using Maxx.Infrastructure.Seed;
+       8 using Microsoft.EntityFrameworkCore;
+       9 
+      10 namespace Maxx.Infrastructure.Medalhas;
+     … +50 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Medalhas\ConsultaDoProfessor.cs)
+  ⎿  Wrote 82 lines to
+     apps\api\src\Maxx.Infrastructure\Medalhas\ConsultaDoProfessor.cs
+       1 using Maxx.Application.Medalhas;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Catalogo;
+       4 using Maxx.Domain.Identidade;
+       5 using Maxx.Domain.Premios;
+       6 using Maxx.Infrastructure.Persistence;
+       7 using Maxx.Infrastructure.Seed;
+       8 using Microsoft.EntityFrameworkCore;
+       9 
+      10 namespace Maxx.Infrastructure.Medalhas;
+     … +72 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e4c.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  src/Maxx.Api/Autenticacao/AutenticacaoServiceCollectionExtensions.cs:4
+     5:                    NameClaimType = MaxxClaims.Sub,
+     src/Maxx.Api/Autenticacao/EuEndpoints.cs:25:        if (!Guid.TryParse
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+4 
+     -0)
+       4  using Maxx.Application.Autorizacao;
+       5  using Maxx.Application.Demonstracao;
+       6  using Maxx.Application.Fila;
+       7 +using Maxx.Application.Medalhas;                               
+       8  using Maxx.Infrastructure.Autenticacao;
+       9  using Maxx.Infrastructure.Autorizacao;
+      10  using Maxx.Infrastructure.Demonstracao;
+      11  using Maxx.Infrastructure.Email;
+      12  using Maxx.Infrastructure.Fila;
+      13 +using Maxx.Infrastructure.Medalhas;                            
+      14  using Maxx.Infrastructure.Persistence;
+      15  using Maxx.Infrastructure.Seed;
+      16  using Microsoft.EntityFrameworkCore;
+     ...
+      44          services.AddScoped<IEscopoDeTurma, EscopoDeTurma>();
+      45          services.AddScoped<IRecuperacaoDeSenhaRepository, Recup
+          eracaoDeSenhaRepository>();
+      46          services.AddScoped<IDemonstracaoRepository, Demonstraca
+          oRepository>();
+      47 +        services.AddScoped<IMedalhaRepository, MedalhaRepositor
+         +y>();                                                          
+      48 +        services.AddScoped<IConsultaDoProfessor, ConsultaDoProf
+         +essor>();                                                      
+      49  
+      50          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      51          services.AddOptions<FilaOptions>();
+  ⎿  Updated
+     apps\api\src\Maxx.Infrastructure\Medalhas\ConsultaDoProfessor.cs (+3 
+     -1)
+      30                      Curso = curso.Sigla,
+      31                      semestre.Ano,
+      32                      semestre.Numero,
+      33 -                    Alunos = AlunosComConta(turma.Id).Count(), 
+      33 +                    Alunos = db.Set<Matricula>().Count(matricul
+         +a => matricula.TurmaId == turma.Id                             
+      34 +                        && db.Set<Usuario>().Any(usuario => usu
+         +ario.CadastroElegivelId == matricula.AlunoId                   
+      35 +                            && usuario.Papeis == Papeis.Aluno &
+         +& usuario.ExAlunoDesde == null)),                              
+      36                  })
+      37              .ToListAsync(cancellationToken);
+      38  
+
+● Repositórios e consultas prontos; agora as rotas /v1/professor (turmas,
+  alunos, catálogo de medalhas e concessão).
+
+● Write(apps\api\src\Maxx.Api\Medalhas\ProfessorEndpoints.cs)
+  ⎿  Wrote 122 lines to
+     apps\api\src\Maxx.Api\Medalhas\ProfessorEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using System.Security.Claims;
+       3 using System.Text.Json;
+       4 using Maxx.Api.Autenticacao;
+       5 using Maxx.Application.Medalhas;
+       6 using Maxx.Domain.Catalogo;
+       7 using Maxx.Domain.Premios;
+       8 using Microsoft.AspNetCore.Http.HttpResults;
+       9 
+      10 namespace Maxx.Api.Medalhas;
+     … +112 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e4d.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs(29,45): erro
+     r CS1026: ) esperado [C:\Users\Guilherme Gimenes\Documents\Repos\tcc\m
+     … +25 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Medalhas\ProfessorEndpoints.cs (+5 -8)
+       2  using System.Security.Claims;
+       3  using System.Text.Json;
+       4  using Maxx.Api.Autenticacao;
+       5 +using Maxx.Application;                                        
+       6 +using Maxx.Application.Autorizacao;                            
+       7  using Maxx.Application.Medalhas;
+       6 -using Maxx.Domain.Catalogo;                                    
+       8  using Maxx.Domain.Premios;
+       9  using Microsoft.AspNetCore.Http.HttpResults;
+      10  
+     ...
+      45          TypedResults.Ok<IReadOnlyList<TurmaDoProfessorResponse>
+          >([.. (await consulta.TurmasVigentesAsync(UsuarioId(principal),
+           cancellationToken))
+      46              .Select(turma => new TurmaDoProfessorResponse(turma
+          .Id, turma.Materia, turma.Curso, turma.Semestre, turma.Alunos))
+          ]);
+      47  
+      47 -    private static async Task<Results<Ok<IReadOnlyList<AlunoDaT
+         -urmaResponse>>, ProblemHttpResult>> AlunosAsync(               
+      48 +    private static async Task<Ok<IReadOnlyList<AlunoDaTurmaResp
+         +onse>>> AlunosAsync(                                           
+      49          Guid turmaId,
+      50          ClaimsPrincipal principal,
+      50 -        Maxx.Application.Autorizacao.IEscopoDeTurma escopo,    
+      51 +        IEscopoDeTurma escopo,                                 
+      52          IConsultaDoProfessor consulta,
+      53          CancellationToken cancellationToken)
+      54      {
+      55          if (!await escopo.ProfessorLecionaAsync(UsuarioId(princ
+          ipal), turmaId, cancellationToken))
+      56          {
+      56 -            return ForaDoEscopo();                             
+      57 +            throw new RecusaException(TipoDeRecusa.Proibido, Co
+         +digosDaMedalha.ForaDoEscopo, $"Turma {turmaId} fora do escopo."
+         +);                                                             
+      58          }
+      59  
+      60          return TypedResults.Ok<IReadOnlyList<AlunoDaTurmaRespon
+          se>>([.. (await consulta.AlunosAsync(turmaId, cancellationToken
+          ))
+     ...
+       95              ? id
+       96              : throw new InvalidOperationException("Token auten
+           ticado sem sub.");
+       97  
+       97 -    private static ProblemHttpResult ForaDoEscopo() => TypedRe
+          -sults.Problem(                                                
+       98 -        statusCode: StatusCodes.Status403Forbidden,           
+       99 -        extensions: new Dictionary<string, object?> { [Erros.E
+          -rro.CampoCodigo] = CodigosDaMedalha.ForaDoEscopo });          
+      100 -                                                              
+       98      internal static string Nome<T>(T valor)
+       99          where T : struct, Enum => JsonNamingPolicy.CamelCase.C
+           onvertName(valor.ToString());
+      100  }
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+3 -0)
+       5  using Maxx.Api.Erros;
+       6  using Maxx.Api.Health;
+       7  using Maxx.Api.LimiteDeTaxa;
+       8 +using Maxx.Api.Medalhas;                                       
+       9  using Maxx.Api.OpenApi;
+      10  using Maxx.Infrastructure;
+      11  using Maxx.Infrastructure.Fila;
+     ...
+      72  var demonstracao = builder.AddDemonstracao(servindo: !isMigrate
+           && !isSeed && !isOpenApiGeneration, gerandoOpenApi: isOpenApiG
+          eneration);
+      73  builder.Services.AddProxyConfiavel(builder.Configuration);
+      74  builder.Services.AddLimitesDeTaxa();
+      75 +builder.Services.AddScoped<Maxx.Application.Medalhas.ConcederMe
+         +dalhaHandler>();                                               
+      76  
+      77  var app = builder.Build();
+      78  
+     ...
+      128  var v1 = api.MapGroup("/v1").RequireAuthorization();
+      129  v1.MapEuEndpoints();
+      130  v1.MapTermoDeUsoEndpoints();
+      131 +v1.MapProfessorEndpoints();                                   
+      132  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      133  if (demonstracao)
+      134  {
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Application/Medalhas/ConcederMedalhaHandler.cs && sed
+      -i 's/catch (Co…)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs (+2 
+     -2)
+      26          {
+      27              return await TentarAsync(professorId, turmaId, alun
+          oId, itemCodigo.Trim(), cancellationToken);
+      28          }
+      29 -        catch (ConflitoDeUnicidadeException { Unicidade: Unicid
+         -ade.MedalhaAtiva })                                            
+      29 +        catch (ConflitoDeUnicidadeException conflito) when (con
+         +flito.Unicidade == Unicidade.MedalhaAtiva)                     
+      30          {
+      31              // Outra concessão do mesmo item ao mesmo aluno gra
+          vou a mesma vaga entre a
+      32              // leitura e a gravação. Relida, a próxima vaga liv
+          re, se houver, é outra.
+     ...
+      35              {
+      36                  return await TentarAsync(professorId, turmaId, 
+          alunoId, itemCodigo.Trim(), cancellationToken);
+      37              }
+      38 -            catch (ConflitoDeUnicidadeException { Unicidade: Un
+         -icidade.MedalhaAtiva } falha)                                  
+      38 +            catch (ConflitoDeUnicidadeException falha) when (fa
+         +lha.Unicidade == Unicidade.MedalhaAtiva)                       
+      39              {
+      40                  throw new RecusaException(
+      41                      TipoDeRecusa.Conflito, CodigosDaMedalha.Lim
+          iteAtingido, $"Concessões simultâneas: {falha.Message}");
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      migrations add Medalha --project src/Maxx.Infrastructure --startup-pro…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+                     name: "medalha",
+                     columns: table => new
+     … +40 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     07211609_Medalha.cs (+147 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class Medalha : Migration                  
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.CreateTable(                     
+       15 +                name: "medalha",                              
+       16 +                columns: table => new                         
+       17 +                {                                             
+       18 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       19 +                    aluno_id = table.Column<Guid>(type: "uuid"
+          +, nullable: false),                                           
+       20 +                    item_codigo = table.Column<string>(type: "
+          +text", nullable: false),                                      
+       21 +                    versao_do_item = table.Column<int>(type: "
+          +integer", nullable: false),                                   
+       22 +                    tier = table.Column<string>(type: "text", 
+          +nullable: false),                                             
+       23 +                    pontos = table.Column<int>(type: "integer"
+          +, nullable: false),                                           
+       24 +                    turma_id = table.Column<Guid>(type: "uuid"
+          +, nullable: false),                                           
+       25 +                    materia_id = table.Column<Guid>(type: "uui
+          +d", nullable: false),                                         
+       26 +                    semestre_letivo_id = table.Column<Guid>(ty
+          +pe: "uuid", nullable: false),                                 
+       27 +                    bimestre_id = table.Column<Guid>(type: "uu
+          +id", nullable: false),                                        
+       28 +                    ocorrencia = table.Column<int>(type: "inte
+          +ger", nullable: false),                                       
+       29 +                    chave_de_deduplicacao = table.Column<strin
+          +g>(type: "text", nullable: false),                            
+       30 +                    concedida_por_id = table.Column<Guid>(type
+          +: "uuid", nullable: false),                                   
+       31 +                    concedida_em = table.Column<DateTimeOffset
+          +>(type: "timestamp with time zone", nullable: false),         
+       32 +                    anulada_por_id = table.Column<Guid>(type: 
+          +"uuid", nullable: true),                                      
+       33 +                    anulada_em = table.Column<DateTimeOffset>(
+          +type: "timestamp with time zone", nullable: true)             
+       34 +                },                                            
+       35 +                constraints: table =>                         
+       36 +                {                                             
+       37 +                    table.PrimaryKey("pk_medalha", x => x.id);
+       38 +                    table.CheckConstraint("ck_medalha_anulacao
+          +", "(anulada_em IS NULL) = (anulada_por_id IS NULL)");        
+       39 +                    table.CheckConstraint("ck_medalha_ocorrenc
+          +ia", "ocorrencia >= 1");                                      
+       40 +                    table.CheckConstraint("ck_medalha_pontos",
+          + "pontos >= 1");                                              
+     … 107 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+171 -0)
+      604                          });
+      605                  });
+      606  
+      607 +            modelBuilder.Entity("Maxx.Domain.Premios.Medalha",
+          + b =>                                                         
+      608 +                {                                             
+      609 +                    b.Property<Guid>("Id")                    
+      610 +                        .HasColumnType("uuid")                
+      611 +                        .HasColumnName("id");                 
+      612 +                                                              
+      613 +                    b.Property<Guid>("AlunoId")               
+      614 +                        .HasColumnType("uuid")                
+      615 +                        .HasColumnName("aluno_id");           
+      616 +                                                              
+      617 +                    b.Property<DateTimeOffset?>("AnuladaEm")  
+      618 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      619 +                        .HasColumnName("anulada_em");         
+      620 +                                                              
+      621 +                    b.Property<Guid?>("AnuladaPorId")         
+      622 +                        .HasColumnType("uuid")                
+      623 +                        .HasColumnName("anulada_por_id");     
+      624 +                                                              
+      625 +                    b.Property<Guid>("BimestreId")            
+      626 +                        .HasColumnType("uuid")                
+      627 +                        .HasColumnName("bimestre_id");        
+      628 +                                                              
+      629 +                    b.Property<string>("ChaveDeDeduplicacao") 
+      630 +                        .IsRequired()                         
+      631 +                        .HasColumnType("text")                
+      632 +                        .HasColumnName("chave_de_deduplicacao"
+          +);                                                            
+      633 +                                                              
+      634 +                    b.Property<DateTimeOffset>("ConcedidaEm") 
+      635 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      636 +                        .HasColumnName("concedida_em");       
+      637 +                                                              
+      638 +                    b.Property<Guid>("ConcedidaPorId")        
+      639 +                        .HasColumnType("uuid")                
+      640 +                        .HasColumnName("concedida_por_id");   
+      641 +                                                              
+      642 +                    b.Property<string>("ItemCodigo")          
+      643 +                        .IsRequired()                         
+     … 143 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Código da etapa 4 compila e a migration Medalha está criada; agora escrevo os
+  testes de integração da concessão pela API.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\ConcessaoDeMedalhaTest
+       s.cs)
+  ⎿  Wrote 379 lines to apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\C
+     oncessaoDeMedalhaTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using System.Text.Json;
+       5 using Maxx.Api.Autenticacao;
+       6 using Maxx.Api.Medalhas;
+       7 using Maxx.Application.Medalhas;
+       8 using Maxx.Domain.Academico;
+       9 using Maxx.Domain.Catalogo;
+      10 using Maxx.Domain.Identidade;
+     … +369 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      "$TEMP/e4e.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\tests\Maxx.Api.IntegrationTests\Medalhas\ConcessaoDeMedalhaTests.cs(
+     76,13): error CS8602: Desreferência de uma referência possivelmente nu
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\ConcessaoDeM
+     edalhaTests.cs (+5 -10)
+      108          using var carga = JsonDocument.Parse(trabalhos[0].Carg
+           a);
+      109          Assert.Equal(medalha.Id, carga.RootElement.GetProperty
+           ("medalhaId").GetGuid());
+      110  
+      111 -        var ana = Assert.Single(await AlunosAsync(client, mund
+          -o.BancoDeDados));                                             
+      112 -        Assert.Equal(new MedalhaNaTurmaResponse(medalha.Id, "M
+          -01", 2, medalha.ConcedidaEm), Assert.Single(ana.Medalhas) with
+          - { ConcedidaEm = medalha.ConcedidaEm });                      
+      111 +        var naLista = Assert.Single(Assert.Single(await Alunos
+          +Async(client, mundo.BancoDeDados)).Medalhas);                 
+      112 +        Assert.Equal((medalha.Id, "M01", 2), (naLista.Id, naLi
+          +sta.Item, naLista.Bimestre));                                 
+      113      }
+      114  
+      115      [Fact]
+     ...
+      230          var ano = new AnoLetivo(
+      231              hoje.Year, new SemestreLetivo(hoje.Year, 1, Bimest
+           re(1), Bimestre(2)), new SemestreLetivo(hoje.Year, 2, Bimestre
+           (3), Bimestre(4)));
+      232          var vigente = ano.Semestres[0];
+      233 -        var passado = new AnoLetivo(                          
+      234 -            hoje.Year - 1,                                    
+      235 -            new SemestreLetivo(hoje.Year - 1, 1, new(1, inicio
+          -.AddYears(-1), inicio.AddYears(-1).AddDays(40)), new(2, inicio
+          -.AddYears(-1).AddDays(50), inicio.AddYears(-1).AddDays(90))), 
+      236 -            new SemestreLetivo(hoje.Year - 1, 2, new(3, inicio
+          -.AddYears(-1).AddDays(100), inicio.AddYears(-1).AddDays(140)),
+          - new(4, inicio.AddYears(-1).AddDays(150), inicio.AddYears(-1).
+          -AddDays(190))));                                              
+      233  
+      234          var cc = new Curso("Ciência da Computação", "CC", 8);
+      235          var bd = new Materia(cc, "Banco de Dados");
+      236          var redes = new Materia(cc, "Redes");
+      237          var bancoDeDados = new Turma(bd, vigente);
+      242 -        var bancoDeDadosPassado = new Turma(bd, passado.Semest
+          -res[1]);                                                      
+      238 +        var bancoDeDadosFuturo = new Turma(bd, ano.Semestres[1
+          +]);                                                           
+      239          var turmaDeRedes = new Turma(redes, vigente);
+      240  
+      241          var hash = new Argon2idSenhaHasher().Hash(_senha);
+     ...
+      255          await SalvarAsync(
+      256              factory,
+      257              ano,
+      262 -            passado,                                          
+      258              cc,
+      259              bd,
+      260              redes,
+      261              bancoDeDados,
+      267 -            bancoDeDadosPassado,                              
+      262 +            bancoDeDadosFuturo,                               
+      263              turmaDeRedes,
+      264              renata,
+      265              paulo,
+     … 8 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Medalhas/ConcessaoDeMedalhaTest
+      s.cs && sed -n…)
+  ⎿          Assert.Equal(
+                 new ItemDeMedalhaResponse("M01", "Nota 10 em prova", "Tira
+     r 10 em uma prova da matéria.", "bronze", 30, "nota", "bimestre", 2),
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\ConcessaoDeM
+     edalhaTests.cs (+1 -1)
+      73          Assert.Equal(["M01", "M03"], medalhas!.Select(item => i
+          tem.Codigo));
+      74          Assert.Equal(
+      75              new ItemDeMedalhaResponse("M01", "Nota 10 em prova"
+          , "Tirar 10 em uma prova da matéria.", "bronze", 30, "nota", "b
+          imestre", 2),
+      76 -            medalhas[0]);                                      
+      76 +            medalhas![0]);                                     
+      77      }
+      78  
+      79      [Fact]
+  ⎿  (timeout 10m)
+
+● Os 11 testes da concessão passam. Agora repito o de concorrência, regenero o
+  cliente OpenAPI e rodo a suite inteira.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client 2>&1 | tail -2; npx prettier --check
+      packages 2>&1 | ta…)
+  ⎿  ✨ openapi-typescript 7.13.0
+     🚀 openapi.json → src/schema.d.ts [63.5ms]
+     All matched files use Prettier code style!
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+269 -0)
+       68          patch?: never;
+       69          trace?: never;
+       70      };
+       71 +    "/api/v1/professor/turmas": {                             
+       72 +        parameters: {                                         
+       73 +            query?: never;                                    
+       74 +            header?: never;                                   
+       75 +            path?: never;                                     
+       76 +            cookie?: never;                                   
+       77 +        };                                                    
+       78 +        get: operations["GetTurmasDoProfessor"];              
+       79 +        put?: never;                                          
+       80 +        post?: never;                                         
+       81 +        delete?: never;                                       
+       82 +        options?: never;                                      
+       83 +        head?: never;                                         
+       84 +        patch?: never;                                        
+       85 +        trace?: never;                                        
+       86 +    };                                                        
+       87 +    "/api/v1/professor/turmas/{turmaId}/alunos": {            
+       88 +        parameters: {                                         
+       89 +            query?: never;                                    
+       90 +            header?: never;                                   
+       91 +            path?: never;                                     
+       92 +            cookie?: never;                                   
+       93 +        };                                                    
+       94 +        get: operations["GetAlunosDaTurma"];                  
+       95 +        put?: never;                                          
+       96 +        post?: never;                                         
+       97 +        delete?: never;                                       
+       98 +        options?: never;                                      
+       99 +        head?: never;                                         
+      100 +        patch?: never;                                        
+      101 +        trace?: never;                                        
+      102 +    };                                                        
+      103 +    "/api/v1/professor/medalhas": {                           
+      104 +        parameters: {                                         
+      105 +            query?: never;                                    
+      106 +            header?: never;                                   
+      107 +            path?: never;                                     
+     … 269 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Wait for etapa 3 CI run" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 5 lines
+      337  turma e matéria (do professor que concede) e bimestre (da data
+           ). Só nas turmas do
+      338  semestre vigente.
+      339  
+      340 +Só recebe medalha o aluno com conta. Quem está na base e matri
+          +culado na turma, mas ainda                                    
+      341 +não se cadastrou, não aparece na lista de alunos da turma do p
+          +rofessor e não recebe                                         
+      342 +medalha; o ex-aluno também não aparece nem recebe. A medalha é
+          + sempre de uma conta, nunca                                   
+      343 +de uma linha do cadastro elegível.                            
+      344 +                                                              
+      345  Medalha não é contestável e não é revogável. A instituição pod
+           e **anular** uma medalha:
+      346  é ato administrativo, sem motivo público e sem passar por aver
+           iguação, para corrigir
+      347  erro de concessão ou nota revista. A anulação recalcula as con
+           quistas que dependiam
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 4 está pronta para a sua revisão: build sem aviso, formatação limpa e
+  523 testes passando localmente. Ainda não fiz commit nem push dela.
+
+  Etapa 3: CI verde
+
+  A CI do commit f129e21 feat(api): adiciona a medalha ao domínio com limite por
+  período e deduplicação (run 42414716273) passou nos seis jobs.
+
+  Etapa 4: concessão na API (sem commit)
+
+  Rotas (/api/v1/professor, só para quem tem o papel de professor; o escopo de
+  turma é sempre checado no banco):
+
+  ┌────────────────────────────────┬────────────────────────────────────────┐
+  │              Rota              │               O que faz                │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │                                │ As turmas do semestre vigente do       │
+  │ GET /turmas                    │ professor, com matéria, curso,         │
+  │                                │ semestre e o número de alunos com      │
+  │                                │ conta                                  │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │                                │ Os alunos com conta e não ex-alunos,   │
+  │ GET /turmas/{turmaId}/alunos   │ por nome, com as medalhas ativas que   │
+  │                                │ já têm nessa turma. Turma fora do      │
+  │                                │ escopo responde 403 fora-do-escopo     │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │                                │ As medalhas do catálogo vigentes hoje, │
+  │ GET /medalhas                  │  para o modal: código, nome,           │
+  │                                │ descrição, tier, pontos, base, período │
+  │                                │  e limite                              │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ POST                           │ Concede e responde 201 com id, item,   │
+  │ /turmas/{turmaId}/medalhas     │ tier, pontos, ocorrência e instante    │
+  │ {alunoId, item}                │                                        │
+  └────────────────────────────────┴────────────────────────────────────────┘
+
+  Recusas da concessão
+
+  ┌──────────────────────────────────────────────┬──────────────────────────┐
+  │                   Situação                   │     Status e código      │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Turma fora do escopo                         │ 403 fora-do-escopo       │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Aluno sem conta, fora da turma ou que não é  │ 404 aluno-fora-da-turma  │
+  │ aluno                                        │                          │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Item que não está no catálogo                │ 404 item-nao-encontrado  │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Ex-aluno                                     │ 409 ex-aluno             │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Hoje fora do semestre da turma ou entre dois │ 409 fora-do-periodo      │
+  │  bimestres                                   │                          │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Item fora de vigência                        │ 409                      │
+  │                                              │ item-fora-de-vigencia    │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Item restrito a outro curso                  │ 409 item-de-outro-curso  │
+  ├──────────────────────────────────────────────┼──────────────────────────┤
+  │ Limite do período atingido                   │ 409 limite-atingido      │
+  └──────────────────────────────────────────────┴──────────────────────────┘
+
+  Para o 403 do escopo, a Application ganhou um tipo novo de recusa, Proibido.
+
+  Gravação
+  - A medalha, quem concedeu e quando, e dois trabalhos na fila
+    (notificar-medalha-recebida com o id da medalha e recalcular-raridade)
+    gravam numa transação só.
+  - Migration Medalha: chaves estrangeiras sem cascata para aluno, professor,
+    quem anulou, item, turma, matéria, semestre e bimestre. Constraints para
+    pontos, ocorrência e versão do item, e para quem e quando da anulação
+    ficarem sempre juntos.
+  - O índice único ix_medalha_chave_ativa cobre só as medalhas não anuladas.
+  - Concorrência: se duas concessões disputam a mesma vaga, a que perde relê e
+    tenta uma vez a próxima vaga livre. Sem vaga, responde 409 limite-atingido,
+    nunca 500.
+
+  Regra F no produto.md 4.8: só recebe medalha o aluno com conta. Quem está na
+  base e matriculado, mas não se cadastrou, não aparece na lista da turma e não
+  recebe; ex-aluno também não aparece nem recebe.
+
+  11 testes de integração
+  - Turmas: o professor vê só a turma vigente dele, não a futura nem a de outro
+    professor, e a contagem considera só alunos com conta.
+  - Lista da turma: só a Ana aparece. Bruno, sem conta, e Carla, ex-aluna, ficam
+    de fora.
+  - Catálogo do modal.
+  - Concessão completa: turma, matéria, bimestre de hoje, snapshot, auditoria,
+    os dois trabalhos na fila e a medalha aparecendo na lista.
+  - Limite: a terceira M01 e a segunda M03 recusadas.
+  - Concorrência: 5 M01 e 3 M03 simultâneas resultam em exatamente 2 e 1
+    concedidas, ocorrências 1 e 2, e o resto 409. Rodei três vezes, sem
+    intermitência.
+  - Escopo: turma de outro professor responde 403 e não grava nada; aluno nas
+    rotas de professor recebe 403 sem-permissao.
+  - Aluno sem conta, de outra turma, ou o próprio professor como aluno: 404.
+  - Ex-aluno recusado.
+  - Item inexistente dá 404; item vazio dá 400.
+
+  O OpenAPI e o cliente TypeScript foram regenerados e o typecheck do cliente
+  passa.
+
+  Três pontos para você saber
+  - Trabalhos sem handler até a etapa 6. Os handlers da notificação e da
+    raridade chegam na etapa 6. Até lá, num ambiente com worker, esses trabalhos
+    falham cinco vezes e ficam como falhos. Nada usa esta branch fora da CI, e
+    nenhum e2e concede medalha antes da etapa 10.
+  - Códigos sem mensagem no cliente. Os códigos novos estão em
+    Maxx.Application/Medalhas/CodigosDaMedalha.cs. O teste do cliente que exige
+    mensagem para cada código lê só o CodigosDeRecusa.cs da autenticação. Na
+    etapa 8 eu amplio esse teste para ler todos os arquivos de códigos e incluo
+    as mensagens.
+  - Turma entra pela lista, não pelo perfil. O produto.md 4.8 ainda diz "concede
+    pelo perfil do aluno". No passo 6 a entrada é a lista da turma (decisão G),
+    registrada no README de decisões na etapa 10, e o perfil chega no passo 7.
+    Se quiser essa nuance também no produto.md, eu acrescento.
+
+  Commit proposto: feat(api): adiciona turmas, alunos e concessão de medalha do 
+  professor. Com seu ok, faço o commit e o push, trago a CI e sigo para a etapa
+  5.
+
+✻ Sautéed for 9m 12s · done 18:21
