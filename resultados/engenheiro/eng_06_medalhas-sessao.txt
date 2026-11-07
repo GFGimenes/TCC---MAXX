@@ -2038,3 +2038,179 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
   roda o e2e de recuperação via Mailpit.
 
 ✻ Churned for 10m 28s · done 18:00
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Etapa 2 aprovada. Confirmo a mudança de regra: os 30 minutos contam do envio. 
+  O risco do e-mail que sai sem a transação fechar fica registrado como está.   
+  Commita com a mensagem proposta, push, acompanha a CI e segue para a etapa 3; 
+  para para a minha revisão no fim dela.                                        
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 2 commitada (9cbf9f7) e enviada; CI rodando. Começo a etapa 3 (domínio
+  da medalha) lendo o modelo acadêmico e o catálogo no domínio.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Escrevo primeiro os testes do domínio da medalha (TDD), depois a
+  implementação.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Premios\MedalhaTests.cs)
+  ⎿  Wrote 257 lines to
+     apps\api\tests\Maxx.Domain.Tests\Premios\MedalhaTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Domain.Premios;
+       5 using Maxx.Domain.Tests.Academico;
+       6 using Maxx.Domain.Tests.Catalogo;
+       7 
+       8 namespace Maxx.Domain.Tests.Premios;
+       9 
+      10 public class MedalhaTests
+     … +247 lines (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Premios\MedalhaTests.cs)
+  ⎿  Added 7 lines, removed 10 lines
+      164          Assert.Equal(RecusaDaConcessao.ExAluno, Conceder(Catal
+           ogoDeTeste.M01, ana).Recusa);
+      165      }
+      166  
+      167 -    [Theory]                                                  
+      168 -    [InlineData(10, 3)] // entre os dois bimestres do semestre
+          -: 3 de outubro não existe no calendário de teste              
+      169 -    [InlineData(9, 27)] // domingo entre o bimestre 3 (até 26/
+          -09) e o 4 (desde 28/09)                                       
+      170 -    public void Data_do_semestre_fora_de_bimestre_e_recusada(i
+          -nt mes, int dia)                                              
+      167 +    [Fact]                                                    
+      168 +    public void Data_do_semestre_entre_dois_bimestres_e_recusa
+          +da()                                                          
+      169      {
+      172 -        var instante = Instante(mes, dia);                    
+      173 -        if (_semestre.Bimestres.Any(bimestre => bimestre.Conte
+          -m(FusoHorario.DataLocal(instante))))                          
+      174 -        {                                                     
+      175 -            return;                                           
+      176 -        }                                                     
+      170 +        // 27/09: depois do bimestre 3 (até 26/09) e antes do 
+          +4 (desde 28/09), dentro do semestre.                          
+      171 +        var entreBimestres = Instante(9, 27);                 
+      172  
+      178 -        Assert.Equal(RecusaDaConcessao.ForaDeBimestre, Concede
+          -r(CatalogoDeTeste.M01, Aluna(), agora: instante).Recusa);     
+      173 +        Assert.True(_semestre.Contem(FusoHorario.DataLocal(ent
+          +reBimestres)));                                               
+      174 +        Assert.Equal(                                         
+      175 +            RecusaDaConcessao.ForaDeBimestre, Conceder(Catalog
+          +oDeTeste.M01, Aluna(), agora: entreBimestres).Recusa);        
+      176      }
+      177  
+      178      [Fact]
+
+● Write(apps\api\src\Maxx.Domain\Premios\Medalha.cs)
+  ⎿  Wrote 223 lines to apps\api\src\Maxx.Domain\Premios\Medalha.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Identidade;
+       4 
+       5 namespace Maxx.Domain.Premios;
+       6 
+       7 // Concessão humana do professor, sobre fato de nota ou presença
+          (produto.md 4.8). Grava
+       8 // turma e matéria de quem concede e o bimestre da data; congela
+          tier, pontos e versão do
+     … +215 lines (ctrl+o to expand)
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A etapa 3 está pronta localmente: 18 testes novos do domínio passam. Ainda
+  espero a CI da etapa 2 (9cbf9f7); os jobs api, mobile e e2e ainda estão
+  rodando. Quando ela terminar, trago o resultado junto com o relatório da etapa
+  3.
+
+✻ Cooked for 3m 3s · done 18:06
+
+※ recap: Passo 6 do Maxx: as etapas 1 e 2 estão commitadas, e o domínio da medalha (etapa 3) está pronto localmente, sem commit, com 18 testes passando. Próximo: trazer o resultado da CI da etapa 2 e o relatório da etapa 3 para sua revisão. (disable recaps in /config)
+
+● Background command "Wait for etapa 2 CI run" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 3 está pronta para a sua revisão: os 18 testes novos passam, assim
+  como os 263 testes de domínio e os de arquitetura, com build sem aviso e
+  formatação limpa. Ainda não fiz commit nem push dela.
+
+  Etapa 2: CI verde
+
+  A CI do commit 9cbf9f7 feat(api): migra o envio de e-mail para a fila com o 
+  token emitido no worker (run 42413995686) passou nos seis jobs, inclusive o
+  e2e de recuperação de senha via Mailpit, que agora passa pelo worker.
+
+  Etapa 3: domínio da medalha (sem commit)
+
+  O código está em Maxx.Domain/Premios/Medalha.cs, só domínio, sem banco e sem
+  migration; a tabela entra na etapa 4.
+
+  O que a medalha grava
+  - O aluno (o usuário dele, já que só aluno com conta recebe).
+  - O item, com a versão, o tier e os pontos do momento (ADR 0007).
+  - A turma, a matéria e o semestre da turma.
+  - O bimestre da data. Isso vale também para M10 e M11, que são de período
+    semestre (decisão E).
+  - A ocorrência e a chave de deduplicação.
+  - Quem concedeu e quando; se for anulada, quem anulou e quando (decisão K).
+
+  Medalha.Conceder
+  - Recebe o item, o aluno, a turma, o professor e as medalhas que o aluno já
+    tem nesse item, e devolve a medalha ou um motivo de recusa.
+  - Motivos de recusa: ex-aluno, data fora do semestre da turma, data no
+    semestre mas entre dois bimestres, item fora de vigência, item restrito a
+    outro curso e limite atingido. Cada motivo vira um código de erro próprio na
+    etapa 4.
+  - Erro de quem chama, não recusa: quem concede não ser professor, quem recebe
+    não ser aluno, semestre que não é o da turma, ou medalha existente de outro
+    aluno ou item.
+
+  Limite e ocorrência (decisão D)
+  - As vagas são contadas por aluno, item, matéria e instância do período: o
+    bimestre, nos itens de bimestre, ou o semestre, nos de semestre.
+  - A ocorrência é a menor vaga livre entre 1 e o limite, sem escolha do
+    professor.
+  - Medalha anulada não ocupa vaga, então a próxima concessão reaproveita a
+    ocorrência dela.
+
+  Chave de deduplicação
+  - É montada a partir dos campos que o catálogo declara para o item. Nos itens
+    repetíveis ela inclui a ocorrência; nos não repetíveis, não inclui.
+  - Na etapa 4 ela ganha um índice único só entre as medalhas ativas. É esse
+    índice que decide a corrida entre duas concessões simultâneas.
+
+  Anular grava quem anulou e quando e devolve falso se a medalha já estava
+  anulada, sem mudar nada.
+
+  Os 18 testes cobrem
+  - Concessão completa, com tudo o que ela grava.
+  - Repetível até o limite, e a terceira M01 recusada.
+  - Não repetível uma vez só.
+  - O limite é por matéria, é por bimestre nos itens de bimestre e é por
+    semestre no M10.
+  - Anulada libera a vaga; anulação grava quem e quando e vale uma vez.
+  - Ex-aluno recusado.
+  - 27/09, entre os bimestres 3 e 4, recusado como fora de bimestre.
+  - 06/12 recusado como fora do semestre.
+  - Fronteiras em America/Sao_Paulo: 05/12 às 23h30 em São Paulo, que já é 06/12
+    em UTC, ainda cai no bimestre 4; o mesmo vale para 26/09 no bimestre 3.
+  - Vigência vencida e futura.
+  - Restrição de curso.
+  - Os quatro erros de quem chama.
+
+  Commit proposto: feat(api): adiciona a medalha ao domínio com limite por 
+  período e deduplicação. Com seu ok, faço o commit e o push, trago a CI e sigo
+  para a etapa 4.
+
+✻ Cogitated for 18s · done 18:10
