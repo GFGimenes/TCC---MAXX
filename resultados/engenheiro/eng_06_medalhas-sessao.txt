@@ -6585,3 +6585,657 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt
   e2e e os docs.
 
 ✻ Crunched for 11m 11s · done 19:57
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+※ recap: Passo 6, medalhas, fila e worker: as etapas 1 a 8 estão commitadas com CI verde, e a etapa 9, tela de Troféus com navegação de cinco abas, está pronta e testada. Falta seu ok para commitar a etapa 9 e seguir para a 10, e2e e docs.
+
+> Etapa 9 aprovada. A trilha que mistura medalha e conquista aparece nas duas   
+  abas mesmo, registra como decisão. O campo nomeDeExibicao no /v1/eu no mesmo  
+  commit está certo. Commita com a mensagem proposta, push, acompanha a CI e    
+  segue para a etapa 10: e2e do professor concedendo, aluno vendo em Troféus e  
+  comando anulando; docs do passo (README de decisões com as decisões A a L e   
+  as das etapas, fluxos, plano mestre, apps/mobile/README.md); e o PR da        
+  feat/passo-06-medalhas para a rodada/eng_06_medalhas com a descrição listando 
+  as dez etapas e o commit de docs inicial. Eu reviso e faço o merge.           
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 9 commitada (e9971ff); CI rodando. Começo a etapa 10 pelo e2e, lendo os
+  testes e helpers que já existem.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os helpers consultam o Postgres do compose e o Mailpit. Vou montar o e2e com
+  uma professora e um aluno criados em cada execução, a concessão feita pela
+  interface, a conferência em Troféus e a anulação rodada no contêiner.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(e2e\tests\apoio\medalhas.ts)
+  ⎿  Wrote 130 lines to e2e\tests\apoio\medalhas.ts
+       1 import { execFileSync } from "node:child_process";
+       2 import { randomInt } from "node:crypto";
+       3 import path from "node:path";
+       4 
+       5 import { expect, type APIRequestContext } from "@playwright/test
+         ";
+       6 
+       7 import { sql, type Aluno } from "./contas";
+       8 import { linkDeRecuperacao } from "./mailpit";
+       9 
+     … +121 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && cat > "$TEMP/e10a.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  ok
+  ⎿  Updated e2e\tests\apoio\contas.ts (+6 -3)
+      20    senha: string;
+      21  }
+      22  
+      23 -function sql(comando: string): string {                        
+      23 +export function sql(comando: string): string {                 
+      24    return execFileSync(
+      25      "docker",
+      26      [
+     ...
+      64  }
+      65  
+      66  // Um aluno com conta, criada pela API como o app cria, com o t
+          ermo vigente aceito.
+      67 -export async function novaConta(request: APIRequestContext): Pr
+         -omise<Aluno> {                                                 
+      67 +export async function novaConta(                               
+      68 +  request: APIRequestContext,                                  
+      69 +  nomeDeExibicao = "Teste",                                    
+      70 +): Promise<Aluno> {                                            
+      71    const aluno = novoElegivel();
+      72    const termo = await request.get("/api/v1/termo-de-uso");
+      73    expect(termo.ok()).toBe(true);
+     ...
+      76      data: {
+      77        ra: aluno.ra,
+      78        email: aluno.email,
+      76 -      nomeDeExibicao: "Teste",                                 
+      79 +      nomeDeExibicao,                                          
+      80        prefixo: aluno.prefixo,
+      81        senha: aluno.senha,
+      82        versaoDoTermo: (await termo.json()).versao,
+● Write(e2e\tests\medalhas.spec.ts)
+  ⎿  Wrote 73 lines to e2e\tests\medalhas.spec.ts
+      1 import { expect, test, type Page } from "@playwright/test";
+      2 
+      3 import { novaConta } from "./apoio/contas";
+      4 import {
+      5   anularMedalha,
+      6   matricular,
+      7   medalhaAtiva,
+      8   novaProfessora,
+      9 } from "./apoio/medalhas";
+     … +64 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write e2e > /dev/null; npm run typecheck -w @maxx/e2e 2>&1
+      | grep "error"…)
+  ⎿  Running 1 test using 1 worker
+
+      Container maxx-postgres-1 Running
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\medalhas.spec.ts (+9 -3)
+      46      await daProfessora
+      47        .getByRole("radio", { name: /^Nota 10 em prova, Bronze, 3
+          0 pontos/ })
+      48        .click();
+      49 -    await daProfessora.getByRole("button", { name: "Conceder", 
+         -exact: true }).click();                                        
+      49 +    await daProfessora                                         
+      50 +      .getByRole("button", { name: "Conceder", exact: true })  
+      51 +      .click();                                                
+      52      await expect(
+      53        daProfessora.getByText(`Medalha Nota 10 em prova concedid
+          a a ${nome}.`),
+      54      ).toBeVisible();
+     ...
+      61      const linha = doAluno.getByTestId("premio-M01");
+      62      await expect(doAluno.getByText("30 pts", { exact: true })).
+          toBeVisible();
+      63      await expect(linha.getByText("+30")).toBeVisible();
+      62 -    await expect(linha.getByText("Banco de Dados · ", { exact: 
+         -false })).toBeVisible();                                       
+      64 +    await expect(                                              
+      65 +      linha.getByText("Banco de Dados · ", { exact: false }),  
+      66 +    ).toBeVisible();                                           
+      67  
+      68      // A instituição anula pelo comando administrativo.
+      69      expect(anularMedalha(medalhaAtiva(aluno))).toContain("anula
+          da.");
+     ...
+      71      await doAluno.reload();
+      72      await medalhasDoAluno(doAluno);
+      73      await expect(doAluno.getByText("0 pts", { exact: true })).t
+          oBeVisible();
+      70 -    await expect(doAluno.getByTestId("premio-M01").getByText("+
+         -30")).toHaveCount(0);                                          
+      74 +    await expect(                                              
+      75 +      doAluno.getByTestId("premio-M01").getByText("+30"),      
+      76 +    ).toHaveCount(0);                                          
+      77      await doAluno.close();
+      78    },
+      79  );
+  ⎿  (timeout 10m)
+
+● O e2e passou, mas browser.newPage() não aplica o tema nem o tamanho de celular
+  do projeto. Vou fazer cada página herdar essas opções e rodar nos dois
+  projetos de celular.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && cat > "$TEMP/e10b.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿    ok 2 [celular-claro] › tests\medalhas.spec.ts:41:5 › a professora co
+     ncede, o aluno vê em Troféus e a anulação tira a medalha @celular (20.
+     4s)
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\medalhas.spec.ts (+17 -3)
+      1 -import { expect, test, type Page } from "@playwright/test";     
+      1 +import { expect, test, type Browser, type Page } from "@playwrig
+        +ht/test";                                                       
+      2  
+      3  import { novaConta } from "./apoio/contas";
+      4  import {
+     ...
+      19    await page.getByRole("button", { name: "Entrar" }).click();
+      20  }
+      21  
+      22 +// Uma página com sessão própria, no tamanho e no tema do proje
+         +to (celular claro ou escuro).                                  
+      23 +async function novaPagina(browser: Browser): Promise<Page> {   
+      24 +  const { viewport, isMobile, hasTouch, colorScheme, baseURL } 
+         +=                                                              
+      25 +    test.info().project.use;                                   
+      26 +  const contexto = await browser.newContext({                  
+      27 +    viewport,                                                  
+      28 +    isMobile,                                                  
+      29 +    hasTouch,                                                  
+      30 +    colorScheme,                                               
+      31 +    baseURL,                                                   
+      32 +  });                                                          
+      33 +  return contexto.newPage();                                   
+      34 +}                                                              
+      35 +                                                               
+      36  async function medalhasDoAluno(page: Page) {
+      37    await page.getByRole("tab", { name: "Troféus" }).click();
+      38    await page.getByRole("tab", { name: "Medalhas" }).click();
+     ...
+      49      matricular(aluno, professora.turmaId);
+      50  
+      51      // A professora, pela lista da turma e pelo modal do catálo
+          go.
+      38 -    const daProfessora = await browser.newPage();              
+      52 +    const daProfessora = await novaPagina(browser);            
+      53      await entrar(daProfessora, professora.email, professora.sen
+          ha);
+      54      await daProfessora.getByRole("button", { name: "Minhas turm
+          as" }).click();
+      55      await daProfessora.getByRole("button", { name: /^Banco de D
+          ados/ }).click();
+     ...
+      69      await daProfessora.close();
+      70  
+      71      // O aluno, na aba Medalhas da tela de Troféus.
+      58 -    const doAluno = await browser.newPage();                   
+      72 +    const doAluno = await novaPagina(browser);                 
+      73      await entrar(doAluno, aluno.ra, aluno.senha);
+      74      await medalhasDoAluno(doAluno);
+     … 1 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● O e2e passa no claro e no escuro, em paralelo. Rodo a suíte e2e inteira (sem a
+  demonstração) em segundo plano enquanto escrevo os docs.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Enquanto o e2e completo roda, escrevo os docs, começando pela seção do passo 6
+  no README de decisões.
+
+  Made 1 scratchpad edit +69 (ctrl+o to expand)
+
+● Background command "Run full e2e suite without demo" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A suíte e2e inteira passa localmente (61 testes; 1 pulado, que já era pulado).
+  Insiro a seção no README de decisões e atualizo fluxo, plano mestre e o
+  README do mobile.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat > "$TEMP/e10c.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿   docs/decisoes/README.md | 69 ++++++++++++++++++++++++++++++++++++++++
+     +++++++++
+      docs/plano-mestre.md    | 13 +++++++---
+      2 files changed, 78 insertions(+), 4 deletions(-)
+  ⎿  Updated docs\decisoes\README.md (+69 -0)
+      29  | Réplicas | Duas réplicas de API sem estado atrás do Caddy: re
+          siliência de deploy, não capacidade |
+      30  | Storage | Cloudflare R2 com a CDN da Cloudflare |
+      31  | Migrations | Contêiner separado com advisory lock, antes de s
+          ubir as réplicas. Nunca no startup da aplicação |
+      32 +| Worker | Contêiner separado, `Maxx.Api worker`, uma réplica, 
+         +consumindo a fila do Postgres (ADR 0008). Ver Medalhas, fila e 
+         +worker (passo 6) |                                             
+      33  | Backup | `pg_dump` noturno para o bucket, mais dump manual ob
+          rigatório antes de cada migration, com restauração testada uma 
+          vez |
+      34  | Avaliação | Sem plano B local: a VPS é o único ambiente. A av
+          aliação é remota, antes de 05/12, sem apresentação presencial: 
+          cada avaliador entra na VPS pela própria conexão, e não há rede
+           do campus nem aparelho compartilhado de que dependa. O ensaio 
+          do passo 13 confirma o acesso de fora, por conexões diferentes 
+          |
+      35  | CI | GitHub Actions, seis jobs: api, mobile, api-client, e2e,
+           segurança e build (imagens da API e do Caddy com o build web) 
+          |
+     ...
+      206  | Logo | Componente `Logo` em vetor, com `react-native-svg` no
+            `gold` do tema. O traçado é gerado de `design/assets/maxx-our
+           o.svg` por `design/icones/logoVetor.js`, que o `gerar.js` tamb
+           ém roda; um teste falha se o SVG mudar sem gerar de novo |
+      207  | e2e | Cada teste cria a própria linha do cadastro elegível, 
+           direto no Postgres do compose, e a conta pela API; a CI roda o
+            `seed demo`. A recuperação lê o e-mail no Mailpit. Os fluxos 
+           com conta rodam só no celular, pelo limite de taxa por IP. A d
+           emonstração tem uma segunda passada, com `docker-compose.demo.
+           yml` por cima |
+      208  
+      209 +## Medalhas, fila e worker (passo 6)                          
+      210 +                                                              
+      211 +A concessão de medalha pelo professor, a anulação pela institu
+          +ição, a fila do Postgres com                                  
+      212 +o worker e a tela de Troféus. As decisões A a L foram fechadas
+          + no plano do passo; as                                        
+      213 +demais, nas etapas. A regra de produto que nasceu aqui (aluno 
+          +sem conta não recebe                                          
+      214 +medalha) está em `produto.md` 4.8.                            
+      215 +                                                              
+      216 +### Fila e worker                                             
+      217 +                                                              
+      218 +| Decisão | Detalhe |                                         
+      219 +|---|---|                                                     
+      220 +| Onde roda o worker | Contêiner próprio, `worker` no compose,
+          + com a mesma imagem e o comando `Maxx.Api worker`, uma réplica
+          + e sem porta. As réplicas da API enfileiram e não consomem |  
+      221 +| Tabela `trabalho` | Tipo, carga em jsonb, estado (`pendente`
+          + ou `falho`), tentativas, criado em, disponível em e último er
+          +ro. Trabalho concluído sai da tabela; o falho fica para alguém
+          + olhar. A carga nunca leva segredo |                          
+      222 +| Consumo | Um trabalho por vez, com `FOR UPDATE SKIP LOCKED`,
+          + e o handler roda na transação que segura a linha: o que ele g
+          +rava e a saída do trabalho valem juntos. Com a fila vazia, o w
+          +orker espera 1 s |                                            
+      223 +| Retentativa | 5 tentativas, com recuo de 10, 20, 40 e 80 s. 
+          +A falha volta a um ponto de salvamento anterior ao handler e é
+          + registrada ainda sob o lock. Na quinta, o trabalho fica `falh
+          +o`, com tipo e mensagem do erro, sem pilha e sem a carga |    
+      224 +| Limites do handler | Passados 60 s, o trabalho é cancelado e
+          + conta como falha. Tipo sem handler também é falha. Queda do p
+          +rocesso desfaz a transação, e o trabalho volta sem contar tent
+          +ativa: por isso todo handler é idempotente |                  
+      225 +| Trabalho adiado | `Enfileirar` aceita o instante em que o tr
+          +abalho fica disponível; é o que a coalescência usa |          
+      226 +| Teste do worker hospedado | O worker sobe antes da migração 
+          +do banco do teste e registra uma vez "relation trabalho does n
+          +ot exist" antes de se recuperar. Ruído só desse teste, aceito:
+          + no compose o worker depende do seeder |                      
+      227 +                                                              
+      228 +### Concessão e anulação                                      
+      229 +                                                              
+      230 +| Decisão | Detalhe |                                         
+      231 +|---|---|                                                     
+      232 +| Rotas do professor | `GET /v1/professor/turmas`, `GET /v1/pr
+          +ofessor/turmas/{turmaId}/alunos`, `GET /v1/professor/medalhas`
+          + e `POST /v1/professor/turmas/{turmaId}/medalhas` com `{alunoI
+          +d, item}`, sob a policy de professor. Escopo de turma sempre n
+          +o banco: turma fora dele é 403 `fora-do-escopo`, tipo de recus
+          +a `Proibido` |                                                
+      233 +| Aluno sem conta | Não aparece na lista da turma e não recebe
+          + medalha; ex-aluno também não (`produto.md` 4.8). A medalha é 
+          +sempre de uma conta |                                         
+      234 +| Entrada do professor | No passo 6, pela lista de alunos da t
+          +urma, a partir de "Minhas turmas" no início provisório. O perf
+          +il do aluno vira outra entrada no passo 7 |                   
+      235 +| Ocorrência | Atribuída pelo sistema: a menor vaga livre de 1
+          + ao limite do período, por aluno, item, matéria e instância do
+          + período (bimestre ou semestre). O professor não escolhe |    
+      236 +| Chave de deduplicação | Montada dos campos que o item declar
+          +a no catálogo, com a ocorrência nos repetíveis. Índice único `
+          +ix_medalha_chave_ativa` só entre as medalhas não anuladas |   
+      237 +| Concessão simultânea | Quem perde a corrida pela mesma vaga 
+          +relê e tenta uma vez a próxima vaga livre. Sem vaga, 409 `limi
+          +te-atingido`, nunca 500 |                                     
+      238 +| Fora de bimestre | Data do semestre entre dois bimestres, ou
+          + fora do semestre da turma: 409 `fora-do-periodo`. A medalha d
+          +e período semestre (M10, M11) também grava o bimestre da data 
+          +|                                                             
+     … 41 more lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+9 -4)
+      165  - Tela de Troféus com o catálogo, o que falta, o critério e a 
+           raridade por escassez,
+      166    recalculada no worker.
+      167  - Anulação de medalha pela instituição, por enquanto por coman
+           do administrativo.
+      168 +- Envio de e-mail migrado da fila em memória do passo 3 para a
+          + fila do Postgres, com o                                      
+      169 +  token de recuperação emitido no worker.                     
+      170 +- Navegação de cinco abas, com Busca, Mural e Perfil em "Em br
+          +eve" até os passos 7 e 10.                                    
+      171  
+      169 -Fica pendente: a posição no ranking, que chega no passo 11.   
+      172 +Fica pendente: a posição no ranking, que chega no passo 11. De
+          +cisões do passo em                                            
+      173 +`decisoes/README.md`, Medalhas, fila e worker (passo 6).      
+      174  
+      175  ### Passo 7. Posts, upload e feed
+      176  
+     ...
+      215  - Texto com imagem opcional; somente leitura.
+      216  - Registro de leitura e bolinha dourada na aba Mural.
+      217  - Sininho no cabeçalho do feed, com as notificações de medalha
+           , aprovação, reprovação,
+      214 -  contestação, decisão e aviso novo.                          
+      218 +  contestação, decisão e aviso novo. A de medalha recebida já 
+          +é gravada desde o passo 6.                                    
+      219 +- Bolinha de prêmio novo na aba Troféus.                      
+      220  
+      221  ### Passo 11. Rankings
+      222  
+     ...
+      245  - k6 a 2.000 usuários virtuais, p95 medido em feed, perfil e r
+           anking. Micro-cache da
+      246    primeira página do feed só se o número pedir.
+      247  - Verificação de saúde do worker e alerta de fila parada, pelo
+            defeito silencioso
+      243 -  descrito no ADR 0005.                                       
+      248 +  descrito no ADR 0005, e de trabalho que ficou `falho` na fil
+          +a.                                                            
+      249  - CSP, HSTS e cabeçalhos de segurança; varredura de dependênci
+           as e de segredos na CI.
+      250  - Backup: `pg_dump` noturno para o bucket e dump manual antes 
+           de migration, com
+      251    restauração testada uma vez.
+     ...
+      282  | Fila disputando I/O com o feed no pico | Passo 13, primeiro 
+           lugar a olhar se o p95 não bater |
+      283  | Avaliador de conquista é ponto único de falha lógica | Passo
+            9, teste por forma, por item e por fronteira |
+      284  | Foto pública para quem tem o link | Decisão consciente, ADR 
+           0002, coberta pelo termo de uso no passo 5 |
+      280 -| Semestre vigente na avaliação | A demonstração só oferece cu
+          -rsos com turma no semestre vigente, e o e2e dela depende disso
+          -: no recesso (2026/2 termina em 05/12/2026), `GET /v1/demo` ve
+          -m sem cursos. A avaliação acontece antes de 05/12 e não há apr
+          -esentação presencial, então o semestre vigente cobre. Depois d
+          -isso, o e2e da demonstração falha até o calendário ganhar o se
+          -mestre seguinte |                                             
+      285 +| Semestre vigente na avaliação | A demonstração só oferece cu
+          +rsos com turma no semestre vigente, e o e2e dela depende disso
+          +: no recesso (2026/2 termina em 05/12/2026), `GET /v1/demo` ve
+          +m sem cursos, e o e2e da medalha não acha turma vigente nem bi
+          +mestre para conceder. A avaliação acontece antes de 05/12 e nã
+          +o há apresentação presencial, então o semestre vigente cobre. 
+          +Depois disso, os e2e da demonstração e da medalha falham até o
+          + calendário ganhar o semestre seguinte |                      
+      286  | Resposta perdida no meio de um refresh | Se a rede cai ou a 
+           página recarrega com o refresh em voo, o cliente fica com o to
+           ken antigo, a próxima renovação conta como reuso e a pessoa vo
+           lta ao login. A decisão atual não tem janela de tolerância. Ac
+           ompanhar no passo 13 |
+      287  | Limite de taxa no e2e | Os fluxos com conta rodam só no celu
+           lar, cada teste com a própria conta, e o teste do limite só no
+            `celular-claro`. Mais testes de login podem esbarrar nos 30 p
+           or minuto por IP |
+      288  | Nativo sem teste em aparelho | Secure store, sessão e telas 
+           de autenticação só passam pelo Jest até o Maestro do passo 13.
+            No nativo, o link de senha nova abre no navegador |
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat > "$TEMP/e10d.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  | `POST /api/v1/professor/turmas/{turmaId}/medalhas` `{alunoId, item}`
+      | 201, com tier, pontos e ocorrência | 403 `fora-do-escopo`; 404 `alu
+     no-fora-da-turma`, `item-nao-encontrado`; 409 `ex-aluno`, `fora-do-per
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\03-concessao-de-medalha.md (+22 -1)
+      2  
+      3  Medalha é concessão humana do professor, sobre fato de nota ou p
+         resença. A concessão é
+      4  síncrona; as conquistas que ela pode fechar são avaliadas depois
+         , no worker. A
+      5 -concessão chega no passo 6; o avaliador de conquistas, no passo 
+        -9.                                                              
+      5 +concessão chega no passo 6; o avaliador de conquistas, no passo 
+        +9. A seção "No passo 6", no                                     
+      6 +fim, diz o que já roda e o que ainda é desenho.                 
+      7  
+      8  ```mermaid
+      9  sequenceDiagram
+     ...
+       95  As conquistas de gatilho `fechamentoDePeriodo` não disparam pe
+           la concessão: elas rodam
+       96  no fechamento da instância e são reavaliadas quando um fato do
+            período chega depois do
+       97  fechamento, até o congelamento do ranking do semestre (`regras
+           -conquista.md` 5).
+       98 +                                                              
+       99 +## No passo 6                                                 
+      100 +                                                              
+      101 +O que já roda: a concessão pela lista da turma, a anulação por
+          + comando administrativo, a                                    
+      102 +notificação de medalha recebida e o recálculo de raridade no w
+          +orker. Ainda é desenho: a                                     
+      103 +reavaliação de conquistas (passo 9) e o recálculo do ranking (
+          +passo 11). Por isso a                                         
+      104 +concessão e a anulação enfileiram hoje só `notificar-medalha-r
+          +ecebida` (a concessão) e                                      
+      105 +`recalcular-raridade` (as duas). Decisões em `decisoes/README.
+          +md`, Medalhas, fila e                                         
+      106 +worker (passo 6).                                             
+      107 +                                                              
+      108 +| Rota | Sucesso | Recusa |                                   
+      109 +|---|---|---|                                                 
+      110 +| `GET /api/v1/professor/turmas` | 200, as turmas do semestre 
+          +vigente do professor | 403 `sem-permissao` para quem não é pro
+          +fessor |                                                      
+      111 +| `GET /api/v1/professor/turmas/{turmaId}/alunos` | 200, os al
+          +unos com conta e não ex-alunos, com as medalhas ativas na turm
+          +a | 403 `fora-do-escopo` |                                    
+      112 +| `GET /api/v1/professor/medalhas` | 200, as medalhas do catál
+          +ogo vigentes hoje | 403 `sem-permissao` |                     
+      113 +| `POST /api/v1/professor/turmas/{turmaId}/medalhas` `{alunoId
+          +, item}` | 201, com tier, pontos e ocorrência | 403 `fora-do-e
+          +scopo`; 404 `aluno-fora-da-turma`, `item-nao-encontrado`; 409 
+          +`ex-aluno`, `fora-do-periodo`, `item-fora-de-vigencia`, `item-
+          +de-outro-curso`, `limite-atingido`; 400 `dados-invalidos` |   
+      114 +| `GET /api/v1/eu/premios` | 200, o catálogo do próprio aluno 
+          +com critério, raridade e o que ele obteve | 403 para quem não 
+          +é aluno |                                                     
+      115 +                                                              
+      116 +A anulação é o comando `Maxx.Api anular-medalha <id> --institu
+          +icao <e-mail>`, que sai com 0                                 
+      117 +quando a medalha fica anulada ou já estava, 1 quando recusa e 
+          +2 quando o uso está errado.                                   
+
+● Agora o README do app mobile.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat > "$TEMP/e10e.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  All matched files use Prettier code style!
+  ⎿  Updated apps\mobile\README.md (+19 -1)
+      56  | Onde                                                         
+                           | O quê                                       
+                                                                        |
+      57  | -------------------------------------------------------------
+          ---------------- | --------------------------------------------
+          ------------------------------------------------------------- |
+      58  | `src/app/(publico)/`                                         
+                           | Login, cadastro em três passos, esqueci-senh
+          a e demonstração: só para quem não entrou                     |
+      59 -| `src/app/(app)/`                                             
+         -                 | O que exige sessão; por enquanto, o início p
+         -rovisório em `/`                                              |
+      59 +| `src/app/(app)/`                                             
+         +                 | O que exige sessão: as cinco abas em `(abas)
+         +/` e as telas internas, como `/turmas` (passo 6)              |
+      60  | `src/app/status.tsx`, `src/app/redefinir-senha.tsx`          
+                           | Fora dos grupos, com ou sem sessão          
+                                                                        |
+      61  | `src/sessao/`                                                
+                           | `GerenciadorDeSessao` (access em memória, re
+          fresh serializado, fila entre abas na web) e `SessaoProvider` |
+      62  | `src/api/erros.ts`, `src/api/FalhaDaApi.ts`                  
+                           | Código da API para mensagem amigável        
+                                                                        |
+     ...
+       81  Os testes criam linhas no cadastro elegível e alunos de demons
+           tração no banco local. Os de
+       82  demonstração saem com a purga de `docs/decisoes/README.md`, co
+           m o lote usado.
+       83  
+       84 +## Medalhas e Troféus (passo 6)                               
+       85 +                                                              
+       86 +As decisões estão em `docs/decisoes/README.md`, em "Medalhas, 
+          +fila e worker (passo 6)".                                     
+       87 +                                                              
+       88 +| Onde                           | O quê                      
+          +                                                              
+          +               |                                              
+       89 +| ------------------------------ | ---------------------------
+          +--------------------------------------------------------------
+          +-------------- |                                              
+       90 +| `src/app/(app)/(abas)/`        | As cinco abas: Home (início
+          + provisório), Busca, Mural, Troféus e Perfil; Busca, Mural e P
+          +erfil em breve |                                              
+       91 +| `src/navegacao/`               | `LayoutDasAbas`, com o `Bot
+          +tomNav` do passo 4, e as telas "Em breve"                     
+          +               |                                              
+       92 +| `src/app/(app)/turmas/`        | As turmas do professor e os
+          + alunos de cada turma, fora das abas                          
+          +               |                                              
+       93 +| `src/professor/`               | Consultas e concessão (`api
+          +.ts`), as telas de turmas e o `ModalDeConcessao`              
+          +               |                                              
+       94 +| `src/trofeus/`                 | A tela de Troféus: abas, li
+          +sta, trilhas e a montagem pura em `montagem.ts`               
+          +               |                                              
+       95 +| `src/components/Cabecalho.tsx` | O topo das telas internas, 
+          +com voltar                                                    
+          +               |                                              
+       96 +                                                              
+       97 +O professor entra por "Minhas turmas", no início. O e2e do pas
+          +so (`e2e/tests/medalhas.spec.ts`)                             
+       98 +cria a própria professora, que ganha conta pelo `seed demo` e 
+          +senha pelo Mailpit, e roda o                                  
+       99 +comando de anulação no contêiner do seeder; precisa do compose
+          + de pé e de hoje cair num                                     
+      100 +bimestre do calendário.                                       
+      101 +                                                              
+      102  ## Nativo
+      103  
+      104  O identificador do app é `tech.gimenes.maxx`, no Android e no 
+           iOS. `npx expo prebuild` gera
+
+● Docs prontos. Antes de commitar a etapa 10, confiro a CI da etapa 9.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 9 ainda está rodando. Não faço push agora, porque a CI cancela a
+  execução anterior da mesma branch e eu perderia o resultado da etapa 9.
+  Espero ela terminar.
+
+✻ Worked for 4m 37s · done 20:11
+
+※ recap: Estou fechando o passo 6: as etapas 1 a 9 estão commitadas, e o e2e da medalha e os docs da etapa 10 estão prontos, sem commit. Assim que a CI da etapa 9 terminar, faço o commit e o push da etapa 10 e abro o PR para a rodada.
+
+● Background command "Wait for etapa 9 CI run" completed (exit code 0)
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 10 verde, com o e2e novo rodando na CI. Vejo o formato do PR
+  anterior para seguir o mesmo padrão.
+
+  Made 1 scratchpad edit +68, ran 2 shell commands (ctrl+o to expand)
+
+● O PR falhou porque a rodada/eng_06_medalhas só existe na sua máquina, não no
+  GitHub. Envio a branch da rodada como está (sem nenhum commit novo) e abro o
+  PR.
+
+  Created PR #8 (ctrl+o to expand)
+
+● O passo 6 está pronto para a sua revisão: as dez etapas estão na branch e o PR
+  #8, da feat/passo-06-medalhas para a rodada/eng_06_medalhas, está aberto em
+  https://github.com/GFGimenes/maxx-engenheiro/pull/8.
+
+  CI das etapas 9 e 10
+
+  - Etapa 9 (e9971ff, tela de Troféus e navegação de cinco abas): seis jobs
+    verdes, run 42423742541.
+  - Etapa 10 (a29482d docs(docs): registra as decisões do passo 6 e adiciona o 
+    e2e da medalha): seis jobs verdes, run 42424356279. O e2e novo da medalha
+    passou na CI.
+
+  Os onze commits da branch (o de docs inicial e as dez etapas) passaram na CI.
+
+  Etapa 10
+
+  e2e (e2e/tests/medalhas.spec.ts, no celular claro e escuro):
+  - Cada execução cria a própria professora: cadastro e vínculo entram no
+    Postgres, a conta nasce pelo seed demo e a senha vem do primeiro acesso pelo
+    Mailpit.
+  - Cria também um aluno matriculado na turma vigente de Banco de Dados.
+  - A professora concede "Nota 10 em prova" pela tela. O aluno vê "30 pts" e
+    "+30" na aba Medalhas.
+  - O comando anular-medalha roda no contêiner do seeder, e depois do
+    recarregamento o aluno vê "0 pts".
+  - Localmente, a suíte e2e inteira passou: 61 testes, com 1 pulado que já era
+    pulado antes.
+
+  Docs:
+  - README de decisões: seção nova "Medalhas, fila e worker (passo 6)", com as
+    decisões A a L e as das etapas: fila e worker, concessão e anulação,
+    notificação e raridade, leitura do aluno e tela de Troféus. Inclui a trilha
+    nas duas abas e o numerador limitado ao divisor. A tabela de infraestrutura
+    ganhou a linha "Worker".
+  - Fluxo 03: seção "No passo 6", com o que já roda, o que ainda é desenho
+    (conquistas no passo 9, ranking no 11) e a tabela de rotas e códigos.
+  - Plano mestre: o passo 6 registra o e-mail migrado e a navegação. O passo 10
+    ganhou a bolinha de prêmio novo em Troféus. O passo 13 ganhou o alerta de
+    trabalho falho. O risco do semestre vigente agora vale também para o e2e da
+    medalha.
+  - apps/mobile/README.md: seção do passo 6 com onde fica cada parte e como roda
+    o e2e.
+
+  O PR
+
+  A descrição segue o formato do PR #7:
+  - o commit de docs inicial e as dez etapas, cada uma com commit e entrega;
+  - as correções feitas antes dos commits;
+  - as 17 decisões do passo;
+  - a definição de pronto: domínio 278, arquitetura 4, integração 275, Jest 317,
+    e2e 61, cinco migrations, cliente sem diferença e CI verde nos onze
+    commits;
+  - os riscos e pendências.
+
+  Não há rodapé de co-autoria, como pede o CLAUDE.md.
+
+  Uma ação fora do combinado: a rodada/eng_06_medalhas existia só na sua
+  máquina, e o GitHub recusou o PR sem ela. Enviei a branch para o origin
+  exatamente como estava, em 9115368 rodada: eng_05_login, sem commit novo, para
+  servir de base do PR.
+
+✻ Churned for 9m 29s · done 20:24
+
+※ recap: O passo 6 (medalhas, fila e worker) está completo: as dez etapas estão commitadas com CI verde e o PR #8 está aberto para a rodada/eng_06_medalhas. Falta só você revisar e fazer o merge.
