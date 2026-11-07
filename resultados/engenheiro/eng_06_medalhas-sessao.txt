@@ -234,3 +234,730 @@
   push dos docs, trago o resultado da CI e começo a etapa 1.
 
 ✻ Churned for 2m 7s · done 17:30
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_06_medalhas-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_06_medalhas-sessao.txt
+
+> Ajuste de docs aprovado; inclui no mesmo commit os outros trechos que supõem  
+  apresentação presencial (ADR 0001, 0005, 0008 e produto.md 1, 6.2, 11 e 12),  
+  trocando banca por avaliação remota e avaliadores onde couber, sem mudar      
+  regra. Plano do passo 6 aprovado, dez etapas, um PR da feat/passo-06-medalhas 
+  para a rodada/eng_06_medalhas. Decisões A a L todas pela sua recomendação;    
+  registra a F no produto.md como regra, porque é nova: aluno sem conta não     
+  recebe medalha e não aparece na lista do professor. Commita e dá push dos     
+  docs, me traz a CI e começa a etapa 1; para para a minha revisão no fim dela. 
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat > "$TEMP/sub.js" <<'EOF'
+      const fs = require("fs");…)
+  ⎿  ok
+     warning: in the working copy of 'docs/decisoes/0001-origem-unica.md',
+     CRLF will be replaced by LF the next time Git touches it
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\0001-origem-unica.md (+1 -1)
+       5  ## Contexto
+       6  
+       7  O cliente Expo exportado como web estático é o acesso principal
+           da fase 1: na
+       8 -apresentação, a banca escaneia um QR code e abre o aplicativo n
+         -o navegador. A API é                                           
+       8 +avaliação remota, cada avaliador abre o aplicativo no navegador
+         +, pela própria conexão. A API é                                
+       9  ASP.NET Core, e na web o refresh token vive em cookie `HttpOnly
+          ` emitido pela API. Duas
+      10  topologias eram possíveis, e a escolha determina CORS, cookie e
+           CSP de uma vez.
+      11  
+  ⎿  Updated docs\decisoes\0005-ranking-por-worker.md (+5 -4)
+       6  
+       7  São quatro visões de ranking (geral e por curso, cada uma em se
+          mestre atual e histórico),
+       8  3.200 alunos, e um alvo de p95 de 300 ms na leitura com 2.000 u
+          suários virtuais. Não há
+       9 -Redis. E existe um requisito de apresentação: na banca, uma med
+         -alha concedida ao vivo                                         
+      10 -precisa mexer a posição em segundos, e é o momento de maior imp
+         -acto da demonstração.                                          
+       9 +Redis. E existe um requisito da demonstração: na avaliação remo
+         +ta, uma medalha concedida                                      
+      10 +durante a avaliação precisa mexer a posição em segundos, e é o 
+         +momento de maior impacto da                                    
+      11 +demonstração.                                                  
+      12  
+      13  A raridade dos itens (percentual de alunos que têm cada prêmio)
+           tem exatamente a mesma
+      14  natureza: cálculo agregado, leitura muito frequente, tolerância
+           a alguns segundos de
+     ...
+      41  - conquista concedida ou removida pelo worker.
+      42  
+      43  A coalescência é o que torna isso barato: uma rajada de eventos
+           no mesmo intervalo vira
+      43 -uma execução só por visão. O diagrama abaixo mostra a medalha, 
+         -o caso da banca; os                                            
+      44 +uma execução só por visão. O diagrama abaixo mostra a medalha, 
+         +o caso da demonstração; os                                     
+      45  outros eventos seguem o mesmo caminho, e os diagramas de `docs/
+          fluxos/` mostram cada um.
+      46  
+      47  ```mermaid
+     ...
+      72    sem parecer defeito.
+      73  - **Negativa:** o worker é ponto único de atraso. Se ele morre,
+           o ranking congela **sem
+      74    erro visível**: nenhuma tela quebra, os números só param. Pre
+          cisa de verificação de
+      74 -  saúde própria e de um alerta, senão o sintoma aparece primeir
+         -o na banca.                                                    
+      75 +  saúde própria e de um alerta, senão o sintoma aparece primeir
+         +o na avaliação.                                                
+      76  - **Negativa:** o congelamento do ranking semestral 30 dias apó
+          s o fim do semestre passa a
+      77    ser regra do worker, não da consulta: quem lê a tabela não sa
+          be que ela parou de ser
+      78    atualizada de propósito.
+  ⎿  Updated docs\decisoes\0008-fila-no-postgres.md (+1 -1)
+      40  ## Consequências
+      41  
+      42  - Uma peça de infraestrutura a menos para instalar, monitorar, 
+          fazer backup e explicar na
+      43 -  banca.                                                       
+      43 +  avaliação.                                                   
+      44  - Transacionalidade de graça: se a escrita falha, o trabalho nã
+          o existe.
+      45  - **Negativa:** o banco acumula a função de fila. Um pico de en
+          fileiramento disputa I/O
+      46    com as leituras do feed exatamente no evento, que é quando os
+           dois acontecem juntos. É o
+  ⎿  Updated docs\produto.md (+9 -8)
+      23  exceção é o modo de demonstração da seção 11, que existe apenas
+           com uma flag de
+      24  configuração ligada.
+      25  
+      26 -A fase 1 é o TCC, apresentado a uma banca rotativa. A web é o a
+         -cesso principal dessa                                          
+      26 +A fase 1 é o TCC, avaliado por uma banca rotativa em avaliação 
+         +remota, sem apresentação                                       
+      27 +presencial: cada avaliador entra pela própria conexão. A web é 
+         +o acesso principal dessa                                       
+      28  fase; o nativo fica pronto para publicar, sem publicação em loj
+          a.
+      29  
+      30  ---
+     ...
+      434  ### 6.2 Feed
+      435  
+      436  Mostra sempre os posts de quem o aluno segue, mais recomendaçõ
+           es aleatórias de outros
+      436 -alunos. Aluno novo (e qualquer membro da banca) vê recomendaçõ
+          -es desde o primeiro                                           
+      437 +alunos. Aluno novo (e qualquer avaliador) vê recomendações des
+          +de o primeiro                                                 
+      438  acesso, e nunca um feed vazio.
+      439  
+      440  ### 6.3 Seguir
+     ...
+      536  
+      537  ## 11. Modo de demonstração
+      538  
+      538 -Existe só na apresentação do TCC e só com uma flag de configur
+          -ação ligada. A flag vem                                       
+      539 +Existe só na avaliação do TCC e só com uma flag de configuraçã
+          +o ligada. A flag vem                                          
+      540  desligada por padrão e não existe na configuração de produção;
+            desligada, as rotas de
+      541  demonstração respondem 404 e o botão não aparece no login.
+      542  
+     ...
+      548    nos rankings.
+      549  - Voltando pelo mesmo dispositivo, a pessoa pode entrar no usu
+           ário que criou ou criar
+      550    outro. A lembrança é local, sem senha, e se perde ao trocar 
+           de aparelho.
+      550 -- O aluno de demonstração entra nos mesmos rankings dos alunos
+          - semeados, e os membros da                                    
+      551 -  banca veem os posts uns dos outros.                         
+      551 +- O aluno de demonstração entra nos mesmos rankings dos alunos
+          + semeados, e os avaliadores                                   
+      552 +  veem os posts uns dos outros.                               
+      553  - Dados de demonstração têm marcação por flag e por lote, para
+            purga manual depois da
+      553 -  apresentação.                                               
+      554 +  avaliação.                                                  
+      555  - Na fase 1 existe só o mundo do seed: nenhuma conta real.
+      556  - O seed traz os professores dos quatro cursos de demonstração
+            e a conta de instituição
+      556 -  usada para conceder ao vivo durante a apresentação.         
+      557 +  usada para conceder durante a avaliação.                    
+      558  
+     … 10 more lines (ctrl+o to expand)
+
+● Trocando as menções restantes de banca e apresentação pela avaliação remota;
+  falta conferir o texto e fazer o commit.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^Depois da apresentação, os dados de um lote/Depois da
+      avaliação, os dados de u…)
+  ⎿  warning: in the working copy of 'docs/decisoes/0001-origem-unica.md',
+     CRLF will be replaced by LF the next time Git touches it
+     warning: in the working copy of 'docs/decisoes/0008-fila-no-postgres.m
+     … +54 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+1 -1)
+      113  
+      114  ### Purga da demonstração
+      115  
+      116 -Depois da apresentação, os dados de um lote saem numa transaçã
+          -o só, com o lote que estava                                   
+      116 +Depois da avaliação, os dados de um lote saem numa transação s
+          +ó, com o lote que estava                                      
+      117  em `MAXX_DEMO_LOTE`:
+      118  
+      119  ```sql
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Docs commitados e enviados (be3f634); a CI está rodando em segundo plano.
+  Enquanto isso, começo a etapa 1 lendo a infraestrutura de persistência e
+  testes.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Li a infraestrutura e agora escrevo a fila: contrato na Application, tabela e
+  consumidor na Infrastructure.
+
+● Write(apps\api\src\Maxx.Application\Fila\FilaDeTrabalhos.cs)
+  ⎿  Wrote 28 lines to
+     apps\api\src\Maxx.Application\Fila\FilaDeTrabalhos.cs
+       1 namespace Maxx.Application.Fila;
+       2 
+       3 // A carga de um trabalho da fila (ADR 0008). O tipo é o nome gr
+         avado na linha, estável:
+       4 // trocar o nome de um tipo com trabalho pendente deixa esse tra
+         balho sem quem o execute.
+       5 // A carga vai em JSON para o banco e não leva segredo: o banco 
+         não é lugar de segredo em
+       6 // repouso, e o que precisa de um o gera no worker.
+       7 public interface ICargaDeTrabalho
+     … +21 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Fila\Trabalho.cs)
+  ⎿  Wrote 47 lines to apps\api\src\Maxx.Infrastructure\Fila\Trabalho.cs
+      1 namespace Maxx.Infrastructure.Fila;
+      2 
+      3 // Uma linha da tabela de trabalhos (ADR 0008). Trabalho concluíd
+        o sai da tabela; o que
+      4 // fica é o pendente e o falho, que esgotou as tentativas e esper
+        a alguém olhar.
+      5 public sealed class Trabalho
+      6 {
+      7     public long Id { get; set; }
+      8 
+     … +39 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\FilaConfigur
+       ation.cs)
+  ⎿  Wrote 33 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\FilaConfiguration.cs
+       1 using Maxx.Infrastructure.Fila;
+       2 using Microsoft.EntityFrameworkCore;
+       3 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       4 
+       5 namespace Maxx.Infrastructure.Persistence.Configurations;
+       6 
+       7 internal sealed class TrabalhoConfiguration : IEntityTypeConfigu
+         ration<Trabalho>
+       8 {
+       9     public void Configure(EntityTypeBuilder<Trabalho> builder)
+     … +24 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Fila\FilaDeTrabalhos.cs)
+  ⎿  Wrote 79 lines to
+     apps\api\src\Maxx.Infrastructure\Fila\FilaDeTrabalhos.cs
+       1 using System.Text.Json;
+       2 using Maxx.Application.Fila;
+       3 using Maxx.Infrastructure.Persistence;
+       4 using Microsoft.Extensions.DependencyInjection;
+       5 
+       6 namespace Maxx.Infrastructure.Fila;
+       7 
+       8 // Só acrescenta a linha ao DbContext do escopo: grava junto com
+          a escrita de quem chamou.
+       9 internal sealed class FilaDeTrabalhos(MaxxDbContext db, TimeProv
+     … +71 lines (~3 KB) (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Fila\ConsumidorDeTrabalhos.cs)
+  ⎿  Wrote 171 lines to
+     apps\api\src\Maxx.Infrastructure\Fila\ConsumidorDeTrabalhos.cs
+       1 using Maxx.Infrastructure.Persistence;
+       2 using Microsoft.EntityFrameworkCore;
+       3 using Microsoft.Extensions.DependencyInjection;
+       4 using Microsoft.Extensions.Hosting;
+       5 using Microsoft.Extensions.Logging;
+       6 using Microsoft.Extensions.Options;
+       7 
+       8 namespace Maxx.Infrastructure.Fila;
+       9 
+      10 // Pega um trabalho por vez com FOR UPDATE SKIP LOCKED (ADR 0008
+     … +162 lines (~7 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i
+      's/^internal sealed class TiposDeTrabalho/public sealed class
+      TiposDeTrab…)  ⎿  5:using Maxx.Application.Fila;
+     10:using Maxx.Infrastructure.Fila;
+     45:        // Fila no Postgres (ADR 0008): a API e o worker enfileiram
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+8 
+     -0)
+       2  using Maxx.Application.Autenticacao;
+       3  using Maxx.Application.Autorizacao;
+       4  using Maxx.Application.Demonstracao;
+       5 +using Maxx.Application.Fila;                                   
+       6  using Maxx.Infrastructure.Autenticacao;
+       7  using Maxx.Infrastructure.Autorizacao;
+       8  using Maxx.Infrastructure.Demonstracao;
+       9  using Maxx.Infrastructure.Email;
+      10 +using Maxx.Infrastructure.Fila;                                
+      11  using Maxx.Infrastructure.Persistence;
+      12  using Maxx.Infrastructure.Seed;
+      13  using Microsoft.EntityFrameworkCore;
+     ...
+      42          services.AddScoped<IRecuperacaoDeSenhaRepository, Recup
+          eracaoDeSenhaRepository>();
+      43          services.AddScoped<IDemonstracaoRepository, Demonstraca
+          oRepository>();
+      44  
+      45 +        // Fila no Postgres (ADR 0008): a API e o worker enfile
+         +iram; só o worker consome.                                     
+      46 +        services.AddOptions<FilaOptions>();                    
+      47 +        services.AddScoped<IFilaDeTrabalhos, FilaDeTrabalhos>()
+         +;                                                              
+      48 +        services.AddSingleton<TiposDeTrabalho>();              
+      49 +        services.AddSingleton<ConsumidorDeTrabalhos>();        
+      50 +                                                               
+      51          // E-mail fora da requisição. As opções (EmailOptions) 
+          vêm da borda.
+      52          services.AddSingleton<FilaDeEmailEmMemoria>();
+      53          services.AddSingleton<IFilaDeEmail>(provider => provide
+          r.GetRequiredService<FilaDeEmailEmMemoria>());
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Fila\FilaDeTrabalhos.cs (+1 
+     -1)
+      33          executar(servicos, carga, cancellationToken);
+      34  }
+      35  
+      36 -internal sealed class TiposDeTrabalho(IEnumerable<TipoDeTrabalh
+         -o> tipos)                                                      
+      36 +public sealed class TiposDeTrabalho(IEnumerable<TipoDeTrabalho>
+         + tipos)                                                        
+      37  {
+      38      // Dois handlers para o mesmo nome é erro de registro: falh
+          a ao montar, não no meio da fila.
+      39      private readonly Dictionary<string, TipoDeTrabalho> _porNom
+          e = tipos.ToDictionary(tipo => tipo.Nome, StringComparer.Ordina
+          l);
+
+● Update(apps\api\src\Maxx.Api\Program.cs)
+  ⎿  Added 14 lines
+      16  // `Maxx.Api seed <base|demo>` grava os dados de data/ e sai. I
+          dempotente.
+      17  var isSeed = args is ["seed", ..];
+      18  
+      19 +// `Maxx.Api worker` consome a fila de trabalhos do Postgres (A
+         +DR 0008), sem servidor HTTP.                                   
+      20 +// É o comando do contêiner do worker; as réplicas da API só en
+         +fileiram.                                                      
+      21 +if (args is ["worker", ..])                                    
+      22 +{                                                              
+      23 +    var worker = Host.CreateApplicationBuilder(args[1..]);     
+      24 +    worker.Services.AddSingleton(TimeProvider.System);         
+      25 +    worker.Services.AddInfrastructure(                         
+      26 +        worker.Configuration.GetConnectionString("Maxx")       
+      27 +            ?? throw new InvalidOperationException("ConnectionS
+         +trings:Maxx não configurada."));                               
+      28 +    worker.Services.AddWorker();                               
+      29 +    await worker.Build().RunAsync();                           
+      30 +    return 0;                                                  
+      31 +}                                                              
+      32 +                                                               
+      33  // A geração do OpenAPI no build sobe a aplicação sem servidor 
+          e sem banco.
+      34  var isOpenApiGeneration = Assembly.GetEntryAssembly()?.GetName(
+          ).Name == "GetDocument.Insider";
+      35  
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i 's/^using
+      Maxx.Infrastructure;$/using Maxx.Infrastructure;\nusing Maxx.In…)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+       7  using Maxx.Api.LimiteDeTaxa;
+       8  using Maxx.Api.OpenApi;
+       9  using Maxx.Infrastructure;
+      10 +using Maxx.Infrastructure.Fila;                                
+      11  using Maxx.Infrastructure.Persistence;
+      12  using Maxx.Infrastructure.Seed;
+      13  
+  ⎿  (timeout 5m)
+
+● Fila, consumidor e o modo worker estão escritos; agora compilo a solução.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      migrations add Fila --project src/Maxx.Infrastructure --startup-projec…)
+  ⎿  Build started...
+     Build succeeded.
+     Done. To undo this action, use 'ef migrations remove'
+     … +50 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     07203851_Fila.cs (+50 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;          
+       4 +                                                               
+       5 +#nullable disable                                              
+       6 +                                                               
+       7 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       8 +{                                                              
+       9 +    /// <inheritdoc />                                         
+      10 +    public partial class Fila : Migration                      
+      11 +    {                                                          
+      12 +        /// <inheritdoc />                                     
+      13 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      14 +        {                                                      
+      15 +            migrationBuilder.CreateTable(                      
+      16 +                name: "trabalho",                              
+      17 +                columns: table => new                          
+      18 +                {                                              
+      19 +                    id = table.Column<long>(type: "bigint", nul
+         +lable: false)                                                  
+      20 +                        .Annotation("Npgsql:ValueGenerationStra
+         +tegy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),    
+      21 +                    tipo = table.Column<string>(type: "characte
+         +r varying(100)", maxLength: 100, nullable: false),             
+      22 +                    carga = table.Column<string>(type: "jsonb",
+         + nullable: false),                                             
+      23 +                    estado = table.Column<string>(type: "charac
+         +ter varying(20)", maxLength: 20, nullable: false),             
+      24 +                    tentativas = table.Column<int>(type: "integ
+         +er", nullable: false),                                         
+      25 +                    criado_em = table.Column<DateTimeOffset>(ty
+         +pe: "timestamp with time zone", nullable: false),              
+      26 +                    disponivel_em = table.Column<DateTimeOffset
+         +>(type: "timestamp with time zone", nullable: false),          
+      27 +                    ultimo_erro = table.Column<string>(type: "c
+         +haracter varying(2000)", maxLength: 2000, nullable: true)      
+      28 +                },                                             
+      29 +                constraints: table =>                          
+      30 +                {                                              
+      31 +                    table.PrimaryKey("pk_trabalho", x => x.id);
+      32 +                    table.CheckConstraint("ck_trabalho_estado",
+         + "estado IN ('pendente', 'falho')");                           
+      33 +                    table.CheckConstraint("ck_trabalho_tentativ
+         +as", "tentativas BETWEEN 0 AND 5");                            
+      34 +                });                                            
+      35 +                                                               
+      36 +            migrationBuilder.CreateIndex(                      
+      37 +                name: "ix_trabalho_pendente",                  
+      38 +                table: "trabalho",                             
+      39 +                columns: new[] { "disponivel_em", "id" },      
+      40 +                filter: "estado = 'pendente'");                
+     … 10 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Fila\FilaDeTrabalhosTests.cs)
+  ⎿  Wrote 327 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Fila\FilaDeTrabalhosTests.cs
+       1 using System.Collections.Concurrent;
+       2 using Maxx.Application;
+       3 using Maxx.Application.Fila;
+       4 using Maxx.Infrastructure.Fila;
+       5 using Maxx.Infrastructure.Persistence;
+       6 using Microsoft.EntityFrameworkCore;
+       7 using Microsoft.Extensions.DependencyInjection;
+       8 using Microsoft.Extensions.DependencyInjection.Extensions;
+       9 
+      10 namespace Maxx.Api.IntegrationTests.Fila;
+     … +317 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Testes da fila escritos; corrigindo um aviso do analisador antes de rodá-los.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Fila/FilaDeTrabalhosTests.cs &&
+      sed -i 's/…)
+  ⎿      private sealed class Registro
+         {
+     … +39 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Fila\FilaDeTrabalhosTests.cs
+     (+2 -3)
+      270      // O que o handler de teste fez, e como deve se comportar.
+      271      private sealed class Registro
+      272      {
+      273 -        private readonly ConcurrentQueue<string> _executados =
+          - new();                                                       
+      273  
+      274          public TimeSpan Espera { get; init; } = TimeSpan.Zero;
+      275  
+     ...
+      277  
+      278          public bool EnfileirarAoExecutar { get; init; }
+      279  
+      281 -        public IReadOnlyCollection<string> Executados => _exec
+          -utados;                                                       
+      280 +        public ConcurrentQueue<string> Executados { get; } = n
+          +ew();                                                         
+      281  
+      282          public TaskCompletionSource<string> Primeiro { get; } 
+           = new(TaskCreationOptions.RunContinuationsAsynchronously);
+      283  
+      284          public void Anotar(string texto)
+      285          {
+      287 -            _executados.Enqueue(texto);                       
+      286 +            Executados.Enqueue(texto);                        
+      287              Primeiro.TrySetResult(texto);
+      288          }
+      289      }
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Fila/FilaDeTrabalhosTests.cs &&
+      sed -i '/priva…)
+  ⎿      private sealed class Registro
+         {
+             public TimeSpan Espera { get; init; } = TimeSpan.Zero;
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Fila\FilaDeTrabalhosTests.cs
+     (+0 -1)
+      270      // O que o handler de teste fez, e como deve se comportar.
+      271      private sealed class Registro
+      272      {
+      273 -                                                              
+      273          public TimeSpan Espera { get; init; } = TimeSpan.Zero;
+      274  
+      275          public bool Falhar { get; init; }
+  ⎿  (timeout 10m)
+
+● Background command "Wait for CI run and summarize jobs" completed (exit code
+0)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Fila/FilaDeTrabalhosTests.cs &&
+      sed -i "s/\"VA…)
+  ⎿  157:                "VALUES ('inexistente', '{{}}', 'pendente', 0, now
+     (), now())",
+     Resumo da execução de teste: Aprovado!
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Fila\FilaDeTrabalhosTests.cs
+     (+1 -1)
+      154              var db = scope.ServiceProvider.GetRequiredService<
+           MaxxDbContext>();
+      155              await db.Database.ExecuteSqlRawAsync(
+      156                  "INSERT INTO trabalho (tipo, carga, estado, te
+           ntativas, criado_em, disponivel_em) " +
+      157 -                "VALUES ('inexistente', '{}', 'pendente', 0, n
+          -ow(), now())",                                                
+      157 +                "VALUES ('inexistente', '{{}}', 'pendente', 0,
+          + now(), now())",                                              
+      158                  Ct);
+      159          }
+      160  
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e '
+      const fs=require("fs");const p="docker-compose.yml";let
+      s=fs.readFileSync(p,"ut…)
+  ⎿  # syntax=docker/dockerfile:1
+     # Contexto: raiz do repositório (global.json e Directory.*.props ficam
+      lá).
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\Dockerfile (+2 -1)
+      1  # syntax=docker/dockerfile:1
+      2  # Contexto: raiz do repositório (global.json e Directory.*.props
+          ficam lá).
+      3 -# A mesma imagem serve a API, o contêiner de migração (`migrate`
+        -) e o de seed (`seed`).                                         
+      3 +# A mesma imagem serve a API, o contêiner de migração (`migrate`
+        +), o de seed (`seed`) e o                                       
+      4 +# worker (`worker`).                                            
+      5  
+      6  FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+      7  WORKDIR /src
+  ⎿  Updated docker-compose.yml (+14 -1)
+      1 -# Maxx: Postgres, migração, duas réplicas de API, Caddy e Mailpi
+        -t.                                                              
+      1 +# Maxx: Postgres, migração, duas réplicas de API, worker, Caddy 
+        +e Mailpit.                                                      
+      2  # Uso local: cp .env.example .env && docker compose up --build
+      3  
+      4  name: maxx
+     ...
+       82          condition: service_completed_successfully
+       83      restart: unless-stopped
+       84  
+       85 +  # Consome a fila de trabalhos do Postgres (ADR 0008), com FO
+          +R UPDATE SKIP LOCKED. Uma                                     
+       86 +  # réplica, sem porta: as réplicas da API só enfileiram.     
+       87 +  worker:                                                     
+       88 +    <<: *api-image                                            
+       89 +    command: ["worker"]                                       
+       90 +    environment:                                              
+       91 +      <<: *api-env                                            
+       92 +      DOTNET_ENVIRONMENT: Production                          
+       93 +    depends_on:                                               
+       94 +      seeder:                                                 
+       95 +        condition: service_completed_successfully             
+       96 +    restart: unless-stopped                                   
+       97 +                                                              
+       98    # Recebe todo e-mail que a API manda, sem entregar a ninguém
+           . Caixa em
+       99    # http://localhost:8025, só nesta máquina.
+      100    mailpit:
+
+● Os 14 testes da fila passam. Agora subo o compose local com o worker novo para
+  conferir que ele consome de verdade.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/PontoAntesDoHandler/_pontoAntesDoHandler/g'
+      apps/api/src/Maxx.Infrastructure/Fi…)
+  ⎿  format exit 0
+         0 Aviso(s)
+         0 Erro(s)
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Fila\ConsumidorDeTrabalhos.cs
+     (+3 -3)
+      24  {
+      25      public const int TamanhoMaximoDoErro = 2000;
+      26  
+      27 -    private const string PontoAntesDoHandler = "antes_do_handle
+         -r";                                                            
+      27 +    private const string _pontoAntesDoHandler = "antes_do_handl
+         +er";                                                           
+      28  
+      29      // true: havia um trabalho disponível, e ele foi concluído 
+          ou teve a falha registrada.
+      30      public async Task<bool> ProcessarProximoAsync(CancellationT
+          oken cancellationToken)
+     ...
+      50              return false;
+      51          }
+      52  
+      53 -        await transacao.CreateSavepointAsync(PontoAntesDoHandle
+         -r, cancellationToken);                                         
+      53 +        await transacao.CreateSavepointAsync(_pontoAntesDoHandl
+         +er, cancellationToken);                                        
+      54          try
+      55          {
+      56              using var limite = CancellationTokenSource.CreateLi
+          nkedTokenSource(cancellationToken);
+     ...
+      70          catch (Exception falha) when (!cancellationToken.IsCanc
+          ellationRequested)
+      71  #pragma warning restore CA1031
+      72          {
+      73 -            await transacao.RollbackToSavepointAsync(PontoAntes
+         -DoHandler, cancellationToken);                                 
+      73 +            await transacao.RollbackToSavepointAsync(_pontoAnte
+         +sDoHandler, cancellationToken);                                
+      74              db.ChangeTracker.Clear();
+      75              await RegistrarFalhaAsync(db, trabalho, falha, canc
+          ellationToken);
+      76              await transacao.CommitAsync(cancellationToken);
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 1 está pronta para a sua revisão: os testes, a formatação e o build
+  passam localmente. Ainda não fiz commit nem push dela, então ainda não tem CI.
+
+  Commit de docs: CI verde
+
+  be3f634 docs(docs): troca a banca presencial pela avaliação remota, na
+  feat/passo-06-medalhas. A CI (run 42411707824) passou nos seis jobs: api,
+  mobile, api-client, e2e, segurança e build.
+
+  Cobre o README.md de decisões (Avaliação, limite da demonstração e "Depois da
+  avaliação" na purga), os ADRs 0001, 0005 e 0008 e produto.md 1, 6.2, 11 e 12.
+  Nenhuma regra mudou. "Banca" ficou só onde é o órgão avaliador: produto.md 1
+  ("avaliado por uma banca rotativa em avaliação remota") e ADR 0007 ("o que a
+  banca examina").
+
+  A regra F ainda não está no produto.md. Vou registrá-la no commit da etapa 4,
+  onde ela passa a valer no código, para não misturar com o commit da avaliação
+  remota.
+
+  Etapa 1: fila e worker (sem commit)
+
+  Contrato (Maxx.Application/Fila/FilaDeTrabalhos.cs):
+  - IFilaDeTrabalhos.Enfileirar(carga) só acrescenta a linha à unidade de
+    trabalho de quem chama, então o trabalho grava junto com a escrita que o
+    originou.
+  - ICargaDeTrabalho dá um nome de tipo estável a cada carga.
+    ITrabalhoHandler<T> é quem executa no worker e precisa ser idempotente.
+
+  Implementação (Maxx.Infrastructure/Fila/):
+  - Tabela trabalho (migration 20261107203851_Fila): tipo, carga em jsonb,
+    estado (pendente ou falho), tentativas, criado em, disponível em e último
+    erro. Tem índice parcial nos pendentes. Trabalho concluído sai da tabela.
+  - Consumidor: pega um trabalho por vez com FOR UPDATE SKIP LOCKED e roda o
+    handler na mesma transação que segura a linha. O que o handler grava e a
+    saída do trabalho da fila valem juntos.
+  - Falha: volta a um ponto de salvamento anterior ao handler e registra a
+    tentativa ainda sob o lock. O recuo é de 10, 20, 40 e 80 s; na quinta falha
+    o trabalho fica como falho (decisão C). O erro guarda só tipo e mensagem,
+    nunca a carga.
+  - Limites: um handler que passa de 60 s é cancelado e conta como falha. Um
+    tipo sem handler também conta como falha.
+  - Queda do processo: desfaz a transação, e o trabalho volta à fila sem contar
+    tentativa.
+  - Comando Maxx.Api worker: sobe sem servidor HTTP. No compose, o serviço
+    worker usa a mesma imagem, uma réplica, sem porta (decisão A). As réplicas
+    da API enfileiram mas não consomem.
+
+  Verificação
+  - 14 testes novos em Fila/FilaDeTrabalhosTests.cs:
+    - grava junto com a escrita; escrita desfeita ou revertida não deixa
+      trabalho;
+    - executa e tira da fila;
+    - 4 consumidores em paralelo sobre 40 trabalhos, cada um executado uma vez
+      só (rodei três vezes, sem intermitência);
+    - falha desfaz o que o handler gravou e volta com recuo de 10 s e depois 20
+      s;
+    - para como falho na quinta tentativa;
+    - tipo sem handler conta como falha;
+    - tempo máximo estourado conta como falha;
+    - o worker hospedado consome sozinho;
+    - a sequência do recuo.
+  - Suite completa: 489 testes passando. dotnet format limpo, build sem aviso,
+    Prettier limpo no compose. Nenhuma diferença no cliente gerado, porque a
+    etapa não mudou rota.
+  - No compose local, o worker subiu, pegou um trabalho inserido à mão sem
+    handler e registrou a tentativa com recuo de 10 s. Apaguei a linha depois.
+
+  Duas coisas para você olhar
+  - No teste do worker hospedado, o worker sobe antes da migração do teste e
+    registra uma vez "relation trabalho does not exist" antes de se recuperar. É
+    ruído só nesse teste. No compose isso não acontece, porque o worker depende
+    do seeder.
+  - A fila de e-mail em memória continua de pé. Ela sai na etapa 2.
+
+  Commit proposto: feat(api): adiciona fila de trabalhos no postgres e worker 
+  com skip locked. Com seu ok, faço o commit e o push e trago a CI.
+
+✻ Cogitated for 12m 54s · done 17:46
