@@ -450,3 +450,11 @@ nas ameaças à validade. A ordem do protocolo (engenheiro inteiro, depois leigo
 alterada por esta decisão. Passo 8 aberto às 15h58 (horário de Brasília) e abertura do
 leigo colada em seguida, na mesma tarde.
 
+08/11 (noite): `eng_08_premios` fechada em 3 h 01 min, sete etapas, em paralelo com as
+rodadas 0 a 7 do leigo: eventos, reivindicação como post com foto, fila de
+comprovações, contestação e decisão da instituição, telas do aluno e do professor, e2e e
+docs. Treze decisões pela recomendação, com a D3 ajustada duas vezes (limite do
+semestre, depois o recesso apontado pelo agente). Duas falhas de processo do agente
+corrigidas pela regra do fix separado. PR #10, merge na `main` (`7417ebe`). Registro em
+`resultados/engenheiro/eng_08_premios.md`. Próxima: `eng_09_conquistas`.
+
