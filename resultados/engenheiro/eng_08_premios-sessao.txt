@@ -1,0 +1,202 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 8 do plano mestre: prêmios de participação. Estamos na                  
+  rodada/eng_08_premios, saída da main com os passos 1 a 7 mergeados. Antes de  
+  qualquer código, me traga o plano de etapas, com entrega e critério de aceite 
+  por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá: decisão que   
+  não está nos docs não foi tomada, então pergunte antes de assumir. Uma regra  
+  que fixei no passo 3 e vale daqui em diante: cada etapa só é dada como pronta 
+  depois de a CI do push dela passar, e o resultado da CI entra no relatório    
+  da etapa. Lembro o que fecha o passo: catálogo de eventos semeado mais evento 
+  em texto livre com nome e período; reivindicação como post com foto, pública  
+  com marca de pendente, sem pontuar; fila de comprovações para o professor da  
+  turma e para a instituição, ordenada por mais antigo, com marca após sete     
+  dias e vale quem aprova primeiro; reprovação com motivo, e nova tentativa é   
+  outro post com outra foto; contestação com motivo, uma por prêmio, estado de  
+  averiguação sem pontuar; decisão da instituição, confirmar encerra a janela e 
+  revogar mantém no histórico; trabalho na fila que torna o prêmio definitivo   
+  após quinze dias; Comprovacao filtrável por evento. O fluxo 02 e o 04 em      
+  docs/fluxos/ são a referência. Eu reviso o plano e aí começamos a primeira    
+  etapa.                                                                        
+
+  Read 2 files, ran 5 shell commands (ctrl+o to expand)
+
+● Vou ler o plano mestre produto.md, os fluxos 02 e 04, o catálogo e o índice de
+  decisões, e depois o código existente (medalha, post, fila, seed, eventos).
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Plano de etapas do passo 8: prêmios de participação
+
+  Branch feat/passo-08-premios, saindo da rodada/eng_08_premios e voltando a ela
+  por PR. Cada etapa é um commit. Depois da sua revisão eu faço o push, e a
+  etapa só conta como pronta quando a CI desse push passar. O resultado da CI
+  vai no relatório de cada etapa.
+
+  Hoje o código não tem nada de eventos: não existe tabela, arquivo de seed nem
+  referência em data/. O Post só se liga a MedalhaId, os pontos somam só
+  medalhas ativas e a raridade conta só medalhas. O passo 8 parte dessa base.
+
+  Etapas
+
+  Etapa 1 · feat(seed): adiciona eventos semeados e evento em texto livre
+  - Entidade Evento no domínio: nome, início e fim, origem (semeado ou texto
+    livre) e a regra de validação. A migration cria a tabela evento. O seed demo
+    grava os eventos de 2026/2 a partir de um arquivo em data/ (D2). A CI passa
+    a conferir a formatação e a coerência desse arquivo.
+  - GET /v1/eventos?item=: os eventos semeados que aceitam o item (D1, D3).
+  - Aceite: testes de domínio da validação (datas, nome); integração mostrando
+    que o seed é idempotente e falha se uma linha divergir, como o mundo demo;
+    OpenAPI e cliente regenerados.
+
+  Etapa 2 · feat(api): adiciona reivindicação de prêmio de participação como 
+  post com foto
+  - PremioParticipacao (estados, snapshot de tier, pontos e versão do item, como
+    manda o ADR 0007) e Comprovacao (post, foto e evento_id indexado). As
+    transições são escritas em TDD no domínio.
+  - POST /v1/reivindicacoes com item, evento (o id de um semeado ou nome e
+    período), matéria quando o item é P17, e o upload. A foto é obrigatória.
+    Tudo é gravado numa transação só: o post e o prêmio Reivindicado, depois de
+    o HEAD achar as duas derivadas.
+  - Deduplicação por índice único montado a partir do catálogo: aluno e evento,
+    aluno, item e data no texto livre, e a matéria a mais no P17 (D5). A corrida
+    responde 409, nunca 500. A coluna post.premio_participacao_id ganha um
+    índice único, e o post continua com no máximo um prêmio.
+  - O post, o feed e o perfil trazem o prêmio com a marca "pendente". Os pontos
+    não mudam.
+  - Aceite: testes de domínio do ciclo; integração cobrindo cada deduplicação,
+    foto ausente, ex-aluno, professor e upload alheio recusados, a corrida em
+    409 e o post visível com a marca para outro aluno.
+
+  Etapa 3 · feat(api): adiciona fila de comprovações com aprovação e reprovação
+  - GET /v1/comprovacoes?eventoId=&cursor=: as mais antigas primeiro, por
+    cursor, com a marca dos 7 dias (D11), a turma e o aluno visíveis (D13). O
+    professor vê só alunos de turmas dele no semestre vigente, conferido no
+    banco. A instituição vê tudo.
+  - POST .../aprovacao e POST .../reprovacao {motivo}. Quem chega primeiro
+    decide, por xmin ou atualização condicional; quem perde recebe 409
+    comprovacao-ja-decidida. Cada decisão grava quem decidiu e quando.
+  - A aprovação deixa o prêmio Valido e passa a pontuar. Na mesma transação, ela
+    enfileira a notificação, o recalcular-raridade e o trabalho que torna o
+    prêmio definitivo, adiado 15 dias.
+  - A reprovação desvincula o post e enfileira a notificação. A chave de
+    deduplicação fica livre para uma nova tentativa.
+  - Aceite: integração cobrindo o escopo (professor de fora recebe 403
+    fora-do-escopo), a ordem, a marca, o filtro por evento, a corrida de dois
+    aprovadores, os pontos no perfil e em /v1/eu/premios, os trabalhos
+    enfileirados e uma nova reivindicação depois da reprovação.
+
+  Etapa 4 · feat(api): adiciona contestação, decisão da instituição e prêmio 
+  definitivo pela fila
+  - POST /v1/premios-participacao/{id}/contestacao {motivo}: só dentro da janela
+    de 15 dias e uma vez por prêmio (índice único). Pode contestar o professor
+    da turma ou a instituição. O prêmio vai para averiguação e para de pontuar.
+  - GET /v1/contestacoes só para a instituição, também das mais antigas para as
+    mais novas, com a marca dos 7 dias. POST .../confirmacao torna o prêmio
+    definitivo e encerra a janela. POST .../revogacao {motivo} tira o prêmio da
+    pontuação e o mantém no histórico; o post é desvinculado, ou apagado se
+    ficar vazio.
+  - Handler do trabalho tornar-premio-definitivo, idempotente: se encontrar o
+    prêmio contestado, já decidido ou revogado, não faz nada.
+  - Visibilidade: a marca de averiguação e o motivo da revogação aparecem só
+    para o aluno e para a instituição. Para os demais, o post em averiguação
+    fica sem pontos e sem tier.
+  - A raridade passa a contar prêmios de participação (D6), e o SQL da purga
+    ganha as tabelas novas.
+  - Aceite: integração cobrindo a janela (com TimeProvider falso), a segunda
+    contestação em 409, o professor de fora em 403, a decisão simultânea, o
+    trabalho do 15º dia com e sem contestação e a visibilidade por papel; teste
+    da purga.
+
+  Etapa 5 · feat(mobile): adiciona reivindicação de prêmio e marcas de estado no
+  post
+  - O novo post ganha o modo "Reivindicar prêmio": item do catálogo, evento da
+    lista ou digitado (nome e período), matéria quando o item é P17, foto
+    obrigatória.
+  - Marca "Pendente" no cartão do post; "Em averiguação" só para o dono. As
+    reivindicações do aluno aparecem na tela de Troféus, com o motivo quando
+    reprovadas ou revogadas (D9).
+  - Todos os códigos novos ganham mensagem em erros.ts.
+  - Aceite: Jest com Testing Library no formulário, nas marcas e nas mensagens;
+    claro e escuro; o teste de cobertura de códigos verde.
+
+  Etapa 6 · feat(mobile): adiciona fila de comprovações e contestação do 
+  professor
+  - Tela "Comprovações" para o professor (D8): das mais antigas para as mais
+    novas, com a marca dos 7 dias, chip de filtro por evento, aprovar, e
+    reprovar com motivo numa folha que sobe de baixo. A mensagem amigável cobre
+    a comprovação que outra pessoa já decidiu.
+  - "Contestar" no menu "..." do post, para o professor, quando o prêmio está
+    válido e dentro da janela.
+  - Aceite: Jest nas telas e nas recusas; claro e escuro.
+
+  Etapa 7 · docs(docs): registra as decisões do passo 8 e adiciona o e2e de 
+  prêmios
+  - Seção "Prêmios de participação (passo 8)" em decisoes/README.md; ajuste em
+    produto.md se surgir regra de produto; fluxos 02 e 04 conferidos com o que
+    foi construído; pendências registradas no plano mestre.
+  - e2e só no celular. O aluno reivindica com foto, a professora aprova pela
+    tela e o aluno vê os pontos. Um segundo caso cobre a reprovação e a nova
+    tentativa. A contestação e a decisão da instituição passam pela API, porque
+    a tela delas fica para o passo 12.
+  - Aceite: e2e verde nas duas passadas da CI; definição de pronto inteira
+    conferida.
+
+  Decisões em aberto
+
+  Pelo CLAUDE.md, decisão que não está nos docs não foi tomada. Em cada item
+  abaixo vai a minha recomendação; preciso que você confirme ou ajuste. As cinco
+  primeiras são regra de produto.
+
+  Regras de produto
+
+  - D1. Como evento e item se ligam. Recomendo que o evento semeado liste os
+    códigos de item que aceita: uma mostra, por exemplo, aceita P08 e P09. O
+    evento em texto livre aceitaria qualquer item, e o P17 sempre iria por texto
+    livre, com a matéria obrigatória.
+  - D3. Datas aceitas na reivindicação. Recomendo exigir só que o evento já
+    tenha começado (início até hoje, em São Paulo), sem limite para trás. Hoje
+    nenhum doc fecha isso.
+  - D5. Qual estado segura a chave de deduplicação. Todos menos o reprovado. Ou
+    seja, um prêmio revogado continua bloqueando uma nova reivindicação do mesmo
+    evento. No texto livre com período, a "data do evento" seria a data de
+    início.
+  - D6. Quem conta para a raridade. Recomendo só os prêmios válidos e
+    definitivos. O prêmio em averiguação fica de fora, porque os outros alunos
+    não o veem.
+  - D9. Onde o aluno acompanha as reivindicações. Recomendo uma seção
+    "Reivindicações" na aba Troféus, com pendente, em averiguação, reprovada e
+    revogada, mostrando o motivo nos dois últimos.
+
+  Escolhas técnicas e de escopo
+
+  - D2. Onde ficam os eventos semeados. Recomendo data/demo/eventos.json, lido
+    pelo seed demo, com uns 8 eventos de 2026/2, alguns com restrição de curso.
+    O seed completo do passo 12 acrescenta o resto.
+  - D4. Semestre do evento. Por enquanto o prêmio grava só as datas, e a regra
+    de qual semestre ele conta fica para o passo 11. Os pontos de hoje são
+    totais, sem recorte por semestre.
+  - D7. A instituição no passo 8. Recomendo que ela tenha a API completa,
+    testada na integração e no e2e via API. As telas dela e a concessão direta
+    ficam no passo 12, como o plano mestre já lista.
+  - D8. Entrada do professor no app. "Comprovações" no menu do perfil, ao lado
+    de "Minhas turmas", e "Contestar" no menu "..." do post.
+  - D10. Motivo. De 1 a 500 caracteres, para reprovação, contestação e
+    revogação.
+  - D11. Marca dos 7 dias. Conta 7×24 horas desde a reivindicação, na fila de
+    comprovações, e desde a contestação, na fila de contestações.
+  - D12. Reavaliação de conquistas. Não é enfileirada no passo 8, porque tipo de
+    trabalho sem handler conta como falha. Ela entra no passo 9.
+  - D13. Turma visível na fila. As matérias que o professor e o aluno têm em
+    comum no semestre vigente.
+
+  Quando você aprovar o plano e responder às decisões, eu crio a branch e começo
+  a etapa 1.
+
+✻ Sautéed for 2m 52s · done 15:58
