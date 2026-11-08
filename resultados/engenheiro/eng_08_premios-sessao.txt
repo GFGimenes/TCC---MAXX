@@ -200,3 +200,1912 @@
   a etapa 1.
 
 ✻ Sautéed for 2m 52s · done 15:58
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt     
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
+
+> Plano aprovado, sete etapas, um PR da feat/passo-08-premios para a            
+  rodada/eng_08_premios, CI verde por etapa. Decisões, todas pela sua           
+  recomendação, com um acréscimo na D3: D1, evento semeado lista os itens que   
+  aceita, texto livre aceita qualquer item e o P17 vai sempre por texto livre   
+  com matéria obrigatória. D2, data/demo/eventos.json com uns oito eventos de   
+  2026/2, alguns com restrição de curso; o resto no passo 12. D3, o evento      
+  precisa ter começado (início até hoje, em São Paulo) e não pode ter começado  
+  antes do início do semestre letivo vigente, porque o ranking corta por        
+  semestre letivo e uma reivindicação retroativa pontuaria num semestre a que   
+  não pertence; registra isso no produto.md junto da 4.6. D4, só as datas por   
+  enquanto; a regra de semestre fica para o passo 11. D5, todos os estados      
+  menos o reprovado seguram a chave; revogado bloqueia nova reivindicação do    
+  mesmo evento; no texto livre com período a data é a de início. D6, raridade   
+  conta válidos e definitivos. D7, instituição com API completa e testada,      
+  telas no passo 12. D8, "Comprovações" no menu do perfil e "Contestar" no menu 
+  do post. D9, seção "Reivindicações" na aba Troféus com os quatro estados e o  
+  motivo nos dois últimos. D10, motivo de 1 a 500 caracteres. D11, 7 vezes 24   
+  horas desde a reivindicação e desde a contestação. D12, reavaliação de        
+  conquistas no passo 9. D13, as matérias em comum no semestre vigente. Cria a  
+  branch e começa a etapa 1; para para a minha revisão no fim dela, com a       
+  mensagem de commit antes de commitar.                                         
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Branch criada. Estou lendo o seed demo, os testes e o padrão das consultas
+  para encaixar o Evento do mesmo jeito.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Já tenho o desenho da etapa 1. Agora confiro o mapeamento do catálogo e começo
+  a escrever o Evento.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora escrevo o domínio do Evento.
+
+● Write(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Wrote 186 lines to apps\api\src\Maxx.Domain\Premios\Evento.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Identidade;
+       4 
+       5 namespace Maxx.Domain.Premios;
+       6 
+       7 // O evento a que um prêmio de participação se amarra (produto.m
+         d 4.6): nome, data de
+       8 // início e data de fim. Atividade de duração (iniciação científ
+         ica, monitoria) é evento com
+     … +178 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Added 1 line, removed 2 lines
+      145          ArgumentNullException.ThrowIfNull(item);
+      146  
+      147          return Origem == OrigemDoEvento.TextoLivre
+      148 -            ? true                                            
+      149 -            : !SoPorTextoLivre(item) && _itensAceitos.Contains
+          -(item.Codigo, StringComparer.Ordinal);                        
+      148 +            || (!SoPorTextoLivre(item) && _itensAceitos.Contai
+          +ns(item.Codigo, StringComparer.Ordinal));                     
+      149      }
+      150  
+      151      public bool AbertoAoCurso(Guid? cursoId) => CursoId is nul
+           l || CursoId == cursoId;
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Catalogo\CatalogoDeTeste.cs)
+  ⎿  Added 24 lines
+       75          ChaveDeDeduplicacao = [CampoDeDeduplicacao.Aluno, Camp
+           oDeDeduplicacao.Evento],
+       76      };
+       77  
+       78 +    // Fora do catálogo de Valido(): só os testes de evento us
+          +am.                                                           
+       79 +    public static ItemPremioParticipacao P06 { get; } = P01 wi
+          +th                                                            
+       80 +    {                                                         
+       81 +        Codigo = "P06",                                       
+       82 +        Nome = "Semana acadêmica",                            
+       83 +        Descricao = "Participar da semana acadêmica do curso d
+          +o começo ao fim.",                                            
+       84 +        TipoDeEvento = "semanaAcademica",                     
+       85 +        FormaDoEvento = FormaDoEvento.Periodo,                
+       86 +        Pontos = 30,                                          
+       87 +    };                                                        
+       88 +                                                              
+       89 +    public static ItemPremioParticipacao P17 { get; } = P01 wi
+          +th                                                            
+       90 +    {                                                         
+       91 +        Codigo = "P17",                                       
+       92 +        Nome = "Apresentação de trabalho em sala",            
+       93 +        Descricao = "Apresentar um trabalho em sala, na frente
+          + da turma.",                                                  
+       94 +        TipoDeEvento = "apresentacaoSala",                    
+       95 +        Pontos = 20,                                          
+       96 +        ChaveDeDeduplicacao =                                 
+       97 +        [                                                     
+       98 +            CampoDeDeduplicacao.Aluno, CampoDeDeduplicacao.Ite
+          +m, CampoDeDeduplicacao.DataDoEvento, CampoDeDeduplicacao.Mater
+          +ia,                                                           
+       99 +        ],                                                    
+      100 +    };                                                        
+      101 +                                                              
+      102      public static ItemConquista C02 { get; } = new()
+      103      {
+      104          Codigo = "C02",
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Premios\EventoTests.cs)
+  ⎿  Wrote 192 lines to
+     apps\api\tests\Maxx.Domain.Tests\Premios\EventoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 using Maxx.Domain.Premios;
+       4 using Maxx.Domain.Tests.Academico;
+       5 using Maxx.Domain.Tests.Catalogo;
+       6 using static Maxx.Domain.Tests.Academico.Calendario2026;
+       7 
+       8 namespace Maxx.Domain.Tests.Premios;
+       9 
+      10 public class EventoTests
+     … +182 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Corrigindo um aviso do analisador (o campo da lista); vou guardar os itens
+  aceitos como string[], que o Npgsql mapeia direto para text[].
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I'll do the edits with the Edit tool instead.
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Added 1 line, removed 3 lines
+      18      public const int TamanhoMaximoDoNome = 120;
+      19      public const int TamanhoMaximoDoCodigo = 60;
+      20  
+      21 -    private List<string> _itensAceitos;                        
+      22 -                                                               
+      21      // Para o EF Core materializar do banco.
+      22      private Evento()
+      23      {
+      24          Nome = null!;
+      27 -        _itensAceitos = [];                                    
+      25 +        ItensAceitos = [];                                     
+      26      }
+      27  
+      28      private Evento(
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Added 1 line, removed 1 line
+      31          DateOnly inicio,
+      32          DateOnly fim,
+      33          OrigemDoEvento origem,
+      34 -        List<string> itensAceitos,                             
+      34 +        string[] itensAceitos,                                 
+      35          Guid? cursoId,
+      36          Guid? criadoPorId)
+      37      {
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Added 1 line, removed 1 line
+      54          Inicio = inicio;
+      55          Fim = fim;
+      56          Origem = origem;
+      57 -        _itensAceitos = itensAceitos;                          
+      57 +        ItensAceitos = itensAceitos;                           
+      58          CursoId = cursoId;
+      59          CriadoPorId = criadoPorId;
+      60      }
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)  ⎿  Added 1 line, removed 1 line
+      73      public OrigemDoEvento Origem { get; private set; }
+      74  
+      75      // Os códigos dos itens que o evento semeado aceita. Vazio 
+          no texto livre, que aceita todos.
+      76 -    public IReadOnlyList<string> ItensAceitos => _itensAceitos;
+      76 +    public IReadOnlyList<string> ItensAceitos { get; private se
+         +t; }                                                           
+      77  
+      78      // Só no semeado: o evento é de um curso, e só os alunos de
+          le o veem e reivindicam.
+      79      public Guid? CursoId { get; private set; }
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Added 1 line, removed 1 line
+      143          ArgumentNullException.ThrowIfNull(item);
+      144  
+      145          return Origem == OrigemDoEvento.TextoLivre
+      146 -            || (!SoPorTextoLivre(item) && _itensAceitos.Contai
+          -ns(item.Codigo, StringComparer.Ordinal));                     
+      146 +            || (!SoPorTextoLivre(item) && ItensAceitos.Contain
+          +s(item.Codigo, StringComparer.Ordinal));                      
+      147      }
+      148  
+      149      public bool AbertoAoCurso(Guid? cursoId) => CursoId is nul
+           l || CursoId == cursoId;
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Premios\EventoTests.cs)
+  ⎿  Removed 1 line
+      1  using Maxx.Domain.Academico;
+      2  using Maxx.Domain.Identidade;
+      3  using Maxx.Domain.Premios;
+      4 -using Maxx.Domain.Tests.Academico;                              
+      4  using Maxx.Domain.Tests.Catalogo;
+      5  using static Maxx.Domain.Tests.Academico.Calendario2026;
+      6  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Domínio verde (27 testes). Agora a persistência: configuração do evento e a
+  migration.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\EventoConfig
+       uration.cs)
+  ⎿  Wrote 42 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\EventoConfiguration.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 using Maxx.Domain.Premios;
+       4 using Maxx.Infrastructure.Seed;
+       5 using Microsoft.EntityFrameworkCore;
+       6 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       7 
+       8 namespace Maxx.Infrastructure.Persistence.Configurations;
+       9 
+      10 // O evento do prêmio de participação, semeado ou digitado. As d
+     … +33 lines (~2 KB) (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet ef migrations add Evento --project apps/api/src/Maxx.Infrastructure
+      --output-dir P…)
+  ⎿  Build started...
+     Build succeeded.
+     Done. To undo this action, use 'ef migrations remove'
+     … +76 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08190533_Evento.cs (+76 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class Evento : Migration                    
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "evento",                                
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    id = table.Column<Guid>(type: "uuid", nulla
+         +ble: false),                                                   
+      19 +                    codigo = table.Column<string>(type: "charac
+         +ter varying(60)", maxLength: 60, nullable: true),              
+      20 +                    nome = table.Column<string>(type: "text", n
+         +ullable: false),                                               
+      21 +                    inicio = table.Column<DateOnly>(type: "date
+         +", nullable: false),                                           
+      22 +                    fim = table.Column<DateOnly>(type: "date", 
+         +nullable: false),                                              
+      23 +                    origem = table.Column<string>(type: "text",
+         + nullable: false),                                             
+      24 +                    itens_aceitos = table.Column<string[]>(type
+         +: "text[]", nullable: false),                                  
+      25 +                    curso_id = table.Column<Guid>(type: "uuid",
+         + nullable: true),                                              
+      26 +                    criado_por_id = table.Column<Guid>(type: "u
+         +uid", nullable: true)                                          
+      27 +                },                                             
+      28 +                constraints: table =>                          
+      29 +                {                                              
+      30 +                    table.PrimaryKey("pk_evento", x => x.id);  
+      31 +                    table.CheckConstraint("ck_evento_fim_depois
+         +_do_inicio", "fim >= inicio");                                 
+      32 +                    table.CheckConstraint("ck_evento_origem", "
+         +(origem = 'semeado' AND codigo IS NOT NULL AND cardinality(iten
+         +s_aceitos) > 0 AND criado_por_id IS NULL) OR (origem = 'textoLi
+         +vre' AND codigo IS NULL AND cardinality(itens_aceitos) = 0 AND 
+         +curso_id IS NULL AND criado_por_id IS NOT NULL)");             
+      33 +                    table.ForeignKey(                          
+      34 +                        name: "fk_evento_curso_curso_id",      
+      35 +                        column: x => x.curso_id,               
+      36 +                        principalTable: "curso",               
+      37 +                        principalColumn: "id",                 
+      38 +                        onDelete: ReferentialAction.Restrict); 
+      39 +                    table.ForeignKey(                          
+      40 +                        name: "fk_evento_usuario_criado_por_id"
+         +,                                                              
+     … 36 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+● Migration gerada. Agora o seed dos eventos e a consulta; antes confiro como a
+  Application acessa usuário e semestre.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Agora o mapeamento de volta para o item de participação, o leitor do arquivo
+  de eventos e o seeder.
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\CatalogoRowMapper.cs)
+  ⎿  Added 32 lines
+       84          };
+       85      }
+       86  
+       87 +    // O mesmo caminho, para o prêmio de participação.        
+       88 +    public static ItemPremioParticipacao ParaPremioParticipaca
+          +o(ItemCatalogoRow row)                                        
+       89 +    {                                                         
+       90 +        ArgumentNullException.ThrowIfNull(row);               
+       91 +        if (row.Tipo != NomeJson.De(TipoDeItem.PremioParticipa
+          +cao))                                                         
+       92 +        {                                                     
+       93 +            throw new InvalidOperationException($"O item {row.
+          +Codigo} é {row.Tipo}, não prêmio de participação.");          
+       94 +        }                                                     
+       95 +                                                              
+       96 +        return new ItemPremioParticipacao                     
+       97 +        {                                                     
+       98 +            Codigo = row.Codigo,                              
+       99 +            Nome = row.Nome,                                  
+      100 +            Descricao = row.Descricao,                        
+      101 +            Tier = Ler<Tier>(row.Tier, row.Codigo),           
+      102 +            Pontos = row.Pontos,                              
+      103 +            Familia = row.FamiliaCodigo,                      
+      104 +            OrdemNaFamilia = row.OrdemNaFamilia,              
+      105 +            RestricaoCurso = row.RestricaoCurso,              
+      106 +            Vigencia = new Vigencia(row.VigenciaInicio, row.Vi
+          +genciaFim),                                                   
+      107 +            TipoDeEvento = row.TipoDeEvento ?? throw Incomplet
+          +o(row.Codigo, "tipoDeEvento"),                                
+      108 +            FormaDoEvento = Ler<FormaDoEvento>(row.FormaDoEven
+          +to, row.Codigo),                                              
+      109 +            ExigeFoto = row.ExigeFoto ?? throw Incompleto(row.
+          +Codigo, "exigeFoto"),                                         
+      110 +            PeriodoDeReferencia = Ler<Periodo>(row.Periodo, ro
+          +w.Codigo),                                                    
+      111 +            ChaveDeDeduplicacao = [.. (row.ChaveDeDeduplicacao
+          + ?? throw Incompleto(row.Codigo, "chaveDeDeduplicacao"))      
+      112 +                .Select(campo => Ler<CampoDeDeduplicacao>(camp
+          +o, row.Codigo))],                                             
+      113 +        };                                                    
+      114 +    }                                                         
+      115 +                                                              
+      116 +    private static InvalidOperationException Incompleto(string
+          + codigo, string campo) =>                                     
+      117 +        new($"O prêmio de participação {codigo} está sem {camp
+          +o} no banco.");                                               
+      118 +                                                              
+      119      private static T Ler<T>(string? texto, string codigo)
+      120          where T : struct, Enum =>
+      121          NomeJson.TentarLer<T>(texto, out var valor)
+
+● Write(apps\api\src\Maxx.Infrastructure\Seed\EventosDemoReader.cs)
+  ⎿  Wrote 74 lines to
+     apps\api\src\Maxx.Infrastructure\Seed\EventosDemoReader.cs
+       1 using System.Text.Json;
+       2 using System.Text.Json.Serialization;
+       3 
+       4 namespace Maxx.Infrastructure.Seed;
+       5 
+       6 // data/demo/eventos.json: os eventos semeados, a que o prêmio d
+         e participação se amarra
+       7 // (produto.md 4.6). Aqui só a coerência interna do arquivo (cód
+         igo único). Itens e curso
+       8 // são conferidos contra o banco pelo seeder, e as regras de cad
+     … +67 lines (~2 KB) (ctrl+o to expand)
+
+● Now the events file itself.
+
+● Write(data\demo\eventos.json)
+  ⎿  Wrote 65 lines to data\demo\eventos.json
+      1 {
+      2   "observacao": "Eventos semeados do seed demo, a que o prêmio de
+         participação se amarra. Fictícios. Cada evento lista os prêmios 
+        de participação que aceita e, quando for o caso, a sigla do curso
+         a que se restringe. A apresentação de trabalho em sala (P17) não
+         tem evento semeado: vai sempre por texto livre, com a matéria. D
+        atas inclusivas, interpretadas em America/Sao_Paulo. O seed só ac
+        rescenta e falha se um evento que já existe divergir deste arquiv
+        o. O resto dos eventos, passados e futuros, chega com o seed comp
+        leto do passo 12.",
+     … +63 lines (ctrl+o to expand)
+
+● Now wire the events into the demo seeder.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs)
+  ⎿  Added 1 line
+      17      public async Task<ResultadoDoSeedDemo> SeedDemoAsync(Cancel
+          lationToken cancellationToken)
+      18      {
+      19          var mundo = MundoDemoReader.Ler(Path.Combine(Dados, "de
+          mo"));
+      20 +        var eventos = EventosDemoReader.Ler(Path.Combine(Dados,
+         + "demo"));                                                     
+      21  
+      22          await using var transacao = await AbrirComLockAsync(can
+          cellationToken);
+      23  
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs)
+  ⎿  Added 9 lines
+      45  
+      46          demo.ContasDoSeed(relogio.GetUtcNow());
+      47  
+      48 +        var itens = (await db.Set<ItemCatalogoRow>().AsNoTracki
+         +ng()                                                           
+      49 +                .Where(item => item.Tipo == _tipoPremioParticip
+         +acao)                                                          
+      50 +                .ToListAsync(cancellationToken))               
+      51 +            .ToDictionary(row => row.Codigo, CatalogoRowMapper.
+         +ParaPremioParticipacao, StringComparer.Ordinal);               
+      52 +        foreach (var evento in eventos.Eventos)                
+      53 +        {                                                      
+      54 +            demo.Evento(evento, itens);                        
+      55 +        }                                                      
+      56 +                                                               
+      57          await db.SaveChangesAsync(cancellationToken);
+      58          await transacao.CommitAsync(cancellationToken);
+      59  
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs)
+  ⎿  Added 1 line
+      138          private int _matriculasNovas;
+      139          private int _vinculosNovos;
+      140          private int _contasNovas;
+      141 +        private int _eventosNovos;                            
+      142  
+      143          public IEnumerable<string> Siglas => _cursos.Keys;
+      144  
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs)
+  ⎿  Added 1 line, removed 1 line
+      143          public IEnumerable<string> Siglas => _cursos.Keys;
+      144  
+      145          public ResultadoDoSeedDemo Resultado => new(
+      146 -            _cursosNovos, _materiasNovas, _turmasNovas, _cadas
+          -trosNovos, _matriculasNovas, _vinculosNovos, _contasNovas);   
+      146 +            _cursosNovos, _materiasNovas, _turmasNovas, _cadas
+          +trosNovos, _matriculasNovas, _vinculosNovos, _contasNovas, _ev
+          +entosNovos);                                                  
+      147  
+      148          public async Task CarregarAsync(CancellationToken canc
+           ellationToken)
+      149          {
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs)
+  ⎿  Added 5 lines
+      180              _cadastrosComConta.UnionWith(await db.Set<Usuario>
+           ()
+      181                  .Select(usuario => usuario.CadastroElegivelId)
+      182                  .ToListAsync(cancellationToken));
+      183 +            foreach (var evento in await db.Set<Evento>().Wher
+          +e(evento => evento.Codigo != null).ToListAsync(cancellationTok
+          +en))                                                          
+      184 +            {                                                 
+      185 +                _eventos[evento.Codigo!] = evento;            
+      186 +            }                                                 
+      187 +                                                              
+      188              _prefixos.UnionWith(await db.Set<PrefixoReservado>
+           ()
+      189                  .Select(reservado => reservado.Prefixo)
+      190                  .ToListAsync(cancellationToken));
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs)
+  ⎿  Added 39 lines
+      289          // primeiro acesso é pela recuperação (produto.md 2.5)
+           . Vale para toda linha deles no
+      290          // banco, não só as do arquivo. Em ordem de e-mail, pa
+           ra o arroba sair igual a cada
+      291          // banco novo.
+      292 +        // O evento semeado, com os itens e o curso conferidos
+          + contra o que está no banco: o                                
+      293 +        // catálogo vem do base, e o curso, do mundo ou de uma
+          + rodada anterior.                                             
+      294 +        public void Evento(EventoDemo json, IReadOnlyDictionar
+          +y<string, ItemPremioParticipacao> itens)                      
+      295 +        {                                                     
+      296 +            var desconhecidos = json.Itens.Where(codigo => !it
+          +ens.ContainsKey(codigo)).ToList();                            
+      297 +            if (desconhecidos.Count > 0)                      
+      298 +            {                                                 
+      299 +                throw new SeedException(                      
+      300 +                    $"{EventosDemoReader.Arquivo}, {json.Codig
+          +o}: {string.Join(", ", desconhecidos)} não é prêmio de partici
+          +pação do catálogo. " +                                        
+      301 +                    "Nada foi gravado.");                     
+      302 +            }                                                 
+      303 +                                                              
+      304 +            Curso? curso = null;                              
+      305 +            if (json.Curso is { } sigla && !_cursos.TryGetValu
+          +e(sigla, out curso))                                          
+      306 +            {                                                 
+      307 +                throw new SeedException($"{EventosDemoReader.A
+          +rquivo}, {json.Codigo}: o curso {sigla} não existe. Nada foi g
+          +ravado.");                                                    
+      308 +            }                                                 
+      309 +                                                              
+      310 +            var novo = Construir(                             
+      311 +                json.Codigo,                                  
+      312 +                () => Domain.Premios.Evento.Semeado(json.Codig
+          +o, json.Nome, json.Inicio, json.Fim, [.. json.Itens.Select(cod
+          +igo => itens[codigo])], curso),                               
+      313 +                EventosDemoReader.Arquivo);                   
+      314 +            if (!_eventos.TryGetValue(novo.Codigo!, out var at
+          +ual))                                                         
+      315 +            {                                                 
+      316 +                db.Add(novo);                                 
+      317 +                _eventos[novo.Codigo!] = novo;                
+      318 +                _eventosNovos++;                              
+      319 +                return;                                       
+      320 +            }                                                 
+      321 +                                                              
+      322 +            if ((atual.Nome, atual.Inicio, atual.Fim, atual.Cu
+          +rsoId) != (novo.Nome, novo.Inicio, novo.Fim, novo.CursoId)    
+      323 +                || !atual.ItensAceitos.SequenceEqual(novo.Iten
+          +sAceitos, StringComparer.Ordinal))                            
+      324 +            {                                                 
+      325 +                throw new SeedException(                      
+      326 +                    $"O evento {atual.Codigo} já existe no ban
+          +co com dados diferentes de {EventosDemoReader.Arquivo}. " +   
+      327 +                    "O seed demo só acrescenta: evento novo en
+          +tra com outro código. Nada foi gravado.");                    
+      328 +            }                                                 
+      329 +        }                                                     
+      330 +                                                              
+      331          public void ContasDoSeed(DateTimeOffset agora)
+      332          {
+      333              var semConta = _cadastros.Values
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Seed" && sed -i 's/        public void
+      Evento(EventoDemo jso…)
+  ⎿  348:        private static T Construir<T>(string origem, Func<T> const
+     ruir)
+     349-        {
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs
+     (+3 -3)
+      51              .ToDictionary(row => row.Codigo, CatalogoRowMapper.
+          ParaPremioParticipacao, StringComparer.Ordinal);
+      52          foreach (var evento in eventos.Eventos)
+      53          {
+      54 -            demo.Evento(evento, itens);                        
+      54 +            demo.EventoSemeado(evento, itens);                 
+      55          }
+      56  
+      57          await db.SaveChangesAsync(cancellationToken);
+     ...
+      291          // banco novo.
+      292          // O evento semeado, com os itens e o curso conferidos
+            contra o que está no banco: o
+      293          // catálogo vem do base, e o curso, do mundo ou de uma
+            rodada anterior.
+      294 -        public void Evento(EventoDemo json, IReadOnlyDictionar
+          -y<string, ItemPremioParticipacao> itens)                      
+      294 +        public void EventoSemeado(EventoDemo json, IReadOnlyDi
+          +ctionary<string, ItemPremioParticipacao> itens)               
+      295          {
+      296              var desconhecidos = json.Itens.Where(codigo => !it
+           ens.ContainsKey(codigo)).ToList();
+      297              if (desconhecidos.Count > 0)
+     ...
+      309  
+      310              var novo = Construir(
+      311                  json.Codigo,
+      312 -                () => Domain.Premios.Evento.Semeado(json.Codig
+          -o, json.Nome, json.Inicio, json.Fim, [.. json.Itens.Select(cod
+          -igo => itens[codigo])], curso),                               
+      312 +                () => Evento.Semeado(json.Codigo, json.Nome, j
+          +son.Inicio, json.Fim, [.. json.Itens.Select(codigo => itens[co
+          +digo])], curso),                                              
+      313                  EventosDemoReader.Arquivo);
+      314              if (!_eventos.TryGetValue(novo.Codigo!, out var at
+           ual))
+      315              {
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Seed" && sed -i '348s/.*/        private static
+      T Construir<…)  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs
+     (+5 -2)
+      1  using Maxx.Domain;
+      2  using Maxx.Domain.Academico;
+      3 +using Maxx.Domain.Catalogo;                                     
+      4  using Maxx.Domain.Identidade;
+      5 +using Maxx.Domain.Premios;                                      
+      6  using Maxx.Infrastructure.Persistence;
+      7  using Microsoft.EntityFrameworkCore;
+      8  
+     ...
+      132          private readonly HashSet<(Guid ProfessorId, Guid Turma
+           Id)> _vinculos = [];
+      133          private readonly HashSet<Guid> _cadastrosComConta = []
+           ;
+      134          private readonly HashSet<string> _prefixos = new(Strin
+           gComparer.OrdinalIgnoreCase);
+      135 +        private readonly Dictionary<string, Evento> _eventos =
+          + new(StringComparer.Ordinal);                                 
+      136  
+      137          private int _cursosNovos;
+      138          private int _materiasNovas;
+     ...
+      348          }
+      349  
+      350          // A regra é a do domínio; aqui só se acrescenta de on
+           de veio o dado recusado.
+      348 -        private static T Construir<T>(string origem, Func<T> c
+          -onstruir)                                                     
+      351 +        private static T Construir<T>(string origem, Func<T> c
+          +onstruir, string arquivo = MundoDemoReader.Arquivo)           
+      352          {
+      353              try
+      354              {
+     ...
+      356              }
+      357              catch (DomainException ex)
+      358              {
+      356 -                throw new SeedException($"{MundoDemoReader.Arq
+          -uivo}, {origem}: {ex.Message} Nada foi gravado.", ex);        
+      359 +                throw new SeedException($"{arquivo}, {origem}:
+          + {ex.Message} Nada foi gravado.", ex);                        
+      360              }
+      361          }
+      362  
+
+● Add the item-type constant on the seeder and update the result record.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Seed" && sed -i '18a\    private static
+      readonly string _tip…)
+  ⎿  MSBUILD : error MSB1009: Arquivo de projeto não existe.
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs
+     (+2 -0)
+      16  // do seed.
+      17  public sealed partial class DatabaseSeeder
+      18  {
+      19 +    private static readonly string _tipoPremioParticipacao = No
+         +meJson.De(TipoDeItem.PremioParticipacao);                      
+      20 +                                                               
+      21      public async Task<ResultadoDoSeedDemo> SeedDemoAsync(Cancel
+          lationToken cancellationToken)
+      22      {
+      23          var mundo = MundoDemoReader.Ler(Path.Combine(Dados, "de
+          mo"));
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\SeedOptions.cs (+3 -2)
+      14      // Estrutura: catálogo, calendário e termo de uso.
+      15      Base,
+      16  
+      17 -    // O mundo fictício: cursos, matérias, turmas e pessoas. Ex
+         -ige o base.                                                    
+      17 +    // O mundo fictício: cursos, matérias, turmas, pessoas e ev
+         +entos. Exige o base.                                           
+      18      Demo,
+      19  }
+      20  
+     ...
+      36      int CadastrosNovos,
+      37      int MatriculasNovas,
+      38      int VinculosNovos,
+      39 -    int ContasNovas);                                          
+      39 +    int ContasNovas,                                           
+      40 +    int EventosNovos);                                         
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/public void EventoSemeado(EventoDemo json,
+      IReadOnlyDictionary<string, ItemPrem…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs(174,26): error CS70
+     36: Não há nenhum argumento fornecido que corresponda ao parâmetro nec
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.Demo.cs
+     (+1 -1)
+      296          // banco novo.
+      297          // O evento semeado, com os itens e o curso conferidos
+            contra o que está no banco: o
+      298          // catálogo vem do base, e o curso, do mundo ou de uma
+            rodada anterior.
+      299 -        public void EventoSemeado(EventoDemo json, IReadOnlyDi
+          -ctionary<string, ItemPremioParticipacao> itens)               
+      299 +        public void EventoSemeado(EventoDemo json, Dictionary<
+          +string, ItemPremioParticipacao> itens)                        
+      300          {
+      301              var desconhecidos = json.Itens.Where(codigo => !it
+           ens.ContainsKey(codigo)).ToList();
+      302              if (desconhecidos.Count > 0)
+  ⎿  (timeout 5m)
+
+● Atualizo os testes de seed existentes e acrescento os de eventos.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && sed -i 's/new
+      ResultadoDoSeedDemo(4, 16, 16, 25,…)
+  ⎿  22:    public async Task Demo_cria_quatro_cursos_dezesseis_turmas_e_vi
+     nte_e_cinco_cadastros()
+     ../../src/Maxx.Infrastructure/Seed/DatabaseSeeder.cs:33:
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs (+4 
+     -4)
+      27  
+      28          // 4 cursos × 4 matérias, uma turma cada em 2026/2; 20 
+          alunos, 4 professores, 1 instituição;
+      29          // cada aluno nas 4 turmas do curso, cada professor nas
+           4 turmas do curso; conta só
+      30 -        // para os 4 professores e a instituição.              
+      31 -        Assert.Equal(new ResultadoDoSeedDemo(4, 16, 16, 25, 80,
+         - 16, 5), resultado);                                           
+      30 +        // para os 4 professores e a instituição; os 8 eventos 
+         +de data/demo/eventos.json.                                     
+      31 +        Assert.Equal(new ResultadoDoSeedDemo(4, 16, 16, 25, 80,
+         + 16, 5, 8), resultado);                                        
+      32  
+      33          await using var scope = factory.Services.CreateAsyncSco
+          pe();
+      34          var db = scope.ServiceProvider.GetRequiredService<MaxxD
+          bContext>();
+     ...
+      91  
+      92          var resultado = await factory.SeedDemoAsync(Ct);
+      93  
+      94 -        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 0, 0, 0, 
+         -0), resultado);                                                
+      94 +        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 0, 0, 0, 
+         +0, 0), resultado);                                             
+      95          Assert.Equal(antes, await ContagensAsync(factory));
+      96      }
+      97  
+     ...
+      171          }));
+      172          var resultado = await factory.SeedDemoAsync(Ct);
+      173  
+      174 -        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 1, 1, 0,
+          - 0), resultado);                                              
+      174 +        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 1, 1, 0,
+          + 0, 0), resultado);                                           
+      175      }
+      176  
+      177      [Fact]
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs)
+  ⎿  Added 123 lines
+      268          Assert.Equal((0, 0, 0, 0, 0), await ContagensAsync(fac
+           tory));
+      269      }
+      270  
+      271 +    [Fact]                                                    
+      272 +    public async Task Eventos_entram_com_datas_itens_e_curso()
+      273 +    {                                                         
+      274 +        await using var factory = await ComBaseAsync();       
+      275 +        await factory.SeedDemoAsync(Ct);                      
+      276 +                                                              
+      277 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      278 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      279 +        var cc = await db.Set<Curso>().SingleAsync(curso => cu
+          +rso.Sigla == "CC", Ct);                                       
+      280 +        var eventos = await db.Set<Evento>().ToDictionaryAsync
+          +(evento => evento.Codigo!, Ct);                               
+      281 +                                                              
+      282 +        Assert.Equal(8, eventos.Count);                       
+      283 +        Assert.All(eventos.Values, evento => Assert.Equal(Orig
+          +emDoEvento.Semeado, evento.Origem));                          
+      284 +        var semana = eventos["semana-academica-cc-2026-2"];   
+      285 +        Assert.Equal(                                         
+      286 +            ("Semana Acadêmica de Ciência da Computação", new 
+          +DateOnly(2026, 9, 14), new DateOnly(2026, 9, 18), cc.Id),     
+      287 +            (semana.Nome, semana.Inicio, semana.Fim, semana.Cu
+          +rsoId));                                                      
+      288 +        Assert.Equal(["P06", "P08", "P09"], semana.ItensAceito
+          +s);                                                           
+      289 +        Assert.Null(eventos["maratona-de-programacao-2026"].Cu
+          +rsoId);                                                       
+      290 +    }                                                         
+      291 +                                                              
+      292 +    [Fact]                                                    
+      293 +    public async Task Evento_novo_no_arquivo_entra_sem_mexer_n
+          +o_resto()                                                     
+      294 +    {                                                         
+      295 +        await using var factory = await ComBaseAsync();       
+      296 +        await factory.SeedDemoAsync(Ct);                      
+      297 +                                                              
+      298 +        _copia.Alterar("demo/eventos.json", raiz => Eventos(ra
+          +iz).Add(Evento("palestra-extra-2026-2", "P01")));             
+      299 +        var resultado = await factory.SeedDemoAsync(Ct);      
+      300 +                                                              
+      301 +        Assert.Equal(new ResultadoDoSeedDemo(0, 0, 0, 0, 0, 0,
+          + 0, 1), resultado);                                           
+      302 +    }                                                         
+      303 +                                                              
+      304 +    [Fact]                                                    
+      305 +    public async Task Evento_que_diverge_do_arquivo_falha_sem_
+          +gravar_nada()                                                 
+      306 +    {                                                         
+      307 +        await using var factory = await ComBaseAsync();       
+      308 +        await factory.SeedDemoAsync(Ct);                      
+      309 +                                                              
+      310 +        _copia.Alterar("demo/eventos.json", raiz =>           
+      311 +        {                                                     
+      312 +            Eventos(raiz)[0]!["fim"] = "2026-08-04";          
+      313 +            Eventos(raiz).Add(Evento("palestra-extra-2026-2", 
+          +"P01"));                                                      
+      314 +        });                                                   
+      315 +        var falha = await Assert.ThrowsAsync<SeedException>(()
+          + => factory.SeedDemoAsync(Ct));                               
+      316 +                                                              
+      317 +        Assert.Contains("palestra-abertura-2026-2", falha.Mess
+          +age, StringComparison.Ordinal);                               
+      318 +        Assert.Equal(8, await ContarEventosAsync(factory));   
+      319 +    }                                                         
+      320 +                                                              
+      321 +    [Theory]                                                  
+      322 +    [InlineData("P99", "P99 não é prêmio de participação")]   
+      323 +    [InlineData("M01", "M01 não é prêmio de participação")]   
+      324 +    [InlineData("P17", "deduplica por matéria")]              
+      325 +    public async Task Evento_com_item_que_nao_pode_aceitar_fal
+          +ha_sem_gravar_nada(string item, string trecho)                
+      326 +    {                                                         
+      327 +        await using var factory = await ComBaseAsync();       
+      328 +                                                              
+      329 +        _copia.Alterar("demo/eventos.json", raiz => Eventos(ra
+          +iz).Add(Evento("evento-ruim", item)));                        
+      330 +        var falha = await Assert.ThrowsAsync<SeedException>(()
+          + => factory.SeedDemoAsync(Ct));                               
+      331 +                                                              
+      332 +        Assert.Contains("evento-ruim", falha.Message, StringCo
+          +mparison.Ordinal);                                            
+      333 +        Assert.Contains(trecho, falha.Message, StringCompariso
+          +n.Ordinal);                                                   
+      334 +        Assert.Equal((0, 0, 0, 0, 0), await ContagensAsync(fac
+          +tory));                                                       
+      335 +    }                                                         
+      336 +                                                              
+      337 +    [Fact]                                                    
+      338 +    public async Task Evento_de_curso_inexistente_falha_sem_gr
+          +avar_nada()                                                   
+      339 +    {                                                         
+      340 +        await using var factory = await ComBaseAsync();       
+      341 +                                                              
+      342 +        _copia.Alterar("demo/eventos.json", raiz =>           
+      343 +        {                                                     
+      344 +            var evento = Evento("semana-eng", "P06");         
+      345 +            evento["curso"] = "ENG";                          
+      346 +            Eventos(raiz).Add(evento);                        
+      347 +        });                                                   
+      348 +        var falha = await Assert.ThrowsAsync<SeedException>(()
+          + => factory.SeedDemoAsync(Ct));                               
+      349 +                                                              
+      350 +        Assert.Contains("ENG", falha.Message, StringComparison
+          +.Ordinal);                                                    
+      351 +        Assert.Equal((0, 0, 0, 0, 0), await ContagensAsync(fac
+          +tory));                                                       
+      352 +    }                                                         
+      353 +                                                              
+      354 +    [Fact]                                                    
+      355 +    public async Task Evento_que_termina_antes_de_comecar_falh
+          +a()                                                           
+      356 +    {                                                         
+      357 +        await using var factory = await ComBaseAsync();       
+      358 +                                                              
+      359 +        _copia.Alterar("demo/eventos.json", raiz => Eventos(ra
+          +iz)[1]!["fim"] = "2026-08-01");                               
+      360 +        var falha = await Assert.ThrowsAsync<SeedException>(()
+          + => factory.SeedDemoAsync(Ct));                               
+      361 +                                                              
+      362 +        Assert.Contains("doacao-de-sangue-2026-2", falha.Messa
+          +ge, StringComparison.Ordinal);                                
+      363 +        Assert.Equal(0, await ContarEventosAsync(factory));   
+      364 +    }                                                         
+      365 +                                                              
+      366 +    [Fact]                                                    
+      367 +    public async Task Codigo_de_evento_repetido_no_arquivo_fal
+          +ha()                                                          
+      368 +    {                                                         
+      369 +        await using var factory = await ComBaseAsync();       
+      370 +                                                              
+      371 +        _copia.Alterar("demo/eventos.json", raiz => Eventos(ra
+          +iz).Add(Evento("mostra-ia-2026-2", "P08")));                  
+      372 +        var falha = await Assert.ThrowsAsync<SeedException>(()
+          + => factory.SeedDemoAsync(Ct));                               
+      373 +                                                              
+      374 +        Assert.Contains("código de evento repetido: mostra-ia-
+          +2026-2", falha.Message, StringComparison.Ordinal);            
+      375 +    }                                                         
+      376 +                                                              
+      377 +    private static JsonArray Eventos(JsonNode raiz) => raiz["e
+          +ventos"]!.AsArray();                                          
+      378 +                                                              
+      379 +    private static JsonObject Evento(string codigo, string ite
+          +m) => new()                                                   
+      380 +    {                                                         
+      381 +        ["codigo"] = codigo,                                  
+      382 +        ["nome"] = "Palestra extra",                          
+      383 +        ["inicio"] = "2026-10-01",                            
+      384 +        ["fim"] = "2026-10-01",                               
+      385 +        ["itens"] = new JsonArray(item),                      
+      386 +    };                                                        
+      387 +                                                              
+      388 +    private static async Task<int> ContarEventosAsync(MaxxApiF
+          +actory factory)                                               
+      389 +    {                                                         
+      390 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      391 +        return await scope.ServiceProvider.GetRequiredService<
+          +MaxxDbContext>().Set<Evento>().CountAsync(Ct);                
+      392 +    }                                                         
+      393 +                                                              
+      394      private async Task<MaxxApiFactory> ComBaseAsync()
+      395      {
+      396          var factory = await MigradoAsync(postgres, _copia.Dire
+           torio);
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && sed -i 's/^using
+      Maxx.Domain.Identidade;/using M…)
+  ⎿  using System.Text.Json.Nodes;
+     using Maxx.Domain.Academico;
+     using Maxx.Domain.Identidade;
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs (+1 
+     -0)
+      1  using System.Text.Json.Nodes;
+      2  using Maxx.Domain.Academico;
+      3  using Maxx.Domain.Identidade;
+      4 +using Maxx.Domain.Premios;                                      
+      5  using Maxx.Infrastructure.Persistence;
+      6  using Maxx.Infrastructure.Seed;
+      7  using Microsoft.EntityFrameworkCore;
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Seed verde (25 testes). Agora a rota GET /v1/eventos: Application, repositório
+  e endpoint.
+
+● Write(apps\api\src\Maxx.Application\PremiosParticipacao\EventosHandler.cs)
+  ⎿  Wrote 51 lines to
+     apps\api\src\Maxx.Application\PremiosParticipacao\EventosHandler.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Premios;
+       4 
+       5 namespace Maxx.Application.PremiosParticipacao;
+       6 
+       7 // Os eventos semeados que o aluno pode escolher ao reivindicar 
+         (produto.md 4.6): abertos ao
+       8 // curso dele, reivindicáveis hoje e, com o item informado, que 
+         aceitam o item. A regra de
+     … +43 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\PremiosParticipacao\CodigosDoPremioPartici
+       pacao.cs)
+  ⎿  Wrote 9 lines to apps\api\src\Maxx.Application\PremiosParticipacao\Cod
+     igosDoPremioParticipacao.cs
+      1 namespace Maxx.Application.PremiosParticipacao;
+      2 
+      3 // Os códigos de recusa do prêmio de participação e do evento, co
+        mo o cliente os recebe em
+      4 // ProblemDetails.
+      5 public static class CodigosDoPremioParticipacao
+      6 {
+      7     // O código não é de um prêmio de participação do catálogo. O
+         mesmo texto da medalha.
+      8     public const string ItemNaoEncontrado = "item-nao-encontrado"
+     … +2 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\PremiosParticipacao\EventoRepository.cs
+       )
+  ⎿  Wrote 41 lines to apps\api\src\Maxx.Infrastructure\PremiosParticipacao
+     \EventoRepository.cs
+       1 using Maxx.Application.PremiosParticipacao;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Catalogo;
+       4 using Maxx.Domain.Identidade;
+       5 using Maxx.Domain.Premios;
+       6 using Maxx.Infrastructure.Persistence;
+       7 using Maxx.Infrastructure.Seed;
+       8 using Microsoft.EntityFrameworkCore;
+       9 
+      10 namespace Maxx.Infrastructure.PremiosParticipacao;
+     … +31 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/^
+           services.AddScoped<IConsultaDePremios, ConsultaDePremios>…)
+  ⎿  using Maxx.Application;
+     using Maxx.Application.Autenticacao;
+     using Maxx.Application.Autenticacao.Recuperacao;
+     … +70 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -0)
+      63          services.AddScoped<IConsultaDoProfessor, ConsultaDoProf
+          essor>();
+      64          services.AddScoped<INotificacaoRepository, NotificacaoR
+          epository>();
+      65          services.AddScoped<IConsultaDePremios, ConsultaDePremio
+          s>();
+      66 +        services.AddScoped<IEventoRepository, EventoRepository>
+         +();                                                            
+      67  
+      68          // O bucket das fotos (ADR 0002). As opções vêm da bord
+          a, que recusa subir sem elas
+      69          // fora de desenvolvimento.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's/^using Maxx.Application.Premios;/&\nusing Maxx.Application.Premios…)
+  ⎿  1:using System.Reflection;
+     2:using System.Text.Json.Serialization;
+     3:using Maxx.Api.Autenticacao;
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+2 -0)
+       98  builder.Services.AddScoped<Maxx.Application.Social.SeguimentoH
+           andler>();
+       99  builder.Services.AddScoped<Maxx.Application.Feed.FeedHandler>(
+           );
+      100  builder.Services.AddScoped<Maxx.Application.Perfil.EditarPerfi
+           lHandler>();
+      101 +builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+          +o.EventosHandler>();                                          
+      102  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      103  
+      104  var app = builder.Build();
+     ...
+      168  v1.MapSocialEndpoints();
+      169  v1.MapFeedEndpoints();
+      170  v1.MapPerfilEndpoints();
+      171 +v1.MapEventoEndpoints();                                      
+      172  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      173  if (demonstracao)
+      174  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+2 
+     -0)
+      11  using Maxx.Application.Perfil;
+      12  using Maxx.Application.Posts;
+      13  using Maxx.Application.Premios;
+      14 +using Maxx.Application.PremiosParticipacao;                    
+      15  using Maxx.Application.Social;
+      16  using Maxx.Infrastructure.Autenticacao;
+      17  using Maxx.Infrastructure.Autorizacao;
+     ...
+      26  using Maxx.Infrastructure.Persistence;
+      27  using Maxx.Infrastructure.Posts;
+      28  using Maxx.Infrastructure.Premios;
+      29 +using Maxx.Infrastructure.PremiosParticipacao;                 
+      30  using Maxx.Infrastructure.RaridadeDosItens;
+      31  using Maxx.Infrastructure.Seed;
+      32  using Maxx.Infrastructure.Social;
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's/^using Maxx.Api.Premios;/&\nusing Maxx.Api.PremiosParticipacao;/'…)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      12  using Maxx.Api.Perfil;
+      13  using Maxx.Api.Posts;
+      14  using Maxx.Api.Premios;
+      15 +using Maxx.Api.PremiosParticipacao;                            
+      16  using Maxx.Api.Social;
+      17  using Maxx.Infrastructure;
+      18  using Maxx.Infrastructure.Fila;
+
+● Write(apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs)
+  ⎿  Wrote 43 lines to
+     apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using System.Security.Claims;
+       3 using Maxx.Api.Autenticacao;
+       4 using Maxx.Application.PremiosParticipacao;
+       5 using Microsoft.AspNetCore.Http.HttpResults;
+       6 
+       7 namespace Maxx.Api.PremiosParticipacao;
+       8 
+       9 // Os eventos semeados que o aluno escolhe ao reivindicar um prê
+         mio de participação
+     … +34 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Build limpo. Agora o teste de integração da rota, com o seed demo real e o
+  relógio fixado em 2026.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Social\MundoSocial.cs)
+  ⎿  Added 3 lines, removed 2 lines
+      198      }
+      199  }
+      200  
+      201 -internal sealed class RelogioDeTeste : TimeProvider           
+      201 +// inicio: um instante fixo, para o teste que depende das data
+          +s reais do calendário.                                        
+      202 +internal sealed class RelogioDeTeste(DateTimeOffset? inicio = 
+          +null) : TimeProvider                                          
+      203  {
+      204      // Em segundo cheio: o Postgres guarda microssegundos, e a
+            comparação é exata.
+      204 -    private DateTimeOffset _agora = DateTimeOffset.FromUnixTim
+          -eSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());          
+      205 +    private DateTimeOffset _agora = DateTimeOffset.FromUnixTim
+          +eSeconds((inicio ?? DateTimeOffset.UtcNow).ToUnixTimeSeconds()
+          +);                                                            
+      206  
+      207      public override DateTimeOffset GetUtcNow() => _agora;
+      208  
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\EventosTest
+       s.cs)
+  ⎿  Wrote 186 lines to apps\api\tests\Maxx.Api.IntegrationTests\PremiosPar
+     ticipacao\EventosTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using Maxx.Api.Autenticacao;
+       5 using Maxx.Api.IntegrationTests.Social;
+       6 using Maxx.Api.PremiosParticipacao;
+       7 using Maxx.Domain.Academico;
+       8 using Maxx.Domain.Identidade;
+       9 using Maxx.Infrastructure.Autenticacao;
+      10 using Maxx.Infrastructure.Persistence;
+     … +176 lines (ctrl+o to expand)
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● The 401 comes from the JWT: the token is issued with the test clock (2026),
+  but validated against the machine clock. Checking how authentication picks up
+  the clock.
+  Ran 1 shell command (ctrl+o to expand)
+
+● I'll leave production auth alone: in the test, log in at real time and then
+  move the clock to the target day.
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Social\MundoSocial.cs)
+  ⎿  Added 2 lines, removed 3 lines
+      198      }
+      199  }
+      200  
+      201 -// inicio: um instante fixo, para o teste que depende das data
+          -s reais do calendário.                                        
+      202 -internal sealed class RelogioDeTeste(DateTimeOffset? inicio = 
+          -null) : TimeProvider                                          
+      201 +internal sealed class RelogioDeTeste : TimeProvider           
+      202  {
+      203      // Em segundo cheio: o Postgres guarda microssegundos, e a
+            comparação é exata.
+      205 -    private DateTimeOffset _agora = DateTimeOffset.FromUnixTim
+          -eSeconds((inicio ?? DateTimeOffset.UtcNow).ToUnixTimeSeconds()
+          -);                                                            
+      204 +    private DateTimeOffset _agora = DateTimeOffset.FromUnixTim
+          +eSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());          
+      205  
+      206      public override DateTimeOffset GetUtcNow() => _agora;
+      207  
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/PremiosParticipacao" &&
+      f=EventosTests.cs && \
+      sed -…)
+  ⎿  34:        await using var mundo = await MundoAsync();
+     35:        using var ana = await ComoAsync(factory, AnaDeCc);
+     59:        await using var mundo = await MundoAsync();
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\E
+     ventosTests.cs (+7 -7)
+      31      [Fact]
+      32      public async Task Aluno_ve_os_eventos_ja_comecados_do_semes
+          tre_abertos_ao_curso_do_mais_recente_ao_mais_antigo()
+      33      {
+      34 -        await using var factory = await MundoAsync(Dia(11, 8));
+      34 +        await using var mundo = await MundoAsync();            
+      35          using var ana = await ComoAsync(factory, AnaDeCc);
+      36  
+      37          var eventos = await EventosAsync(ana);
+     ...
+      56      [Fact]
+      57      public async Task Evento_de_curso_so_aparece_para_o_curso_d
+          ele()
+      58      {
+      59 -        await using var factory = await MundoAsync(Dia(11, 8));
+      59 +        await using var mundo = await MundoAsync();            
+      60          using var gabriel = await ComoAsync(factory, GabrielDeA
+          dm);
+      61  
+      62          var codigos = await CodigosAsync(factory, await Eventos
+          Async(gabriel));
+     ...
+      68      [Fact]
+      69      public async Task Evento_ainda_nao_comecado_fica_de_fora_at
+          e_o_dia_dele()
+      70      {
+      71 -        await using var factory = await MundoAsync(Dia(10, 23))
+         -;                                                              
+      71 +        await using var mundo = await MundoAsync();            
+      72          using var ana = await ComoAsync(factory, AnaDeCc);
+      73  
+      74          Assert.DoesNotContain("maratona-de-programacao-2026", a
+          wait CodigosAsync(factory, await EventosAsync(ana)));
+     ...
+      83      [InlineData("P17", new string[0])]
+      84      public async Task Com_o_item_so_os_eventos_que_o_aceitam(st
+          ring item, string[] esperados)
+      85      {
+      86 -        await using var factory = await MundoAsync(Dia(11, 8));
+      86 +        await using var mundo = await MundoAsync();            
+      87          using var ana = await ComoAsync(factory, AnaDeCc);
+      88  
+      89          Assert.Equal(esperados, await CodigosAsync(factory, awa
+          it EventosAsync(ana, item)));
+     ...
+       95      [InlineData("C02")]
+       96      public async Task Item_que_nao_e_premio_de_participacao_e_
+           404(string item)
+       97      {
+       98 -        await using var factory = await MundoAsync(Dia(11, 8))
+          -;                                                             
+       98 +        await using var mundo = await MundoAsync();           
+       99          using var ana = await ComoAsync(factory, AnaDeCc);
+      100  
+      101          var resposta = await ana.GetAsync(Caminho(item), Ct);
+     … 16 more lines (ctrl+o to expand)
+
+● Simpler to rewrite the file whole, with each test's day.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\EventosTest
+       s.cs)
+  ⎿  Added 56 lines, removed 34 lines
+       6  using Maxx.Api.PremiosParticipacao;
+       7  using Maxx.Domain.Academico;
+       8  using Maxx.Domain.Identidade;
+       9 +using Maxx.Domain.Premios;                                     
+      10  using Maxx.Infrastructure.Autenticacao;
+      11  using Maxx.Infrastructure.Persistence;
+      12  using Microsoft.EntityFrameworkCore;
+     ...
+      16  namespace Maxx.Api.IntegrationTests.PremiosParticipacao;
+      17  
+      18  // GET /v1/eventos contra o seed demo de verdade (data/demo/eve
+          ntos.json) e o calendário de
+      18 -// 2026, com o relógio parado num dia escolhido. 2026/2 vai de 
+         -27/07 a 05/12.                                                 
+      19 +// 2026. 2026/2 vai de 27/07 a 05/12. O login acontece no relóg
+         +io de agora, porque o token é                                  
+      20 +// validado no relógio da máquina; depois o relógio da aplicaçã
+         +o vai para o dia do teste.                                     
+      21  public sealed class EventosTests(PostgresFixture postgres) : IC
+          lassFixture<PostgresFixture>
+      22  {
+      23      private const string Senha = "senha-boa-123";
+     ...
+      34      public async Task Aluno_ve_os_eventos_ja_comecados_do_semes
+          tre_abertos_ao_curso_do_mais_recente_ao_mais_antigo()
+      35      {
+      36          await using var mundo = await MundoAsync();
+      35 -        using var ana = await ComoAsync(factory, AnaDeCc);     
+      37 +        using var ana = await mundo.ComoAsync(AnaDeCc);        
+      38 +        mundo.Em(Dia(11, 8));                                  
+      39  
+      40          var eventos = await EventosAsync(ana);
+      41  
+     ...
+      48                  "doacao-de-sangue-2026-2",
+      49                  "palestra-abertura-2026-2",
+      50              ],
+      48 -            await CodigosAsync(factory, eventos));             
+      51 +            await mundo.CodigosAsync(eventos));                
+      52          var semana = eventos[1];
+      53          Assert.Equal(
+      54              ("Semana Acadêmica de Ciência da Computação", new D
+          ateOnly(2026, 9, 14), new DateOnly(2026, 9, 18)),
+     ...
+      60      public async Task Evento_de_curso_so_aparece_para_o_curso_d
+          ele()
+      61      {
+      62          await using var mundo = await MundoAsync();
+      60 -        using var gabriel = await ComoAsync(factory, GabrielDeA
+         -dm);                                                           
+      63 +        using var gabriel = await mundo.ComoAsync(GabrielDeAdm)
+         +;                                                              
+      64 +        mundo.Em(Dia(11, 8));                                  
+      65  
+      62 -        var codigos = await CodigosAsync(factory, await Eventos
+         -Async(gabriel));                                               
+      66 +        var codigos = await mundo.CodigosAsync(await EventosAsy
+         +nc(gabriel));                                                  
+      67  
+      68          Assert.Contains("visita-tecnica-adm-2026-2", codigos);
+      69          Assert.DoesNotContain("semana-academica-cc-2026-2", cod
+          igos);
+     ...
+      73      public async Task Evento_ainda_nao_comecado_fica_de_fora_at
+          e_o_dia_dele()
+      74      {
+      75          await using var mundo = await MundoAsync();
+      72 -        using var ana = await ComoAsync(factory, AnaDeCc);     
+      76 +        using var ana = await mundo.ComoAsync(AnaDeCc);        
+      77  
+      74 -        Assert.DoesNotContain("maratona-de-programacao-2026", a
+         -wait CodigosAsync(factory, await EventosAsync(ana)));          
+      78 +        mundo.Em(Dia(10, 23));                                 
+      79 +        Assert.DoesNotContain("maratona-de-programacao-2026", a
+         +wait mundo.CodigosAsync(await EventosAsync(ana)));             
+      80 +                                                               
+      81 +        mundo.Em(Dia(10, 24));                                 
+      82 +        Assert.Contains("maratona-de-programacao-2026", await m
+         +undo.CodigosAsync(await EventosAsync(ana)));                   
+      83      }
+      84  
+      85      [Theory]
+     ...
+       92      public async Task Com_o_item_so_os_eventos_que_o_aceitam(s
+           tring item, string[] esperados)
+       93      {
+       94          await using var mundo = await MundoAsync();
+       87 -        using var ana = await ComoAsync(factory, AnaDeCc);    
+       95 +        using var ana = await mundo.ComoAsync(AnaDeCc);       
+       96 +        mundo.Em(Dia(11, 8));                                 
+       97  
+       89 -        Assert.Equal(esperados, await CodigosAsync(factory, aw
+          -ait EventosAsync(ana, item)));                                
+       98 +        Assert.Equal(esperados, await mundo.CodigosAsync(await
+          + EventosAsync(ana, item)));                                   
+       99      }
+      100  
+      101      [Theory]
+     ...
+      105      public async Task Item_que_nao_e_premio_de_participacao_e_
+           404(string item)
+      106      {
+      107          await using var mundo = await MundoAsync();
+       99 -        using var ana = await ComoAsync(factory, AnaDeCc);    
+      108 +        using var ana = await mundo.ComoAsync(AnaDeCc);       
+      109 +        mundo.Em(Dia(11, 8));                                 
+      110  
+      111          var resposta = await ana.GetAsync(Caminho(item), Ct);
+      112  
+     ...
+      117      public async Task No_recesso_a_lista_vem_vazia()
+      118      {
+      119          await using var mundo = await MundoAsync();
+      110 -        using var ana = await ComoAsync(factory, AnaDeCc);    
+      120 +        using var ana = await mundo.ComoAsync(AnaDeCc);       
+      121 +        mundo.Em(Dia(12, 10));                                
+      122  
+      123          Assert.Empty(await EventosAsync(ana));
+      124      }
+     ...
+      127      public async Task Professor_nao_ve_a_lista_e_sem_login_e_4
+           01()
+      128      {
+      129          await using var mundo = await MundoAsync();
+      119 -        using var renata = await ComoAsync(factory, RenataProf
+          -essora);                                                      
+      130 +        using var renata = await mundo.ComoAsync(RenataProfess
+          +ora);                                                         
+      131 +        mundo.Em(Dia(11, 8));                                 
+      132  
+      133          Assert.Equal(HttpStatusCode.Forbidden, (await renata.G
+           etAsync(Caminho(), Ct)).StatusCode);
+      122 -        Assert.Equal(HttpStatusCode.Unauthorized, (await facto
+          -ry.CreateClient().GetAsync(Caminho(), Ct)).StatusCode);       
+      134 +        Assert.Equal(HttpStatusCode.Unauthorized, (await mundo
+          +.Factory.CreateClient().GetAsync(Caminho(), Ct)).StatusCode); 
+      135      }
+      136  
+      137      private static Uri Caminho(string? item = null) =>
+     ...
+      144          return (await resposta.Content.ReadFromJsonAsync<List<
+           EventoResponse>>(Ct))!;
+      145      }
+      146  
+      135 -    // O código não vai na resposta (é chave do seed); aqui el
+          -e é lido do banco pelo id.                                    
+      136 -    private static async Task<List<string>> CodigosAsync(MaxxA
+          -piFactory factory, List<EventoResponse> eventos)              
+      137 -    {                                                         
+      138 -        await using var scope = factory.Services.CreateAsyncSc
+          -ope();                                                        
+      139 -        var codigos = await scope.ServiceProvider.GetRequiredS
+          -ervice<MaxxDbContext>().Set<Domain.Premios.Evento>()          
+      140 -            .ToDictionaryAsync(evento => evento.Id, evento => 
+          -evento.Codigo!, Ct);                                          
+      141 -        return [.. eventos.Select(evento => codigos[evento.Id]
+          -)];                                                           
+      142 -    }                                                         
+      143 -                                                              
+      147      // Seed base e demo, as contas de dois alunos e a senha da
+            professora, que o seed cria sem.
+      145 -    private async Task<MaxxApiFactory> MundoAsync(DateTimeOffs
+          -et agora)                                                     
+      148 +    private async Task<Mundo> MundoAsync()                    
+      149      {
+      150 +        var relogio = new RelogioDeTeste();                   
+      151          var factory = new MaxxApiFactory(
+      152              await postgres.CreateDatabaseAsync(),
+      149 -            servicos: colecao => colecao.Replace(ServiceDescri
+          -ptor.Singleton<TimeProvider>(new RelogioDeTeste(agora))));    
+      153 +            servicos: colecao => colecao.Replace(ServiceDescri
+          +ptor.Singleton<TimeProvider>(relogio)));                      
+      154          await factory.MigrateAsync(Ct);
+      155          await factory.SeedBaseAsync(Ct);
+      156          await factory.SeedDemoAsync(Ct);
+     ...
+      162          {
+      163              var cadastro = await db.Set<CadastroElegivel>().Si
+           ngleAsync(cadastro => cadastro.Email == email, Ct);
+      164              var curso = await db.Set<Curso>().SingleAsync(curs
+           o => curso.Id == cadastro.CursoId, Ct);
+      161 -            db.Add(Usuario.CadastrarAluno(cadastro, curso, cad
+          -astro.NomeCompleto, prefixo, hash, agora));                   
+      165 +            db.Add(Usuario.CadastrarAluno(cadastro, curso, cad
+          +astro.NomeCompleto, prefixo, hash, relogio.GetUtcNow()));     
+      166          }
+      167  
+      168          var renata = await (
+     ...
+      174          renata.DefinirSenha(hash);
+      175          await db.SaveChangesAsync(Ct);
+      176  
+      173 -        return factory;                                       
+      177 +        return new Mundo(factory, relogio);                   
+      178      }
+      179  
+      176 -    private static async Task<HttpClient> ComoAsync(MaxxApiFac
+          -tory factory, string email)                                   
+      180 +    private sealed class Mundo(MaxxApiFactory factory, Relogio
+          +DeTeste relogio) : IAsyncDisposable                           
+      181      {
+      178 -        var client = factory.CreateClient();                  
+      179 -        var resposta = await client.PostAsJsonAsync(          
+      180 -            new Uri("/api/v1/auth/login", UriKind.Relative), n
+          -ew { identificador = email, senha = Senha }, Ct);             
+      181 -        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode); 
+      182 -        var token = (await resposta.Content.ReadFromJsonAsync<
+          -SessaoResponse>(Ct))!.AccessToken;                            
+      183 -        client.DefaultRequestHeaders.Authorization = new Authe
+          -nticationHeaderValue("Bearer", token);                        
+      184 -        return client;                                        
+      182 +        public MaxxApiFactory Factory => factory;             
+      183 +                                                              
+      184 +        public void Em(DateTimeOffset instante) => relogio.Ava
+          +ncar(instante - relogio.GetUtcNow());                         
+      185 +                                                              
+      186 +        public async Task<HttpClient> ComoAsync(string email) 
+      187 +        {                                                     
+      188 +            var client = factory.CreateClient();              
+      189 +            var resposta = await client.PostAsJsonAsync(      
+      190 +                new Uri("/api/v1/auth/login", UriKind.Relative
+          +), new { identificador = email, senha = Senha }, Ct);         
+      191 +            Assert.Equal(HttpStatusCode.OK, resposta.StatusCod
+          +e);                                                           
+      192 +            var token = (await resposta.Content.ReadFromJsonAs
+          +ync<SessaoResponse>(Ct))!.AccessToken;                        
+      193 +            client.DefaultRequestHeaders.Authorization = new A
+          +uthenticationHeaderValue("Bearer", token);                    
+      194 +            return client;                                    
+      195 +        }                                                     
+      196 +                                                              
+      197 +        // O código não vai na resposta (é chave do seed); aqu
+          +i ele é lido do banco pelo id.                                
+      198 +        public async Task<List<string>> CodigosAsync(List<Even
+          +toResponse> eventos)                                          
+      199 +        {                                                     
+      200 +            await using var scope = factory.Services.CreateAsy
+          +ncScope();                                                    
+      201 +            var codigos = await scope.ServiceProvider.GetRequi
+          +redService<MaxxDbContext>().Set<Evento>()                     
+      202 +                .ToDictionaryAsync(evento => evento.Id, evento
+          + => evento.Codigo!, Ct);                                      
+      203 +            return [.. eventos.Select(evento => codigos[evento
+          +.Id])];                                                       
+      204 +        }                                                     
+      205 +                                                              
+      206 +        public ValueTask DisposeAsync() => factory.DisposeAsyn
+          +c();                                                          
+      207      }
+      208  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Rota verde (12 testes). Agora a conferência do arquivo de eventos sem banco,
+  no passo "Catálogo válido" da CI.
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\CatalogoArquivosTests.cs)
+  ⎿  Added 17 lines
+      55          Assert.Equal(Gatilho.FechamentoDePeriodo, conquistas["C
+          03"].Gatilho);
+      56      }
+      57  
+      58 +    // Os eventos semeados contra o catálogo, sem banco: todo i
+         +tem aceito é prêmio de                                         
+      59 +    // participação, e cada evento passa pelas regras do domíni
+         +o (datas, código, P17).                                        
+      60      [Fact]
+      61 +    public void Eventos_do_repositorio_aceitam_so_premios_de_pa
+         +rticipacao_do_catalogo()                                       
+      62 +    {                                                          
+      63 +        var itens = CatalogoReader.Ler(_diretorioReal).Catalogo
+         +!.Itens.OfType<ItemPremioParticipacao>()                       
+      64 +            .ToDictionary(item => item.Codigo, StringComparer.O
+         +rdinal);                                                       
+      65 +        var eventos = EventosDemoReader.Ler(Path.Combine(Reposi
+         +torio.DiretorioDeDados, "demo")).Eventos;                      
+      66 +                                                               
+      67 +        Assert.NotEmpty(eventos);                              
+      68 +        Assert.All(eventos, evento =>                          
+      69 +        {                                                      
+      70 +            Assert.All(evento.Itens, codigo => Assert.True(iten
+         +s.ContainsKey(codigo), $"{evento.Codigo}: {codigo} não é prêmio
+         + de participação."));                                          
+      71 +            Evento.Semeado(evento.Codigo, evento.Nome, evento.I
+         +nicio, evento.Fim, [.. evento.Itens.Select(codigo => itens[codi
+         +go])], null);                                                  
+      72 +        });                                                    
+      73 +    }                                                          
+      74 +                                                               
+      75 +    [Fact]                                                     
+      76      public void Pontos_fora_da_faixa_falham_com_o_codigo_do_ite
+          m()
+      77      {
+      78          Alterar(CatalogoReader.ArquivoDeMedalhas, "M01", item =
+          > item["pontos"] = 31);
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^using Maxx.Domain.Catalogo;/&\nusing Maxx.Domain.Premios;/'
+      apps/api/tests/Max…)
+  ⎿          run: dotnet build Maxx.sln --no-restore -c Release
+           # Catálogo, calendário e demonstração são dados da API, então a
+     formatação deles é conferida aqui. Sem `npm ci`:
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated .github\workflows\ci.yml (+3 -3)
+      26          run: dotnet format Maxx.sln --verify-no-changes --no-re
+          store
+      27        - name: Build (aviso vira erro)
+      28          run: dotnet build Maxx.sln --no-restore -c Release
+      29 -      # Catálogo e calendário são dados da API, então a formata
+         -ção deles é conferida aqui. Sem `npm ci`:                      
+      29 +      # Catálogo, calendário e demonstração são dados da API, e
+         +ntão a formatação deles é conferida aqui. Sem `npm ci`:        
+      30        # só o Prettier, na versão travada no package-lock.json.
+      31        - uses: actions/setup-node@v7
+      32          with:
+      33            node-version-file: .nvmrc
+      34 -      - name: Formatação de data/ (catálogo e calendário)      
+      34 +      - name: Formatação de data/ (catálogo, calendário e demon
+         +stração)                                                       
+      35          run: npx --yes "prettier@$(node -p "require('./package-
+          lock.json').packages['node_modules/prettier'].version")" --chec
+          k data
+      36        # Passo próprio para a falha de catálogo ficar legível se
+          m abrir o log dos testes.
+      37        # Os mesmos testes rodam de novo no passo seguinte; sem b
+          anco, levam segundos.
+      38 -      - name: Catálogo válido                                  
+      38 +      - name: Catálogo e eventos válidos                       
+      39          run: >-
+      40            dotnet test --project apps/api/tests/Maxx.Api.Integra
+          tionTests --no-build -c Release
+      41            --filter-class Maxx.Api.IntegrationTests.CatalogoArqu
+          ivosTests
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\CatalogoArquivosTests.cs (+1 
+     -0)
+      1  using System.Text.Json.Nodes;
+      2  using Maxx.Domain.Catalogo;
+      3 +using Maxx.Domain.Premios;                                      
+      4  using Maxx.Infrastructure.Seed;
+      5  
+      6  namespace Maxx.Api.IntegrationTests;
+  ⎿  (timeout 3m)
+
+● Now regenerate the OpenAPI and the TypeScript client.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/packages/api-client" && cat
+      package.json | grep -A3 '"scripts"'; npm run gerar 2>&1 | tail -5…)
+  ⎿    "scripts": {
+         "gerar": "npm run gerar:openapi && npm run gerar:tipos",
+         "gerar:openapi": "dotnet build ../../apps/api/src/Maxx.Api -p:Open
+     … +29 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+105 -0)
+      370          ]
+      371        }
+      372      },
+      373 +    "/api/v1/eventos": {                                      
+      374 +      "get": {                                                
+      375 +        "tags": [                                             
+      376 +          "Eventos"                                           
+      377 +        ],                                                    
+      378 +        "operationId": "GetEventosReivindicaveis",            
+      379 +        "parameters": [                                       
+      380 +          {                                                   
+      381 +            "name": "item",                                   
+      382 +            "in": "query",                                    
+      383 +            "schema": {                                       
+      384 +              "maxLength": 16,                                
+      385 +              "minLength": 0,                                 
+      386 +              "type": "string"                                
+      387 +            }                                                 
+      388 +          }                                                   
+      389 +        ],                                                    
+      390 +        "responses": {                                        
+      391 +          "200": {                                            
+      392 +            "description": "OK",                              
+      393 +            "content": {                                      
+      394 +              "application/json": {                           
+      395 +                "schema": {                                   
+      396 +                  "type": "array",                            
+      397 +                  "items": {                                  
+      398 +                    "$ref": "#/components/schemas/EventoRespon
+          +se"                                                           
+      399 +                  }                                           
+      400 +                }                                             
+      401 +              }                                               
+      402 +            }                                                 
+      403 +          },                                                  
+      404 +          "400": {                                            
+      405 +            "description": "Bad Request",                     
+      406 +            "content": {                                      
+      407 +              "application/problem+json": {                   
+      408 +                "schema": {                                   
+      409 +                  "$ref": "#/components/schemas/HttpValidation
+          +ProblemDetails"                                               
+     … 83 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+75 -0)
+      148          patch?: never;
+      149          trace?: never;
+      150      };
+      151 +    "/api/v1/eventos": {                                      
+      152 +        parameters: {                                         
+      153 +            query?: never;                                    
+      154 +            header?: never;                                   
+      155 +            path?: never;                                     
+      156 +            cookie?: never;                                   
+      157 +        };                                                    
+      158 +        get: operations["GetEventosReivindicaveis"];          
+      159 +        put?: never;                                          
+      160 +        post?: never;                                         
+      161 +        delete?: never;                                       
+      162 +        options?: never;                                      
+      163 +        head?: never;                                         
+      164 +        patch?: never;                                        
+      165 +        trace?: never;                                        
+      166 +    };                                                        
+      167      "/api/v1/professor/turmas": {
+      168          parameters: {
+      169              query?: never;
+     ...
+      702              nomeDeExibicao: string;
+      703              foto: null | string;
+      704          };
+      705 +        EventoResponse: {                                     
+      706 +            /** Format: uuid */                               
+      707 +            id: string;                                       
+      708 +            nome: string;                                     
+      709 +            /** Format: date */                               
+      710 +            inicio: string;                                   
+      711 +            /** Format: date */                               
+      712 +            fim: string;                                      
+      713 +            itens: string[];                                  
+      714 +        };                                                    
+      715          FamiliaResponse: {
+      716              codigo: string;
+      717              nome: string;
+     ...
+      1254              };
+      1255          };
+     … 53 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora a D3 no produto.md, junto da 4.6.
+
+● Update(docs\produto.md)
+  ⎿  Added 6 lines
+      276  evento vem do seed ou é digitado livremente quando não houver.
+            Atividades de duração
+      277  (iniciação científica, monitoria, extensão) são eventos com pe
+           ríodo, não com data única.
+      278  
+      279 +Só se reivindica evento que **já começou** (data de início até
+          + hoje, em São Paulo) e que                                    
+      280 +**não começou antes do início do semestre letivo vigente**: o 
+          +ranking corta por semestre                                    
+      281 +letivo, e uma reivindicação retroativa pontuaria num semestre 
+          +a que não pertence. Por isso,                                 
+      282 +no recesso, sem semestre vigente, não há reivindicação. A data
+          + de fim pode estar adiante,                                   
+      283 +para a atividade de duração que ainda corre.                  
+      284 +                                                              
+      285  Um aluno tem **um prêmio por evento**. Para evento em texto li
+           vre, o sistema bloqueia
+      286  duas reivindicações do mesmo item do catálogo na mesma data; o
+            resto fica a cargo de
+      287  quem aprova. Exceção: apresentação de trabalho em sala dedupli
+           ca por item + data +
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -n 61,80p .github/workflows/ci.yml; git stash -q && (cd
+      packages/api-client && npx pr…)
+  ⎿    api-client:
+         name: api-client
+         runs-on: ubuntu-latest
+     … +23 lines (ctrl+o to expand)
+  ⎿  1 file changed (binary, mode only or too large to show)
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+  ⎿  (timeout 2m)
+
+● Pre-existing when run from inside the package; the CI runs from the root, so I
+  check it that way, and fix the constant names.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --check packages 2>&1 | tail -2;
+      f=apps/api/tests/Maxx.Api.IntegrationTests/…)
+  ⎿  Checking formatting...
+     All matched files use Prettier code style!
+     23:    private const string _senha = "senha-boa-123";
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\E
+     ventosTests.cs (+15 -15)
+      20  // validado no relógio da máquina; depois o relógio da aplicaçã
+          o vai para o dia do teste.
+      21  public sealed class EventosTests(PostgresFixture postgres) : IC
+          lassFixture<PostgresFixture>
+      22  {
+      23 -    private const string Senha = "senha-boa-123";              
+      24 -    private const string AnaDeCc = "ana.souza@al.unieduk.com.br
+         -";                                                             
+      25 -    private const string GabrielDeAdm = "gabriel.martins@al.uni
+         -eduk.com.br";                                                  
+      26 -    private const string RenataProfessora = "renata.albuquerque
+         -@prof.unieduk.com.br";                                         
+      23 +    private const string _senha = "senha-boa-123";             
+      24 +    private const string _anaDeCc = "ana.souza@al.unieduk.com.b
+         +r";                                                            
+      25 +    private const string _gabrielDeAdm = "gabriel.martins@al.un
+         +ieduk.com.br";                                                 
+      26 +    private const string _renataProfessora = "renata.albuquerqu
+         +e@prof.unieduk.com.br";                                        
+      27  
+      28      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      29  
+     ...
+      34      public async Task Aluno_ve_os_eventos_ja_comecados_do_semes
+          tre_abertos_ao_curso_do_mais_recente_ao_mais_antigo()
+      35      {
+      36          await using var mundo = await MundoAsync();
+      37 -        using var ana = await mundo.ComoAsync(AnaDeCc);        
+      37 +        using var ana = await mundo.ComoAsync(_anaDeCc);       
+      38          mundo.Em(Dia(11, 8));
+      39  
+      40          var eventos = await EventosAsync(ana);
+     ...
+      60      public async Task Evento_de_curso_so_aparece_para_o_curso_d
+          ele()
+      61      {
+      62          await using var mundo = await MundoAsync();
+      63 -        using var gabriel = await mundo.ComoAsync(GabrielDeAdm)
+         -;                                                              
+      63 +        using var gabriel = await mundo.ComoAsync(_gabrielDeAdm
+         +);                                                             
+      64          mundo.Em(Dia(11, 8));
+      65  
+      66          var codigos = await mundo.CodigosAsync(await EventosAsy
+          nc(gabriel));
+     ...
+      73      public async Task Evento_ainda_nao_comecado_fica_de_fora_at
+          e_o_dia_dele()
+      74      {
+      75          await using var mundo = await MundoAsync();
+      76 -        using var ana = await mundo.ComoAsync(AnaDeCc);        
+      76 +        using var ana = await mundo.ComoAsync(_anaDeCc);       
+      77  
+      78          mundo.Em(Dia(10, 23));
+      79          Assert.DoesNotContain("maratona-de-programacao-2026", a
+          wait mundo.CodigosAsync(await EventosAsync(ana)));
+     ...
+      92      public async Task Com_o_item_so_os_eventos_que_o_aceitam(st
+          ring item, string[] esperados)
+      93      {
+     … 56 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Format clean. Running the full .NET suite in Release, as the CI does.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● While the suite runs, I'll check that the API image takes
+  data/demo/eventos.json along, since the e2e runs seed demo inside the
+  container.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The whole data/ folder goes into the image, so the compose seed picks up the
+  events. Waiting for the suite.
+
+  Read 1 file (ctrl+o to expand)
+
+● The full suite (domain, architecture, and integration with Postgres) is still
+  running in the background. When it finishes I'll put together the stage 1
+  report with the proposed commit message, for your review before committing.
+
+✻ Cooked for 15m 50s · done 16:17
+
+※ recap: Step 8 of the plan, participation prizes: stage 1 (seeded events, free-text events and the GET /v1/eventos route) is written and the full suite is still running. Next, I bring you the stage report with the commit message for review. (disable recaps in /config)
+
+● Background command "Build Release and run full test suite" completed (exit
+code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+● Etapa 1 pronta para a sua revisão (ainda sem commit)
+
+  A etapa ainda não conta como pronta: pela sua regra, falta a CI. A CI ainda
+  não rodou porque não há commit nem push. Quando você aprovar, eu commito, faço
+  o push e trago o resultado da CI. Localmente a suíte inteira passou em
+  Release: 801 testes, 795 aprovados, 0 falhas e 6 ignorados, que são os de
+  antes, como o VerificacaoDoR2Tests.
+
+  O que entrou
+
+  Domínio: Evento, em apps/api/src/Maxx.Domain/Premios/Evento.cs.
+  - Duas origens:
+    - Semeado: tem código, a lista de itens aceitos e, se for o caso, o curso.
+    - Texto livre: guarda quem digitou e aceita qualquer item.
+  - Validação: nome de 3 a 120 caracteres, contando emoji como um; fim igual ou
+    depois do início; código só com minúsculas, dígitos e hífen.
+  - P17 nunca é semeado: um evento semeado recusa o item que deduplica por
+    matéria. A regra lê a chave de deduplicação do catálogo, sem citar o P17
+    pelo nome.
+  - D3: RecusaParaReivindicarEm(hoje, vigente) aceita só evento que já começou e
+    não começou antes do início do semestre vigente.
+  - Testes: 27 de domínio cobrindo essas regras e as fronteiras de data.
+
+  Persistência: tabela evento, migration 20261108190533_Evento.
+  - Constraints separam o semeado do texto livre, e o fim não pode vir antes do
+    início.
+  - Índice único em codigo e índice em (origem, inicio).
+
+  Seed demo: data/demo/eventos.json com 8 eventos de 2026/2.
+  - Quatro abertos a todos; um de cada curso: CC, MED, ADM e IA.
+  - A mostra de IA (25/11) ainda não começou, para exercitar a recusa de evento
+    futuro.
+  - O seed só acrescenta e falha sem gravar nada em cinco casos: evento
+    divergente, item que não é prêmio de participação, P17, curso inexistente ou
+    código repetido.
+  - ResultadoDoSeedDemo ganhou EventosNovos.
+
+  Rota GET /v1/eventos?item=: só para aluno.
+  - Traz os eventos semeados abertos ao curso dele e reivindicáveis hoje, do
+    mais recente ao mais antigo.
+  - Com o item informado, só os eventos que o aceitam.
+  - Item que não é prêmio de participação devolve 404 item-nao-encontrado. É o
+    mesmo código da medalha, que já tem mensagem no app.
+
+  Integração: 12 testes da rota, sobre o seed real com o calendário de 2026,
+  mais 7 testes novos de seed.
+
+  CI: o passo "Catálogo e eventos válidos" confere, sem banco, o eventos.json
+  contra o catálogo. Os passos de data/ foram renomeados para incluir a
+  demonstração.
+
+  docs/produto.md 4.6: a regra da D3 está registrada.
+
+  Formatação e cliente: OpenAPI e cliente regenerados; dotnet format e Prettier
+  limpos.
+
+  Para você decidir
+
+  Recesso. Pela D3 como está, entre 06/12 e 25/01 não há semestre vigente, então
+  ninguém reivindica nada. Escrevi isso no produto.md como consequência da
+  regra. Se você quiser outro comportamento no recesso, ajusto antes do commit.
+
+  Relógio do teste da rota. O token é validado no relógio real da máquina, não
+  no relógio injetado pelo teste. Por isso o teste faz o login no horário de
+  agora e só depois leva o relógio para o dia de 2026 que quer testar. Não mexi
+  na autenticação de produção.
+
+  Mensagem de commit proposta
+
+  feat(seed): adiciona eventos semeados e evento em texto livre
+
+  Sem rodapé, como pede o CLAUDE.md. Posso commitar e fazer o push?
+
+✻ Churned for 21s · done 16:20
