@@ -2109,3 +2109,2071 @@ code 0)
   Sem rodapé, como pede o CLAUDE.md. Posso commitar e fazer o push?
 
 ✻ Churned for 21s · done 16:20
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt     
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
+
+> Etapa 1 aprovada, com um ajuste antes do commit. Sobre o recesso: a D3 fica   
+  com o limite inferior no fim do semestre letivo anterior ao vigente, não no   
+  início do vigente; assim um evento que começa no recesso continua             
+  reivindicável e conta para o semestre seguinte, e no recesso a reivindicação  
+  não para. Ajusta a regra, o teste de fronteira e o produto.md. O relógio do   
+  teste da rota está certo como você fez. E volta a escrever em português;      
+  parte das suas mensagens saiu em inglês. Com a suíte verde, commita com a     
+  mensagem proposta, push, acompanha a CI e segue para a etapa 2; para para a   
+  minha revisão no fim dela.                                                    
+
+● Entendido; sigo em português. Ajusto a D3: o limite inferior passa a ser o fim
+  do último semestre letivo encerrado, e a recusa por "fora de semestre
+  vigente" deixa de existir.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Added 12 lines, removed 9 lines
+      148  
+      149      public bool AbertoAoCurso(Guid? cursoId) => CursoId is nul
+           l || CursoId == cursoId;
+      150  
+      151 -    // Quando o evento pode ser reivindicado (produto.md 4.6):
+          - já começou, em São Paulo, e não                              
+      152 -    // começou antes do semestre letivo vigente. O ranking cor
+          -ta por semestre letivo, e uma                                 
+      153 -    // reivindicação retroativa pontuaria num semestre a que n
+          -ão pertence. Fora de semestre                                 
+      154 -    // vigente (recesso), nenhum evento é reivindicável. O fim
+          - pode estar adiante: a                                        
+      155 -    // atividade de duração é reivindicada enquanto corre, e o
+          - aprovador julga.                                             
+      156 -    public RecusaDoEvento? RecusaParaReivindicarEm(DateOnly ho
+          -je, SemestreLetivo? vigente)                                  
+      151 +    // Quando o evento pode ser reivindicado (produto.md 4.6):
+          + já começou, em São Paulo, e                                  
+      152 +    // começou depois do fim do último semestre letivo encerra
+          +do. O ranking corta por semestre                              
+      153 +    // letivo, e uma reivindicação retroativa pontuaria num se
+          +mestre a que não pertence. O                                  
+      154 +    // limite é o fim do semestre anterior, e não o início do 
+          +vigente, para o evento do                                     
+      155 +    // recesso continuar reivindicável (conta para o semestre 
+          +seguinte) e a reivindicação não                               
+      156 +    // parar no recesso. Sem semestre encerrado antes de hoje,
+          + não há limite inferior. O fim                                
+      157 +    // pode estar adiante: a atividade de duração é reivindica
+          +da enquanto corre.                                            
+      158 +    public RecusaDoEvento? RecusaParaReivindicarEm(DateOnly ho
+          +je, SemestreLetivo? ultimoEncerrado)                          
+      159      {
+      158 -        if (vigente is null || !vigente.Contem(hoje))         
+      160 +        if (ultimoEncerrado is not null && ultimoEncerrado.Fim
+          + >= hoje)                                                     
+      161          {
+      160 -            return RecusaDoEvento.ForaDeSemestreVigente;      
+      162 +            throw new DomainException(                        
+      163 +                $"O semestre {ultimoEncerrado.Codigo} termina 
+          +em {ultimoEncerrado.Fim:yyyy-MM-dd} e não está encerrado em {h
+          +oje:yyyy-MM-dd}.");                                           
+      164          }
+      165  
+      166          if (Inicio > hoje)
+     ...
+      168              return RecusaDoEvento.NaoComecou;
+      169          }
+      170  
+      168 -        return Inicio < vigente.Inicio ? RecusaDoEvento.Anteri
+          -orAoSemestre : null;                                          
+      171 +        return ultimoEncerrado is not null && Inicio <= ultimo
+          +Encerrado.Fim ? RecusaDoEvento.DeSemestreEncerrado : null;    
+      172      }
+      173  }
+      174  
+
+● Update(apps\api\src\Maxx.Domain\Premios\Evento.cs)
+  ⎿  Added 3 lines, removed 2 lines
+      180  
+      181  public enum RecusaDoEvento
+      182  {
+      183 -    ForaDeSemestreVigente,                                    
+      183      NaoComecou,
+      185 -    AnteriorAoSemestre,                                       
+      184 +                                                              
+      185 +    // Começou até o último dia de um semestre letivo que já t
+          +erminou.                                                      
+      186 +    DeSemestreEncerrado,                                      
+      187  }
+
+● Agora os testes de domínio: a teoria de fronteira e o caso do recesso.
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Domain.Tests/Premios" && cat /tmp/ev > EventoTests.cs && rm
+      /tmp/ev && ca…)
+  ⎿    total: 30
+       falhou: 0
+       concluído com êxito: 30
+  ⎿  Updated apps\api\tests\Maxx.Domain.Tests\Premios\EventoTests.cs (+29 
+     -12)
+      154          Assert.False(Semana(curso: _cc).AbertoAoCurso(null));
+      155      }
+      156  
+      157 -    // 2026/2 vai de 27/07 a 05/12.                           
+      157 +    // 2026/1 vai de 26/01 a 27/06, e 2026/2, de 27/07 a 05/12
+          +. O limite inferior é o fim do                                
+      158 +    // último semestre encerrado antes de hoje.               
+      159      public static TheoryData<DateOnly, DateOnly, DateOnly, Rec
+           usaDoEvento?> Reivindicacao => new()
+      160      {
+      161          // Começou hoje, e o fim pode estar adiante.
+      162          { Data(9, 14), Data(9, 18), Data(9, 14), null },
+      163          { Data(9, 14), Data(9, 18), Data(11, 8), null },
+      164  
+      164 -        // No primeiro dia do semestre vale; um dia antes, não
+          -.                                                             
+      165 -        { Data(7, 27), Data(7, 27), Data(8, 1), null },       
+      166 -        { Data(7, 26), Data(7, 28), Data(8, 1), RecusaDoEvento
+          -.AnteriorAoSemestre },                                        
+      167 -        { Data(5, 10), Data(5, 10), Data(11, 8), RecusaDoEvent
+          -o.AnteriorAoSemestre },                                       
+      165 +        // Em 2026/2: no último dia de 2026/1, não; no dia seg
+          +uinte, já no recesso de julho, sim.                           
+      166 +        { Data(6, 27), Data(6, 27), Data(8, 1), RecusaDoEvento
+          +.DeSemestreEncerrado },                                       
+      167 +        { Data(6, 28), Data(6, 28), Data(8, 1), null },       
+      168 +        { Data(5, 10), Data(5, 10), Data(11, 8), RecusaDoEvent
+          +o.DeSemestreEncerrado },                                      
+      169 +                                                              
+      170 +        // Começou no fim de 2026/1 e terminou em 2026/2: cont
+          +a o início.                                                   
+      171 +        { Data(6, 20), Data(8, 10), Data(8, 15), RecusaDoEvent
+          +o.DeSemestreEncerrado },                                      
+      172  
+      173          // Ainda não começou.
+      174          { Data(11, 20), Data(11, 20), Data(11, 19), RecusaDoEv
+           ento.NaoComecou },
+     ...
+      176  
+      177      [Theory]
+      178      [MemberData(nameof(Reivindicacao))]
+      175 -    public void Reivindicavel_se_ja_comecou_e_nao_antes_do_sem
+          -estre_vigente(                                                
+      179 +    public void Reivindicavel_se_ja_comecou_e_depois_do_fim_do
+          +_semestre_anterior(                                           
+      180          DateOnly inicio, DateOnly fim, DateOnly hoje, RecusaDo
+           Evento? esperada)
+      181      {
+      178 -        Assert.Equal(esperada, Semana(inicio, fim).RecusaParaR
+          -eivindicarEm(hoje, _semestre));                               
+      182 +        Assert.Equal(esperada, Semana(inicio, fim).RecusaParaR
+          +eivindicarEm(hoje, Primeiro()));                              
+      183      }
+      184  
+      185      [Fact]
+      182 -    public void No_recesso_nenhum_evento_e_reivindicavel()    
+      186 +    public void No_recesso_o_evento_do_recesso_vale_e_o_do_sem
+          +estre_que_acabou_nao()                                        
+     … 26 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Domínio verde (30). Agora o handler e o repositório passam a buscar o último
+  semestre encerrado em vez do vigente.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/
+          var vigente = await eventos.SemestreEmAsync(hoje, cancella…)
+  ⎿  27:        var ultimoEncerrado = await eventos.UltimoSemestreEncerrado
+     Async(hoje, cancellationToken);
+     32:            .Where(evento => evento.RecusaParaReivindicarEm(hoje, u
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\PremiosParticipacao\EventosHandler.cs
+     (+5 -4)
+      24          }
+      25  
+      26          var hoje = FusoHorario.DataLocal(relogio.GetUtcNow());
+      27 -        var vigente = await eventos.SemestreEmAsync(hoje, cance
+         -llationToken);                                                 
+      27 +        var ultimoEncerrado = await eventos.UltimoSemestreEncer
+         +radoAsync(hoje, cancellationToken);                            
+      28          var cursoId = await eventos.CursoDoAlunoAsync(alunoId, 
+          cancellationToken);
+      29  
+      30          return [.. (await eventos.SemeadosAsync(cancellationTok
+          en))
+      31              .Where(evento => evento.AbertoAoCurso(cursoId))
+      32 -            .Where(evento => evento.RecusaParaReivindicarEm(hoj
+         -e, vigente) is null)                                           
+      32 +            .Where(evento => evento.RecusaParaReivindicarEm(hoj
+         +e, ultimoEncerrado) is null)                                   
+      33              .Where(evento => item is null || evento.Aceita(item
+          ))
+      34              .OrderByDescending(evento => evento.Inicio)
+      35              .ThenBy(evento => evento.Nome, StringComparer.Ordin
+          al)];
+     ...
+      43  
+      44      Task<ItemPremioParticipacao?> ItemAsync(string codigo, Canc
+          ellationToken cancellationToken);
+      45  
+      46 -    // O semestre letivo que contém a data, com os bimestres; n
+         -ulo no recesso.                                                
+      47 -    Task<SemestreLetivo?> SemestreEmAsync(DateOnly data, Cancel
+         -lationToken cancellationToken);                                
+      46 +    // O semestre letivo de fim mais recente antes da data, com
+         + os bimestres; nulo se nenhum                                  
+      47 +    // terminou ainda.                                         
+      48 +    Task<SemestreLetivo?> UltimoSemestreEncerradoAsync(DateOnly
+         + data, CancellationToken cancellationToken);                   
+      49  
+      50      // O curso atual do aluno, pelo cadastro elegível.
+      51      Task<Guid?> CursoDoAlunoAsync(Guid alunoId, CancellationTok
+          en cancellationToken);
+
+● Update(apps\api\src\Maxx.Infrastructure\PremiosParticipacao\EventoRepository.c
+        s)
+  ⎿  Added 6 lines, removed 6 lines
+      25          return row is null ? null : CatalogoRowMapper.ParaPremi
+          oParticipacao(row);
+      26      }
+      27  
+      28 -    public Task<SemestreLetivo?> SemestreEmAsync(DateOnly data,
+         - CancellationToken cancellationToken)                          
+      29 -    {                                                          
+      30 -        var ids = SemestreVigente.Ids(db, data);               
+      31 -        return db.Set<SemestreLetivo>().AsNoTracking().Include(
+         -semestre => semestre.Bimestres)                                
+      32 -            .SingleOrDefaultAsync(semestre => ids.Contains(seme
+         -stre.Id), cancellationToken);                                  
+      33 -    }                                                          
+      28 +    // O fim do semestre é o do último bimestre, que não é colu
+         +na: a escolha é em memória,                                    
+      29 +    // sobre os poucos semestres do calendário.                
+      30 +    public async Task<SemestreLetivo?> UltimoSemestreEncerradoA
+         +sync(DateOnly data, CancellationToken cancellationToken) =>    
+      31 +        (await db.Set<SemestreLetivo>().AsNoTracking().Include(
+         +semestre => semestre.Bimestres).ToListAsync(cancellationToken))
+      32 +            .Where(semestre => semestre.Fim < data)            
+      33 +            .MaxBy(semestre => semestre.Fim);                  
+      34  
+      35      public Task<Guid?> CursoDoAlunoAsync(Guid alunoId, Cancella
+          tionToken cancellationToken) =>
+      36          (from usuario in db.Set<Usuario>()
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/PremiosParticipacao/EventosTest
+      s.cs && sed -i…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\E
+     ventosTests.cs (+2 -1)
+      114      }
+      115  
+      116      [Fact]
+      117 -    public async Task No_recesso_a_lista_vem_vazia()          
+      117 +    public async Task No_recesso_os_eventos_do_semestre_que_ac
+          +abou_saem_da_lista()                                          
+      118      {
+      119          await using var mundo = await MundoAsync();
+      120          using var ana = await mundo.ComoAsync(_anaDeCc);
+      121 +        // 2026/2 acabou em 05/12, e todos os eventos semeados
+          + começaram dentro dele.                                       
+      122          mundo.Em(Dia(12, 10));
+      123  
+      124          Assert.Empty(await EventosAsync(ana));
+  ⎿  (timeout 5m)
+
+● Build limpo. Agora o produto.md.
+
+● Update(docs\produto.md)
+  ⎿  Added 6 lines, removed 4 lines
+      277  (iniciação científica, monitoria, extensão) são eventos com pe
+           ríodo, não com data única.
+      278  
+      279  Só se reivindica evento que **já começou** (data de início até
+            hoje, em São Paulo) e que
+      280 -**não começou antes do início do semestre letivo vigente**: o 
+          -ranking corta por semestre                                    
+      281 -letivo, e uma reivindicação retroativa pontuaria num semestre 
+          -a que não pertence. Por isso,                                 
+      282 -no recesso, sem semestre vigente, não há reivindicação. A data
+          - de fim pode estar adiante,                                   
+      283 -para a atividade de duração que ainda corre.                  
+      280 +**começou depois do fim do último semestre letivo encerrado**:
+          + o ranking corta por semestre                                 
+      281 +letivo, e uma reivindicação retroativa pontuaria num semestre 
+          +a que não pertence. O limite                                  
+      282 +é o fim do semestre anterior, e não o início do vigente, para 
+          +que o evento que começa no                                    
+      283 +recesso continue reivindicável e conte para o semestre seguint
+          +e; assim a reivindicação não                                  
+      284 +para no recesso. A data de fim pode estar adiante, para a ativ
+          +idade de duração que ainda                                    
+      285 +corre.                                                        
+      286  
+      287  Um aluno tem **um prêmio por evento**. Para evento em texto li
+           vre, o sistema bloqueia
+      288  duas reivindicações do mesmo item do catálogo na mesma data; o
+            resto fica a cargo de
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Suíte verde (804, 0 falhas, 6 ignorados de antes). Commit e push da etapa 1.
+
+  Pushed to feat/passo-08-premios, ran 2 shell commands (ctrl+o to expand)
+
+● Commit 78e2112 enviado; a CI está rodando em segundo plano. Enquanto isso,
+  começo a etapa 2 lendo a publicação de post, o repositório e as consultas que
+  montam o post no feed e no perfil.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Enquanto a CI roda, surgiu uma dúvida de produto que os docs não cobrem: o
+  autor pode apagar o post a qualquer momento, mas as fotos são a comprovação da
+  reivindicação, então preciso decidir como tratar isso.
+
+● User answered Claude's questions:
+  ⎿  · O autor pode apagar o post de uma reivindicação de prêmio de 
+     participação? Hoje apagar post remove a foto do bucket, e nessa 
+     reivindicação a foto é a comprovação usada na aprovação e numa eventual 
+     contestação. → Bloqueia até definitivo (Recomendado)
+
+● Assim o post não pode ser apagado enquanto o prêmio estiver pendente, válido
+  ou em averiguação, e a remoção pela instituição terá a mesma trava, já que ela
+  também derruba a foto do bucket. Em seguida sigo pelas rotas de post e pelo
+  tratamento de erro de domínio.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Agora o domínio da etapa 2: PremioParticipacao e Comprovacao.
+
+● Write(apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs)
+  ⎿  Wrote 264 lines to
+     apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Identidade;
+       4 
+       5 namespace Maxx.Domain.Premios;
+       6 
+       7 // O prêmio de participação (produto.md 4.7): o aluno reivindica
+          com um post com foto, que é
+       8 // a comprovação, e alguém aprova. Congela tier, pontos e versão
+          do item na reivindicação
+     … +256 lines (ctrl+o to expand)
+
+● Agora o Post: ganha o vínculo com o prêmio de participação e a fábrica da
+  reivindicação, que exige foto.
+● Update(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Added 3 lines, removed 1 line
+      21      {
+      22      }
+      23  
+      24 -    private Post(Guid autorId, string? legenda, UploadPendente?
+         - upload, Medalha? medalha, DateTimeOffset agora)               
+      24 +    private Post(                                              
+      25 +        Guid autorId, string? legenda, UploadPendente? upload, 
+         +Medalha? medalha, PremioParticipacao? premio, DateTimeOffset ag
+         +ora)                                                           
+      26      {
+      27          Id = Guid.CreateVersion7();
+      28          AutorId = autorId;
+     ...
+      30          ChaveDaFotoDoFeed = upload?.ChaveDoFeed;
+      31          ChaveDaFotoDaGrade = upload?.ChaveDaGrade;
+      32          MedalhaId = medalha?.Id;
+      33 +        PremioParticipacaoId = premio?.Id;                     
+      34          CriadoEm = agora;
+      35      }
+      36  
+
+● Update(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Added 3 lines
+      46  
+      47      public Guid? MedalhaId { get; private set; }
+      48  
+      49 +    // O prêmio de participação do post de reivindicação (passo
+         + 8). Nunca junto da medalha.                                   
+      50 +    public Guid? PremioParticipacaoId { get; private set; }    
+      51 +                                                               
+      52      public DateTimeOffset CriadoEm { get; private set; }
+      53  
+      54      // Remoção pela instituição (produto.md 2.1): o post some p
+          ara todos, e fica quem
+
+● Update(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Added 1 line, removed 1 line
+      61  
+      62      public bool TemLegenda => Legenda is not null;
+      63  
+      64 -    public bool TemPremio => MedalhaId is not null;            
+      64 +    public bool TemPremio => MedalhaId is not null || PremioPar
+         +ticipacaoId is not null;                                       
+      65  
+      66      public bool EstaRemovido => RemovidoEm is not null;
+      67  
+
+● Update(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Added 2 lines, removed 21 lines
+       75      {
+       76          ArgumentNullException.ThrowIfNull(autor);
+       77  
+       78 -        if (autor.Papeis != Papeis.Aluno || autor.EhExAluno)  
+       78 +        if (Conferir(autor, ref legenda, upload) is { } recusa
+          +)                                                             
+       79          {
+       80 -            return Recusa(RecusaDaPublicacao.AutorNaoPublica);
+       80 +            return Recusa(recusa);                            
+       81          }
+       82  
+       83 -        legenda = string.IsNullOrWhiteSpace(legenda) ? null : 
+          -legenda.Trim();                                               
+       84 -        if (legenda is not null && legenda.EnumerateRunes().Co
+          -unt() > TamanhoMaximoDaLegenda)                               
+       85 -        {                                                     
+       86 -            return Recusa(RecusaDaPublicacao.LegendaLonga);   
+       87 -        }                                                     
+       88 -                                                              
+       89 -        if (upload is not null)                               
+       90 -        {                                                     
+       91 -            if (upload.UsuarioId != autor.Id || upload.Finalid
+          -ade != FinalidadeDoUpload.Post)                               
+       92 -            {                                                 
+       93 -                return Recusa(RecusaDaPublicacao.UploadNaoEnco
+          -ntrado);                                                      
+       94 -            }                                                 
+       95 -                                                              
+       96 -            if (upload.EstaConfirmado)                        
+       97 -            {                                                 
+       98 -                return Recusa(RecusaDaPublicacao.UploadJaUsado
+          -);                                                            
+       99 -            }                                                 
+      100 -        }                                                     
+      101 -                                                              
+       83          if (medalha is not null)
+       84          {
+       85              if (medalha.AlunoId != autor.Id)
+
+● Update(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Added 65 lines, removed 1 line
+       99          }
+      100  
+      101          upload?.Confirmar(agora);
+      102 -        return new(new Post(autor.Id, legenda, upload, medalha
+          -, agora), null);                                              
+      102 +        return new(new Post(autor.Id, legenda, upload, medalha
+          +, null, agora), null);                                        
+      103      }
+      104  
+      105 +    // O post de reivindicação (produto.md 4.7): a foto é obri
+          +gatória, porque é a                                           
+      106 +    // comprovação, e o prêmio acabou de ser reivindicado pelo
+          + próprio autor. Cada                                          
+      107 +    // reivindicação tem um post e uma foto só.               
+      108 +    public static ResultadoDaPublicacao Reivindicar(          
+      109 +        Usuario autor, string? legenda, UploadPendente? upload
+          +, PremioParticipacao premio, DateTimeOffset agora)            
+      110 +    {                                                         
+      111 +        ArgumentNullException.ThrowIfNull(autor);             
+      112 +        ArgumentNullException.ThrowIfNull(premio);            
+      113 +                                                              
+      114 +        if (premio.Estado != EstadoDoPremioParticipacao.Reivin
+          +dicado)                                                       
+      115 +        {                                                     
+      116 +            throw new DomainException($"O post de reivindicaçã
+          +o nasce com o prêmio; o {premio.Id} está {premio.Estado}.");  
+      117 +        }                                                     
+      118 +                                                              
+      119 +        if (Conferir(autor, ref legenda, upload) is { } recusa
+          +)                                                             
+      120 +        {                                                     
+      121 +            return Recusa(recusa);                            
+      122 +        }                                                     
+      123 +                                                              
+      124 +        if (premio.AlunoId != autor.Id)                       
+      125 +        {                                                     
+      126 +            return Recusa(RecusaDaPublicacao.PremioNaoEncontra
+          +do);                                                          
+      127 +        }                                                     
+      128 +                                                              
+      129 +        if (upload is null)                                   
+      130 +        {                                                     
+      131 +            return Recusa(RecusaDaPublicacao.FotoObrigatoria);
+      132 +        }                                                     
+      133 +                                                              
+      134 +        upload.Confirmar(agora);                              
+      135 +        return new(new Post(autor.Id, legenda, upload, null, p
+          +remio, agora), null);                                         
+      136 +    }                                                         
+      137 +                                                              
+      138 +    // O que vale para todo post: só aluno ativo publica, a le
+          +genda cabe, e o upload é do                                   
+      139 +    // autor, de post e ainda não usado. A legenda volta apara
+          +da, ou nula se vazia.                                         
+      140 +    private static RecusaDaPublicacao? Conferir(Usuario autor,
+          + ref string? legenda, UploadPendente? upload)                 
+      141 +    {                                                         
+      142 +        if (autor.Papeis != Papeis.Aluno || autor.EhExAluno)  
+      143 +        {                                                     
+      144 +            return RecusaDaPublicacao.AutorNaoPublica;        
+      145 +        }                                                     
+      146 +                                                              
+      147 +        legenda = string.IsNullOrWhiteSpace(legenda) ? null : 
+          +legenda.Trim();                                               
+      148 +        if (legenda is not null && legenda.EnumerateRunes().Co
+          +unt() > TamanhoMaximoDaLegenda)                               
+      149 +        {                                                     
+      150 +            return RecusaDaPublicacao.LegendaLonga;           
+      151 +        }                                                     
+      152 +                                                              
+      153 +        if (upload is not null)                               
+      154 +        {                                                     
+      155 +            if (upload.UsuarioId != autor.Id || upload.Finalid
+          +ade != FinalidadeDoUpload.Post)                               
+      156 +            {                                                 
+      157 +                return RecusaDaPublicacao.UploadNaoEncontrado;
+      158 +            }                                                 
+      159 +                                                              
+      160 +            if (upload.EstaConfirmado)                        
+      161 +            {                                                 
+      162 +                return RecusaDaPublicacao.UploadJaUsado;      
+      163 +            }                                                 
+      164 +        }                                                     
+      165 +                                                              
+      166 +        return null;                                          
+      167 +    }                                                         
+      168 +                                                              
+      169      // Quem pede a remoção decide o modo: o autor apaga, a ins
+           tituição remove. Ninguém mais,
+      170      // nem o professor; post já removido não volta a ser remov
+           ido.
+      171      public ModoDeRemocao ModoDeRemocaoPor(Usuario quem)
+
+● Update(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Added 1 line
+      210          }
+      211  
+      212          MedalhaId = null;
+      213 +        PremioParticipacaoId = null;                          
+      214      }
+      215  
+      216      private static ResultadoDaPublicacao Recusa(RecusaDaPublic
+           acao recusa) => new(null, recusa);
+
+● Update(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Added 3 lines
+      227      UploadJaUsado,
+      228      PremioNaoEncontrado,
+      229      PremioAnulado,
+      230 +                                                              
+      231 +    // A reivindicação sem foto: a foto é a comprovação.      
+      232 +    FotoObrigatoria,                                          
+      233  }
+      234  
+      235  public enum ModoDeRemocao
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^// No passo 7 o prêmio é a medalha; o prêmio de participação e
+      a conquista ent…)
+  ⎿  // O post do feed (produto.md 6.1): ao menos um entre prêmio, foto e l
+     egenda. Um prêmio
+     // rende um post. Só aluno ativo publica; o ex-aluno mantém os que já
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Social\Post.cs (+2 -2)
+       9  // rende um post. Só aluno ativo publica; o ex-aluno mantém os 
+          que já tinha. A foto são as
+      10  // duas derivadas de um upload confirmado na publicação (ADR 00
+          02 e 0003).
+      11  //
+      12 -// No passo 7 o prêmio é a medalha; o prêmio de participação e 
+         -a conquista entram como                                        
+      13 -// outras referências nos passos 8 e 9, nunca mais de uma por p
+         -ost.                                                           
+      12 +// O prêmio é a medalha (passo 7) ou o prêmio de participação r
+         +eivindicado (passo 8); a                                       
+      13 +// conquista entra no passo 9. Nunca mais de um por post.      
+      14  public sealed class Post
+      15  {
+      16      // Em caracteres, contando um emoji como um, como no nome d
+          e exibição.
+
+● Domínio compila. Agora os testes de domínio, em TDD sobre o que acabei de
+  escrever; antes vejo como o teste do post cria um upload.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Premios\PremioParticipacaoTests.cs)
+  ⎿  Wrote 214 lines to
+     apps\api\tests\Maxx.Domain.Tests\Premios\PremioParticipacaoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Fotos;
+       4 using Maxx.Domain.Identidade;
+       5 using Maxx.Domain.Premios;
+       6 using Maxx.Domain.Social;
+       7 using Maxx.Domain.Tests.Catalogo;
+       8 using static Maxx.Domain.Tests.Academico.Calendario2026;
+       9 
+      10 namespace Maxx.Domain.Tests.Premios;
+     … +204 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Domínio verde (410). Agora a persistência: premio_participacao, comprovacao e
+  a coluna nova no post.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PremioPartic
+       ipacaoConfiguration.cs)
+  ⎿  Wrote 77 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\PremioParticipacaoConfiguration.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Domain.Premios;
+       5 using Maxx.Domain.Social;
+       6 using Maxx.Infrastructure.Seed;
+       7 using Microsoft.EntityFrameworkCore;
+       8 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       9 
+      10 namespace Maxx.Infrastructure.Persistence.Configurations;
+     … +67 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PostConfigu
+        ration.cs)
+  ⎿  Added 4 lines, removed 1 line
+      16          builder.ToTable("post", table =>
+      17          {
+      18              table.HasCheckConstraint(
+      19 -                "ck_post_nao_vazio", "legenda IS NOT NULL OR ch
+         -ave_da_foto_do_feed IS NOT NULL OR medalha_id IS NOT NULL");   
+      19 +                "ck_post_nao_vazio",                           
+      20 +                "legenda IS NOT NULL OR chave_da_foto_do_feed I
+         +S NOT NULL OR medalha_id IS NOT NULL OR premio_participacao_id 
+         +IS NOT NULL");                                                 
+      21              table.HasCheckConstraint(
+      22 +                "ck_post_um_premio", "medalha_id IS NULL OR pre
+         +mio_participacao_id IS NULL");                                 
+      23 +            table.HasCheckConstraint(                          
+      24                  "ck_post_foto_completa", "(chave_da_foto_do_fee
+          d IS NULL) = (chave_da_foto_da_grade IS NULL)");
+      25              table.HasCheckConstraint("ck_post_remocao", "(remov
+          ido_em IS NULL) = (removido_por_id IS NULL)");
+      26          });
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PostConfigu
+        ration.cs)
+  ⎿  Added 4 lines
+      33              .HasDatabaseName("ix_post_medalha_ativa")
+      34              .IsUnique()
+      35              .HasFilter("medalha_id IS NOT NULL AND removido_em 
+          IS NULL");
+      36 +        builder.HasIndex(post => post.PremioParticipacaoId)    
+      37 +            .HasDatabaseName("ix_post_premio_participacao_ativo
+         +")                                                             
+      38 +            .IsUnique()                                        
+      39 +            .HasFilter("premio_participacao_id IS NOT NULL AND 
+         +removido_em IS NULL");                                         
+      40  
+      41          // Os posts de um autor, do mais novo ao mais antigo: o
+           perfil e o trecho de seguidos
+      42          // do feed (passo 7, etapas 5 e 6) andam por este índic
+          e.
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PostConfigu
+        ration.cs)
+  ⎿  Added 1 line
+      46          builder.HasOne<Usuario>().WithMany().HasForeignKey(post
+           => post.AutorId).OnDelete(DeleteBehavior.Restrict);
+      47          builder.HasOne<Usuario>().WithMany().HasForeignKey(post
+           => post.RemovidoPorId).OnDelete(DeleteBehavior.Restrict);
+      48          builder.HasOne<Medalha>().WithMany().HasForeignKey(post
+           => post.MedalhaId).OnDelete(DeleteBehavior.Restrict);
+      49 +        builder.HasOne<PremioParticipacao>().WithMany().HasFore
+         +ignKey(post => post.PremioParticipacaoId).OnDelete(DeleteBehavi
+         +or.Restrict);                                                  
+      50  
+      51          // Duas remoções, ou remoção e anulação, ao mesmo tempo
+          : o xmin deixa só a primeira
+      52          // gravar.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/
+          \["ix_post_medalha_ativa"\] = Unicidade.PostPorPremio,/&\n…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+  ⎿  Updated apps\api\src\Maxx.Application\Recusa.cs (+3 -0)
+      77      // Duas medalhas ativas com a mesma chave de deduplicação: 
+          a mesma vaga do período.
+      78      MedalhaAtiva,
+      79  
+      80 +    // Duas reivindicações com a mesma chave de deduplicação: u
+         +m prêmio por evento.                                           
+      81 +    PremioParticipacaoAtivo,                                   
+      82 +                                                               
+      83      // Dois posts não removidos para o mesmo prêmio: um prêmio 
+          rende um post.
+      84      PostPorPremio,
+      85  
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08193542_PremioParticipacao.cs (+226 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class PremioParticipacao : Migration       
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.DropCheckConstraint(             
+       15 +                name: "ck_post_nao_vazio",                    
+       16 +                table: "post");                               
+       17 +                                                              
+       18 +            migrationBuilder.AddColumn<Guid>(                 
+       19 +                name: "premio_participacao_id",               
+       20 +                table: "post",                                
+       21 +                type: "uuid",                                 
+       22 +                nullable: true);                              
+       23 +                                                              
+       24 +            migrationBuilder.CreateTable(                     
+       25 +                name: "premio_participacao",                  
+       26 +                columns: table => new                         
+       27 +                {                                             
+       28 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       29 +                    aluno_id = table.Column<Guid>(type: "uuid"
+          +, nullable: false),                                           
+       30 +                    item_codigo = table.Column<string>(type: "
+          +text", nullable: false),                                      
+       31 +                    versao_do_item = table.Column<int>(type: "
+          +integer", nullable: false),                                   
+       32 +                    tier = table.Column<string>(type: "text", 
+          +nullable: false),                                             
+       33 +                    pontos = table.Column<int>(type: "integer"
+          +, nullable: false),                                           
+       34 +                    evento_id = table.Column<Guid>(type: "uuid
+          +", nullable: false),                                          
+       35 +                    materia_id = table.Column<Guid>(type: "uui
+          +d", nullable: true),                                          
+       36 +                    chave_de_deduplicacao = table.Column<strin
+          +g>(type: "text", nullable: false),                            
+       37 +                    estado = table.Column<string>(type: "text"
+          +, nullable: false),                                           
+       38 +                    reivindicado_em = table.Column<DateTimeOff
+          +set>(type: "timestamp with time zone", nullable: false),      
+       39 +                    xmin = table.Column<uint>(type: "xid", row
+          +Version: true, nullable: false)                               
+       40 +                },                                            
+     … 186 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs (+2
+     -0)
+      14          ["pk_prefixo_reservado"] = Unicidade.Prefixo,
+      15          ["ix_medalha_chave_ativa"] = Unicidade.MedalhaAtiva,
+      16          ["ix_post_medalha_ativa"] = Unicidade.PostPorPremio,
+      17 +        ["ix_post_premio_participacao_ativo"] = Unicidade.PostP
+         +orPremio,                                                      
+      18 +        ["ix_premio_participacao_chave_ativa"] = Unicidade.Prem
+         +ioParticipacaoAtivo,                                           
+      19          ["pk_curtida"] = Unicidade.Curtida,
+      20          ["pk_seguimento"] = Unicidade.Seguimento,
+      21      };
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Migration gerada. A CI da etapa 1 ainda roda. Agora a Application: o handler
+  da reivindicação, os códigos e o repositório.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/
+      private static RecusaException Recusa(RecusaDaPublicacao recus…)
+  ⎿  Maxx.Application/Posts/CodigosDoPost.cs:29:    public const string Fot
+     oObrigatoria = "foto-obrigatoria";
+     Maxx.Application/Posts/CodigosDoPost.cs:33:    public const string Com
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\CodigosDoPost.cs (+7 -0)
+      25  
+      26      public const string PremioAnulado = "premio-anulado";
+      27  
+      28 +    // A reivindicação de prêmio de participação sem foto: a fo
+         +to é a comprovação.                                            
+      29 +    public const string FotoObrigatoria = "foto-obrigatoria";  
+      30 +                                                               
+      31 +    // O post é a comprovação de um prêmio que ainda pode ser d
+         +ecidido (pendente, válido ou em                                
+      32 +    // averiguação): nem o autor nem a instituição o tiram até 
+         +o prêmio ficar definitivo.                                     
+      33 +    public const string ComprovacaoEmAndamento = "comprovacao-e
+         +m-andamento";                                                  
+      34 +                                                               
+      35      // Um prêmio rende um post.
+      36      public const string PremioJaPostado = "premio-ja-postado";
+      37  
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+2 -1)
+      142      private static RecusaException PremioJaPostado(Guid medalh
+           aId) =>
+      143          new(TipoDeRecusa.Conflito, CodigosDoPost.PremioJaPosta
+           do, $"Medalha {medalhaId} já tem post.");
+      144  
+      145 -    private static RecusaException Recusa(RecusaDaPublicacao r
+          -ecusa, Guid autorId) => recusa switch                         
+      145 +    internal static RecusaException Recusa(RecusaDaPublicacao 
+          +recusa, Guid autorId) => recusa switch                        
+      146      {
+      147          RecusaDaPublicacao.AutorNaoPublica => new(TipoDeRecusa
+           .Proibido, CodigosDoPost.PostNaoPermitido, $"{autorId} não pub
+           lica."),
+      148          RecusaDaPublicacao.LegendaLonga => new(TipoDeRecusa.In
+           valido, CodigosDoPost.LegendaLonga, "Legenda acima do limite."
+           ),
+     ...
+      153          RecusaDaPublicacao.PremioNaoEncontrado => new(
+      154              TipoDeRecusa.NaoEncontrado, CodigosDoPost.PremioNa
+           oEncontrado, $"Prêmio inexistente ou alheio para {autorId}."),
+      155          RecusaDaPublicacao.PremioAnulado => new(TipoDeRecusa.C
+           onflito, CodigosDoPost.PremioAnulado, "Prêmio anulado."),
+      156 +        RecusaDaPublicacao.FotoObrigatoria => new(TipoDeRecusa
+          +.Invalido, CodigosDoPost.FotoObrigatoria, "Reivindicação sem f
+          +oto."),                                                       
+      157          _ => throw new ArgumentOutOfRangeException(nameof(recu
+           sa), recusa, null),
+      158      };
+      159  }
+
+● Write(apps\api\src\Maxx.Application\PremiosParticipacao\CodigosDoPremioPartici
+       pacao.cs)
+  ⎿  Added 41 lines, removed 2 lines
+       1  namespace Maxx.Application.PremiosParticipacao;
+       2  
+       3  // Os códigos de recusa do prêmio de participação e do evento, 
+          como o cliente os recebe em
+       4 -// ProblemDetails.                                             
+       4 +// ProblemDetails. Os que repetem o texto da medalha (item, ex-
+         +aluno, vigência, curso) têm a                                  
+       5 +// mesma mensagem no app.                                      
+       6  public static class CodigosDoPremioParticipacao
+       7  {
+       7 -    // O código não é de um prêmio de participação do catálogo.
+         - O mesmo texto da medalha.                                     
+       8 +    // O código não é de um prêmio de participação do catálogo.
+       9      public const string ItemNaoEncontrado = "item-nao-encontrad
+          o";
+      10 +                                                               
+      11 +    public const string ExAluno = "ex-aluno";                  
+      12 +                                                               
+      13 +    public const string ItemForaDeVigencia = "item-fora-de-vige
+         +ncia";                                                         
+      14 +                                                               
+      15 +    public const string ItemDeOutroCurso = "item-de-outro-curso
+         +";                                                             
+      16 +                                                               
+      17 +    // Nem o id de um evento semeado nem o evento digitado.    
+      18 +    public const string EventoObrigatorio = "evento-obrigatorio
+         +";                                                             
+      19 +                                                               
+      20 +    // Os dois ao mesmo tempo.                                 
+      21 +    public const string EventoAmbiguo = "evento-ambiguo";      
+      22 +                                                               
+      23 +    // O evento digitado tem nome fora do tamanho ou termina an
+         +tes de começar.                                                
+      24 +    public const string EventoInvalido = "evento-invalido";    
+      25 +                                                               
+      26 +    // O id não é de um evento semeado, ou o evento é de outro 
+         +curso.                                                         
+      27 +    public const string EventoNaoEncontrado = "evento-nao-encon
+         +trado";                                                        
+      28 +                                                               
+      29 +    public const string EventoNaoAceitaOItem = "evento-nao-acei
+         +ta-o-item";                                                    
+      30 +                                                               
+      31 +    public const string EventoNaoComecou = "evento-nao-comecou"
+         +;                                                              
+      32 +                                                               
+      33 +    // O evento começou até o fim de um semestre letivo que já 
+         +terminou (produto.md 4.6).                                     
+      34 +    public const string EventoDeSemestreEncerrado = "evento-de-
+         +semestre-encerrado";                                           
+      35 +                                                               
+      36 +    // Apresentação em sala sem a matéria.                     
+      37 +    public const string MateriaObrigatoria = "materia-obrigator
+         +ia";                                                           
+      38 +                                                               
+      39 +    // Matéria informada para um item que não deduplica por ela
+         +.                                                              
+      40 +    public const string MateriaNaoSeAplica = "materia-nao-se-ap
+         +lica";                                                         
+      41 +                                                               
+      42 +    // O aluno não estava matriculado numa turma da matéria no 
+         +semestre da data do evento.                                    
+      43 +    public const string MateriaNaoEncontrada = "materia-nao-enc
+         +ontrada";                                                      
+      44 +                                                               
+      45 +    // Um prêmio por evento: o aluno já tem uma reivindicação q
+         +ue não foi reprovada com a                                     
+      46 +    // mesma chave.                                            
+      47 +    public const string PremioJaReivindicado = "premio-ja-reivi
+         +ndicado";                                                      
+      48  }
+
+● Agora mudo CursoDoAlunoAsync para devolver o curso inteiro (a reivindicação
+  precisa da sigla) e escrevo o handler.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/
+          var cursoId = await eventos.CursoDoAlunoAsync(alunoId, can…)  ⎿  28:        var cursoId = (await eventos.CursoDoAlunoAsync(alunoId, can
+     cellationToken))?.Id;
+     31:            .Where(evento => evento.AbertoAoCurso(cursoId))
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\PremiosParticipacao\EventosHandler.cs
+     (+3 -3)
+      25  
+      26          var hoje = FusoHorario.DataLocal(relogio.GetUtcNow());
+      27          var ultimoEncerrado = await eventos.UltimoSemestreEncer
+          radoAsync(hoje, cancellationToken);
+      28 -        var cursoId = await eventos.CursoDoAlunoAsync(alunoId, 
+         -cancellationToken);                                            
+      28 +        var cursoId = (await eventos.CursoDoAlunoAsync(alunoId,
+         + cancellationToken))?.Id;                                      
+      29  
+      30          return [.. (await eventos.SemeadosAsync(cancellationTok
+          en))
+      31              .Where(evento => evento.AbertoAoCurso(cursoId))
+     ...
+      47      // terminou ainda.
+      48      Task<SemestreLetivo?> UltimoSemestreEncerradoAsync(DateOnly
+           data, CancellationToken cancellationToken);
+      49  
+      50 -    // O curso atual do aluno, pelo cadastro elegível.         
+      51 -    Task<Guid?> CursoDoAlunoAsync(Guid alunoId, CancellationTok
+         -en cancellationToken);                                         
+      50 +    // O curso atual do aluno, pelo cadastro elegível; nulo par
+         +a quem não é aluno.                                            
+      51 +    Task<Curso?> CursoDoAlunoAsync(Guid alunoId, CancellationTo
+         +ken cancellationToken);                                        
+      52  }
+
+● Write(apps\api\src\Maxx.Application\PremiosParticipacao\ReivindicarHandler.cs)
+  ⎿  Wrote 194 lines to apps\api\src\Maxx.Application\PremiosParticipacao\R
+     eivindicarHandler.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Application.Fotos;
+       3 using Maxx.Application.Posts;
+       4 using Maxx.Domain;
+       5 using Maxx.Domain.Academico;
+       6 using Maxx.Domain.Catalogo;
+       7 using Maxx.Domain.Premios;
+       8 using Maxx.Domain.Social;
+       9 
+      10 namespace Maxx.Application.PremiosParticipacao;
+     … +184 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|
+      Task<ItemPremioParticipacao?> ItemAsync(string codigo, Cancell…)
+  ⎿      public async Task<SemestreLetivo?> UltimoSemestreEncerradoAsync(Da
+     teOnly data, CancellationToken cancellationToken) =>
+             (await db.Set<SemestreLetivo>().AsNoTracking().Include(semestr
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\PremiosParticipacao\EventosHandler.cs
+     (+2 -0)
+      43  
+      44      Task<ItemPremioParticipacao?> ItemAsync(string codigo, Canc
+          ellationToken cancellationToken);
+      45  
+      46 +    Task<Evento?> BuscarAsync(Guid id, CancellationToken cancel
+         +lationToken);                                                  
+      47 +                                                               
+      48      // O semestre letivo de fim mais recente antes da data, com
+           os bimestres; nulo se nenhum
+      49      // terminou ainda.
+      50      Task<SemestreLetivo?> UltimoSemestreEncerradoAsync(DateOnly
+           data, CancellationToken cancellationToken);
+
+● Update(apps\api\src\Maxx.Infrastructure\PremiosParticipacao\EventoRepository.c
+        s)
+  ⎿  Added 48 lines, removed 2 lines
+      32              .Where(semestre => semestre.Fim < data)
+      33              .MaxBy(semestre => semestre.Fim);
+      34  
+      35 -    public Task<Guid?> CursoDoAlunoAsync(Guid alunoId, Cancella
+         -tionToken cancellationToken) =>                                
+      35 +    public Task<Curso?> CursoDoAlunoAsync(Guid alunoId, Cancell
+         +ationToken cancellationToken) =>                               
+      36          (from usuario in db.Set<Usuario>()
+      37           join cadastro in db.Set<CadastroElegivel>() on usuario
+          .CadastroElegivelId equals cadastro.Id
+      38 +         join curso in db.Set<Curso>() on cadastro.CursoId equa
+         +ls curso.Id                                                    
+      39           where usuario.Id == alunoId
+      39 -         select cadastro.CursoId)                              
+      40 +         select curso)                                         
+      41 +        .AsNoTracking()                                        
+      42          .SingleOrDefaultAsync(cancellationToken);
+      43 +                                                               
+      44 +    public Task<Evento?> BuscarAsync(Guid id, CancellationToken
+         + cancellationToken) =>                                         
+      45 +        db.Set<Evento>().SingleOrDefaultAsync(evento => evento.
+         +Id == id, cancellationToken);                                  
+      46  }
+      47 +                                                               
+      48 +internal sealed class PremioParticipacaoRepository(MaxxDbContex
+         +t db) : IPremioParticipacaoRepository                          
+      49 +{                                                              
+      50 +    private static readonly string _tipoPremioParticipacao = No
+         +meJson.De(TipoDeItem.PremioParticipacao);                      
+      51 +                                                               
+      52 +    public void Adicionar(Evento evento) => db.Add(evento);    
+      53 +                                                               
+      54 +    public void Adicionar(PremioParticipacao premio) => db.Add(
+         +premio);                                                       
+      55 +                                                               
+      56 +    public void Adicionar(Comprovacao comprovacao) => db.Add(co
+         +mprovacao);                                                    
+      57 +                                                               
+      58 +    public Task<PremioParticipacao?> BuscarAsync(Guid id, Cance
+         +llationToken cancellationToken) =>                             
+      59 +        db.Set<PremioParticipacao>().SingleOrDefaultAsync(premi
+         +o => premio.Id == id, cancellationToken);                      
+      60 +                                                               
+      61 +    public async Task<ItemDePremioParticipacao?> ItemAsync(stri
+         +ng codigo, CancellationToken cancellationToken)                
+      62 +    {                                                          
+      63 +        var row = await db.Set<ItemCatalogoRow>().AsNoTracking(
+         +)                                                              
+      64 +            .SingleOrDefaultAsync(item => item.Codigo == codigo
+         + && item.Tipo == _tipoPremioParticipacao, cancellationToken);  
+      65 +        return row is null ? null : new ItemDePremioParticipaca
+         +o(CatalogoRowMapper.ParaPremioParticipacao(row), row.Versao);  
+      66 +    }                                                          
+      67 +                                                               
+      68 +    public Task<bool> ChaveOcupadaAsync(string chave, Cancellat
+         +ionToken cancellationToken) =>                                 
+      69 +        db.Set<PremioParticipacao>().AnyAsync(                 
+      70 +            premio => premio.ChaveDeDeduplicacao == chave && pr
+         +emio.Estado != EstadoDoPremioParticipacao.Reprovado, cancellati
+         +onToken);                                                      
+      71 +                                                               
+      72 +    public async Task<Materia?> MateriaCursadaAsync(Guid alunoI
+         +d, Guid materiaId, DateOnly data, CancellationToken cancellatio
+         +nToken)                                                        
+      73 +    {                                                          
+      74 +        // O semestre que contém a data, pelos bimestres; e uma
+         + turma dele, da matéria, com                                   
+      75 +        // matrícula do cadastro do aluno.                     
+      76 +        var semestres = SemestreVigente.Ids(db, data);         
+      77 +        return await (                                         
+      78 +                from usuario in db.Set<Usuario>()              
+      79 +                join matricula in db.Set<Matricula>() on usuari
+         +o.CadastroElegivelId equals matricula.AlunoId                  
+      80 +                join turma in db.Set<Turma>() on matricula.Turm
+         +aId equals turma.Id                                            
+      81 +                join materia in db.Set<Materia>() on turma.Mate
+         +riaId equals materia.Id                                        
+      82 +                where usuario.Id == alunoId && materia.Id == ma
+         +teriaId && semestres.Contains(turma.SemestreLetivoId)          
+      83 +                select materia)                                
+      84 +            .AsNoTracking()                                    
+      85 +            .FirstOrDefaultAsync(cancellationToken);           
+      86 +    }                                                          
+      87 +}                                                              
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/^
+           services.AddScoped<IEventoRepository, EventoRepository>()…)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      100  builder.Services.AddScoped<Maxx.Application.Feed.FeedHandler>(
+           );
+      101  builder.Services.AddScoped<Maxx.Application.Perfil.EditarPerfi
+           lHandler>();
+      102  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.EventosHandler>();
+      103 +builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+          +o.ReivindicarHandler>();                                      
+      104  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      105  
+      106  var app = builder.Build();
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -0)
+      66          services.AddScoped<INotificacaoRepository, NotificacaoR
+          epository>();
+      67          services.AddScoped<IConsultaDePremios, ConsultaDePremio
+          s>();
+      68          services.AddScoped<IEventoRepository, EventoRepository>
+          ();
+      69 +        services.AddScoped<IPremioParticipacaoRepository, Premi
+         +oParticipacaoRepository>();                                    
+      70  
+      71          // O bucket das fotos (ADR 0002). As opções vêm da bord
+          a, que recusa subir sem elas
+      72          // fora de desenvolvimento.
+  ⎿  (timeout 5m)
+
+● Build limpo. Agora a trava da remoção do post de comprovação.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Application/Posts" && sed -i '167s/.*/    IPostRepository
+      posts,\n    IPrem…)
+  ⎿  // pendurar nele. A instituição remove: o post some para todos e fica
+     quem removeu e quando.
+     // Nos dois casos a foto sai do bucket pela fila, porque a leitura é p
+     … +40 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+16 -1)
+      3  using Maxx.Application.Fotos;
+      4  using Maxx.Application.Medalhas;
+      5  using Maxx.Application.Premios;
+      6 +using Maxx.Application.PremiosParticipacao;                     
+      7  using Maxx.Domain.Catalogo;
+      8  using Maxx.Domain.Fotos;
+      9  using Maxx.Domain.Premios;
+     ...
+      166  public sealed class RemoverPostHandler(
+      167      IUsuarioRepository usuarios,
+      168      IPostRepository posts,
+      169 +    IPremioParticipacaoRepository premios,                    
+      170      IFilaDeTrabalhos fila,
+      171      IUnitOfWork unitOfWork,
+      172      TimeProvider relogio)
+     ...
+      181              throw new RecusaException(TipoDeRecusa.NaoEncontra
+           do, CodigosDoPost.PostNaoEncontrado, $"Post {postId} não exist
+           e.");
+      182          }
+      183  
+      182 -        switch (post.ModoDeRemocaoPor(quem))                  
+      184 +        var modo = post.ModoDeRemocaoPor(quem);               
+      185 +                                                              
+      186 +        // O post de reivindicação é a comprovação: enquanto o
+          + prêmio ainda pode ser decidido,                              
+      187 +        // ele não sai, nem pelo autor nem pela instituição (d
+          +ecisão do passo 8). A foto sairia                             
+      188 +        // do bucket junto, e a aprovação e a contestação depe
+          +ndem dela.                                                    
+      189 +        if (modo != ModoDeRemocao.NaoPermitida                
+      190 +            && post.PremioParticipacaoId is { } premioId      
+      191 +            && await premios.BuscarAsync(premioId, cancellatio
+          +nToken) is { PrendeOPost: true })                             
+      192 +        {                                                     
+      193 +            throw new RecusaException(                        
+      194 +                TipoDeRecusa.Conflito, CodigosDoPost.Comprovac
+          +aoEmAndamento, $"O post {postId} é a comprovação do prêmio {pr
+          +emioId}.");                                                   
+      195 +        }                                                     
+      196 +                                                              
+      197 +        switch (modo)                                         
+      198          {
+      199              case ModoDeRemocao.Apagar:
+      200                  posts.Apagar(post);
+
+● Agora a leitura: o post passa a trazer o prêmio de participação com estado e
+  evento. Vejo quem mais monta PremioDoPost.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|^//
+      Tier e pontos do momento da concessão (ADR 0007); raridade, a…)
+  ⎿  72:    int? Bimestre);
+     61:// participação (passo 8): reivindicado é a marca de pendente.
+     62-
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+3 -1)
+      57  public sealed record AutorDoPost(Guid Id, string NomeDeExibicao
+          , string Arroba, string? Curso, int? Semestre, string? ChaveDaF
+          oto);
+      58  
+      59  // Tier e pontos do momento da concessão (ADR 0007); raridade, 
+          a atual. Matéria e bimestre
+      60 -// só para medalha.                                            
+      60 +// na medalha; matéria também na apresentação em sala. Estado e
+         + evento só no prêmio de                                        
+      61 +// participação (passo 8): reivindicado é a marca de pendente. 
+      62 +                                                               
+      63  public sealed record PremioDoPost(
+      64      TipoDeItem Tipo,
+      65      Guid Id,
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      '62{/^$/d}' Maxx.Application/Posts/Posts.cs && sed -i '71s/    int? B…)
+  ⎿  // A foto é a derivada da grade (~320²), que basta para o avatar.
+     public sealed record AutorDoPost(Guid Id, string NomeDeExibicao, strin
+     g Arroba, string? Curso, int? Semestre, string? ChaveDaFoto);
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+3 -2)
+      59  // Tier e pontos do momento da concessão (ADR 0007); raridade, 
+          a atual. Matéria e bimestre
+      60  // na medalha; matéria também na apresentação em sala. Estado e
+           evento só no prêmio de
+      61  // participação (passo 8): reivindicado é a marca de pendente.
+      62 -                                                               
+      62  public sealed record PremioDoPost(
+      63      TipoDeItem Tipo,
+      64      Guid Id,
+     ...
+      68      int Pontos,
+      69      RaridadeAtual? Raridade,
+      70      string? Materia,
+      72 -    int? Bimestre);                                            
+      71 +    int? Bimestre,                                             
+      72 +    EstadoDoPremioParticipacao? Estado = null,                 
+      73 +    string? Evento = null);                                    
+      74  
+      75  // Publicação de post (produto.md 6.1). As regras são do domíni
+          o; aqui, buscar o que o
+      76  // pedido cita, conferir no bucket que a foto chegou e gravar. 
+          A corrida de dois posts com o
+
+● Agora a consulta do prêmio de participação no ConsultaDePosts.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Posts" && sed -i 's/^
+      post.MedalhaId,$/…)
+  ⎿  55:                    post.PremioParticipacaoId,
+     72:        var participacoes = await PremiosParticipacaoAsync(
+     73:            [.. linhas.Where(linha => linha.PremioParticipacaoId is
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs (+6 
+     -1)
+      52                      post.ChaveDaFotoDoFeed,
+      53                      post.ChaveDaFotoDaGrade,
+      54                      post.MedalhaId,
+      55 +                    post.PremioParticipacaoId,                 
+      56                      post.CriadoEm,
+      57                      AutorId = autor.Id,
+      58                      autor.NomeDeExibicao,
+     ...
+      69              .ToListAsync(cancellationToken);
+      70  
+      71          var medalhas = await MedalhasAsync([.. linhas.Where(lin
+          ha => linha.MedalhaId is not null).Select(linha => linha.Medalh
+          aId!.Value)], cancellationToken);
+      72 +        var participacoes = await PremiosParticipacaoAsync(    
+      73 +            [.. linhas.Where(linha => linha.PremioParticipacaoI
+         +d is not null).Select(linha => linha.PremioParticipacaoId!.Valu
+         +e)], cancellationToken);                                       
+      74  
+      75          return linhas.ToDictionary(
+      76              linha => linha.Id,
+     ...
+      80                  linha.Legenda,
+      81                  linha.ChaveDaFotoDoFeed,
+      82                  linha.ChaveDaFotoDaGrade,
+      80 -                linha.MedalhaId is { } medalhaId ? medalhas.Get
+         -ValueOrDefault(medalhaId) : null,                              
+      83 +                linha.MedalhaId is { } medalhaId               
+      84 +                    ? medalhas.GetValueOrDefault(medalhaId)    
+      85 +                    : linha.PremioParticipacaoId is { } premioI
+         +d ? participacoes.GetValueOrDefault(premioId) : null,          
+      86                  linha.CriadoEm,
+      87                  linha.Curtidas,
+      88                  linha.Comentarios,
+
+● Update(apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs)
+  ⎿  Added 54 lines
+      135                  medalha.Materia,
+      136                  medalha.Numero));
+      137      }
+      138 +                                                              
+      139 +    // O prêmio de participação, com o estado e o nome do even
+          +to. A matéria, só na                                          
+      140 +    // apresentação em sala; o bimestre não se aplica.        
+      141 +    private async Task<Dictionary<Guid, PremioDoPost>> Premios
+          +ParticipacaoAsync(                                            
+      142 +        IReadOnlyCollection<Guid> ids, CancellationToken cance
+          +llationToken)                                                 
+      143 +    {                                                         
+      144 +        if (ids.Count == 0)                                   
+      145 +        {                                                     
+      146 +            return [];                                        
+      147 +        }                                                     
+      148 +                                                              
+      149 +        var premios = await (                                 
+      150 +                from premio in db.Set<PremioParticipacao>()   
+      151 +                join item in db.Set<ItemCatalogoRow>() on prem
+          +io.ItemCodigo equals item.Codigo                              
+      152 +                join evento in db.Set<Evento>() on premio.Even
+          +toId equals evento.Id                                         
+      153 +                join materia in db.Set<Materia>() on premio.Ma
+          +teriaId equals materia.Id into materias                       
+      154 +                from materia in materias.DefaultIfEmpty()     
+      155 +                join raridade in db.Set<RaridadeDoItemRow>() o
+          +n premio.ItemCodigo equals raridade.ItemCodigo into raridades 
+      156 +                from raridade in raridades.DefaultIfEmpty()   
+      157 +                where ids.Contains(premio.Id)                 
+      158 +                select new                                    
+      159 +                {                                             
+      160 +                    premio.Id,                                
+      161 +                    premio.ItemCodigo,                        
+      162 +                    item.Nome,                                
+      163 +                    premio.Tier,                              
+      164 +                    premio.Pontos,                            
+      165 +                    premio.Estado,                            
+      166 +                    Evento = evento.Nome,                     
+      167 +                    Materia = materia == null ? null : materia
+          +.Nome,                                                        
+      168 +                    Raridade = raridade == null ? null : rarid
+          +ade.Raridade,                                                 
+      169 +                    AlunosComItem = raridade == null ? 0 : rar
+          +idade.AlunosComItem,                                          
+      170 +                    AlunosElegiveis = raridade == null ? 0 : r
+          +aridade.AlunosElegiveis,                                      
+      171 +                })                                            
+      172 +            .AsNoTracking()                                   
+      173 +            .ToListAsync(cancellationToken);                  
+      174 +                                                              
+      175 +        return premios.ToDictionary(                          
+      176 +            premio => premio.Id,                              
+      177 +            premio => new PremioDoPost(                       
+      178 +                TipoDeItem.PremioParticipacao,                
+      179 +                premio.Id,                                    
+      180 +                premio.ItemCodigo,                            
+      181 +                premio.Nome,                                  
+      182 +                premio.Tier,                                  
+      183 +                premio.Pontos,                                
+      184 +                premio.Raridade is { } nivel && NomeJson.Tenta
+          +rLer<Raridade>(nivel, out var lida)                           
+      185 +                    ? new RaridadeAtual(lida, premio.AlunosCom
+          +Item, premio.AlunosElegiveis)                                 
+      186 +                    : null,                                   
+      187 +                premio.Materia,                               
+      188 +                null,                                         
+      189 +                premio.Estado,                                
+      190 +                premio.Evento));                              
+      191 +    }                                                         
+      192  }
+
+● Update(apps\api\src\Maxx.Api\Posts\PostEndpoints.cs)
+  ⎿  Added 3 lines, removed 1 line
+      115                  premio.Pontos,
+      116                  premio.Raridade is { } raridade ? new Raridade
+           Response(ProfessorEndpoints.Nome(raridade.Nivel), raridade.Per
+           centual) : null,
+      117                  premio.Materia,
+      118 -                premio.Bimestre)                              
+      118 +                premio.Bimestre,                              
+      119 +                premio.Estado is { } estado ? ProfessorEndpoin
+          +ts.Nome(estado) : null,                                       
+      120 +                premio.Evento)                                
+      121              : null,
+      122          post.CriadoEm,
+      123          post.Curtidas,
+
+● Update(apps\api\src\Maxx.Api\Posts\PostEndpoints.cs)
+  ⎿  Added 5 lines, removed 2 lines
+      137  public sealed record FotoDoPostResponse(string Feed, string Gr
+           ade);
+      138  
+      139  // Tipo, tier e raridade em camelCase, como no catálogo ("meda
+           lha", "bronze", "raro").
+      140 -// Matéria e bimestre só para medalha.                        
+      140 +// Matéria e bimestre na medalha; matéria também na apresentaç
+          +ão em sala. Estado e evento só                                
+      141 +// no prêmio de participação (passo 8): "reivindicado" é a mar
+          +ca de pendente.                                               
+      142  public sealed record PremioDoPostResponse(
+      143      string Tipo,
+      144      Guid Id,
+     ...
+      148      int Pontos,
+      149      RaridadeResponse? Raridade,
+      150      string? Materia,
+      150 -    int? Bimestre);                                           
+      151 +    int? Bimestre,                                            
+      152 +    string? Estado,                                           
+      153 +    string? Evento);                                          
+
+● Update(apps\api\src\Maxx.Api\Posts\PostEndpoints.cs)
+  ⎿  Added 2 lines, removed 1 line
+      32          posts.MapDelete("/{postId:guid}", RemoverAsync)
+      33              .WithName("RemoverPost")
+      34              .ProducesProblem(StatusCodes.Status403Forbidden)
+      35 -            .ProducesProblem(StatusCodes.Status404NotFound);   
+      35 +            .ProducesProblem(StatusCodes.Status404NotFound)    
+      36 +            .ProducesProblem(StatusCodes.Status409Conflict);   
+      37  
+      38          return v1;
+      39      }
+
+● Agora a rota POST /v1/reivindicacoes, junto da de eventos.
+
+● Update(apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs)
+  ⎿  Added 35 lines
+      20              .ProducesProblem(StatusCodes.Status403Forbidden)
+      21              .ProducesProblem(StatusCodes.Status404NotFound);
+      22  
+      23 +        v1.MapPost("/reivindicacoes", ReivindicarAsync)        
+      24 +            .WithName("ReivindicarPremioParticipacao")         
+      25 +            .WithTags("Eventos")                               
+      26 +            .RequireAuthorization(Politicas.Aluno)             
+      27 +            .ProducesValidationProblem()                       
+      28 +            .ProducesProblem(StatusCodes.Status403Forbidden)   
+      29 +            .ProducesProblem(StatusCodes.Status404NotFound)    
+      30 +            .ProducesProblem(StatusCodes.Status409Conflict);   
+      31 +                                                               
+      32          return v1;
+      33      }
+      34  
+      35 +    // O post de reivindicação com o prêmio pendente (fluxos/02
+         +-post-com-comprovacao.md). A                                   
+      36 +    // resposta é o post, como o feed o mostra, com a marca de 
+         +pendente.                                                      
+      37 +    private static async Task<Created<PostResponse>> Reivindica
+         +rAsync(                                                        
+      38 +        ReivindicacaoRequest pedido,                           
+      39 +        ClaimsPrincipal principal,                             
+      40 +        ReivindicarHandler handler,                            
+      41 +        IConsultaDePosts consulta,                             
+      42 +        IArmazenamentoDeFotos armazenamento,                   
+      43 +        CancellationToken cancellationToken)                   
+      44 +    {                                                          
+      45 +        var alunoId = PostEndpoints.UsuarioId(principal);      
+      46 +        var reivindicacao = await handler.ReivindicarAsync(    
+      47 +            alunoId,                                           
+      48 +            new PedidoDeReivindicacao(                         
+      49 +                pedido.Item,                                   
+      50 +                pedido.EventoId,                               
+      51 +                pedido.EventoDigitado is { } digitado ? new Eve
+         +ntoDigitado(digitado.Nome, digitado.Inicio, digitado.Fim) : nul
+         +l,                                                             
+      52 +                pedido.MateriaId,                              
+      53 +                pedido.UploadId,                               
+      54 +                pedido.Legenda),                               
+      55 +            cancellationToken);                                
+      56 +        var lido = await consulta.PostAsync(reivindicacao.Post.
+         +Id, alunoId, cancellationToken)                                
+      57 +            ?? throw new InvalidOperationException($"O post {re
+         +ivindicacao.Post.Id} acabou de ser gravado e não foi lido.");  
+      58 +        return TypedResults.Created($"/api/v1/posts/{lido.Id}",
+         + PostResponse.De(lido, armazenamento));                        
+      59 +    }                                                          
+      60 +                                                               
+      61      // item: o código do prêmio de participação; com ele, só os
+           eventos que o aceitam.
+      62      private static async Task<Ok<IReadOnlyList<EventoResponse>>
+          > ReivindicaveisAsync(
+      63          ClaimsPrincipal principal,
+
+● Update(apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs)
+  ⎿  Added 14 lines
+      74      }
+      75  }
+      76  
+      77 +// O evento é o id de um semeado (GET /v1/eventos) ou o digitad
+         +o, nunca os dois; a matéria,                                   
+      78 +// só na apresentação em sala. A foto é obrigatória: é a compro
+         +vação. Os limites de tamanho                                   
+      79 +// são do domínio; aqui, só tetos brutos para o corpo.         
+      80 +public sealed record ReivindicacaoRequest(                     
+      81 +    [property: Required, StringLength(16)] string Item,        
+      82 +    Guid? EventoId,                                            
+      83 +    EventoDigitadoRequest? EventoDigitado,                     
+      84 +    Guid? MateriaId,                                           
+      85 +    Guid UploadId,                                             
+      86 +    [property: StringLength(4000)] string? Legenda);           
+      87 +                                                               
+      88 +// Datas em America/Sao_Paulo, inclusivas.                     
+      89 +public sealed record EventoDigitadoRequest([property: Required,
+         + StringLength(1000)] string Nome, DateOnly Inicio, DateOnly Fim
+         +);                                                             
+      90 +                                                               
+      91  // Datas em America/Sao_Paulo, inclusivas. Itens: os códigos do
+          s prêmios que o evento aceita.
+      92  public sealed record EventoResponse(Guid Id, string Nome, DateO
+          nly Inicio, DateOnly Fim, IReadOnlyList<string> Itens);
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's/^using Maxx.Api.Autenticacao;/&\nusing Maxx.Api.Posts;/; s/^using…)
+  ⎿  Updated apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs
+     (+3 -0)
+      1  using System.ComponentModel.DataAnnotations;
+      2  using System.Security.Claims;
+      3  using Maxx.Api.Autenticacao;
+      4 +using Maxx.Api.Posts;                                           
+      5 +using Maxx.Application.Fotos;                                   
+      6 +using Maxx.Application.Posts;                                   
+      7  using Maxx.Application.PremiosParticipacao;
+      8  using Microsoft.AspNetCore.Http.HttpResults;
+      9  
+  ⎿  (timeout 5m)
+
+● Build limpo. A CI da etapa 1 ainda não terminou; confiro o estado direto.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A CI da etapa 1 quebrou no job mobile: o erros.test.ts esperava 7 arquivos
+  Codigos*.cs e achou 8, por causa do CodigosDoPremioParticipacao.cs que eu
+  criei, porque não rodei o Jest localmente. Vou fazer a correção num commit fix
+  separado, sem amend, como você pediu.
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O padrão do repositório pede subir a contagem junto com o arquivo novo, então
+  guardo o trabalho da etapa 2 num stash, corrijo, rodo o Jest e depois devolvo
+  o trabalho.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git stash push -u -q -m "etapa 2 em andamento" && git status --short &&
+      sed -i 's/    exp…)
+  ⎿  warning: in the working copy of 'apps/api/src/Maxx.Infrastructure/Pers
+     istence/Migrations/20261108193542_PremioParticipacao.Designer.cs', CRL
+     F will be replaced by LF the next time Git touches it
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Posts\PostEndpoints.cs (+4 -10)
+  ⎿  Updated apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs
+     (+0 -52)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+0 -1)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\CodigosDoPost.cs (+0 -7)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+4 -23)
+  ⎿  … 17 more files changed
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Background command "Watch the CI run until it finishes" completed (exit code
+0)
+
+● As notas de arquivo alterado vêm do meu próprio stash, então estão no estado
+  esperado. Antes de commitar a correção, vejo o resultado final da CI da etapa
+  1, incluindo o e2e.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A única falha foi o mobile; os outros cinco jobs passaram, inclusive o e2e.
+  Commit da correção, push e nova CI.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Devolvo o trabalho da etapa 2 e continuo com ele enquanto a CI da correção
+  roda.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git stash pop -q && git status --short | wc -l && git stash list | wc -l)
+  ⎿  21
+     0
+  ⎿  Updated apps\api\src\Maxx.Api\Posts\PostEndpoints.cs (+10 -4)
+  ⎿  Updated apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs
+     (+52 -0)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\CodigosDoPost.cs (+7 -0)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+23 -4)
+  ⎿  … 16 more files changed
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+
+● Trabalho restaurado (21 arquivos). Lição aplicada: a etapa 2 cria códigos
+  novos, então desta vez rodo o Jest do app antes do commit. Agora as mensagens
+  desses códigos em erros.ts.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As mensagens de erro de quatro códigos ainda falam em "medalha", e a
+  reivindicação usa esses mesmos códigos, então vou checar se algum teste fixa
+  esses textos antes de trocar a palavra por "prêmio".
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Encurto duas frases (o CLAUDE.md pede frases curtas) e ponho um código novo
+  entre os conferidos no teste.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's/
+      "item-fora-de-vigencia": "Esse prêmio não estava valendo nessa da…)
+  ⎿  src/api/erros.ts 115ms (unchanged)
+     src/api/erros.test.ts 44ms (unchanged)
+  ⎿  Updated apps\mobile\src\api\erros.test.ts (+1 -0)
+      49          "limite-atingido",
+      50          "tamanho-de-foto-invalido",
+      51          "premio-ja-postado",
+      52 +        "premio-ja-reivindicado",                              
+      53          "seguir-nao-permitido",
+      54          "cursor-invalido",
+      55          "busca-sem-criterio",
+  ⎿  Updated apps\mobile\src\api\erros.ts (+2 -2)
+      27    "item-nao-encontrado": "Esse prêmio não está no catálogo.",
+      28    "ex-aluno": "Ex-aluno não recebe prêmio.",
+      29    "fora-do-periodo": "Não há bimestre em andamento para esta tu
+          rma hoje.",
+      30 -  "item-fora-de-vigencia": "Esse prêmio não estava valendo ness
+         -a data.",                                                      
+      30 +  "item-fora-de-vigencia": "Esse prêmio não vale nessa data.", 
+      31    "item-de-outro-curso": "Esse prêmio é de outro curso.",
+      32    "limite-atingido":
+      33      "Esse aluno já recebeu essa medalha o máximo de vezes no pe
+          ríodo.",
+     ...
+      51    "remocao-nao-permitida": "Você não pode apagar este post.",
+      52    "foto-obrigatoria": "Escolha uma foto: ela é a comprovação do
+           prêmio.",
+      53    "comprovacao-em-andamento":
+      54 -    "Esse post é a comprovação de um prêmio. Ele só sai depois 
+         -que o prêmio ficar definitivo.",                               
+      54 +    "Esse post comprova um prêmio. Ele só sai quando o prêmio f
+         +icar definitivo.",                                             
+      55    "evento-obrigatorio": "Escolha um evento ou digite o nome del
+          e.",
+      56    "evento-ambiguo": "Escolha um evento da lista ou digite outro
+          , não os dois.",
+      57    "evento-invalido": "Confira o nome e as datas do evento.",
+
+● Mensagens prontas. Agora os testes de integração da reivindicação, sobre o
+  MundoSocial (que já tem bucket, turma e alunos). Vejo como ele semeia itens do
+  catálogo.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\CatalogoDeP
+       articipacao.cs)
+  ⎿  Wrote 50 lines to apps\api\tests\Maxx.Api.IntegrationTests\PremiosPart
+     icipacao\CatalogoDeParticipacao.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Infrastructure.Persistence;
+       3 using Maxx.Infrastructure.Seed;
+       4 
+       5 namespace Maxx.Api.IntegrationTests.PremiosParticipacao;
+       6 
+       7 // Três prêmios de participação do catálogo, como no arquivo, pa
+         ra os testes que reivindicam
+       8 // sem rodar o seed inteiro: P01, de evento pontual; P06, de per
+         íodo; P17, a apresentação em
+     … +42 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\Reivindicac
+       aoTests.cs)
+  ⎿  Wrote 254 lines to apps\api\tests\Maxx.Api.IntegrationTests\PremiosPar
+     ticipacao\ReivindicacaoTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using Maxx.Api.IntegrationTests.Fotos;
+       4 using Maxx.Api.Perfil;
+       5 using Maxx.Api.Posts;
+       6 using Maxx.Domain.Academico;
+       7 using Maxx.Domain.Fotos;
+       8 using Maxx.Domain.Premios;
+       9 using Maxx.Domain.Social;
+      10 using Maxx.Infrastructure.Persistence;
+     … +244 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A fila já tem o trabalho de limpeza que o pedido de upload enfileira, então
+  troco essa asserção: confiro que a foto continua no bucket.
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\Reivindica
+        caoTests.cs)
+  ⎿  Added 5 lines, removed 1 line
+      219  
+      220          var gravado = Assert.Single(await mundo.Social.LinhasA
+           sync<Post>());
+      221          Assert.Null(gravado.RemovidoEm);
+      222 -        Assert.Empty(await mundo.Social.LinhasAsync<Maxx.Infra
+          -structure.Fila.TrabalhoRow>());                               
+      222 +        await mundo.Social.EsvaziarFilaAsync();               
+      223 +        foreach (var chave in gravado.ChavesDaFoto)           
+      224 +        {                                                     
+      225 +            Assert.True(await mundo.Social.Bucket.ExisteAsync(
+          +chave, Ct));                                                  
+      226 +        }                                                     
+      227      }
+      228  
+      229      private static Task<HttpResponseMessage> ReivindicarAsync(
+           HttpClient client, object pedido) =>
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 20 testes da reivindicação passaram na primeira. Agora regenero o cliente e
+  rodo tudo o que a CI roda: os dois lados, incluindo o app, que a nova forma
+  do prêmio no post pode afetar.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      (cd packages/api-client && npm run gerar >/dev/null 2>&1 && npm run
+      typecheck 2>&1 | tail…)
+  ⎿  > tsc --noEmit
+
+     All matched files use Prettier code style!
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+177 -1)
+      439          ]
+      440        }
+      441      },
+      442 +    "/api/v1/reivindicacoes": {                               
+      443 +      "post": {                                               
+      444 +        "tags": [                                             
+      445 +          "Eventos"                                           
+      446 +        ],                                                    
+      447 +        "operationId": "ReivindicarPremioParticipacao",       
+      448 +        "requestBody": {                                      
+      449 +          "content": {                                        
+      450 +            "application/json": {                             
+      451 +              "schema": {                                     
+      452 +                "$ref": "#/components/schemas/ReivindicacaoReq
+          +uest"                                                         
+      453 +              }                                               
+      454 +            }                                                 
+      455 +          },                                                  
+      456 +          "required": true                                    
+      457 +        },                                                    
+      458 +        "responses": {                                        
+      459 +          "201": {                                            
+      460 +            "description": "Created",                         
+      461 +            "content": {                                      
+      462 +              "application/json": {                           
+      463 +                "schema": {                                   
+      464 +                  "$ref": "#/components/schemas/PostResponse" 
+      465 +                }                                             
+      466 +              }                                               
+      467 +            }                                                 
+      468 +          },                                                  
+      469 +          "400": {                                            
+      470 +            "description": "Bad Request",                     
+      471 +            "content": {                                      
+      472 +              "application/problem+json": {                   
+      473 +                "schema": {                                   
+      474 +                  "$ref": "#/components/schemas/HttpValidation
+          +ProblemDetails"                                               
+      475 +                }                                             
+      476 +              }                                               
+      477 +            }                                                 
+      478 +          },                                                  
+     … 174 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+105 -0)
+      164          patch?: never;
+      165          trace?: never;
+      166      };
+      167 +    "/api/v1/reivindicacoes": {                               
+      168 +        parameters: {                                         
+      169 +            query?: never;                                    
+      170 +            header?: never;                                   
+      171 +            path?: never;                                     
+      172 +            cookie?: never;                                   
+      173 +        };                                                    
+      174 +        get?: never;                                          
+      175 +        put?: never;                                          
+      176 +        post: operations["ReivindicarPremioParticipacao"];    
+      177 +        delete?: never;                                       
+      178 +        options?: never;                                      
+      179 +        head?: never;                                         
+      180 +        patch?: never;                                        
+      181 +        trace?: never;                                        
+      182 +    };                                                        
+      183      "/api/v1/professor/turmas": {
+      184          parameters: {
+      185              query?: never;
+     ...
+      718              nomeDeExibicao: string;
+      719              foto: null | string;
+      720          };
+      721 +        EventoDigitadoRequest: {                              
+      722 +            nome: string;                                     
+      723 +            /** Format: date */                               
+      724 +            inicio: string;                                   
+      725 +            /** Format: date */                               
+      726 +            fim: string;                                      
+      727 +        };                                                    
+      728          EventoResponse: {
+      729              /** Format: uuid */
+      730              id: string;
+     ...
+      885              materia: null | string;
+      886              /** Format: int32 */
+      887              bimestre: null | number;
+      888 +            estado: null | string;                            
+      889 +            evento: null | string;                            
+     … 101 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● O job do app passou localmente (formatação, lint, tipos e 387 testes). A CI da
+  correção ainda roda. Agora a suíte .NET inteira em Release, em segundo plano.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a suíte roda, vou verificar se existe teste para a purga, já que um
+  aluno de demonstração agora pode gerar registros que as chaves estrangeiras
+  bloqueariam.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O teste da purga em DemonstracaoTests executa o SQL do README. Estendo o
+  teste: cada um dos dois alunos de demonstração reivindica um prêmio com evento
+  digitado. Depois atualizo o SQL.
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DemonstracaoTests
+        .cs)  ⎿  Added 16 lines
+      368              await SalvarAsync(factory, Post.Publicar(aluno, "N
+           ota 10!", null, medalha, DateTimeOffset.UtcNow).Post!);
+      369          }
+      370  
+      371 +        // Uma reivindicação de prêmio de participação de cada
+          + um, com evento digitado: o                                   
+      372 +        // evento segura quem digitou, e o prêmio, a comprovaç
+          +ão e o post seguram o aluno.                                  
+      373 +        await SalvarAsync(factory, CatalogoRowMapper.ParaRow(C
+          +atalogoDeParticipacao.P01));                                  
+      374 +        foreach (var nome in new[] { "Ana Paula", "Carla Dias"
+          + })                                                           
+      375 +        {                                                     
+      376 +            await using var scope = factory.Services.CreateAsy
+          +ncScope();                                                    
+      377 +            var banco = scope.ServiceProvider.GetRequiredServi
+          +ce<MaxxDbContext>();                                          
+      378 +            var aluno = await banco.Set<Usuario>().SingleAsync
+          +(usuario => usuario.NomeDeExibicao == nome, Ct);              
+      379 +            var agora = DateTimeOffset.UtcNow;                
+      380 +            var evento = Evento.TextoLivre("Palestra de abertu
+          +ra", Hoje.AddDays(-1), Hoje.AddDays(-1), aluno);              
+      381 +            var premio = PremioParticipacao.Reivindicar(Catalo
+          +goDeParticipacao.P01, 1, aluno, null, evento, null, null, agor
+          +a).Premio!;                                                   
+      382 +            var upload = UploadPendente.Pedir(aluno, Finalidad
+          +eDoUpload.Post, "image/jpeg", 1000, 500, agora).Upload!;      
+      383 +            var post = Post.Reivindicar(aluno, null, upload, p
+          +remio, agora).Post!;                                          
+      384 +            await SalvarAsync(factory, evento, premio, upload,
+          + post, Comprovacao.De(premio, post.Id));                      
+      385 +        }                                                     
+      386 +                                                              
+      387          // Entre os dois: a Ana curte e comenta o post da Carl
+           a, a Carla curte o da Ana e
+      388          // comenta o próprio, e cada uma segue a outra. Do lad
+           o da Carla fica só o comentário
+      389          // dela no post dela; o resto toca a Ana e sai com ela
+           .
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Autenticacao" && sed -i 's/
+      var doPost =…)
+  ⎿  using System.Net;
+     using System.Net.Http.Headers;
+     using System.Net.Http.Json;
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+8 -3)
+      392              var banco = scope.ServiceProvider.GetRequiredServi
+           ce<MaxxDbContext>();
+      393              var ana = await banco.Set<Usuario>().SingleAsync(u
+           suario => usuario.NomeDeExibicao == "Ana Paula", Ct);
+      394              var carla = await banco.Set<Usuario>().SingleAsync
+           (usuario => usuario.NomeDeExibicao == "Carla Dias", Ct);
+      395 -            var doPost = await banco.Set<Post>().ToDictionaryA
+          -sync(post => post.AutorId, Ct);                               
+      395 +            var doPost = await banco.Set<Post>().Where(post =>
+          + post.MedalhaId != null).ToDictionaryAsync(post => post.AutorI
+          +d, Ct);                                                       
+      396              var agora = DateTimeOffset.UtcNow;
+      397              await SalvarAsync(
+      398                  factory,
+     ...
+      428          Assert.Equal(restante.Id, (await db.Set<AceiteDeTermo>
+           ().SingleAsync(Ct)).UsuarioId);
+      429          Assert.Equal(restante.Id, (await db.Set<Medalha>().Sin
+           gleAsync(Ct)).AlunoId);
+      430          Assert.Equal(restante.Id, (await db.Set<Notificacao>()
+           .SingleAsync(Ct)).UsuarioId);
+      431 -        Assert.Equal(restante.Id, (await db.Set<UploadPendente
+          ->().SingleAsync(Ct)).UsuarioId);                              
+      432 -        Assert.Equal(restante.Id, (await db.Set<Post>().Single
+          -Async(Ct)).AutorId);                                          
+      431 +        Assert.All(await db.Set<UploadPendente>().ToListAsync(
+          +Ct), upload => Assert.Equal(restante.Id, upload.UsuarioId));  
+      432 +        Assert.Equal(2, await db.Set<UploadPendente>().CountAs
+          +ync(Ct));                                                     
+      433 +        Assert.All(await db.Set<Post>().ToListAsync(Ct), post 
+          +=> Assert.Equal(restante.Id, post.AutorId));                  
+      434 +        Assert.Equal(2, await db.Set<Post>().CountAsync(Ct)); 
+      435 +        Assert.Equal(restante.Id, (await db.Set<PremioParticip
+          +acao>().SingleAsync(Ct)).AlunoId);                            
+      436 +        Assert.Equal(restante.Id, (await db.Set<Comprovacao>()
+          +.SingleAsync(Ct)).AlunoId);                                   
+      437 +        Assert.Equal(restante.Id, (await db.Set<Evento>().Sing
+          +leAsync(Ct)).CriadoPorId);                                    
+      438          Assert.Empty(await db.Set<Curtida>().ToListAsync(Ct));
+      439          Assert.Empty(await db.Set<Seguimento>().ToListAsync(Ct
+           ));
+      440          Assert.Equal("Valeu!", (await db.Set<Comentario>().Sin
+           gleAsync(Ct)).Texto);
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/DemonstracaoTests.cs
+      && sed -i 's…)
+  ⎿  ```sql
+     BEGIN;
+     CREATE TEMP TABLE alvo ON COMMIT DROP AS
+     … +23 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+2 -0)
+       8  using System.Text.RegularExpressions;
+       9  using Maxx.Api.Autenticacao;
+      10  using Maxx.Api.Demonstracao;
+      11 +using Maxx.Api.IntegrationTests.PremiosParticipacao;           
+      12  using Maxx.Application;
+      13  using Maxx.Application.Medalhas;
+      14  using Maxx.Domain.Academico;
+     ...
+      19  using Maxx.Domain.Social;
+      20  using Maxx.Infrastructure.Fila;
+      21  using Maxx.Infrastructure.Persistence;
+      22 +using Maxx.Infrastructure.Seed;                                
+      23  using Microsoft.EntityFrameworkCore;
+      24  using Microsoft.Extensions.DependencyInjection;
+      25  using Npgsql;
+  ⎿  Updated docs\decisoes\README.md (+3 -0)
+      128  DELETE FROM curtida WHERE usuario_id IN (SELECT usuario_id FRO
+           M alvo);
+      129  DELETE FROM comentario WHERE autor_id IN (SELECT usuario_id FR
+           OM alvo);
+      130  DELETE FROM seguimento WHERE seguidor_id IN (SELECT usuario_id
+            FROM alvo) OR seguido_id IN (SELECT usuario_id FROM alvo);
+      131 +DELETE FROM comprovacao WHERE aluno_id IN (SELECT usuario_id F
+          +ROM alvo);                                                    
+      132  DELETE FROM post WHERE autor_id IN (SELECT usuario_id FROM alv
+           o);
+      133 +DELETE FROM premio_participacao WHERE aluno_id IN (SELECT usua
+          +rio_id FROM alvo);                                            
+      134 +DELETE FROM evento WHERE criado_por_id IN (SELECT usuario_id F
+          +ROM alvo);                                                    
+      135  DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM 
+           alvo);
+      136  DELETE FROM upload_pendente WHERE usuario_id IN (SELECT usuari
+           o_id FROM alvo);
+      137  DELETE FROM usuario WHERE id IN (SELECT usuario_id FROM alvo);
+
+● A ordem segue as chaves: comprovação antes do post, e prêmio e evento digitado
+  antes do usuário. Espero a suíte em segundo plano terminar para rodar o teste
+  da purga com o SQL novo.
+
+  Read 1 file (ctrl+o to expand)
+
+● The CI of the fix and the local suite are both still running; I'll wait for
+  the notifications.
+
+✻ Brewed for 22m 59s · done 16:47
+
+● Background command "Watch the fix CI run" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI do commit ba4c40a, da correção, passou nos seis jobs, e com isso a etapa
+  1 está pronta. Sigo esperando a suíte local da etapa 2.
+
+✻ Brewed for 10s · done 16:49
+
+● Background command "Run the full .NET suite in Release" completed (exit code
+0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A suíte rodou antes da mudança na purga. Rodo de novo, inteira, para incluir o
+  teste da purga com o SQL novo, e confiro a formatação.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Etapa 2 pronta para a sua revisão (ainda sem commit)
+
+  Etapa 1: CI e correção
+
+  A CI do primeiro push (78e2112) falhou no job mobile. O teste erros.test.ts
+  confere quantos arquivos Codigos*.cs existem: esperava 7 e achou 8, porque eu
+  criei o CodigosDoPremioParticipacao.cs. O erro foi meu, porque não rodei o
+  Jest do app antes do push; os outros cinco jobs, inclusive o e2e, passaram.
+
+  A correção entrou num commit separado, como manda a sua regra: ba4c40a 
+  fix(mobile): conta o arquivo de códigos do prêmio de participação no teste de 
+  mensagens. A CI desse push passou nos seis jobs, e com isso a etapa 1 está
+  pronta. Desde então rodo o job do app localmente antes de propor commit.
+
+  Decisão que você tomou no meio da etapa
+
+  O post da reivindicação não pode ser apagado enquanto o prêmio está pendente,
+  válido ou em averiguação; a recusa é 409 comprovacao-em-andamento.
+
+  Para você confirmar: apliquei a mesma trava à remoção pela instituição, porque
+  a remoção dela também manda a foto para fora do bucket. Para um post
+  impróprio nessa fase, o caminho dela é reprovar ou contestar. Se preferir que
+  a instituição remova assim mesmo, ajusto.
+
+  O que entrou
+
+  Domínio
+  - PremioParticipacao:
+    - Nasce Reivindicado, com tier, pontos e versão do item congelados.
+    - A chave de deduplicação segue o catálogo. Com evento digitado, cai para
+      aluno, item e data de início; o P17 acrescenta a matéria.
+    - Três propriedades derivadas: SeguraAChave (todos os estados menos o
+      reprovado), Pontua (válido e definitivo) e PrendeOPost.
+    - Recusas: ex-aluno, evento de outro curso, evento que não aceita o item,
+      evento que ainda não começou, evento de semestre encerrado, item fora de
+      vigência, item de outro curso, matéria obrigatória ou matéria que não se
+      aplica.
+  - Comprovacao: guarda prêmio, aluno, evento e post.
+  - Post:
+    - Ganha PremioParticipacaoId, e a fábrica Post.Reivindicar exige foto.
+    - Antes, Post.Publicar fazia sozinho a conferência comum (autor, legenda e
+      upload). Agora as duas fábricas usam essa mesma conferência.
+
+  Persistência: migration PremioParticipacao.
+  - Tabelas premio_participacao e comprovacao.
+  - ix_premio_participacao_chave_ativa: índice único que vale para todos os
+    estados menos o reprovado.
+  - Comprovação indexada por evento e por data, para a fila da etapa 3.
+  - No post: coluna nova, índice único do prêmio e ck_post_um_premio, que impede
+    medalha e prêmio de participação no mesmo post.
+
+  Rota POST /v1/reivindicacoes: só para aluno.
+  - Grava numa transação só o evento digitado, o prêmio, o post e a comprovação.
+  - Responde 201 com o post. O prêmio vem com estado: "reivindicado", que é a
+    marca de pendente, e o nome do evento.
+  - Nada é enfileirado e os pontos não mudam.
+
+  Leitura: o prêmio do post ganhou estado e evento, só como acréscimo; feed,
+  perfil e link do post já mostram a marca.
+
+  Purga: o SQL do README ganhou comprovacao, premio_participacao e evento. Era
+  tarefa da etapa 4, mas adiantei porque essas tabelas já nascem aqui. O teste
+  que executa esse SQL agora inclui uma reivindicação de cada aluno de
+  demonstração.
+
+  App: 15 códigos novos com mensagem em erros.ts. Quatro mensagens antigas que
+  falavam em "medalha" agora dizem "prêmio", porque a reivindicação usa os
+  mesmos códigos.
+
+  Testes
+  - 20 de domínio novos (410 no total).
+  - 20 de integração da reivindicação: caminho feliz, evento digitado, P17,
+    deduplicação, corrida de seis pedidos simultâneos, 14 recusas sem gravar
+    nada, papéis e a trava da remoção.
+  - Suíte .NET em Release: 842 testes, 836 aprovados, 0 falhas e 6 ignorados (os
+    mesmos de antes).
+  - Job do app local: formatação, lint, tipos e 387 testes passando.
+
+  Formatação e cliente: OpenAPI e cliente regenerados; dotnet format limpo.
+
+  O e2e eu não rodei localmente; ele entra na CI do push. O README.md de
+  decisões não passa no Prettier, mas isso já acontecia antes desta etapa, e a
+  CI não confere docs/.
+
+  Para você decidir
+
+  produto.md: a trava do post de comprovação é regra de produto. Proponho
+  registrá-la na 4.7 já neste commit, como fizemos com a D3.
+
+  Matéria do P17: decidi que vale uma matéria em que o aluno estava matriculado
+  no semestre letivo que contém a data do evento. Por consequência, um P17 com
+  data no recesso não encontra matéria.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona reivindicação de prêmio de participação como post com foto
+
+  Posso registrar a trava no produto.md, commitar e fazer o push?
+
+✻ Baked for 4m 53s · done 16:55
