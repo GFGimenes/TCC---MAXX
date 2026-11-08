@@ -420,3 +420,19 @@ execução por prompt; execução durante a trilha do engenheiro, entre os passo
 para ficar no mesmo ambiente das rodadas iterativas, desvio declarado da ordem do
 protocolo. Commit de pré-registro: `4d4cc4b` (08/11/2026, 04:10 UTC).
 
+08/11: `eng_07_posts` fechada: posts, upload e feed, a maior rodada até aqui (1,75 milhão
+de tokens de saída, 12 commits, 151 arquivos). Onze etapas: bucket S3 com emulador
+VersityGW (o MinIO não estava disponível), upload assinado com limite e limpeza pela
+fila, post com derivadas e conferência no bucket, curtida, comentário e seguir, feed por
+cursor com recomendação, perfil e busca na API, novo post, feed, perfil, busca e editar
+perfil no cliente, e2e social, docs. O e2e novo achou dois defeitos reais antes do commit
+(deep link e voltar); o autor achou na revisão um resíduo do passo 0 que virou tela (chips
+de semestre até o 8º com Medicina em 12). Duas compactações automáticas dentro da etapa
+11, com o agente passando a escrever em inglês depois da primeira, como na `eng_03_auth`;
+pedido de volta ao português na `r12`. A suíte da API foi interrompida uma vez por falta
+de memória na máquina; o autor pôs teto de 8 GB no WSL com devolução automática, limpou
+11 contêineres mortos do Testcontainers e 5 GB de cache, e a suíte passou (752 testes).
+PR #9, merge na `main` (`f28f404`). Registro em `resultados/engenheiro/eng_07_posts.md`.
+Em seguida, pelo pré-registro, a condição de prompt único (`eng_pu`, depois `leigo_pu`),
+com a pilha do engenheiro derrubada.
+

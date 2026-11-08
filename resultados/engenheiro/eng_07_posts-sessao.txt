@@ -13965,3 +13965,203 @@ stopped because the system is running low on memory
 
 ● Compacted while idle, before the prompt cache expired · turn off with 
   "idleCompaction": false in settings.json
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Antes de começar: reiniciei o Docker para ajustar a memória do WSL e a pilha  
+  maxx está parada; sobe de novo o que precisar. Etapa 11 aprovada, com três    
+  coisas antes de fechar. Primeira: volta a escrever em português, como no      
+  resto da sessão. Segunda: roda a suíte completa da API de novo, do começo,    
+  antes de qualquer commit; nada é commitado sem ela verde. Terceira: separa em 
+  dois commits, primeiro fix(mobile) com as duas correções achadas pelo e2e     
+  (deep link depois do login e voltar para a aba de origem, com a troca de      
+  replace por dismissTo), depois o commit de docs e e2e com a mensagem          
+  proposta, incluindo a troca do seeder pelo exec no worker e a verificação do  
+  R2. A causa da lentidão e a remoção do test.slow() estão certas. Com os dois  
+  commits verdes na CI, abre o PR de feat/passo-07-posts para                   
+  rodada/eng_07_posts e me manda o relatório de fechamento do passo, com o que  
+  ficou para os passos 12 e 13.                                                 
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A suíte completa da API está rodando do começo. Enquanto isso, preparo a
+  separação dos dois commits sem commitar nada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os arquivos se separam sem sobreposição: os oito de apps/mobile vão para o
+  fix(mobile), e docs, e2e e o teste do R2 vão para o segundo commit. Aguardo a
+  suíte da API terminar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A suíte completa da API (dotnet test --solution Maxx.sln) está rodando do
+  começo, em segundo plano. Ainda não há resultado e nada foi commitado.
+
+  Uma coisa difere do que você descreveu: os contêineres maxx-caddy-1,
+  maxx-api-1, maxx-api-2, maxx-worker-1 e maxx-mailpit-1 voltaram sozinhos
+  quando o Docker reiniciou. Deixei como estão, porque a suíte sobe os próprios
+  Postgres pelo Testcontainers e não usa essa pilha. O Docker tem 8,3 GB de
+  memória. Se a suíte morrer de novo por falta de memória, paro esses
+  contêineres e rodo de novo.
+
+  Quando ela terminar verde, sigo nesta ordem:
+
+  1. Primeiro commit: fix(mobile): guarda o destino do deep link no login e 
+     volta para a aba de origem. Leva só os 8 arquivos de apps/mobile: o hook
+     useDestinoDepoisDoLogin, o (app) como Stack, a troca de replace por
+     dismissTo e os testes Jest correspondentes.
+  2. Segundo commit: docs(docs): registra as decisões do passo 7 e adiciona o 
+     e2e de posts, busca e perfil. Leva os docs, social.spec.ts, o exec no
+     worker no lugar do compose run do seeder, a remoção do test.slow() e o
+     VerificacaoDoR2Tests.
+  3. Push dos dois e acompanhamento da CI. Com os dois verdes, abro o PR de
+     feat/passo-07-posts para rodada/eng_07_posts, sem rodapé de co-autoria nem
+     menção a ferramenta.
+  4. Relatório de fechamento do passo 7, com o que ficou para os passos 12 e 13.
+
+✻ Cogitated for 33s · done 15:32
+
+● Background command "Run the full API test suite from scratch" completed (exit
+code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Suíte verde: 752 testes, 746 aprovados, 0 falhas, 6 ignorados (a verificação
+  do R2 sem a flag). Faço os dois commits.
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● Pushar os dois commits juntos só acionou a CI para o último (e541946), então
+  vou empurrar 2444f00 numa branch temporária para que o fix(mobile) também
+  tenha a sua CI e apagá-la depois.
+
+  Pushed to ci/passo-07-fix-mobile, ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a CI roda, levanto o que ficou para os passos 12 e 13 no plano
+  mestre, para o relatório de fechamento.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Aguardo as duas execuções da CI terminarem.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A branch tem 12 commits (as 11 etapas mais o fix(mobile) separado). O PR fica
+  pronto para abrir assim que as duas CIs terminarem verdes.
+
+✻ Cogitated for 1m 4s · done 15:36
+
+※ recap: Estamos fechando o passo 7: a suíte da API passou, e os dois commits (fix(mobile) e docs/e2e) já estão no remoto, com as CIs rodando. Quando as duas ficarem verdes, abro o PR para rodada/eng_07_posts e mando o relatório de fechamento.
+
+● Background command "Wait for both CI runs to finish and report job results"
+completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Os dois commits passaram na CI, com os seis jobs verdes em cada um. Apago a
+  branch temporária e abro o PR.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A base rodada/eng_07_posts existe só localmente, no commit a225e29, e nunca
+  foi ao remoto. Vou enviá-la sem alterações como base do PR e abri-lo em
+  seguida.
+
+  Pushed to rodada/eng_07_posts, created PR #9 (ctrl+o to expand)
+
+● Passo 7: fechamento (posts, upload e feed)
+
+  O PR #9 está aberto: https://github.com/GFGimenes/maxx-engenheiro/pull/9, de
+  feat/passo-07-posts para rodada/eng_07_posts, com 12 commits (as 11 etapas e o
+  fix separado). Não tem rodapé de co-autoria nem menção a ferramenta.
+
+  Etapa 11: o que você pediu
+
+  - Suíte completa da API, rodada do começo antes dos commits: verde, com 752
+    testes (746 aprovados, 0 falhas e 6 ignorados). Os 6 ignorados são o
+    VerificacaoDoR2Tests, que fica desligado sem a flag. Desta vez não faltou
+    memória.
+  - Dois commits:
+    - 2444f00 fix(mobile): guarda o destino do deep link no login e volta para a
+      aba de origem traz só os 8 arquivos de apps/mobile. Entram o hook do
+      destino, o (app) como pilha, a troca de replace por dismissTo e os testes
+      Jest.
+    - e541946 docs(docs): registra as decisões do passo 7 e adiciona o e2e de 
+      posts, busca e perfil traz os docs, o social.spec.ts, o exec no worker no
+      lugar do seeder, a remoção do test.slow() e o VerificacaoDoR2Tests.
+  - CI verde nos seis jobs, para cada commit: api, api-client, mobile, e2e,
+    build e segurança.
+
+  Fiz três coisas sem perguntar antes:
+
+  1. CI do fix(mobile): como enviei os dois commits juntos, a CI rodou só no
+     último. Para o fix(mobile) ter a própria execução, enviei ele numa branch
+     temporária (ci/passo-07-fix-mobile) e apaguei essa branch quando ficou
+     verde.
+  2. Base do PR: a rodada/eng_07_posts existia só na sua máquina, no mesmo
+     commit da main (a225e29), e por isso o PR falhou na primeira tentativa.
+     Enviei a branch sem mudança nenhuma.
+  3. Pilha maxx: os contêineres dela voltaram sozinhos quando o Docker
+     reiniciou. Deixei rodando, porque a suíte usa os próprios Postgres e não
+     precisou deles.
+
+  O que o passo 7 entrega
+
+  - Armazenamento:
+    - bucket compatível com S3: o R2 em produção, o emulador só em
+      desenvolvimento e teste;
+    - URL assinada que prende o content-type e o tamanho exato, e a foto nunca
+      passa pela API;
+    - chave de objeto aleatória;
+    - limite de taxa nos pedidos de upload;
+    - o upload abandonado é apagado pela fila depois de 24 horas.
+  - Post: duas versões da foto geradas no app, sem EXIF; a API confere as duas
+    no bucket antes de confirmar. Também entram remoção, curtida, comentário e
+    seguir.
+  - Feed: paginado por cursor, com quem o aluno segue e as recomendações
+    intercaladas.
+  - Perfil e busca: grade, contadores, busca de alunos com filtro de curso e
+    semestre, e editar perfil.
+  - Cliente:
+    - as telas do passo, no claro e no escuro;
+    - deep link do post atrás do login;
+    - tema no menu do perfil;
+    - anel dourado no próprio avatar;
+    - foto opcional na demonstração.
+  - e2e: posts, busca e perfil cobertos de ponta a ponta. No local, a passada
+    normal deu 65 aprovados e 1 ignorado, e a passada @demo deu 4 aprovados.
+
+  Fica para o passo 12
+
+  - Posts semeados (D13): dependem das contas de aluno do seed completo.
+  - Fotos do lote na purga (D14): a remoção das fotos de demonstração no bucket,
+    tanto dos posts quanto de perfil, precisa entrar na purga. O SQL sozinho
+    não chega ao bucket.
+
+  Fica para o passo 13
+
+  - Carga (k6): medir o p95 da recomendação, que ordena sem índice. Conferir se
+    o banco usa o índice do feed com volume real, porque o teste atual força o
+    índice e não prova a escolha. Conferir também os índices de trigramas da
+    busca, que ainda não têm teste de plano.
+  - CSP do build web: liberar o domínio da CDN em img-src e o endpoint do R2 em
+    connect-src.
+  - R2 real: rodar uma vez o VerificacaoDoR2Tests contra o bucket. Até agora, a
+    recusa de um envio maior que o assinado só foi provada no emulador.
+  - VPS: o usuário do banco precisa de CREATE EXTENSION, porque a migration cria
+    unaccent e pg_trgm.
+  - Maestro: o envio da foto ao bucket no Android, que até lá só passa pelo
+    Jest.
+
+  Ficaram aceitos e registrados em decisoes/README.md:
+
+  - Feed sem estado no servidor: seguir alguém no meio da sessão pode repetir um
+    post, e puxar para atualizar resolve.
+  - HEIC no Chrome: a foto não abre, e o aluno vê uma mensagem amigável.
+
+  O passo 7 está fechado do meu lado. O merge do PR #9 na rodada fica com você.
+
+✻ Cooked for 1m 3s · done 15:45
