@@ -418,5 +418,5 @@ nenhuma persona depender de credencial; `leigo_pu` condensado ao tamanho que o l
 escreveria; fecho comum idêntico; tetos de 12 h e 3.000.000 de tokens de saída; uma
 execução por prompt; execução durante a trilha do engenheiro, entre os passos 7 e 8,
 para ficar no mesmo ambiente das rodadas iterativas, desvio declarado da ordem do
-protocolo. Commit de pré-registro: ver linha abaixo quando feito.
+protocolo. Commit de pré-registro: `4d4cc4b` (08/11/2026, 04:10 UTC).
 

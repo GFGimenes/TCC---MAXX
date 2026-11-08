@@ -96,7 +96,7 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   (`maxx-engenheiro-pu`, `maxx-leigo-pu`), mesmo ambiente das rodadas desde a
   `eng_03_auth` (2.1.316, `claude-opus-5-5`, `medium`, auto). Executada entre os
   passos 7 e 8 da trilha do engenheiro, `eng_pu` antes de `leigo_pu`, no mesmo dia.
-  Commit de pré-registro: anotado no diário.
+  Commit de pré-registro: `4d4cc4b` (08/11/2026, 04:10 UTC).
 
 ## Dependências entre fases
 

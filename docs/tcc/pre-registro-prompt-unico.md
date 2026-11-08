@@ -1,8 +1,8 @@
 # Pré-registro da condição de prompt único
 
 Fixado em 08/11/2026, antes da primeira execução, conforme a §3.1.5.8 de
-`condicao-prompt-unico.md`. O hash do commit de pré-registro vai para
-`docs/linha-do-tempo.md` e para o diário. Qualquer mudança depois deste commit vira
+`condicao-prompt-unico.md`. Commit de pré-registro: `4d4cc4b`, anotado em
+`docs/linha-do-tempo.md` e no diário. Qualquer mudança depois deste commit vira
 condição nova (`eng_pu_v2`, `leigo_pu_v2`), declarada ao lado da original.
 
 ## 1. Prompts
