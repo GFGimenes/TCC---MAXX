@@ -1,0 +1,582 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-leigo
+
+
+❯ Agora a tela de ranking, o geral da faculdade e o de cada curso, mostrando a  
+  posição de cada aluno pelos pontos.                                           
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A tela de ranking já existe. Vou ver como está hoje.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O ranking já existe (lista com filtro por curso num menu). Vou ver o resto do
+  visual para melhorar a tela no mesmo estilo das rodadas anteriores.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Já há uma versão simples em lista; vou transformá-la numa tela completa com
+  abas, cartão de posição, pódio e o líder de cada curso.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I'll do the edits with the Edit tool.
+
+● Update(src\pontos.js)
+  ⎿  Added 17 lines, removed 4 lines
+      29    return { ...s, conquistas, pontos_conquistas: pontosConquista
+          s, total };
+      30  }
+      31  
+      32 -function ranking(curso) {                                      
+      33 -  let lista = db.prepare(SQL_STATS).all().map(calcular);       
+      34 -  if (curso) lista = lista.filter((a) => a.curso === curso);   
+      32 +// Ordena por pontos e numera as posições. Empatados ficam na m
+         +esma posição.                                                  
+      33 +function posicionar(lista) {                                   
+      34    lista.sort((a, b) => b.total - a.total || a.nome.localeCompar
+          e(b.nome, 'pt-BR'));
+      36 -  // Empatados ficam na mesma posição.                         
+      35    lista.forEach((a, i) => {
+      36      a.posicao = i > 0 && lista[i - 1].total === a.total ? lista
+          [i - 1].posicao : i + 1;
+      37    });
+      38    return lista;
+      39  }
+      40  
+      41 +function ranking(curso) {                                      
+      42 +  let lista = db.prepare(SQL_STATS).all().map(calcular);       
+      43 +  if (curso) lista = lista.filter((a) => a.curso === curso);   
+      44 +  return posicionar(lista);                                    
+      45 +}                                                              
+      46 +                                                               
+      47 +// O ranking geral e o de cada curso de uma vez só (uma consult
+         +a ao banco).                                                   
+      48 +function rankings() {                                          
+      49 +  const geral = ranking();                                     
+      50 +  const porCurso = {};                                         
+      51 +  for (const a of geral) (porCurso[a.curso] ??= []).push({ ...a
+         + });                                                           
+      52 +  for (const lista of Object.values(porCurso)) posicionar(lista
+         +);                                                             
+      53 +  return { geral, porCurso };                                  
+      54 +}                                                              
+      55 +                                                               
+      56  function statsDoAluno(id) {
+      57    const row = db.prepare(SQL_STATS + ' AND u.id = ?').get(id);
+      58    if (!row) return null;
+
+● Update(src\pontos.js)
+  ⎿  Added 1 line, removed 1 line
+      79    db.exec('PRAGMA user_version = 1');
+      80  }
+      81  
+      82 -module.exports = { ranking, statsDoAluno, registrarConquistas }
+         -;                                                              
+      82 +module.exports = { ranking, rankings, statsDoAluno, registrarCo
+         +nquistas };                                                    
+
+● Update(src\app.js)
+  ⎿  Added 1 line, removed 1 line
+      368      titulo: 'Ranking',
+      369      ativo: 'ranking',
+      370      conteudo: v.ranking({
+      371 -      lista: pontos.ranking(curso),                           
+      371 +      ...pontos.rankings(),                                   
+      372        curso,
+      373        usuario: req.usuario,
+      374        tiposMedalha: db.prepare('SELECT * FROM tipos_medalha OR
+           DER BY pontos DESC').all(),
+
+● Agora a tela.
+
+● Update(src\views.js)
+  ⎿  Added 112 lines, removed 18 lines
+      544  }
+      545  
+      546  // ---------- Ranking ----------
+      547 -function ranking({ lista, curso, usuario, tiposMedalha }) {   
+      548 -  const trofeu = (pos) => ({ 1: '🥇', 2: '🥈', 3: '🥉' })[pos]
+          - || `${pos}º`;                                                
+      547 +const medalhaPosicao = (pos) => ({ 1: '🥇', 2: '🥈', 3: '🥉' }
+          +)[pos] || `${pos}º`;                                          
+      548 +const primeiroNome = (nome) => nome.split(' ')[0];            
+      549 +const linkRanking = (curso) => (curso ? `/ranking?curso=${enco
+          +deURIComponent(curso)}` : '/ranking');                        
+      550 +                                                              
+      551 +// Abas: Geral, o curso do aluno e depois os outros cursos.   
+      552 +function abasRanking({ curso, porCurso, usuario, totalGeral })
+          + {                                                            
+      553 +  const meuCurso = usuario.papel === 'aluno' ? usuario.curso :
+          + '';                                                          
+      554 +  const cursos = [...config.CURSOS].sort((a, b) => (b === meuC
+          +urso) - (a === meuCurso));                                    
+      555 +  const aba = (valor, rotulo, qtd) =>                         
+      556 +    html`<a href="${linkRanking(valor)}" class="aba ${valor ==
+          += curso ? 'ativa' : ''}" ${valor === curso ? raw('aria-current
+          +="page"') : ''}>${rotulo} <small>${qtd}</small></a>`;         
+      557 +  return html`<nav class="abas" aria-label="Escolha o ranking"
+          +>                                                             
+      558 +  ${aba('', 'Geral', totalGeral)}                             
+      559 +  ${cursos.map((c) => aba(c, c === meuCurso ? `${c} (meu curso
+          +)` : c, porCurso[c]?.length || 0))}                           
+      560 +</nav>`;                                                      
+      561 +}                                                             
+      562 +                                                              
+      563 +// Onde o aluno está e quanto falta para subir.               
+      564 +function suaPosicao({ lista, geral, porCurso, curso, usuario }
+          +) {                                                           
+      565 +  if (usuario.papel !== 'aluno') return html`<p class="muted">
+          +Professores e a faculdade acompanham o ranking, mas só alunos 
+          +participam.</p>`;                                             
+      566 +  const noGeral = geral.find((a) => a.id === usuario.id);     
+      567 +  const meuCurso = porCurso[usuario.curso] || [];             
+      568 +  const noCurso = meuCurso.find((a) => a.id === usuario.id);  
+      569 +  if (!noGeral) return '';                                    
+      570 +  const resumo = html`<div class="numeros numeros-3">         
+      571 +    <div><strong>${fmt(noGeral.total)}</strong><span>seus pont
+          +os</span></div>                                               
+      572 +    <a href="${linkRanking('')}"><strong>${noGeral.posicao}º</
+          +strong><span>de ${geral.length} no geral</span></a>           
+      573 +    <a href="${linkRanking(usuario.curso)}"><strong>${noCurso 
+          +? `${noCurso.posicao}º` : '–'}</strong><span>de ${meuCurso.len
+          +gth} no curso</span></a>                                      
+      574 +  </div>`;                                                    
+      575 +                                                              
+      576 +  const eu = lista.find((a) => a.id === usuario.id);          
+      577 +  let frase;                                                  
+      578 +  if (!eu) {                                                  
+      579 +    frase = html`Você é de <strong>${usuario.curso}</strong>. 
+          +<a href="${linkRanking(usuario.curso)}">Ver o ranking do seu c
+          +urso ›</a>`;                                                  
+      580 +  } else if (lista.length === 1) {                            
+      581 +    frase = 'Você é o único aluno por aqui até agora.';       
+      582 +  } else if (eu.posicao === 1) {                              
+      583 +    const segundo = lista.find((a) => a.total < eu.total);    
+      584 +    const empatados = lista.filter((a) => a.posicao === 1).len
+          +gth;                                                          
+      585 +    frase = empatados > 1                                     
+      586 +      ? html`🤝 Você divide a <strong>liderança</strong> com m
+          +ais ${plural(empatados - 1, 'pessoa', 'pessoas')}. Qualquer po
+          +nto a mais e o 1º lugar é só seu!`                            
+      587 +      : html`👑 Você está na <strong>liderança</strong>${segun
+          +do ? html`, ${plural(eu.total - segundo.total, 'ponto', 'ponto
+          +s')} à frente de ${primeiroNome(segundo.nome)}` : ''}!`;      
+      588 +  } else {                                                    
+      589 +    // A pessoa logo acima: a última da lista com mais pontos.
+      590 +    const acima = lista.filter((a) => a.total > eu.total).at(-
+          +1);                                                           
+      591 +    const falta = acima.total - eu.total + 1;                 
+      592 +    frase = html`🎯 Faltam <strong>${plural(falta, 'ponto', 'p
+          +ontos')}</strong> para passar ${primeiroNome(acima.nome)} e su
+          +bir para o ${acima.posicao}º lugar.`;                         
+      593 +  }                                                           
+      594 +  return html`${resumo}<p class="sua-frase">${frase}</p>`;    
+      595 +}                                                             
+      596 +                                                              
+      597 +function itemRanking(a, { usuario, mostrarCurso }) {          
+      598 +  return html`<li class="${a.id === usuario.id ? 'eu' : ''} ${
+          +a.total === 0 ? 'zerado' : ''}">                              
+      599 +    <span class="pos">${medalhaPosicao(a.posicao)}</span>     
+      600 +    <a href="/u/${a.id}" class="usuario-link">${avatar(a)}<spa
+          +n><strong>${a.nome}</strong>${a.id === usuario.id ? html` <spa
+          +n class="selo">Você</span>` : ''}${mostrarCurso ? html`<small>
+          +${a.curso}</small>` : ''}</span></a>                          
+      601 +    <span class="total">${fmt(a.total)} <small>pts</small></sp
+          +an>                                                           
+      602 +  </li>`;                                                     
+      603 +}                                                             
+      604 +                                                              
+      605 +function podio(top3, usuario) {                               
+      606 +  return html`<ol class="podio" aria-label="Pódio">           
+      607 +  ${top3.map(                                                 
+      608 +    (a, i) => html`<li class="podio-${i + 1} ${a.id === usuari
+          +o.id ? 'eu' : ''}">                                           
+      609 +      <a href="/u/${a.id}">                                   
+      610 +        ${avatar(a, i === 0 ? 'g' : 'm')}                     
+      611 +        <strong>${primeiroNome(a.nome)}</strong>              
+      612 +        <small>${fmt(a.total)} pts</small>                    
+      613 +      </a>                                                    
+      614 +      <span class="degrau"><span aria-label="${a.posicao}º lug
+          +ar">${medalhaPosicao(a.posicao)}</span></span>                
+      615 +    </li>`,                                                   
+      616 +  )}                                                          
+      617 +</ol>`;                                                       
+      618 +}                                                             
+      619 +                                                              
+      620 +// No ranking geral: quem lidera cada curso.                  
+      621 +function lideresDosCursos(porCurso) {                         
+      622 +  const cursos = config.CURSOS.filter((c) => porCurso[c]?.leng
+          +th);                                                          
+      623 +  const vazios = config.CURSOS.length - cursos.length;        
+      624    return html`<section class="cartao">
+      625 +  <h2>🎓 Líderes de cada curso</h2>                           
+      626 +  <ul class="lideres">                                        
+      627 +    ${cursos.map((c) => {                                     
+      628 +      const lista = porCurso[c];                              
+      629 +      const lideres = lista.filter((a) => a.posicao === 1);   
+      630 +      return html`<li>                                        
+      631 +        <a href="${linkRanking(c)}" class="lider-curso">      
+      632 +          <span><strong>${c}</strong><small>${plural(lista.len
+          +gth, 'aluno', 'alunos')}</small></span>                       
+      633 +          <span class="lider-nome">🥇 ${lideres.map((a) => pri
+          +meiroNome(a.nome)).join(' e ')} <small>${fmt(lideres[0].total)
+          +} pts</small></span>                                          
+      634 +          <span class="seta" aria-hidden="true">›</span>      
+      635 +        </a>                                                  
+      636 +      </li>`;                                                 
+      637 +    })}                                                       
+      638 +  </ul>                                                       
+      639 +  ${vazios ? html`<p class="muted">${plural(vazios, 'curso ain
+          +da não tem', 'cursos ainda não têm')} alunos no Maxx.</p>` : '
+          +'}                                                            
+      640 +</section>`;                                                  
+      641 +}                                                             
+      642 +                                                              
+      643 +function ranking({ geral, porCurso, curso, usuario, tiposMedal
+          +ha }) {                                                       
+      644 +  const lista = curso ? porCurso[curso] || [] : geral;        
+      645 +  const comPodio = lista.length >= 3 && lista[0].total > 0;   
+      646 +  const resto = comPodio ? lista.slice(3) : lista;            
+      647 +  return html`<section class="cartao">                        
+      648    <h1>🏆 Ranking</h1>
+      551 -  <form method="get" action="/ranking" class="filtro">        
+      552 -    <select name="curso" onchange="this.form.submit()" aria-la
+          -bel="Filtrar por curso">                                      
+      553 -      <option value="">Geral (todos os cursos)</option>${opcoe
+          -sCurso(curso)}                                                
+      554 -    </select>                                                 
+      555 -    <noscript><button class="btn">Ver</button></noscript>     
+      556 -  </form>                                                     
+      557 -  ${lista.length === 0 ? html`<p class="muted">Ninguém pontuou
+          - ainda${curso ? ' neste curso' : ''}.</p>` : ''}              
+      558 -  <ol class="ranking">                                        
+      559 -    ${lista.map(                                              
+      560 -      (a) => html`<li class="${a.id === usuario.id ? 'eu' : ''
+          -}">                                                           
+      561 -        <span class="pos">${trofeu(a.posicao)}</span>         
+      562 -        <a href="/u/${a.id}" class="usuario-link">${avatar(a)}
+          -<span><strong>${a.nome}</strong>${curso ? '' : html`<small>${a
+          -.curso}</small>`}</span></a>                                  
+      563 -        <span class="total">${fmt(a.total)} <small>pts</small>
+          -</span>                                                       
+      564 -      </li>`,                                                 
+      565 -    )}                                                        
+      566 -  </ol>                                                       
+      649 +  <p class="muted">${curso ? html`Alunos de <strong>${curso}</
+          +strong>` : `Todos os alunos da ${config.FACULDADE}`}, pelos po
+          +ntos ganhos no Maxx.</p>                                      
+      650 +  ${abasRanking({ curso, porCurso, usuario, totalGeral: geral.
+          +length })}                                                    
+      651 +  ${suaPosicao({ lista, geral, porCurso, curso, usuario })}   
+      652  </section>
+      653  
+      654  <section class="cartao">
+      655 +  <h2>${curso || 'Geral'} <span class="contador">${plural(list
+          +a.length, 'aluno', 'alunos')}</span></h2>                     
+      656 +  ${lista.length === 0 ? html`<p class="muted">Nenhum aluno ${
+          +curso ? 'deste curso' : ''} entrou no Maxx ainda.</p>` : ''}  
+      657 +  ${comPodio ? podio(lista.slice(0, 3), usuario) : ''}        
+      658 +  ${resto.length ? html`<ol class="ranking">${resto.map((a) =>
+          + itemRanking(a, { usuario, mostrarCurso: !curso }))}</ol>` : '
+          +'}                                                            
+      659 +</section>                                                    
+      660 +                                                              
+      661 +${curso ? '' : lideresDosCursos(porCurso)}                    
+      662 +                                                              
+      663 +<section class="cartao">                                      
+      664    <h2>Como ganhar pontos</h2>
+      665    <ul class="regras">
+      666      <li><span>📷 Publicar um post</span><strong>+${PONTOS.post
+           }</strong></li>
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(src\views.js)
+  ⎿  Added 1 line, removed 1 line
+      597  function itemRanking(a, { usuario, mostrarCurso }) {
+      598    return html`<li class="${a.id === usuario.id ? 'eu' : ''} ${
+           a.total === 0 ? 'zerado' : ''}">
+      599      <span class="pos">${medalhaPosicao(a.posicao)}</span>
+      600 -    <a href="/u/${a.id}" class="usuario-link">${avatar(a)}<spa
+          -n><strong>${a.nome}</strong>${a.id === usuario.id ? html` <spa
+          -n class="selo">Você</span>` : ''}${mostrarCurso ? html`<small>
+          -${a.curso}</small>` : ''}</span></a>                          
+      600 +    <a href="/u/${a.id}" class="usuario-link">${avatar(a)}<spa
+          +n><strong>${a.nome}</strong>${a.id === usuario.id ? html` <spa
+          +n class="selo selo-oficial">Você</span>` : ''}${mostrarCurso ?
+          + html`<small>${a.curso}</small>` : ''}</span></a>             
+      601      <span class="total">${fmt(a.total)} <small>pts</small></sp
+           an>
+      602    </li>`;
+      603  }
+
+● Update(public\estilo.css)
+  ⎿  Added 44 lines, removed 1 line
+      224  .grade-item span { padding: .4rem; font-size: .75rem; color: v
+           ar(--texto); text-align: center; overflow-wrap: anywhere; }
+      225  
+      226  /* ---------- Ranking ---------- */
+      227 -.filtro { margin-bottom: 1rem; display: flex; gap: .5rem; }   
+      227 +.abas {                                                       
+      228 +  display: flex; gap: .4rem; overflow-x: auto; margin: .8rem -
+          +1.1rem 0; padding: 0 1.1rem .3rem;                            
+      229 +  scrollbar-width: thin; -webkit-overflow-scrolling: touch;   
+      230 +}                                                             
+      231 +.aba {                                                        
+      232 +  flex-shrink: 0; white-space: nowrap; padding: .4rem .8rem; b
+          +order-radius: 999px;                                          
+      233 +  border: 1px solid var(--borda); color: var(--texto); font-si
+          +ze: .85rem; font-weight: 600;                                 
+      234 +}                                                             
+      235 +.aba:hover { text-decoration: none; background: var(--primaria
+          +-suave); }                                                    
+      236 +.aba small { color: var(--muted); font-weight: 400; margin-lef
+          +t: .15rem; }                                                  
+      237 +.aba.ativa { background: var(--primaria); border-color: var(--
+          +primaria); color: #fff; }                                     
+      238 +.aba.ativa small { color: inherit; opacity: .8; }             
+      239 +.sua-frase { margin: .8rem 0 0; padding: .6rem .8rem; border-r
+          +adius: 12px; background: var(--primaria-suave); font-size: .92
+          +rem; }                                                        
+      240 +                                                              
+      241 +.avatar-m { width: 56px; height: 56px; font-size: 1.4rem; }   
+      242 +.podio {                                                      
+      243 +  list-style: none; padding: 0; margin: .5rem 0 1rem;         
+      244 +  display: grid; grid-template-columns: repeat(3, 1fr); align-
+          +items: end; gap: .5rem;                                       
+      245 +}                                                             
+      246 +.podio li { display: grid; justify-items: center; gap: .4rem; 
+          +min-width: 0; }                                               
+      247 +.podio a { display: grid; justify-items: center; gap: .15rem; 
+          +color: var(--texto); text-align: center; min-width: 0; max-wid
+          +th: 100%; }                                                   
+      248 +.podio a:hover { text-decoration: none; }                     
+      249 +.podio strong { overflow: hidden; text-overflow: ellipsis; whi
+          +te-space: nowrap; max-width: 100%; }                          
+      250 +.podio small { color: var(--muted); font-weight: 700; }       
+      251 +.podio .degrau {                                              
+      252 +  width: 100%; display: grid; place-items: start center; paddi
+          +ng-top: .4rem; font-size: 1.6rem;                             
+      253 +  border-radius: 12px 12px 4px 4px; background: var(--primaria
+          +-suave);                                                      
+      254 +}                                                             
+      255 +.podio-1 { order: 2; } .podio-1 .degrau { height: 5.5rem; back
+          +ground: linear-gradient(var(--ouro), transparent); }          
+      256 +.podio-2 { order: 1; } .podio-2 .degrau { height: 4rem; }     
+      257 +.podio-3 { order: 3; } .podio-3 .degrau { height: 3rem; }     
+      258 +.podio li.eu strong { color: var(--primaria); }               
+      259 +.podio-1 .avatar { box-shadow: 0 0 0 3px var(--ouro); }       
+      260 +                                                              
+      261  .ranking { list-style: none; padding: 0; margin: 0; display: g
+           rid; gap: .3rem; }
+      262 +.ranking li.zerado { opacity: .6; }                           
+      263 +                                                              
+      264 +.lideres { list-style: none; padding: 0; margin: 0; display: g
+          +rid; gap: .3rem; }                                            
+      265 +.lider-curso { display: flex; align-items: center; gap: .6rem;
+          + padding: .5rem .6rem; border-radius: 12px; color: var(--texto
+          +); }                                                          
+      266 +.lider-curso:hover { text-decoration: none; background: var(--
+          +primaria-suave); }                                            
+      267 +.lider-curso > span:first-child { flex: 1; display: grid; min-
+          +width: 0; }                                                   
+      268 +.lider-curso small { color: var(--muted); font-size: .78rem; }
+      269 +.lider-nome { font-weight: 600; text-align: right; }          
+      270 +.lider-nome small { display: block; }                         
+      271 +.seta { color: var(--muted); font-size: 1.3rem; }             
+      272  .ranking li { display: flex; align-items: center; gap: .7rem; 
+           padding: .5rem .6rem; border-radius: 12px; }
+      273  .ranking li.eu { background: var(--primaria-suave); }
+      274  .ranking .pos { width: 2.2rem; text-align: center; font-weight
+           : 700; font-size: 1.1rem; flex-shrink: 0; }
+
+● Update(public\estilo.css)
+  ⎿  Added 1 line, removed 1 line
+      234  }
+      235  .aba:hover { text-decoration: none; background: var(--primaria
+           -suave); }
+      236  .aba small { color: var(--muted); font-weight: 400; margin-lef
+           t: .15rem; }
+      237 -.aba.ativa { background: var(--primaria); border-color: var(--
+          -primaria); color: #fff; }                                     
+      237 +.aba.ativa { background: var(--primaria); border-color: var(--
+          +primaria); color: var(--cartao); }                            
+      238  .aba.ativa small { color: inherit; opacity: .8; }
+      239  .sua-frase { margin: .8rem 0 0; padding: .6rem .8rem; border-r
+           adius: 12px; background: var(--primaria-suave); font-size: .92
+           rem; }
+      240  
+
+● Update(test\fluxo.test.js)
+  ⎿  Added 16 lines
+      184    assert.match(psico.html, /Bruno Lima/);
+      185    assert.ok(!psico.html.includes('Ana Souza'));
+      186    assert.ok(!ranking.html.includes('Prof. Carla</strong>'));
+      187 +  assert.match(psico.html, /Você é de <strong>Direito<\/strong
+          +>[\s\S]*Ver o ranking do seu curso/);                         
+      188  
+      189 +  // Sua posição: Ana lidera; Bruno vê quanto falta para passa
+          +r.                                                            
+      190 +  assert.match(ranking.html, /1º<\/strong><span>de 2 no geral/
+          +);                                                            
+      191 +  assert.match(ranking.html, /1º<\/strong><span>de 1 no curso/
+          +);                                                            
+      192 +  assert.match(ranking.html, /liderança<\/strong>, 108 pontos 
+          +à frente de Bruno/);                                          
+      193 +  const rankingBruno = (await bruno.get('/ranking')).html;    
+      194 +  assert.match(rankingBruno, /Faltam <strong>109 pontos<\/stro
+          +ng> para passar Ana e subir para o 1º lugar/);                
+      195 +  // Abas: Geral e um por curso, com o curso do aluno primeiro
+          +.                                                             
+      196 +  assert.match(rankingBruno, /Geral <small>2[\s\S]*Psicologia 
+          +\(meu curso\) <small>1[\s\S]*Administração <small>0/);        
+      197 +  // Líderes de cada curso, só no geral.                      
+      198 +  assert.match(ranking.html, /Líderes de cada curso[\s\S]*Dire
+          +ito[\s\S]*🥇 Ana[\s\S]*Psicologia[\s\S]*🥇 Bruno/);           
+      199 +  assert.match(ranking.html, /6 cursos ainda não têm alunos/);
+      200 +  assert.ok(!psico.html.includes('Líderes de cada curso'));   
+      201 +  // Professores veem o ranking, mas não participam.          
+      202 +  assert.match((await prof.get('/ranking')).html, /só alunos p
+          +articipam/);                                                  
+      203 +                                                              
+      204    // Bruno não pode apagar post da Ana; a Ana pode.
+      205    assert.equal((await bruno.post('/posts/1/apagar')).status, 4
+           03);
+      206    assert.equal((await ana.post('/posts/1/apagar')).status, 302
+           );
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Testes passando. Agora vou conferir o visual com os dados de exemplo
+  (renderizo a tela num banco temporário e tiro um print com o Edge headless).
+
+  Read 2 files, ran 2 shell commands (ctrl+o to expand)
+
+● A fileira de abas está alargando a página no celular (o item do grid não
+  encolhe). Corrijo e tiro o print de novo.
+
+● Update(public\estilo.css)
+  ⎿  Added 1 line, removed 1 line
+      71  .nav-inferior a.ativo { color: var(--primaria); }
+      72  
+      73  /* ---------- Componentes ---------- */
+      74 -.cartao { background: var(--cartao); border: 1px solid var(--bo
+         -rda); border-radius: var(--raio); padding: 1.1rem; }           
+      74 +.cartao { background: var(--cartao); border: 1px solid var(--bo
+         +rda); border-radius: var(--raio); padding: 1.1rem; min-width: 0
+         +; }                                                            
+      75  .muted { color: var(--muted); font-size: .9rem; }
+      76  .direita { text-align: right; }
+      77  .vazio { text-align: center; display: grid; gap: .6rem; justify
+          -items: center; }
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+  ⎿  1 action not run · permission denied
+     │ Reason: Remove-Item on system path '$s\dados\*' is blocked. This path is protected from removal.
+
+● O print não foi refeito (a pasta antiga travou o comando). Uso uma pasta de
+  dados nova.
+
+  Read 2 files, ran 3 shell commands (ctrl+o to expand)
+
+● O corte era do próprio Edge headless (largura mínima de 492px). Para simular
+  um celular de verdade, coloco a página num iframe de 375px.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+● Ficou bom no celular, no tema escuro. Últimos ajustes: conferir se o CSS
+  removido não era usado em outro lugar e atualizar o README.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && grep
+      -rn "filtro" src public; sed -i 's/^- \*\*Ranking geral e por curso\*\*
+      (só alunos partic…)
+  ⎿  12:- **Ranking geral e por curso** (só alunos participam): abas para o
+      geral e cada curso, pódio dos 3 primeiros, a sua posição no geral e n
+     o curso com quanto falta para passar o colega da frente, e os líderes
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated README.md (+1 -1)
+       9  - **Pontos e conquistas**: quem posta, comenta e recebe curtida
+          s ganha pontos, e desbloqueia conquistas com bônus.
+      10  - **Troféus**: cada aluno tem uma tela de troféus, estilo conqu
+          istas de jogo, com as conquistas e medalhas que já ganhou, as q
+          ue faltam e quanto falta para cada uma (abre pelo botão "Ver tr
+          oféus" do perfil).
+      11  - **Medalhas de professores**: professores entregam medalhas (c
+          om mensagem) que valem pontos.
+      12 -- **Ranking geral e por curso** (só alunos participam).        
+      12 +- **Ranking geral e por curso** (só alunos participam): abas pa
+         +ra o geral e cada curso, pódio dos 3 primeiros, a sua posição n
+         +o geral e no curso com quanto falta para passar o colega da fre
+         +nte, e os líderes de cada curso.                               
+      13  - **Mural de avisos**: a faculdade e os professores publicam av
+          isos, e todos leem. Cada aviso mostra quem publicou, e o ícone 
+          do Mural mostra quantos avisos novos a pessoa ainda não viu. Só
+           a faculdade fixa avisos no topo. Cada professor apaga só os pr
+          óprios avisos, e a faculdade pode apagar qualquer um.
+      14  - **Administração**: a conta da faculdade define quem é profess
+          or ou administrador.
+      15  
+
+● A tela de ranking agora mostra o ranking geral da faculdade e o de cada curso.
+  Já existia uma versão simples, só uma lista com um menu para escolher o
+  curso, e eu a refiz. Os testes automáticos passam, inclusive os novos que
+  cobrem estas partes. Também conferi o visual com os dados de exemplo numa tela
+  do tamanho de um celular, no tema escuro.
+
+  O que aparece na tela:
+  - Abas no topo: "Geral" e uma aba para cada curso, com o número de alunos. O
+    curso do aluno vem primeiro, marcado como "(meu curso)". As abas substituem
+    o menu antigo.
+  - Sua posição: pontos, posição no geral ("3º de 6") e no curso ("2º de 2"), e
+    uma frase com o próximo passo. Por exemplo: "Faltam 5 pontos para passar
+    Júlia e subir para o 2º lugar". Quem está em 1º vê "Você está na liderança,
+    X pontos à frente de Fulano". Se abrir a aba de outro curso, aparece um link
+    para o ranking do próprio curso.
+  - Pódio: os 3 primeiros com foto e medalha. A partir do 4º, a lista segue
+    normal. Alunos com zero pontos aparecem mais apagados.
+  - Líderes de cada curso: só na aba Geral. Mostra quem está em 1º em cada curso
+    e leva ao ranking daquele curso. Avisa também quantos cursos ainda não têm
+    alunos no Maxx.
+  - Professores e a conta da faculdade: podem ver o ranking, mas não participam,
+    e a tela explica isso.
+
+  Empates continuam como antes: quem tem os mesmos pontos fica na mesma posição.
+  A forma de contar os pontos não mudou.
+
+  Fiz mais uma mudança, no estilo de todos os cartões do app: uma regra
+  (min-width: 0) que impede a fileira de abas de alargar a página no celular.
+  Ela não muda nada nas outras telas.
+
+  Arquivos alterados:
+  - src/views.js: a tela
+  - src/pontos.js: calcula o ranking geral e o de todos os cursos de uma vez
+  - src/app.js
+  - public/estilo.css
+  - test/fluxo.test.js
+  - README.md
+
+  Ainda não fiz o commit. Quer que eu faça, no mesmo formato das rodadas
+  anteriores?
+
+✻ Brewed for 3m 51s · done 17:09
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_06_ranking-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_06_ranking-sessao.txt
+
+❯ sim quero                                                                     
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Fiz o commit no branch rodada/leigo_06_ranking: b41b99f "Ranking: abas geral e
+  por curso, pódio e a posição do aluno". Ele inclui os 6 arquivos alterados, e
+  não sobrou nada pendente na pasta.
+
+  Não fiz o commit de merge "rodada: leigo_06_ranking" que aparece nas rodadas
+  anteriores, porque não sei se é você que costuma fazer essa etapa. Se quiser,
+  eu faço também.
+
+✻ Sautéed for 11s · done 17:10
