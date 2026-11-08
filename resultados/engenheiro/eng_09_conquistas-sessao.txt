@@ -850,3 +850,1636 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt
   de começar a etapa 2.
 
 ✻ Baked for 11m 37s · done 19:22
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+※ recap: Estamos no passo 9 (conquistas), e a etapa 1, o avaliador no domínio, está pronta e com testes locais verdes, aguardando sua revisão. Com o seu ok na mensagem "feat(api): adiciona o avaliador de conquistas no domínio", eu commito, faço push e trago a CI. (disable recaps in /config)
+
+> Etapa 1 aprovada, com as três decisões aceitas: a regra do validador para     
+  conquista de bimestre, o teste por item no projeto de integração pela         
+  dependência do leitor, e o evento no recesso sem semestre seguinte esperando  
+  o calendário. Uma coisa para o relatório da etapa 2: confirma quais são os 6  
+  testes que não rodaram; se forem os da verificação do R2, só registra.        
+  Commita com a mensagem proposta, push, acompanha a CI e segue para a etapa 2; 
+  para para a minha revisão no fim dela.                                        
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Enquanto a CI roda, identifico os 6 testes que não rodaram.
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● Confirmado: os 6 são todos da VerificacaoDoR2Tests, que só roda com
+  MAXX_VERIFICAR_R2=1. Fica registrado no relatório. Enquanto a CI segue, começo
+  a ler o que a etapa 2 toca.
+
+  Ran 7 shell commands (ctrl+o to expand)
+
+● Leio agora persistência, raridade, pontos e purga, que a etapa 2 precisa
+  estender.
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Ainda lendo o código que a etapa 2 estende: a purga é um SQL no
+  decisoes/README.md. Confiro se há teste que o executa e vejo a CI.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O job mobile falhou, sem eu ter mexido no cliente. Investigo antes de seguir.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● A falha do mobile são três timeouts de 5 s do Jest, cada um no primeiro teste
+  de um arquivo (cadastro, comprovacoes, feed). Nada que o commit tocou. Vejo se
+  isso já aconteceu antes na CI.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A falha no passo 8 vem da lentidão do runner, já que os mesmos testes passaram
+  em todos os pushes. Vou pedir nova tentativa só dos jobs que falharam e
+  enquanto isso sigo para a etapa 2.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● A purga tem teste que executa o SQL do README, então vou estendê-lo também.
+  Começo pelo domínio da etapa 2: o fim e os semestres de uma instância, e as
+  duas notificações.
+
+● Update(apps\api\src\Maxx.Domain\Conquistas\InstanciaDePeriodo.cs)
+  ⎿  Added 32 lines
+      27      public Periodo Tipo { get; }
+      28  
+      29      public Guid Referencia { get; }
+      30 +                                                               
+      31 +    // O último dia da instância, em America/Sao_Paulo. Nulo no
+         + período curso, que não tem                                    
+      32 +    // fronteira de data, e na referência que o calendário não 
+         +conhece.                                                       
+      33 +    public DateOnly? Fim(Calendario calendario)                
+      34 +    {                                                          
+      35 +        ArgumentNullException.ThrowIfNull(calendario);         
+      36 +                                                               
+      37 +        return Tipo switch                                     
+      38 +        {                                                      
+      39 +            Periodo.Bimestre => calendario.Anos.SelectMany(ano 
+         +=> ano.Bimestres).FirstOrDefault(b => b.Id == Referencia)?.Fim,
+      40 +            Periodo.Semestre => calendario.Anos.SelectMany(ano 
+         +=> ano.Semestres).FirstOrDefault(s => s.Id == Referencia)?.Fim,
+      41 +            Periodo.Ano => calendario.Anos.FirstOrDefault(ano =
+         +> ano.Id == Referencia)?.Fim,                                  
+      42 +            _ => null,                                         
+      43 +        };                                                     
+      44 +    }                                                          
+      45 +                                                               
+      46 +    // Os semestres letivos que a instância cobre: é neles que 
+         +se procuram as matrículas do                                   
+      47 +    // alvo dinâmico. O bimestre está num semestre só; o ano, n
+         +os dois. O período curso não                                   
+      48 +    // tem alvo dinâmico, e a lista sai vazia.                 
+      49 +    public IReadOnlyList<SemestreLetivo> Semestres(Calendario c
+         +alendario)                                                     
+      50 +    {                                                          
+      51 +        ArgumentNullException.ThrowIfNull(calendario);         
+      52 +                                                               
+      53 +        var semestres = calendario.Anos.SelectMany(ano => ano.S
+         +emestres);                                                     
+      54 +        return Tipo switch                                     
+      55 +        {                                                      
+      56 +            Periodo.Bimestre => [.. semestres.Where(semestre =>
+         + semestre.Bimestres.Any(b => b.Id == Referencia))],            
+      57 +            Periodo.Semestre => [.. semestres.Where(semestre =>
+         + semestre.Id == Referencia)],                                  
+      58 +            Periodo.Ano => [.. calendario.Anos.Where(ano => ano
+         +.Id == Referencia).SelectMany(ano => ano.Semestres)],          
+      59 +            _ => [],                                           
+      60 +        };                                                     
+      61 +    }                                                          
+      62  }
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Domain" &&
+      sed -i 's/^using Maxx.Domain.Catalogo;$/using Maxx.Domain.Academ…)
+  ⎿  using Maxx.Domain.Academico;
+     using Maxx.Domain.Catalogo;
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Conquistas\InstanciaDePeriodo.cs (+1 
+     -0)
+      1 +using Maxx.Domain.Academico;                                    
+      2  using Maxx.Domain.Catalogo;
+      3  
+      4  namespace Maxx.Domain.Conquistas;
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Notificacoes\Notificacao.cs)
+  ⎿  Added 27 lines
+      106  
+      107          return new Notificacao(premio.AlunoId, TipoDeNotificac
+           ao.PremioRevogado, premio.Id, agora);
+      108      }
+      109 +                                                              
+      110 +    // Conquista obtida (passo 9, fluxos/03-concessao-de-medal
+          +ha.md): o sistema a concedeu.                                 
+      111 +    public static Notificacao ConquistaObtida(Conquista conqui
+          +sta, DateTimeOffset agora)                                    
+      112 +    {                                                         
+      113 +        ArgumentNullException.ThrowIfNull(conquista);         
+      114 +        if (!conquista.EstaAtiva)                             
+      115 +        {                                                     
+      116 +            throw new DomainException($"A conquista {conquista
+          +.Id} foi removida e não notifica como obtida.");              
+      117 +        }                                                     
+      118 +                                                              
+      119 +        return new Notificacao(conquista.AlunoId, TipoDeNotifi
+          +cacao.ConquistaObtida, conquista.Id, agora);                  
+      120 +    }                                                         
+      121 +                                                              
+      122 +    // Conquista removida pelo recálculo depois de uma anulaçã
+          +o (regras-conquista.md 6): os                                 
+      123 +    // pontos saíram, e o aluno fica sabendo.                 
+      124 +    public static Notificacao ConquistaRemovida(Conquista conq
+          +uista, DateTimeOffset agora)                                  
+      125 +    {                                                         
+      126 +        ArgumentNullException.ThrowIfNull(conquista);         
+      127 +        if (conquista.EstaAtiva)                              
+      128 +        {                                                     
+      129 +            throw new DomainException($"A conquista {conquista
+          +.Id} não foi removida.");                                     
+      130 +        }                                                     
+      131 +                                                              
+      132 +        return new Notificacao(conquista.AlunoId, TipoDeNotifi
+          +cacao.ConquistaRemovida, conquista.Id, agora);                
+      133 +    }                                                         
+      134  }
+      135  
+      136  public enum TipoDeNotificacao
+     ...
+      141      ContestacaoAberta,
+      142      DecisaoDeContestacao,
+      143      PremioRevogado,
+      144 +    ConquistaObtida,                                          
+      145 +    ConquistaRemovida,                                        
+      146  }
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Domain" &&
+      sed -i '1i using Maxx.Domain.Conquistas;' Notificacoes/Notificac…)
+  ⎿  using Maxx.Domain.Conquistas;
+     using Maxx.Domain.Premios;
+  ⎿  Updated apps\api\src\Maxx.Domain\Notificacoes\Notificacao.cs (+1 -0)
+      1 +using Maxx.Domain.Conquistas;                                   
+      2  using Maxx.Domain.Premios;
+      3  
+      4  namespace Maxx.Domain.Notificacoes;
+
+● Agora a camada de aplicação: a carga, o repositório e o handler de
+  reavaliação.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Conquistas\Abstractions.cs)
+  ⎿  Wrote 73 lines to
+     apps\api\src\Maxx.Application\Conquistas\Abstractions.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Catalogo;
+       4 using Maxx.Domain.Conquistas;
+       5 
+       6 namespace Maxx.Application.Conquistas;
+       7 
+       8 public interface IConquistaRepository
+       9 {
+      10     // Serializa as avaliações do mesmo aluno até o fim da trans
+     … +64 lines (~3 KB) (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs)
+  ⎿  Wrote 103 lines to
+     apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs
+      1 using Maxx.Application.Fila;
+      2 using Maxx.Application.Medalhas;
+      3 using Maxx.Application.Notificacoes;
+      4 using Maxx.Domain.Academico;
+      5 using Maxx.Domain.Catalogo;
+      6 using Maxx.Domain.Conquistas;
+      7 using Maxx.Domain.Notificacoes;
+      8 
+      9 namespace Maxx.Application.Conquistas;
+     … +94 lines (ctrl+o to expand)
+
+● Agora os três gatilhos, na mesma transação do fato: concessão de medalha, fim
+  da janela e confirmação da contestação.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && sed -i 's|        fila.Enfileirar(new NotificarMedalhaReceb…)
+  ⎿  1:using Maxx.Application.Conquistas;
+     2:using Maxx.Application.Autenticacao;
+     3:using Maxx.Application.Autorizacao;
+     … +24 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs (+2 
+     -0)
+      1 +using Maxx.Application.Conquistas;                              
+      2  using Maxx.Application.Autenticacao;
+      3  using Maxx.Application.Autorizacao;
+      4  using Maxx.Application.Fila;
+     ...
+      82  
+      83          medalhas.Adicionar(medalha);
+      84          fila.Enfileirar(new NotificarMedalhaRecebida(medalha.Id
+          ));
+      85 +        fila.Enfileirar(ReavaliarConquistas.PelaMedalha(medalha
+         +.AlunoId, medalha.Id));                                        
+      86          fila.Enfileirar(new RecalcularRaridade());
+      87          await unitOfWork.SalvarAsync(cancellationToken);
+      88          return medalha;
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && sed -i '1d' Medalhas/ConcederMedalhaHandler.cs && sed -i 's…)
+  ⎿  public sealed class TornarPremioDefinitivoHandler(
+         IPremioParticipacaoRepository premios,
+         IFilaDeTrabalhos fila,
+     … +26 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs (+1 
+     -1)
+      1 -using Maxx.Application.Conquistas;                              
+      1  using Maxx.Application.Autenticacao;
+      2  using Maxx.Application.Autorizacao;
+      3 +using Maxx.Application.Conquistas;                              
+      4  using Maxx.Application.Fila;
+      5  using Maxx.Domain.Premios;
+      6  
+  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\ContestacaoH
+     andler.cs (+1 -0)
+      1  using Maxx.Application.Autenticacao;
+      2  using Maxx.Application.Autorizacao;
+      3 +using Maxx.Application.Conquistas;                              
+      4  using Maxx.Application.Fila;
+      5  using Maxx.Application.Medalhas;
+      6  using Maxx.Application.Notificacoes;
+  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\DecidirCompr
+     ovacaoHandler.cs (+7 -1)
+      1  using Maxx.Application.Autenticacao;
+      2  using Maxx.Application.Autorizacao;
+      3 +using Maxx.Application.Conquistas;                              
+      4  using Maxx.Application.Fila;
+      5  using Maxx.Application.Medalhas;
+      6  using Maxx.Application.Notificacoes;
+     ...
+      186              return;
+      187          }
+      188  
+      188 -        if (!premio.TornarDefinitivoSeAJanelaFechou(relogio.Ge
+          -tUtcNow()))                                                   
+      189 +        if (premio.TornarDefinitivoSeAJanelaFechou(relogio.Get
+          +UtcNow()))                                                    
+      190 +        {                                                     
+      191 +            // Definitivo, o prêmio passa a contar para conqui
+          +sta (regras-conquista.md 3).                                  
+      192 +            fila.Enfileirar(ReavaliarConquistas.PeloPremio(pre
+          +mio.AlunoId, premio.Id));                                     
+      193 +        }                                                     
+      194 +        else                                                  
+      195          {
+      196              fila.Enfileirar(carga, premio.FimDaJanela);
+      197          }
+
+● Agora a confirmação da contestação.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && awk '
+      /public async Task ConfirmarAsync/ { emConfirmar=1 }…)
+  ⎿      }
+
+         // Confirmado: definitivo na hora, volta a pontuar, janela encerra
+     … +23 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\ContestacaoH
+     andler.cs (+1 -0)
+      84          }
+      85  
+      86          fila.Enfileirar(new NotificarDecisaoDeContestacao(premi
+          o.Id));
+      87 +        fila.Enfileirar(ReavaliarConquistas.PeloPremio(premio.A
+         +lunoId, premio.Id));                                           
+      88          fila.Enfileirar(new RecalcularRaridade());
+      89          await SalvarDecisaoAsync(contestacaoId, cancellationTok
+          en);
+      90      }
+
+● Gatilhos prontos. Agora a infraestrutura: o mapeamento de volta do catálogo
+  para ItemConquista.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Seed\CatalogoRowMapper.cs)
+  ⎿  Added 27 lines
+      113          };
+      114      }
+      115  
+      116 +    // O mesmo caminho, para a conquista: a regra volta do jso
+          +nb no formato do catálogo.                                    
+      117 +    public static ItemConquista ParaConquista(ItemCatalogoRow 
+          +row)                                                          
+      118 +    {                                                         
+      119 +        ArgumentNullException.ThrowIfNull(row);               
+      120 +        if (row.Tipo != NomeJson.De(TipoDeItem.Conquista))    
+      121 +        {                                                     
+      122 +            throw new InvalidOperationException($"O item {row.
+          +Codigo} é {row.Tipo}, não conquista.");                       
+      123 +        }                                                     
+      124 +                                                              
+      125 +        return new ItemConquista                              
+      126 +        {                                                     
+      127 +            Codigo = row.Codigo,                              
+      128 +            Nome = row.Nome,                                  
+      129 +            Descricao = row.Descricao,                        
+      130 +            Tier = Ler<Tier>(row.Tier, row.Codigo),           
+      131 +            Pontos = row.Pontos,                              
+      132 +            Familia = row.FamiliaCodigo,                      
+      133 +            OrdemNaFamilia = row.OrdemNaFamilia,              
+      134 +            RestricaoCurso = row.RestricaoCurso,              
+      135 +            Vigencia = new Vigencia(row.VigenciaInicio, row.Vi
+          +genciaFim),                                                   
+      136 +            Periodo = Ler<Periodo>(row.Periodo, row.Codigo),  
+      137 +            Gatilho = Ler<Gatilho>(row.Gatilho, row.Codigo),  
+      138 +            Regra = RegraDeConquistaJson.Ler(row.Regra        
+      139 +                ?? throw new InvalidOperationException($"A con
+          +quista {row.Codigo} está sem regra no banco.")),              
+      140 +        };                                                    
+      141 +    }                                                         
+      142 +                                                              
+      143      private static InvalidOperationException Incompleto(string
+            codigo, string campo) =>
+      144          new($"O prêmio de participação {codigo} está sem {camp
+           o} no banco.");
+      145  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\ConquistaCon
+       figuration.cs)
+  ⎿  Wrote 101 lines to apps\api\src\Maxx.Infrastructure\Persistence\Config
+     urations\ConquistaConfiguration.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Domain.Conquistas;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Domain.Premios;
+       5 using Maxx.Infrastructure.Conquistas;
+       6 using Maxx.Infrastructure.Seed;
+       7 using Microsoft.EntityFrameworkCore;
+       8 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       9 
+      10 namespace Maxx.Infrastructure.Persistence.Configurations;
+     … +91 lines (ctrl+o to expand)
+● Write(apps\api\src\Maxx.Infrastructure\Conquistas\ConquistaRepository.cs)
+  ⎿  Wrote 166 lines to
+     apps\api\src\Maxx.Infrastructure\Conquistas\ConquistaRepository.cs
+      1 using Maxx.Application.Conquistas;
+      2 using Maxx.Domain.Academico;
+      3 using Maxx.Domain.Catalogo;
+      4 using Maxx.Domain.Conquistas;
+      5 using Maxx.Domain.Identidade;
+      6 using Maxx.Domain.Premios;
+      7 using Maxx.Infrastructure.Persistence;
+      8 using Maxx.Infrastructure.Seed;
+      9 using Microsoft.EntityFrameworkCore;
+     … +157 lines (ctrl+o to expand)
+
+● Background command "Watch CI run until it finishes" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● O run terminou com cinco jobs verdes (incluindo api e e2e) e só mobile
+  vermelho pelos timeouts. Peço uma nova tentativa só do job que falhou, sem
+  novo commit.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Continuo a etapa 2: unicidade, registro de dependências, raridade e pontos.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && \
+      sed -i 's|^    // O mesmo seguimento gravado duas vezes ao mesmo
+      tempo.$|…)
+  ⎿  Maxx.Infrastructure/DependencyInjection.cs:5:using Maxx.Application.Co
+     nquistas;
+     Maxx.Infrastructure/DependencyInjection.cs:19:using Maxx.Infrastructur
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Recusa.cs (+4 -0)
+      89      // A mesma pessoa curtindo o mesmo post duas vezes ao mesmo
+           tempo.
+      90      Curtida,
+      91  
+      92 +    // A mesma conquista concedida duas vezes na mesma instânci
+         +a do período. A trava por                                      
+      93 +    // aluno no worker evita; o índice é a rede de segurança.  
+      94 +    ConquistaAtiva,                                            
+      95 +                                                               
+      96      // O mesmo seguimento gravado duas vezes ao mesmo tempo.
+      97      Seguimento,
+      98  }
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+8 
+     -0)
+      2  using Maxx.Application.Autenticacao;
+      3  using Maxx.Application.Autenticacao.Recuperacao;
+      4  using Maxx.Application.Autorizacao;
+      5 +using Maxx.Application.Conquistas;                              
+      6  using Maxx.Application.Demonstracao;
+      7  using Maxx.Application.Feed;
+      8  using Maxx.Application.Fila;
+     ...
+      16  using Maxx.Application.Social;
+      17  using Maxx.Infrastructure.Autenticacao;
+      18  using Maxx.Infrastructure.Autorizacao;
+      19 +using Maxx.Infrastructure.Conquistas;                          
+      20  using Maxx.Infrastructure.Demonstracao;
+      21  using Maxx.Infrastructure.Email;
+      22  using Maxx.Infrastructure.Feed;
+     ...
+      71          services.AddScoped<IPremioParticipacaoRepository, Premi
+          oParticipacaoRepository>();
+      72          services.AddScoped<IConsultaDeComprovacoes, ConsultaDeC
+          omprovacoes>();
+      73          services.AddScoped<IConsultaDeContestacoes, ConsultaDeC
+          ontestacoes>();
+      74 +        services.AddScoped<IConquistaRepository, ConquistaRepos
+         +itory>();                                                      
+      75 +                                                               
+      76 +        // O avaliador único das conquistas (ADR 0004), com as 
+         +regras customizadas registradas.                               
+      77 +        // Nenhuma conquista da fase 1 usa o escape, e nenhuma 
+         +está registrada.                                               
+      78 +        services.AddSingleton(servicos => new AvaliadorDeConqui
+         +sta(servicos.GetServices<IRegraCustomizada>()));               
+      79  
+      80          // O bucket das fotos (ADR 0002). As opções vêm da bord
+          a, que recusa subir sem elas
+      81          // fora de desenvolvimento.
+     ...
+      110          services.AddTrabalho<NotificarContestacaoAberta, Notif
+           icarContestacaoHandler>();
+      111          services.AddTrabalho<NotificarDecisaoDeContestacao, No
+           tificarContestacaoHandler>();
+      112          services.AddTrabalho<NotificarPremioRevogado, Notifica
+           rContestacaoHandler>();
+      113 +        services.AddTrabalho<ReavaliarConquistas, ReavaliarCon
+          +quistasHandler>();                                            
+      114  
+      115          // Toda verificação registrada aqui entra no /ready.
+      116          services.AddHealthChecks()
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs (+1
+     -0)
+      17          ["ix_post_premio_participacao_ativo"] = Unicidade.PostP
+          orPremio,
+      18          ["ix_premio_participacao_chave_ativa"] = Unicidade.Prem
+          ioParticipacaoAtivo,
+      19          ["ix_contestacao_premio_participacao_id"] = Unicidade.C
+          ontestacaoPorPremio,
+      20 +        ["ix_conquista_instancia_ativa"] = Unicidade.ConquistaA
+         +tiva,                                                          
+      21          ["pk_curtida"] = Unicidade.Curtida,
+      22          ["pk_seguimento"] = Unicidade.Seguimento,
+      23      };
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's|^using Maxx.Application.Social;$|using Maxx.Application.Social;\nu…)
+  ⎿  17:using Maxx.Domain.Conquistas;
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -0)
+      14  using Maxx.Application.Premios;
+      15  using Maxx.Application.PremiosParticipacao;
+      16  using Maxx.Application.Social;
+      17 +using Maxx.Domain.Conquistas;                                  
+      18  using Maxx.Infrastructure.Autenticacao;
+      19  using Maxx.Infrastructure.Autorizacao;
+      20  using Maxx.Infrastructure.Conquistas;
+
+● Agora a raridade e os pontos passam a contar a conquista ativa.
+
+● Update(apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeRaridade.c
+        s)
+  ⎿  Added 12 lines
+      115              comItem[item.Codigo] = item.Alunos;
+      116          }
+      117  
+      118 +        // Conquista conta enquanto não removida (passo 9). Re
+          +petível por instância do                                      
+      119 +        // período, conta uma vez por aluno (produto.md 4.3). 
+      120 +        var comConquista = await db.Set<Conquista>()          
+      121 +            .Where(conquista => conquista.RemovidaEm == null) 
+      122 +            .GroupBy(conquista => conquista.ItemCodigo)       
+      123 +            .Select(item => new { Codigo = item.Key, Alunos = 
+          +item.Select(conquista => conquista.AlunoId).Distinct().Count()
+          + })                                                           
+      124 +            .ToListAsync(cancellationToken);                  
+      125 +        foreach (var item in comConquista)                    
+      126 +        {                                                     
+      127 +            comItem[item.Codigo] = item.Alunos;               
+      128 +        }                                                     
+      129 +                                                              
+      130          var itens = await db.Set<ItemCatalogoRow>().AsNoTracki
+           ng()
+      131              .Select(item => new { item.Codigo, item.RestricaoC
+           urso })
+      132              .ToListAsync(cancellationToken);
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && sed -i 's|^// participação válido ou
+      definitivo do item…)
+  ⎿  // calcula e deixa um pedido só para quando os dez segundos fecharem.
+     //
+     // O numerador são os alunos distintos com ao menos uma medalha ativa
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeR
+     aridade.cs (+1 -1)
+      40  // calcula e deixa um pedido só para quando os dez segundos fec
+          harem.
+      41  //
+      42  // O numerador são os alunos distintos com ao menos uma medalha
+           ativa ou um prêmio de
+      43 -// participação válido ou definitivo do item (passo 8), ativos 
+         -ou ex-alunos; a conquista entra                                
+      43 +// participação válido ou definitivo do item (passo 8), ou uma 
+         +conquista não removida (passo 9),                              
+      44  // no passo 9. O divisor são os alunos com conta, ativos e ex-a
+          lunos, os de demonstração
+      45  // inclusive: o campus inteiro para item aberto, o curso atual 
+          para item restrito.
+      46  internal sealed partial class RecalculoDeRaridade(
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && sed -i 's|^// participação válido ou
+      definitivo do item…)
+  ⎿  // conta lê o estado de agora; e se a última execução foi há menos de
+     dez segundos, este não
+     // calcula e deixa um pedido só para quando os dez segundos fecharem.
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeR
+     aridade.cs (+2 -1)
+      2  using Maxx.Application.Medalhas;
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Catalogo;
+      5 +using Maxx.Domain.Conquistas;                                   
+      6  using Maxx.Domain.Identidade;
+      7  using Maxx.Domain.Premios;
+      8  using Maxx.Infrastructure.Persistence;
+     ...
+      42  //
+      43  // O numerador são os alunos distintos com ao menos uma medalha
+           ativa ou um prêmio de
+      44  // participação válido ou definitivo do item (passo 8), ou uma 
+          conquista não removida (passo 9),
+      44 -// no passo 9. O divisor são os alunos com conta, ativos e ex-a
+         -lunos, os de demonstração                                      
+      45 +// ativos ou ex-alunos. O divisor são os alunos com conta, ativ
+         +os e ex-alunos, os de demonstração                             
+      46  // inclusive: o campus inteiro para item aberto, o curso atual 
+          para item restrito.
+      47  internal sealed partial class RecalculoDeRaridade(
+      48      MaxxDbContext db, IFilaDeTrabalhos fila, TimeProvider relog
+          io, ILogger<RecalculoDeRaridade> logger)
+
+● Agora os pontos no Troféus e no perfil.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && \
+      sed -i 's|^            medalhas.Sum(medalha => medalha…)
+  ⎿  Premios/ConsultaDePremios.cs:82:        var pontosDeConquistas = await
+      db.Set<Conquista>()
+     Premios/ConsultaDePremios.cs:92:            medalhas.Sum(medalha => me
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+     (+3 -1)
+      44                          + db.Set<PremioParticipacao>()
+      45                              .Where(premio => premio.AlunoId == 
+          usuario.Id
+      46                                  && (premio.Estado == EstadoDoPr
+          emioParticipacao.Valido || premio.Estado == EstadoDoPremioParti
+          cipacao.Definitivo))
+      47 -                            .Sum(premio => premio.Pontos),     
+      47 +                            .Sum(premio => premio.Pontos)      
+      48 +                        + db.Set<Conquista>().Where(conquista =
+         +> conquista.AlunoId == usuario.Id && conquista.RemovidaEm == nu
+         +ll)                                                            
+      49 +                            .Sum(conquista => conquista.Pontos)
+         +,                                                              
+      50                      MedalhasConcedidas = db.Set<Medalha>().Coun
+          t(medalha => medalha.ConcedidaPorId == usuario.Id && medalha.An
+          uladaEm == null),
+      51                  })
+      52              .AsNoTracking()
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+7 -1)
+      77                  premio.Id, premio.Tier, premio.Pontos, premio.M
+          ateria, null, premio.AprovadoEm!.Value, premio.PostId))))
+      78              .ToLookup(par => par.ItemCodigo, par => par.Obtido)
+          ;
+      79  
+      80 +        // A conquista não removida pontua (produto.md 4.9: tud
+         +o soma). O que ela mostra como                                 
+      81 +        // obtido na tela chega com a leitura de Troféus (passo
+         + 9, etapa 5).                                                  
+      82 +        var pontosDeConquistas = await db.Set<Conquista>()     
+      83 +            .Where(conquista => conquista.AlunoId == alunoId &&
+         + conquista.RemovidaEm == null)                                 
+      84 +            .SumAsync(conquista => conquista.Pontos, cancellati
+         +onToken);                                                      
+      85 +                                                               
+      86          var raridades = await db.Set<RaridadeDoItemRow>().AsNoT
+          racking()
+      87              .ToDictionaryAsync(linha => linha.ItemCodigo, cance
+          llationToken);
+      88          var itens = await db.Set<ItemCatalogoRow>().AsNoTrackin
+          g().OrderBy(item => item.Codigo).ToListAsync(cancellationToken)
+          ;
+      89          var familias = await db.Set<FamiliaRow>().AsNoTracking(
+          ).OrderBy(familia => familia.Codigo).ToListAsync(cancellationTo
+          ken);
+      90  
+      91          return new PremiosDoAluno(
+      86 -            medalhas.Sum(medalha => medalha.Pontos) + participa
+         -coes.Sum(premio => premio.Pontos),                             
+      92 +            medalhas.Sum(medalha => medalha.Pontos) + participa
+         +coes.Sum(premio => premio.Pontos) + pontosDeConquistas,        
+      93              [.. familias.Select(familia => new FamiliaDoCatalog
+          o(familia.Codigo, familia.Nome, familia.Descricao, familia.Pass
+          os))],
+      94              [.. itens
+      95                  .Where(item => item.RestricaoCurso is null
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's|^using Maxx.Domain.Catalogo;$|using Maxx.Domain.Catalogo;\nusing M…)
+  ⎿  // Pontos: a soma do que pontua hoje: as medalhas ativas e os prêmios
+     de participação
+     // válidos e definitivos.
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+     (+1 -0)
+       5  using Maxx.Application.Paginacao;
+       6  using Maxx.Application.Perfil;
+       7  using Maxx.Domain.Academico;
+       8 +using Maxx.Domain.Conquistas;                                  
+       9  using Maxx.Domain.Identidade;
+      10  using Maxx.Domain.Premios;
+      11  using Maxx.Domain.Social;
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+1 -0)
+      1  using Maxx.Application.Premios;
+      2  using Maxx.Domain.Academico;
+      3  using Maxx.Domain.Catalogo;
+      4 +using Maxx.Domain.Conquistas;                                   
+      5  using Maxx.Domain.Identidade;
+      6  using Maxx.Domain.Premios;
+      7  using Maxx.Domain.Social;
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|^//
+      válidos e definitivos\.$|// válidos e definitivos, e as conqui…)
+  ⎿  Updated apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs (+1
+     -1)
+      12  }
+      13  
+      14  // Pontos: a soma do que pontua hoje: as medalhas ativas e os p
+          rêmios de participação
+      15 -// válidos e definitivos.                                      
+      15 +// válidos e definitivos, e as conquistas não removidas.       
+      16  public sealed record PremiosDoAluno(int Pontos, IReadOnlyList<F
+          amiliaDoCatalogo> Familias, IReadOnlyList<ItemDoAluno> Itens);
+      17  
+      18  public sealed record FamiliaDoCatalogo(string Codigo, string No
+          me, string Descricao, int Passos);
+  ⎿  (timeout 6m 40s)
+
+● Compila sem aviso. Agora a migration.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch the rerun of the mobile job" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI da etapa 1 ficou verde na segunda tentativa: mobile passou sem nenhuma
+  mudança, o que confirma que os timeouts foram do runner. Sigo com a migration.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      --version 2>&1 | tail -2 && dotnet ef migrations add Conquista -p src/…)
+  ⎿  Entity Framework Core .NET Command-line Tools
+     10.0.14
+     Build started...
+     … +6 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08223534_Conquista.cs (+177 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class Conquista : Migration                
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.DropCheckConstraint(             
+       15 +                name: "ck_notificacao_tipo",                  
+       16 +                table: "notificacao");                        
+       17 +                                                              
+       18 +            migrationBuilder.CreateTable(                     
+       19 +                name: "conquista",                            
+       20 +                columns: table => new                         
+       21 +                {                                             
+       22 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       23 +                    aluno_id = table.Column<Guid>(type: "uuid"
+          +, nullable: false),                                           
+       24 +                    item_codigo = table.Column<string>(type: "
+          +text", nullable: false),                                      
+       25 +                    versao_do_item = table.Column<int>(type: "
+          +integer", nullable: false),                                   
+       26 +                    tier = table.Column<string>(type: "text", 
+          +nullable: false),                                             
+       27 +                    pontos = table.Column<int>(type: "integer"
+          +, nullable: false),                                           
+       28 +                    tipo_de_periodo = table.Column<string>(typ
+          +e: "text", nullable: false),                                  
+       29 +                    referencia_do_periodo = table.Column<Guid>
+          +(type: "uuid", nullable: false),                              
+       30 +                    concedida_em = table.Column<DateTimeOffset
+          +>(type: "timestamp with time zone", nullable: false),         
+       31 +                    removida_em = table.Column<DateTimeOffset>
+          +(type: "timestamp with time zone", nullable: true)            
+       32 +                },                                            
+       33 +                constraints: table =>                         
+       34 +                {                                             
+       35 +                    table.PrimaryKey("pk_conquista", x => x.id
+          +);                                                            
+       36 +                    table.CheckConstraint("ck_conquista_pontos
+          +", "pontos >= 1");                                            
+       37 +                    table.CheckConstraint("ck_conquista_tipo_d
+          +e_periodo", "tipo_de_periodo IN ('bimestre', 'semestre', 'ano'
+          +, 'curso')");                                                 
+       38 +                    table.CheckConstraint("ck_conquista_versao
+          +_do_item", "versao_do_item >= 1");                            
+       39 +                    table.ForeignKey(                         
+       40 +                        name: "fk_conquista_item_catalogo_item
+          +_codigo",                                                     
+     … 137 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A migração gerada segue o plano, com as três tabelas, o índice parcial e o
+  check ampliado; agora vou conferir as assinaturas e rodar os testes de
+  integração da etapa 2.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\MundoDeConquistas.cs
+       )
+  ⎿  Wrote 202 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas
+     \MundoDeConquistas.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Application.Medalhas;
+       3 using Maxx.Domain.Academico;
+       4 using Maxx.Domain.Catalogo;
+       5 using Maxx.Domain.Identidade;
+       6 using Maxx.Domain.Premios;
+       7 using Maxx.Infrastructure.Fila;
+       8 using Maxx.Infrastructure.Persistence;
+       9 using Maxx.Infrastructure.Seed;
+      10 using Microsoft.EntityFrameworkCore;
+     … +192 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Conquistas" && sed -i '/^
+      db.Attach(aluno);$/…)  ⎿  83:        var secretaria = CadastroElegivel.Instituicao("secretaria@u
+     nieduk.com.br", "Secretaria UniMax");
+     143:            .AnularAsync(medalha, "secretaria@unieduk.com.br", Ct)
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\MundoDeCon
+     quistas.cs (+3 -4)
+      1  using Maxx.Application.Fila;
+      2  using Maxx.Application.Medalhas;
+      3 +using Maxx.Application.PremiosParticipacao;                     
+      4  using Maxx.Domain.Academico;
+      5  using Maxx.Domain.Catalogo;
+      6  using Maxx.Domain.Identidade;
+     ...
+      140      {
+      141          await using var scope = Factory.Services.CreateAsyncSc
+           ope();
+      142          Assert.True(await scope.ServiceProvider.GetRequiredSer
+           vice<AnularMedalhaHandler>()
+      142 -            .AnularAsync(medalha, Secretaria.Email, Ct));     
+      143 +            .AnularAsync(medalha, "secretaria@unieduk.com.br",
+          + Ct));                                                        
+      144      }
+      145  
+      146      // Um prêmio de participação aprovado agora, num evento di
+           gitado que começou ontem, com o
+     ...
+      155  
+      156          await using var scope = Factory.Services.CreateAsyncSc
+           ope();
+      157          var db = scope.ServiceProvider.GetRequiredService<Maxx
+           DbContext>();
+      157 -        db.Attach(aluno);                                     
+      158 -        db.Attach(Secretaria);                                
+      158          db.AddRange(evento, premio);
+      159          scope.ServiceProvider.GetRequiredService<IFilaDeTrabal
+           hos>()
+      161 -            .Enfileirar(new Application.PremiosParticipacao.To
+          -rnarPremioDefinitivo(premio.Id), premio.FimDaJanela);         
+      160 +            .Enfileirar(new TornarPremioDefinitivo(premio.Id),
+          + premio.FimDaJanela);                                         
+      161          await db.SaveChangesAsync(Ct);
+      162          return premio;
+      163      }
+
+● Agora os testes da etapa 2.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\ReavaliacaoDeConquis
+       tasTests.cs)
+  ⎿  Wrote 254 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas
+     \ReavaliacaoDeConquistasTests.cs
+       1 using Maxx.Application.Conquistas;
+       2 using Maxx.Application.Fila;
+       3 using Maxx.Application.Perfil;
+       4 using Maxx.Application.Premios;
+       5 using Maxx.Application.PremiosParticipacao;
+       6 using Maxx.Domain.Catalogo;
+       7 using Maxx.Domain.Conquistas;
+       8 using Maxx.Domain.Notificacoes;
+       9 using Maxx.Domain.Premios;
+      10 using Maxx.Infrastructure.Conquistas;
+     … +244 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Conquistas" && sed -i '/^
+      Assert.Equal(5, med…)
+  ⎿  30:        var medalhas = await mundo.CincoNoBimestreAsync(mundo.Ana);
+     42:        Assert.Equal(medalhas.Order(), evidencias.Select(evidencia
+     => evidencia.MedalhaId!.Value).Order());
+     … +37 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Reavaliaca
+     oDeConquistasTests.cs (+2 -4)
+      127      public async Task Dois_trabalhos_simultaneos_do_mesmo_alun
+           o_concedem_uma_conquista_sem_falhar()
+      128      {
+      129          await using var mundo = await MundoDeConquistas.CriarA
+           sync(postgres);
+      130 -        var medalhas = await mundo.CincoNoBimestreAsync(mundo.
+          -Ana);                                                         
+      130 +        await mundo.CincoNoBimestreAsync(mundo.Ana);          
+      131  
+      132          // As cinco reavaliações (e os outros trabalhos da con
+           cessão) consumidas por dois
+      133          // consumidores ao mesmo tempo: cada reavaliação já vê
+            as cinco medalhas, e todas
+     ...
+      148          // Nenhum trabalho falhou e voltou para a fila: a trav
+           a por aluno serializou as
+      149          // avaliações, e o índice único nem chegou a ser testa
+           do.
+      150          Assert.Empty(await mundo.LinhasAsync<Trabalho>());
+      151 -        Assert.Equal(5, medalhas.Count);                      
+      151      }
+      152  
+      153      [Fact]
+      154      public async Task Indice_unico_recusa_a_mesma_conquista_at
+           iva_na_mesma_instancia()
+      155      {
+      156          await using var mundo = await MundoDeConquistas.CriarA
+           sync(postgres);
+      158 -        var medalhas = await mundo.CincoNoBimestreAsync(mundo.
+          -Ana);                                                         
+      157 +        await mundo.CincoNoBimestreAsync(mundo.Ana);          
+      158          await mundo.EsvaziarAsync();
+      159          var existente = Assert.Single(await mundo.LinhasAsync<
+           Conquista>());
+      160  
+     ...
+      170          var falha = await Assert.ThrowsAsync<ConflitoDeUnicida
+           deException>(
+      171              () => scope.ServiceProvider.GetRequiredService<IUn
+           itOfWork>().SalvarAsync(Ct));
+      172          Assert.Equal(Unicidade.ConquistaAtiva, falha.Unicidade
+           );
+      174 -        Assert.Equal(5, medalhas.Count);                      
+      173      }
+      174  
+      175      [Fact]
+  ⎿  (timeout 6m 40s)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && f=tests/Maxx.Api.
+      IntegrationTests/Conquistas/ReavaliacaoDeConquistasTests.cs &&…)
+  ⎿  using Maxx.Application.Conquistas;
+     using Maxx.Application;
+     using Maxx.Application.Perfil;
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Reavaliaca
+     oDeConquistasTests.cs (+1 -2)
+      1  using Maxx.Application.Conquistas;
+      2 -using Maxx.Application.Fila;                                    
+      2 +using Maxx.Application;                                         
+      3  using Maxx.Application.Perfil;
+      4  using Maxx.Application.Premios;
+      5  using Maxx.Application.PremiosParticipacao;
+     ...
+       9  using Maxx.Domain.Premios;
+      10  using Maxx.Infrastructure.Conquistas;
+      11  using Maxx.Infrastructure.Fila;
+      12 -using Maxx.Infrastructure.Persistence;                         
+      12  using Maxx.Infrastructure.RaridadeDosItens;
+      13  using Microsoft.Extensions.DependencyInjection;
+      14  
+  ⎿  (timeout 6m 40s)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && f=tests/Maxx.Api.
+      IntegrationTests/Conquistas/ReavaliacaoDeConquistasTests.cs &&…)
+  ⎿  using Maxx.Application;
+     using Maxx.Application.Conquistas;
+     using Maxx.Application.Perfil;
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Reavaliaca
+     oDeConquistasTests.cs (+1 -1)
+      1 -using Maxx.Application.Conquistas;                              
+      1  using Maxx.Application;
+      2 +using Maxx.Application.Conquistas;                              
+      3  using Maxx.Application.Perfil;
+      4  using Maxx.Application.Premios;
+      5  using Maxx.Application.PremiosParticipacao;
+  ⎿  (timeout 10m)
+
+● O teste de concorrência encontrou uma corrida real: dois trabalhos gravaram a
+  mesma C01 e o índice único barrou o segundo. Vou investigar a causa antes de
+  alterar a trava por aluno.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\TravaTemporariaTests
+       .cs)
+  ⎿  Wrote 28 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\
+     TravaTemporariaTests.cs
+       1 using Maxx.Application.Conquistas;
+       2 using Maxx.Infrastructure.Persistence;
+       3 using Microsoft.EntityFrameworkCore;
+       4 using Microsoft.Extensions.DependencyInjection;
+       5 
+       6 namespace Maxx.Api.IntegrationTests.Conquistas;
+       7 
+       8 // TEMPORÁRIO: diagnóstico da trava por aluno.
+       9 public sealed class TravaTemporariaTests(PostgresFixture postgre
+         s) : IClassFixture<PostgresFixture>
+     … +19 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A trava está funcionando, pois o diagnóstico mostra a segunda esperando a
+  primeira. Vou checar qual outro teste ou trabalho na fila causou o erro de
+  unicidade e a falha do Assert.Empty.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && rm
+      tests/Maxx.Api.IntegrationTests/Conquistas/TravaTemporariaTests.cs &&
+      f=tests…)
+  ⎿  com falha Maxx.Api.IntegrationTests.Conquistas.ReavaliacaoDeConquistas
+     Tests.Dois_trabalhos_simultaneos_do_mesmo_aluno_concedem_uma_conquista
+     _sem_falhar (1s 229ms)
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Reavaliaca
+     oDeConquistasTests.cs (+2 -2)
+      119  
+      120          Assert.Single(await mundo.LinhasAsync<Conquista>());
+      121          Assert.Single(await mundo.LinhasAsync<Notificacao>(), 
+           linha => linha.Tipo == TipoDeNotificacao.ConquistaObtida);
+      122 -        Assert.Empty(await mundo.LinhasAsync<Trabalho>());    
+      122 +        Assert.Empty((await mundo.LinhasAsync<Trabalho>()).Sel
+          +ect(t => $"{t.Tipo} {t.Tentativas} {t.Estado} {t.UltimoErro}")
+          +);                                                            
+      123      }
+      124  
+      125      [Fact]
+     ...
+      146  
+      147          // Nenhum trabalho falhou e voltou para a fila: a trav
+           a por aluno serializou as
+      148          // avaliações, e o índice único nem chegou a ser testa
+           do.
+      149 -        Assert.Empty(await mundo.LinhasAsync<Trabalho>());    
+      149 +        Assert.Empty((await mundo.LinhasAsync<Trabalho>()).Sel
+          +ect(t => $"{t.Tipo} {t.Tentativas} {t.Estado} {t.UltimoErro}")
+          +);                                                            
+      150      }
+      151  
+      152      [Fact]
+  ⎿  Deleted apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\TravaTempo
+     rariaTests.cs (+0 -28)
+       1 -using Maxx.Application.Conquistas;                             
+       2 -using Maxx.Infrastructure.Persistence;                         
+       3 -using Microsoft.EntityFrameworkCore;                           
+       4 -using Microsoft.Extensions.DependencyInjection;                
+       5 -                                                               
+       6 -namespace Maxx.Api.IntegrationTests.Conquistas;                
+       7 -                                                               
+       8 -// TEMPORÁRIO: diagnóstico da trava por aluno.                 
+       9 -public sealed class TravaTemporariaTests(PostgresFixture postgr
+         -es) : IClassFixture<PostgresFixture>                           
+      10 -{                                                              
+      11 -    [Fact]                                                     
+      12 -    public async Task Segunda_trava_espera_a_primeira()        
+      13 -    {                                                          
+      14 -        var ct = TestContext.Current.CancellationToken;        
+      15 -        await using var mundo = await MundoDeConquistas.CriarAs
+         -ync(postgres);                                                 
+      16 -        await using var a = mundo.Factory.Services.CreateAsyncS
+         -cope();                                                        
+      17 -        await using var b = mundo.Factory.Services.CreateAsyncS
+         -cope();                                                        
+      18 -        var dbA = a.ServiceProvider.GetRequiredService<MaxxDbCo
+         -ntext>();                                                      
+      19 -        var dbB = b.ServiceProvider.GetRequiredService<MaxxDbCo
+         -ntext>();                                                      
+      20 -        await using var ta = await dbA.Database.BeginTransactio
+         -nAsync(ct);                                                    
+      21 -        await using var tb = await dbB.Database.BeginTransactio
+         -nAsync(ct);                                                    
+      22 -        await a.ServiceProvider.GetRequiredService<IConquistaRe
+         -pository>().TravarAlunoAsync(mundo.Ana.Id, ct);                
+      23 -        var travaB = b.ServiceProvider.GetRequiredService<IConq
+         -uistaRepository>().TravarAlunoAsync(mundo.Ana.Id, ct);         
+      24 -        await Task.Delay(1000, ct);                            
+      25 -        var locks = await dbA.Database.SqlQueryRaw<string>("SEL
+         -ECT format('%s %s %s %s', locktype, classid, objid, granted) AS
+         - \"Value\" FROM pg_locks WHERE locktype = 'advisory'").ToListAs
+         -ync(ct);                                                       
+      26 -        Assert.Fail($"B concluiu? {travaB.IsCompleted}. Locks: 
+         -{string.Join(" | ", locks)}");                                 
+      27 -    }                                                          
+      28 -}                                                              
+  ⎿  (timeout 10m)
+
+● Era só o pedido de raridade adiado pela coalescência de 10 s, sem tentativas
+  nem erro. Vou ajustar a asserção e conferir que nenhum trabalho falhou ou
+  voltou para a fila.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && f=tests/Maxx.Api.
+      IntegrationTests/Conquistas/ReavaliacaoDeConquistasTests.cs &&…)
+  ⎿  122:        AssertNenhumTrabalhoFalhou(await mundo.LinhasAsync<Trabalh
+     o>());
+     149:        AssertNenhumTrabalhoFalhou(await mundo.LinhasAsync<Trabalh
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Reavaliaca
+     oDeConquistasTests.cs (+9 -3)
+      1  using Maxx.Application;
+      2  using Maxx.Application.Conquistas;
+      3 +using Maxx.Application.Medalhas;                                
+      4  using Maxx.Application.Perfil;
+      5  using Maxx.Application.Premios;
+      6  using Maxx.Application.PremiosParticipacao;
+     ...
+      92  
+      93          await mundo.EsvaziarAsync();
+      94          mundo.Relogio.Avancar(TimeSpan.FromSeconds(11));
+      94 -        await mundo.EnfileirarAsync(new Application.Medalhas.Re
+         -calcularRaridade());                                           
+      95 +        await mundo.EnfileirarAsync(new RecalcularRaridade()); 
+      96          await mundo.EsvaziarAsync();
+      97  
+      98          // Duas M01 de 30, duas M02 de 25 e uma M03 de 25, mais
+           a C01 de 25.
+     ...
+      120  
+      121          Assert.Single(await mundo.LinhasAsync<Conquista>());
+      122          Assert.Single(await mundo.LinhasAsync<Notificacao>(), 
+           linha => linha.Tipo == TipoDeNotificacao.ConquistaObtida);
+      122 -        Assert.Empty((await mundo.LinhasAsync<Trabalho>()).Sel
+          -ect(t => $"{t.Tipo} {t.Tentativas} {t.Estado} {t.UltimoErro}")
+          -);                                                            
+      123 +        AssertNenhumTrabalhoFalhou(await mundo.LinhasAsync<Tra
+          +balho>());                                                    
+      124      }
+      125  
+      126      [Fact]
+     ...
+      147  
+      148          // Nenhum trabalho falhou e voltou para a fila: a trav
+           a por aluno serializou as
+      149          // avaliações, e o índice único nem chegou a ser testa
+           do.
+      149 -        Assert.Empty((await mundo.LinhasAsync<Trabalho>()).Sel
+          -ect(t => $"{t.Tipo} {t.Tentativas} {t.Estado} {t.UltimoErro}")
+          -);                                                            
+      150 +        AssertNenhumTrabalhoFalhou(await mundo.LinhasAsync<Tra
+          +balho>());                                                    
+      151      }
+      152  
+      153      [Fact]
+     ...
+      247          Assert.Equal(3, (await mundo.LinhasAsync<EvidenciaDaCo
+           nquista>()).Count);
+      248      }
+      249  
+      250 +    // O que sobra na fila é só o recálculo de raridade adiado
+          + pela coalescência de 10 s (ADR                               
+      251 +    // 0005), nunca um trabalho que falhou e voltou com recuo.
+      252 +    private static void AssertNenhumTrabalhoFalhou(List<Trabal
+          +ho> trabalhos) =>                                             
+      253 +        Assert.All(trabalhos, trabalho => Assert.Equal((Recalc
+          +ularRaridade.Tipo, 0), (trabalho.Tipo, trabalho.Tentativas)));
+      254 +                                                              
+      255      private static (int, int, string, Guid) Linha(ProgressoDeC
+           onquistaRow linha) =>
+      256          (linha.Contagem, linha.Alvo, linha.TipoDePeriodo, linh
+           a.ReferenciaDoPeriodo);
+     … 1 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Os 47 passam. Antes de confiar no teste de concorrência, faço uma prova
+  reversa: desligo a trava temporariamente e vejo se ele falha.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && grep -n
+      "ExecuteSqlAsync" src/Maxx.Infrastructure/Conquistas/ConquistaRepository…)
+  ⎿  51:        await db.Database.ExecuteSqlAsync(
+     51:        if (chave == "x") await db.Database.ExecuteSqlAsync(
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Infrastructure\Conquistas\ConquistaRepository.cs (+1
+     -1)
+      48          }
+      49  
+      50          var chave = alunoId.ToString();
+      51 -        await db.Database.ExecuteSqlAsync(                     
+      51 +        if (chave == "x") await db.Database.ExecuteSqlAsync(   
+      52              $"SELECT pg_advisory_xact_lock({_classeDaTrava}, ha
+          shtext({chave}))", cancellationToken);
+      53      }
+      54  
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=src/Maxx.Infrastructure/Conquistas/ConquistaRepository.cs && cp
+      /tmp/repo.bak…)
+  ⎿  52:            $"SELECT {_classeDaTrava}, hashtext({chave})", cancella
+     tionToken);
+       Assert.All() Failure: 2 out of 3 items in the collection did not pas
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Infrastructure\Conquistas\ConquistaRepository.cs (+1
+     -1)
+      48          }
+      49  
+      50          var chave = alunoId.ToString();
+      51 -        if (chave == "x") await db.Database.ExecuteSqlAsync(   
+      51 +        await db.Database.ExecuteSqlAsync(                     
+      52              $"SELECT pg_advisory_xact_lock({_classeDaTrava}, ha
+          shtext({chave}))", cancellationToken);
+      53      }
+      54  
+  ⎿  (timeout 10m)
+
+● Com a trava, nenhuma das duas reavaliações falha por unicidade; sem ela,
+  falham nas três rodadas, então o teste reverso está confirmado. Agora vou
+  remover a purga da demonstração e o teste que a executa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DemonstracaoTests
+        .cs)
+  ⎿  Added 46 lines
+      417          {
+      418          }
+      419  
+      420 +        // Uma conquista de cada um, com a medalha como evidên
+          +cia e o progresso gravado: a                                  
+      421 +        // conquista segura o aluno, e a evidência, a medalha.
+      422 +        var c90 = new ItemConquista                           
+      423 +        {                                                     
+      424 +            Codigo = "C90",                                   
+      425 +            Nome = "Uma presença no curso",                   
+      426 +            Descricao = "Receber uma medalha de presença integ
+          +ral.",                                                        
+      427 +            Tier = Tier.Bronze,                               
+      428 +            Pontos = 5,                                       
+      429 +            Periodo = Periodo.Curso,                          
+      430 +            Gatilho = Gatilho.PorFato,                        
+      431 +            Regra = new() { Forma = FormaDeContagem.Contagem, 
+          +Fonte = FonteDeContagem.Medalha, FiltroItens = ["M03"], Alvo =
+          + AlvoDeConquista.De(1) },                                     
+      432 +        };                                                    
+      433 +        await SalvarAsync(factory, CatalogoRowMapper.ParaRow(c
+          +90));                                                         
+      434 +        foreach (var nome in new[] { "Ana Paula", "Carla Dias"
+          + })                                                           
+      435 +        {                                                     
+      436 +            await using var scope = factory.Services.CreateAsy
+          +ncScope();                                                    
+      437 +            var banco = scope.ServiceProvider.GetRequiredServi
+          +ce<MaxxDbContext>();                                          
+      438 +            var aluno = await banco.Set<Usuario>().SingleAsync
+          +(usuario => usuario.NomeDeExibicao == nome, Ct);              
+      439 +            var medalha = await banco.Set<Medalha>().SingleAsy
+          +nc(linha => linha.AlunoId == aluno.Id, Ct);                   
+      440 +            var fato = new FatoContavel                       
+      441 +            {                                                 
+      442 +                Origem = OrigemDoFato.Medalha,                
+      443 +                Id = medalha.Id,                              
+      444 +                ItemCodigo = medalha.ItemCodigo,              
+      445 +                MateriaId = medalha.MateriaId,                
+      446 +                BimestreId = medalha.BimestreId,              
+      447 +                SemestreLetivoId = medalha.SemestreLetivoId,  
+      448 +                AnoLetivoId = Guid.CreateVersion7(),          
+      449 +            };                                                
+      450 +            var instancia = new InstanciaDePeriodo(Periodo.Cur
+          +so, aluno.Id);                                                
+      451 +            await SalvarAsync(                                
+      452 +                factory,                                      
+      453 +                Conquista.Conceder(c90, 1, aluno.Id, instancia
+          +, Avaliacao.De(1, 1, [fato]), DateTimeOffset.UtcNow),         
+      454 +                new ProgressoDeConquistaRow                   
+      455 +                {                                             
+      456 +                    AlunoId = aluno.Id,                       
+      457 +                    ItemCodigo = c90.Codigo,                  
+      458 +                    TipoDePeriodo = "curso",                  
+      459 +                    ReferenciaDoPeriodo = aluno.Id,           
+      460 +                    Contagem = 1,                             
+      461 +                    Alvo = 1,                                 
+      462 +                    AtualizadoEm = DateTimeOffset.UtcNow,     
+      463 +                });                                           
+      464 +        }                                                     
+      465 +                                                              
+      466          var readme = await File.ReadAllTextAsync(Path.Combine(
+           Repositorio.Raiz, "docs", "decisoes", "README.md"), Ct);
+      467          var purga = Regex.Match(readme, @"```sql\s+(BEGIN;.*?C
+           OMMIT;)\s+```", RegexOptions.Singleline, TimeSpan.FromSeconds(
+           5));
+      468          Assert.True(purga.Success);
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DemonstracaoTests
+        .cs)
+  ⎿  Added 4 lines
+      480          Assert.Equal("Carla Dias", restante.NomeDeExibicao);
+      481          Assert.Equal(restante.Id, (await db.Set<AceiteDeTermo>
+           ().SingleAsync(Ct)).UsuarioId);
+      482          Assert.Equal(restante.Id, (await db.Set<Medalha>().Sin
+           gleAsync(Ct)).AlunoId);
+      483 +        var conquistaQueFica = await db.Set<Conquista>().Inclu
+          +de(conquista => conquista.Evidencias).SingleAsync(Ct);        
+      484 +        Assert.Equal(restante.Id, conquistaQueFica.AlunoId);  
+      485 +        Assert.Equal(1, await db.Set<EvidenciaDaConquista>().C
+          +ountAsync(Ct));                                               
+      486 +        Assert.Equal(restante.Id, (await db.Set<ProgressoDeCon
+          +quistaRow>().SingleAsync(Ct)).AlunoId);                       
+      487          Assert.Equal(restante.Id, (await db.Set<Notificacao>()
+           .SingleAsync(Ct)).UsuarioId);
+      488          Assert.All(await db.Set<UploadPendente>().ToListAsync(
+           Ct), upload => Assert.Equal(restante.Id, upload.UsuarioId));
+      489          Assert.Equal(2, await db.Set<UploadPendente>().CountAs
+           ync(Ct));
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/DemonstracaoTests.cs
+      && sed -i 's…)
+  ⎿  BEGIN;
+     CREATE TEMP TABLE alvo ON COMMIT DROP AS
+       SELECT id AS usuario_id, cadastro_elegivel_id AS cadastro_id
+     … +29 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+3 -0)
+      12  using Maxx.Application;
+      13  using Maxx.Application.Medalhas;
+      14  using Maxx.Domain.Academico;
+      15 +using Maxx.Domain.Catalogo;                                    
+      16 +using Maxx.Domain.Conquistas;                                  
+      17  using Maxx.Domain.Fotos;
+      18  using Maxx.Domain.Identidade;
+      19  using Maxx.Domain.Notificacoes;
+      20  using Maxx.Domain.Premios;
+      21  using Maxx.Domain.Social;
+      22 +using Maxx.Infrastructure.Conquistas;                          
+      23  using Maxx.Infrastructure.Fila;
+      24  using Maxx.Infrastructure.Persistence;
+      25  using Maxx.Infrastructure.Seed;
+  ⎿  Updated docs\decisoes\README.md (+4 -1)
+      125  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario
+           _id FROM alvo);
+      126  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      127  DELETE FROM notificacao WHERE usuario_id IN (SELECT usuario_id
+            FROM alvo);
+      128 +DELETE FROM progresso_de_conquista WHERE aluno_id IN (SELECT u
+          +suario_id FROM alvo);                                         
+      129 +DELETE FROM conquista WHERE aluno_id IN (SELECT usuario_id FRO
+          +M alvo);                                                      
+      130  DELETE FROM curtida WHERE usuario_id IN (SELECT usuario_id FRO
+           M alvo);
+      131  DELETE FROM comentario WHERE autor_id IN (SELECT usuario_id FR
+           OM alvo);
+      132  DELETE FROM seguimento WHERE seguidor_id IN (SELECT usuario_id
+            FROM alvo) OR seguido_id IN (SELECT usuario_id FROM alvo);
+     ...
+      144  ```
+      145  
+      146  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+           os reservados, os aceites do
+      145 -termo e os refresh saem em cascata com o usuário e a família. 
+          -Curtidas e comentários de                                     
+      147 +termo e os refresh saem em cascata com o usuário e a família, 
+          +e as evidências, com a                                        
+      148 +conquista. Curtidas e comentários de                          
+      149  outras pessoas nos posts do lote saem em cascata com o post. A
+            lista cresce com os passos
+      150  que gravam dados do aluno (prêmios, pontos): cada um acrescent
+           a aqui a tabela dele, antes
+      151  de `usuario`. As fotos no bucket não saem por este SQL, que só
+            alcança o banco: saem na purga
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '/^conquista\. Curtidas e comentários de$/{N;s/^conquista\.
+      Curtidas e comentários…)
+  ⎿  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefixos reser
+     vados, os aceites do
+     termo e os refresh saem em cascata com o usuário e a família, e as evi
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+2 -2)
+      145  
+      146  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+           os reservados, os aceites do
+      147  termo e os refresh saem em cascata com o usuário e a família, 
+           e as evidências, com a
+      148 -conquista. Curtidas e comentários de                          
+      149 -outras pessoas nos posts do lote saem em cascata com o post. A
+          - lista cresce com os passos                                   
+      148 +conquista. Curtidas e comentários de outras pessoas nos posts 
+          +do lote saem em cascata com o                                 
+      149 +post. A lista cresce com os passos                            
+      150  que gravam dados do aluno (prêmios, pontos): cada um acrescent
+           a aqui a tabela dele, antes
+      151  de `usuario`. As fotos no bucket não saem por este SQL, que só
+            alcança o banco: saem na purga
+      152  pela área web da instituição, no passo 12.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '/^post\. A lista cresce com os passos$/{N;s/^post\. A lista cresce
+      com os passos\…)  ⎿  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefixos reser
+     vados, os aceites do
+     termo e os refresh saem em cascata com o usuário e a família, e as evi
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+2 -2)
+      146  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+           os reservados, os aceites do
+      147  termo e os refresh saem em cascata com o usuário e a família, 
+           e as evidências, com a
+      148  conquista. Curtidas e comentários de outras pessoas nos posts 
+           do lote saem em cascata com o
+      149 -post. A lista cresce com os passos                            
+      150 -que gravam dados do aluno (prêmios, pontos): cada um acrescent
+          -a aqui a tabela dele, antes                                   
+      149 +post. A lista cresce com os passos que gravam dados do aluno (
+          +prêmios, pontos): cada um                                     
+      150 +acrescenta aqui a tabela dele, antes                          
+      151  de `usuario`. As fotos no bucket não saem por este SQL, que só
+            alcança o banco: saem na purga
+      152  pela área web da instituição, no passo 12.
+      153  
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '/^acrescenta aqui a tabela dele, antes$/{N;N;s/^acrescenta aqui a
+      tabela dele, an…)
+  ⎿  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefixos reser
+     vados, os aceites do
+     termo e os refresh saem em cascata com o usuário e a família, e as evi
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+2 -3)
+      147  termo e os refresh saem em cascata com o usuário e a família, 
+           e as evidências, com a
+      148  conquista. Curtidas e comentários de outras pessoas nos posts 
+           do lote saem em cascata com o
+      149  post. A lista cresce com os passos que gravam dados do aluno (
+           prêmios, pontos): cada um
+      150 -acrescenta aqui a tabela dele, antes                          
+      151 -de `usuario`. As fotos no bucket não saem por este SQL, que só
+          - alcança o banco: saem na purga                               
+      152 -pela área web da instituição, no passo 12.                    
+      150 +acrescenta aqui a tabela dele, antes de `usuario`. As fotos no
+          + bucket não saem por este SQL,                                
+      151 +que só alcança o banco: saem na purga pela área web da institu
+          +ição, no passo 12.                                            
+      152  
+      153  ## Cliente
+      154  
+
+● Purga atualizada no README e no teste. Agora rodo a verificação completa como
+  a CI: formatação, build Release e a suíte inteira.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● The only failure is expected: the old grant test listed exactly the jobs the
+  grant enqueues, and now there's a third one. I'll update it to include the
+  reevaluation and check its payload.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Medalhas/ConcessaoDeMedalhaTests.cs &&
+      sed -i…)
+  ⎿    total: 995
+       falhou: 0
+       ignorados: 6
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\ConcessaoDeM
+     edalhaTests.cs (+6 -1)
+       4  using System.Text.Json;
+       5  using Maxx.Api.Autenticacao;
+       6  using Maxx.Api.Medalhas;
+       7 +using Maxx.Application.Conquistas;                             
+       8  using Maxx.Application.Medalhas;
+       9  using Maxx.Domain.Academico;
+      10  using Maxx.Domain.Catalogo;
+     ...
+      104          Assert.Null(medalha.AnuladaEm);
+      105  
+      106          var trabalhos = await db.Set<Trabalho>().OrderBy(traba
+           lho => trabalho.Id).ToListAsync(Ct);
+      106 -        Assert.Equal([NotificarMedalhaRecebida.Tipo, Recalcula
+          -rRaridade.Tipo], trabalhos.Select(trabalho => trabalho.Tipo));
+      107 +        Assert.Equal(                                         
+      108 +            [NotificarMedalhaRecebida.Tipo, ReavaliarConquista
+          +s.Tipo, RecalcularRaridade.Tipo], trabalhos.Select(trabalho =>
+          + trabalho.Tipo));                                             
+      109          using var carga = JsonDocument.Parse(trabalhos[0].Carg
+           a);
+      110          Assert.Equal(medalha.Id, carga.RootElement.GetProperty
+           ("medalhaId").GetGuid());
+      111 +        using var reavaliacao = JsonDocument.Parse(trabalhos[1
+          +].Carga);                                                     
+      112 +        Assert.Equal(mundo.Ana, reavaliacao.RootElement.GetPro
+          +perty("alunoId").GetGuid());                                  
+      113 +        Assert.Equal(medalha.Id, reavaliacao.RootElement.GetPr
+          +operty("medalhaId").GetGuid());                               
+      114  
+      115          var naLista = Assert.Single(Assert.Single(await Alunos
+           Async(client, mundo.BancoDeDados)).Medalhas);
+      116          Assert.Equal((medalha.Id, "M01", 2), (naLista.Id, naLi
+           sta.Item, naLista.Bimestre));
+  ⎿  (timeout 10m)
+
+● A suíte inteira passou: 995 testes verdes, nenhuma falha, e os 6 da R2 seguem
+  ignorados. Ainda faltam testes de domínio para o fim e os semestres da
+  instância e para as duas notificações, que entraram no domínio nesta etapa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Conquistas\InstanciaENotificacaoTests.c
+       s)
+  ⎿  Wrote 71 lines to apps\api\tests\Maxx.Domain.Tests\Conquistas\Instanci
+     aENotificacaoTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Domain.Conquistas;
+       3 using Maxx.Domain.Notificacoes;
+       4 using Maxx.Domain.Tests.Catalogo;
+       5 using static Maxx.Domain.Tests.Academico.Calendario2026;
+       6 using static Maxx.Domain.Tests.Conquistas.Fatos;
+       7 
+       8 namespace Maxx.Domain.Tests.Conquistas;
+       9 
+      10 // O fim e os semestres de uma instância, que o worker usa para 
+     … +62 lines (~3 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Domínio verde (495) e formatação limpa. Por último, confiro que o contrato
+  OpenAPI não mudou, já que ampliei um enum.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa 2 está pronta para a sua revisão. Ainda não commitei; a CI desta etapa
+  roda quando você aprovar e eu fizer o push.
+
+  CI da etapa 1
+
+  O commit 52ad6c3 está verde em todos os seis jobs, mas só na segunda
+  tentativa.
+
+  - Na primeira, api, e2e, build, api-client e segurança passaram e mobile
+    falhou.
+  - A falha foram três timeouts de 5 s do Jest, cada um no primeiro teste de um
+    arquivo (cadastro, comprovacoes, feed). Nenhum desses arquivos foi tocado.
+  - Pedi só uma nova tentativa do job que falhou, sem commit novo, e mobile
+    passou. Foi lentidão do runner, não código. Se isso se repetir, vale
+    registrar como risco no plano mestre.
+
+  Os 6 testes ignorados são todos da VerificacaoDoR2Tests, que só roda com
+  MAXX_VERIFICAR_R2=1:
+  - Envio_exato_e_aceito_e_lido_pela_cdn_sem_login
+  - Envio_com_outro_tipo_e_recusado
+  - Envio_maior_que_o_assinado_e_recusado, nos dois tamanhos
+  - Remover_apaga_e_a_cdn_deixa_de_servir
+  - Cors_libera_o_put_do_app_com_content_type
+
+  O que foi feito na etapa 2
+
+  - Migration Conquista: tabelas conquista, evidencia_da_conquista (check de
+    exatamente um prêmio) e progresso_de_conquista; índice parcial
+    ix_conquista_instancia_ativa só entre as não removidas; check de
+    notificacao.tipo com conquistaObtida e conquistaRemovida.
+  - Trabalho reavaliar-conquistas: a carga leva o aluno e o id da medalha ou do
+    prêmio de participação. O handler:
+    - avalia só as conquistas que aquele fato pode mexer, na instância dele;
+    - grava o progresso de todas, inclusive as de fechamento;
+    - concede as de gatilho por fato que alcançaram o alvo, com evidências e
+      notificação;
+    - pede o recálculo da raridade quando concede.
+  - Gatilhos, na mesma transação do fato: concessão de medalha,
+    TornarPremioDefinitivoHandler (só quando o prêmio de fato fica definitivo) e
+    confirmação da contestação.
+  - Pontos e raridade: perfil e Troféus somam a conquista ativa, e o numerador
+    da raridade conta a conquista uma vez por aluno.
+  - Purga: o SQL do decisoes/README.md apaga progresso_de_conquista e conquista
+    antes de medalha e prêmio. As evidências saem em cascata, e o teste que
+    executa o SQL cobre isso.
+
+  Decisões tomadas na etapa (precisam do seu aval)
+
+  1. A D2 virou uma trava consultiva por aluno (pg_advisory_xact_lock), tomada
+     no início do trabalho e solta no commit. Não dava para "tratar a violação
+     como já concedida" dentro do worker: uma violação de unicidade aborta a
+     transação do trabalho no Postgres. O índice ficou como rede de segurança.
+     - Prova reversa: com a trava trocada por um SELECT sem efeito, o teste de
+       concorrência falhou nas três rodadas, com duas reavaliações recusadas
+       pelo índice. Com a trava, nenhuma.
+  2. A notificação de conquista é gravada pelo próprio handler, na mesma 
+     transação, sem um trabalho de notificação à parte como o da medalha. Ele já
+     roda no worker.
+  3. Os dois tipos de notificação entraram agora, para a etapa 3 não precisar de
+     outra migration. O conquistaRemovida só passa a ser usado na anulação.
+  4. Limite registrado: uma conquista com regra customizada nunca é disparada
+     por fato, porque a regra não declara fonte. Nenhuma da fase 1 usa; se um
+     dia usar, vai precisar de gatilho próprio.
+  5. Estado intermediário até a etapa 5: a conquista já soma pontos, mas ainda
+     não aparece como obtida na lista de Troféus.
+
+  Verificação local
+
+  - dotnet format --verify-no-changes limpo, build Release com 0 avisos e 0
+    erros.
+  - Suíte completa: 995 testes, nenhum falhou, os mesmos 6 da R2 ignorados.
+  - npm run verificar do api-client sem diferença: nenhuma rota nem schema
+    mudou.
+  - A migration é aplicada no Postgres real em cada teste de integração.
+
+  Testes novos:
+  - Integração (10, contra Postgres real):
+    - a quinta medalha concede a C01 com as cinco evidências e a notificação;
+    - abaixo do alvo, nada é concedido e o progresso fica gravado em seis
+      conquistas;
+    - a conquista de fechamento só ganha progresso, mesmo com o alvo alcançado;
+    - pontos no perfil e em Troféus, e raridade;
+    - trabalho repetido não concede de novo;
+    - três consumidores simultâneos concedem uma conquista só, sem nenhum
+      trabalho falhar;
+    - o índice único recusa a duplicata (Unicidade.ConquistaAtiva);
+    - medalha anulada antes do trabalho não fecha a conquista;
+    - prêmio válido não conta e, pelo fim da janela, concede C05 e C06 no
+      semestre do evento;
+    - prêmio em averiguação não conta e a confirmação concede a C05.
+  - Domínio: fim e semestres da instância, e as duas notificações.
+  - Testes antigos ajustados: o da concessão de medalha agora espera três
+    trabalhos e confere a carga da reavaliação; o da purga ganhou uma conquista
+    por aluno.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona a reavaliação de conquistas por fato no worker
+
+  Com o seu ok, commito, faço push, acompanho a CI e sigo para a etapa 3
+  (recálculo na anulação).
+
+✻ Worked for 25m 34s · done 19:52
