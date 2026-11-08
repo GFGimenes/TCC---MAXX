@@ -74,7 +74,7 @@ function Add-RegistroExecucao {
         $me = '-'
         if ((& $p 'modelo_usado') -or (& $p 'esforco_usado')) { $me = "$(Format-CelulaTabela (& $p 'modelo_usado')), $(Format-CelulaTabela (& $p 'esforco_usado'))" }
         $l.Add('| ' + (@(
-            (Format-CelulaTabela (& $p 'eixo')),
+            (Format-CelulaTabela $(if (& $p 'rotulo') { & $p 'rotulo' } else { & $p 'eixo' })),
             (Format-CelulaTabela (& $p 'tentativa')),
             (Format-CelulaTabela (& $p 'status')),
             (Format-CelulaTabela (& $p 'sessao_id')),

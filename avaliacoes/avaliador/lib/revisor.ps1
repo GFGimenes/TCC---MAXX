@@ -131,7 +131,7 @@ function Invoke-SessaoClaude {
     param(
         [Parameter(Mandatory)][string]$Prompt,
         [Parameter(Mandatory)][string]$PastaSessao,
-        [Parameter(Mandatory)][string[]]$PastasLeitura,
+        [Parameter(Mandatory)][AllowEmptyCollection()][string[]]$PastasLeitura,
         [Parameter(Mandatory)][int]$TempoLimiteMin
     )
     $arqPrompt =[System.IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $PastaSessao) ("prompt-" + (Split-Path -Leaf $PastaSessao) + '.txt')))
@@ -188,13 +188,21 @@ function Invoke-SessaoClaude {
 # Lê o stream-json: evento de abertura, chamadas de ferramenta e evento final.
 function Read-SaidaStream {
     param([Parameter(Mandatory)][string]$Caminho)
-    $r = [ordered]@{ init = $null; resultado = $null; ferramentas = @(); linhas_invalidas = 0 }
+    # leituras: metadados que o CLI devolve em cada Read bem-sucedido (filePath, startLine,
+    # numLines, totalLines, content), usados para conferir se um arquivo foi lido inteiro.
+    $r = [ordered]@{ init = $null; resultado = $null; ferramentas = @(); leituras = @(); compactacoes = 0; linhas_invalidas = 0 }
     if (-not (Test-Path -LiteralPath $Caminho)) { return [pscustomobject]$r }
     foreach ($linha in [System.IO.File]::ReadAllLines($Caminho, (New-Object System.Text.UTF8Encoding($false)))) {
         if (-not $linha.Trim()) { continue }
         try { $o = $linha | ConvertFrom-Json } catch { $r.linhas_invalidas++; continue }
         if ($o.type -eq 'system' -and $o.PSObject.Properties['subtype'] -and $o.subtype -eq 'init') { $r.init = $o }
+        elseif ($o.type -eq 'system' -and $o.PSObject.Properties['subtype'] -and $o.subtype -eq 'compact_boundary') { $r.compactacoes++ }
         elseif ($o.type -eq 'result') { $r.resultado = $o }
+        elseif ($o.type -eq 'user' -and $o.PSObject.Properties['tool_use_result'] -and $o.tool_use_result -and
+                $o.tool_use_result.PSObject.Properties['file'] -and $o.tool_use_result.file -and
+                $o.tool_use_result.file.PSObject.Properties['startLine']) {
+            $r.leituras += $o.tool_use_result.file
+        }
         elseif ($o.type -eq 'assistant') {
             foreach ($bloco in @($o.message.content)) {
                 if ($bloco -and $bloco.type -eq 'tool_use') {
@@ -341,6 +349,65 @@ function Get-Propriedade {
     return $null
 }
 
+# Conferências do ambiente de uma sessão: ferramentas, MCP, transcrição (modelo, esforço,
+# arquivos de instrução), acessos fora das pastas liberadas, ferramentas negadas e
+# compactação de contexto. Copia a transcrição para <base>.sessao.jsonl. Qualquer motivo
+# devolvido deixa a sessão "a conferir".
+function Get-ConferenciaSessao {
+    param(
+        [Parameter(Mandatory)]$Stream,
+        [Parameter(Mandatory)][string]$PastaSaida,
+        [Parameter(Mandatory)][string]$Base,
+        [Parameter(Mandatory)][string[]]$Liberadas,
+        [Parameter(Mandatory)][string]$Cwd,
+        [bool]$Falhou = $false
+    )
+    $motivos = @()
+    $res = $Stream.resultado
+    $init = $Stream.init
+    $ferramentas = @(); $mcp = @(); $modeloInit = $null; $versaoInit = $null
+    if ($init) {
+        $ferramentas = @(Get-Propriedade $init 'tools' | Sort-Object)
+        $mcp = @(Get-Propriedade $init 'mcp_servers')
+        $modeloInit = Get-Propriedade $init 'model'
+        $versaoInit = Get-Propriedade $init 'claude_code_version'
+        if ((@($ferramentas) -join ',') -ne ((@($script:FerramentasRevisor) | Sort-Object) -join ',')) { $motivos += "ferramentas da sessão diferentes de Read, Grep e Glob: $($ferramentas -join ', ')" }
+        if (@($mcp | Where-Object { $_ }).Count -gt 0) { $motivos += 'a sessão carregou servidores MCP' }
+    } elseif (-not $Falhou) { $motivos += 'sem evento de abertura na saída' }
+
+    $sessaoId = Get-Propriedade $res 'session_id'
+    if (-not $sessaoId -and $init) { $sessaoId = Get-Propriedade $init 'session_id' }
+    $me = $null
+    $instrucoes = @()
+    if ($sessaoId) {
+        $arq = Find-Transcricao -SessaoId $sessaoId
+        if ($arq) {
+            Copy-Item -LiteralPath $arq.FullName -Destination (Join-Path $PastaSaida "$Base.sessao.jsonl")
+            $me = Get-ModeloEsforcoTranscricao -Caminho $arq.FullName
+            $instrucoes = @(Get-InstrucoesCarregadas -Caminho $arq.FullName)
+        }
+    }
+    if ($instrucoes.Count -gt 0) { $motivos += "arquivos de instrução carregados na sessão: $($instrucoes -join '; ')" }
+    if (-not $Falhou) {
+        if (-not $me) { $motivos += 'transcrição .jsonl não encontrada; modelo e esforço não confirmados' }
+        else {
+            if ((@($me.modelos) -join ',') -ne $script:ModeloFixado) { $motivos += "modelo usado ($($me.modelos -join ', ')) diferente do fixado ($script:ModeloFixado)" }
+            if ((@($me.esforcos) -join ',') -ne $script:EsforcoFixado) { $motivos += "esforço usado ($($me.esforcos -join ', ')) diferente do fixado ($script:EsforcoFixado)" }
+        }
+    }
+
+    $fora = @(Get-AcessosFora -Ferramentas @($Stream.ferramentas) -Liberadas $Liberadas -Cwd $Cwd)
+    if ($fora.Count -gt 0) { $motivos += "acessos fora das pastas liberadas: $($fora -join '; ')" }
+    $negadas = @(Get-Propriedade $res 'permission_denials' | Where-Object { $_ })
+    if ($negadas.Count -gt 0) { $motivos += "ferramentas negadas durante a sessão: $($negadas.Count)" }
+    if ($Stream.compactacoes -gt 0) { $motivos += "a sessão compactou o contexto $($Stream.compactacoes) vez(es)" }
+
+    return [pscustomobject]@{
+        motivos = @($motivos); ferramentas = @($ferramentas); modeloInit = $modeloInit; versaoInit = $versaoInit
+        sessaoId = $sessaoId; me = $me; instrucoes = @($instrucoes); fora = @($fora)
+    }
+}
+
 # Um eixo de ponta a ponta. Nunca lança erro por falha do revisor: devolve o status
 # (ok, a conferir, falhou) para o script seguir para o próximo eixo.
 function Invoke-RevisorEixo {
@@ -410,43 +477,11 @@ function Invoke-RevisorEixo {
         if ($bloco.ok) { $dados = $bloco.dados } else { $status = 'a conferir'; $motivos += $bloco.motivo }
     }
 
-    # Conferências do ambiente da sessão.
-    $init = $stream.init
-    $ferramentas = @(); $mcp = @(); $modeloInit = $null; $versaoInit = $null
-    if ($init) {
-        $ferramentas = @(Get-Propriedade $init 'tools' | Sort-Object)
-        $mcp = @(Get-Propriedade $init 'mcp_servers')
-        $modeloInit = Get-Propriedade $init 'model'
-        $versaoInit = Get-Propriedade $init 'claude_code_version'
-        if ((@($ferramentas) -join ',') -ne ((@($script:FerramentasRevisor) | Sort-Object) -join ',')) { $motivos += "ferramentas da sessão diferentes de Read, Grep e Glob: $($ferramentas -join ', ')" }
-        if (@($mcp | Where-Object { $_ }).Count -gt 0) { $motivos += 'a sessão carregou servidores MCP' }
-    } elseif ($status -ne 'falhou') { $motivos += 'sem evento de abertura na saída' }
-
-    $sessaoId = Get-Propriedade $res 'session_id'
-    if (-not $sessaoId -and $init) { $sessaoId = Get-Propriedade $init 'session_id' }
-    $me = $null
-    $instrucoes = @()
-    if ($sessaoId) {
-        $arq = Find-Transcricao -SessaoId $sessaoId
-        if ($arq) {
-            Copy-Item -LiteralPath $arq.FullName -Destination (Join-Path $PastaSaida "$base.sessao.jsonl")
-            $me = Get-ModeloEsforcoTranscricao -Caminho $arq.FullName
-            $instrucoes = @(Get-InstrucoesCarregadas -Caminho $arq.FullName)
-        }
-    }
-    if ($instrucoes.Count -gt 0) { $motivos += "arquivos de instrução carregados na sessão: $($instrucoes -join '; ')" }
-    if ($status -ne 'falhou') {
-        if (-not $me) { $motivos += 'transcrição .jsonl não encontrada; modelo e esforço não confirmados' }
-        else {
-            if ((@($me.modelos) -join ',') -ne $script:ModeloFixado) { $motivos += "modelo usado ($($me.modelos -join ', ')) diferente do fixado ($script:ModeloFixado)" }
-            if ((@($me.esforcos) -join ',') -ne $script:EsforcoFixado) { $motivos += "esforço usado ($($me.esforcos -join ', ')) diferente do fixado ($script:EsforcoFixado)" }
-        }
-    }
-
-    $fora = @(Get-AcessosFora -Ferramentas @($stream.ferramentas) -Liberadas @($Checkout, $sessao) -Cwd $sessao)
-    if ($fora.Count -gt 0) { $motivos += "acessos fora das pastas liberadas: $($fora -join '; ')" }
-    $negadas = @(Get-Propriedade $res 'permission_denials' | Where-Object { $_ })
-    if ($negadas.Count -gt 0) { $motivos += "ferramentas negadas durante a sessão: $($negadas.Count)" }
+    # Conferências do ambiente da sessão (as mesmas para o revisor de decisões).
+    $conf = Get-ConferenciaSessao -Stream $stream -PastaSaida $PastaSaida -Base $base -Liberadas @($Checkout, $sessao) -Cwd $sessao -Falhou ($status -eq 'falhou')
+    $motivos += @($conf.motivos)
+    $ferramentas = $conf.ferramentas; $modeloInit = $conf.modeloInit; $versaoInit = $conf.versaoInit
+    $sessaoId = $conf.sessaoId; $me = $conf.me; $instrucoes = $conf.instrucoes; $fora = $conf.fora
 
     if ($status -eq 'ok' -and $motivos.Count -gt 0) { $status = 'a conferir' }
 

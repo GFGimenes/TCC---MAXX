@@ -23,8 +23,16 @@
     Branch ou commit a avaliar (main nas trilhas e nos repositórios do prompt único).
 
 .PARAMETER Eixos
-    Eixos a rodar, na ordem dada. Padrão: os seis. No ensaio com sessão, um só (padrão
-    documentacao).
+    Eixos a rodar, na ordem dada. Padrão: os seis (mais decisoes, se houver -Export).
+    "decisoes" é o revisor de decisões, que roda uma vez por export. No ensaio com
+    sessão, um só (padrão documentacao).
+
+.PARAMETER Export
+    Um ou mais exports de sessão do agente construtor (.txt, em geral
+    resultados/<trilha>/<id>-sessao.txt), lidos e nunca modificados. Cada um ganha uma
+    sessão do revisor de decisões e os arquivos <produto>-decisoes-<id>.md e .json; o
+    conjunto vai para <produto>-decisoes.md e .json. No ensaio, o padrão é o export
+    fictício ensaio/ensaio-sessao.txt.
 
 .PARAMETER TempoLimiteMin
     Tempo limite de cada sessão de revisor, em minutos. Padrão: 60.
@@ -52,8 +60,9 @@ param(
     [string]$Produto,
     [string]$Repo,
     [string]$Ref,
-    [ValidateSet('ux', 'seguranca', 'infra', 'documentacao', 'codigo', 'arquitetura')]
+    [ValidateSet('ux', 'seguranca', 'infra', 'documentacao', 'codigo', 'arquitetura', 'decisoes')]
     [string[]]$Eixos,
+    [string[]]$Export,
     [ValidateRange(1, 600)]
     [int]$TempoLimiteMin = 60,
     [switch]$Ensaio,
@@ -67,11 +76,13 @@ Set-StrictMode -Version 2.0
 . (Join-Path $PSScriptRoot 'lib\checkout.ps1')
 . (Join-Path $PSScriptRoot 'lib\revisor.ps1')
 . (Join-Path $PSScriptRoot 'lib\registro.ps1')
+. (Join-Path $PSScriptRoot 'lib\decisoes.ps1')
 
 $pastaAvaliador = $PSScriptRoot
 $raizTcc = (Get-Item -LiteralPath (Join-Path $pastaAvaliador '..\..')).FullName
 $inicioExecucao = Get-Date
-$carimbo = $inicioExecucao.ToString('yyyyMMdd-HHmmss')
+# Sufixo aleatório: duas execuções no mesmo segundo não disputam a mesma pasta temporária.
+$carimbo = $inicioExecucao.ToString('yyyyMMdd-HHmmss') + '-' + ('{0:x4}' -f (Get-Random -Maximum 65536))
 $temporaria = Get-PastaTemporaria
 
 if ($Ensaio) {
@@ -85,20 +96,39 @@ if ($Ensaio) {
     $nomeProduto = 'ensaio'
     $pastaSaida = Join-Path $pastaAvaliador 'ensaio\saida'
     $formulario = Join-Path $pastaSaida 'autor\ensaio.md'
-    $Repo = New-RepoEnsaio -Exemplo (Join-Path $pastaAvaliador 'exemplo') -Destino (Join-Path $temporaria "ensaio-origem-$carimbo")
-    $Ref = 'main'
-    Write-Host "Ensaio: repositório de exemplo criado em $Repo"
 } else {
     if (-not $Produto -or -not $Repo -or -not $Ref) {
         throw 'Informe Produto, Repo e Ref (ou use -Ensaio).'
     }
-    if (-not $Eixos) { $Eixos = @($script:Secoes.Keys) }
+    if (-not $Eixos) {
+        $Eixos = @($script:Secoes.Keys)
+        if ($Export) { $Eixos += 'decisoes' }
+    }
     $nomeProduto = $Produto
     $pastaSaida = Join-Path $raizTcc 'avaliacoes\reviews'
     $formulario = Join-Path $raizTcc "avaliacoes\autor\$Produto.md"
     $Repo = (Get-Item -LiteralPath $Repo).FullName
 }
+if ($Eixos -contains 'decisoes') {
+    if (-not $Export) {
+        if ($Ensaio) { $Export = @(Join-Path $pastaAvaliador 'ensaio\ensaio-sessao.txt') }
+        else { throw 'O revisor de decisões precisa de -Export com o(s) export(s) da sessão.' }
+    }
+} elseif ($Export) { throw 'Com -Export, inclua decisoes em -Eixos (ou omita -Eixos).' }
+$Export = @($Export | Where-Object { $_ } | ForEach-Object {
+    if (-not (Test-Path -LiteralPath $_ -PathType Leaf)) { throw "Export não encontrado: $_" }
+    if ([System.IO.Path]::GetExtension($_) -ne '.txt') { throw "O export deve ser um .txt: $_" }
+    (Get-Item -LiteralPath $_).FullName
+})
+$ids = @($Export | ForEach-Object { Get-IdExport -Caminho $_ })
+if (@($ids | Select-Object -Unique).Count -ne $ids.Count) { throw "Dois exports com o mesmo identificador: $($ids -join ', ')" }
 if ($SemClaude) { $pastaSaida = Join-Path $pastaSaida 'sem-claude' }
+# Só depois de validados os parâmetros: o repositório de ensaio nasce numa pasta temporária.
+if ($Ensaio) {
+    $Repo = New-RepoEnsaio -Exemplo (Join-Path $pastaAvaliador 'exemplo') -Destino (Join-Path $temporaria "ensaio-origem-$carimbo")
+    $Ref = 'main'
+    Write-Host "Ensaio: repositório de exemplo criado em $Repo"
+}
 New-Item -ItemType Directory -Force -Path $pastaSaida | Out-Null
 
 try { $versaoCli = ((& claude --version) | Select-Object -First 1).Trim() }
@@ -127,6 +157,24 @@ $resultados = @()
 $avisos = @()
 if ($SomenteCheckout) { $Eixos = @() }
 foreach ($eixo in $Eixos) {
+    if ($eixo -eq 'decisoes') {
+        foreach ($exp in $Export) {
+            try {
+                $resultados += Invoke-RevisorDecisoes -Export $exp -Produto $nomeProduto -Hash $hash -Ref $Ref `
+                    -PastaExecucao $pastaExecucao -PastaSaida $pastaSaida -RaizTcc $raizTcc -PastaAvaliador $pastaAvaliador `
+                    -VersaoCli $versaoCli -TempoLimiteMin $TempoLimiteMin -SemClaude:$SemClaude
+            } catch {
+                $rot = "decisoes ($(Get-IdExport -Caminho $exp))"
+                Write-Warning "[$rot] erro do avaliador, marcado como falhou: $($_.Exception.Message)"
+                $resultados += [pscustomobject]@{ eixo = 'decisoes'; rotulo = $rot; status = 'falhou'; motivos = @("erro do avaliador: $($_.Exception.Message)") }
+            }
+        }
+        if (-not $SemClaude) {
+            $conjunto = Update-DecisoesProduto -PastaSaida $pastaSaida -Produto $nomeProduto
+            if ($conjunto) { Write-Host "Decisões do produto: $(Join-Path $pastaSaida "$nomeProduto-decisoes.md") ($($conjunto.status))" }
+        }
+        continue
+    }
     try {
         $r = Invoke-RevisorEixo -Eixo $eixo -Produto $nomeProduto -Repo $Repo -Ref $Ref -Hash $hash `
             -Checkout $checkout.Caminho -PastaExecucao $pastaExecucao -PastaSaida $pastaSaida -RaizTcc $raizTcc `
@@ -154,14 +202,19 @@ if (-not $SomenteCheckout) {
     if ($Ensaio) { $modo = 'ensaio' }
     if ($SemClaude) { $modo += ', sem claude (só prompts; nenhuma sessão aberta)' }
     $caminhoRegistro = Join-Path $pastaSaida "$nomeProduto-registro.md"
+    $hashes = @{
+        'avaliacoes/rubrica.md'        = (Get-HashArquivo (Join-Path $raizTcc 'avaliacoes\rubrica.md'))
+        'docs/especificacao-telas.md'  = (Get-HashArquivo (Join-Path $raizTcc 'docs\especificacao-telas.md'))
+        'avaliador/prompts/revisor.md' = (Get-HashArquivo (Join-Path $pastaAvaliador 'prompts\revisor.md'))
+    }
+    if ($Eixos -contains 'decisoes') {
+        $hashes['avaliador/prompts/decisoes.md'] = Get-HashArquivo (Join-Path $pastaAvaliador 'prompts\decisoes.md')
+        foreach ($exp in $Export) { $hashes["export $(Split-Path -Leaf $exp)"] = Get-HashArquivo $exp }
+    }
     Add-RegistroExecucao -Caminho $caminhoRegistro -Produto $nomeProduto -Modo $modo -Repo $Repo -Ref $Ref -Hash $hash `
         -Inicio $inicioExecucao -Fim (Get-Date) -VersaoCli $versaoCli -TempoLimiteMin $TempoLimiteMin `
         -EstadoOrigem $estadoAntes.Hash -OrigemInalterada $origemInalterada -CheckoutInalterado (-not $statusCheckout) `
-        -Hashes @{
-            'avaliacoes/rubrica.md'            = (Get-HashArquivo (Join-Path $raizTcc 'avaliacoes\rubrica.md'))
-            'docs/especificacao-telas.md'      = (Get-HashArquivo (Join-Path $raizTcc 'docs\especificacao-telas.md'))
-            'avaliador/prompts/revisor.md'     = (Get-HashArquivo (Join-Path $pastaAvaliador 'prompts\revisor.md'))
-        } -Resultados $resultados -Avisos $avisos
+        -Hashes $hashes -Resultados $resultados -Avisos $avisos
     Write-Host "Registro: $caminhoRegistro"
 
     $formularioCriado = New-FormularioAutor -Caminho $formulario -Produto $nomeProduto -Hash $hash -Ref $Ref
@@ -172,7 +225,9 @@ if (-not $SomenteCheckout) {
 Write-Host ''
 Write-Host "Resumo ($nomeProduto, $hash):"
 foreach ($r in $resultados) {
-    $linha = "  {0,-13} {1,-11}" -f $r.eixo, $r.status
+    $nomeLinha = $r.eixo
+    if ($r.PSObject.Properties['rotulo'] -and $r.rotulo) { $nomeLinha = $r.rotulo }
+    $linha = "  {0,-13} {1,-11}" -f $nomeLinha, $r.status
     if ($Ensaio -and $r.PSObject.Properties['nota'] -and $null -ne $r.nota) { $linha += " nota $($r.nota)" }
     Write-Host $linha
 }
@@ -204,5 +259,9 @@ return [pscustomobject]@{
     formulario_criado = $formularioCriado
     checkout_alterado = [bool]$statusCheckout
     avisos            = $avisos
-    resultados        = @($resultados | ForEach-Object { [pscustomobject]@{ eixo = $_.eixo; status = $_.status; motivos = @($_.motivos) } })
+    resultados        = @($resultados | ForEach-Object {
+        $rot = $_.eixo
+        if ($_.PSObject.Properties['rotulo'] -and $_.rotulo) { $rot = $_.rotulo }
+        [pscustomobject]@{ eixo = $_.eixo; rotulo = $rot; status = $_.status; motivos = @($_.motivos) }
+    })
 }
