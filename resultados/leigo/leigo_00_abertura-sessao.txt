@@ -1,0 +1,438 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-leigo
+
+
+❯ /model 
+  ⎿  Kept model as Opus 5.5
+
+❯ Oi chat, queria fazer um aplicativo que fosse tipo um instagram para a minha  
+  faculdade, mas sem stories, videos ou poder enviar mensagens. O nome seria    
+  Maxx. Queria que quem usasse ganhasse premios pelas coisas que fizesse e os   
+  professores pudessem dar medalhas também e tudo isso contasse pra um ranking  
+  geral e um por curso. Seria só pra alunos e professores da faculdade UniMax.  
+  Ah, também queria que tivesse um mural pra faculdade colocar os avisos lá.    
+  Consegue fazer pra mim ?                                                      
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Vou montar a primeira versão do Maxx com as decisões já tomadas: um app web
+  com login só para e-mails @unimax.edu.br, cadastro como aluno (a administração
+  define os professores) e pontos, conquistas e medalhas.
+
+● Bash(mkdir -p src public test scripts && cat > package.json <<'EOF'
+      {…)
+  ⎿  19 packages are looking for funding
+       run `npm fund` for details
+
+     found 0 vulnerabilities
+  ⎿  Created .gitignore (+2 -0)
+      1 +node_modules/                                                   
+      2 +dados/                                                          
+  ⎿  Created package.json (+19 -0)
+       1 +{                                                              
+       2 +  "name": "maxx",                                              
+       3 +  "version": "0.1.0",                                          
+       4 +  "private": true,                                             
+       5 +  "description": "Maxx - a rede social da UniMax",             
+       6 +  "main": "src/server.js",                                     
+       7 +  "scripts": {                                                 
+       8 +    "start": "node --disable-warning=ExperimentalWarning src/se
+         +rver.js",                                                      
+       9 +    "demo": "node --disable-warning=ExperimentalWarning scripts
+         +/demo.js",                                                     
+      10 +    "test": "node --disable-warning=ExperimentalWarning --test 
+         +test/"                                                         
+      11 +  },                                                           
+      12 +  "engines": {                                                 
+      13 +    "node": ">=22.13"                                          
+      14 +  },                                                           
+      15 +  "dependencies": {                                            
+      16 +    "express": "^4.21.2",                                      
+      17 +    "multer": "^2.0.2"                                         
+      18 +  }                                                            
+      19 +}                                                              
+  ⎿  … 1 more file changed
+
+  Read 1 file (ctrl+o to expand)
+
+● I'll write the files with the file-writing tool instead.
+
+  Listed 1 directory (ctrl+o to expand)
+
+● Write(src\config.js)
+  ⎿  Wrote 30 lines to src\config.js
+      1 // Configurações do Maxx. Edite aqui para adaptar à faculdade.
+      2 const path = require('node:path');
+      3 
+      4 module.exports = {
+      5   NOME_APP: 'Maxx',
+      6   FACULDADE: 'UniMax',
+      7 
+      8   // Só e-mails destes domínios podem criar conta.
+      9   DOMINIOS_PERMITIDOS: ['unimax.edu.br'],
+     … +21 lines (ctrl+o to expand)
+
+● Write(src\regras.js)
+  ⎿  Wrote 30 lines to src\regras.js
+       1 // Regras de pontuação e conquistas do Maxx.
+       2 
+       3 // Pontos por ação.
+       4 const PONTOS = {
+       5   post: 10, // cada post publicado
+       6   comentario: 3, // por post de colega comentado (só conta 1 vez
+          por post)
+       7   curtida: 2, // cada curtida recebida de outra pessoa
+       8 };
+       9 
+     … +21 lines (ctrl+o to expand)
+
+● Write(src\senha.js)
+  ⎿  Wrote 17 lines to src\senha.js
+       1 const crypto = require('node:crypto');
+       2 
+       3 function hashSenha(senha) {
+       4   const sal = crypto.randomBytes(16);
+       5   const hash = crypto.scryptSync(senha, sal, 64);
+       6   return `${sal.toString('hex')}:${hash.toString('hex')}`;
+       7 }
+       8 
+       9 function confereSenha(senha, armazenado) {
+      10   const [sal, hash] = String(armazenado).split(':');
+     … +7 lines (ctrl+o to expand)
+
+● Write(src\db.js)
+  ⎿  Wrote 101 lines to src\db.js
+      1 const fs = require('node:fs');
+      2 const path = require('node:path');
+      3 const { DatabaseSync } = require('node:sqlite');
+      4 const config = require('./config');
+      5 const { MEDALHAS_PADRAO } = require('./regras');
+      6 const { hashSenha } = require('./senha');
+      7 
+      8 fs.mkdirSync(config.PASTA_DADOS, { recursive: true });
+      9 const db = new DatabaseSync(path.join(config.PASTA_DADOS, 'maxx.d
+        b'));
+     … +92 lines (ctrl+o to expand)
+
+● Write(src\pontos.js)
+  ⎿  Wrote 52 lines to src\pontos.js
+       1 // Cálculo de pontos, conquistas e rankings.
+       2 // Tudo é calculado a partir dos dados reais: se um post ou curt
+         ida
+       3 // for apagado, a pontuação se ajusta sozinha.
+       4 const db = require('./db');
+       5 const { PONTOS, CONQUISTAS } = require('./regras');
+       6 
+       7 const SQL_STATS = `
+       8 SELECT u.id, u.nome, u.curso, u.avatar,
+       9   (SELECT COUNT(*) FROM posts p WHERE p.usuario_id = u.id) AS po
+     … +44 lines (~2 KB) (ctrl+o to expand)
+
+● Now the screens (views):
+
+● Write(src\html.js)
+  ⎿  Wrote 33 lines to src\html.js
+       1 // Mini sistema de templates: tudo que é interpolado é escapado 
+         automaticamente,
+       2 // a não ser que venha de outro html`` ou de raw(). Isso protege
+          contra XSS.
+       3 class Raw {
+       4   constructor(s) {
+       5     this.s = s;
+       6   }
+       7   toString() {
+       8     return this.s;
+     … +25 lines (ctrl+o to expand)
+
+● Write(src\views.js)
+  ⎿  Wrote 433 lines to src\views.js
+       1 // Telas do Maxx.
+       2 const { html, raw } = require('./html');
+       3 const config = require('./config');
+       4 const { PONTOS, CONQUISTAS } = require('./regras');
+       5 
+       6 // ---------- Ícones ----------
+       7 const svg = (corpo) =>
+       8   raw(`<svg viewBox="0 0 24 24" width="26" height="26" fill="non
+         e" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">${corpo}</svg>`);
+     … +425 lines (ctrl+o to expand)
+
+● Now the server with all the routes:
+
+● Write(src\app.js)
+  ⎿  Wrote 406 lines to src\app.js
+       1 const path = require('node:path');
+       2 const fs = require('node:fs');
+       3 const crypto = require('node:crypto');
+       4 const express = require('express');
+       5 const multer = require('multer');
+       6 
+       7 const config = require('./config');
+       8 const db = require('./db');
+       9 const { hashSenha, confereSenha } = require('./senha');
+      10 const pontos = require('./pontos');
+     … +396 lines (ctrl+o to expand)
+
+● Write(src\server.js)
+  ⎿  Wrote 6 lines to src\server.js
+      1 const app = require('./app');
+      2 const config = require('./config');
+      3 
+      4 app.listen(config.PORTA, () => {
+      5   console.log(`${config.NOME_APP} rodando em http://localhost:${c
+        onfig.PORTA}`);
+      6 });
+
+● Now the visual style and icon:
+
+● Write(public\estilo.css)
+  ⎿  Wrote 209 lines to public\estilo.css
+       1 :root {
+       2   --fundo: #f4f2f8;
+       3   --cartao: #ffffff;
+       4   --texto: #1c1830;
+       5   --muted: #6b6680;
+       6   --borda: #e4e0ee;
+       7   --primaria: #5b21b6;
+       8   --primaria-2: #db2777;
+       9   --primaria-suave: #ede9fe;
+      10   --perigo: #dc2626;
+     … +199 lines (ctrl+o to expand)
+
+● Write(public\icone.svg)
+  ⎿  Wrote 5 lines to public\icone.svg
+      1 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      2   <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop 
+        offset="0" stop-color="#5b21b6"/><stop offset="1" stop-color="#db
+        2777"/></linearGradient></defs>
+      3   <rect width="64" height="64" rx="16" fill="url(#g)"/>
+      4   <path d="M14 46V18h6l12 15 12-15h6v28h-7V30L32 43 21 30v16z" fi
+        ll="#fff"/>
+      5 </svg>
+
+● Now an automated test that walks through the main flows, and a script to fill
+  the app with sample data:
+
+● Write(test\fluxo.test.js)
+  ⎿  Wrote 139 lines to test\fluxo.test.js
+       1 // Testa os fluxos principais do Maxx num banco temporário.
+       2 const { test, before, after } = require('node:test');
+       3 const assert = require('node:assert/strict');
+       4 const fs = require('node:fs');
+       5 const os = require('node:os');
+       6 const path = require('node:path');
+       7 
+       8 const pasta = fs.mkdtempSync(path.join(os.tmpdir(), 'maxx-teste-
+         '));
+       9 process.env.MAXX_DADOS = pasta;
+     … +130 lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(package.json)
+  ⎿  Added 1 line, removed 1 line
+       7    "scripts": {
+       8      "start": "node --disable-warning=ExperimentalWarning src/se
+          rver.js",
+       9      "demo": "node --disable-warning=ExperimentalWarning scripts
+          /demo.js",
+      10 -    "test": "node --disable-warning=ExperimentalWarning --test 
+         -test/"                                                         
+      10 +    "test": "node --disable-warning=ExperimentalWarning --test 
+         +\"test/**/*.test.js\""                                         
+      11    },
+      12    "engines": {
+      13      "node": ">=22.13"
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● All flows passed. Now the sample-data script, so you can see the app with
+  content:
+
+● Write(scripts\demo.js)
+  ⎿  Wrote 82 lines to scripts\demo.js
+      1 // Preenche o Maxx com dados de exemplo para demonstração.
+      2 // Uso: npm run demo   (todas as contas de exemplo usam a senha "
+        senha1234")
+      3 const db = require('../src/db');
+      4 const { hashSenha } = require('../src/senha');
+      5 
+      6 if (db.prepare("SELECT 1 FROM usuarios WHERE email = 'prof.marina
+        @unimax.edu.br'").get()) {
+      7   console.log('Os dados de exemplo já foram criados.');
+      8   process.exit(0);
+     … +74 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Let me start the app and check every page loads correctly:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Every page loads, and a professor sees the "Dar medalha" form on a student's
+  profile. I'll stop the server and write the README in Portuguese:
+
+● Stop Task
+  ⎿  npm start · stopped
+
+● Write(README.md)
+  ⎿  Added 64 lines
+       1  # Maxx
+       2 +                                                               
+       3 +A rede social da **UniMax**: um "Instagram" só para alunos e pr
+         +ofessores da faculdade, com pontos, medalhas, ranking e mural d
+         +e avisos.                                                      
+       4 +                                                               
+       5 +## O que tem                                                   
+       6 +                                                               
+       7 +- **Feed** com posts de foto e/ou texto, curtidas e comentários
+         + (sem stories, vídeos ou mensagens).                           
+       8 +- **Acesso restrito**: só e-mails `@unimax.edu.br` conseguem cr
+         +iar conta.                                                     
+       9 +- **Pontos e conquistas**: quem posta, comenta e recebe curtida
+         +s ganha pontos, e desbloqueia conquistas com bônus.            
+      10 +- **Medalhas de professores**: professores entregam medalhas (c
+         +om mensagem) que valem pontos.                                 
+      11 +- **Ranking geral e por curso** (só alunos participam).        
+      12 +- **Mural** de avisos oficiais da faculdade, com opção de fixar
+         + no topo.                                                      
+      13 +- **Administração**: a conta da faculdade define quem é profess
+         +or ou administrador.                                           
+      14 +                                                               
+      15 +## Como rodar no seu computador                                
+      16 +                                                               
+      17 +1. Instale o [Node.js](https://nodejs.org) (versão 22.13 ou mai
+         +s nova).                                                       
+      18 +2. Abra o terminal nesta pasta e rode:                         
+      19 +   ```                                                         
+      20 +   npm install                                                 
+      21 +   npm start                                                   
+      22 +   ```                                                         
+      23 +3. Abra **http://localhost:3000** no navegador.                
+      24 +                                                               
+      25 +Na primeira vez é criada a conta da faculdade:                 
+      26 +**admin@unimax.edu.br** / senha **unimax-admin** (troque defini
+         +ndo a variável `ADMIN_SENHA` antes do primeiro uso).           
+      27 +                                                               
+      28 +### Quer ver com conteúdo de exemplo?                          
+      29 +                                                               
+      30 +Rode `npm run demo` antes do `npm start`. Isso cria alunos, pro
+         +fessores, posts, medalhas e avisos.                            
+      31 +Todas as contas de exemplo usam a senha `senha1234`, por exempl
+         +o:                                                             
+      32 +- aluna: `ana.costa@unimax.edu.br`                             
+      33 +- professora: `prof.marina@unimax.edu.br`                      
+      34 +                                                               
+      35 +### Como liberar um professor                                  
+      36 +                                                               
+      37 +1. O professor cria a conta normalmente pelo site.             
+      38 +2. Entre com a conta da faculdade, clique em **Administração**,
+         + mude o papel dele para `professor` e salve.                   
+      39 +                                                               
+      40 +## Como funcionam os pontos                                    
+      41 +                                                               
+      42 +| Ação | Pontos |                                              
+      43 +|---|---|                                                      
+      44 +| Publicar um post | +10 |                                     
+      45 +| Receber uma curtida de outra pessoa | +2 |                   
+      46 +| Comentar no post de um colega (conta 1 vez por post) | +3 |  
+      47 +| Medalhas de professores | +20 a +50 |                        
+      48 +| Conquistas (primeiro post, 50 curtidas, 5 medalhas…) | +20 a 
+         ++100 |                                                         
+      49 +                                                               
+      50 +Curtir ou comentar o próprio post não dá pontos. Valores, conqu
+         +istas e medalhas ficam em `src/regras.js`.                     
+      51 +Cursos, domínio de e-mail e outras opções ficam em `src/config.
+         +js`.                                                           
+      52 +                                                               
+      53 +## Estrutura                                                   
+      54 +                                                               
+      55 +```                                                            
+      56 +src/config.js   configurações (cursos, domínio, porta)         
+      57 +src/regras.js   pontos, conquistas e medalhas                  
+      58 +src/app.js      rotas/páginas do site                          
+      59 +src/views.js    telas (HTML)                                   
+      60 +src/db.js       banco de dados (SQLite, arquivo em dados/maxx.d
+         +b)                                                             
+      61 +public/         estilo e ícone                                 
+      62 +test/           teste automático (npm test)                    
+      63 +```                                                            
+      64 +                                                               
+      65 +Fotos enviadas e o banco de dados ficam na pasta `dados/`. Faça
+         + backup dela.                                                  
+
+● Fiz a primeira versão do Maxx e ela já está funcionando no seu computador. O
+  teste automático passou e todas as telas abriram sem erro. Só não cheguei a
+  olhar as telas no navegador; conferi as páginas por um script. Quando você
+  abrir, me conta se algo ficou estranho no visual.
+
+  O que o app faz:
+  - Feed parecido com o do Instagram, com posts de foto e/ou texto, curtidas e
+    comentários. Não tem stories, vídeos nem mensagens.
+  - Só entra quem tem e-mail @unimax.edu.br.
+  - Prêmios: o aluno ganha pontos quando posta (+10), quando recebe curtida de
+    outra pessoa (+2) e quando comenta no post de um colega (+3). Também
+    desbloqueia conquistas com pontos extras, como "Primeiro clique" ou
+    "Popular" (50 curtidas).
+  - Medalhas dos professores: no perfil de um aluno, o professor escolhe uma
+    medalha e deixa uma mensagem. Cada medalha vale de 20 a 50 pontos, por
+    exemplo 🥇 Excelência acadêmica ou 🚀 Projeto destaque.
+  - Ranking geral e por curso. Só alunos entram no ranking.
+  - Mural de avisos, onde só a conta da faculdade publica. Um aviso fixado
+    também aparece no topo do feed.
+  - Administração: a conta da faculdade decide quem é professor, para nenhum
+    aluno conseguir se passar por um.
+
+  Como abrir: no terminal, dentro da pasta do projeto, rode npm run demo para
+  criar conteúdo de exemplo e depois npm start. Em seguida acesse
+  http://localhost:3000.
+  - Conta da faculdade: admin@unimax.edu.br / unimax-admin
+  - Aluna de exemplo: ana.costa@unimax.edu.br / senha1234
+  - Professora de exemplo: prof.marina@unimax.edu.br / senha1234
+
+  O passo a passo completo está no README.md, em português. Para mudar a lista
+  de cursos ou os valores dos pontos, é só editar src/config.js e src/regras.js.
+
+  Antes de liberar para a faculdade de verdade:
+  1. Confirmação de e-mail: hoje o app só confere se o e-mail termina em
+     @unimax.edu.br. Ele não envia um código para provar que a pessoa é dona
+     daquele endereço, então alguém poderia criar conta com o e-mail de outra
+     pessoa. Para resolver isso, o app precisa de um serviço de envio de
+     e-mails.
+  2. Colocar na internet: por enquanto o app roda só no seu computador. Para os
+     alunos acessarem do celular, ele precisa ser hospedado num servidor.
+  3. Trocar a senha da conta da faculdade.
+
+  Ainda não salvei nada no git. Posso fazer um commit nesta branch se você
+  quiser. Também posso ajudar com qualquer um desses três passos ou mudar o que
+  não ficou do seu jeito.
+
+✻ Worked for 8m 33s · done 16:15
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_00_abertura-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_00_abertura-sessao.txt
+
+❯ pode ir                                                                       
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The dados/ folder (database and photos) and node_modules are correctly
+  excluded. Committing:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Salvei tudo no git com o commit c446038 ("Primeira versão do Maxx, a rede
+  social da UniMax"), na branch rodada/leigo_00_abertura. Não enviei nada para o
+  GitHub, então por enquanto o commit está só no seu computador.
+
+  A pasta dados/, onde ficam o banco de dados e as fotos, não entrou no commit,
+  de propósito. Os dados dos usuários ficam fora do código, e cada computador
+  que rodar o app cria a sua.
+
+  Quer seguir com algum dos próximos passos? As opções são a confirmação de
+  e-mail com código, colocar o app na internet ou mudar algo no app.
+
+✻ Churned for 24s · done 16:17
