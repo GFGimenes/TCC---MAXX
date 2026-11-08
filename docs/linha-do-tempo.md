@@ -91,6 +91,12 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   `DISABLE_AUTOUPDATER=1` (provável instalação por uma janela sem a variável). Modelo e
   esforço iguais. Declarada a partir da `eng_03_auth`; conferir `claude --version`
   antes de cada sessão e registrar a versão no registro da rodada.
+- Condição de prompt único pré-registrada (08/11): `docs/tcc/pre-registro-prompt-unico.md`,
+  prompts `eng_pu` e `leigo_pu` congelados, repositórios próprios e vazios
+  (`maxx-engenheiro-pu`, `maxx-leigo-pu`), mesmo ambiente das rodadas desde a
+  `eng_03_auth` (2.1.316, `claude-opus-5-5`, `medium`, auto). Executada entre os
+  passos 7 e 8 da trilha do engenheiro, `eng_pu` antes de `leigo_pu`, no mesmo dia.
+  Commit de pré-registro: anotado no diário.
 
 ## Dependências entre fases
 

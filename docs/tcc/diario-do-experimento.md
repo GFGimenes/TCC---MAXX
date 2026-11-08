@@ -408,3 +408,15 @@ pela recomendação; o agente levantou e o autor acolheu o recálculo de raridad
 cadastro, fora da lista original do ADR 0005. PR #8 com onze commits verdes, merge na
 `main` (`a225e29`). Registro em `resultados/engenheiro/eng_06_medalhas.md`. Próxima:
 `eng_07_posts`.
+
+08/11: pré-registro da condição de prompt único, antes de qualquer execução
+(`docs/tcc/pre-registro-prompt-unico.md`). Decisões do autor: repositório próprio e
+vazio por persona em vez de branch na trilha (volta o argumento de 10/10: o agente
+roda `git` e veria a trilha iterativa); `eng_pu` sem pasta `design/` e sem deploy, e
+`leigo_pu` com o pedido de deploy trocado por "me explica como abrir no celular", para
+nenhuma persona depender de credencial; `leigo_pu` condensado ao tamanho que o leigo
+escreveria; fecho comum idêntico; tetos de 12 h e 3.000.000 de tokens de saída; uma
+execução por prompt; execução durante a trilha do engenheiro, entre os passos 7 e 8,
+para ficar no mesmo ambiente das rodadas iterativas, desvio declarado da ordem do
+protocolo. Commit de pré-registro: ver linha abaixo quando feito.
+

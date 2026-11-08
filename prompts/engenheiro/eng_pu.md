@@ -1,8 +1,8 @@
 ID: eng_pu
 Trilha: engenheiro, condição de prompt único
 Tela: produto inteiro numa mensagem só (sem rodadas)
-Data: a preencher no envio
-Origem: rascunho do Cowork (Anthropic) montado a partir de `eng_00_produto.md` e `eng_00_tecnica.md`, para revisão do autor. Pré-registro pendente: o arquivo só vale depois de revisado e commitado antes da sessão.
+Data: 08/11/2026 (pré-registro); data e hora do envio no registro da rodada
+Origem: rascunho do Cowork (Anthropic) montado a partir de `eng_00_produto.md` e `eng_00_tecnica.md`, revisado pelo autor em 08/11/2026. Pré-registrado no commit anotado em `docs/linha-do-tempo.md`; não muda depois dele (ver `docs/tcc/pre-registro-prompt-unico.md`).
 
 Notas de registro:
 - Mesmo conteúdo das duas aberturas da trilha iterativa, numa mensagem só. Saíram as frases que organizam turnos ("Nesta mensagem vai só o produto; a parte técnica vem na próxima", "Na próxima mensagem digo onde isso está", "Só confirme o entendimento... nada de código", "Vamos trabalhar da seguinte maneira: ... eu reviso", "Pergunte antes de decidir; me dê opções com pesos", "revisado por mim"), substituídas por instruções de decidir sozinho e registrar nos docs. Nenhuma regra de produto ou técnica foi acrescentada ou removida.

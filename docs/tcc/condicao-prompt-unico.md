@@ -8,6 +8,14 @@ do experimento. Ela só pode rodar depois de pré-registrada (§3.1.5.8). As dec
 dependem do autor estão marcadas no texto e reunidas na §3.1.5.9, que é nota de
 trabalho e sai da versão final.
 
+Nota (08/11/2026): as decisões da §3.1.5.9 foram tomadas e estão em
+`pre-registro-prompt-unico.md`, que prevalece sobre as propostas deste rascunho onde
+diferirem. As diferenças principais: cada prompt único roda num repositório próprio e
+vazio (`maxx-engenheiro-pu`, `maxx-leigo-pu`), sem semente e sem pacote de design, em
+vez de branch no repositório da trilha; o `eng_pu` não tem deploy; a condição roda
+durante a trilha iterativa do engenheiro, entre os passos 7 e 8, e não depois da trilha
+do leigo. A matriz da §3.1.5.2 passa a ler `maxx-leigo-pu` e `maxx-engenheiro-pu`.
+
 ## 3.1.5 Condição de prompt único
 
 As duas trilhas descritas até aqui são iterativas: cada persona conversa com o agente

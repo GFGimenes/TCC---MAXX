@@ -1,8 +1,8 @@
 ID: leigo_pu
 Trilha: leigo, condição de prompt único
 Tela: produto inteiro numa mensagem só (sem rodadas)
-Data: a preencher no envio
-Origem: rascunho do Cowork (Anthropic) montado a partir de `leigo_00_abertura.md` e dos sete pedidos `leigo_01_login.md` a `leigo_07_deploy.md`, para revisão do autor. Pré-registro pendente: o arquivo só vale depois de revisado e commitado antes da sessão.
+Data: 08/11/2026 (pré-registro); data e hora do envio no registro da rodada
+Origem: rascunho do Cowork (Anthropic) montado a partir de `leigo_00_abertura.md` e dos sete pedidos `leigo_01_login.md` a `leigo_07_deploy.md`, revisado pelo autor em 08/11/2026. Pré-registrado no commit anotado em `docs/linha-do-tempo.md`; não muda depois dele (ver `docs/tcc/pre-registro-prompt-unico.md`).
 
 Notas de registro:
 - Mesmo conteúdo da abertura e dos sete pedidos da trilha iterativa, condensado numa mensagem só no registro do leigo (o autor pediu texto curto, do tamanho que o leigo escreveria). Nenhum pedido foi acrescentado ou removido; o pedido de deploy virou "me explica como eu faço pra abrir no celular e mandar o link", por decisão do autor (08/11), para a condição não exigir conta em serviço externo em nenhuma das personas.
