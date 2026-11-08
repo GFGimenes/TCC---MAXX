@@ -1,0 +1,476 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-leigo
+
+
+❯ Oi, agora queria a tela de entrar e de se cadastrar. Só quem é da UniMax pode 
+  entrar. Ah, e no dia da apresentação do meu TCC o pessoal da banca vai        
+  testar o app, então precisa ter um jeito deles entrarem fácil pra testar, sem 
+  ter cadastro na faculdade. Faz do jeito que ficar melhor.                     
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Login e cadastro já existem (com bloqueio de e-mails de fora da UniMax). Falta
+  o acesso da banca — vou criar um módulo dedicado.
+
+● Write(src\banca.js)
+  ⎿  Wrote 74 lines to src\banca.js
+      1 // Acesso da banca do TCC: permite entrar sem cadastro, com um có
+        digo de acesso,
+      2 // em contas de teste (aluno, professor e faculdade).
+      3 //
+      4 // Fica DESLIGADO por padrão. Para ligar no dia da apresentação, 
+        inicie o app com
+      5 // a variável CODIGO_BANCA definida (mínimo 6 caracteres). Ao des
+        ligar, as contas
+      6 // de teste param de funcionar na hora, mesmo para quem já estava
+         logado.
+     … +68 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && cat >
+      "$TMP/patch.js" <<'EOF'
+      const fs = require('fs');…)
+  ⎿  C:\Users\GUILHE~1\AppData\Local\Temp\patch.js:5
+         if (!s.includes(a)) throw new Error(`não achei em ${p}: ${a.slice(
+     0, 60)}`);
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated src\config.js (+4 -0)
+      24    ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@unimax.edu.br'
+          ,
+      25    ADMIN_SENHA: process.env.ADMIN_SENHA || 'unimax-admin',
+      26  
+      27 +  // Acesso da banca do TCC (entrar sem cadastro, com código). 
+         +Desligado se vazio.                                            
+      28 +  // Ex.: CODIGO_BANCA=maxx2026 npm start                      
+      29 +  CODIGO_BANCA: process.env.CODIGO_BANCA || '',                
+      30 +                                                               
+      31    PORTA: Number(process.env.PORT) || 3000,
+      32    PASTA_DADOS: process.env.MAXX_DADOS || path.join(__dirname, '
+          ..', 'dados'),
+      33    TAMANHO_MAX_IMAGEM_MB: 5,
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && cat
+      .gitattributes; git checkout src/config.js && sed -i 's/let s =
+      fs.readFileSync(p, .utf8.)…)
+  ⎿  * text=auto
+     Updated 1 path from the index
+     const fs = require('fs');
+     … +24 lines (ctrl+o to expand)
+  ⎿  Updated src\config.js (+0 -4)
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+
+● Vou corrigir o script direto com o Edit.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(C:\Users\GUILHE~1\AppData\Local\Temp\patch.js)
+  ⎿  Added 1 line, removed 4 lines
+      1  const fs = require('fs');
+      2  function edit(p, pares) {
+      3 -  let s = fs.readFileSync(p, "utf8"); const crlf = s.includes(" 
+      4 -"); s = s.replace(/                                             
+      5 -/g, "                                                           
+      6 -");                                                             
+      3 +  let s = fs.readFileSync(p, "utf8"); const crlf = s.includes("\
+        +r\n"); s = s.replace(/\r\n/g, "\n");                            
+      4    for (const [a, b] of pares) {
+      5      if (!s.includes(a)) throw new Error(`não achei em ${p}: ${a.
+         slice(0, 60)}`);
+      6      s = s.replace(a, () => b);
+
+● Update(C:\Users\GUILHE~1\AppData\Local\Temp\patch.js)
+  ⎿  Added 2 lines, removed 3 lines
+       5      if (!s.includes(a)) throw new Error(`não achei em ${p}: ${a
+          .slice(0, 60)}`);
+       6      s = s.replace(a, () => b);
+       7    }
+       8 -  fs.writeFileSync(p, crlf ? s.replace(/                       
+       9 -/g, "                                                          
+      10 -") : s);                                                       
+       8 +  fs.writeFileSync(p, crlf ? s.replace(/\n/g, "\r\n") : s);    
+       9 +//") : s);                                                     
+      10  }
+      11  edit('src/config.js', [["  PORTA:", `  // Acesso da banca do TC
+          C (entrar sem cadastro, com código). Desligado se vazio.
+      12    // Ex.: CODIGO_BANCA=maxx2026 npm start
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && node
+      "$TMP/patch.js" && git diff --stat && npm test 2>&1 | tail -8)
+  ⎿   public/estilo.css |  4 ++++
+      src/app.js        | 19 ++++++++++++++++---
+      src/config.js     |  4 ++++
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated public\estilo.css (+4 -0)
+      108  
+      109  .auth { margin-top: 2rem; display: grid; gap: .8rem; }
+      110  .auth p { text-align: center; margin: 0; }
+      111 +.banca { margin-top: 1rem; border-style: dashed; }            
+      112 +.banca h2 { margin: 0; text-align: center; font-size: 1.1rem; 
+          +}                                                             
+      113 +.banca-rotulo { font-size: .9rem; font-weight: 600; }         
+      114 +.banca-perfis { display: grid; grid-template-columns: repeat(a
+          +uto-fit, minmax(110px, 1fr)); gap: .5rem; }                   
+      115  
+      116  .avatar { border-radius: 50%; object-fit: cover; flex-shrink: 
+           0; }
+      117  .avatar-p { width: 36px; height: 36px; }
+  ⎿  Updated src\app.js (+16 -3)
+       8  const db = require('./db');
+       9  const { hashSenha, confereSenha } = require('./senha');
+      10  const pontos = require('./pontos');
+      11 +const banca = require('./banca');                              
+      12  const v = require('./views');
+      13  
+      14  const PASTA_UPLOADS = path.join(config.PASTA_DADOS, 'uploads');
+     ...
+      117      req.usuario = db
+      118        .prepare('SELECT u.* FROM sessoes s JOIN usuarios u ON u
+           .id = s.usuario_id WHERE s.token_hash = ? AND s.expira_em > ?'
+           )
+      119        .get(hashToken(token), Date.now());
+      120 +    // Contas da banca só valem enquanto o acesso da banca est
+          +iver ligado.                                                  
+      121 +    if (req.usuario && !banca.ligada() && banca.ehContaBanca(r
+          +eq.usuario.email)) req.usuario = undefined;                   
+      122    }
+      123    next();
+      124  });
+     ...
+      126  // ----- Entrar / cadastrar / sair -----
+      127  app.get('/entrar', (req, res) => {
+      128    if (req.usuario) return res.redirect('/');
+      126 -  enviar(req, res, { titulo: 'Entrar', conteudo: v.telaEntrar(
+          -{}) });                                                       
+      129 +  enviar(req, res, { titulo: 'Entrar', conteudo: v.telaEntrar(
+          +{ banca: banca.ligada() }) });                                
+      130  });
+      131  
+      132  app.post('/entrar', (req, res) => {
+      133    const email = texto(req.body.email, 200).toLowerCase();
+      134    const usuario = db.prepare('SELECT * FROM usuarios WHERE ema
+           il = ?').get(email);
+      135    if (!usuario || !confereSenha(String(req.body.senha || ''), 
+           usuario.senha_hash)) {
+      133 -    return enviar(req, res, { titulo: 'Entrar', status: 401, c
+          -onteudo: v.telaEntrar({ erro: 'E-mail ou senha incorretos.', e
+          -mail }) });                                                   
+      136 +    return enviar(req, res, { titulo: 'Entrar', status: 401, c
+          +onteudo: v.telaEntrar({ erro: 'E-mail ou senha incorretos.', e
+          +mail, banca: banca.ligada() }) });                            
+      137    }
+      138    iniciarSessao(res, usuario.id);
+      139    res.redirect('/');
+     ...
+      158      erro = `Use seu e-mail da faculdade (@${config.DOMINIOS_PE
+           RMITIDOS.join(', @')}).`;
+      159    else if (!config.CURSOS.includes(dados.curso)) erro = 'Selec
+           ione seu curso.';
+      160    else if (senha.length < 8) erro = 'A senha precisa ter pelo 
+           menos 8 caracteres.';
+      158 -  else if (db.prepare('SELECT 1 FROM usuarios WHERE email = ?'
+          -).get(dados.email)) erro = 'Já existe uma conta com esse e-mai
+          -l.';                                                          
+      161 +  else if (banca.ehContaBanca(dados.email) || db.prepare('SELE
+          +CT 1 FROM usuarios WHERE email = ?').get(dados.email)) erro = 
+          +'Já existe uma conta com esse e-mail.';                       
+      162    if (erro) return enviar(req, res, { titulo: 'Cadastrar', sta
+           tus: 400, conteudo: v.telaCadastrar({ erro, dados }) });
+      163  
+      164    const { lastInsertRowid } = db
+     ...
+      168    res.redirect('/');
+     … 15 more lines (ctrl+o to expand)
+  ⎿  Updated src\config.js (+4 -0)
+      24    ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@unimax.edu.br'
+          ,
+      25    ADMIN_SENHA: process.env.ADMIN_SENHA || 'unimax-admin',
+      26  
+      27 +  // Acesso da banca do TCC (entrar sem cadastro, com código). 
+         +Desligado se vazio.                                            
+      28 +  // Ex.: CODIGO_BANCA=maxx2026 npm start                      
+      29 +  CODIGO_BANCA: process.env.CODIGO_BANCA || '',                
+      30 +                                                               
+      31    PORTA: Number(process.env.PORT) || 3000,
+      32    PASTA_DADOS: process.env.MAXX_DADOS || path.join(__dirname, '
+          ..', 'dados'),
+      33    TAMANHO_MAX_IMAGEM_MB: 5,
+  ⎿  Updated src\views.js (+19 -2)
+      1  // Telas do Maxx.
+      2  const { html, raw } = require('./html');
+      3  const config = require('./config');
+      4 +const { CONTAS: CONTAS_BANCA } = require('./banca');            
+      5  const { PONTOS, CONQUISTAS } = require('./regras');
+      6  
+      7  // ---------- Ícones ----------
+     ...
+       91  }
+       92  
+       93  // ---------- Entrar / Cadastrar ----------
+       93 -function telaEntrar({ erro, email = '' }) {                   
+       94 +function caixaBanca(erro) {                                   
+       95 +  return html`<section class="cartao auth banca" id="banca">  
+       96 +  <h2>Banca do TCC</h2>                                       
+       97 +  <p class="muted">Entre sem cadastro com o código de acesso d
+          +a apresentação.</p>                                           
+       98 +  ${erroBox(erro)}                                            
+       99 +  <form method="post" action="/banca" class="form">           
+      100 +    <label>Código de acesso<input name="codigo" required autoc
+          +omplete="off" autocapitalize="none" spellcheck="false"></label
+          +>                                                             
+      101 +    <span class="banca-rotulo">Entrar como</span>             
+      102 +    <div class="banca-perfis">                                
+      103 +      ${Object.entries(CONTAS_BANCA).map(([perfil, c]) => html
+          +`<button class="btn btn-sec" name="perfil" value="${perfil}">$
+          +{c.rotulo}</button>`)}                                        
+      104 +    </div>                                                    
+      105 +  </form>                                                     
+      106 +</section>`;                                                  
+      107 +}                                                             
+      108 +                                                              
+      109 +function telaEntrar({ erro, email = '', banca = false, erroBan
+          +ca }) {                                                       
+      110    return html`<section class="cartao auth">
+      111    <h1 class="marca-grande">${config.NOME_APP}</h1>
+      112    <p class="muted">A rede social da ${config.FACULDADE}</p>
+     ...
+      117      <button class="btn">Entrar</button>
+      118    </form>
+      119    <p class="muted">Ainda não tem conta? <a href="/cadastrar">C
+           adastre-se</a></p>
+      104 -</section>`;                                                  
+      120 +</section>                                                    
+      121 +${banca ? caixaBanca(erroBanca) : ''}`;                       
+      122  }
+      123  
+      124  function telaCadastrar({ erro, dados = {} }) {
+
+● Testes antigos passando. Agora um teste para o acesso da banca:
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && cat >
+      "$TMP/patch2.js" <<'EOF'
+      const fs = require('fs');…)
+  ⎿  # SyntaxError: Unexpected token ')'
+     not ok 1 - test\\fluxo.test.js
+     # pass 0
+     # fail 1
+  ⎿  Updated test\fluxo.test.js (+37 -0)
+       8  const pasta = fs.mkdtempSync(path.join(os.tmpdir(), 'maxx-teste
+          -'));
+       9  process.env.MAXX_DADOS = pasta;
+      10  process.env.ADMIN_SENHA = 'senha-admin-teste';
+      11 +process.env.CODIGO_BANCA = 'banca-teste';                      
+      12  
+      13  const app = require('../src/app');
+      14  let servidor;
+     ...
+      138    await ana.post('/sair');
+      139    assert.equal((await ana.get('/')).local, '/entrar');
+      140  });
+      141 +                                                              
+      142 +test('acesso da banca', async () => {                         
+      143 +  const config = require('../src/config');                    
+      144 +  const anon = cliente();                                     
+      145 +                                                              
+      146 +  // A tela de entrar mostra a caixa da banca.                
+      147 +  assert.match((await anon.get('/entrar')).html, /Banca do TCC
+          +/);                                                           
+      148 +                                                              
+      149 +  // Código errado não entra.                                 
+      150 +  const errado = await anon.post('/banca', { codigo: 'chute', 
+          +perfil: 'aluno' });                                           
+      151 +  assert.equal(errado.status, 401);                           
+      152 +  assert.match(errado.html, /Código de acesso incorreto/);    
+      153 +                                                              
+      154 +  // Com o código certo, entra como aluno, professor ou faculd
+          +ade (sem ligar para maiúsculas).                              
+      155 +  const aluno = cliente();                                    
+      156 +  assert.equal((await aluno.post('/banca', { codigo: 'Banca-Te
+          +ste', perfil: 'aluno' })).local, '/');                        
+      157 +  assert.equal((await aluno.post('/posts', { legenda: 'Post da
+          + banca' })).status, 302);                                     
+      158 +  const prof = cliente();                                     
+      159 +  await prof.post('/banca', { codigo: 'banca-teste', perfil: '
+          +professor' });                                                
+      160 +  const idAluno = Number((await aluno.get('/novo')).html.match
+          +(/href="/u/(d+)"/)[1]);                                       
+      161 +  assert.equal((await prof.post(`/u/${idAluno}/medalha`, { tip
+          +o_id: '1' })).status, 302);                                   
+      162 +  const fac = cliente();                                      
+      163 +  await fac.post('/banca', { codigo: 'banca-teste', perfil: 'a
+          +dmin' });                                                     
+      164 +  assert.equal((await fac.get('/admin')).status, 200);        
+      165 +                                                              
+      166 +  // Ninguém consegue se cadastrar com o e-mail de uma conta d
+          +a banca, nem entrar com senha.                                
+      167 +  const cad = await anon.post('/cadastrar', { nome: 'X', email
+          +: 'banca.aluno@unimax.edu.br', curso: 'Direito', senha: 'senha
+          +12345' });                                                    
+      168 +  assert.match(cad.html, /Já existe uma conta/);              
+      169 +  assert.equal((await anon.post('/entrar', { email: 'banca.alu
+          +no@unimax.edu.br', senha: '!' })).status, 401);               
+      170 +                                                              
+     … 6 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(test\fluxo.test.js)
+  ⎿  Added 1 line, removed 1 line
+      157    assert.equal((await aluno.post('/posts', { legenda: 'Post da
+            banca' })).status, 302);
+      158    const prof = cliente();
+      159    await prof.post('/banca', { codigo: 'banca-teste', perfil: '
+           professor' });
+      160 -  const idAluno = Number((await aluno.get('/novo')).html.match
+          -(/href="/u/(d+)"/)[1]);                                       
+      160 +  const idAluno = require('../src/db').prepare("SELECT id FROM
+          + usuarios WHERE email = 'banca.aluno@unimax.edu.br'").get().id
+          +;                                                             
+      161    assert.equal((await prof.post(`/u/${idAluno}/medalha`, { tip
+           o_id: '1' })).status, 302);
+      162    const fac = cliente();
+      163    await fac.post('/banca', { codigo: 'banca-teste', perfil: 'a
+           dmin' });
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Erro no próprio teste (nome "X" curto demais). Ajustando:
+
+● Update(test\fluxo.test.js)
+  ⎿  Added 1 line, removed 1 line
+      164    assert.equal((await fac.get('/admin')).status, 200);
+      165  
+      166    // Ninguém consegue se cadastrar com o e-mail de uma conta d
+           a banca, nem entrar com senha.
+      167 -  const cad = await anon.post('/cadastrar', { nome: 'X', email
+          -: 'banca.aluno@unimax.edu.br', curso: 'Direito', senha: 'senha
+          -12345' });                                                    
+      167 +  const cad = await anon.post('/cadastrar', { nome: 'Xavier', 
+          +email: 'banca.aluno@unimax.edu.br', curso: 'Direito', senha: '
+          +senha12345' });                                               
+      168    assert.match(cad.html, /Já existe uma conta/);
+      169    assert.equal((await anon.post('/entrar', { email: 'banca.alu
+           no@unimax.edu.br', senha: '!' })).status, 401);
+      170  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo passando. Agora documento no README:
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && cat >
+      "$TMP/patch3.js" <<'EOF'
+      const fs = require('fs');…)
+  ⎿   M README.md
+      M public/estilo.css
+      M src/app.js
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated README.md (+19 -0)
+      32  - aluna: `ana.costa@unimax.edu.br`
+      33  - professora: `prof.marina@unimax.edu.br`
+      34  
+      35 +### Acesso da banca (dia da apresentação)                      
+      36 +                                                               
+      37 +Para a banca testar o app sem ter cadastro na faculdade, inicie
+         + o Maxx com um **código de acesso** (mínimo 6 caracteres):     
+      38 +                                                               
+      39 +```                                                            
+      40 +# PowerShell                                                   
+      41 +$env:CODIGO_BANCA="maxx2026"; npm start                        
+      42 +                                                               
+      43 +# Mac/Linux                                                    
+      44 +CODIGO_BANCA=maxx2026 npm start                                
+      45 +```                                                            
+      46 +                                                               
+      47 +A tela de entrar passa a mostrar a caixa **Banca do TCC**: é só
+         + digitar o código e escolher entrar como **Aluno(a)**, **Profes
+         +sor(a)** ou **Faculdade** (administração). As contas de teste s
+         +ão criadas sozinhas no primeiro acesso.                        
+      48 +                                                               
+      49 +- Sem `CODIGO_BANCA`, a caixa não aparece e as contas de teste 
+         +não funcionam (nem para quem já estava logado).                
+      50 +- As contas de teste não têm senha: só dá para entrar nelas pel
+         +o código.                                                      
+      51 +- Depois de 10 códigos errados, o aparelho espera 15 minutos pa
+         +ra tentar de novo.                                             
+      52 +- Dica: rode `npm run demo` antes, para a banca encontrar o app
+         + com conteúdo.                                                 
+      53 +                                                               
+      54  ### Como liberar um professor
+      55  
+      56  1. O professor cria a conta normalmente pelo site.
+
+● Pronto! Antes de tudo: as telas de entrar e de cadastro já existiam no app, e
+  já bloqueavam e-mails que não são @unimax.edu.br. Não mexi nelas. O que
+  faltava era o acesso da banca, e foi isso que fiz.
+
+  Como a banca vai entrar
+
+  No dia da apresentação, você liga o app com um código que você mesmo escolhe:
+
+  $env:CODIGO_BANCA="maxx2026"; npm start
+
+  Aí a tela de entrar ganha uma caixa "Banca do TCC". A pessoa digita o código e
+  clica em um de três botões:
+  - Aluno(a): posta, curte, comenta e aparece no ranking
+  - Professor(a): dá medalhas
+  - Faculdade: publica no mural e acessa a Administração
+
+  Assim a banca consegue testar o app inteiro sem criar conta nenhuma. As contas
+  de teste são criadas sozinhas no primeiro acesso.
+
+  Por que escolhi um código em vez de um botão "entrar sem senha"
+
+  Se qualquer pessoa que abrisse o site pudesse entrar sem senha, a regra de "só
+  quem é da UniMax" deixaria de valer. Com o código, quem não sabe o código
+  continua barrado. Você pode mostrar o código num slide ou falar em voz alta.
+  Também tomei estes cuidados:
+  - Por padrão o acesso fica desligado. Se você ligar o app sem o código, a
+    caixa nem aparece. Quando você desligar depois da apresentação, até quem
+    estava logado numa conta de teste perde o acesso na hora.
+  - As contas de teste não têm senha. Só dá pra entrar nelas pelo código, e
+    ninguém consegue se cadastrar com os e-mails delas.
+  - Depois de 10 códigos errados, o aparelho tem que esperar 15 minutos para
+    tentar de novo.
+
+  Recomendações para o dia
+
+  - Rode npm run demo antes, para a banca encontrar o app com posts, ranking e
+    medalhas em vez de vazio.
+  - A conta "Faculdade" tem poderes de administrador: pode mudar o papel de
+    outras pessoas e apagar posts. Prefiro usar o app com os dados de exemplo e
+    não com contas de alunos reais.
+
+  O que mudou
+
+  - Arquivo novo src/banca.js com toda a lógica do acesso da banca
+  - A caixa nova na tela de entrar (src/views.js e public/estilo.css)
+  - O endereço /banca em src/app.js, que recebe o código e faz o login
+  - Uma seção nova no README explicando como ligar
+  - Um teste novo, que confere: código errado é recusado, os três perfis entram,
+    ninguém se cadastra com os e-mails de teste, e desligar o acesso derruba as
+    sessões. Os dois testes (o antigo e o novo) estão passando.
+
+  Não fiz commit. Se quiser, eu faço na branch rodada/leigo_01_login.
+
+✻ Brewed for 3m 6s · done 16:25
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_01_login-sessao.txt          
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_01_login-sessao.txt
+❯ pode ir                                                                       
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Fiz o commit na branch rodada/leigo_01_login com o nome "Acesso da banca do
+  TCC com código de acesso" (5d82905). Todas as mudanças entraram nele e não
+  ficou nada pendente.
+
+  Não enviei pro GitHub, o commit está só no seu computador. Se quiser que eu
+  envie ou que abra um pull request para a main, é só falar.
+
+✻ Sautéed for 19s · done 16:28
