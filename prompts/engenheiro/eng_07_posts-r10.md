@@ -7,6 +7,7 @@ Origem: leitura do Cowork (Anthropic) do export da sessão; o autor conferiu as 
 Notas de registro:
 - Etapa 8 fechada em `ed78c95`, CI verde.
 - Etapa 9: perfil próprio (anel dourado, pontos, contadores, RA só no próprio, abas por ícone, grade de três colunas com medalhão no canto ou sobre o metal do tier, "Editar perfil" provisório) e de outro (`/usuarios/:id` fora das abas, Seguir e Seguindo pelas regras do banco); professor concede pelo perfil do aluno com escolha de turma; perfil do professor com turmas e medalhas concedidas; menu com tema (pendência do passo 4 fechada), Minhas turmas e Sair; falha de contrato da etapa 6 corrigida (`Produces<PerfilResponse>()`); três defeitos achados por teste e captura corrigidos (menu antes de carregar, grade vazia sem onLayout, lista do teste de gradiente); 370 Jest (11 novos), 61 mais 4 e2e; `test.slow()` no caso de medalha como paliativo declarado.
+- Capturas conferidas pelo autor e pelo Cowork contra a prancheta do perfil (próprio, claro e escuro, e perfil de outro): estrutura, anel, caixa de pontos, abas e grade fiéis; nada a corrigir.
 - Diferenças de propósito: sem bio, "Seguida por", Compartilhar, posição, sininho e "Último troféu"; arroba sob o nome incluído sem prancheta. Autor aceitou todas.
 
 ---
