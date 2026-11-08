@@ -1,0 +1,542 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-leigo
+
+
+❯ Agora o mural de avisos, onde a faculdade e os professores colocam os avisos  
+  e os alunos leem.                                                             
+
+● Vou olhar como o projeto está organizado e como as rodadas anteriores foram
+  feitas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O README já cita um mural. Vou ver o que existe hoje.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O mural já existe, mas hoje só a conta da faculdade publica. Vou ler o código
+  relacionado para estender aos professores.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Os professores passam a publicar no mural, com o autor de cada aviso à vista e
+  um contador de avisos novos para os alunos. Começo pelo banco, com um campo
+  que guarda até qual aviso cada pessoa já leu.
+
+● Update(src\db.js)
+  ⎿  Added 9 lines
+       96  );
+       97  `);
+       98  
+       99 +// Mural: guarda o último aviso que cada pessoa já viu, para m
+          +ostrar quantos são novos.                                     
+      100 +// Em bancos antigos, quem já tinha conta começa com tudo marc
+          +ado como lido.                                                
+      101 +if (!db.prepare('PRAGMA table_info(usuarios)').all().some((c) 
+          +=> c.name === 'mural_visto_id')) {                            
+      102 +  db.exec(`                                                   
+      103 +    ALTER TABLE usuarios ADD COLUMN mural_visto_id INTEGER NOT
+          + NULL DEFAULT 0;                                              
+      104 +    UPDATE usuarios SET mural_visto_id = (SELECT IFNULL(MAX(id
+          +), 0) FROM avisos);                                           
+      105 +  `);                                                         
+      106 +}                                                             
+      107 +                                                              
+      108  // Dados iniciais: tipos de medalha e conta da faculdade.
+      109  if (db.prepare('SELECT COUNT(*) AS n FROM tipos_medalha').get(
+           ).n === 0) {
+      110    const inserir = db.prepare('INSERT INTO tipos_medalha (nome,
+            emoji, pontos, descricao) VALUES (?, ?, ?, ?)');
+
+● Agora as rotas: professor publica, cada um apaga só os próprios avisos (a
+  faculdade apaga qualquer um), e só a faculdade fixa no topo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Sem Python aqui; faço a mesma troca com Edit.
+
+● Update(src\app.js)
+  ⎿  Added 10 lines, removed 1 line
+      72  }
+      73  
+      74  // ---------- Helpers ----------
+      75 +// Quantos avisos do mural a pessoa ainda não viu (os que ela m
+         +esma publicou não contam).                                     
+      76 +function avisosNovos(usuario) {                                
+      77 +  if (!usuario) return 0;                                      
+      78 +  return db                                                    
+      79 +    .prepare('SELECT COUNT(*) AS n FROM avisos WHERE id > ? AND
+         + (autor_id IS NULL OR autor_id != ?)')                         
+      80 +    .get(usuario.mural_visto_id, usuario.id).n;                
+      81 +}                                                              
+      82 +                                                               
+      83  function enviar(req, res, { titulo, ativo, conteudo, status = 2
+          00 }) {
+      76 -  res.status(status).type('html').send(String(v.layout({ usuari
+         -o: req.usuario, titulo, ativo, conteudo })));                  
+      84 +  const novos = avisosNovos(req.usuario);                      
+      85 +  res.status(status).type('html').send(String(v.layout({ usuari
+         +o: req.usuario, titulo, ativo, conteudo, avisosNovos: novos }))
+         +);                                                             
+      86  }
+      87  
+      88  function exigeLogin(req, res, next) {
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(src\app.js)
+  ⎿  Added 41 lines, removed 17 lines
+      356  });
+      357  
+      358  // ----- Mural -----
+      359 -const listarAvisos = () => db.prepare('SELECT * FROM avisos OR
+          -DER BY fixado DESC, id DESC').all();                          
+      359 +// A faculdade e os professores publicam avisos; todo mundo lê
+          +.                                                             
+      360 +// Só a faculdade fixa avisos no topo. Cada um apaga os própri
+          +os (a faculdade apaga qualquer um).                           
+      361 +const listarAvisos = () =>                                    
+      362 +  db                                                          
+      363 +    .prepare(                                                 
+      364 +      `SELECT a.*, a.autor_id AS usuario_id, u.nome, u.papel, 
+          +u.avatar                                                      
+      365 +       FROM avisos a LEFT JOIN usuarios u ON u.id = a.autor_id
+      366 +       ORDER BY a.fixado DESC, a.id DESC`,                    
+      367 +    )                                                         
+      368 +    .all();                                                   
+      369  
+      361 -app.get('/mural', (req, res) =>                               
+      362 -  enviar(req, res, { titulo: 'Mural', ativo: 'mural', conteudo
+          -: v.mural({ avisos: listarAvisos(), usuario: req.usuario }) })
+          -,                                                             
+      363 -);                                                            
+      370 +const podeApagarAviso = (usuario, aviso) => usuario.papel === 
+          +'admin' || aviso.autor_id === usuario.id;                     
+      371  
+      365 -app.post('/mural', exigePapel('admin'), (req, res) => {       
+      372 +function telaMural(req, res, { erro, status } = {}) {         
+      373 +  const avisos = listarAvisos();                              
+      374 +  const vistoAte = req.usuario.mural_visto_id;                
+      375 +  for (const a of avisos) {                                   
+      376 +    a.novo = a.id > vistoAte && a.autor_id !== req.usuario.id;
+      377 +    a.podeApagar = podeApagarAviso(req.usuario, a);           
+      378 +  }                                                           
+      379 +  // Abriu o mural: tudo o que está nele passa a contar como l
+          +ido.                                                          
+      380 +  const ultimo = Math.max(vistoAte, ...avisos.map((a) => a.id)
+          +);                                                            
+      381 +  if (ultimo > vistoAte) {                                    
+      382 +    db.prepare('UPDATE usuarios SET mural_visto_id = ? WHERE i
+          +d = ?').run(ultimo, req.usuario.id);                          
+      383 +    req.usuario.mural_visto_id = ultimo;                      
+      384 +  }                                                           
+      385 +  enviar(req, res, { titulo: 'Mural', ativo: 'mural', status, 
+          +conteudo: v.mural({ avisos, usuario: req.usuario, erro }) }); 
+      386 +}                                                             
+      387 +                                                              
+      388 +app.get('/mural', (req, res) => telaMural(req, res));         
+      389 +                                                              
+      390 +app.post('/mural', exigePapel('admin', 'professor'), (req, res
+          +) => {                                                        
+      391    const titulo = texto(req.body.titulo, 120);
+      392    const t = texto(req.body.texto, 5000);
+      368 -  if (!titulo || !t) {                                        
+      369 -    return enviar(req, res, {                                 
+      370 -      titulo: 'Mural',                                        
+      371 -      ativo: 'mural',                                         
+      372 -      status: 400,                                            
+      373 -      conteudo: v.mural({ avisos: listarAvisos(), usuario: req
+          -.usuario, erro: 'Preencha o título e o aviso.' }),            
+      374 -    });                                                       
+      375 -  }                                                           
+      376 -  db.prepare('INSERT INTO avisos (autor_id, titulo, texto, fix
+          -ado) VALUES (?, ?, ?, ?)').run(req.usuario.id, titulo, t, req.
+          -body.fixado ? 1 : 0);                                         
+      377 -  res.redirect('/mural');                                     
+      393 +  if (!titulo || !t) return telaMural(req, res, { erro: 'Preen
+          +cha o título e o aviso.', status: 400 });                     
+      394 +  const fixado = req.usuario.papel === 'admin' && req.body.fix
+          +ado ? 1 : 0;                                                  
+      395 +  const { lastInsertRowid } = db                              
+      396 +    .prepare('INSERT INTO avisos (autor_id, titulo, texto, fix
+          +ado) VALUES (?, ?, ?, ?)')                                    
+      397 +    .run(req.usuario.id, titulo, t, fixado);                  
+      398 +  res.redirect(`/mural#aviso-${lastInsertRowid}`);            
+      399  });
+      400  
+      401  app.post('/mural/:id/fixar', exigePapel('admin'), (req, res) =
+           > {
+     ...
+      403    res.redirect('/mural');
+      404  });
+      405  
+      385 -app.post('/mural/:id/apagar', exigePapel('admin'), (req, res) 
+          -=> {                                                          
+      386 -  db.prepare('DELETE FROM avisos WHERE id = ?').run(idParam(re
+          -q));                                                          
+      406 +app.post('/mural/:id/apagar', exigePapel('admin', 'professor')
+          +, (req, res) => {                                             
+      407 +  const aviso = db.prepare('SELECT * FROM avisos WHERE id = ?'
+          +).get(idParam(req));                                          
+      408 +  if (!aviso) throw new ErroUsuario('Esse aviso não existe mai
+          +s.', 404);                                                    
+      409 +  if (!podeApagarAviso(req.usuario, aviso)) throw new ErroUsua
+          +rio('Você só pode apagar os avisos que você publicou.', 403); 
+      410 +  db.prepare('DELETE FROM avisos WHERE id = ?').run(aviso.id);
+      411    res.redirect('/mural');
+      412  });
+      413  
+
+● Agora as telas: bolinha com o número de avisos novos no ícone do Mural, e cada
+  aviso mostrando quem publicou.
+
+● Update(src\views.js)
+  ⎿  Added 7 lines, removed 3 lines
+      55    config.CURSOS.map((c) => html`<option value="${c}" ${c === se
+          lecionado ? 'selected' : ''}>${c}</option>`);
+      56  
+      57  // ---------- Layout ----------
+      58 -function layout({ usuario, titulo, ativo, conteudo }) {        
+      59 -  const item = (chave, href, rotulo) =>                        
+      60 -    html`<a href="${href}" class="${ativo === chave ? 'ativo' :
+         - ''}" aria-label="${rotulo}">${icone[chave]}<span>${rotulo}</sp
+         -an></a>`;                                                      
+      58 +function layout({ usuario, titulo, ativo, conteudo, avisosNovos
+         + = 0 }) {                                                      
+      59 +  const item = (chave, href, rotulo, novos = 0) => {           
+      60 +    const descricao = novos ? `${rotulo} (${plural(novos, 'avis
+         +o novo', 'avisos novos')})` : rotulo;                          
+      61 +    return html`<a href="${href}" class="${ativo === chave ? 'a
+         +tivo' : ''}" aria-label="${descricao}"><span class="nav-icone">
+         +${icone[chave]}${                                              
+      62 +      novos ? html`<span class="bolinha" aria-hidden="true">${n
+         +ovos > 9 ? '9+' : novos}</span>` : ''                          
+      63 +    }</span><span>${rotulo}</span></a>`;                       
+      64 +  };                                                           
+      65    return html`<!doctype html>
+      66  <html lang="pt-BR">
+      67  <head>
+
+● Update(src\views.js)
+  ⎿  Added 1 line, removed 1 line
+      83    usuario
+      84      ? html`<nav class="nav-inferior">
+      85    ${item('inicio', '/', 'Início')}
+      86 -  ${item('mural', '/mural', 'Mural')}                          
+      86 +  ${item('mural', '/mural', 'Mural', avisosNovos)}             
+      87    ${item('novo', '/novo', 'Postar')}
+      88    ${item('ranking', '/ranking', 'Ranking')}
+      89    ${item('perfil', `/u/${usuario.id}`, 'Perfil')}
+
+● Update(src\views.js)
+  ⎿  Added 35 lines, removed 13 lines
+      479  }
+      480  
+      481  // ---------- Mural ----------
+      482 +function autorAviso(a) {                                      
+      483 +  // Aviso de conta que foi apagada: mostra como da faculdade.
+      484 +  if (!a.usuario_id) return html`<span class="usuario-link"><s
+          +pan><strong>${config.FACULDADE}</strong> ${selo('admin')}</spa
+          +n></span>`;                                                   
+      485 +  return linkUsuario(a);                                      
+      486 +}                                                             
+      487 +                                                              
+      488  function mural({ avisos, usuario, erro }) {
+      489    const admin = usuario.papel === 'admin';
+      490 +  const podePublicar = admin || usuario.papel === 'professor';
+      491 +  const novos = avisos.filter((a) => a.novo).length;          
+      492    return html`<section class="cartao">
+      493    <h1>📢 Mural da ${config.FACULDADE}</h1>
+      486 -  <p class="muted">Avisos oficiais da faculdade.</p>          
+      494 +  <p class="muted">Avisos da faculdade e dos professores.${nov
+          +os ? html` <strong class="destaque-novo">${plural(novos, 'avis
+          +o novo', 'avisos novos')} desde a sua última visita.</strong>`
+          + : ''}</p>                                                    
+      495    ${
+      488 -    admin                                                     
+      489 -      ? html`${erroBox(erro)}<form method="post" action="/mura
+          -l" class="form">                                              
+      490 -      <label>Título<input name="titulo" required maxlength="12
+          -0"></label>                                                   
+      491 -      <label>Aviso<textarea name="texto" rows="4" required max
+          -length="5000"></textarea></label>                             
+      492 -      <label class="check"><input type="checkbox" name="fixado
+          -" value="1"> Fixar no topo (também aparece no início)</label> 
+      493 -      <button class="btn">Publicar aviso</button>             
+      494 -    </form>`                                                  
+      496 +    podePublicar                                              
+      497 +      ? html`<details class="novo-aviso" ${erro ? 'open' : ''}
+          +>                                                             
+      498 +      <summary>Publicar um aviso</summary>                    
+      499 +      ${erroBox(erro)}                                        
+      500 +      <form method="post" action="/mural" class="form">       
+      501 +        <label>Título<input name="titulo" required maxlength="
+          +120" placeholder="Ex.: Aula de quinta cancelada"></label>     
+      502 +        <label>Aviso<textarea name="texto" rows="4" required m
+          +axlength="5000"></textarea></label>                           
+      503 +        ${                                                    
+      504 +          admin                                               
+      505 +            ? html`<label class="check"><input type="checkbox"
+          + name="fixado" value="1"> Fixar no topo (também aparece no iní
+          +cio)</label>`                                                 
+      506 +            : html`<p class="muted dica">O aviso sai com o seu
+          + nome e todos os alunos veem. Só você e a faculdade podem apag
+          +á-lo.</p>`                                                    
+      507 +        }                                                     
+      508 +        <button class="btn">Publicar aviso</button>           
+      509 +      </form>                                                 
+      510 +    </details>`                                               
+      511        : ''
+      512    }
+      513  </section>
+      514  ${avisos.length === 0 ? html`<section class="cartao"><p class=
+           "muted">Nenhum aviso por enquanto.</p></section>` : ''}
+      515  ${avisos.map(
+      500 -  (a) => html`<article class="cartao aviso ${a.fixado ? 'fixad
+          -o' : ''}">                                                    
+      501 -    ${a.fixado ? html`<span class="selo selo-oficial">📌 Fixad
+          -o</span>` : ''}                                               
+      516 +  (a) => html`<article class="cartao aviso ${a.fixado ? 'fixad
+          +o' : ''} ${a.novo ? 'novo' : ''}" id="aviso-${a.id}">         
+      517 +    <div class="aviso-topo">                                  
+      518 +      ${autorAviso(a)}                                        
+      519 +      <span class="aviso-selos">                              
+      520 +        ${a.novo ? html`<span class="selo selo-novo">Novo</spa
+          +n>` : ''}                                                     
+      521 +        ${a.fixado ? html`<span class="selo selo-oficial">📌 F
+          +ixado</span>` : ''}                                           
+      522 +      </span>                                                 
+      523 +    </div>                                                    
+      524      <h2>${a.titulo}</h2>
+      525      <p class="texto-aviso">${a.texto}</p>
+      526      <small class="muted">${tempoRelativo(a.criado_em)}</small>
+      527      ${
+      506 -      admin                                                   
+      528 +      admin || a.podeApagar                                   
+      529          ? html`<div class="acoes-perfil">
+      508 -        <form method="post" action="/mural/${a.id}/fixar"><but
+          -ton class="btn-link">${a.fixado ? 'Desafixar' : 'Fixar'}</butt
+          -on></form>                                                    
+      509 -        <form method="post" action="/mural/${a.id}/apagar" ons
+          -ubmit="return confirm('Apagar este aviso?')"><button class="bt
+          -n-link perigo">Apagar</button></form>                         
+      530 +        ${admin ? html`<form method="post" action="/mural/${a.
+          +id}/fixar"><button class="btn-link">${a.fixado ? 'Desafixar' :
+          + 'Fixar'}</button></form>` : ''}                              
+      531 +        ${a.podeApagar ? html`<form method="post" action="/mur
+          +al/${a.id}/apagar" onsubmit="return confirm('Apagar este aviso
+          +?')"><button class="btn-link perigo">Apagar</button></form>` :
+          + ''}                                                          
+      532        </div>`
+      533          : ''
+      534      }
+
+● Estilos:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(public\estilo.css)
+  ⎿  Added 18 lines, removed 1 line
+      242  
+      243  /* ---------- Mural ---------- */
+      244  .aviso.fixado { border-color: var(--primaria); }
+      245 -.aviso h2 { margin-top: .3rem; }                              
+      245 +.aviso.novo { box-shadow: inset 4px 0 0 var(--primaria-2); }  
+      246 +.aviso h2 { margin: .7rem 0 .3rem; }                          
+      247 +.aviso-topo { display: flex; align-items: center; justify-cont
+          +ent: space-between; gap: .6rem; }                             
+      248 +.aviso-selos { display: flex; gap: .3rem; flex-shrink: 0; }   
+      249 +.selo-novo { background: var(--primaria-2); color: #fff; }    
+      250 +.destaque-novo { color: var(--primaria-2); }                  
+      251 +.novo-aviso { margin-top: .6rem; }                            
+      252 +.novo-aviso .form { margin-top: .8rem; }                      
+      253 +.dica { margin: 0; font-size: .8rem; }                        
+      254 +                                                              
+      255 +/* Bolinha de avisos novos no menu */                         
+      256 +.nav-icone { position: relative; display: inline-flex; }      
+      257 +.bolinha {                                                    
+      258 +  position: absolute; top: -4px; right: -9px;                 
+      259 +  min-width: 18px; height: 18px; padding: 0 4px; border-radius
+          +: 99px;                                                       
+      260 +  background: var(--primaria-2); color: #fff; border: 2px soli
+          +d var(--cartao);                                              
+      261 +  font-size: .62rem; font-weight: 800; line-height: 14px; text
+          +-align: center;                                               
+      262 +}                                                             
+      263  .texto-aviso { white-space: pre-wrap; overflow-wrap: anywhere;
+            }
+      264  
+      265  /* ---------- Admin ---------- */
+
+● Agora os testes do fluxo. Vou ver como a professora é criada no teste para
+  usar a mesma conta.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(test\fluxo.test.js)
+  ⎿  Added 23 lines, removed 2 lines
+      115    assert.equal((await admin.post('/entrar', { email: 'admin@un
+           imax.edu.br', senha: 'senha-admin-teste' })).status, 302);
+      116    assert.equal((await admin.post('/admin/usuarios/4/papel', { 
+           papel: 'professor' })).status, 302);
+      117    await admin.post('/mural', { titulo: 'Semana de provas', tex
+           to: 'Provas de 10 a 14/11.', fixado: '1' });
+      118 -  assert.match((await ana.get('/')).html, /Semana de provas/);
+      119 -  assert.match((await ana.get('/mural')).html, /Provas de 10 a
+          - 14\/11/);                                                    
+      118 +  const feedAna = (await ana.get('/')).html;                  
+      119 +  assert.match(feedAna, /Semana de provas/);                  
+      120 +  // O menu avisa que tem 1 aviso novo; ao abrir o mural ele a
+          +parece como "Novo" e depois some.                             
+      121 +  assert.match(feedAna, /class="bolinha" aria-hidden="true">1<
+          +/);                                                           
+      122 +  const muralAna = (await ana.get('/mural')).html;            
+      123 +  assert.match(muralAna, /Provas de 10 a 14\/11/);            
+      124 +  assert.match(muralAna, /selo-novo/);                        
+      125 +  assert.ok(!muralAna.includes('class="bolinha"'));           
+      126 +  assert.ok(!(await ana.get('/')).html.includes('class="bolinh
+          +a"'));                                                        
+      127 +  assert.ok(!(await ana.get('/mural')).html.includes('selo-nov
+          +o'));                                                         
+      128  
+      129 +  // A professora também publica no mural (sem poder fixar), c
+          +om o nome dela no aviso.                                      
+      130 +  assert.equal((await prof.post('/mural', { titulo: 'Aula de q
+          +uinta cancelada', texto: 'Reposição na sexta.', fixado: '1' })
+          +).local, '/mural#aviso-2');                                   
+      131 +  const muralBruno = (await bruno.get('/mural')).html;        
+      132 +  assert.match(muralBruno, /Prof. Carla[\s\S]*Aula de quinta c
+          +ancelada/);                                                   
+      133 +  assert.equal(muralBruno.match(/📌 Fixado/g).length, 1);     
+      134 +  assert.match((await ana.get('/')).html, /class="bolinha" ari
+          +a-hidden="true">1</);                                         
+      135 +  // Aluno não apaga aviso; a professora só apaga os dela; a f
+          +aculdade apaga qualquer um.                                   
+      136 +  assert.equal((await bruno.post('/mural/2/apagar')).status, 4
+          +03);                                                          
+      137 +  assert.equal((await prof.post('/mural/1/apagar')).status, 40
+          +3);                                                           
+      138 +  assert.equal((await prof.post('/mural/1/fixar')).status, 403
+          +);                                                            
+      139 +  assert.equal((await prof.post('/mural/2/apagar')).status, 30
+          +2);                                                           
+      140 +  assert.ok(!(await ana.get('/mural')).html.includes('Aula de 
+          +quinta cancelada'));                                          
+      141 +                                                              
+      142    // Professora dá medalha para a Ana (id 2) e não pode dar pa
+           ra outra professora.
+      143    assert.equal((await prof.post('/u/2/medalha', { tipo_id: '1'
+           , mensagem: 'Excelente seminário' })).local, '/u/2?ok=medalha'
+           );
+      144    assert.equal((await prof.post('/u/4/medalha', { tipo_id: '1'
+            })).status, 400);
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Testes passando. Agora confiro a atualização num banco antigo (sem o campo
+  novo) e incluo um aviso de professor no npm run demo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A atualização funciona: num banco antigo, quem já tinha conta começa com os
+  avisos marcados como lidos. Agora o aviso de professor no demo:
+
+● Update(scripts\demo.js)  ⎿  Added 5 lines
+       95    'Inscrições abertas para a Semana Acadêmica',
+       96    'Palestras, oficinas e minicursos de 1 a 5 de dezembro. Insc
+           rições pela secretaria.',
+       97  );
+       98 +db.prepare('INSERT INTO avisos (autor_id, titulo, texto) VALUE
+          +S (?, ?, ?)').run(                                            
+       99 +  marina,                                                     
+      100 +  'Algoritmos: aula de quinta será no laboratório 3',         
+      101 +  'Tragam o notebook carregado. Vamos fazer a lista 4 em dupla
+          +s.',                                                          
+      102 +);                                                            
+      103  
+      104  console.log('Dados de exemplo criados! Entre com, por exemplo:
+           ');
+      105  console.log('  aluna:     ana.costa@unimax.edu.br / senha1234'
+           );
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Por fim, vejo o HTML que a aluna recebe no demo, para conferir a bolinha e o
+  selo "Novo".
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo certo. Atualizo o README para refletir as mudanças:
+
+● Update(README.md)
+  ⎿  Added 1 line, removed 1 line
+       9  - **Pontos e conquistas**: quem posta, comenta e recebe curtida
+          s ganha pontos, e desbloqueia conquistas com bônus.
+      10  - **Medalhas de professores**: professores entregam medalhas (c
+          om mensagem) que valem pontos.
+      11  - **Ranking geral e por curso** (só alunos participam).
+      12 -- **Mural** de avisos oficiais da faculdade, com opção de fixar
+         - no topo.                                                      
+      12 +- **Mural de avisos**: a faculdade e os professores publicam av
+         +isos, e todos leem. Cada aviso mostra quem publicou, e o ícone 
+         +do Mural mostra quantos avisos novos a pessoa ainda não viu. Só
+         + a faculdade fixa avisos no topo. Cada professor apaga só os pr
+         +óprios avisos, e a faculdade pode apagar qualquer um.          
+      13  - **Administração**: a conta da faculdade define quem é profess
+          or ou administrador.
+      14  
+      15  ## Como rodar no seu computador
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O app já tinha um mural, mas só a conta da faculdade conseguia publicar. Agora
+  os professores também publicam, e os alunos veem quando chega aviso novo.
+
+  Como fica:
+
+  - Quem publica: a faculdade e os professores. No topo do Mural aparece
+    "Publicar um aviso", que abre um formulário com título e texto. Os alunos só
+    leem.
+  - Quem publicou: cada aviso mostra o nome e a foto de quem escreveu, com a
+    etiqueta "Oficial" para a faculdade e "Professor(a)" para os professores.
+  - Avisos novos: o ícone do Mural, no menu de baixo, ganha uma bolinha com o
+    número de avisos que a pessoa ainda não viu. Ao abrir o Mural, os avisos
+    novos aparecem com a etiqueta "Novo" e a bolinha some. Quem publica não
+    recebe aviso do próprio post.
+  - Permissões:
+    - Só a faculdade pode fixar um aviso no topo, porque o fixado também aparece
+      no Início para todo mundo. Para um professor, essa opção nem aparece.
+    - Cada professor só apaga os avisos que ele mesmo publicou. A faculdade pode
+      apagar qualquer um.
+    - Aluno não publica nem apaga.
+
+  Dados que já existem: quando o app abrir com o banco atual, quem já tinha
+  conta começa com os avisos antigos marcados como lidos, para não aparecer uma
+  bolinha cheia de coisa velha. Contas novas veem os avisos que já estavam no
+  mural como "Novo".
+
+  Testes: os testes automáticos (npm test) cobrem o que é novo e passam todos: a
+  bolinha aparecer e sumir, o professor publicar sem conseguir fixar, e as
+  regras de quem pode apagar. Também testei a atualização num banco antigo e
+  rodei o npm run demo, que agora inclui um aviso da professora Marina. Não abri
+  o app num navegador de verdade, então vale entrar como aluno no demo para ver
+  a bolinha e o selo na tela.
+
+  Deixei de fora: não dá para editar um aviso depois de publicado. Para
+  corrigir, é preciso apagar e publicar de novo.
+
+  O README foi atualizado. As mudanças ainda não estão salvas no git (sem
+  commit), então você pode olhar antes. Quer que eu faça o commit?
+
+✻ Baked for 3m 58s · done 16:49
+
+❯ sim, pode                                                                     
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Fiz o commit no branch rodada/leigo_04_mural, com o título "Mural: professores
+  publicam avisos e alunos veem os novos" (c1b3965). Não sobrou nenhuma mudança
+  fora do commit. Ele ainda não foi enviado para o GitHub (sem push).
+
+✻ Worked for 11s · done 16:49
