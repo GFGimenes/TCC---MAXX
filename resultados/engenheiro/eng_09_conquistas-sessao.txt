@@ -316,3 +316,537 @@
   a etapa 1.
 
 ✻ Baked for 3m 26s · done 19:05
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+※ recap: Estamos no passo 9 (conquistas): o plano de sete etapas, com as decisões D1 a D10, está pronto para a sua revisão. Para começar a etapa 1, preciso das suas respostas às quatro perguntas abertas: semestre do prêmio, post de conquista, alvo dinâmico e onde mostrar o progresso. (disable recaps in /config)
+
+> Plano aprovado, oito etapas (as sete mais a etapa curta do post de conquista, 
+  entre a 6 e a 7), um PR da feat/passo-09-conquistas para a                    
+  rodada/eng_09_conquistas, CI verde por etapa. D1 a D10 pela sua proposta. As  
+  quatro perguntas pela sua recomendação: 1, o prêmio de participação conta no  
+  semestre que contém a data de início do evento, e evento no recesso conta no  
+  semestre seguinte; registra em 4.9 e o passo 11 herda. 2, o post de conquista 
+  entra agora. 3, matérias distintas das matrículas do período, e aluno sem     
+  matrícula no período não ganha. 4, a linha "2 de 3 neste bimestre" sob o      
+  critério, só na conquista não obtida da instância vigente, sem linha no       
+  recesso. A notificação de conquista entra na seção 8 na etapa de docs. Cria a 
+  branch e começa a etapa 1; para para a minha revisão no fim dela, com a       
+  mensagem de commit antes de commitar.                                         
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Branch feat/passo-09-conquistas criada. Já tenho o que preciso do domínio;
+  agora vou escrever o avaliador.
+
+● Update(apps\api\src\Maxx.Domain\Academico\Calendario.cs)
+  ⎿  Added 9 lines
+      39          var data = FusoHorario.DataLocal(instante);
+      40          return _anos.SelectMany(ano => ano.Bimestres).FirstOrDe
+          fault(bimestre => bimestre.Contem(data));
+      41      }
+      42 +                                                               
+      43 +    // O semestre em que conta um prêmio de participação (produ
+         +to.md 4.9): o que contém a data                                
+      44 +    // de início do evento; no recesso, o semestre seguinte. Nu
+         +lo quando o calendário ainda não                               
+      45 +    // tem o semestre seguinte.                                
+      46 +    public SemestreLetivo? SemestreDoEvento(DateOnly inicioDoEv
+         +ento) =>                                                       
+      47 +        _anos.SelectMany(ano => ano.Semestres).FirstOrDefault(s
+         +emestre => semestre.Fim >= inicioDoEvento);                    
+      48 +                                                               
+      49 +    public AnoLetivo? AnoDoSemestre(Guid semestreId) =>        
+      50 +        _anos.FirstOrDefault(ano => ano.Semestres.Any(semestre 
+         +=> semestre.Id == semestreId));                                
+      51  }
+
+● Write(apps\api\src\Maxx.Domain\Conquistas\InstanciaDePeriodo.cs)
+  ⎿  Wrote 30 lines to
+     apps\api\src\Maxx.Domain\Conquistas\InstanciaDePeriodo.cs
+       1 using Maxx.Domain.Catalogo;
+       2 
+       3 namespace Maxx.Domain.Conquistas;
+       4 
+       5 // Uma instância do período de uma conquista (regras-conquista.m
+         d 4): um bimestre, um
+       6 // semestre letivo, um ano letivo ou, no período curso, o própri
+         o aluno. A referência é o id
+       7 // do bimestre, do semestre, do ano ou do aluno. A conquista é c
+         oncedida no máximo uma vez
+     … +23 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Conquistas\FatoContavel.cs)
+  ⎿  Wrote 135 lines to apps\api\src\Maxx.Domain\Conquistas\FatoContavel.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Premios;
+       4 
+       5 namespace Maxx.Domain.Conquistas;
+       6 
+       7 // Um prêmio que pode entrar na contagem de uma conquista (regra
+         s-conquista.md 3), já
+       8 // reduzido ao que o avaliador lê: o item, as instâncias de perí
+         odo a que pertence e os
+     … +127 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Conquistas\AvaliadorDeConquista.cs)
+  ⎿  Wrote 198 lines to
+     apps\api\src\Maxx.Domain\Conquistas\AvaliadorDeConquista.cs
+       1 using Maxx.Domain.Catalogo;
+       2 
+       3 namespace Maxx.Domain.Conquistas;
+       4 
+       5 // O avaliador único das regras declarativas (ADR 0004, regras-c
+         onquista.md). Lê a regra do
+       6 // catálogo e decide, para uma instância de período, quantos fat
+         os contam, qual é o alvo e se
+       7 // a conquista está satisfeita. Não sabe quando roda nem grava n
+         ada: quem chama escolhe a
+     … +191 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Conquistas\Conquista.cs)
+  ⎿  Wrote 155 lines to apps\api\src\Maxx.Domain\Conquistas\Conquista.cs
+       1 using Maxx.Domain.Catalogo;
+       2 
+       3 namespace Maxx.Domain.Conquistas;
+       4 
+       5 // A conquista concedida pelo sistema (produto.md 4.9): automáti
+         ca, por acúmulo dentro de uma
+       6 // instância do período. Congela tier, pontos e versão do item (
+         ADR 0007). Não é contestável
+       7 // nem revogável: é recalculada. Se a anulação de uma medalha a 
+         deixa insatisfeita, ela é
+     … +148 lines (ctrl+o to expand)
+
+● Agora a regra do validador: prêmio de participação não tem bimestre, então
+  conquista de bimestre não pode contá-lo.
+
+● Update(apps\api\src\Maxx.Domain\Catalogo\CatalogoValidator.cs)
+  ⎿  Added 7 lines
+      229              return;
+      230          }
+      231  
+      232 +        // O prêmio de participação conta no semestre do event
+          +o e não tem bimestre                                          
+      233 +        // (produto.md 4.9): numa instância de bimestre, ele n
+          +unca entraria na contagem.                                    
+      234 +        if (conquista.Periodo == Periodo.Bimestre && fonte != 
+          +FonteDeContagem.Medalha)                                      
+      235 +        {                                                     
+      236 +            erros.Add(new(codigo, "prêmio de participação cont
+          +a no semestre do evento: conquista de bimestre só conta medalh
+          +a."));                                                        
+      237 +        }                                                     
+      238 +                                                              
+      239          ValidarFiltro(codigo, fonte, regra.FiltroItens, itensP
+           orCodigo, erros);
+      240          ValidarAgrupamento(codigo, regra, fonte, erros);
+      241          ValidarAlvo(conquista, erros);
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Adiciono os testes de validador e de calendário, depois os do avaliador.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Catalogo\RegraDeConquistaValidatorTest
+        s.cs)
+  ⎿  Added 18 lines
+      57              "nunca conta outra conquista");
+      58      }
+      59  
+      60 +    // período e fonte                                         
+      61 +                                                               
+      62 +    [Theory]                                                   
+      63 +    [InlineData(FonteDeContagem.PremioParticipacao, "P01")]    
+      64 +    [InlineData(FonteDeContagem.Ambos, "M01")]                 
+      65 +    public void Conquista_de_bimestre_que_conta_premio_de_parti
+         +cipacao_e_recusada(FonteDeContagem fonte, string filtrado)     
+      66 +    {                                                          
+      67 +        AssertErro(                                            
+      68 +            C02 with { Regra = C02.Regra with { Fonte = fonte, 
+         +FiltroItens = [filtrado] } },                                  
+      69 +            "conquista de bimestre só conta medalha");         
+      70 +    }                                                          
+      71 +                                                               
+      72 +    [Fact]                                                     
+      73 +    public void Conquista_de_semestre_conta_premio_de_participa
+         +cao()                                                          
+      74 +    {                                                          
+      75 +        AssertSemErro(C06);                                    
+      76 +    }                                                          
+      77 +                                                               
+      78      // agruparPor e forma
+      79  
+      80      [Fact]
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Academico\CalendarioTests.cs)
+  ⎿  Added 30 lines
+       65          Assert.Equal("2026/2", _calendario.SemestreEm(domingo)
+           ?.Codigo);
+       66      }
+       67  
+       68 +    // Semestre do prêmio de participação (produto.md 4.9): o 
+          +que contém o início do evento;                                
+       69 +    // no recesso, o seguinte.                                
+       70 +    [Theory]                                                  
+       71 +    [InlineData(1, 26, "2026/1")]                             
+       72 +    [InlineData(6, 27, "2026/1")]                             
+       73 +    [InlineData(6, 28, "2026/2")]                             
+       74 +    [InlineData(7, 15, "2026/2")]                             
+       75 +    [InlineData(9, 27, "2026/2")]                             
+       76 +    [InlineData(12, 5, "2026/2")]                             
+       77 +    [InlineData(1, 10, "2026/1")]                             
+       78 +    public void Evento_conta_no_semestre_do_inicio_e_no_recess
+          +o_no_seguinte(int mes, int dia, string esperado)              
+       79 +    {                                                         
+       80 +        Assert.Equal(esperado, _calendario.SemestreDoEvento(Da
+          +ta(mes, dia))?.Codigo);                                       
+       81 +    }                                                         
+       82 +                                                              
+       83      [Fact]
+       84 +    public void Evento_no_recesso_sem_semestre_seguinte_no_cal
+          +endario_nao_tem_semestre()                                    
+       85 +    {                                                         
+       86 +        Assert.Null(_calendario.SemestreDoEvento(Data(12, 20))
+          +);                                                            
+       87 +    }                                                         
+       88 +                                                              
+       89 +    [Fact]                                                    
+       90 +    public void Ano_do_semestre_e_o_ano_letivo_que_o_contem() 
+       91 +    {                                                         
+       92 +        var ano = _calendario.Anos[0];                        
+       93 +                                                              
+       94 +        Assert.Equal(ano, _calendario.AnoDoSemestre(ano.Semest
+          +res[1].Id));                                                  
+       95 +        Assert.Null(_calendario.AnoDoSemestre(Guid.NewGuid()))
+          +;                                                             
+       96 +    }                                                         
+       97 +                                                              
+       98 +    [Fact]                                                    
+       99      public void Ano_repetido_no_calendario_e_recusado()
+      100      {
+      101          Assert.Throws<DomainException>(() => new Calendario([A
+           no(), Ano()]));
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Conquistas\Fatos.cs)
+  ⎿  Wrote 77 lines to apps\api\tests\Maxx.Domain.Tests\Conquistas\Fatos.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Conquistas;
+       4 using Maxx.Domain.Tests.Academico;
+       5 
+       6 namespace Maxx.Domain.Tests.Conquistas;
+       7 
+       8 // O calendário de 2026 e fatos contáveis montados à mão, para t
+         estar o avaliador sem passar
+       9 // pela concessão. Cada instância guarda os próprios ids: semest
+     … +69 lines (~3 KB) (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Conquistas\AvaliadorDeConquistaTests.cs
+       )
+  ⎿  Wrote 347 lines to apps\api\tests\Maxx.Domain.Tests\Conquistas\Avaliad
+     orDeConquistaTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Domain.Conquistas;
+       3 using Maxx.Domain.Tests.Catalogo;
+       4 using static Maxx.Domain.Tests.Conquistas.Fatos;
+       5 
+       6 namespace Maxx.Domain.Tests.Conquistas;
+       7 
+       8 // O avaliador por forma e por fronteira de período (regras-conq
+         uista.md 8). O teste por
+       9 // item, contra o conquistas.json real, está em Maxx.Api.Integra
+     … +339 lines (~13 KB) (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Conquistas\FatoContavelTests.cs)
+  ⎿  Wrote 144 lines to
+     apps\api\tests\Maxx.Domain.Tests\Conquistas\FatoContavelTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Catalogo;
+      3 using Maxx.Domain.Conquistas;
+      4 using Maxx.Domain.Identidade;
+      5 using Maxx.Domain.Premios;
+      6 using Maxx.Domain.Tests.Catalogo;
+      7 using static Maxx.Domain.Tests.Academico.Calendario2026;
+      8 
+      9 namespace Maxx.Domain.Tests.Conquistas;
+     … +135 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Conquistas\ConquistaTests.cs)
+  ⎿  Wrote 119 lines to
+     apps\api\tests\Maxx.Domain.Tests\Conquistas\ConquistaTests.cs
+       1 using Maxx.Domain.Catalogo;
+       2 using Maxx.Domain.Conquistas;
+       3 using Maxx.Domain.Tests.Catalogo;
+       4 using static Maxx.Domain.Tests.Conquistas.Fatos;
+       5 
+       6 namespace Maxx.Domain.Tests.Conquistas;
+       7 
+       8 public class ConquistaTests
+       9 {
+      10     private static readonly DateTimeOffset _agora = new(2026, 11
+     … +110 lines (~4 KB) (ctrl+o to expand)
+
+● Código e testes de domínio escritos; agora compilo e rodo os testes de
+  domínio.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Domain.Tests/Conquistas" && sed -i 's/return
+      Premios\.Medalha\.Conceder(/…)
+  ⎿  Updated apps\api\tests\Maxx.Domain.Tests\Conquistas\AvaliadorDeConquis
+     taTests.cs (+7 -3)
+      1 +using System.Globalization;                                     
+      2  using Maxx.Domain.Catalogo;
+      3  using Maxx.Domain.Conquistas;
+      4  using Maxx.Domain.Tests.Catalogo;
+     ...
+      11  // como o seeder lê.
+      12  public class AvaliadorDeConquistaTests
+      13  {
+      14 +    private static readonly int[] _primeirosTresBimestres = [1,
+         + 2, 3];                                                        
+      15 +    private static readonly int[] _quatroBimestres = [1, 2, 3, 
+         +4];                                                            
+      16 +                                                               
+      17      private readonly Fatos _fatos = new();
+      18      private readonly AvaliadorDeConquista _avaliador = new();
+      19  
+     ...
+      147      [Fact]
+      148      public void Contagem_distinta_por_bimestre_com_alvo_fixo()
+      149      {
+      146 -        var tresBimestres = new[] { 1, 2, 3 }.Select(bimestre 
+          -=> _fatos.Medalha("M01", bimestre)).ToList();                 
+      150 +        var tresBimestres = _primeirosTresBimestres.Select(bim
+          +estre => _fatos.Medalha("M01", bimestre)).ToList();           
+      151  
+      152          var abaixo = _avaliador.Avaliar(C14, _fatos.InstanciaD
+           oAno, tresBimestres, Contexto());
+      153          var alcancado = _avaliador.Avaliar(
+     ...
+      250              Periodo = Periodo.Curso,
+      251              Regra = new() { Forma = FormaDeContagem.Contagem, 
+           Fonte = FonteDeContagem.Medalha, Alvo = AlvoDeConquista.De(4) 
+           },
+      252          };
+      249 -        var fatos = new[] { 1, 2, 3, 4 }.Select(bimestre => _f
+          -atos.Medalha("M02", bimestre));                               
+      253 +        var fatos = _quatroBimestres.Select(bimestre => _fatos
+          +.Medalha("M02", bimestre));                                   
+      254  
+      255          var avaliacao = _avaliador.Avaliar(c16, InstanciaDoCur
+           so, fatos, Contexto());
+      256  
+     ...
+      294      {
+      295          var item = C02 with
+      296          {
+      293 -            Vigencia = new(inicio is null ? null : DateOnly.Pa
+          -rse(inicio), fim is null ? null : DateOnly.Parse(fim)),       
+      297 +            Vigencia = new(inicio is null ? null : DateOnly.Pa
+          +rse(inicio, CultureInfo.InvariantCulture), fim is null ? null 
+          +: DateOnly.Parse(fim, CultureInfo.InvariantCulture)),         
+      298          };
+      299  
+      300          var avaliacao = _avaliador.Avaliar(item, _fatos.Instan
+           ciaDoBimestre(4), _fatos.Medalhas("M01", 4, 3), Contexto());
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Conquistas\FatoContavelTests.cs (+1 
+     -1)
+      32      private Medalha Medalha()
+      33      {
+      34          var semestre = _fatos.Semestre(2);
+      35 -        return Premios.Medalha.Conceder(                       
+      35 +        return Domain.Premios.Medalha.Conceder(                
+      36              CatalogoDeTeste.M01, 1, _ana, "CC", new Turma(_banc
+          oDeDados, semestre), semestre, Renata(), [], _agora).Medalha!;
+      37      }
+      38  
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Duas falhas de teste: um cenário usava a C02 com fonte ambos, que a regra nova
+  recusa de propósito, e o outro caía na D3 do passo 8. Vou ajustar os dois
+  cenários.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Domain.Tests" && sed -i 's|        AssertSemErro(C02 with {
+      Regra = C02.R…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\tests\Maxx.Domain.Tests\bin\Debug\net10.0\Maxx.Domain.Tests.dll (net
+     10.0|x64) aprovado (1s 154ms)
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Domain.Tests\Catalogo\RegraDeConquistaVali
+     datorTests.cs (+6 -1)
+      46      [Fact]
+      47      public void Fonte_ambos_aceita_medalha_e_premio_no_filtro()
+      48      {
+      49 -        AssertSemErro(C02 with { Regra = C02.Regra with { Fonte
+         - = FonteDeContagem.Ambos, FiltroItens = ["M01", "P01"] } });   
+      49 +        // Numa conquista de semestre: a de bimestre só conta m
+         +edalha.                                                        
+      50 +        AssertSemErro(C02 with                                 
+      51 +        {                                                      
+      52 +            Periodo = Periodo.Semestre,                        
+      53 +            Regra = C02.Regra with { Fonte = FonteDeContagem.Am
+         +bos, FiltroItens = ["M01", "P01"] },                           
+      54 +        });                                                    
+      55      }
+      56  
+      57      [Fact]
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Conquistas\FatoContavelTests.cs (+3 
+     -1)
+      36              CatalogoDeTeste.M01, 1, _ana, "CC", new Turma(_banc
+          oDeDados, semestre), semestre, Renata(), [], _agora).Medalha!;
+      37      }
+      38  
+      39 +    // Sem último semestre encerrado: o teste olha só o semestr
+         +e em que o prêmio conta, e a                                   
+      40 +    // trava de data da reivindicação (D3 do passo 8) é coberta
+         + nos testes do prêmio.                                         
+      41      private (PremioParticipacao Premio, Evento Evento) Aprovado
+          (DateOnly inicio)
+      42      {
+      43          var evento = Evento.TextoLivre("Palestra sobre LGPD", i
+          nicio, inicio, _ana);
+      44          var premio = PremioParticipacao.Reivindicar(
+      43 -            CatalogoDeTeste.P01, 1, _ana, _cc, evento, null, _f
+         -atos.Semestre(1), _agora).Premio!;                             
+      45 +            CatalogoDeTeste.P01, 1, _ana, _cc, evento, null, ul
+         +timoEncerrado: null, _agora).Premio!;                          
+      46          Assert.Null(premio.Aprovar(_ana, Renata(), _agora));
+      47          return (premio, evento);
+      48      }
+  ⎿  (timeout 5m)
+
+● Domínio verde (490 testes). Agora o teste por item, contra o conquistas.json
+  real.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\ConquistasDoCatalogo
+       Tests.cs)
+  ⎿  Wrote 179 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas
+     \ConquistasDoCatalogoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Conquistas;
+       4 using Maxx.Infrastructure.Seed;
+       5 
+       6 namespace Maxx.Api.IntegrationTests.Conquistas;
+       7 
+       8 // Um teste por conquista do catálogo (regras-conquista.md 8): a
+         s 18 regras lidas de
+       9 // data/catalogo/ e do calendário de data/calendario/ como o see
+     … +171 lines (~8 KB) (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os 37 passam (1 de cobertura, 18 que fecham, 18 um abaixo). Agora confiro o
+  que o job api da CI roda, para reproduzir localmente.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Formatação e build Release limpos, Docker de pé. Rodo a suíte inteira como a
+  CI roda, com a integração no Postgres real.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa 1 está pronta para a sua revisão. Ainda não commitei nem fiz push,
+  então a CI desta etapa ainda não rodou; pela regra do passo 3, a etapa só fica
+  pronta quando ela passar.
+
+  O que foi feito
+
+  Tudo fica em Maxx.Domain/Conquistas/, sem banco e sem fila:
+
+  - AvaliadorDeConquista decide as duas formas de contagem lendo a regra do
+    catálogo. Para uma instância de período, devolve contagem, alvo, se a
+    conquista está satisfeita e quais fatos são as evidências.
+    - O alvo dinâmico é o número de matérias distintas das matrículas do
+      período, e só contam fatos dessas matérias.
+    - Com alvo zero (aluno sem matrícula), a conquista nunca fica satisfeita.
+    - Item restrito a outro curso, ou fora da vigência, sai como "não
+      aplicável". A vigência é conferida numa data que quem chama informa: o fim
+      da instância, ou hoje no período curso.
+    - O escape customizada usa uma regra registrada pelo nome. Nome ausente ou
+      registrado duas vezes dá erro.
+  - FatoContavel é a porta de entrada da contagem: só a medalha ativa e o prêmio
+    de participação definitivo viram fato.
+  - InstanciaDePeriodo identifica a instância pelo tipo e por um id: do
+    bimestre, do semestre, do ano ou do próprio aluno no período curso.
+  - Conquista e EvidenciaDaConquista congelam tier, pontos e versão do item e
+    guardam as evidências.
+    - A conquista é concedida só se a avaliação está satisfeita.
+    - Recalcular cobre a anulação: se a conquista ficou insatisfeita, preenche
+      RemovidaEm; se continua satisfeita, troca as evidências pelo conjunto
+      atual (D3 e D4).
+  - Calendario ganhou SemestreDoEvento (sua resposta 1: o semestre que contém o
+    início do evento, e no recesso o seguinte) e AnoDoSemestre.
+
+  Três coisas que decidi na etapa e precisam do seu aval
+
+  1. Regra nova no validador do catálogo: conquista de bimestre só pode contar
+     medalha. Como o prêmio de participação conta no semestre do evento, ele não
+     tem bimestre e nunca entraria nessa contagem. Nenhuma das 18 é afetada.
+     Por causa disso, ajustei um teste antigo
+     (Fonte_ambos_aceita_medalha_e_premio_no_filtro) para usar uma conquista de
+     semestre.
+  2. O teste por item ficou em Maxx.Api.IntegrationTests/Conquistas/, não no 
+     projeto de domínio. Quem lê o conquistas.json é o CatalogoReader, que está
+     na Infrastructure, e o domínio não pode depender dela. O teste não usa
+     banco e roda em segundos, como o CatalogoArquivosTests. Os cenários são
+     escritos à mão, um por item, para pegar um alvo, filtro ou período trocado
+     no JSON.
+  3. Evento que começa no recesso, sem o semestre seguinte no calendário, ainda
+     não vira fato. Ele passa a contar quando o calendário ganhar o semestre.
+
+  Verificação local
+
+  - dotnet format --verify-no-changes: limpo.
+  - dotnet build -c Release: 0 avisos e 0 erros.
+  - Suíte completa, como a CI roda: 985 testes, 979 passaram, nenhum falhou. Os
+    outros 6 não rodaram e não aparecem como falha; não confirmei quais são.
+    Suspeito do VerificacaoDoR2Tests, que só roda contra o R2 de verdade no
+    passo 13.
+  - Os testes novos:
+    - por forma: contagem e contagem distinta, com alvo fixo e dinâmico, filtro,
+      fonte e fonte ambos;
+    - por item: C01 a C18, cada um com o cenário que fecha e o mesmo cenário um
+      fato abaixo;
+    - por fronteira: a contagem não atravessa o bimestre; atravessa os bimestres
+      dentro do semestre; não atravessa o semestre; o período curso conta a
+      vida inteira; prêmio válido e em averiguação não conta, definitivo e
+      confirmado conta; medalha anulada não conta; o semestre do prêmio sai pelo
+      início do evento e, no recesso, é o seguinte.
+
+  Arquivos
+
+  - Novos: apps/api/src/Maxx.Domain/Conquistas/ (AvaliadorDeConquista.cs,
+    FatoContavel.cs, InstanciaDePeriodo.cs, Conquista.cs)
+  - Alterados: Academico/Calendario.cs, Catalogo/CatalogoValidator.cs
+  - Testes: tests/Maxx.Domain.Tests/Conquistas/ (4 arquivos),
+    CalendarioTests.cs, RegraDeConquistaValidatorTests.cs, e
+    tests/Maxx.Api.IntegrationTests/Conquistas/ConquistasDoCatalogoTests.cs
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona o avaliador de conquistas no domínio
+
+  Sem corpo e sem rodapé de co-autoria, como manda o CLAUDE.md. Com o seu ok,
+  commito, faço push da feat/passo-09-conquistas e trago o resultado da CI antes
+  de começar a etapa 2.
+
+✻ Baked for 11m 37s · done 19:22
