@@ -21,7 +21,7 @@ busca e editar perfil).
 | Commits do autor | Merge do PR #9 (`4aa5470`) e `rodada/eng_07_posts` → `main` com `--no-ff` (`f28f404`) |
 | Merge | PR #9 `feat/passo-07-posts` → `rodada/eng_07_posts`, 12 commits verdes; `main` em `f28f404` |
 | Resultado | API 752 testes (746 aprovados, 6 da verificação do R2 ignorados sem a flag); Jest 387; e2e 65 mais 1 ignorado na passada normal e 4 na passada da demonstração; quatro migrations (UploadPendente, Post, Social, Perfil); 151 arquivos, 22.579 linhas acrescentadas |
-| Export | `eng_07_posts-sessao.txt` (14.166 linhas) e `eng_07_posts-sessao.jsonl` (4.070 linhas) |
+| Export | `eng_07_posts-sessao.txt` (14.166 linhas) e `eng_07_posts-sessao.jsonl` (6.037 linhas) |
 
 ## O que saiu
 
