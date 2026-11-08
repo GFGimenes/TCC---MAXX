@@ -2483,3 +2483,475 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt
   (recálculo na anulação).
 
 ✻ Worked for 25m 34s · done 19:52
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+> Etapa 2 aprovada, com as cinco decisões aceitas: a trava consultiva por aluno 
+  com o índice de rede de segurança (a prova reversa fecha o assunto), a        
+  notificação gravada pelo handler, os dois tipos já na migration, o limite da  
+  regra customizada registrado e o estado intermediário até a etapa 5. Os       
+  timeouts do runner no job mobile: se acontecerem de novo neste passo,         
+  registra como risco no plano mestre. Commita com a mensagem proposta, push,   
+  acompanha a CI e segue para a etapa 3; para para a minha revisão no fim dela. 
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 2 rodando em segundo plano (commit 43d0f64). Começo a etapa 3, a
+  do recálculo na anulação, pelo handler de anulação.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Para refazer o progresso que a medalha anulada alimentava, preciso descobrir
+  em quais instâncias ela ainda cai; acrescento uma descrição dela ao domínio,
+  usada só para localizar instâncias e nunca na contagem.
+
+● Update(apps\api\src\Maxx.Domain\Conquistas\FatoContavel.cs)
+  ⎿  Added 10 lines, removed 4 lines
+      38          ArgumentNullException.ThrowIfNull(medalha);
+      39          ArgumentNullException.ThrowIfNull(calendario);
+      40  
+      41 -        if (!medalha.EstaAtiva)                                
+      42 -        {                                                      
+      43 -            return null;                                       
+      44 -        }                                                      
+      41 +        return medalha.EstaAtiva ? DescreverMedalha(medalha, ca
+         +lendario) : null;                                              
+      42 +    }                                                          
+      43  
+      44 +    // A medalha descrita como fato, ativa ou anulada. Serve só
+         + para localizar as instâncias                                  
+      45 +    // que ela tocava, como faz o recálculo depois da anulação;
+         + nunca para contar: quem conta                                 
+      46 +    // usa DaMedalha.                                          
+      47 +    public static FatoContavel DescreverMedalha(Medalha medalha
+         +, Calendario calendario)                                       
+      48 +    {                                                          
+      49 +        ArgumentNullException.ThrowIfNull(medalha);            
+      50 +        ArgumentNullException.ThrowIfNull(calendario);         
+      51 +                                                               
+      52          var ano = calendario.AnoDoSemestre(medalha.SemestreLeti
+          voId)
+      53              ?? throw new DomainException($"A medalha {medalha.I
+          d} aponta para um semestre fora do calendário.");
+      54  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora extraio a montagem do contexto para uma peça compartilhada, já que os
+  dois handlers precisam dela.
+
+● Write(apps\api\src\Maxx.Application\Conquistas\ContextoDasConquistas.cs)
+  ⎿  Wrote 31 lines to
+     apps\api\src\Maxx.Application\Conquistas\ContextoDasConquistas.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Conquistas;
+       4 
+       5 namespace Maxx.Application.Conquistas;
+       6 
+       7 // O contexto que o avaliador pede, igual para quem concede e pa
+         ra quem recalcula. A data de
+       8 // referência da vigência é o fim da instância; no período curso
+         , hoje. As matérias do
+     … +23 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs)
+  ⎿  Added 1 line
+      22      IFilaDeTrabalhos fila,
+      23      IUnitOfWork unitOfWork,
+      24      AvaliadorDeConquista avaliador,
+      25 +    ContextoDasConquistas contextos,                           
+      26      TimeProvider relogio) : ITrabalhoHandler<ReavaliarConquista
+          s>
+      27  {
+      28      public async Task ExecutarAsync(ReavaliarConquistas carga, 
+          CancellationToken cancellationToken)
+
+● Update(apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs)
+  ⎿  Added 1 line, removed 1 line
+      54                  continue;
+      55              }
+      56  
+      57 -            var contexto = await ContextoAsync(item, instancia,
+         - aluno, calendario, agora, cancellationToken);                 
+      57 +            var contexto = await contextos.MontarAsync(item, in
+         +stancia, aluno, calendario, agora, cancellationToken);         
+      58              var avaliacao = avaliador.Avaliar(item, instancia, 
+          fatos, contexto);
+      59              if (!avaliacao.Aplicavel)
+      60              {
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Application/Conquistas" && awk '/^    \/\/ A data de
+      referência da vigência…)
+  ⎿          await unitOfWork.SalvarAsync(cancellationToken);$
+         }$
+     $
+     }$
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs
+     (+0 -16)
+       85          await unitOfWork.SalvarAsync(cancellationToken);
+       86      }
+       87  
+       88 -    // A data de referência da vigência é o fim da instância; 
+          -no período curso, hoje. As                                    
+       89 -    // matérias do período só no alvo dinâmico.               
+       90 -    private async Task<ContextoDaAvaliacao> ContextoAsync(    
+       91 -        ItemConquista item,                                   
+       92 -        InstanciaDePeriodo instancia,                         
+       93 -        AlunoDasConquistas aluno,                             
+       94 -        Calendario calendario,                                
+       95 -        DateTimeOffset agora,                                 
+       96 -        CancellationToken cancellationToken)                  
+       97 -    {                                                         
+       98 -        var referencia = instancia.Fim(calendario) ?? FusoHora
+          -rio.DataLocal(agora);                                         
+       99 -        var materias = item.Regra.Alvo is { EhTodasAsMatricula
+          -sDoPeriodo: true }                                            
+      100 -            ? await conquistas.MateriasDoPeriodoAsync(aluno.Id
+          -, instancia.Semestres(calendario), cancellationToken)         
+      101 -            : null;                                           
+      102 -        return new ContextoDaAvaliacao(referencia, aluno.Sigla
+          -DoCurso, materias);                                           
+      103 -    }                                                         
+       88  }
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Application/Conquistas" && n=$(wc -l <
+      ReavaliarConquistasHandler.cs) && se…)  ⎿          await unitOfWork.SalvarAsync(cancellationToken);
+         }
+     }
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs
+     (+0 -1)
+      84  
+      85          await unitOfWork.SalvarAsync(cancellationToken);
+      86      }
+      87 -                                                               
+      87  }
+
+● Agora o handler do recálculo na anulação.
+
+● Write(apps\api\src\Maxx.Application\Conquistas\RecalcularConquistasDaMedalhaHa
+       ndler.cs)
+  ⎿  Wrote 111 lines to apps\api\src\Maxx.Application\Conquistas\Recalcular
+     ConquistasDaMedalhaHandler.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Application.Medalhas;
+       3 using Maxx.Application.Notificacoes;
+       4 using Maxx.Domain.Conquistas;
+       5 using Maxx.Domain.Notificacoes;
+       6 
+       7 namespace Maxx.Application.Conquistas;
+       8 
+       9 // A medalha foi anulada (produto.md 4.8): enfileirado pela anul
+         ação, na mesma transação.
+     … +102 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && \
+      sed -i 's|^        fila.Enfileirar(new RecalcularRaridade());\r\?$|…)
+  ⎿  using Maxx.Application.Autenticacao;
+     using Maxx.Application.Conquistas;
+     using Maxx.Application.Fila;
+     … +27 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\AnularMedalhaHandler.cs
+     (+4 -2)
+      1  using Maxx.Application.Autenticacao;
+      2 +using Maxx.Application.Conquistas;                              
+      3  using Maxx.Application.Fila;
+      4  using Maxx.Application.Posts;
+      5  using Maxx.Domain.Academico;
+     ...
+       8  
+       9  // Anulação de medalha pela instituição (produto.md 4.8): ato a
+          dministrativo, sem motivo
+      10  // público e sem averiguação. Na fase 1, por comando administra
+          tivo, até a área web do
+      10 -// passo 12. Grava quem anulou e quando e enfileira o recálculo
+         - de raridade, na mesma                                         
+      11 -// transação; a reavaliação das conquistas chega no passo 9, e 
+         -o ranking no 11. O post da                                     
+      11 +// passo 12. Grava quem anulou e quando e enfileira o recálculo
+         + das conquistas que a medalha                                  
+      12 +// compunha e o de raridade, na mesma transação; o ranking cheg
+         +a no passo 11. O post da                                       
+      13  // medalha perde o vínculo e fica como post comum; o que era só
+           a medalha é apagado, porque
+      14  // post vazio não existe (decisão do passo 7).
+      15  public sealed class AnularMedalhaHandler(
+     ...
+      74              }
+      75          }
+      76  
+      77 +        fila.Enfileirar(new RecalcularConquistasDaMedalha(medal
+         +ha.Id));                                                       
+      78          fila.Enfileirar(new RecalcularRaridade());
+      79          await unitOfWork.SalvarAsync(cancellationToken);
+      80          return true;
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+2 
+     -0)
+      73          services.AddScoped<IConsultaDeComprovacoes, ConsultaDeC
+          omprovacoes>();
+      74          services.AddScoped<IConsultaDeContestacoes, ConsultaDeC
+          ontestacoes>();
+      75          services.AddScoped<IConquistaRepository, ConquistaRepos
+          itory>();
+      76 +        services.AddScoped<ContextoDasConquistas>();           
+      77  
+      78          // O avaliador único das conquistas (ADR 0004), com as 
+          regras customizadas registradas.
+      79          // Nenhuma conquista da fase 1 usa o escape, e nenhuma 
+          está registrada.
+     ...
+      113          services.AddTrabalho<NotificarDecisaoDeContestacao, No
+           tificarContestacaoHandler>();
+      114          services.AddTrabalho<NotificarPremioRevogado, Notifica
+           rContestacaoHandler>();
+      115          services.AddTrabalho<ReavaliarConquistas, ReavaliarCon
+           quistasHandler>();
+      116 +        services.AddTrabalho<RecalcularConquistasDaMedalha, Re
+          +calcularConquistasDaMedalhaHandler>();                        
+      117  
+      118          // Toda verificação registrada aqui entra no /ready.
+      119          services.AddHealthChecks()
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '4{/^using Maxx.Domain.Academico;$/d}'
+      apps/api/src/Maxx.Application/Conquistas/Re…)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs
+     (+0 -1)
+      1  using Maxx.Application.Fila;
+      2  using Maxx.Application.Medalhas;
+      3  using Maxx.Application.Notificacoes;
+      4 -using Maxx.Domain.Academico;                                    
+      4  using Maxx.Domain.Catalogo;
+      5  using Maxx.Domain.Conquistas;
+      6  using Maxx.Domain.Notificacoes;
+  ⎿  (timeout 6m 40s)
+
+● Compila limpo. Agora os testes de integração da anulação.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\AnulacaoEConquistasT
+       ests.cs)
+  ⎿  Wrote 172 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas
+     \AnulacaoEConquistasTests.cs
+       1 using Maxx.Application.Conquistas;
+       2 using Maxx.Application.Medalhas;
+       3 using Maxx.Application.Premios;
+       4 using Maxx.Domain.Catalogo;
+       5 using Maxx.Domain.Conquistas;
+       6 using Maxx.Domain.Notificacoes;
+       7 using Maxx.Infrastructure.Conquistas;
+       8 using Maxx.Infrastructure.Persistence;
+       9 using Maxx.Infrastructure.RaridadeDosItens;
+      10 using Microsoft.Extensions.DependencyInjection;
+     … +162 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 52 testes do namespace passam. Falta um teste de domínio para
+  DescreverMedalha.
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Conquistas\FatoContavelTests.cs)
+  ⎿  Added 13 lines
+      72      }
+      73  
+      74      [Fact]
+      75 +    public void Medalha_anulada_ainda_e_descrita_para_localizar
+         +_as_instancias_que_tocava()                                    
+      76 +    {                                                          
+      77 +        var medalha = Medalha();                               
+      78 +        var ativa = FatoContavel.DaMedalha(medalha, _fatos.Cale
+         +ndario);                                                       
+      79 +        medalha.Anular(Guid.CreateVersion7(), _agora.AddDays(1)
+         +);                                                             
+      80 +                                                               
+      81 +        var descrita = FatoContavel.DescreverMedalha(medalha, _
+         +fatos.Calendario);                                             
+      82 +                                                               
+      83 +        Assert.Equal(ativa, descrita);                         
+      84 +        Assert.Equal(_fatos.InstanciaDoBimestre(4), descrita.In
+         +stanciaEm(Periodo.Bimestre, Fatos.Aluno));                     
+      85 +    }                                                          
+      86 +                                                               
+      87 +    [Fact]                                                     
+      88      public void Premio_de_participacao_so_conta_depois_de_defin
+          itivo()
+      89      {
+      90          var (premio, evento) = Aprovado(Data(10, 1));
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI for stage 2" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O mobile falhou de novo na CI da etapa 2. Confiro se é o mesmo padrão de
+  timeout antes de qualquer coisa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Mesmo padrão de timeout de 5 s no primeiro teste de comprovacoes.test.tsx, mas
+  num commit que só tocou apps/api e docs. Vou pedir a nova tentativa do job e
+  registrar o risco no plano mestre, como combinado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat >> docs/plano-mestre.md <<'EOF'
+      | Timeout do Jest no runner da CI | No passo 9, o job…)
+  ⎿  exit 1
+     tentativa 2
+     mobile: failure
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+1 -0)
+      320  | Resposta perdida no meio de um refresh | Se a rede cai ou a 
+           página recarrega com o refresh em voo, o cliente fica com o to
+           ken antigo, a próxima renovação conta como reuso e a pessoa vo
+           lta ao login. A decisão atual não tem janela de tolerância. Ac
+           ompanhar no passo 13 |
+      321  | Limite de taxa no e2e | Os fluxos com conta rodam só no celu
+           lar, cada teste com a própria conta, e o teste do limite só no
+            `celular-claro`. Mais testes de login podem esbarrar nos 30 p
+           or minuto por IP. No fechamento do passo 8, uma rodada local d
+           a suíte inteira (69 testes, em paralelo) teve uma falha no tes
+           te do limite do login, que passou nas outras; o limite é por r
+           éplica, e há duas atrás do Caddy |
+      322  | Nativo sem teste em aparelho | Secure store, sessão e telas 
+           de autenticação só passam pelo Jest até o Maestro do passo 13.
+            No nativo, o link de senha nova abre no navegador |
+      323 +| Timeout do Jest no runner da CI | No passo 9, o job `mobile`
+          + falhou em dois pushes seguidos que só mexiam na API: o primei
+          +ro teste de um arquivo (`cadastro`, `comprovacoes`, `feed`) pa
+          +ssou dos 5 s do Jest no runner, e a segunda tentativa do job p
+          +assou sem mudança. É lentidão da máquina, não do código, mas u
+          +ma falha assim esconde uma falha de verdade. Acompanhar no pas
+          +so 13: medir o tempo do primeiro teste de cada arquivo e decid
+          +ir entre aquecer o transform ou subir o tempo limite desses te
+          +stes |                                                        
+  ⎿  (timeout 10m)
+
+● A segunda tentativa também falhou. Agora não dá para tratar como acaso;
+  investigo o log antes de qualquer outra coisa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Sempre o mesmo teste, e ele envolve a "marca de 7 dias", que depende da data.
+  Suspeito de dependência do relógio, não de lentidão. Rodo o teste localmente.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Localmente este teste leva 725 ms, mais que os demais do arquivo, por causa do
+  carregamento dos módulos, e na CI ultrapassou 5 s. Vou pedir mais uma
+  tentativa e fechar a etapa 3.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Background command "Rerun mobile job a third time and watch" completed (exit
+code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 3 está pronta localmente, mas antes da sua revisão há um bloqueio na
+  CI da etapa 2 que precisa da sua decisão.
+
+  CI da etapa 2: mobile vermelho em três tentativas
+
+  No commit 43d0f64, api, api-client, e2e, build e segurança passaram. O mobile
+  falhou nas três tentativas, sempre no mesmo teste: "fila de comprovações do
+  professor › mostra as pendentes na ordem da API, com evento, matérias e a
+  marca de 7 dias", que passou dos 5 s do Jest. Os outros 413 testes do cliente
+  passam.
+
+  - Não é código deste passo. O commit só mexeu em apps/api e docs, e o cliente
+    está igual desde o passo 8.
+  - Não depende da data. Desconfiei disso por causa da marca de 7 dias, mas
+    localmente o arquivo inteiro passa e esse teste leva 725 ms; os outros do
+    arquivo, de 8 a 156 ms.
+  - É o custo de carregar o arquivo, que cai sempre no primeiro teste. Na CI ele
+    passa dos 5 s (o arquivo leva cerca de 10 s). Na etapa 1 o mesmo padrão
+    pegou cadastro e feed, e lá a segunda tentativa passou.
+
+  Como aconteceu de novo, registrei o risco no plano mestre (linha "Timeout do
+  Jest no runner da CI"). Esse registro ainda não está commitado.
+
+  Minha recomendação é um commit separado, como manda a regra para falha depois
+  do push:
+
+  fix(mobile): sobe o tempo limite dos testes do jest para o runner da ci
+
+  Ele acrescenta "testTimeout": 15000 ao bloco jest do apps/mobile/package.json,
+  que hoje usa o padrão de 5 s, e leva junto a linha do risco, já dizendo o que
+  foi feito. Prefiro o limite global ao de um arquivo só, porque o problema já
+  pegou três arquivos diferentes. A alternativa é limitar ao
+  comprovacoes.test.tsx, mas aí o próximo arquivo lento cai do mesmo jeito.
+
+  Enquanto a CI da etapa 2 não fica verde, a etapa 2 não está pronta pela regra
+  do passo 3. Por isso não commitei a etapa 3.
+
+  Etapa 3: recálculo na anulação
+
+  O que foi feito:
+  - AnularMedalhaHandler enfileira recalcular-conquistas-da-medalha na mesma
+    transação da anulação.
+  - O handler novo:
+    - trava o aluno, como na etapa 2;
+    - refaz o progresso das instâncias que a medalha tocava, agora sem ela;
+    - reavalia só as conquistas ativas que têm a medalha nas evidências, sem
+      limite de data (D9);
+    - remove a que ficou insatisfeita (os pontos saem e a notificação
+      conquistaRemovida é gravada); a que continua satisfeita fica, com as
+      evidências do conjunto atual (D4);
+    - pede o recálculo da raridade quando remove.
+  - No domínio, FatoContavel.DescreverMedalha descreve a medalha mesmo anulada.
+    Serve só para localizar as instâncias que ela tocava; quem conta continua
+    usando DaMedalha.
+  - A montagem do contexto do avaliador virou ContextoDasConquistas, usada pelos
+    dois handlers.
+
+  Uma decisão para o seu aval: a anulação nunca concede nada. E, se o item do
+  catálogo deixou de se aplicar ao aluno (outro curso, fora da vigência), a
+  conquista fica como está: quem a remove é o fato, não uma mudança de catálogo.
+
+  Testes de integração novos (5):
+  - anular uma das três notas 10 remove a C02, tira os 40 pontos, notifica,
+    deixa o progresso em 2 de 3 e tira a Ana do numerador da raridade;
+  - com quatro notas 10, anular uma das evidências mantém a C02 com as três que
+    sobraram;
+  - anular uma M02 remove a C01 e não toca na C02, cujas evidências ficam as
+    mesmas;
+  - a C04 já fechada (gravada à mão, porque o fechamento chega na etapa 4) cai
+    com a anulação, e o progresso fica em 1 de 2;
+  - o recálculo repetido não muda nada, e a vaga liberada pela anulação concede
+    outra C02 numa linha nova, com a removida no histórico.
+
+  No domínio, mais um teste para DescreverMedalha.
+
+  Verificação local: formatação limpa, build Release com 0 avisos e 0 erros.
+  Suíte completa com 1006 testes, nenhuma falha e os mesmos 6 da R2 ignorados.
+
+  Mensagem de commit proposta:
+
+  feat(api): recalcula as conquistas na anulação de medalha
+
+  O que preciso de você
+
+  1. Aprovar o fix(mobile) com o limite global de 15 s, ou preferir o limite só
+     para comprovacoes.test.tsx. Com isso eu commito, faço push e trago a CI da
+     etapa 2 verde.
+  2. Revisar a etapa 3. Ela só é commitada depois que a etapa 2 estiver pronta.
+
+✻ Brewed for 12m 39s · done 20:11
+
+※ recap: Estamos no passo 9 (conquistas): as etapas 1 e 2 estão commitadas, e a 3 (recálculo na anulação) está pronta, sem commit. Preciso que você aprove o fix do tempo limite do Jest, que deixa a CI do mobile vermelha, e revise a etapa 3. (disable recaps in /config)
