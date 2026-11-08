@@ -78,7 +78,8 @@ function Get-Encaixe {
         }
     } elseif ($Eixo -eq 'infra') {
         $pastaCarga = Join-Path $RaizTcc 'avaliacoes\carga'
-        $arquivos = @(Get-ChildItem -LiteralPath $pastaCarga -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "$Produto*" })
+        # <produto>-*.* ou <produto>.<ext>: "leigo*" pegaria também os arquivos do leigo_pu.
+        $arquivos = @(Get-ChildItem -LiteralPath $pastaCarga -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "$Produto-*" -or $_.BaseName -eq $Produto })
         if ($arquivos.Count -gt 0) {
             $destino = Join-Path $PastaSessao 'carga'
             New-Item -ItemType Directory -Force -Path $destino | Out-Null
@@ -89,7 +90,7 @@ function Get-Encaixe {
             $r.presente = $true
         } else {
             $r.frase = ' Não há relatório de teste de carga para este produto; declare isso no review e pontue sem ele.'
-            $r.aviso = "Sem relatório de carga em $pastaCarga para '$Produto*'. O eixo Infraestrutura segue sem ele."
+            $r.aviso = "Sem relatório de carga em $pastaCarga para '$Produto-*'. O eixo Infraestrutura segue sem ele."
             $r.presente = $false
         }
     }

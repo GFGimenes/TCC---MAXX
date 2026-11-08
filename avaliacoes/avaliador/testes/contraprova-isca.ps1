@@ -1,5 +1,5 @@
-﻿# Contraprova do detector de instruções carregadas. Abre uma sessão mínima (custo de
-# centavos) com a pasta de trabalho DENTRO de um checkout do exemplo, onde o CLAUDE.md isca
+﻿# Contraprova do detector de instruções carregadas. Abre uma sessão mínima (cerca de
+# US$ 0,45) com a pasta de trabalho DENTRO de um checkout do exemplo, onde o CLAUDE.md isca
 # é carregado de propósito, e confere que Get-InstrucoesCarregadas acusa. Se não acusar, a
 # conferência de isolamento do avaliador está cega nesta versão do CLI e não pode ser usada.
 # Refazer sempre que a versão do Claude Code mudar.
@@ -28,6 +28,7 @@ $achados = @(Get-InstrucoesCarregadas -Caminho $t.FullName)
 Write-Host "Versão: $((& claude --version) | Select-Object -First 1)"
 Write-Host "Resposta da sessão com o CLAUDE.md carregado: $($o.result)"
 Write-Host "Instruções detectadas: $($achados -join '; ')"
+Write-Host "Custo da sessão: US$ $($o.total_cost_usd)"
 Remove-Item -LiteralPath $t.FullName
 Remove-PastaSegura -Caminho $tmp
 if ($achados.Count -ge 1) { Write-Host 'Contraprova: o detector acusa o CLAUDE.md carregado. Ok.' }

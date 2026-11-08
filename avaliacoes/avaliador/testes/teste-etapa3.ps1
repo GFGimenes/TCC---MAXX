@@ -73,10 +73,11 @@ try {
     Write-TextoArquivo -Texto 'suíte: 10 de 12' -Caminho (Join-Path $raizFalsa 'avaliacoes\reviews\leigo-testes-referencia.md')
     Write-TextoArquivo -Texto 'p95 200 ms' -Caminho (Join-Path $raizFalsa 'avaliacoes\carga\leigo-relatorio.md')
     Write-TextoArquivo -Texto 'outro produto' -Caminho (Join-Path $raizFalsa 'avaliacoes\carga\engenheiro-relatorio.md')
+    Write-TextoArquivo -Texto 'prompt único do leigo' -Caminho (Join-Path $raizFalsa 'avaliacoes\carga\leigo_pu-relatorio.md')
     $ec = Get-Encaixe -Eixo codigo -Produto leigo -PastaSessao (Join-Path $tmp 'sessao') -RaizTcc $raizFalsa
     $ei = Get-Encaixe -Eixo infra -Produto leigo -PastaSessao (Join-Path $tmp 'sessao') -RaizTcc $raizFalsa
     Confere 'testes de referência copiados para a sessão, sem aviso' ($ec.presente -and -not $ec.aviso -and (Test-Path (Join-Path $tmp 'sessao\testes-referencia.md')) -and $ec.frase.Contains('use-o como critério objetivo'))
-    Confere 'relatório de carga do produto copiado, o de outro produto não' ($ei.presente -and -not $ei.aviso -and (Test-Path (Join-Path $tmp 'sessao\carga\leigo-relatorio.md')) -and -not (Test-Path (Join-Path $tmp 'sessao\carga\engenheiro-relatorio.md')))
+    Confere 'relatório de carga do produto copiado, os de outros produtos não (nem o do leigo_pu)' ($ei.presente -and -not $ei.aviso -and (Test-Path (Join-Path $tmp 'sessao\carga\leigo-relatorio.md')) -and -not (Test-Path (Join-Path $tmp 'sessao\carga\engenheiro-relatorio.md')) -and -not (Test-Path (Join-Path $tmp 'sessao\carga\leigo_pu-relatorio.md')))
 
     Write-Host '4. Nota fora do terminal e do registro (avaliação real, com claude falso)'
     $script:ClaudeArquivo = 'powershell.exe'
