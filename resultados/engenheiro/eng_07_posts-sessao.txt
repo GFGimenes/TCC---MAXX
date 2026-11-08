@@ -4759,3 +4759,1114 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
 ✻ Crunched for 8m 0s · done 23:11
 
 ※ recap: Estamos no passo 7 (posts, upload e feed): as etapas 1 a 4 estão commitadas com CI verde, e a etapa 5, o feed por cursor, está pronta e no índice, sem commit. Falta a sua aprovação para eu commitar, fazer o push e seguir para a etapa 6.
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Etapa 5 aprovada. As três ressalvas ficam registradas: o teste do índice com  
+  seqscan desligado e a pergunta para o k6 do passo 13; a repetição possível ao 
+  seguir no meio da sessão, sem estado no servidor, resolvida ao atualizar; os  
+  ajustes do MundoSocial. Commita com a mensagem proposta, push, acompanha a    
+  CI e segue para a etapa 6; para para a minha revisão no fim dela.             
+
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● Commit 76ab6b4 enviado, CI em segundo plano. Começo a etapa 6 pelo domínio: a
+  foto de perfil e a edição do nome de exibição no Usuario.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Escrevo as mudanças do Usuario: foto de perfil (trocar e remover, devolvendo
+  as chaves antigas para a fila remover) e edição do nome de exibição.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Domain/Identidade" && perl -0pi -e 's/(    public string\?
+      HashDaChaveDoDis…)
+  ⎿      0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Domain\Identidade\Usuario.cs (+54 -0)
+      1  using Maxx.Domain.Academico;
+      2 +using Maxx.Domain.Fotos;                                        
+      3  
+      4  namespace Maxx.Domain.Identidade;
+      5  
+     ...
+      69  
+      70      public string? HashDaChaveDoDispositivo { get; private set;
+           }
+      71  
+      72 +    // As duas derivadas da foto de perfil (produto.md 2.3: as 
+         +mesmas regras de assinatura e                                  
+      73 +    // de derivadas da foto de post). Sem foto, o avatar são as
+         + iniciais.                                                     
+      74 +    public string? ChaveDaFotoDoFeed { get; private set; }     
+      75 +                                                               
+      76 +    public string? ChaveDaFotoDaGrade { get; private set; }    
+      77 +                                                               
+      78 +    public bool TemFoto => ChaveDaFotoDoFeed is not null;      
+      79 +                                                               
+      80      public bool EhDemonstracao => LoteDaDemonstracao is not nul
+          l;
+      81  
+      82      // Todo prefixo que o usuário já teve, o atual inclusive. N
+          enhum volta a ser de outro.
+     ...
+      188          Prefixo = novo;
+      189      }
+      190  
+      191 +    public void EditarNomeDeExibicao(string nome) => NomeDeExi
+          +bicao = ValidarNomeDeExibicao(nome);                          
+      192 +                                                              
+      193 +    // A foto nova confirma o upload; a antiga, se havia, volt
+          +a para quem chama tirar do                                    
+      194 +    // bucket, porque a leitura é pública para quem tem o link
+          + (ADR 0002).                                                  
+      195 +    public ResultadoDaTrocaDeFoto TrocarFoto(UploadPendente up
+          +load, DateTimeOffset agora)                                   
+      196 +    {                                                         
+      197 +        ArgumentNullException.ThrowIfNull(upload);            
+      198 +                                                              
+      199 +        if (upload.UsuarioId != Id || upload.Finalidade != Fin
+          +alidadeDoUpload.FotoDePerfil)                                 
+      200 +        {                                                     
+      201 +            return new([], RecusaDaTrocaDeFoto.UploadNaoEncont
+          +rado);                                                        
+      202 +        }                                                     
+      203 +                                                              
+      204 +        if (upload.EstaConfirmado)                            
+      205 +        {                                                     
+      206 +            return new([], RecusaDaTrocaDeFoto.UploadJaUsado);
+      207 +        }                                                     
+      208 +                                                              
+     … 33 more lines (ctrl+o to expand)
+
+● Agora os testes de domínio dessas mudanças.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\PerfilDoUsuarioTests.cs)
+  ⎿  Wrote 85 lines to
+     apps\api\tests\Maxx.Domain.Tests\Identidade\PerfilDoUsuarioTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Fotos;
+       3 using Maxx.Domain.Identidade;
+       4 
+       5 namespace Maxx.Domain.Tests.Identidade;
+       6 
+       7 // Editar perfil (produto.md 6.5): foto, nome de exibição e a pa
+         rte do arroba antes do hífen.
+       8 public class PerfilDoUsuarioTests
+       9 {
+     … +76 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 6 testes de domínio passam. Antes do SQL da busca, confiro como papeis e
+  prefixo estão gravados no banco.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Papéis em inteiro e prefixo em citext. Agora a Application do perfil, da busca
+  e da edição.
+
+● Write(apps\api\src\Maxx.Application\Perfil\Perfil.cs)
+  ⎿  Wrote 213 lines to apps\api\src\Maxx.Application\Perfil\Perfil.cs
+      1 using Maxx.Application.Autenticacao;
+      2 using Maxx.Application.Fila;
+      3 using Maxx.Application.Fotos;
+      4 using Maxx.Application.Medalhas;
+      5 using Maxx.Application.Paginacao;
+      6 using Maxx.Application.Posts;
+      7 using Maxx.Domain;
+      8 using Maxx.Domain.Academico;
+      9 using Maxx.Domain.Identidade;
+     … +204 lines (ctrl+o to expand)
+
+● O CodigosDoPerfil precisa de arquivo próprio para o teste do app enxergar os
+  códigos. Separo, e depois escrevo a Infrastructure com a busca em SQL.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Application/Perfil" && awk '/^public static class
+      CodigosDoPerfil/{skip=1}…)
+  ⎿  2
+  ⎿  Created apps\api\src\Maxx.Application\Perfil\CodigosDoPerfil.cs (+12 
+     -0)
+       1 +namespace Maxx.Application.Perfil;                             
+       2 +                                                               
+       3 +// Os códigos de recusa do perfil e da busca, como o cliente os
+         + recebe em ProblemDetails.                                     
+       4 +// Prefixo e nome de exibição usam os do cadastro (CodigosDeRec
+         +usa); o upload, os do post.                                    
+       5 +public static class CodigosDoPerfil                            
+       6 +{                                                              
+       7 +    // Busca sem termo de ao menos 2 caracteres e sem filtro (d
+         +ecisão D11).                                                   
+       8 +    public const string BuscaSemCriterio = "busca-sem-criterio"
+         +;                                                              
+       9 +                                                               
+      10 +    // Pedido que troca a foto e a remove ao mesmo tempo.      
+      11 +    public const string FotoDePerfilAmbigua = "foto-de-perfil-a
+         +mbigua";                                                       
+      12 +}                                                              
+  ⎿  Updated apps\api\src\Maxx.Application\Perfil\Perfil.cs (+0 -9)
+      57  public sealed record AlunoEncontrado(
+      58      Guid Id, string NomeDeExibicao, string Arroba, string? Curs
+          o, int? Semestre, bool ExAluno, string? ChaveDaFotoDaGrade, boo
+          l EuSigo);
+      59  
+      60 -public static class CodigosDoPerfil                            
+      61 -{                                                              
+      62 -    // Busca sem termo de ao menos 2 caracteres e sem filtro (d
+         -ecisão D11).                                                   
+      63 -    public const string BuscaSemCriterio = "busca-sem-criterio"
+         -;                                                              
+      64 -                                                               
+      65 -    // Pedido que troca a foto e a remove ao mesmo tempo.      
+      66 -    public const string FotoDePerfilAmbigua = "foto-de-perfil-a
+         -mbigua";                                                       
+      67 -}                                                              
+      68 -                                                               
+      60  // A busca de alunos (produto.md 6.4): o termo vale pelo nome e
+           pelo arroba, e quem cola um
+      61  // arroba inteiro ("@anaSouza-CC") procura pelo prefixo.
+      62  public sealed class BuscaDeAlunosHandler(IConsultaDePerfil cons
+          ulta)
+
+● A consulta do perfil e da busca agora usa SQL direto, com a função imutável
+  maxx_sem_acento sobre unaccent, o que viabiliza o índice de trigramas no nome
+  sem acento.
+
+● Write(apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs)
+  ⎿  Wrote 210 lines to
+     apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+       1 using System.Buffers.Text;
+       2 using System.Text;
+       3 using Maxx.Application;
+       4 using Maxx.Application.Medalhas;
+       5 using Maxx.Application.Paginacao;
+       6 using Maxx.Application.Perfil;
+       7 using Maxx.Domain.Academico;
+       8 using Maxx.Domain.Identidade;
+       9 using Maxx.Domain.Premios;
+      10 using Maxx.Domain.Social;
+     … +200 lines (ctrl+o to expand)
+
+● Agora mapeio as colunas da foto, o registro e a migration. A migration cria em
+  SQL as extensões, a função imutável e os dois índices de trigramas, porque o
+  EF não modela índice sobre expressão.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|
+          builder.Ignore(usuario => usuario.EhDemonstracao);|&\n…)
+  ⎿      0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+3 
+     -0)
+       8  using Maxx.Application.Fotos;
+       9  using Maxx.Application.Medalhas;
+      10  using Maxx.Application.Notificacoes;
+      11 +using Maxx.Application.Perfil;                                 
+      12  using Maxx.Application.Posts;
+      13  using Maxx.Application.Premios;
+      14  using Maxx.Application.Social;
+     ...
+      21  using Maxx.Infrastructure.Fotos;
+      22  using Maxx.Infrastructure.Medalhas;
+      23  using Maxx.Infrastructure.Notificacoes;
+      24 +using Maxx.Infrastructure.Perfil;                              
+      25  using Maxx.Infrastructure.Persistence;
+      26  using Maxx.Infrastructure.Posts;
+      27  using Maxx.Infrastructure.Premios;
+     ...
+      75          services.AddScoped<ISeguimentoRepository, SeguimentoRep
+          ository>();
+      76          services.AddScoped<IConsultaSocial, ConsultaSocial>();
+      77          services.AddScoped<IConsultaDoFeed, ConsultaDoFeed>();
+      78 +        services.AddScoped<IConsultaDePerfil, ConsultaDePerfil>
+         +();                                                            
+      79  
+      80          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      81          services.AddOptions<FilaOptions>();
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Id
+     entidadeConfiguration.cs (+5 -0)
+      71          builder.Ignore(usuario => usuario.TemSenha);
+      72          builder.Ignore(usuario => usuario.EhExAluno);
+      73          builder.Ignore(usuario => usuario.EhDemonstracao);
+      74 +        builder.Ignore(usuario => usuario.TemFoto);            
+      75 +                                                               
+      76 +        // A foto de perfil são sempre as duas derivadas, ou ne
+         +nhuma.                                                         
+      77 +        builder.ToTable(table => table.HasCheckConstraint(     
+      78 +            "ck_usuario_foto_completa", "(chave_da_foto_do_feed
+         + IS NULL) = (chave_da_foto_da_grade IS NULL)"));               
+      79      }
+      80  }
+      81  
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet ef migrations add Perfil --project apps/api/src/Maxx.Infrastructure
+      --output-dir P…)  ⎿  Done. To undo this action, use 'ef migrations remove'
+     apps/api/src/Maxx.Infrastructure/Persistence/Migrations/20261108021955
+     _Perfil.cs
+     … +46 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08021955_Perfil.cs (+47 -0)
+       1 +using Microsoft.EntityFrameworkCore.Migrations;                
+       2 +                                                               
+       3 +#nullable disable                                              
+       4 +                                                               
+       5 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       6 +{                                                              
+       7 +    /// <inheritdoc />                                         
+       8 +    public partial class Perfil : Migration                    
+       9 +    {                                                          
+      10 +        /// <inheritdoc />                                     
+      11 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      12 +        {                                                      
+      13 +            migrationBuilder.AddColumn<string>(                
+      14 +                name: "chave_da_foto_da_grade",                
+      15 +                table: "usuario",                              
+      16 +                type: "text",                                  
+      17 +                nullable: true);                               
+      18 +                                                               
+      19 +            migrationBuilder.AddColumn<string>(                
+      20 +                name: "chave_da_foto_do_feed",                 
+      21 +                table: "usuario",                              
+      22 +                type: "text",                                  
+      23 +                nullable: true);                               
+      24 +                                                               
+      25 +            migrationBuilder.AddCheckConstraint(               
+      26 +                name: "ck_usuario_foto_completa",              
+      27 +                table: "usuario",                              
+      28 +                sql: "(chave_da_foto_do_feed IS NULL) = (chave_
+         +da_foto_da_grade IS NULL)");                                   
+      29 +        }                                                      
+      30 +                                                               
+      31 +        /// <inheritdoc />                                     
+      32 +        protected override void Down(MigrationBuilder migration
+         +Builder)                                                       
+      33 +        {                                                      
+      34 +            migrationBuilder.DropCheckConstraint(              
+      35 +                name: "ck_usuario_foto_completa",              
+      36 +                table: "usuario");                             
+      37 +                                                               
+      38 +            migrationBuilder.DropColumn(                       
+      39 +                name: "chave_da_foto_da_grade",                
+      40 +                table: "usuario");                             
+     … 7 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+10 -0)
+      613                          .HasColumnType("uuid")
+      614                          .HasColumnName("cadastro_elegivel_id")
+           ;
+      615  
+      616 +                    b.Property<string>("ChaveDaFotoDaGrade")  
+      617 +                        .HasColumnType("text")                
+      618 +                        .HasColumnName("chave_da_foto_da_grade
+          +");                                                           
+      619 +                                                              
+      620 +                    b.Property<string>("ChaveDaFotoDoFeed")   
+      621 +                        .HasColumnType("text")                
+      622 +                        .HasColumnName("chave_da_foto_do_feed"
+          +);                                                            
+      623 +                                                              
+      624                      b.Property<DateTimeOffset>("CriadoEm")
+      625                          .HasColumnType("timestamp with time zo
+           ne")
+      626                          .HasColumnName("criado_em");
+     ...
+      684  
+      685                              t.HasCheckConstraint("ck_usuario_e
+           x_aluno", "(ex_aluno_desde IS NULL AND sufixo <> 'EX') OR (ex_
+           aluno_desde IS NOT NULL AND papeis = 1 AND sufixo = 'EX')");
+      686  
+      687 +                            t.HasCheckConstraint("ck_usuario_f
+          +oto_completa", "(chave_da_foto_do_feed IS NULL) = (chave_da_fo
+          +to_da_grade IS NULL)");                                       
+      688 +                                                              
+      689                              t.HasCheckConstraint("ck_usuario_p
+           apeis", "papeis IN (1, 2, 4, 6)");
+      690  
+      691                              t.HasCheckConstraint("ck_usuario_p
+           refixo", "prefixo ~ '^[A-Za-z][A-Za-z0-9]{2,29}$'");
+  ⎿  … 1 more file changed
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O arquivo gerado tem fim de linha CRLF, e o perl não casou. Edito com a
+  ferramenta de edição.
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Migrations\20261108021955_
+        Perfil.cs)
+  ⎿  Added 19 lines
+      26                  name: "ck_usuario_foto_completa",
+      27                  table: "usuario",
+      28                  sql: "(chave_da_foto_do_feed IS NULL) = (chave_
+          da_foto_da_grade IS NULL)");
+      29 +                                                               
+      30 +            // A busca de alunos (produto.md 6.4): nome sem ace
+         +nto e sem maiúsculas, por trecho.                              
+      31 +            // O unaccent() não é IMMUTABLE, porque depende do 
+         +dicionário configurado; a função                               
+      32 +            // fixa o dicionário pelo nome e pode, então, entra
+         +r num índice. Os dois índices de                               
+      33 +            // trigramas atendem LIKE '%termo%' no nome e no pr
+         +efixo do arroba.                                               
+      34 +            migrationBuilder.Sql("CREATE EXTENSION IF NOT EXIST
+         +S unaccent;");                                                 
+      35 +            migrationBuilder.Sql("CREATE EXTENSION IF NOT EXIST
+         +S pg_trgm;");                                                  
+      36 +            migrationBuilder.Sql("""                           
+      37 +                CREATE FUNCTION maxx_sem_acento(texto text) RET
+         +URNS text                                                      
+      38 +                LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT    
+      39 +                RETURN public.unaccent('public.unaccent'::regdi
+         +ctionary, texto);                                              
+      40 +                """);                                          
+      41 +            migrationBuilder.Sql(                              
+      42 +                "CREATE INDEX ix_usuario_nome_sem_acento ON usu
+         +ario USING gin (maxx_sem_acento(lower(nome_de_exibicao)) gin_tr
+         +gm_ops);");                                                    
+      43 +            migrationBuilder.Sql("CREATE INDEX ix_usuario_prefi
+         +xo_trigrama ON usuario USING gin (lower(prefixo::text) gin_trgm
+         +_ops);");                                                      
+      44          }
+      45  
+      46          /// <inheritdoc />
+      47          protected override void Down(MigrationBuilder migration
+          Builder)
+      48          {
+      49 +            migrationBuilder.Sql("DROP INDEX ix_usuario_prefixo
+         +_trigrama;");                                                  
+      50 +            migrationBuilder.Sql("DROP INDEX ix_usuario_nome_se
+         +m_acento;");                                                   
+      51 +            migrationBuilder.Sql("DROP FUNCTION maxx_sem_acento
+         +(text);");                                                     
+      52 +                                                               
+      53              migrationBuilder.DropCheckConstraint(
+      54                  name: "ck_usuario_foto_completa",
+      55                  table: "usuario");
+
+● Agora a foto de perfil no autor do post, do comentário e no GET /v1/eu, para o
+  avatar aparecer em todo lugar. São só campos novos.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && perl -pi -e
+      's/^public sealed record AutorDoPost\(Guid Id, string NomeDeExib…)
+  ⎿  Maxx.Infrastructure/Posts/PostRepository.cs:53:                    pos
+     t.ChaveDaFotoDaGrade,
+     Maxx.Infrastructure/Posts/PostRepository.cs:60:                    Fot
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+2 -1)
+      52      bool Curtiu);
+      53  
+      54  // Curso e semestre do aluno são perfil (produto.md 3); o RA nu
+          nca sai daqui.
+      55 -public sealed record AutorDoPost(Guid Id, string NomeDeExibicao
+         -, string Arroba, string? Curso, int? Semestre);                
+      55 +// A foto é a derivada da grade (~320²), que basta para o avata
+         +r.                                                             
+      56 +public sealed record AutorDoPost(Guid Id, string NomeDeExibicao
+         +, string Arroba, string? Curso, int? Semestre, string? ChaveDaF
+         +oto);                                                          
+      57  
+      58  // Tier e pontos do momento da concessão (ADR 0007); raridade, 
+          a atual. Matéria e bimestre
+      59  // só para medalha.
+  ⎿  Updated apps\api\src\Maxx.Application\Social\Social.cs (+1 -1)
+      49  
+      50  public sealed record EstadoDaCurtida(int Curtidas, bool Curtiu)
+          ;
+      51  
+      52 -public sealed record AutorDoComentario(Guid Id, string NomeDeEx
+         -ibicao, string Arroba);                                        
+      52 +public sealed record AutorDoComentario(Guid Id, string NomeDeEx
+         +ibicao, string Arroba, string? ChaveDaFoto);                   
+      53  
+      54  public sealed record ComentarioLido(Guid Id, AutorDoComentario 
+          Autor, string Texto, DateTimeOffset CriadoEm);
+      55  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs (+2 
+     -1)
+      57                      autor.NomeDeExibicao,
+      58                      autor.Prefixo,
+      59                      autor.Sufixo,
+      60 +                    FotoDoAutor = autor.ChaveDaFotoDaGrade,    
+      61                      Curso = curso == null ? null : curso.Sigla,
+      62                      cadastro.Semestre,
+      63                      Curtidas = db.Set<Curtida>().Count(curtida 
+          => curtida.PostId == post.Id),
+     ...
+      73              linha => linha.Id,
+      74              linha => new PostLido(
+      75                  linha.Id,
+      75 -                new AutorDoPost(linha.AutorId, linha.NomeDeExib
+         -icao, new Arroba(linha.Prefixo, linha.Sufixo).ToString(), linha
+         -.Curso, linha.Semestre),                                       
+      76 +                new AutorDoPost(linha.AutorId, linha.NomeDeExib
+         +icao, new Arroba(linha.Prefixo, linha.Sufixo).ToString(), linha
+         +.Curso, linha.Semestre, linha.FotoDoAutor),                    
+      77                  linha.Legenda,
+      78                  linha.ChaveDaFotoDoFeed,
+      79                  linha.ChaveDaFotoDaGrade,
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Social\SocialRepositories.cs
+     (+2 -1)
+      74                  autor.NomeDeExibicao,
+      75                  autor.Prefixo,
+      76                  autor.Sufixo,
+      77 +                autor.ChaveDaFotoDaGrade,                      
+      78              })
+      79              .OrderBy(linha => linha.CriadoEm)
+      80              .ThenBy(linha => linha.Id)
+     ...
+      86          return new Pagina<ComentarioLido>(
+      87              [.. pagina.Select(linha => new ComentarioLido(
+      88                  linha.Id,
+      88 -                new AutorDoComentario(linha.AutorId, linha.Nome
+         -DeExibicao, new Arroba(linha.Prefixo, linha.Sufixo).ToString())
+         -,                                                              
+      89 +                new AutorDoComentario(linha.AutorId, linha.Nome
+         +DeExibicao, new Arroba(linha.Prefixo, linha.Sufixo).ToString(),
+         + linha.ChaveDaFotoDaGrade),                                    
+      90                  linha.Texto,
+      91                  linha.CriadoEm))],
+      92              linhas.Count > limite ? CursorDeTempo.Codificar(new
+           PosicaoNoTempo(pagina[^1].CriadoEm, pagina[^1].Id)) : null);
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" && perl
+      -0pi -e 's/new AutorDoPostResponse\(post\.Autor\.Id, post\.Aut…)
+  ⎿  103:            Leitura(armazenamento, post.Autor.ChaveDaFoto)),
+     106:            ? new FotoDoPostResponse(armazenamento.UrlDeLeitura(fe
+     ed).AbsoluteUri, armazenamento.UrlDeLeitura(grade).AbsoluteUri)
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Posts\PostEndpoints.cs (+14 -3)
+       94  {
+       95      public static PostResponse De(PostLido post, IArmazenament
+           oDeFotos armazenamento) => new(
+       96          post.Id,
+       97 -        new AutorDoPostResponse(post.Autor.Id, post.Autor.Nome
+          -DeExibicao, post.Autor.Arroba, post.Autor.Curso, post.Autor.Se
+          -mestre),                                                      
+       97 +        new AutorDoPostResponse(                              
+       98 +            post.Autor.Id,                                    
+       99 +            post.Autor.NomeDeExibicao,                        
+      100 +            post.Autor.Arroba,                                
+      101 +            post.Autor.Curso,                                 
+      102 +            post.Autor.Semestre,                              
+      103 +            Leitura(armazenamento, post.Autor.ChaveDaFoto)),  
+      104          post.Legenda,
+      105          post is { ChaveDaFotoDoFeed: { } feed, ChaveDaFotoDaGr
+           ade: { } grade }
+      106              ? new FotoDoPostResponse(armazenamento.UrlDeLeitur
+           a(feed).AbsoluteUri, armazenamento.UrlDeLeitura(grade).Absolut
+           eUri)
+     ...
+      121          post.Curtidas,
+      122          post.Comentarios,
+      123          post.Curtiu);
+      124 +                                                              
+      125 +    // A URL pública de uma chave, ou nada.                   
+      126 +    public static string? Leitura(IArmazenamentoDeFotos armaze
+          +namento, string? chave) =>                                    
+      127 +        chave is null ? null : armazenamento.UrlDeLeitura(chav
+          +e).AbsoluteUri;                                               
+      128  }
+      129  
+      120 -// Curso pela sigla e semestre do aluno (1º ao 8º), como na li
+          -nha do autor no feed.                                         
+      121 -public sealed record AutorDoPostResponse(Guid Id, string NomeD
+          -eExibicao, string Arroba, string? Curso, int? Semestre);      
+      130 +// Curso pela sigla e semestre do aluno (1º ao 8º), como na li
+          +nha do autor no feed. A foto é a                              
+      131 +// derivada da grade, para o avatar; sem foto, o app desenha a
+          +s iniciais.                                                   
+      132 +public sealed record AutorDoPostResponse(Guid Id, string NomeD
+          +eExibicao, string Arroba, string? Curso, int? Semestre, string
+          +? Foto);                                                      
+      133  
+      134  // A derivada do feed (~1080²) e a da grade (~320²), lidas dir
+           eto da CDN.
+      135  public sealed record FotoDoPostResponse(string Feed, string Gr
+           ade);
+
+● Agora os comentários e o /v1/eu.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" &&
+      f=Social/SocialEndpoints.cs && perl -0pi -e 's/public sealed record…)
+  ⎿      2 Erro(s)
+     apps\api\tests\Maxx.Api.IntegrationTests\Maxx.Api.IntegrationTests.csp
+     roj]
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\EuEndpoints.cs (+9 -3)
+      1  using System.Security.Claims;
+      2  using Maxx.Application.Autenticacao;
+      3 +using Maxx.Application.Fotos;                                   
+      4  using Microsoft.AspNetCore.Http.HttpResults;
+      5  
+      6  namespace Maxx.Api.Autenticacao;
+     ...
+      21      }
+      22  
+      23      private static async Task<Results<Ok<EuResponse>, Unauthori
+          zedHttpResult>> GetEuAsync(
+      23 -        ClaimsPrincipal principal, IUsuarioRepository usuarios,
+         - CancellationToken cancellationToken)                          
+      24 +        ClaimsPrincipal principal, IUsuarioRepository usuarios,
+         + IArmazenamentoDeFotos armazenamento, CancellationToken cancell
+         +ationToken)                                                    
+      25      {
+      26          if (!Guid.TryParse(principal.FindFirstValue(MaxxClaims.
+          Sub), out var id)
+      27              || await usuarios.BuscarAsync(id, cancellationToken
+          ) is not { } usuario)
+     ...
+      30          }
+      31  
+      32          return TypedResults.Ok(new EuResponse(
+      32 -            usuario.Id, JwtAccessTokenIssuer.NomesDosPapeis(usu
+         -ario.Papeis), usuario.Arroba.ToString(), usuario.NomeDeExibicao
+         -));                                                            
+      33 +            usuario.Id,                                        
+      34 +            JwtAccessTokenIssuer.NomesDosPapeis(usuario.Papeis)
+         +,                                                              
+      35 +            usuario.Arroba.ToString(),                         
+      36 +            usuario.NomeDeExibicao,                            
+      37 +            Posts.PostResponse.Leitura(armazenamento, usuario.C
+         +haveDaFotoDaGrade)));                                          
+      38      }
+      39  }
+      40  
+      41  // NomeDeExibicao entrou no passo 6, para as iniciais do avatar
+           na navegação: só acréscimo.
+      37 -public sealed record EuResponse(Guid Id, IReadOnlyList<string> 
+         -Papeis, string Arroba, string NomeDeExibicao);                 
+      42 +// Foto entrou no passo 7, a derivada da grade para o avatar: t
+         +ambém só acréscimo.                                            
+      43 +public sealed record EuResponse(Guid Id, IReadOnlyList<string> 
+         +Papeis, string Arroba, string NomeDeExibicao, string? Foto);   
+  ⎿  Updated apps\api\src\Maxx.Api\Social\SocialEndpoints.cs (+10 -5)
+      3  using Maxx.Api.Posts;
+      4  using Maxx.Application;
+      5  using Maxx.Application.Autenticacao;
+      6 +using Maxx.Application.Fotos;                                   
+      7  using Maxx.Application.Paginacao;
+      8  using Maxx.Application.Posts;
+      9  using Maxx.Application.Social;
+     ...
+      76          ClaimsPrincipal principal,
+      77          IConsultaDePosts consultaDePosts,
+      78          IConsultaSocial consulta,
+      79 +        IArmazenamentoDeFotos armazenamento,                   
+      80          CancellationToken cancellationToken)
+      81      {
+      82          var posicao = CursorDeTempo.Ler(cursor);
+     ...
+      85                  TipoDeRecusa.NaoEncontrado, CodigosDoPost.PostN
+          aoEncontrado, $"Post {postId} não existe.");
+      86  
+      87          var pagina = await consulta.ComentariosAsync(postId, po
+          sicao, ComentariosPorPagina, cancellationToken);
+      86 -        return TypedResults.Ok(new PaginaDeComentariosResponse(
+         -[.. pagina.Itens.Select(ComentarioResponse.De)], pagina.Proximo
+         -));                                                            
+      88 +        return TypedResults.Ok(new PaginaDeComentariosResponse(
+         +[.. pagina.Itens.Select(comentario => ComentarioResponse.De(com
+         +entario, armazenamento))], pagina.Proximo));                   
+      89      }
+      90  
+      91      private static async Task<Created<ComentarioResponse>> Come
+          ntarAsync(
+     ...
+       94          ClaimsPrincipal principal,
+       95          ComentarioHandler handler,
+       96          IUsuarioRepository usuarios,
+       97 +        IArmazenamentoDeFotos armazenamento,                  
+       98          CancellationToken cancellationToken)
+       99      {
+      100          var autorId = PostEndpoints.UsuarioId(principal);
+     ...
+      104              (string?)null,
+      105              new ComentarioResponse(
+      106                  comentario.Id,
+      104 -                new AutorDoComentarioResponse(autor.Id, autor.
+          -NomeDeExibicao, autor.Arroba.ToString()),                     
+      107 +                new AutorDoComentarioResponse(                
+      108 +                    autor.Id, autor.NomeDeExibicao, autor.Arro
+          +ba.ToString(), PostResponse.Leitura(armazenamento, autor.Chave
+          +DaFotoDaGrade)),                                              
+      109                  comentario.Texto,
+      110                  comentario.CriadoEm));
+      111      }
+     ...
+      142  // próprios; aqui, só um teto bruto.
+      143  public sealed record ComentarioRequest([property: StringLength
+           (2000)] string? Texto);
+     … 15 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Social" && sed -i 's|new
+      AutorDoComentarioResponse(m…)
+  ⎿      0 Erro(s)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Social\InteracoesTests.cs (+1
+     -1)
+      102          Assert.Equal(HttpStatusCode.Created, resposta.StatusCo
+           de);
+      103          var comentario = (await resposta.Content.ReadFromJsonA
+           sync<ComentarioResponse>(Ct))!;
+      104          Assert.Equal("Parabéns!", comentario.Texto);
+      105 -        Assert.Equal(new AutorDoComentarioResponse(mundo.Id(Br
+          -uno), "Bruno Lima", "@brunoLima-CC"), comentario.Autor);      
+      105 +        Assert.Equal(new AutorDoComentarioResponse(mundo.Id(Br
+          +uno), "Bruno Lima", "@brunoLima-CC", null), comentario.Autor);
+      106          Assert.Equal(mundo.Relogio.GetUtcNow(), comentario.Cri
+           adoEm);
+      107          Assert.Equal(1, (await ana.GetFromJsonAsync<PostRespon
+           se>($"/api/v1/posts/{post}", Ct))!.Comentarios);
+      108          Assert.Equal([comentario], (await ComentariosAsync(ana
+           , post)).Itens);
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PostTests.cs
+     (+1 -1)
+      35          Assert.Equal(mundo.Relogio.GetUtcNow(), post.CriadoEm);
+      36  
+      37          // A linha do autor, como no feed: nome, arroba, curso 
+          e semestre. Nada de RA.
+      38 -        Assert.Equal(new AutorDoPostResponse(mundo.Id(Ana), "An
+         -a Souza", "@anaSouza-CC", "CC", 3), post.Autor);               
+      38 +        Assert.Equal(new AutorDoPostResponse(mundo.Id(Ana), "An
+         +a Souza", "@anaSouza-CC", "CC", 3, null), post.Autor);         
+      39  
+      40          // O prêmio com o tier e os pontos do momento, a matéri
+          a e o bimestre.
+      41          var premio = post.Premio!;
+  ⎿  (timeout 10m)
+
+● Agora as rotas de perfil, busca e edição. Primeiro extraio o mapeamento dos
+  prêmios do PremiosEndpoints, para o perfil reaproveitar a mesma forma com só
+  os obtidos.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api/Premios"
+      && perl -0pi -e 's/        return TypedResults\.Ok\(new Premio…)
+  ⎿      }
+
+         private static async Task<Results<Ok<PremiosDoAlunoResponse>, Forb
+     … +34 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Premios\PremiosEndpoints.cs (+9 -4)
+      30              return TypedResults.Forbid();
+      31          }
+      32  
+      33 -        return TypedResults.Ok(new PremiosDoAlunoResponse(     
+      33 +        return TypedResults.Ok(Mapear(premios));               
+      34 +    }                                                          
+      35 +                                                               
+      36 +    // Também o perfil público usa esta forma, com só os itens 
+         +obtidos: faltantes e                                           
+      37 +    // progresso são só do próprio aluno (produto.md 9.1).     
+      38 +    internal static PremiosDoAlunoResponse Mapear(PremiosDoAlun
+         +o premios, bool soObtidos = false) =>                          
+      39 +        new(                                                   
+      40              premios.Pontos,
+      41              [.. premios.Familias.Select(familia => new FamiliaR
+          esponse(familia.Codigo, familia.Nome, familia.Descricao, famili
+          a.Passos))],
+      36 -            [.. premios.Itens.Select(item => new ItemDoAlunoRes
+         -ponse(                                                         
+      42 +            [.. premios.Itens.Where(item => !soObtidos || item.
+         +Obtidos.Count > 0).Select(item => new ItemDoAlunoResponse(     
+      43                  item.Codigo,
+      44                  ProfessorEndpoints.Nome(item.Tipo),
+      45                  item.Nome,
+     ...
+      52                      ? new RaridadeResponse(ProfessorEndpoints.N
+          ome(raridade.Nivel), raridade.Percentual)
+      53                      : null,
+      54                  [.. item.Obtidos.Select(obtido => new PremioObt
+          idoResponse(
+      49 -                    obtido.Id, ProfessorEndpoints.Nome(obtido.T
+         -ier), obtido.Pontos, obtido.Materia, obtido.Bimestre, obtido.Ob
+         -tidoEm))]))]));                                                
+      50 -    }                                                          
+      55 +                    obtido.Id, ProfessorEndpoints.Nome(obtido.T
+         +ier), obtido.Pontos, obtido.Materia, obtido.Bimestre, obtido.Ob
+         +tidoEm))]))]);                                                 
+      56  }
+      57  
+      58  public sealed record PremiosDoAlunoResponse(int Pontos, IReadOn
+          lyList<FamiliaResponse> Familias, IReadOnlyList<ItemDoAlunoResp
+          onse> Itens);
+
+● Write(apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs)
+  ⎿  Wrote 244 lines to apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using System.Security.Claims;
+       3 using System.Security.Cryptography;
+       4 using System.Text.Json;
+       5 using Maxx.Api.Autenticacao;
+       6 using Maxx.Api.Feed;
+       7 using Maxx.Api.Posts;
+       8 using Maxx.Api.Premios;
+       9 using Maxx.Application;
+      10 using Maxx.Application.Fotos;
+     … +234 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Program.cs && sed -i
+      's|^builder.Services.AddScoped<Maxx.Applicat…)
+  ⎿      2 Erro(s)
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Api\Perfil\PerfilEndpoints.cs(19,1): error IDE0005: O uso d
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+4 -0)
+       9  using Maxx.Api.LimiteDeTaxa;
+      10  using Maxx.Api.Medalhas;
+      11  using Maxx.Api.OpenApi;
+      12 +using Maxx.Api.Perfil;                                         
+      13  using Maxx.Api.Posts;
+      14  using Maxx.Api.Premios;
+      15  using Maxx.Api.Social;
+     ...
+       97  builder.Services.AddScoped<Maxx.Application.Social.ComentarioH
+           andler>();
+       98  builder.Services.AddScoped<Maxx.Application.Social.SeguimentoH
+           andler>();
+       99  builder.Services.AddScoped<Maxx.Application.Feed.FeedHandler>(
+           );
+      100 +builder.Services.AddScoped<Maxx.Application.Perfil.EditarPerfi
+          +lHandler>();                                                  
+      101 +builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+          +osHandler>();                                                 
+      102  
+      103  var app = builder.Build();
+      104  
+     ...
+      166  v1.MapPostEndpoints();
+      167  v1.MapSocialEndpoints();
+      168  v1.MapFeedEndpoints();
+      169 +v1.MapPerfilEndpoints();                                      
+      170  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      171  if (demonstracao)
+      172  {
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Perfil/PerfilEndpoints.cs && sed -n 5p $f; sed -n
+      19p $f; sed -i…)
+  ⎿  using Maxx.Api.Autenticacao;
+     using Microsoft.Net.Http.Headers;
+         0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs (+0 -2)
+      2  using System.Security.Claims;
+      3  using System.Security.Cryptography;
+      4  using System.Text.Json;
+      5 -using Maxx.Api.Autenticacao;                                    
+      5  using Maxx.Api.Feed;
+      6  using Maxx.Api.Posts;
+      7  using Maxx.Api.Premios;
+     ...
+      15  using Maxx.Domain.Academico;
+      16  using Microsoft.AspNetCore.Http.HttpResults;
+      17  using Microsoft.Extensions.Options;
+      19 -using Microsoft.Net.Http.Headers;                              
+      18  
+      19  namespace Maxx.Api.Perfil;
+      20  
+  ⎿  (timeout 10m)
+
+● Compila. Agora os testes de integração de perfil, busca e edição.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs)
+  ⎿  Wrote 395 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using Maxx.Api.Autenticacao;
+       5 using Maxx.Api.Feed;
+       6 using Maxx.Api.Fotos;
+       7 using Maxx.Api.IntegrationTests.Fotos;
+       8 using Maxx.Api.Perfil;
+       9 using Maxx.Api.Premios;
+      10 using Maxx.Domain.Academico;
+     … +385 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI for etapa 5 commit" completed (exit code 0)
+
+● Um teste falha com 409: a Ana não consegue voltar ao próprio prefixo antigo, e
+  suspeito que o BuscarAsync não esteja carregando os prefixos reservados. Vou
+  conferir isso agora.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Confirmei que BuscarAsync não traz os prefixos reservados, de que depende o
+  EditarPrefixo do domínio; crio uma busca própria para a edição em vez de
+  sobrecarregar todas as buscas com Include. A CI da etapa 5 passou (run
+  42437808484).
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && perl -0pi -e
+      's/(    Task<Usuario\?> BuscarAsync\(Guid id, CancellationToken…)
+  ⎿  Maxx.Application/Autenticacao/Repositories.cs:29:    Task<Usuario?> Bu
+     scarComPrefixosAsync(Guid id, CancellationToken cancellationToken);
+     Maxx.Application/Perfil/Perfil.cs:107:        var usuario = await usua
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\Repositories.cs (+4
+     -0)
+      24  
+      25      Task<Usuario?> BuscarAsync(Guid id, CancellationToken cance
+          llationToken);
+      26  
+      27 +    // Com todos os prefixos que ele já teve: é o que deixa edi
+         +tar o prefixo e voltar a um                                    
+      28 +    // antigo (reserva permanente, produto.md 2.3.1).          
+      29 +    Task<Usuario?> BuscarComPrefixosAsync(Guid id, Cancellation
+         +Token cancellationToken);                                      
+      30 +                                                               
+      31      // Login por e-mail, de qualquer papel. E-mail sem diferenc
+          iar maiúsculas.
+      32      Task<Usuario?> BuscarPorEmailAsync(string email, Cancellati
+          onToken cancellationToken);
+      33  
+  ⎿  Updated apps\api\src\Maxx.Application\Perfil\Perfil.cs (+1 -1)
+      104      public async Task EditarAsync(
+      105          Guid usuarioId, string? nomeDeExibicao, string? prefix
+           o, Guid? fotoUploadId, bool removerFoto, CancellationToken can
+           cellationToken)
+      106      {
+      107 -        var usuario = await usuarios.BuscarAsync(usuarioId, ca
+          -ncellationToken)                                              
+      107 +        var usuario = await usuarios.BuscarComPrefixosAsync(us
+          +uarioId, cancellationToken)                                   
+      108              ?? throw new RecusaException(TipoDeRecusa.NaoAutor
+           izado, CodigosDeRecusa.SessaoInvalida, $"Usuário {usuarioId} n
+           ão existe.");
+      109          var agora = relogio.GetUtcNow();
+      110  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Autenticacao\Repositories.cs
+     (+3 -0)
+      58      public Task<Usuario?> BuscarAsync(Guid id, CancellationToke
+          n cancellationToken) =>
+      59          db.Set<Usuario>().SingleOrDefaultAsync(usuario => usuar
+          io.Id == id, cancellationToken);
+      60  
+      61 +    public Task<Usuario?> BuscarComPrefixosAsync(Guid id, Cance
+         +llationToken cancellationToken) =>                             
+      62 +        db.Set<Usuario>().Include(usuario => usuario.PrefixosRe
+         +servados).SingleOrDefaultAsync(usuario => usuario.Id == id, can
+         +cellationToken);                                               
+      63 +                                                               
+      64      // e-mail em citext: a comparação no banco não diferencia m
+          aiúsculas.
+      65      public Task<Usuario?> BuscarPorEmailAsync(string email, Can
+          cellationToken cancellationToken) =>
+      66          PorCadastro(cadastro => cadastro.Email == email).Single
+          OrDefaultAsync(cancellationToken);
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/AccessTokenTests.cs
+      && sed -i '21…)
+  ⎿      0 Erro(s)
+       total: 23
+       falhou: 0
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTo
+     kenTests.cs (+2 -0)
+      215          public Task<Usuario?> BuscarAsync(Guid id, Cancellatio
+           nToken cancellationToken) =>
+      216              Task.FromResult(id == usuario.Id ? usuario : null)
+           ;
+      217  
+      218 +        public Task<Usuario?> BuscarComPrefixosAsync(Guid id, 
+          +CancellationToken cancellationToken) => BuscarAsync(id, cancel
+          +lationToken);                                                 
+      219 +                                                              
+      220          public Task<bool> ExisteParaCadastroAsync(Guid cadastr
+           oElegivelId, CancellationToken cancellationToken) =>
+      221              throw new NotSupportedException();
+      222  
+  ⎿  (timeout 10m)
+
+● Os 23 testes de perfil passam. Agora as mensagens dos dois códigos novos, a
+  regeneração do cliente e a bateria completa.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/mobile/src/api/erros.ts && sed -i 's|^  // Paginação
+      (CodigosDaPaginacao.cs)|  //…)  ⎿  format=0
+         0 Aviso(s)
+         0 Erro(s)
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.test.ts (+2 -1)
+      42    it("todo código que a API manda tem mensagem própria", () => 
+          {
+      43      const daApi = codigosDaApi();
+      44  
+      45 -    expect(arquivosDeCodigos()).toHaveLength(6);               
+      45 +    expect(arquivosDeCodigos()).toHaveLength(7);               
+      46      expect(daApi).toEqual(
+      47        expect.arrayContaining([
+      48          "registro-simultaneo",
+     ...
+      51          "premio-ja-postado",
+      52          "seguir-nao-permitido",
+      53          "cursor-invalido",
+      54 +        "busca-sem-criterio",                                  
+      55          "dados-invalidos",
+      56        ]),
+      57      );
+  ⎿  Updated apps\mobile\src\api\erros.ts (+3 -0)
+      58      "Você não pode apagar este comentário.",
+      59    "usuario-nao-encontrado": "Essa pessoa não está mais no Maxx.
+          ",
+      60    "seguir-nao-permitido": "Não dá para seguir este perfil.",
+      61 +  // Perfil e busca (CodigosDoPerfil.cs)                       
+      62 +  "busca-sem-criterio": "Digite ao menos 2 letras ou escolha um
+         + filtro.",                                                     
+      63 +  "foto-de-perfil-ambigua": "Escolha trocar ou remover a foto."
+         +,                                                              
+      64    // Paginação (CodigosDaPaginacao.cs)
+      65    "cursor-invalido": "Não deu para carregar mais. Puxe para atu
+          alizar.",
+      66    // Genéricos, pelo status (DomainExceptionHandler.cs)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 10m)
+
+● A etapa 6 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 5 fechada: commit 76ab6b4, CI verde nos seis jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42437808484
+
+  Etapa 6: perfil, busca e editar perfil na API
+
+  Rotas
+
+  Rota: GET /v1/perfis/{id} e GET /v1/eu/perfil
+  O que devolve: Nome, arroba, papel (aluno ou professor), curso (sigla e nome),
+
+  semestre, ex-aluno, pontos (soma das medalhas ativas, só para aluno),
+  seguidores, seguindo, euSigo e foto. O RA vem só no próprio perfil do aluno.
+  A posição no ranking fica para o passo 11
+  ────────────────────────────────────────
+  Rota: GET /v1/perfis/{id}/posts?cursor=
+  O que devolve: A grade: posts não removidos do perfil, do mais novo ao mais
+  antigo, 18 por página (seis linhas de três), pelo índice (autor_id, criado_em
+   desc, id desc) da etapa 3
+  ────────────────────────────────────────
+  Rota: GET /v1/perfis/{id}/premios
+  O que devolve: A mesma forma de /v1/eu/premios, mas só com os itens obtidos
+  (D10). Faltantes e progresso continuam só para o próprio aluno
+  ────────────────────────────────────────
+  Rota: PATCH /v1/eu/perfil
+  O que devolve: {nomeDeExibicao?, prefixo?, fotoUploadId?, removerFoto?},
+  devolvendo o perfil atualizado
+  ────────────────────────────────────────
+  Rota: GET /v1/eu/perfil/disponibilidade?prefixo=
+  O que devolve: Se o prefixo está livre para quem pergunta, com debounce no app
+
+  (etapa 10)
+  ────────────────────────────────────────
+  Rota: GET /v1/busca/alunos?termo=&curso=&semestre=&cursor=
+  O que devolve: Alunos encontrados, 20 por página
+
+  Detalhes do perfil
+  - Professor (D10): o perfil traz as turmas do semestre vigente e quantas
+    medalhas ele concedeu.
+  - Conta só de instituição: não tem perfil social e recebe 404.
+  - ETag com 304: o perfil sai com ETag fraca calculada do conteúdo e
+    Cache-Control: private, no-cache, porque a resposta depende de quem pede
+    (RA, euSigo). If-None-Match igual recebe 304. Essa decisão de cache já
+    estava no README.
+
+  Editar perfil
+  - Cada campo é opcional e a edição é tudo ou nada: uma recusa não grava o
+    resto.
+  - Os códigos de prefixo e nome de exibição são os do cadastro.
+  - O prefixo antigo fica reservado ao dono, que pode voltar a ele. Prefixo de
+    outra pessoa, atual ou antigo, recebe 409 prefixo-indisponivel, inclusive na
+    corrida.
+  - Foto: pelo id de um upload de fotoDePerfil, conferido com HEAD no bucket. A
+    foto trocada ou removida sai do bucket pelo trabalho remover-fotos. Trocar e
+    remover no mesmo pedido recebe 400 foto-de-perfil-ambigua.
+  - Avatar em todo lugar: a derivada da grade aparece no autor do post e do
+    feed, no autor do comentário e no GET /v1/eu. São só campos novos.
+
+  Busca (D11)
+  - Pelo nome sem acento e sem maiúsculas ("joao" acha "João"), por trecho do
+    prefixo, ou pelo arroba inteiro colado ("@brunoLima-CC").
+  - Traz alunos ativos e ex-alunos; filtros de curso (sigla) e semestre de 1
+    a 8.
+  - Nunca encontra professor e nunca encontra pelo RA. % e _ no termo são texto,
+    não curinga.
+  - Termo com menos de 2 caracteres e sem filtro recebe 400 busca-sem-criterio.
+  - Migration Perfil:
+    - as colunas da foto em usuario, com check de que vêm sempre as duas;
+    - as extensões unaccent e pg_trgm;
+    - uma função imutável maxx_sem_acento, porque o unaccent sozinho não pode
+      entrar em índice;
+    - índices de trigramas no nome sem acento e no prefixo.
+
+  Uma correção que a etapa revelou
+  - O EditarPrefixo do domínio (passo 3) dependia dos prefixos reservados
+    carregados, e o BuscarAsync não os carregava. Voltar ao próprio prefixo
+    antigo dava 409.
+  - Criei BuscarComPrefixosAsync, usado só pela edição, para não pesar com um
+    Include todas as buscas de usuário.
+
+  Testes, todos passando
+  - Domínio, 6 testes: foto de perfil (primeira, troca, recusas sem mudança,
+    remoção) e nome de exibição.
+  - Integração, 23 testes:
+    - perfil próprio completo, perfil de outro, ex-aluna e professora;
+    - 404 para instituição e para quem não existe;
+    - ETag, 304, e ETag nova depois de seguir;
+    - grade em páginas de 18;
+    - prêmios só obtidos, e 404 para professor;
+    - editar com reserva e volta ao prefixo antigo;
+    - edição recusada sem gravar nada;
+    - disponibilidade;
+    - foto de perfil no perfil, no eu e no feed, com a trocada e a removida
+      saindo do bucket;
+    - recusas de foto;
+    - professora com foto;
+    - cinco formas de busca;
+    - filtros com alunos e ex-alunos, sem professor e sem RA;
+    - busca sem critério;
+    - busca paginada de 20 em 20 por nome.
+  - Bateria completa: 744 testes da API, 317 do app, formatação, build sem
+    aviso, lint, typecheck e verificar limpos.
+  - Mensagens novas: busca-sem-criterio e foto-de-perfil-ambigua no erros.ts,
+    com 7 arquivos de códigos conferidos.
+
+  Ressalvas
+  1. Não testei com EXPLAIN que a busca usa os índices de trigramas, como fiz no
+     feed. Os índices existem e servem para LIKE '%termo%'; o uso real com
+     volume fica para o k6 do passo 13, junto com a pergunta do feed.
+  2. O ETag poupa banda, não banco: a resposta é montada inteira antes de
+     comparar.
+  3. Privilégio no banco: a migration cria extensões, então o usuário do banco
+     precisa poder fazer CREATE EXTENSION. No compose ele é o dono do banco e
+     pode, e a CI vai confirmar no e2e. Se a VPS um dia usar um usuário com
+     menos privilégio, isso tem de ser revisto.
+  4. Purga sem mudança no SQL: este passo não criou tabela nova, só colunas em
+     usuario. As fotos de perfil do lote ficam no bucket até a purga do passo 12
+     (D14).
+
+  Commit proposto: feat(api): adiciona perfil, grade, busca de alunos e editar 
+  perfil
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 7, a primeira do cliente: derivadas, upload e novo post.
+
+✻ Sautéed for 12m 24s · done 23:28
