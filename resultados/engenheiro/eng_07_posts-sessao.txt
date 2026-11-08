@@ -4088,3 +4088,674 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
   para a etapa 5, o feed.
 
 ✻ Worked for 11m 23s · done 22:59
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Etapa 4 aprovada. Confirmo os dois pontos: comentários do mais antigo ao mais 
+  novo, e a conta de professor e instituição segue, curte e comenta como        
+  professora. Commita com a mensagem proposta, push, acompanha a CI e segue     
+  para a etapa 5; para para a minha revisão no fim dela.                        
+
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● Commit 686847a está enviado e o CI roda em segundo plano. Antes da etapa 5,
+  vou verificar uma premissa da D13: se o seed de demonstração cria conta para
+  os 20 alunos, já que post exige autor com conta.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A premissa da D13 não vale: o seed demo grava os 20 alunos só como cadastro
+  elegível, sem conta, e sem conta não há autor nem post semeado. Isso é decisão
+  sua.
+
+● User answered Claude's questions:
+  ⎿  · A D13 (semear posts dos 20 alunos do mundo de demonstração, para o feed 
+     não nascer vazio) esbarra numa regra existente: o seed demo grava esses 
+     alunos só como linhas do cadastro elegível, sem conta, porque aluno só se 
+     cadastra pelo app (produto.md 2.5) e Usuario.CriarPeloSeed recusa aluno. 
+     Post precisa de autor com conta. O que faço na etapa 5? → Adiar para o 
+     passo 12 (Recomendado)
+
+● A etapa 5 só entrega o feed, então a D13 passa para o passo 12. Agora vou
+  trocar a consulta de posts por uma versão em lote, com uma consulta para posts
+  e outra para medalhas.
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Posts" && head -30 PostRepository.cs >
+      /tmp/p.cs && cat >> /…)
+  ⎿      0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+4 -0)
+      33      // Nulo para o que não existe e para o removido pela instit
+          uição. Com as curtidas e os
+      34      // comentários contados, e se o leitor curtiu.
+      35      Task<PostLido?> PostAsync(Guid id, Guid leitorId, Cancellat
+          ionToken cancellationToken);
+      36 +                                                               
+      37 +    // Os que existem e não foram removidos, pelo id; os outros
+         + ficam de fora.                                                
+      38 +    Task<IReadOnlyDictionary<Guid, PostLido>> PostsAsync(      
+      39 +        IReadOnlyCollection<Guid> ids, Guid leitorId, Cancellat
+         +ionToken cancellationToken);                                   
+      40  }
+      41  
+      42  public sealed record PostLido(
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs (+38 
+     -27)
+      30  
+      31  internal sealed class ConsultaDePosts(MaxxDbContext db) : ICons
+          ultaDePosts
+      32  {
+      33 -    public async Task<PostLido?> PostAsync(Guid id, Guid leitor
+         -Id, CancellationToken cancellationToken)                       
+      33 +    public async Task<PostLido?> PostAsync(Guid id, Guid leitor
+         +Id, CancellationToken cancellationToken) =>                    
+      34 +        (await PostsAsync([id], leitorId, cancellationToken)).G
+         +etValueOrDefault(id);                                          
+      35 +                                                               
+      36 +    // Duas consultas para a página inteira, não duas por post:
+         + os posts com autor e                                          
+      37 +    // contagens, depois as medalhas que eles citam.           
+      38 +    public async Task<IReadOnlyDictionary<Guid, PostLido>> Post
+         +sAsync(                                                        
+      39 +        IReadOnlyCollection<Guid> ids, Guid leitorId, Cancellat
+         +ionToken cancellationToken)                                    
+      40      {
+      35 -        var linha = await (                                    
+      41 +        var linhas = await (                                   
+      42                  from post in db.Set<Post>()
+      43                  join autor in db.Set<Usuario>() on post.AutorId
+           equals autor.Id
+      44                  join cadastro in db.Set<CadastroElegivel>() on 
+          autor.CadastroElegivelId equals cadastro.Id
+      45                  join curso in db.Set<Curso>() on cadastro.Curso
+          Id equals curso.Id into cursos
+      46                  from curso in cursos.DefaultIfEmpty()
+      41 -                where post.Id == id && post.RemovidoEm == null 
+      47 +                where ids.Contains(post.Id) && post.RemovidoEm 
+         +== null                                                        
+      48                  select new
+      49                  {
+      50                      post.Id,
+     ...
+       64                      Curtiu = db.Set<Curtida>().Any(curtida => 
+           curtida.PostId == post.Id && curtida.UsuarioId == leitorId),
+       65                  })
+       66              .AsNoTracking()
+       61 -            .SingleOrDefaultAsync(cancellationToken);         
+       62 -        if (linha is null)                                    
+       63 -        {                                                     
+       64 -            return null;                                      
+       65 -        }                                                     
+       67 +            .ToListAsync(cancellationToken);                  
+       68 +                                                              
+       69 +        var medalhas = await MedalhasAsync([.. linhas.Where(li
+          +nha => linha.MedalhaId is not null).Select(linha => linha.Meda
+          +lhaId!.Value)], cancellationToken);                           
+       70  
+       67 -        return new PostLido(                                  
+       68 -            linha.Id,                                         
+       69 -            new AutorDoPost(linha.AutorId, linha.NomeDeExibica
+          -o, new Arroba(linha.Prefixo, linha.Sufixo).ToString(), linha.C
+          -urso, linha.Semestre),                                        
+       70 -            linha.Legenda,                                    
+     … 65 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Agora a regra de intercalação, no domínio, para ter teste unitário puro.
+
+● Write(apps\api\src\Maxx.Domain\Social\Feed.cs)
+  ⎿  Wrote 47 lines to apps\api\src\Maxx.Domain\Social\Feed.cs
+      1 namespace Maxx.Domain.Social;
+      2 
+      3 // O feed (produto.md 6.2): sempre os posts de quem o aluno segue
+        , mais recomendações de
+      4 // outros alunos, e nunca vazio enquanto houver post. Três seguid
+        os para cada recomendação,
+      5 // em páginas de 12 (decisão do passo 7). Um trecho que acaba ced
+        e a vez ao outro: quem
+      6 // não segue ninguém vê só recomendações, e quem segue todo mundo
+        , só seguidos.
+     … +41 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Social\FeedTests.cs)
+  ⎿  Wrote 60 lines to apps\api\tests\Maxx.Domain.Tests\Social\FeedTests.cs
+      1 using Maxx.Domain.Social;
+      2 
+      3 namespace Maxx.Domain.Tests.Social;
+      4 
+      5 public class FeedTests
+      6 {
+      7     private static List<string> Seguidos(int quantos) => [.. Enum
+        erable.Range(1, quantos).Select(i => $"s{i}")];
+      8 
+      9     private static List<string> Recomendados(int quantos) => [.. 
+     … +52 lines (~2 KB) (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Feed\FeedHandler.cs)
+  ⎿  Wrote 128 lines to apps\api\src\Maxx.Application\Feed\FeedHandler.cs
+       1 using System.Buffers.Text;
+       2 using System.Globalization;
+       3 using System.Security.Cryptography;
+       4 using System.Text;
+       5 using System.Text.RegularExpressions;
+       6 using Maxx.Application.Paginacao;
+       7 using Maxx.Application.Posts;
+       8 using Maxx.Domain.Social;
+       9 
+      10 namespace Maxx.Application.Feed;
+     … +118 lines (ctrl+o to expand)
+
+● Vou escrever a consulta do feed direto em SQL na Infrastructure, com a
+  comparação de linha, o md5 da semente e COLLATE "C" na ordem das chaves, para
+  que ORDER BY e cursor não divirjam pela colação do banco.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      '/^using Maxx.Domain.Social;$/d' Maxx.Application/Feed/FeedHandler.cs…)
+  ⎿  6:using Maxx.Application.Feed;
+     18:using Maxx.Infrastructure.Feed;
+     75:        services.AddScoped<IConsultaDoFeed, ConsultaDoFeed>();
+  ⎿  Updated apps\api\src\Maxx.Application\Feed\FeedHandler.cs (+0 -1)
+       5  using System.Text.RegularExpressions;
+       6  using Maxx.Application.Paginacao;
+       7  using Maxx.Application.Posts;
+       8 -using Maxx.Domain.Social;                                      
+       8  
+       9  namespace Maxx.Application.Feed;
+      10  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+3 
+     -0)
+      3  using Maxx.Application.Autenticacao.Recuperacao;
+      4  using Maxx.Application.Autorizacao;
+      5  using Maxx.Application.Demonstracao;
+      6 +using Maxx.Application.Feed;                                    
+      7  using Maxx.Application.Fila;
+      8  using Maxx.Application.Fotos;
+      9  using Maxx.Application.Medalhas;
+     ...
+      15  using Maxx.Infrastructure.Autorizacao;
+      16  using Maxx.Infrastructure.Demonstracao;
+      17  using Maxx.Infrastructure.Email;
+      18 +using Maxx.Infrastructure.Feed;                                
+      19  using Maxx.Infrastructure.Fila;
+      20  using Maxx.Infrastructure.Fotos;
+      21  using Maxx.Infrastructure.Medalhas;
+     ...
+      72          services.AddScoped<IComentarioRepository, ComentarioRep
+          ository>();
+      73          services.AddScoped<ISeguimentoRepository, SeguimentoRep
+          ository>();
+      74          services.AddScoped<IConsultaSocial, ConsultaSocial>();
+      75 +        services.AddScoped<IConsultaDoFeed, ConsultaDoFeed>(); 
+      76  
+      77          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      78          services.AddOptions<FilaOptions>();
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Feed\ConsultaDoFeed.cs (+88 
+     -0)
+       1 +using Maxx.Application.Feed;                                   
+       2 +using Maxx.Application.Paginacao;                              
+       3 +using Maxx.Infrastructure.Persistence;                         
+       4 +using Microsoft.EntityFrameworkCore;                           
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Feed;                            
+       7 +                                                               
+       8 +// Os dois trechos do feed em SQL direto: a comparação de linha
+         + do cursor e a chave                                           
+       9 +// aleatória da semente ficam à vista. Post removido pela insti
+         +tuição não entra em nenhum.                                    
+      10 +internal sealed class ConsultaDoFeed(MaxxDbContext db) : IConsu
+         +ltaDoFeed                                                      
+      11 +{                                                              
+      12 +    public async Task<IReadOnlyList<PosicaoNoTempo>> SeguidosAs
+         +ync(                                                           
+      13 +        Guid leitorId, PosicaoNoTempo? depoisDe, int limite, Ca
+         +ncellationToken cancellationToken)                             
+      14 +    {                                                          
+      15 +        // Os autores são o leitor e quem ele segue; para cada 
+         +um, o índice                                                   
+      16 +        // (autor_id, criado_em desc, id desc) entrega os posts
+         + já na ordem.                                                  
+      17 +        var linhas = depoisDe is { } posicao                   
+      18 +            ? db.Database.SqlQuery<LinhaNoTempo>($"""          
+      19 +                SELECT p.criado_em AS "Instante", p.id AS "Id" 
+      20 +                FROM post p                                    
+      21 +                WHERE p.removido_em IS NULL                    
+      22 +                  AND p.autor_id IN (SELECT {leitorId} UNION AL
+         +L SELECT s.seguido_id FROM seguimento s WHERE s.seguidor_id = {
+         +leitorId})                                                     
+      23 +                  AND (p.criado_em, p.id) < ({posicao.Instante}
+         +, {posicao.Id})                                                
+      24 +                ORDER BY p.criado_em DESC, p.id DESC           
+      25 +                LIMIT {limite}                                 
+      26 +                """)                                           
+      27 +            : db.Database.SqlQuery<LinhaNoTempo>($"""          
+      28 +                SELECT p.criado_em AS "Instante", p.id AS "Id" 
+      29 +                FROM post p                                    
+      30 +                WHERE p.removido_em IS NULL                    
+      31 +                  AND p.autor_id IN (SELECT {leitorId} UNION AL
+         +L SELECT s.seguido_id FROM seguimento s WHERE s.seguidor_id = {
+         +leitorId})                                                     
+      32 +                ORDER BY p.criado_em DESC, p.id DESC           
+      33 +                LIMIT {limite}                                 
+      34 +                """);                                          
+      35 +                                                               
+      36 +        return [.. (await linhas.ToListAsync(cancellationToken)
+         +).Select(linha => new PosicaoNoTempo(linha.Instante, linha.Id))
+         +];                                                             
+      37 +    }                                                          
+      38 +                                                               
+      39 +    public async Task<IReadOnlyList<PosicaoAleatoria>> Recomend
+         +adosAsync(                                                     
+      40 +        Guid leitorId, string semente, PosicaoAleatoria? depois
+         +De, int limite, CancellationToken cancellationToken)           
+     … 48 more lines (ctrl+o to expand)
+
+● Agora a rota GET /v1/feed.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && mkdir -p
+      Maxx.Api/Feed && cat > Maxx.Api/Feed/FeedEndpoints.cs <<'FIM'
+      using…)
+  ⎿      1 Erro(s)
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\tests\Maxx.Api.IntegrationTests\Social\PostTests.cs(48,22): error CS
+     … +5 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Api\Feed\FeedEndpoints.cs (+36 -0)
+       1 +using System.Security.Claims;                                  
+       2 +using Maxx.Api.Posts;                                          
+       3 +using Maxx.Application.Feed;                                   
+       4 +using Maxx.Application.Fotos;                                  
+       5 +using Microsoft.AspNetCore.Http.HttpResults;                   
+       6 +                                                               
+       7 +namespace Maxx.Api.Feed;                                       
+       8 +                                                               
+       9 +// O feed (produto.md 6.2): sem cursor, a primeira página de um
+         +a sessão nova; com o cursor da                                 
+      10 +// resposta anterior, a seguinte, na mesma ordem de recomendaçõ
+         +es.                                                            
+      11 +internal static class FeedEndpoints                            
+      12 +{                                                              
+      13 +    public static IEndpointRouteBuilder MapFeedEndpoints(this I
+         +EndpointRouteBuilder v1)                                       
+      14 +    {                                                          
+      15 +        v1.MapGet("/feed", PaginaAsync)                        
+      16 +            .WithName("GetFeed")                               
+      17 +            .WithTags("Feed")                                  
+      18 +            .ProducesProblem(StatusCodes.Status400BadRequest); 
+      19 +                                                               
+      20 +        return v1;                                             
+      21 +    }                                                          
+      22 +                                                               
+      23 +    private static async Task<Ok<PaginaDoFeedResponse>> PaginaA
+         +sync(                                                          
+      24 +        string? cursor,                                        
+      25 +        ClaimsPrincipal principal,                             
+      26 +        FeedHandler handler,                                   
+      27 +        IArmazenamentoDeFotos armazenamento,                   
+      28 +        CancellationToken cancellationToken)                   
+      29 +    {                                                          
+      30 +        var pagina = await handler.PaginaAsync(PostEndpoints.Us
+         +uarioId(principal), cursor, cancellationToken);                
+      31 +        return TypedResults.Ok(new PaginaDoFeedResponse([.. pag
+         +ina.Itens.Select(post => PostResponse.De(post, armazenamento))]
+         +, pagina.Proximo));                                            
+      32 +    }                                                          
+      33 +}                                                              
+      34 +                                                               
+      35 +// proximo vem nulo quando os dois trechos, seguidos e recomend
+         +ações, acabaram.                                               
+      36 +public sealed record PaginaDoFeedResponse(IReadOnlyList<PostRes
+         +ponse> Itens, string? Proximo);                                
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+3 -0)
+      3  using Maxx.Api.Autenticacao;
+      4  using Maxx.Api.Demonstracao;
+      5  using Maxx.Api.Erros;
+      6 +using Maxx.Api.Feed;                                            
+      7  using Maxx.Api.Fotos;
+      8  using Maxx.Api.Health;
+      9  using Maxx.Api.LimiteDeTaxa;
+     ...
+       95  builder.Services.AddScoped<Maxx.Application.Social.CurtidaHand
+           ler>();
+       96  builder.Services.AddScoped<Maxx.Application.Social.ComentarioH
+           andler>();
+       97  builder.Services.AddScoped<Maxx.Application.Social.SeguimentoH
+           andler>();
+       98 +builder.Services.AddScoped<Maxx.Application.Feed.FeedHandler>(
+          +);                                                            
+       99  
+      100  var app = builder.Build();
+      101  
+     ...
+      162  v1.MapUploadEndpoints();
+      163  v1.MapPostEndpoints();
+      164  v1.MapSocialEndpoints();
+      165 +v1.MapFeedEndpoints();                                        
+      166  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      167  if (demonstracao)
+      168  {
+  ⎿  (timeout 10m)
+
+● O namespace Maxx.Api.Feed colide com a constante Feed do MundoSocial nos
+  testes. Renomeio as constantes de tamanho do teste, que ficam até mais claras.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Social" && sed -i -E 's/\bpublic const
+      long Feed = /…)
+  ⎿  MundoSocial.cs:34:    public const long TamanhoDoFeed = 300 * 1024;
+     MundoSocial.cs:35:    public const long TamanhoDaGrade = 40 * 1024;
+     MundoSocial.cs:147:            new { finalidade = "post", tipoDeConteu
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\MundoSocial.cs
+     (+5 -5)
+      31      public const string Diego = "diego.reis@al.unieduk.com.br";
+      32      public const string Renata = "renata@prof.unieduk.com.br";
+      33      public const string Coordenacao = "coordenacao@unieduk.com.
+          br";
+      34 -    public const long Feed = 300 * 1024;                       
+      35 -    public const long Grade = 40 * 1024;                       
+      34 +    public const long TamanhoDoFeed = 300 * 1024;              
+      35 +    public const long TamanhoDaGrade = 40 * 1024;              
+      36  
+      37      private readonly Dictionary<string, Guid> _ids;
+      38  
+     ...
+      144      {
+      145          var resposta = await client.PostAsJsonAsync(
+      146              new Uri("/api/v1/uploads", UriKind.Relative),
+      147 -            new { finalidade = "post", tipoDeConteudo = "image
+          -/jpeg", tamanhoDoFeed = Feed, tamanhoDaGrade = Grade },       
+      147 +            new { finalidade = "post", tipoDeConteudo = "image
+          +/jpeg", tamanhoDoFeed = TamanhoDoFeed, tamanhoDaGrade = Tamanh
+          +oDaGrade },                                                   
+      148              Ct);
+      149          Assert.Equal(HttpStatusCode.Created, resposta.StatusCo
+           de);
+      150          var upload = (await resposta.Content.ReadFromJsonAsync
+           <UploadResponse>(Ct))!;
+      151          if (enviar)
+      152          {
+      153 -            await PutAsync(upload.Feed, Feed);                
+      154 -            await PutAsync(upload.Grade, Grade);              
+      153 +            await PutAsync(upload.Feed, TamanhoDoFeed);       
+      154 +            await PutAsync(upload.Grade, TamanhoDaGrade);     
+      155          }
+      156  
+      157          return upload;
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PostTests.cs
+     (+2 -2)
+      45          // A foto, lida direto do bucket, sem login.
+      46          using var http = new HttpClient();
+      47          Assert.StartsWith(armazenamento.UrlDeLeitura.ToString()
+          , post.Foto!.Feed, StringComparison.Ordinal);
+      48 -        Assert.Equal(Feed, (await http.GetByteArrayAsync(new Ur
+         -i(post.Foto.Feed), Ct)).Length);                               
+      49 -        Assert.Equal(Grade, (await http.GetByteArrayAsync(new U
+         -ri(post.Foto.Grade), Ct)).Length);                             
+      48 +        Assert.Equal(TamanhoDoFeed, (await http.GetByteArrayAsy
+         +nc(new Uri(post.Foto.Feed), Ct)).Length);                      
+      49 +        Assert.Equal(TamanhoDaGrade, (await http.GetByteArrayAs
+         +ync(new Uri(post.Foto.Grade), Ct)).Length);                    
+      50  
+      51          // O upload foi confirmado: a limpeza não o apaga mais.
+      52          Assert.NotNull(Assert.Single(await mundo.LinhasAsync<Up
+          loadPendente>()).ConfirmadoEm);
+  ⎿  (timeout 10m)
+
+● Agora os testes de integração do feed. Avanço o relógio entre posts para a
+  ordem por tempo ficar determinística.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Social\FeedTests.cs)
+  ⎿  Wrote 242 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Social\FeedTests.cs
+      1 using System.Net;
+      2 using System.Net.Http.Json;
+      3 using Maxx.Api.Feed;
+      4 using Maxx.Api.IntegrationTests.Fotos;
+      5 using Maxx.Api.Posts;
+      6 using Maxx.Infrastructure.Persistence;
+      7 using Microsoft.EntityFrameworkCore;
+      8 using Microsoft.Extensions.DependencyInjection;
+      9 using static Maxx.Api.IntegrationTests.Social.MundoSocial;
+     … +233 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O avanço de um minuto por post faria o relógio do teste passar da tolerância
+  de 30 segundos do token, causando 401s; então uso 100 ms por post, que basta
+  para ordenar e o Postgres guarda microssegundos.
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Social/FeedTests.cs && sed -i
+      's|            m…)
+  ⎿      0 Erro(s)
+       total: 11
+       falhou: 0
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\FeedTests.cs
+     (+4 -3)
+      201          Assert.Contains(plano, linha => linha.Contains("ix_pos
+           t_autor_id_criado_em_id", StringComparison.Ordinal));
+      202      }
+      203  
+      204 -    // Um post de legenda por vez, com o relógio andando um mi
+          -nuto: a ordem por tempo é a da                                
+      205 -    // criação.                                               
+      204 +    // Um post de legenda por vez, com o relógio andando 100 m
+          +s: a ordem por tempo é a da                                   
+      205 +    // criação. Pouco, de propósito: o token emitido pelo reló
+          +gio do teste não pode passar da                               
+      206 +    // tolerância de 30 s do relógio de verdade.              
+      207      private static async Task<List<Guid>> PostarAsync(MundoSoc
+           ial mundo, string autor, int quantos)
+      208      {
+      209          using var client = await mundo.ComoAsync(autor);
+      210          var ids = new List<Guid>();
+      211          for (var i = 0; i < quantos; i++)
+      212          {
+      212 -            mundo.Relogio.Avancar(TimeSpan.FromMinutes(1));   
+      213 +            mundo.Relogio.Avancar(TimeSpan.FromMilliseconds(10
+          +0));                                                          
+      214              var resposta = await client.PostAsJsonAsync(new Ur
+           i("/api/v1/posts", UriKind.Relative), new { legenda = $"{autor
+           } {i}" }, Ct);
+      215              Assert.Equal(HttpStatusCode.Created, resposta.Stat
+           usCode);
+      216              ids.Add((await resposta.Content.ReadFromJsonAsync<
+           PostResponse>(Ct))!.Id);
+  ⎿  (timeout 10m)
+
+● Os 11 testes do feed passam. Agora a bateria completa e a regeneração do
+  cliente.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client >/dev/null 2>&1; dotnet format Maxx.sln
+      --verify-no-cha…)
+  ⎿  format=0
+         0 Aviso(s)
+         0 Erro(s)
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+68 -0)
+      230          ]
+      231        }
+      232      },
+      233 +    "/api/v1/feed": {                                         
+      234 +      "get": {                                                
+      235 +        "tags": [                                             
+      236 +          "Feed"                                              
+      237 +        ],                                                    
+      238 +        "operationId": "GetFeed",                             
+      239 +        "parameters": [                                       
+      240 +          {                                                   
+      241 +            "name": "cursor",                                 
+      242 +            "in": "query",                                    
+      243 +            "schema": {                                       
+      244 +              "type": "string"                                
+      245 +            }                                                 
+      246 +          }                                                   
+      247 +        ],                                                    
+      248 +        "responses": {                                        
+      249 +          "200": {                                            
+      250 +            "description": "OK",                              
+      251 +            "content": {                                      
+      252 +              "application/json": {                           
+      253 +                "schema": {                                   
+      254 +                  "$ref": "#/components/schemas/PaginaDoFeedRe
+          +sponse"                                                       
+      255 +                }                                             
+      256 +              }                                               
+      257 +            }                                                 
+      258 +          },                                                  
+      259 +          "400": {                                            
+      260 +            "description": "Bad Request",                     
+      261 +            "content": {                                      
+      262 +              "application/problem+json": {                   
+      263 +                "schema": {                                   
+      264 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+      265 +                }                                             
+      266 +              }                                               
+      267 +            }                                                 
+      268 +          }                                                   
+      269 +        },                                                    
+     … 46 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+51 -0)
+      100          patch?: never;
+      101          trace?: never;
+      102      };
+      103 +    "/api/v1/feed": {                                         
+      104 +        parameters: {                                         
+      105 +            query?: never;                                    
+      106 +            header?: never;                                   
+      107 +            path?: never;                                     
+      108 +            cookie?: never;                                   
+      109 +        };                                                    
+      110 +        get: operations["GetFeed"];                           
+      111 +        put?: never;                                          
+      112 +        post?: never;                                         
+      113 +        delete?: never;                                       
+      114 +        options?: never;                                      
+      115 +        head?: never;                                         
+      116 +        patch?: never;                                        
+      117 +        trace?: never;                                        
+      118 +    };                                                        
+      119      "/api/v1/professor/turmas": {
+      120          parameters: {
+      121              query?: never;
+     ...
+      627              itens: components["schemas"]["ComentarioResponse"]
+           [];
+      628              proximo: null | string;
+      629          };
+      630 +        PaginaDoFeedResponse: {                               
+      631 +            itens: components["schemas"]["PostResponse"][];   
+      632 +            proximo: null | string;                           
+      633 +        };                                                    
+      634          PedidoDeUploadRequest: {
+      635              finalidade: string;
+      636              tipoDeConteudo: string;
+     ...
+      962              };
+      963          };
+      964      };
+      965 +    GetFeed: {                                                
+      966 +        parameters: {                                         
+      967 +            query?: {                                         
+      968 +                cursor?: string;                              
+      969 +            };                                                
+     … 29 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Background command "Watch CI for etapa 4 commit" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A etapa 5 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 4 fechada: commit 686847a, CI verde nos seis jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42436713492
+
+  D13 adiada: como você escolheu, o seed de posts fica para o passo 12. Registro
+  isso no plano mestre e nas decisões na etapa 11.
+
+  Etapa 5: feed por cursor
+
+  GET /v1/feed?cursor= devolve {itens, proximo}. Cada item é o post completo da
+  etapa 4, com o curtiu de quem lê. proximo vem nulo quando os dois trechos
+  acabam.
+
+  Como a página é montada
+  - Ritmo: páginas de 12, três posts de seguidos para cada recomendação, nas
+    posições 4, 8 e 12.
+  - Trecho que acaba cede a vez ao outro: quem não segue ninguém vê só
+    recomendações, e o feed só vem vazio se não houver post nenhum. Essa regra
+    está no domínio (Feed.Intercalar), com seis testes unitários.
+  - Seguidos: os posts do próprio leitor e de quem ele segue, do mais novo ao
+    mais antigo, por cursor (criado_em, id) < (…).
+  - Recomendações (D8, opção A): os posts de quem ele não segue, ordenados por
+    md5(semente || id) com o id desempatando, também por cursor. Como você
+    aceitou, essa ordenação varre os candidatos sem índice, e o p95 fica para o
+    passo 13.
+  - Semente: sorteada na primeira página (sem cursor) e levada dentro do cursor.
+    Rolar mantém a ordem; puxar para atualizar começa sessão nova, com outra
+    ordem.
+  - Cursor: opaco. Guarda a semente e onde cada trecho parou, ou se já acabou;
+    adulterado recebe 400 cursor-invalido.
+  - Comparações de texto usam COLLATE "C" na ordem e no cursor, para nunca
+    discordarem por causa da colação do banco.
+  - Leitura dos posts da página: em lote, numa consulta para os posts e outra
+    para as medalhas. PostAsync virou um caso de PostsAsync.
+  - Por papel: o post removido pela instituição não entra. A professora vê os
+    alunos que segue mais recomendações, e a instituição vê só recomendações.
+
+  Testes, todos passando
+  - Domínio, 6 testes: ritmo 3 para 1; só recomendações; só seguidos; cada
+    trecho cedendo a vez ao outro; página curta e página vazia.
+  - Integração, 11 testes:
+    - feed vazio, sem próxima página;
+    - quem não segue ninguém vê os próprios posts e os dos outros;
+    - 35 posts em páginas de 12, 12 e 11, sem repetir nem pular, com as
+      recomendações nas posições 4, 8 e 12 e os seguidos em ordem decrescente;
+    - o mesmo cursor devolve a mesma página, e sessões novas embaralham de novo;
+    - post novo no meio da sessão não desloca as páginas seguintes e aparece
+      primeiro ao puxar para atualizar;
+    - post removido some;
+    - visão da professora e da instituição;
+    - o item do feed é idêntico ao GET do post, com o curtiu de quem lê;
+    - cursor adulterado recebe 400;
+    - o plano do trecho de seguidos usa o índice ix_post_autor_id_criado_em_id.
+  - Bateria completa: 715 testes da API, 317 do app, formatação, build sem aviso
+    e verificar limpos. Não há código de erro novo.
+
+  Três ressalvas, sem esconder nada
+  1. O teste do índice prova que o índice serve, não que o planejador o escolhe 
+     com pouco dado. Com poucos posts o Postgres prefere varrer a tabela, então
+     o teste desliga a varredura (enable_seqscan = off) e confere que o plano
+     usa o índice. Se o planejador o escolhe com volume real é pergunta para o
+     k6 do passo 13.
+  2. Seguir alguém no meio da sessão pode repetir um post. Um post visto como
+     recomendação pode reaparecer no trecho de seguidos mais adiante na mesma
+     sessão. Deixar de seguir tem o efeito inverso: um post pode sumir da
+     sessão. Puxar para atualizar resolve. Não tratei porque exigiria guardar os
+     já vistos, e o feed não tem estado no servidor.
+  3. Ajustes no MundoSocial: as constantes Feed e Grade viraram TamanhoDoFeed e
+     TamanhoDaGrade, porque colidiam com o namespace novo Maxx.Api.Feed. E os
+     testes do feed avançam o relógio de 100 em 100 ms, não de minuto em minuto:
+     um token emitido pelo relógio do teste não pode passar da tolerância de 30
+     s do relógio de verdade.
+
+  Commit proposto: feat(api): adiciona feed por cursor com seguidos e 
+  recomendação por semente
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 6 (perfil, busca e editar perfil na API).
+
+✻ Crunched for 8m 0s · done 23:11
+
+※ recap: Estamos no passo 7 (posts, upload e feed): as etapas 1 a 4 estão commitadas com CI verde, e a etapa 5, o feed por cursor, está pronta e no índice, sem commit. Falta a sua aprovação para eu commitar, fazer o push e seguir para a etapa 6.
