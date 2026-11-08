@@ -9225,3 +9225,786 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
   Posso commitar e fazer o push?
 
 ✻ Cooked for 24m 13s · done 18:00
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt     
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
+
+> Etapa 5 aprovada; capturas conferidas, identidade mantida. A lista recolhida  
+  com "Trocar prêmio" foi um bom ajuste. Os dois acréscimos da API no mesmo     
+  commit estão certos. Commita com a mensagem proposta, push, acompanha a CI e  
+  segue para a etapa 6; no fim dela, para para a minha revisão com capturas da  
+  tela Comprovações do professor e da folha de reprovar, no claro e no escuro.  
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O commit 12bc2a1 já foi enviado e a CI roda em segundo plano. Agora começo a
+  etapa 6, lendo o menu do perfil, a folha do modal, o MenuDoPost, o chip de
+  filtro e a paginação do feed para reaproveitar.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Desenho da etapa 6 segue a identidade visual, com a rota /comprovacoes, chips
+  por evento, lista paginada, folha de motivo e "Contestar prêmio" no menu do
+  post. Agora começo pelos hooks.
+
+● Write(apps\mobile\src\comprovacoes\api.ts)
+  ⎿  Wrote 143 lines to apps\mobile\src\comprovacoes\api.ts
+       1 import type { components } from "@maxx/api-client";
+       2 import {
+       3   useInfiniteQuery,
+       4   useMutation,
+       5   useQuery,
+       6   useQueryClient,
+       7 } from "@tanstack/react-query";
+       8 
+       9 import { useApiClient } from "../api/ApiClientProvider";
+      10 import { FalhaDaApi } from "../api/FalhaDaApi";
+     … +133 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os padrões batem. Agora a folha de motivo, compartilhada por reprovar e
+  contestar.
+
+● Write(apps\mobile\src\comprovacoes\FolhaDeMotivo.tsx)
+  ⎿  Wrote 124 lines to apps\mobile\src\comprovacoes\FolhaDeMotivo.tsx
+       1 import { useState } from "react";
+       2 import { Modal, Pressable, StyleSheet, Text, View } from "react-
+         native";
+       3 import { useSafeAreaInsets } from "react-native-safe-area-contex
+         t";
+       4 
+       5 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       6 import { Button } from "../components/Button";
+       7 import { TextField } from "../components/TextField";
+       8 import { textStyles } from "../theme/fonts";
+     … +116 lines (ctrl+o to expand)
+
+● Agora o cartão da comprovação e a tela da fila.
+
+● Write(apps\mobile\src\comprovacoes\CartaoDeComprovacao.tsx)
+  ⎿  Wrote 204 lines to
+     apps\mobile\src\comprovacoes\CartaoDeComprovacao.tsx
+       1 import { useState } from "react";
+       2 import { Image, StyleSheet, Text, View } from "react-native";
+       3 
+       4 import { falhaParaTela } from "../api/FalhaDaApi";
+       5 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       6 import { Avatar } from "../components/Avatar";
+       7 import { Button } from "../components/Button";
+       8 import { descreverAutor, tempoDesde } from "../feed/textos";
+       9 import { Medalhao } from "../premios/Medalhao";
+      10 import { rotulosDeTier } from "../premios/rotulos";
+     … +194 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Botão e tela servem. A tela segue o padrão da Busca: cabeçalho e chips na
+  margem, e a lista ocupando a largura toda, com a foto de ponta a ponta como no
+  feed.
+
+● Write(apps\mobile\src\comprovacoes\ComprovacoesScreen.tsx)
+  ⎿  Wrote 127 lines to apps\mobile\src\comprovacoes\ComprovacoesScreen.tsx
+      1 import { useState } from "react";
+      2 import {
+      3   ActivityIndicator,
+      4   FlatList,
+      5   ScrollView,
+      6   StyleSheet,
+      7   View,
+      8 } from "react-native";
+      9 import { useSafeAreaInsets } from "react-native-safe-area-context
+        ";
+     … +118 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && printf
+      'import { ComprovacoesScreen } from "../../comprovacoes/Comprovaco…)
+  ⎿  13:  professor: boolean;
+     19:// professor e a saída. Folha que sobe de baixo, como as do Instagr
+     am.
+     … +2 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\src\app\(app)\comprovacoes.tsx (+3 -0)
+      1 +import { ComprovacoesScreen } from "../../comprovacoes/Comprovac
+        +oesScreen";                                                     
+      2 +                                                                
+      3 +export default ComprovacoesScreen;                              
+
+● O layout do grupo é um Stack sem telas declaradas, então a rota entra sozinha.
+  Ponho "Comprovações" no menu do perfil, logo depois de "Minhas turmas".
+● Update(apps\mobile\src\perfil\MenuDoPerfil.tsx)
+  ⎿  Added 10 lines
+      64                }}
+      65              />
+      66            )}
+      67 +          {professor && (                                      
+      68 +            <Button                                            
+      69 +              label="Comprovações"                             
+      70 +              variant="secondary"                              
+      71 +              onPress={() => {                                 
+      72 +                onFechar();                                    
+      73 +                router.push("/comprovacoes");                  
+      74 +              }}                                               
+      75 +            />                                                 
+      76 +          )}                                                   
+      77            <Button
+      78              label="Sair"
+      79              variant="secondary"
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -n 17,20p apps/mobile/src/perfil/MenuDoPerfil.tsx; npx prettier
+      --write apps/mobile/s…)
+  ⎿  // O menu do próprio perfil (o "≡" da prancheta): o lugar definitivo d
+     o tema (decisoes,
+     // Design system: o controle saiu da tela de status para cá no passo 7
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\comprovacoes\CartaoDeComprovacao.tsx (+1 -5)
+      12  import { fontFamily, textStyles } from "../theme/fonts";
+      13  import { useTheme } from "../theme/ThemeProvider";
+      14  import { espacamento, raios, tiers, type Tier } from "../theme/
+          tokens";
+      15 -import {                                                       
+      16 -  useAprovar,                                                  
+      17 -  useReprovar,                                                 
+      18 -  type ComprovacaoNaFila,                                      
+      19 -} from "./api";                                                
+      15 +import { useAprovar, useReprovar, type ComprovacaoNaFila } from
+         + "./api";                                                      
+      16  import { FolhaDeMotivo } from "./FolhaDeMotivo";
+      17  
+      18  // Uma comprovação pendente na fila (produto.md 4.7): quem reiv
+          indicou, com curso e as
+  ⎿  Updated apps\mobile\src\comprovacoes\ComprovacoesScreen.tsx (+28 -6)
+      45    ) : (
+      46      <EmptyState
+      47        icon="inbox"
+      48 -      title={eventoId ? "Nada pendente neste evento." : "Nenhum
+         -a comprovação pendente."}                                      
+      48 +      title={                                                  
+      49 +        eventoId                                               
+      50 +          ? "Nada pendente neste evento."                      
+      51 +          : "Nenhuma comprovação pendente."                    
+      52 +      }                                                        
+      53        message="As reivindicações dos seus alunos aparecem aqui,
+           das mais antigas para as mais novas."
+      54      />
+      55    );
+      56  
+      57    if (eu.isSuccess && !aprova) {
+      58      return (
+      55 -      <View style={[styles.fill, { paddingTop: insets.top, back
+         -groundColor: colors.bg }]}>                                    
+      59 +      <View                                                    
+      60 +        style={[                                               
+      61 +          styles.fill,                                         
+      62 +          { paddingTop: insets.top, backgroundColor: colors.bg 
+         +},                                                             
+      63 +        ]}                                                     
+      64 +      >                                                        
+      65          <View style={styles.margem}>
+      66            <Cabecalho titulo="Comprovações" voltarPara="/perfil"
+           />
+      67          </View>
+     ...
+      75    }
+      76  
+      77    return (
+      69 -    <View style={[styles.fill, { paddingTop: insets.top, backgr
+         -oundColor: colors.bg }]}>                                      
+      78 +    <View                                                      
+      79 +      style={[                                                 
+      80 +        styles.fill,                                           
+      81 +        { paddingTop: insets.top, backgroundColor: colors.bg },
+      82 +      ]}                                                       
+      83 +    >                                                          
+      84        <View style={[styles.margem, styles.topo]}>
+      85          <Cabecalho titulo="Comprovações" voltarPara="/perfil" /
+          >
+      86          {(eventos.data?.length ?? 0) > 0 && (
+     ...
+      102                  role="radio"
+      103                  selected={eventoId === evento.id}
+     … 24 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\comprovacoes\FolhaDeMotivo.tsx (+9 -2)
+      76              },
+      77            ]}
+      78          >
+      79 -          <Text role="heading" style={[textStyles.secao, { colo
+         -r: colors.ink }]}>                                             
+      79 +          <Text                                                
+      80 +            role="heading"                                     
+      81 +            style={[textStyles.secao, { color: colors.ink }]}  
+      82 +          >                                                    
+      83              {titulo}
+      84            </Text>
+      85            <Text style={[textStyles.corpo, { color: colors.ink2 
+          }]}>
+     ...
+       95                error={longo ? "O motivo passou de 500 caractere
+           s." : undefined}
+       96              />
+       97              <Text
+       95 -              style={[textStyles.legenda, styles.contador, { c
+          -olor: colors.ink3 }]}                                         
+       98 +              style={[                                        
+       99 +                textStyles.legenda,                           
+      100 +                styles.contador,                              
+      101 +                { color: colors.ink3 },                       
+      102 +              ]}                                              
+      103              >
+      104                {`${tamanho}/500`}
+      105              </Text>
+  ⎿  Updated apps\mobile\src\comprovacoes\api.ts (+1 -3)
+      47    return useQuery({
+      48      queryKey: ["comprovacoes", "eventos"],
+      49      queryFn: async () => {
+      50 -      const { data, error } = await client.GET(                
+      51 -        "/api/v1/comprovacoes/eventos",                        
+      52 -      );                                                       
+      50 +      const { data, error } = await client.GET("/api/v1/comprov
+         +acoes/eventos");                                               
+      51        if (!data) {
+      52          throw FalhaDaApi.doCorpo(error);
+      53        }
+  ⎿  (timeout 5m)
+
+● Tipos limpos. Atualizo o comentário do menu do perfil e passo para o
+  "Contestar prêmio" no "..." do post.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      's|^// professor e a saída. Folha que sobe de baixo, como as do In…)
+  ⎿  81:  const acao: AcaoDoPost | null =
+     82-    leitor?.id === post.autor.id
+     83-      ? "apagar"
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\MenuDoPerfil.tsx (+2 -1)
+      16  
+      17  // O menu do próprio perfil (o "≡" da prancheta): o lugar defin
+          itivo do tema (decisoes,
+      18  // Design system: o controle saiu da tela de status para cá no 
+          passo 7), as turmas do
+      19 -// professor e a saída. Folha que sobe de baixo, como as do Ins
+         -tagram.                                                        
+      19 +// professor, as comprovações dos alunos dele (passo 8, D8) e a
+         + saída. Folha que sobe de                                      
+      20 +// baixo, como as do Instagram.                                
+      21  export function MenuDoPerfil({
+      22    aberto,
+      23    professor,
+
+● Faço o "Contestar prêmio" como um menu próprio: o "..." oferece a ação, e a
+  folha de motivo abre no lugar dele. O MenuDoPost atual, de apagar e remover,
+  fica como está.
+
+● Write(apps\mobile\src\comprovacoes\MenuDeContestacao.tsx)
+  ⎿  Wrote 106 lines to apps\mobile\src\comprovacoes\MenuDeContestacao.tsx
+       1 import { useState } from "react";
+       2 import { Modal, Pressable, StyleSheet, Text, View } from "react-
+         native";
+       3 import { useSafeAreaInsets } from "react-native-safe-area-contex
+         t";
+       4 
+       5 import { falhaParaTela } from "../api/FalhaDaApi";
+       6 import { Button } from "../components/Button";
+       7 import { textStyles } from "../theme/fonts";
+       8 import { useTheme } from "../theme/ThemeProvider";
+     … +98 lines (ctrl+o to expand)
+
+● Agora ligo no cartão do post: o professor vê o "..." quando o prêmio de
+  participação está válido.
+
+● Update(apps\mobile\src\feed\CartaoDePost.tsx)
+  ⎿  Added 7 lines
+      84        : leitor?.papeis.includes("instituicao")
+      85          ? "remover"
+      86          : null;
+      87 +  // O professor contesta prêmio de participação válido (produt
+         +o.md 4.7). O escopo de turma e                                 
+      88 +  // a janela de 15 dias, a API confere.                       
+      89 +  const contesta =                                             
+      90 +    !acao &&                                                   
+      91 +    !!leitor?.papeis.includes("professor") &&                  
+      92 +    post.premio?.tipo === "premioParticipacao" &&              
+      93 +    post.premio.estado === "valido";                           
+      94    // A instituição não curte nem comenta (produto.md 2.1).
+      95    const interage =
+      96      !!leitor &&
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/feed" && sed
+      -i '177s/        {acao \&\& (/        {(acao || contesta) \&\& (…)
+  ⎿            )}
+             </View>
+             {(acao || contesta) && (
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\feed\CartaoDePost.tsx (+1 -1)
+      174              </View>
+      175            )}
+      176          </View>
+      177 -        {acao && (                                            
+      177 +        {(acao || contesta) && (                              
+      178            <Pressable
+      179              role="button"
+      180              accessibilityLabel="Mais opções"
+
+● Update(apps\mobile\src\feed\CartaoDePost.tsx)
+  ⎿  Added 8 lines
+      282            onRemovido?.();
+      283          }}
+      284        />
+      285 +      {contesta && post.premio && (                           
+      286 +        <MenuDeContestacao                                    
+      287 +          premioId={post.premio.id}                           
+      288 +          nomeDoAluno={post.autor.nomeDeExibicao}             
+      289 +          aberto={menuAberto}                                 
+      290 +          onFechar={() => setMenuAberto(false)}               
+      291 +        />                                                    
+      292 +      )}                                                      
+      293      </View>
+      294    );
+      295  }
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's#^import { FaixaPremio } from "../premios/FaixaPremio";#import {
+      MenuDeContestac…)
+  ⎿  Tests:       402 passed, 402 total
+  ⎿  Updated apps\mobile\src\comprovacoes\MenuDeContestacao.tsx (+3 -1)
+      84          explicacao={`A instituição decide. ${nomeDoAluno} vê qu
+          e o prêmio está em averiguação.`}
+      85          confirmar="Contestar"
+      86          enviando={contestar.isPending}
+      87 -        erro={contestar.isError ? falhaParaTela(contestar.error
+         -).mensagem : null}                                             
+      87 +        erro={                                                 
+      88 +          contestar.isError ? falhaParaTela(contestar.error).me
+         +nsagem : null                                                  
+      89 +        }                                                      
+      90          onConfirmar={(motivo) =>
+      91            contestar.mutate({ premioId, motivo }, { onSuccess: f
+          echar })
+      92          }
+  ⎿  Updated apps\mobile\src\feed\CartaoDePost.tsx (+1 -0)
+       5  import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       6  import { Avatar } from "../components/Avatar";
+       7  import { Icon } from "../components/Icon";
+       8 +import { MenuDeContestacao } from "../comprovacoes/MenuDeContes
+         +tacao";                                                        
+       9  import { FaixaPremio } from "../premios/FaixaPremio";
+      10  import { MarcaDeEstado, temMarca } from "../premiosParticipacao
+          /MarcaDeEstado";
+      11  import { descreverPremio } from "../premiosParticipacao/textos"
+          ;
+  ⎿  (timeout 10m)
+
+● Tipos, lint e os 402 testes passam. Agora os testes da fila, da folha de
+  reprovar, da contestação e do menu.
+
+● Write(apps\mobile\src\comprovacoes\comprovacoes.test.tsx)
+  ⎿  Wrote 291 lines to apps\mobile\src\comprovacoes\comprovacoes.test.tsx
+       1 import { act, fireEvent, screen, within } from "@testing-library
+         /react-native";
+       2 
+       3 import type { Post } from "../feed/api";
+       4 import { CartaoDePost } from "../feed/CartaoDePost";
+       5 import { MenuDoPerfil } from "../perfil/MenuDoPerfil";
+       6 import { json, renderComApi } from "../test/renderComApi";
+       7 import { ComprovacoesScreen } from "./ComprovacoesScreen";
+       8 
+       9 const mockRoteador = {
+     … +282 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src/comprovacoes >/dev/null; grep -n
+      "role=\"alert\"\|ro…)
+  ⎿  13:    <View role="alert" aria-live="polite" accessible style={styles.
+     linha}>
+       ● fila de comprovações do professor › reprovar abre a folha, exige o
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\comprovacoes\comprovacoes.test.tsx (+142 -35)
+      54        digitado: false,
+      55      },
+      56      materia: null,
+      57 -    foto: { feed: "http://cdn.test/feed.jpg", grade: "http://cd
+         -n.test/grade.jpg" },                                           
+      57 +    foto: {                                                    
+      58 +      feed: "http://cdn.test/feed.jpg",                        
+      59 +      grade: "http://cdn.test/grade.jpg",                      
+      60 +    },                                                         
+      61      legenda: "Na semana acadêmica.",
+      62      reivindicadaEm: new Date().toISOString(),
+      63      passouDoPrazo: false,
+     ...
+       95        proximo: null,
+       96      }),
+       97    );
+       95 -  aprovacao = jest.fn(async (_pedido: Request) => new Response
+          -(null, { status: 204 }));                                     
+       96 -  reprovacao = jest.fn(async (_pedido: Request) => new Respons
+          -e(null, { status: 204 }));                                    
+       98 +  aprovacao = jest.fn(                                        
+       99 +    async (_pedido: Request) => new Response(null, { status: 2
+          +04 }),                                                        
+      100 +  );                                                          
+      101 +  reprovacao = jest.fn(                                       
+      102 +    async (_pedido: Request) => new Response(null, { status: 2
+          +04 }),                                                        
+      103 +  );                                                          
+      104    contestacao = jest.fn(async (_pedido: Request) =>
+       98 -    json(201, { id: "k1", premioId: "p1", contestadaEm: new Da
+          -te().toISOString() }),                                        
+      105 +    json(201, {                                               
+      106 +      id: "k1",                                               
+      107 +      premioId: "p1",                                         
+      108 +      contestadaEm: new Date().toISOString(),                 
+      109 +    }),                                                       
+      110    );
+      111    api = jest.fn(async (pedido: Request) => {
+      112      const caminho = new URL(pedido.url).pathname;
+     ...
+      114      if (caminho === "/api/v1/comprovacoes") return fila(pedido
+           );
+      115      if (caminho === "/api/v1/comprovacoes/eventos")
+      116        return json(200, [
+      106 -        { id: SEMANA, nome: "Semana Acadêmica de Computação", 
+          -inicio: "2026-09-14", pendentes: 1 },                         
+      107 -        { id: "livre", nome: "Palestra de LGPD", inicio: "2026
+          --11-03", pendentes: 1 },                                      
+      117 +        {                                                     
+      118 +          id: SEMANA,                                         
+      119 +          nome: "Semana Acadêmica de Computação",             
+     … 258 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os testes existentes não buscam a folha pelo papel dialog. Dou à folha um
+  testID e busco por ele.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/comprovacoes"
+      && sed -i 's/^          role="dialog"$/          testID="folha-…)
+  ⎿  67:          testID="folha-de-motivo"
+     4
+     Tests:       12 passed, 12 total
+  ⎿  Updated apps\mobile\src\comprovacoes\FolhaDeMotivo.tsx (+1 -0)
+      64            onPress={fechar}
+      65          />
+      66          <View
+      67 +          testID="folha-de-motivo"                             
+      68            role="dialog"
+      69            aria-modal
+      70            accessibilityLabel={titulo}
+  ⎿  Updated apps\mobile\src\comprovacoes\comprovacoes.test.tsx (+4 -12)
+      200      await renderComApi(<ComprovacoesScreen />, api);
+      201  
+      202      await apertar("Reprovar a comprovação de Ana");
+      203 -    const folha = await screen.findByRole("dialog", {         
+      204 -      name: "Reprovar comprovação",                           
+      205 -    });                                                       
+      203 +    const folha = await screen.findByTestId("folha-de-motivo")
+          +;                                                             
+      204      expect(
+      205        within(folha).getByRole("button", { name: "Reprovar" }),
+      206      ).toBeDisabled();
+     ...
+      229      await renderComApi(<ComprovacoesScreen />, api);
+      230  
+      231      await apertar("Reprovar a comprovação de Ana");
+      234 -    const folha = await screen.findByRole("dialog", {         
+      235 -      name: "Reprovar comprovação",                           
+      236 -    });                                                       
+      232 +    const folha = await screen.findByTestId("folha-de-motivo")
+          +;                                                             
+      233      await act(async () => {
+      234        fireEvent.changeText(within(folha).getByLabelText("Motiv
+           o"), "Não.");
+      235      });
+     ...
+      322  
+      323      await apertar("Mais opções");
+      324      await apertar("Contestar prêmio");
+      329 -    const folha = await screen.findByRole("dialog", {         
+      330 -      name: "Contestar prêmio",                               
+      331 -    });                                                       
+      325 +    const folha = await screen.findByTestId("folha-de-motivo")
+          +;                                                             
+      326      await act(async () => {
+      327        fireEvent.changeText(
+      328          within(folha).getByLabelText("Motivo"),
+     ...
+      354  
+      355      await apertar("Mais opções");
+      356      await apertar("Contestar prêmio");
+      363 -    const folha = await screen.findByRole("dialog", {         
+      364 -      name: "Contestar prêmio",                               
+      365 -    });                                                       
+      357 +    const folha = await screen.findByTestId("folha-de-motivo")
+          +;                                                             
+      358      await act(async () => {
+      359        fireEvent.changeText(
+      360          within(folha).getByLabelText("Motivo"),
+  ⎿  (timeout 10m)
+
+● Os 12 passam. Rodo o job do app inteiro e depois reconstruo o build web para
+  as capturas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou escrever o spec temporário das capturas da etapa 6, com três
+  reivindicações de alunos da professora. A mais antiga recebe uma data de 8
+  dias atrás no banco para que a marca apareça.
+
+● Write(e2e\tests\_capturas.spec.ts)
+  ⎿  Wrote 129 lines to e2e\tests\_capturas.spec.ts
+      1 // TEMPORÁRIO, fora do commit: capturas da etapa 6 do passo 8 par
+        a a revisão do autor.
+      2 import { readFileSync, writeFileSync } from "node:fs";
+      3 
+      4 import { expect, test, type APIRequestContext, type Page } from "
+        @playwright/test";
+      5 
+      6 import { novaConta, sql } from "./apoio/contas";
+      7 import { matricular, novaProfessora } from "./apoio/medalhas";
+      8 
+     … +121 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O botão "Reprovar" encontrou vários cartões, pois a turma compartilhada já tem
+  reivindicações pendentes de execuções anteriores. Vou clicar no primeiro, o
+  da Ana, que é o mais antigo, com 8 dias.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/  await page.getByRole("button", { name: "Reprovar a comprovação
+      de Ana Souza"…)
+  ⎿    2 passed (22.0s)
+  ⎿  Updated e2e\tests\_capturas.spec.ts (+1 -1)
+      122    await page.screenshot({ path: `${SAIDA}/comprovacoes-${tema}
+           .png` });
+      123  
+      124    await page.setViewportSize({ width: 390, height: 844 });
+      125 -  await page.getByRole("button", { name: "Reprovar a comprovaç
+          -ão de Ana Souza" }).click();                                  
+      125 +  await primeira.getByRole("button", { name: "Reprovar a compr
+          +ovação de Ana Souza" }).click();                              
+      126    const folha = page.getByTestId("folha-de-motivo");
+      127    await folha.getByLabel("Motivo").fill("A foto não mostra a s
+           emana acadêmica. Mande outra, com o crachá ou o palco.");
+      128    await page.screenshot({ path: `${SAIDA}/folha-reprovar-${tem
+           a}.png` });
+  ⎿  (timeout 10m)
+
+  Read 4 files (ctrl+o to expand)
+
+● Dois ajustes nas capturas, nenhum no app: espero a animação da folha de
+  reprovar terminar, e o spec limpa as reivindicações pendentes de execuções
+  anteriores antes de criar as suas.
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=e2e/tests/_capturas.spec.ts && sed -i 's|^  const professora = await
+      novaProfessora(req…)
+  ⎿  67:  sql("DELETE FROM comprovacao WHERE premio_participacao_id IN (SEL
+     ECT id FROM premio_participacao WHERE estado = 'reivindicado');");
+     68:  sql("DELETE FROM post WHERE premio_participacao_id IN (SELECT id
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\_capturas.spec.ts (+6 -0)
+      63  test("capturas da fila de comprovações", { tag: "@celular" }, a
+          sync ({ page, request }, info) => {
+      64    test.setTimeout(180_000);
+      65    const tema = info.project.name.replace("celular-", "");
+      66 +  // Só para a captura, no banco local: tira as pendentes de ex
+         +ecuções anteriores.                                            
+      67 +  sql("DELETE FROM comprovacao WHERE premio_participacao_id IN 
+         +(SELECT id FROM premio_participacao WHERE estado = 'reivindicad
+         +o');");                                                        
+      68 +  sql("DELETE FROM post WHERE premio_participacao_id IN (SELECT
+         + id FROM premio_participacao WHERE estado = 'reivindicado');");
+      69 +  sql("DELETE FROM premio_participacao WHERE estado = 'reivindi
+         +cado';");                                                      
+      70    const professora = await novaProfessora(request);
+      71    const ana = await novaConta(request, "Ana Souza");
+      72    const bruno = await novaConta(request, "Bruno Lima");
+     ...
+      128    await page.setViewportSize({ width: 390, height: 844 });
+      129    await primeira.getByRole("button", { name: "Reprovar a compr
+           ovação de Ana Souza" }).click();
+      130    const folha = page.getByTestId("folha-de-motivo");
+      131 +  await expect(folha).toBeVisible();                          
+      132 +  await page.waitForTimeout(1000);                            
+      133    await folha.getByLabel("Motivo").fill("A foto não mostra a s
+           emana acadêmica. Mande outra, com o crachá ou o palco.");
+      134    await page.screenshot({ path: `${SAIDA}/folha-reprovar-${tem
+           a}.png` });
+      135  });
+  ⎿  (timeout 10m)
+
+● Cada tema rodou em separado, e cada um limpou antes de criar as suas. Confiro
+  as quatro capturas.
+
+  Read 4 files (ctrl+o to expand)
+
+● As quatro capturas estão boas. Apago o spec temporário e confiro o que mudou.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      e2e/tests/_capturas.spec.ts && git status --short --untracked-files=all;
+      npx prettier…)
+  ⎿   M apps/mobile/src/feed/CartaoDePost.tsx
+      M apps/mobile/src/perfil/MenuDoPerfil.tsx
+     ?? apps/mobile/src/app/(app)/comprovacoes.tsx
+     … +7 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\tests\_capturas.spec.ts (+0 -135)
+        1 -// TEMPORÁRIO, fora do commit: capturas da etapa 6 do passo 8 
+          -para a revisão do autor.                                      
+        2 -import { readFileSync, writeFileSync } from "node:fs";        
+        3 -                                                              
+        4 -import { expect, test, type APIRequestContext, type Page } fro
+          -m "@playwright/test";                                         
+        5 -                                                              
+        6 -import { novaConta, sql } from "./apoio/contas";              
+        7 -import { matricular, novaProfessora } from "./apoio/medalhas";
+        8 -                                                              
+        9 -const SAIDA = process.env.CAPTURAS!;                          
+       10 -                                                              
+       11 -async function foto(page: Page, caminho: string, lado: number,
+          - cor: string) {                                               
+       12 -  await page.setContent(`<canvas id=c width=${lado} height=${l
+          -ado}></canvas>`);                                             
+       13 -  const base64 = await page.evaluate(                         
+       14 -    ({ lado, cor }) => {                                      
+       15 -      const canvas = document.getElementById("c") as HTMLCanva
+          -sElement;                                                     
+       16 -      const contexto = canvas.getContext("2d")!;              
+       17 -      const ceu = contexto.createLinearGradient(0, 0, 0, lado)
+          -;                                                             
+       18 -      ceu.addColorStop(0, cor);                               
+       19 -      ceu.addColorStop(1, "#0b2a55");                         
+       20 -      contexto.fillStyle = ceu;                               
+       21 -      contexto.fillRect(0, 0, lado, lado);                    
+       22 -      contexto.fillStyle = "#f5b400";                         
+       23 -      contexto.beginPath();                                   
+       24 -      contexto.arc(lado / 2, lado / 2, lado / 5, 0, Math.PI * 
+          -2);                                                           
+       25 -      contexto.fill();                                        
+       26 -      return canvas.toDataURL("image/jpeg", 0.85).split(",")[1
+          -];                                                            
+       27 -    },                                                        
+       28 -    { lado, cor },                                            
+       29 -  );                                                          
+       30 -  writeFileSync(caminho, Buffer.from(base64!, "base64"));     
+       31 -}                                                             
+       32 -                                                              
+       33 -async function token(request: APIRequestContext, identificador
+          -: string, senha: string) {                                    
+       34 -  const resposta = await request.post("/api/v1/auth/login", { 
+          -data: { identificador, senha } });                            
+       35 -  expect(resposta.status()).toBe(200);                        
+       36 -  return (await resposta.json()).accessToken as string;       
+       37 -}                                                             
+       38 -                                                              
+       39 -const comToken = (t: string) => ({ Authorization: `Bearer ${t}
+          -` });                                                         
+       40 -                                                              
+     … 95 more lines (ctrl+o to expand)
+
+● Esta etapa só mexeu no app, então a suíte .NET não precisa rodar de novo; o
+  job do app passou, com 414 testes. Confiro a CI da etapa 5.
+
+  Read 1 file (ctrl+o to expand)
+
+● Background command "Watch stage 5 CI" completed (exit code 0)
+
+● Etapa 6 pronta para a sua revisão (ainda sem commit)
+
+  A etapa 5 está pronta: a CI do 12bc2a1 passou nos seis jobs.
+
+  Capturas, claro e escuro
+
+  Tiradas no build web servido pelo Caddy, com 390 de largura. Abri e conferi
+  cada uma.
+
+  ┌───────────────────┬──────────────────────────┬───────────────────────────┐
+  │       Tela        │          Claro           │          Escuro           │
+  ├───────────────────┼──────────────────────────┼───────────────────────────┤
+  │ Comprovações do   │ comprovacoes-claro.png   │ comprovacoes-escuro.png   │
+  │ professor         │                          │                           │
+  ├───────────────────┼──────────────────────────┼───────────────────────────┤
+  │ Folha de          │                          │                           │
+  │ reprovar, com     │ folha-reprovar-claro.png │ folha-reprovar-escuro.png │
+  │ motivo digitado   │                          │                           │
+  └───────────────────┴──────────────────────────┴───────────────────────────┘
+
+  Pasta: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-
+  Documents-Repos-tcc-maxx-engenheiro\eda7b978-0adb-4556-9470-43140c532640\scrat
+  chpad\capturas
+
+  Na fila aparecem três reivindicações de alunos da professora:
+
+  - Ana: semana acadêmica, empurrada para 8 dias atrás no banco local, para a
+    marca aparecer.
+  - Bruno: palestra com evento digitado.
+  - Carla: apresentação em sala.
+
+  Para a captura mostrar só essas três, o spec temporário apagou do banco local
+  as reivindicações pendentes de execuções anteriores, inclusive as da captura
+  da etapa 5. Isso afetou só o compose da sua máquina, que continua de pé. O
+  spec já foi apagado e não entra no commit.
+
+  O que entrou no app
+
+  Tela /comprovacoes
+  - Aberta por "Comprovações" no menu do perfil do professor (D8), ao lado de
+    "Minhas turmas".
+  - No topo, chips "Todos" e um por evento, com quantas pendentes cada um.
+  - Lista paginada por cursor, das mais antigas para as mais novas, com o
+    professor vendo só os alunos dele (a API confere).
+
+  Cartão da comprovação
+  - Aluno, com arroba, curso, semestre e matérias em comum.
+  - Foto, prêmio com tier e pontos, evento com período e, na apresentação em
+    sala, a matéria.
+  - "Evento digitado pelo aluno." quando o evento não veio do seed.
+  - Legenda e "Enviada há X". A marca "Mais de 7 dias" é um chip no fundo
+    highlight com texto ink, sem texto ouro sobre fundo claro.
+  - "Aprovar" e "Reprovar". Se outra pessoa decidiu antes, o cartão mostra
+    "Outra pessoa já decidiu essa comprovação.", e a fila é relida.
+
+  Folha de motivo, compartilhada
+  - Sobe de baixo, como as do Instagram, com motivo de 1 a 500 caracteres e
+    contador.
+  - O botão só se ativa com motivo, e a recusa da API aparece dentro da folha.
+  - Na reprovação, a folha avisa que o aluno vê o motivo e pode tentar de novo
+    com outra foto.
+
+  "Contestar prêmio" no "..." do post
+  - Aparece para o professor quando o prêmio de participação está válido. Escopo
+    e janela, a API confere.
+  - A folha explica que o prêmio vai para averiguação e para de pontuar, e o
+    motivo é obrigatório.
+  - Aluno não vê o menu, e o professor também não vê no prêmio pendente.
+
+  Testes
+
+  - Jest: 414 testes, entre eles 12 novos:
+    - ordem, evento digitado e marca;
+    - filtro por chip;
+    - aprovar e decisão alheia;
+    - reprovar com motivo aparado e com recusa;
+    - estado vazio e aluno barrado;
+    - menu do perfil;
+    - contestar, fora do escopo e quando não aparece.
+  - Job do app local: formatação, lint e tipos limpos.
+  - Nenhuma mudança na API nesta etapa.
+
+  Mensagem de commit proposta
+
+  feat(mobile): adiciona fila de comprovações e contestação do professor
+
+  Posso commitar e fazer o push?
+
+✻ Cooked for 9m 43s · done 18:14
+
+※ recap: Passo 8 (prêmios de participação): as etapas 1 a 5 estão com CI verde, e a etapa 6, a fila de comprovações e a contestação do professor no app, está pronta com as capturas. Falta a sua aprovação para eu commitar e fazer o push. (disable recaps in /config)
