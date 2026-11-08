@@ -5870,3 +5870,1108 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
   para a etapa 7, a primeira do cliente: derivadas, upload e novo post.
 
 ✻ Sautéed for 12m 24s · done 23:28
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Etapa 6 aprovada. A correção do BuscarComPrefixosAsync fica. As quatro        
+  ressalvas ficam registradas, e a do privilégio de CREATE EXTENSION entra na   
+  lista do passo 13 no plano mestre, na etapa 11. Commita com a mensagem        
+  proposta, push, acompanha a CI e segue para a etapa 7; para para a minha      
+  revisão no fim dela, com captura da tela de novo post.                        
+
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● Commit 7940ae5 enviado, CI em segundo plano. Para a etapa 7, a primeira do
+  cliente, estudo os padrões do app: provedor da API, hooks, telas e
+  componentes.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Antes de escrever, instalo as duas bibliotecas de imagem nas versões que o
+  Expo 58 pede, e vejo os ícones e campos que já existem.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx expo
+      install expo-image-picker expo-image-manipulator 2>&1 | tail -4; gre…)
+  ⎿  To address all issues (including breaking changes), run:
+       npm audit fix --force
+     … +35 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\package.json (+2 -0)
+       9      "expo": "~58.0.22",
+      10      "expo-constants": "~58.0.14",
+      11      "expo-font": "~58.0.11",
+      12 +    "expo-image-manipulator": "~58.0.16",                      
+      13 +    "expo-image-picker": "~58.0.10",                           
+      14      "expo-linking": "~58.0.15",
+      15      "expo-router": "~58.0.29",
+      16      "expo-secure-store": "~58.0.2",
+  ⎿  Updated package-lock.json (+37 -0)
+      27          "expo": "~58.0.22",
+      28          "expo-constants": "~58.0.14",
+      29          "expo-font": "~58.0.11",
+      30 +        "expo-image-manipulator": "~58.0.16",                  
+      31 +        "expo-image-picker": "~58.0.10",                       
+      32          "expo-linking": "~58.0.15",
+      33          "expo-router": "~58.0.29",
+      34          "expo-secure-store": "~58.0.2",
+     ...
+      9467          "react-native": "*"
+      9468        }
+      9469      },
+      9470 +    "node_modules/expo-image-loader": {                      
+      9471 +      "version": "58.0.3",                                   
+      9472 +      "resolved": "https://registry.npmjs.org/expo-image-load
+           +er/-/expo-image-loader-58.0.3.tgz",                          
+      9473 +      "integrity": "sha512-zlHudxC8OObyqCHmvdxJqURI7886KJ0cUJ
+           +yn7R/a8FOD9fP837xKDN+u4SIt7XsSSVPNXzMd4Y7mN0pmup8NGA==",     
+      9474 +      "license": "MIT",                                      
+      9475 +      "peerDependencies": {                                  
+      9476 +        "expo": "*"                                          
+      9477 +      }                                                      
+      9478 +    },                                                       
+      9479 +    "node_modules/expo-image-manipulator": {                 
+      9480 +      "version": "58.0.16",                                  
+      9481 +      "resolved": "https://registry.npmjs.org/expo-image-mani
+           +pulator/-/expo-image-manipulator-58.0.16.tgz",               
+      9482 +      "integrity": "sha512-KY4Y4GjyaPuvRrZWQ2qDDPC0+q4xOpz9ry
+           +drK8/jexU+zwCMHsQGalOPjFwZrC0QhvGxfvvG9H/Qwv6Yh9vlOg==",     
+      9483 +      "license": "MIT",                                      
+      9484 +      "dependencies": {                                      
+      9485 +        "expo-image-loader": "~58.0.3"                       
+      9486 +      },                                                     
+      9487 +      "peerDependencies": {                                  
+      9488 +        "expo": "*",                                         
+      9489 +        "react": "*",                                        
+      9490 +        "react-native": "*"                                  
+      9491 +      }                                                      
+      9492 +    },                                                       
+      9493 +    "node_modules/expo-image-picker": {                      
+      9494 +      "version": "58.0.10",                                  
+      9495 +      "resolved": "https://registry.npmjs.org/expo-image-pick
+           +er/-/expo-image-picker-58.0.10.tgz",                         
+      9496 +      "integrity": "sha512-yqQC9UYMWSUxk6U0jaS1vE1w+b9Ru0FJmQ
+           +3KjUf9Q9oVg5xBxmg8+Ts+usazMAuPoskNIXJ++VZ+uK6br9yUGQ==",     
+      9497 +      "license": "MIT",                                      
+      9498 +      "dependencies": {                                      
+     … 9 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Instalei expo-image-manipulator ~58.0.16 e expo-image-picker ~58.0.10. Vou
+  conferir a API do manipulador, o formato do conjunto de ícones e o efeito no
+  npm audit, já que o job de segurança barra vulnerabilidades altas ou críticas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A API ganha o campo postId em cada prêmio de /v1/eu/premios, para a tela de
+  novo post saber quais medalhas ainda estão sem post. Como é só acréscimo, o
+  perfil também poderá ligar o prêmio ao post.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm audit --audit-level=high >/dev/null 2>&1; echo "audit-high=$?"; cd
+      apps/api/src && gr…)
+  ⎿  audit-high=0
+     40:public sealed record PremioObtido(Guid Id, Tier Tier, int Pontos, s
+     tring? Materia, int? Bimestre, DateTimeOffset ObtidoEm);
+         0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Api\Premios\PremiosEndpoints.cs (+9 -2)
+      52                      ? new RaridadeResponse(ProfessorEndpoints.N
+          ome(raridade.Nivel), raridade.Percentual)
+      53                      : null,
+      54                  [.. item.Obtidos.Select(obtido => new PremioObt
+          idoResponse(
+      55 -                    obtido.Id, ProfessorEndpoints.Nome(obtido.T
+         -ier), obtido.Pontos, obtido.Materia, obtido.Bimestre, obtido.Ob
+         -tidoEm))]))]);                                                 
+      55 +                    obtido.Id,                                 
+      56 +                    ProfessorEndpoints.Nome(obtido.Tier),      
+      57 +                    obtido.Pontos,                             
+      58 +                    obtido.Materia,                            
+      59 +                    obtido.Bimestre,                           
+      60 +                    obtido.ObtidoEm,                           
+      61 +                    obtido.PostId))]))]);                      
+      62  }
+      63  
+      64  public sealed record PremiosDoAlunoResponse(int Pontos, IReadOn
+          lyList<FamiliaResponse> Familias, IReadOnlyList<ItemDoAlunoResp
+          onse> Itens);
+     ...
+      82  // Percentual dos alunos que têm o item, com uma casa: "x% dos 
+          alunos".
+      83  public sealed record RaridadeResponse(string Nivel, double Perc
+          entual);
+      84  
+      79 -public sealed record PremioObtidoResponse(Guid Id, string Tier,
+         - int Pontos, string? Materia, int? Bimestre, DateTimeOffset Obt
+         -idoEm);                                                        
+      85 +// PostId entrou no passo 7: o post que o prêmio rendeu, para o
+         + app não oferecer de novo.                                     
+      86 +public sealed record PremioObtidoResponse(Guid Id, string Tier,
+         + int Pontos, string? Materia, int? Bimestre, DateTimeOffset Obt
+         +idoEm, Guid? PostId);                                          
+  ⎿  Updated apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs (+2
+     -1)
+      37  }
+      38  
+      39  // Tier e pontos do momento da concessão (ADR 0007), que podem 
+          diferir do catálogo de hoje.
+      40 -public sealed record PremioObtido(Guid Id, Tier Tier, int Ponto
+         -s, string? Materia, int? Bimestre, DateTimeOffset ObtidoEm);   
+      40 +// PostId: o post não removido que o prêmio rendeu, se houver (
+         +um prêmio rende um post).                                      
+      41 +public sealed record PremioObtido(Guid Id, Tier Tier, int Ponto
+         +s, string? Materia, int? Bimestre, DateTimeOffset ObtidoEm, Gui
+         +d? PostId);                                                    
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+13 -2)
+      3  using Maxx.Domain.Catalogo;
+      4  using Maxx.Domain.Identidade;
+      5  using Maxx.Domain.Premios;
+      6 +using Maxx.Domain.Social;                                       
+      7  using Maxx.Infrastructure.Persistence;
+      8  using Maxx.Infrastructure.RaridadeDosItens;
+      9  using Maxx.Infrastructure.Seed;
+     ...
+      33                  join bimestre in db.Set<Bimestre>() on medalha.
+          BimestreId equals bimestre.Id
+      34                  where medalha.AlunoId == alunoId && medalha.Anu
+          ladaEm == null
+      35                  orderby medalha.ConcedidaEm descending
+      35 -                select new { medalha.Id, medalha.ItemCodigo, me
+         -dalha.Tier, medalha.Pontos, Materia = materia.Nome, bimestre.Nu
+         -mero, medalha.ConcedidaEm })                                   
+      36 +                select new                                     
+      37 +                {                                              
+      38 +                    medalha.Id,                                
+      39 +                    medalha.ItemCodigo,                        
+      40 +                    medalha.Tier,                              
+      41 +                    medalha.Pontos,                            
+      42 +                    Materia = materia.Nome,                    
+      43 +                    bimestre.Numero,                           
+      44 +                    medalha.ConcedidaEm,                       
+      45 +                    PostId = db.Set<Post>().Where(post => post.
+         +MedalhaId == medalha.Id && post.RemovidoEm == null).Select(post
+         + => (Guid?)post.Id).FirstOrDefault(),                          
+      46 +                })                                             
+      47              .ToListAsync(cancellationToken);
+      48          var obtidos = medalhas.ToLookup(
+      49              medalha => medalha.ItemCodigo,
+      39 -            medalha => new PremioObtido(medalha.Id, medalha.Tie
+         -r, medalha.Pontos, medalha.Materia, medalha.Numero, medalha.Con
+         -cedidaEm));                                                    
+      50 +            medalha => new PremioObtido(medalha.Id, medalha.Tie
+         +r, medalha.Pontos, medalha.Materia, medalha.Numero, medalha.Con
+         +cedidaEm, medalha.PostId));                                    
+      51  
+      52          var raridades = await db.Set<RaridadeDoItemRow>().AsNoT
+          racking()
+      53              .ToDictionaryAsync(linha => linha.ItemCodigo, cance
+          llationToken);
+  ⎿  (timeout 10m)
+
+● Acrescento ao teste "autor apaga o post" a conferência de que o postId aparece
+  no prêmio e some quando o post é apagado.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Social" && perl -0pi -e 's/(        var
+      chave = Asse…)
+  ⎿      0 Erro(s)
+       total: 1
+       falhou: 0
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PostTests.cs
+     (+8 -0)
+      206          var post = await PublicadoAsync(ana, "Nota 10!", (awai
+           t FotoEnviadaAsync(ana)).Id, medalha);
+      207          var chave = Assert.Single(await mundo.LinhasAsync<Post
+           >()).ChaveDaFotoDoFeed!;
+      208  
+      209 +        // O prêmio aponta para o post que rendeu, e deixa de 
+          +apontar quando ele sai.                                       
+      210 +        Assert.Equal(post.Id, await PostDoPremioAsync(ana, med
+          +alha));                                                       
+      211 +                                                              
+      212          Assert.Equal(HttpStatusCode.NoContent, (await RemoverA
+           sync(ana, post.Id)).StatusCode);
+      213 +        Assert.Null(await PostDoPremioAsync(ana, medalha));   
+      214  
+      215          Assert.Empty(await mundo.LinhasAsync<Post>());
+      216          await AssertRecusaAsync(await ana.GetAsync(new Uri($"/
+           api/v1/posts/{post.Id}", UriKind.Relative), Ct), HttpStatusCod
+           e.NotFound, "post-nao-encontrado");
+     ...
+      290          return (await resposta.Content.ReadFromJsonAsync<PostR
+           esponse>(Ct))!;
+      291      }
+      292  
+      293 +    private static async Task<Guid?> PostDoPremioAsync(HttpCli
+          +ent client, Guid medalha) =>                                  
+      294 +        (await client.GetFromJsonAsync<Premios.PremiosDoAlunoR
+          +esponse>("/api/v1/eu/premios", Ct))!                          
+      295 +            .Itens.SelectMany(item => item.Obtidos).Single(obt
+          +ido => obtido.Id == medalha).PostId;                          
+      296 +                                                              
+      297      private static Task<HttpResponseMessage> RemoverAsync(Http
+           Client client, Guid post) =>
+      298          client.DeleteAsync(new Uri($"/api/v1/posts/{post}", Ur
+           iKind.Relative), Ct);
+      299  }
+  ⎿  (timeout 10m)
+
+● O postId funciona. Agora o cliente. Regenero o cliente da API e leio os
+  componentes que a tela vai usar.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client >/dev/null 2>&1; cd apps/mobile/src &&
+      sed -n 47,140p c…)
+  ⎿    // Exceção registrada à regra do `like` só em ícone: a borda do camp
+     o com erro também é
+       // `like`, para o erro aparecer no próprio campo. O texto do erro fi
+     … +205 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+9 -1)
+      2937            "pontos",
+      2938            "materia",
+      2939            "bimestre",
+      2940 -          "obtidoEm"                                         
+      2940 +          "obtidoEm",                                        
+      2941 +          "postId"                                           
+      2942          ],
+      2943          "type": "object",
+      2944          "properties": {
+     ...
+      2969            "obtidoEm": {
+      2970              "type": "string",
+      2971              "format": "date-time"
+      2972 +          },                                                 
+      2973 +          "postId": {                                        
+      2974 +            "type": [                                        
+      2975 +              "null",                                        
+      2976 +              "string"                                       
+      2977 +            ],                                               
+      2978 +            "format": "uuid"                                 
+      2979            }
+      2980          }
+      2981        },
+  ⎿  Updated packages\api-client\src\schema.d.ts (+2 -0)
+      804              bimestre: null | number;
+      805              /** Format: date-time */
+      806              obtidoEm: string;
+      807 +            /** Format: uuid */                               
+      808 +            postId: null | string;                            
+      809          };
+      810          PremiosDoAlunoResponse: {
+      811              /** Format: int32 */
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O TextField tem altura fixa. Acrescento a ele o suporte a multiline para a
+  legenda, com altura mínima maior e texto alinhado no topo, e adiciono os
+  ícones imagem e novo do Lucide.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/components" &&
+      perl -0pi -e 's/(  inbox: \[)/  \/\/ image do Lucide: a moldur…)
+  ⎿  127:  imagem: [
+     133:  novo: [
+     138:  inbox: [
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\Icon.tsx (+12 -0)
+      123      { d: "M18 6 6 18", modo: "aberto" },
+      124      { d: "m6 6 12 12", modo: "aberto" },
+      125    ],
+      126 +  // image do Lucide: a moldura vira massa no preenchido, sol 
+          +e montanha são desenho interno.                               
+      127 +  imagem: [                                                   
+      128 +    { x: 3, y: 3, width: 18, height: 18, rx: 2 },             
+      129 +    { cx: 9, cy: 9, r: 2, modo: "detalhe" },                  
+      130 +    { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", modo: "d
+          +etalhe" },                                                    
+      131 +  ],                                                          
+      132 +  // square-plus do Lucide: o "+" do cabeçalho do feed, que ab
+          +re o novo post.                                               
+      133 +  novo: [                                                     
+      134 +    { x: 3, y: 3, width: 18, height: 18, rx: 2 },             
+      135 +    { d: "M8 12h8", modo: "detalhe" },                        
+      136 +    { d: "M12 8v8", modo: "detalhe" },                        
+      137 +  ],                                                          
+      138    inbox: [
+      139      {
+      140        d: "M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l
+           -3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",
+  ⎿  Updated apps\mobile\src\components\TextField.tsx (+10 -0)
+      59          testID="campo-caixa"
+      60          style={[
+      61            styles.caixa,
+      62 +          input.multiline && styles.caixaDeVariasLinhas,       
+      63            {
+      64              borderWidth: borda,
+      65              borderColor: corDaBorda,
+     ...
+      90            }}
+      91            style={[
+      92              styles.entrada,
+      93 +            input.multiline && styles.entradaDeVariasLinhas,   
+      94              noOutline,
+      95              { color: disabled ? colors.ink3 : colors.ink },
+      96            ]}
+     ...
+      175      flexDirection: "row",
+      176      alignItems: "center",
+      177    },
+      178 +  // Legenda e comentário: cresce para baixo, com o texto come
+          +çando no topo.                                                
+      179 +  caixaDeVariasLinhas: { height: undefined, minHeight: 96, ali
+          +gnItems: "stretch" },                                         
+      180 +  entradaDeVariasLinhas: {                                    
+      181 +    height: undefined,                                        
+      182 +    minHeight: 96,                                            
+      183 +    paddingVertical: 12,                                      
+      184 +    textAlignVertical: "top",                                 
+      185 +  },                                                          
+      186    // 16 fora da escala: abaixo disso, o Safari do iPhone dá zo
+           om na tela ao focar o campo.
+      187    entrada: {
+      188      flex: 1,
+
+● Agora o módulo de fotos: escolher a imagem, gerar as duas derivadas (recorte
+  quadrado central, JPEG) e enviar direto ao bucket pelas URLs assinadas.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Write(apps\mobile\src\fotos\derivadas.ts)
+  ⎿  Wrote 82 lines to apps\mobile\src\fotos\derivadas.ts
+       1 import { ImageManipulator, SaveFormat } from "expo-image-manipul
+         ator";
+       2 
+       3 // As duas derivadas que o app gera antes de subir a foto (ADR 0
+         003): a do feed, em largura
+       4 // total, e a da grade de três colunas do perfil. Reencodar aqui
+          também endireita a
+       5 // orientação da câmera e tira o metadado de localização: o GPS 
+         da foto não chega ao bucket.
+       6 // Os limites são os da API (UploadPendente); a assinatura do bu
+     … +77 lines (~2 KB) (ctrl+o to expand)
+
+● Write(apps\mobile\src\fotos\envio.ts)
+  ⎿  Wrote 60 lines to apps\mobile\src\fotos\envio.ts
+       1 import type { ApiClient } from "@maxx/api-client";
+       2 import * as ImagePicker from "expo-image-picker";
+       3 
+       4 import { FalhaDaApi } from "../api/FalhaDaApi";
+       5 import { TIPO_DA_FOTO, type Derivadas, type FotoEscolhida } from
+          "./derivadas";
+       6 
+       7 export type Finalidade = "post" | "fotoDePerfil";
+       8 
+       9 // A galeria do aparelho, ou o seletor de arquivo na web. Sem ed
+     … +52 lines (~2 KB) (ctrl+o to expand)
+
+● Agora a camada de dados da tela: as medalhas sem post (a partir de
+  /v1/eu/premios) e a publicação, que envia a foto quando há uma. Antes, vejo o
+  hook de prêmios que a tela de Troféus já usa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\mobile\src\posts\api.ts)
+  ⎿  Wrote 103 lines to apps\mobile\src\posts\api.ts
+      1 import { useMutation, useQueryClient } from "@tanstack/react-quer
+        y";
+      2 import { useRef } from "react";
+      3 
+      4 import { useApiClient } from "../api/ApiClientProvider";
+      5 import { FalhaDaApi } from "../api/FalhaDaApi";
+      6 import type { Derivadas } from "../fotos/derivadas";
+      7 import { enviarFoto } from "../fotos/envio";
+      8 import { usePremios } from "../trofeus/usePremios";
+      9 import type { Tier } from "../theme/tokens";
+     … +94 lines (ctrl+o to expand)
+
+● Agora a tela de novo post.
+
+● Write(apps\mobile\src\posts\NovoPostScreen.tsx)  ⎿  Wrote 318 lines to apps\mobile\src\posts\NovoPostScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   Image,
+       6   Pressable,
+       7   StyleSheet,
+       8   Text,
+       9   View,
+      10 } from "react-native";
+     … +308 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -n 43,56p
+      src/theme/tokens.ts; printf '%s\n' 'import { NovoPostScreen } f…)
+  ⎿  export const raios = {
+       filtros: 8,
+       campos: 8,
+     … +21 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\src\app\(app)\novo-post.tsx (+3 -0)
+      1 +import { NovoPostScreen } from "../../posts/NovoPostScreen";    
+      2 +                                                                
+      3 +export default NovoPostScreen;                                  
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i
+      's/raios\.cartao/raios.cardMenor/g' src/posts/NovoPostScreen.tsx && se…)
+  ⎿    ],
+       itens: [
+         item({
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\posts\NovoPostScreen.tsx (+2 -2)
+      291    foto: {
+      292      width: "100%",
+      293      aspectRatio: 1,
+      294 -    borderRadius: raios.cartao,                               
+      294 +    borderRadius: raios.cardMenor,                            
+      295      borderWidth: 1,
+      296      overflow: "hidden",
+      297      alignItems: "center",
+     ...
+      311      gap: 12,
+      312      padding: 12,
+      313      borderWidth: 1,
+      314 -    borderRadius: raios.cartao,                               
+      314 +    borderRadius: raios.cardMenor,                            
+      315    },
+      316    textoDoPremio: { flex: 1, gap: 2 },
+      317    pressionado: { opacity: 0.85 },
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i '42s|
+      obtidoEm: "2026-11-10T13:00:00Z",|&\n  postId: null,|' src/trof…)
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+1 -0)
+      40    materia,
+      41    bimestre,
+      42    obtidoEm: "2026-11-10T13:00:00Z",
+      43 +  postId: null,                                                
+      44  });
+      45  
+      46  const PREMIOS: PremiosDoAluno = {
+  ⎿  (timeout 5m)
+
+● Typecheck e lint estão limpos. Vou agora criar a entrada provisória do novo
+  post, o plugin do seletor de imagens no app.json e os testes, depois de ver
+  como os testes atuais montam a API simulada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && perl -0pi -e
+      's/(        \{eu\.isSuccess && eu\.data\.papeis\.includes\("prof…)
+  ⎿  45:        "expo-image-picker",
+     46-        {
+     47-          "photosPermission": "O Maxx usa as fotos que você escolhe
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\app.json (+9 -1)
+      40            }
+      41          }
+      42        ],
+      43 -      "expo-secure-store"                                      
+      43 +      "expo-secure-store",                                     
+      44 +      [                                                        
+      45 +        "expo-image-picker",                                   
+      46 +        {                                                      
+      47 +          "photosPermission": "O Maxx usa as fotos que você esc
+         +olher para os posts e a foto de perfil.",                      
+      48 +          "cameraPermission": false,                           
+      49 +          "microphonePermission": false                        
+      50 +        }                                                      
+      51 +      ]                                                        
+      52      ],
+      53      "scheme": "maxx"
+      54    }
+  ⎿  Updated apps\mobile\src\inicio\InicioProvisorio.tsx (+8 -1)
+      12  import { useTheme } from "../theme/ThemeProvider";
+      13  
+      14  // O início até o feed chegar, no passo 7: quem entrou, o tema 
+          e a saída. Para o professor,
+      15 -// a entrada das turmas e da concessão de medalha no passo 6.  
+      15 +// a entrada das turmas e da concessão de medalha no passo 6; p
+         +ara o aluno, o novo post, até                                  
+      16 +// o "+" do cabeçalho do feed.                                 
+      17  export function InicioProvisorio() {
+      18    const { colors } = useTheme();
+      19    const router = useRouter();
+     ...
+      45              </Text>
+      46            </View>
+      47          )}
+      48 +        {eu.isSuccess && eu.data.papeis.includes("aluno") && ( 
+      49 +          <Button                                              
+      50 +            label="Novo post"                                  
+      51 +            onPress={() => router.push("/novo-post")}          
+      52 +          />                                                   
+      53 +        )}                                                     
+      54          {eu.isSuccess && eu.data.papeis.includes("professor") &
+          & (
+      55            <Button
+      56              label="Minhas turmas"
+
+● Agora os testes: primeiro o das derivadas, depois o da tela.
+
+● Write(apps\mobile\src\fotos\fotos.test.ts)
+  ⎿  Wrote 127 lines to apps\mobile\src\fotos\fotos.test.ts
+       1 import { ImageManipulator, SaveFormat } from "expo-image-manipul
+         ator";
+       2 
+       3 import { DERIVADAS, FotoGrandeDemais, gerarDerivadas } from "./d
+         erivadas";
+       4 
+       5 jest.mock("expo-image-manipulator", () => ({
+       6   SaveFormat: { JPEG: "jpeg" },
+       7   ImageManipulator: { manipulate: jest.fn() },
+       8 }));
+     … +119 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As derivadas passam (4 testes). Agora o teste da tela de novo post.
+
+● Write(apps\mobile\src\posts\novoPost.test.tsx)
+  ⎿  Wrote 293 lines to apps\mobile\src\posts\novoPost.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 import { launchImageLibraryAsync } from "expo-image-picker";
+       3 
+       4 import { json, renderComApi } from "../test/renderComApi";
+       5 import { NovoPostScreen } from "./NovoPostScreen";
+       6 
+       7 const mockRoteador = {
+       8   push: jest.fn(),
+       9   replace: jest.fn(),
+     … +284 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 10 testes da tela passam. Agora formatação e a bateria completa do app e da
+  API.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src apps/mobile/app.json >/dev/null &&
+      npx prettier --ch…)
+  ⎿  All matched files use Prettier code style!
+     src/fotos/fotos.test.ts(68,12): error TS2532: Object is possibly 'unde
+     fined'.
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\TextField.tsx (+5 -1)
+      176      alignItems: "center",
+      177    },
+      178    // Legenda e comentário: cresce para baixo, com o texto come
+           çando no topo.
+      179 -  caixaDeVariasLinhas: { height: undefined, minHeight: 96, ali
+          -gnItems: "stretch" },                                         
+      179 +  caixaDeVariasLinhas: {                                      
+      180 +    height: undefined,                                        
+      181 +    minHeight: 96,                                            
+      182 +    alignItems: "stretch",                                    
+      183 +  },                                                          
+      184    entradaDeVariasLinhas: {
+      185      height: undefined,
+      186      minHeight: 96,
+  ⎿  Updated apps\mobile\src\fotos\derivadas.ts (+4 -1)
+      78      throw new FotoGrandeDemais();
+      79    };
+      80  
+      81 -  return { feed: await gerar(DERIVADAS.feed), grade: await gera
+         -r(DERIVADAS.grade) };                                          
+      81 +  return {                                                     
+      82 +    feed: await gerar(DERIVADAS.feed),                         
+      83 +    grade: await gerar(DERIVADAS.grade),                       
+      84 +  };                                                           
+      85  }
+  ⎿  Updated apps\mobile\src\fotos\envio.ts (+3 -1)
+      16      exif: false,
+      17    });
+      18    const foto = resultado.canceled ? undefined : resultado.asset
+          s[0];
+      19 -  return foto ? { uri: foto.uri, width: foto.width, height: fot
+         -o.height } : null;                                             
+      19 +  return foto                                                  
+      20 +    ? { uri: foto.uri, width: foto.width, height: foto.height }
+      21 +    : null;                                                    
+      22  }
+      23  
+      24  // O envio da foto (ADR 0002): a API assina com o tipo e o tama
+          nho exatos de cada derivada, e
+  ⎿  Updated apps\mobile\src\fotos\fotos.test.ts (+11 -4)
+       95        width: 200,
+       96        height: 200,
+       97      });
+       98 -    expect(chamadas[0].resize).toHaveBeenCalledWith({ width: 2
+          -00, height: 200 });                                           
+       99 -    expect(chamadas[1].resize).toHaveBeenCalledWith({ width: 2
+          -00, height: 200 });                                           
+       98 +    expect(chamadas[0].resize).toHaveBeenCalledWith({         
+       99 +      width: 200,                                             
+      100 +      height: 200,                                            
+      101 +    });                                                       
+      102 +    expect(chamadas[1].resize).toHaveBeenCalledWith({         
+      103 +      width: 200,                                             
+      104 +      height: 200,                                            
+      105 +    });                                                       
+      106    });
+      107  
+      108    it("acima do limite, tenta de novo mais comprimida", async (
+           ) => {
+     ...
+      125      simularManipulador();
+      126  
+      127      await expect(
+      122 -      gerarDerivadas({ uri: "file:///foto.jpg", width: 3000, h
+          -eight: 3000 }, async () =>                                    
+      123 -        blobDe(DERIVADAS.feed.maximo + 1),                    
+      128 +      gerarDerivadas(                                         
+      129 +        { uri: "file:///foto.jpg", width: 3000, height: 3000 }
+          +,                                                             
+      130 +        async () => blobDe(DERIVADAS.feed.maximo + 1),        
+      131        ),
+      132      ).rejects.toBeInstanceOf(FotoGrandeDemais);
+      133    });
+  ⎿  Updated apps\mobile\src\inicio\InicioProvisorio.tsx (+1 -4)
+      46            </View>
+      47          )}
+      48          {eu.isSuccess && eu.data.papeis.includes("aluno") && (
+      49 -          <Button                                              
+      50 -            label="Novo post"                                  
+      51 -            onPress={() => router.push("/novo-post")}          
+      52 -          />                                                   
+      49 +          <Button label="Novo post" onPress={() => router.push(
+         +"/novo-post")} />                                              
+      50          )}
+      51          {eu.isSuccess && eu.data.papeis.includes("professor") &
+          & (
+      52            <Button
+  ⎿  … 2 more files changed
+  ⎿  (timeout 10m)
+
+● Background command "Watch CI for etapa 6 commit" completed (exit code 0)
+
+● O typecheck pega dois tipos nos testes novos: índice de array possivelmente
+  indefinido e mocks sem o parâmetro Request. Corrijo.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i -E
+      's/chamadas\[([0-9])\]\./chamadas[\1]?./g' fotos/fotos.test.ts…)
+  ⎿  src/posts/novoPost.test.tsx(130,3): error TS2322: Type 'Mock<Promise<R
+     esponse>, [], any>' is not assignable to type 'Mock<Promise<Response>,
+      [string, RequestInit], any>'.
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\fotos\fotos.test.ts (+7 -7)
+      65          height: 3000,
+      66        });
+      67      }
+      68 -    expect(chamadas[0].resize).toHaveBeenCalledWith({          
+      68 +    expect(chamadas[0]?.resize).toHaveBeenCalledWith({         
+      69        width: 1080,
+      70        height: 1080,
+      71      });
+      72 -    expect(chamadas[1].resize).toHaveBeenCalledWith({          
+      72 +    expect(chamadas[1]?.resize).toHaveBeenCalledWith({         
+      73        width: 320,
+      74        height: 320,
+      75      });
+      76 -    expect(chamadas[0].saveAsync).toHaveBeenCalledWith({       
+      76 +    expect(chamadas[0]?.saveAsync).toHaveBeenCalledWith({      
+      77        format: SaveFormat.JPEG,
+      78        compress: DERIVADAS.feed.qualidade,
+      79      });
+     ...
+       89        async () => blobDe(1000),
+       90      );
+       91  
+       92 -    expect(chamadas[0].crop).toHaveBeenCalledWith({           
+       92 +    expect(chamadas[0]?.crop).toHaveBeenCalledWith({          
+       93        originX: 0,
+       94        originY: 50,
+       95        width: 200,
+       96        height: 200,
+       97      });
+       98 -    expect(chamadas[0].resize).toHaveBeenCalledWith({         
+       98 +    expect(chamadas[0]?.resize).toHaveBeenCalledWith({        
+       99        width: 200,
+      100        height: 200,
+      101      });
+      102 -    expect(chamadas[1].resize).toHaveBeenCalledWith({         
+      102 +    expect(chamadas[1]?.resize).toHaveBeenCalledWith({        
+      103        width: 200,
+      104        height: 200,
+      105      });
+     ...
+      114        async () => blobDe(tamanhos.shift() ?? 1000),
+      115      );
+     … 6 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\posts\novoPost.test.tsx (+3 -3)
+      114  
+      115  beforeEach(() => {
+      116    jest.clearAllMocks();
+      117 -  eu = jest.fn(async () => json(200, EU_ALUNA));              
+      118 -  uploads = jest.fn(async () => json(201, ASSINADO));         
+      119 -  posts = jest.fn(async () => json(201, { id: "novo" }));     
+      117 +  eu = jest.fn(async (_pedido: Request) => json(200, EU_ALUNA)
+          +);                                                            
+      118 +  uploads = jest.fn(async (_pedido: Request) => json(201, ASSI
+          +NADO));                                                       
+      119 +  posts = jest.fn(async (_pedido: Request) => json(201, { id: 
+          +"novo" }));                                                   
+      120    api = jest.fn(async (pedido: Request) => {
+      121      const caminho = new URL(pedido.url).pathname;
+      122      if (caminho === "/api/v1/eu") return eu(pedido);
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/posts" && sed
+      -i 's|  bucket = jest.fn(async () => new Response(null, { statu…)
+  ⎿  Tests:       333 passed, 333 total
+  ⎿  Updated apps\mobile\src\posts\novoPost.test.tsx (+7 -4)
+      127    });
+      128  
+      129    // O que não é a API: ler a derivada gerada (file://) e o PU
+           T direto no bucket.
+      130 -  bucket = jest.fn(async () => new Response(null, { status: 20
+          -0 }));                                                        
+      130 +  bucket = jest.fn(                                           
+      131 +    async (_url: string, _init: RequestInit) =>               
+      132 +      new Response(null, { status: 200 }),                    
+      133 +  );                                                          
+      134    rede = jest
+      135      .spyOn(global, "fetch")
+      136      .mockImplementation(
+     ...
+      162  const corpoDe = async (
+      163    mock: jest.Mock<Promise<Response>, [Request]>,
+      164    chamada = 0,
+      162 -) => (mock.mock.calls[chamada][0] as Request).clone().json(); 
+      165 +) => (mock.mock.calls[chamada]?.[0] as Request).clone().json()
+          +;                                                             
+      166  
+      167  describe("novo post", () => {
+      168    it("sem nada escolhido, Publicar fica desativado", async () 
+           => {
+     ...
+      210        [ASSINADO.feed.url, "PUT"],
+      211        [ASSINADO.grade.url, "PUT"],
+      212      ]);
+      210 -    expect(bucket.mock.calls[0][1].headers).toEqual({         
+      213 +    expect(bucket.mock.calls[0]?.[1].headers).toEqual({       
+      214        "Content-Type": "image/jpeg",
+      215      });
+      213 -    expect((bucket.mock.calls[0][1].body as Blob).size).toBe(3
+          -00);                                                          
+      216 +    expect((bucket.mock.calls[0]?.[1].body as Blob).size).toBe
+          +(300);                                                        
+      217      expect(await corpoDe(posts)).toEqual({
+      218        legenda: null,
+      219        uploadId: UPLOAD,
+  ⎿  (timeout 5m)
+
+● O app está verde, com 333 testes, typecheck e lint limpos, e a CI da etapa 6
+  também passou. Agora subo a pilha completa num projeto isolado para fotografar
+  a tela com uma aluna com medalha.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os ajudantes do e2e vão falar com o Postgres do projeto isolado, configurado
+  por variáveis de ambiente, em vez de mirar a pilha maxx pelo docker compose 
+  exec. Em seguida, vejo o ajudante da professora, que concede a medalha.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os ajudantes já leem a porta do Mailpit do ambiente. Monto o ambiente isolado
+  maxx-etapa7 (HTTP 18080, Mailpit 18025, bucket 19000) e subo a pilha com o
+  código desta etapa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A pilha isolada subiu, com o seed demo. Antes do roteiro da captura, procuro
+  uma foto de verdade no repositório para usar como imagem do post.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Não há foto no repositório, então vou usar o recorte da foto do campus que
+  está na prancheta do feed (design/telas/feed-claro.png), extraído pelo
+  navegador do Playwright. O roteiro fica numa pasta temporária fora do git e
+  será apagado depois.
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      mkdir -p e2e/captura-temp && S=$(cygpath -m
+      /c/Users/GUILHE~1/AppData/Local/Temp/claude/C…)
+  ⎿   Container maxx-etapa7-seeder-run-46ef328a63d1 Creating
+      Container maxx-etapa7-seeder-run-46ef328a63d1 Created
+       ok 1 [claro] › captura-temp\novo-post.spec.ts:11:5 › captura do novo
+     … +14 lines (ctrl+o to expand)
+  ⎿  Created e2e\captura-temp\novo-post.spec.ts (+61 -0)
+       1 +import { readFileSync, writeFileSync } from "node:fs";         
+       2 +import path from "node:path";                                  
+       3 +                                                               
+       4 +import { expect, test } from "@playwright/test";               
+       5 +                                                               
+       6 +import { novaConta } from "../tests/apoio/contas";             
+       7 +import { matricular, novaProfessora } from "../tests/apoio/meda
+         +lhas";                                                         
+       8 +                                                               
+       9 +const SAIDA = "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--U
+         +sers-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro/db2e
+         +3dff-90c5-43a0-a9fa-f91217b12056/scratchpad";                  
+      10 +                                                               
+      11 +test("captura do novo post", async ({ page, request }, info) =>
+         + {                                                             
+      12 +  const aluno = await novaConta(request, "Ana Souza");         
+      13 +  const professora = await novaProfessora(request);            
+      14 +  matricular(aluno, professora.turmaId);                       
+      15 +                                                               
+      16 +  const login = await request.post("/api/v1/auth/login", { data
+         +: { identificador: professora.email, senha: professora.senha } 
+         +});                                                            
+      17 +  const token = (await login.json()).accessToken;              
+      18 +  const autorizacao = { Authorization: `Bearer ${token}` };    
+      19 +  const alunos = await (await request.get(`/api/v1/professor/tu
+         +rmas/${professora.turmaId}/alunos`, { headers: autorizacao })).
+         +json();                                                        
+      20 +  const alunoId = alunos.find((linha: { arroba: string }) => li
+         +nha.arroba === `@${aluno.prefixo}-CC`).id;                     
+      21 +  for (const item of ["M01", "M03"]) {                         
+      22 +    expect((await request.post(`/api/v1/professor/turmas/${prof
+         +essora.turmaId}/medalhas`, { headers: autorizacao, data: { alun
+         +oId, item } })).status()).toBe(201);                           
+      23 +  }                                                            
+      24 +                                                               
+      25 +  // A foto do campus da prancheta do feed, recortada num quadr
+         +ado, como JPEG.                                                
+      26 +  const prancheta = readFileSync(path.resolve(__dirname, "../..
+         +/design/telas/feed-claro.png")).toString("base64");            
+      27 +  await page.setContent("<canvas id=c width=900 height=900></ca
+         +nvas>");                                                       
+      28 +  const jpeg = await page.evaluate(async (dados) => {          
+      29 +    const imagem = new Image();                                
+      30 +    imagem.src = `data:image/png;base64,${dados}`;             
+      31 +    await imagem.decode();                                     
+      32 +    const canvas = document.getElementById("c") as HTMLCanvasEl
+         +ement;                                                         
+      33 +    canvas.getContext("2d")!.drawImage(imagem, 90, 318, 600, 60
+         +0, 0, 0, 900, 900);                                            
+      34 +    return canvas.toDataURL("image/jpeg", 0.92).split(",")[1]; 
+      35 +  }, prancheta);                                               
+      36 +  const foto = path.join(SAIDA, "campus.jpg");                 
+      37 +  writeFileSync(foto, Buffer.from(jpeg!, "base64"));           
+      38 +                                                               
+      39 +  await page.goto("/login");                                   
+      40 +  await page.getByLabel("RA ou e-mail").fill(aluno.ra);        
+     … 21 more lines (ctrl+o to expand)
+  ⎿  Created e2e\captura-temp\playwright.config.ts (+12 -0)
+       1 +import { defineConfig } from "@playwright/test";               
+       2 +                                                               
+       3 +export default defineConfig({                                  
+       4 +  testDir: ".",                                                
+       5 +  timeout: 180_000,                                            
+       6 +  use: { baseURL: "http://localhost:18080" },                  
+       7 +  projects: [                                                  
+       8 +    { name: "claro", use: { viewport: { width: 390, height: 844
+         + }, isMobile: true, hasTouch: true, colorScheme: "light" } },  
+       9 +    { name: "escuro", use: { viewport: { width: 390, height: 84
+         +4 }, isMobile: true, hasTouch: true, colorScheme: "dark" } },  
+      10 +  ],                                                           
+      11 +  workers: 1,                                                  
+      12 +});                                                            
+  ⎿  (timeout 10m)
+
+● Os dois roteiros passaram, de ponta a ponta: a foto subiu ao bucket de verdade
+  e o post foi publicado. Vejo as capturas.
+
+  Read 3 files (ctrl+o to expand)
+
+● As capturas dos dois temas estão boas, e o botão Publicar fica abaixo da
+  dobra. Agora vou conferir no feed o post que o roteiro publicou.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● As derivadas saíram certas no bucket: feed em 900×900 (a origem tinha 900, e o
+  app não amplia) e grade em 320×320, as duas em JPEG. Limpo a pasta temporária
+  e derrubo a pilha isolada.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      -rf e2e/captura-temp e2e/test-results/.last-run.json 2>/dev/null;
+      S2=/c/Users/GUILHE~1…)
+  ⎿   Network maxx-etapa7_default Removed
+     maxx-caddy-1 maxx-api-2 maxx-api-1 maxx-worker-1 maxx-mailpit-1 maxx-p
+     ostgres-1
+     … +19 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\captura-temp\novo-post.spec.ts (+0 -61)
+       1 -import { readFileSync, writeFileSync } from "node:fs";         
+       2 -import path from "node:path";                                  
+       3 -                                                               
+       4 -import { expect, test } from "@playwright/test";               
+       5 -                                                               
+       6 -import { novaConta } from "../tests/apoio/contas";             
+       7 -import { matricular, novaProfessora } from "../tests/apoio/meda
+         -lhas";                                                         
+       8 -                                                               
+       9 -const SAIDA = "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--U
+         -sers-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro/db2e
+         -3dff-90c5-43a0-a9fa-f91217b12056/scratchpad";                  
+      10 -                                                               
+      11 -test("captura do novo post", async ({ page, request }, info) =>
+         - {                                                             
+      12 -  const aluno = await novaConta(request, "Ana Souza");         
+      13 -  const professora = await novaProfessora(request);            
+      14 -  matricular(aluno, professora.turmaId);                       
+      15 -                                                               
+      16 -  const login = await request.post("/api/v1/auth/login", { data
+         -: { identificador: professora.email, senha: professora.senha } 
+         -});                                                            
+      17 -  const token = (await login.json()).accessToken;              
+      18 -  const autorizacao = { Authorization: `Bearer ${token}` };    
+      19 -  const alunos = await (await request.get(`/api/v1/professor/tu
+         -rmas/${professora.turmaId}/alunos`, { headers: autorizacao })).
+         -json();                                                        
+      20 -  const alunoId = alunos.find((linha: { arroba: string }) => li
+         -nha.arroba === `@${aluno.prefixo}-CC`).id;                     
+      21 -  for (const item of ["M01", "M03"]) {                         
+      22 -    expect((await request.post(`/api/v1/professor/turmas/${prof
+         -essora.turmaId}/medalhas`, { headers: autorizacao, data: { alun
+         -oId, item } })).status()).toBe(201);                           
+      23 -  }                                                            
+      24 -                                                               
+      25 -  // A foto do campus da prancheta do feed, recortada num quadr
+         -ado, como JPEG.                                                
+      26 -  const prancheta = readFileSync(path.resolve(__dirname, "../..
+         -/design/telas/feed-claro.png")).toString("base64");            
+      27 -  await page.setContent("<canvas id=c width=900 height=900></ca
+         -nvas>");                                                       
+      28 -  const jpeg = await page.evaluate(async (dados) => {          
+      29 -    const imagem = new Image();                                
+      30 -    imagem.src = `data:image/png;base64,${dados}`;             
+      31 -    await imagem.decode();                                     
+      32 -    const canvas = document.getElementById("c") as HTMLCanvasEl
+         -ement;                                                         
+      33 -    canvas.getContext("2d")!.drawImage(imagem, 90, 318, 600, 60
+         -0, 0, 0, 900, 900);                                            
+      34 -    return canvas.toDataURL("image/jpeg", 0.92).split(",")[1]; 
+      35 -  }, prancheta);                                               
+      36 -  const foto = path.join(SAIDA, "campus.jpg");                 
+      37 -  writeFileSync(foto, Buffer.from(jpeg!, "base64"));           
+      38 -                                                               
+      39 -  await page.goto("/login");                                   
+      40 -  await page.getByLabel("RA ou e-mail").fill(aluno.ra);        
+     … 21 more lines (ctrl+o to expand)
+  ⎿  Deleted e2e\captura-temp\playwright.config.ts (+0 -12)
+       1 -import { defineConfig } from "@playwright/test";               
+       2 -                                                               
+       3 -export default defineConfig({                                  
+       4 -  testDir: ".",                                                
+       5 -  timeout: 180_000,                                            
+       6 -  use: { baseURL: "http://localhost:18080" },                  
+       7 -  projects: [                                                  
+       8 -    { name: "claro", use: { viewport: { width: 390, height: 844
+         - }, isMobile: true, hasTouch: true, colorScheme: "light" } },  
+       9 -    { name: "escuro", use: { viewport: { width: 390, height: 84
+         -4 }, isMobile: true, hasTouch: true, colorScheme: "dark" } },  
+      10 -  ],                                                           
+      11 -  workers: 1,                                                  
+      12 -});                                                            
+
+● A etapa 7 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 6 fechada: commit 7940ae5, CI verde nos seis jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42438801425
+
+  Etapa 7: derivadas, upload e novo post
+
+  Capturas, feitas com a pilha completa deste código num projeto isolado
+  (maxx-etapa7, já derrubado), aluna e professora reais, foto subindo ao
+  VersityGW e post publicado no fim:
+  - Preenchida, tema claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users
+    -Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0-a9
+    fa-f91217b12056\scratchpad\novo-post-preenchido-claro.png
+  - Preenchida, tema escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--User
+    s-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0-a
+    9fa-f91217b12056\scratchpad\novo-post-preenchido-escuro.png
+  - Vazia, tema claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guil
+    herme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0-a9fa-f9
+    1217b12056\scratchpad\novo-post-vazio-claro.png
+  - Vazia, tema escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Gui
+    lherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0-a9fa-f
+    91217b12056\scratchpad\novo-post-vazio-escuro.png
+
+  A foto usada é o recorte do campus da prancheta do feed. O botão Publicar fica
+  abaixo da dobra, porque a tela rola.
+
+  A tela (/novo-post, sem prancheta, na identidade visual)
+  - Foto: área quadrada em cima, como no "novo post" do Instagram. "Escolher
+    foto" abre a galeria (seletor de arquivo na web); depois aparecem "Trocar
+    foto" e "Remover foto".
+  - Legenda: campo de várias linhas, com contador "45/1.000" que conta emoji
+    como um. Acima de 1.000, erro no campo e Publicar desativado.
+  - Prêmio: opcional. Lista só as medalhas que ainda não renderam post, uma
+    opção por concessão, com matéria e bimestre; tocar de novo desmarca.
+  - Publicar: desativado sem nada escolhido. Publicado, volta ao início.
+  - Professor: a tela explica "Só aluno publica no feed.".
+  - Entrada: botão "Novo post" no início provisório, só para aluno, até o "+" do
+    cabeçalho do feed na etapa 8.
+
+  Por trás
+  - Derivadas (fotos/derivadas.ts, ADR 0003 e D2): recorte quadrado central,
+    feed em até 1080 e grade em 320, em JPEG, sem ampliar foto menor. Se uma
+    derivada passar do limite da API, uma segunda tentativa mais comprimida; se
+    ainda passar, "Essa foto ficou grande demais. Escolha outra.". Conferi no
+    bucket da captura: 900×900 e 320×320, ambas JPEG.
+  - Envio (fotos/envio.ts): pede a assinatura com os tamanhos exatos e faz o PUT
+    direto no bucket, sem token nem cabeçalho do Maxx. Bucket recusando vira "A
+    foto não terminou de subir. Tente de novo.".
+  - Reaproveitamento: se o post falhar depois do envio (rede, limite), a nova
+    tentativa reaproveita o upload já feito, sem gastar outro pedido do limite
+    de 30 por hora. Se o código disser que a foto não serve mais, a nova
+    tentativa sobe de novo.
+  - API, um campo novo: postId em cada prêmio obtido de /v1/eu/premios, para a
+    tela saber o que ainda não tem post. O teste do autor que apaga confere que
+    o campo aparece e some.
+  - Componentes: TextField ganhou suporte a multiline; os ícones imagem (image)
+    e novo (square-plus) vieram do Lucide; o app.json ganhou o plugin do
+    seletor, com texto de permissão em português e sem câmera.
+  - Dependências: expo-image-picker ~58.0.10 e expo-image-manipulator ~58.0.16,
+    instaladas pelo expo install. npm audit --audit-level=high continua limpo.
+
+  Testes, todos passando
+  - Derivadas, 4 testes: recorte e tamanhos; sem ampliar; segunda tentativa
+    comprimida; foto grande demais.
+  - Tela, 10 testes:
+    - Publicar desativado sem nada;
+    - só legenda;
+    - com foto: assinatura com os tamanhos, dois PUTs com o tipo e o corpo, e
+      post com o upload;
+    - só medalhas sem post, e a escolhida vai no pedido;
+    - legenda longa;
+    - 429 vira mensagem amigável e dá para tentar de novo;
+    - post que falha reaproveita o upload;
+    - bucket recusando faz subir de novo;
+    - desistir na galeria não muda nada;
+    - professor vê a explicação.
+  - Bateria completa: 333 testes do app e 744 da API, prettier, lint, typecheck,
+    formatação, build e verificar limpos.
+
+  Limites
+  1. Nativo: o PUT de Blob no Android e no iOS só passa pelo Jest até o Maestro
+     do passo 13. A captura provou o caminho na web, que é o acesso principal.
+  2. HEIC na web: o Chrome não abre HEIC. Quem escolher um vê "Não deu para
+     abrir essa foto. Escolha outra.". No nativo, a galeria entrega em formato
+     que o manipulador lê.
+
+  Commit proposto: feat(mobile): adiciona novo post com derivadas da foto e 
+  envio direto ao bucket. Ele inclui o campo postId da API, que existe só para
+  esta tela.
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 8 (feed, post, comentários e deep link).
+
+✻ Cogitated for 15m 58s · done 23:45
