@@ -356,16 +356,38 @@ function Invoke-RevisorEixo {
         [Parameter(Mandatory)][string]$RaizTcc,
         [Parameter(Mandatory)][string]$PastaAvaliador,
         [Parameter(Mandatory)][string]$VersaoCli,
-        [Parameter(Mandatory)][int]$TempoLimiteMin
+        [Parameter(Mandatory)][int]$TempoLimiteMin,
+        # Monta a pasta da sessão, os encaixes e o prompt, grava o prompt e para: sem sessão.
+        [switch]$SemClaude,
+        # Não escreve a nota no terminal (avaliação real: o autor pontua sem vê-la).
+        [switch]$OcultarNota
     )
     $base = "$Produto-$Eixo"
-    $tentativa = Get-ProximaTentativa -PastaSaida $PastaSaida -Base $base
-    $sessao = New-PastaSessao -PastaExecucao $PastaExecucao -Nome "$Eixo-t$tentativa" -RaizTcc $RaizTcc
+    if ($SemClaude) { $tentativa = $null; $nomeSessao = "$Eixo-semclaude" }
+    else { $tentativa = Get-ProximaTentativa -PastaSaida $PastaSaida -Base $base; $nomeSessao = "$Eixo-t$tentativa" }
+    $sessao = New-PastaSessao -PastaExecucao $PastaExecucao -Nome $nomeSessao -RaizTcc $RaizTcc
     $encaixe = Get-Encaixe -Eixo $Eixo -Produto $Produto -PastaSessao $sessao -RaizTcc $RaizTcc
     if ($encaixe.aviso) { Write-Warning $encaixe.aviso }
 
     $modelo = Read-TextoArquivo (Join-Path $PastaAvaliador 'prompts\revisor.md')
     $prompt = New-PromptRevisor -Modelo $modelo -Eixo $Eixo -Produto $Produto -Hash $Hash -Checkout $Checkout -PastaSessao $sessao -Encaixe $encaixe.frase
+
+    if ($SemClaude) {
+        $arqPrompt = Join-Path $PastaSaida "$base.prompt.txt"
+        Write-TextoArquivo -Texto $prompt -Caminho $arqPrompt
+        Write-Host "[$Eixo] sem claude: prompt gravado em $arqPrompt"
+        return [pscustomobject][ordered]@{
+            produto       = $Produto
+            eixo          = $Eixo
+            tentativa     = $null
+            status        = 'sem claude'
+            motivos       = @()
+            hash_avaliado = $Hash
+            hash_prompt   = Get-HashArquivo $arqPrompt
+            encaixe       = [ordered]@{ presente = $encaixe.presente; arquivo = $encaixe.arquivo; hash = $encaixe.hash; aviso = $encaixe.aviso }
+            prompt        = $arqPrompt
+        }
+    }
 
     Write-Host "[$Eixo] tentativa ${tentativa}: sessão do revisor em andamento (limite de $TempoLimiteMin min)..."
     $exec = Invoke-SessaoClaude -Prompt $prompt -PastaSessao $sessao -PastasLeitura @($Checkout) -TempoLimiteMin $TempoLimiteMin
@@ -464,7 +486,7 @@ function Invoke-RevisorEixo {
         hash_rubrica         = Get-HashArquivo (Join-Path $sessao 'rubrica.md')
         hash_especificacao   = Get-HashArquivo (Join-Path $sessao 'especificacao-telas.md')
         hash_prompt          = Get-HashArquivo $exec.Prompt
-        encaixe              = [ordered]@{ presente = $encaixe.presente; arquivo = $encaixe.arquivo; hash = $encaixe.hash }
+        encaixe              = [ordered]@{ presente = $encaixe.presente; arquivo = $encaixe.arquivo; hash = $encaixe.hash; aviso = $encaixe.aviso }
         ferramentas_sessao   = @($ferramentas)
         acessos_fora         = @($fora)
         instrucoes_carregadas = @($instrucoes)
@@ -500,7 +522,7 @@ function Invoke-RevisorEixo {
     Write-TextoArquivo -Texto ($cabecalho + $corpo + "`n") -Caminho (Join-Path $PastaSaida "$base.md")
 
     $resumoNota = ''
-    if ($null -ne $registro.nota) { $resumoNota = ", nota $($registro.nota)" }
+    if ($null -ne $registro.nota -and -not $OcultarNota) { $resumoNota = ", nota $($registro.nota)" }
     Write-Host "[$Eixo] $status$resumoNota$resumoMotivos"
     return [pscustomobject]$registro
 }
