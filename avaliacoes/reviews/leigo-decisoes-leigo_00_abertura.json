@@ -1,0 +1,260 @@
+{
+    "produto":  "leigo",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (leigo_00_abertura)",
+    "export_id":  "leigo_00_abertura",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_00_abertura-sessao.txt",
+    "hash_export":  "5b7e7e9ab611b94cc4c54f9c2f64bc9f8736c12a9a7b74c392d58779f8c200f3",
+    "linhas_export":  438,
+    "linhas_lidas":  438,
+    "leituras_export":  1,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:13:19-03:00",
+    "fim":  "2026-11-08T20:14:35-03:00",
+    "duracao_s":  77,
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "a78fefd0-5329-4103-b686-9007c4cb2591",
+    "tokens":  {
+                   "entrada":  4,
+                   "saida":  9247,
+                   "cache_criacao":  16932,
+                   "cache_leitura":  10048
+               },
+    "custo_usd":  0.3224216,
+    "turnos":  3,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "e70a293271ca2e3fbcb16d243591bbbba23a6d50939bb8e7a3ba941a538fb2c1",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  2,
+    "decisoes":  [
+                     {
+                         "descricao":  "Construir como aplicativo web (não app nativo de celular)",
+                         "trecho":  "Vou montar a primeira versão do Maxx com as decisões já tomadas: um app web",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Node.js (\u003e=22.13) com Express e multer",
+                         "trecho":  "\"express\": \"^4.21.2\", \"multer\": \"^2.0.2\"",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Banco SQLite nativo do Node, num arquivo dados/maxx.db",
+                         "trecho":  "const { DatabaseSync } = require(\u0027node:sqlite\u0027);",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "HTML gerado no servidor com sistema de templates próprio que escapa o conteúdo automaticamente contra XSS",
+                         "trecho":  "Mini sistema de templates: tudo que é interpolado é escapado automaticamente",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Restrição à UniMax feita só pelo domínio de e-mail @unimax.edu.br",
+                         "trecho":  "login só para e-mails @unimax.edu.br",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Todo cadastro entra como aluno; uma conta de administração (papel novo) decide quem é professor ou administrador",
+                         "trecho":  "cadastro como aluno (a administração define os professores)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Senha guardada com hash scrypt e sal aleatório",
+                         "trecho":  "crypto.scryptSync(senha, sal, 64)",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Os prêmios viraram um sistema de pontos mais conquistas com bônus",
+                         "trecho":  "desbloqueia conquistas com pontos extras, como \"Primeiro clique\" ou \"Popular\"",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Valores dos pontos: post +10, curtida recebida +2, comentário +3",
+                         "trecho":  "o aluno ganha pontos quando posta (+10), quando recebe curtida de outra pessoa (+2)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Curtir ou comentar o próprio post não dá pontos, e o comentário conta uma vez por post",
+                         "trecho":  "Curtir ou comentar o próprio post não dá pontos.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Pontuação recalculada a partir dos dados, sem saldo guardado",
+                         "trecho":  "Tudo é calculado a partir dos dados reais: se um post ou curtida for apagado, a pontuação se ajusta sozinha.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Catálogo fixo de medalhas, cada uma valendo de 20 a 50 pontos e com mensagem do professor",
+                         "trecho":  "Cada medalha vale de 20 a 50 pontos, por exemplo 🥇 Excelência acadêmica",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Só alunos entram no ranking",
+                         "trecho":  "Ranking geral e por curso. Só alunos entram no ranking.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Só a conta da faculdade publica no mural, e o aviso fixado aparece também no topo do feed",
+                         "trecho":  "Mural de avisos, onde só a conta da faculdade publica. Um aviso fixado também aparece no topo do feed.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Posts com foto e/ou texto, com as fotos guardadas no disco local, em dados/",
+                         "trecho":  "Fotos enviadas e o banco de dados ficam na pasta `dados/`.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Lista fixa de cursos definida em src/config.js",
+                         "trecho":  "Para mudar a lista de cursos ... é só editar src/config.js",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Conta de administração criada automaticamente com senha padrão, que pode ser trocada pela variável ADMIN_SENHA",
+                         "trecho":  "admin@unimax.edu.br / senha unimax-admin (troque definindo a variável ADMIN_SENHA",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Visual em roxo e rosa, com ícone de M em degradê e ícones SVG",
+                         "trecho":  "--primaria: #5b21b6; --primaria-2: #db2777;",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "O professor dá a medalha por um formulário no perfil do aluno",
+                         "trecho":  "no perfil de um aluno, o professor escolhe uma medalha e deixa uma mensagem",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Teste automatizado dos fluxos principais com node:test, num banco temporário",
+                         "trecho":  "Now an automated test that walks through the main flows",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Script de dados de exemplo, com todas as contas usando a senha senha1234",
+                         "trecho":  "Todas as contas de exemplo usam a senha `senha1234`",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Telas conferidas por script, sem abrir no navegador",
+                         "trecho":  "Só não cheguei a olhar as telas no navegador; conferi as páginas por um script.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "README em português com instruções de execução",
+                         "trecho":  "I\u0027ll stop the server and write the README in Portuguese",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "App roda só localmente, na porta 3000, e a hospedagem fica para depois",
+                         "trecho":  "por enquanto o app roda só no seu computador",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Sem confirmação de e-mail por código nesta versão (deixada para depois)",
+                         "trecho":  "Ele não envia um código para provar que a pessoa é dona daquele endereço",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  ".gitignore tira dados/ e node_modules/ do versionamento",
+                         "trecho":  "A pasta dados/ ... não entrou no commit, de propósito.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Mecanismo de sessão e login não aparece na transcrição; há só o import de crypto no app.js",
+                         "trecho":  "const crypto = require(\u0027node:crypto\u0027);",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "Posso fazer um commit nesta branch se você quiser.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Quer seguir com algum dos próximos passos? As opções são a confirmação de e-mail com código, colocar o app na internet ou mudar algo no app.",
+                          "respondida":  false
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  27,
+                     "declaradas":  20,
+                     "silenciosas":  7,
+                     "duvidosas":  5,
+                     "perguntas":  2,
+                     "perguntas_respondidas":  1
+                 }
+}

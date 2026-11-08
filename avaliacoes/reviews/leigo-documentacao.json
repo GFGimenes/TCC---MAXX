@@ -1,0 +1,137 @@
+{
+    "produto":  "leigo",
+    "eixo":  "documentacao",
+    "secao":  "4. Documentação",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:08:46-03:00",
+    "fim":  "2026-11-08T20:10:00-03:00",
+    "duracao_s":  74,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo",
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "7e05722d-74f6-4f57-be0d-8343de0765f5",
+    "tokens":  {
+                   "entrada":  14,
+                   "saida":  8287,
+                   "cache_criacao":  44635,
+                   "cache_leitura":  176446
+               },
+    "custo_usd":  0.5581652,
+    "turnos":  15,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "98fa5ee2f83f2473410b0261fd4d8457429ab32dadaa85dc44f26285140cc58c",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  14,
+    "nota":  3,
+    "justificativa":  "A documentação se resume a um README.md (115 linhas) bem escrito e específico do projeto, mais comentários no código. Documenta as regras de produto (funcionalidades, permissões, tabela de pontos coerente com src/regras.js e src/pontos.js) e as instruções de execução, demo, acesso da banca e deploy (Azure e Ubuntu). Isso atende ao nível 3 da rubrica. Não chega ao 4: não há documento de arquitetura nem de modelo de dados, a seção Estrutura é só uma lista incompleta de arquivos, não há convenções declaradas, as decisões técnicas estão apenas em comentários sem alternativas nem consequências, não há ADR nem plano de evolução, e há pontos do README que não batem com o código (domínios permitidos, arquivos omitidos).",
+    "evidencias":  [
+                       {
+                           "local":  "README.md:5-14",
+                           "descricao":  "Lista as funcionalidades e regras de permissão (fixar e apagar avisos, medalhas de professores, ranking só de alunos); confere com src/app.js:386-439 e src/pontos.js:18."
+                       },
+                       {
+                           "local":  "README.md:88-99",
+                           "descricao":  "Tabela de pontos (+10 post, +2 curtida, +3 comentário uma vez por post, medalhas +20 a +50, conquistas +20 a +100) coerente com src/regras.js:4-29; indica onde alterar as regras."
+                       },
+                       {
+                           "local":  "README.md:16-34",
+                           "descricao":  "Instruções de execução local (Node \u003e=22.13, igual a package.json:12-14), conta admin padrão e npm run demo."
+                       },
+                       {
+                           "local":  "README.md:36-53",
+                           "descricao":  "Documenta o acesso da banca via CODIGO_BANCA, limite de tentativas e contas sem senha; coerente com src/banca.js:1-6 e :35."
+                       },
+                       {
+                           "local":  "README.md:62-86",
+                           "descricao":  "Deploy no Azure App Service (com URL) e em servidor Ubuntu; scripts com cabeçalho explicativo (scripts/servidor.sh:2-10, scripts/publicar.ps1:1-4, scripts/publicar-azure.ps1:1-5)."
+                       },
+                       {
+                           "local":  "README.md:8",
+                           "descricao":  "Diz que só e-mails @unimax.edu.br criam conta, mas src/config.js:9 aceita também al.unieduk.com.br e prof.unieduk.com.br; o próprio README só admite isso em README.md:57."
+                       },
+                       {
+                           "local":  "README.md:101-112",
+                           "descricao":  "A seção Estrutura omite src/server.js, src/banca.js, src/pontos.js, src/html.js, src/senha.js e scripts/; arquitetura só parcialmente mapeada."
+                       },
+                       {
+                           "local":  "src/db.js:11-12",
+                           "descricao":  "Decisão técnica (SQLite sem WAL no Azure) registrada apenas em comentário, sem alternativas nem consequências."
+                       },
+                       {
+                           "local":  "src/pontos.js:1-3",
+                           "descricao":  "Decisão de calcular os pontos a partir dos dados reais documentada só em comentário; migração por PRAGMA user_version (src/pontos.js:75-80) também não aparece em documento."
+                       },
+                       {
+                           "local":  "src/html.js:1-2",
+                           "descricao":  "Convenção de escape automático contra XSS descrita só no comentário do arquivo, sem guia de convenções do projeto."
+                       },
+                       {
+                           "local":  "raiz do repositório",
+                           "descricao":  "Não há pasta docs/, ADR, documento de arquitetura ou modelo de dados, roadmap, CONTRIBUTING nem CLAUDE.md/AGENTS.md; o README é o único documento."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Login por RA (só e-mail)",
+                            "RA e semestre no cadastro/perfil",
+                            "Esqueci minha senha",
+                            "Ex-aluno mantém posição no ranking sem pontuar",
+                            "Tiers Bronze/Prata/Ouro/Diamante com faixas 1-30, 31-70, 71-100, 101-150",
+                            "Nível de encontrabilidade dos prêmios",
+                            "Progressão de tier para conquista repetida",
+                            "Troféus por assiduidade, techdays, feiras e acúmulo, com cadastro de troféus pela faculdade",
+                            "Prova por foto e denúncia/revogação de prêmios",
+                            "Professor só dá medalha a alunos que leciona/orienta",
+                            "Rankings all-time geral e por curso",
+                            "Categorias do mural (Faculdade, Curso, Professores) e filtro por relevância",
+                            "Colapso/semi-colapso de avisos e botão ler todos",
+                            "Log de leitura do mural (quem leu e quando)",
+                            "Seguidores/seguindo/followed by no perfil",
+                            "Sino de notificações no header",
+                            "Busca na navegação inferior"
+                        ],
+    "decisoes_do_agente":  [
+                               "Escrever o README em português e em linguagem para leigos",
+                               "Documentar o acesso da banca do TCC (CODIGO_BANCA) como funcionalidade, com regras de segurança",
+                               "Documentar dois caminhos de deploy (Azure App Service F1 e Ubuntu com Caddy/sslip.io), incluindo a URL de produção",
+                               "Documentar limitações do plano gratuito do Azure e a orientação de backup da pasta dados/",
+                               "Publicar no README a senha padrão do admin (unimax-admin) e a das contas de demonstração (senha1234)",
+                               "Documentar uma tabela de pontos inventada pelo agente (post, curtida, comentário, conquistas automáticas) no lugar dos tiers da ideia",
+                               "Registrar decisões técnicas apenas em comentários no código, sem registro de decisões",
+                               "Pôr cabeçalhos explicativos nos scripts de deploy e de dados de exemplo",
+                               "Documentar a liberação de professor pelo painel de Administração e pelo domínio @prof.unieduk.com.br"
+                           ],
+    "nao_verificado":  [
+                           "Se npm install / npm start / npm run demo funcionam como descrito no README",
+                           "Se os scripts de deploy funcionam e se a URL do Azure está no ar com este commit",
+                           "Se npm test passa",
+                           "Se ADMIN_SENHA só tem efeito antes do primeiro uso, como o README afirma",
+                           "O histórico do git, para avaliar se a documentação foi mantida em dia ao longo das rodadas (packfile não legível com as ferramentas disponíveis)"
+                       ]
+}

@@ -1,0 +1,197 @@
+{
+    "produto":  "leigo",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (leigo_01_login)",
+    "export_id":  "leigo_01_login",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_01_login-sessao.txt",
+    "hash_export":  "418b03fba8b16c1439d4ab09dd316104490d4dba6ef2f870c87554d4b992d4da",
+    "linhas_export":  476,
+    "linhas_lidas":  476,
+    "leituras_export":  1,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:14:36-03:00",
+    "fim":  "2026-11-08T20:15:19-03:00",
+    "duracao_s":  43,
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "2be66fe1-42f5-4c83-a6ef-b07ab4478ba5",
+    "tokens":  {
+                   "entrada":  4,
+                   "saida":  5345,
+                   "cache_criacao":  18848,
+                   "cache_leitura":  10040
+               },
+    "custo_usd":  0.259708,
+    "turnos":  3,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "3d602ae17ae02ce470819a1ca2c956762fac69a112f10a5abe71703c84fa56e0",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  2,
+    "decisoes":  [
+                     {
+                         "descricao":  "Não alterar as telas de entrar/cadastrar que já existiam; implementar só o acesso da banca",
+                         "trecho":  "as telas de entrar e de cadastro já existiam no app [...] Não mexi nelas",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Acesso da banca por código de acesso compartilhado, em vez de botão \u0027entrar sem senha\u0027",
+                         "trecho":  "Por que escolhi um código em vez de um botão \"entrar sem senha\"",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Acesso da banca desligado por padrão, ligado pela variável de ambiente CODIGO_BANCA",
+                         "trecho":  "Fica DESLIGADO por padrão. Para ligar [...] a variável CODIGO_BANCA",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Código de acesso com no mínimo 6 caracteres",
+                         "trecho":  "a variável CODIGO_BANCA definida (mínimo 6 caracteres)",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Três perfis de teste: Aluno(a), Professor(a) e Faculdade (administrador)",
+                         "trecho":  "clica em um de três botões: Aluno(a) [...] Professor(a) [...] Faculdade",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Contas de teste criadas automaticamente no primeiro acesso",
+                         "trecho":  "As contas de teste são criadas sozinhas no primeiro acesso.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Contas de teste com e-mails fixos no domínio da faculdade (ex.: banca.aluno@unimax.edu.br)",
+                         "trecho":  "email: \u0027banca.aluno@unimax.edu.br\u0027",
+                         "tipo":  "modelo de dados",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Contas de teste sem senha e com e-mails bloqueados para cadastro",
+                         "trecho":  "As contas de teste não têm senha [...] ninguém consegue se cadastrar com os e-mails delas",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Ao desligar o acesso, as sessões das contas de teste são invalidadas na hora (checagem no middleware)",
+                         "trecho":  "até quem estava logado numa conta de teste perde o acesso na hora",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Limite de tentativas: 10 códigos errados bloqueiam o aparelho por 15 minutos",
+                         "trecho":  "Depois de 10 códigos errados, o aparelho tem que esperar 15 minutos",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Código de acesso sem distinção entre maiúsculas e minúsculas",
+                         "trecho":  "(sem ligar para maiúsculas) ... codigo: \u0027Banca-Teste\u0027",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Lógica em módulo dedicado src/banca.js, com rota nova POST /banca",
+                         "trecho":  "vou criar um módulo dedicado",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Caixa \u0027Banca do TCC\u0027 na tela de entrar, com campo de código, botões por perfil e borda tracejada",
+                         "trecho":  ".banca { margin-top: 1rem; border-style: dashed; }",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Código errado devolve 401 com a mensagem \u0027Código de acesso incorreto\u0027",
+                         "trecho":  "assert.match(errado.html, /Código de acesso incorreto/)",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Escrever teste automatizado para o acesso da banca",
+                         "trecho":  "Agora um teste para o acesso da banca",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Documentar no README como ligar o acesso da banca (PowerShell e Mac/Linux)",
+                         "trecho":  "Agora documento no README",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Não commitar sem autorização; depois, commit na branch rodada/leigo_01_login com mensagem escolhida pelo agente",
+                         "trecho":  "Fiz o commit [...] com o nome \"Acesso da banca do TCC com código de acesso\"",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Não enviar para o GitHub nem abrir pull request",
+                         "trecho":  "Não enviei pro GitHub, o commit está só no seu computador.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "Não fiz commit. Se quiser, eu faço na branch rodada/leigo_01_login.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se quiser que eu envie ou que abra um pull request para a main, é só falar.",
+                          "respondida":  false
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  18,
+                     "declaradas":  15,
+                     "silenciosas":  3,
+                     "duvidosas":  4,
+                     "perguntas":  2,
+                     "perguntas_respondidas":  1
+                 }
+}

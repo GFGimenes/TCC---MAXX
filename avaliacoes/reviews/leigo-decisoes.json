@@ -1,0 +1,1484 @@
+{
+    "produto":  "leigo",
+    "gerado_em":  "2026-11-08T20:21:03-03:00",
+    "status":  "ok",
+    "totais_completos":  true,
+    "totais":  {
+                   "decisoes":  168,
+                   "declaradas":  129,
+                   "silenciosas":  39,
+                   "duvidosas":  29,
+                   "perguntas":  25,
+                   "perguntas_respondidas":  18
+               },
+    "exports":  [
+                    {
+                        "export_id":  "leigo_00_abertura",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_00_abertura-sessao.txt",
+                        "hash_export":  "5b7e7e9ab611b94cc4c54f9c2f64bc9f8736c12a9a7b74c392d58779f8c200f3",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "a78fefd0-5329-4103-b686-9007c4cb2591",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  27,
+                                         "declaradas":  20,
+                                         "silenciosas":  7,
+                                         "duvidosas":  5,
+                                         "perguntas":  2,
+                                         "perguntas_respondidas":  1
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Construir como aplicativo web (não app nativo de celular)",
+                                             "trecho":  "Vou montar a primeira versão do Maxx com as decisões já tomadas: um app web",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Node.js (\u003e=22.13) com Express e multer",
+                                             "trecho":  "\"express\": \"^4.21.2\", \"multer\": \"^2.0.2\"",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Banco SQLite nativo do Node, num arquivo dados/maxx.db",
+                                             "trecho":  "const { DatabaseSync } = require(\u0027node:sqlite\u0027);",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "HTML gerado no servidor com sistema de templates próprio que escapa o conteúdo automaticamente contra XSS",
+                                             "trecho":  "Mini sistema de templates: tudo que é interpolado é escapado automaticamente",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Restrição à UniMax feita só pelo domínio de e-mail @unimax.edu.br",
+                                             "trecho":  "login só para e-mails @unimax.edu.br",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Todo cadastro entra como aluno; uma conta de administração (papel novo) decide quem é professor ou administrador",
+                                             "trecho":  "cadastro como aluno (a administração define os professores)",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Senha guardada com hash scrypt e sal aleatório",
+                                             "trecho":  "crypto.scryptSync(senha, sal, 64)",
+                                             "tipo":  "segurança",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Os prêmios viraram um sistema de pontos mais conquistas com bônus",
+                                             "trecho":  "desbloqueia conquistas com pontos extras, como \"Primeiro clique\" ou \"Popular\"",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Valores dos pontos: post +10, curtida recebida +2, comentário +3",
+                                             "trecho":  "o aluno ganha pontos quando posta (+10), quando recebe curtida de outra pessoa (+2)",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Curtir ou comentar o próprio post não dá pontos, e o comentário conta uma vez por post",
+                                             "trecho":  "Curtir ou comentar o próprio post não dá pontos.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Pontuação recalculada a partir dos dados, sem saldo guardado",
+                                             "trecho":  "Tudo é calculado a partir dos dados reais: se um post ou curtida for apagado, a pontuação se ajusta sozinha.",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Catálogo fixo de medalhas, cada uma valendo de 20 a 50 pontos e com mensagem do professor",
+                                             "trecho":  "Cada medalha vale de 20 a 50 pontos, por exemplo 🥇 Excelência acadêmica",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Só alunos entram no ranking",
+                                             "trecho":  "Ranking geral e por curso. Só alunos entram no ranking.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Só a conta da faculdade publica no mural, e o aviso fixado aparece também no topo do feed",
+                                             "trecho":  "Mural de avisos, onde só a conta da faculdade publica. Um aviso fixado também aparece no topo do feed.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Posts com foto e/ou texto, com as fotos guardadas no disco local, em dados/",
+                                             "trecho":  "Fotos enviadas e o banco de dados ficam na pasta `dados/`.",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Lista fixa de cursos definida em src/config.js",
+                                             "trecho":  "Para mudar a lista de cursos ... é só editar src/config.js",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Conta de administração criada automaticamente com senha padrão, que pode ser trocada pela variável ADMIN_SENHA",
+                                             "trecho":  "admin@unimax.edu.br / senha unimax-admin (troque definindo a variável ADMIN_SENHA",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Visual em roxo e rosa, com ícone de M em degradê e ícones SVG",
+                                             "trecho":  "--primaria: #5b21b6; --primaria-2: #db2777;",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "O professor dá a medalha por um formulário no perfil do aluno",
+                                             "trecho":  "no perfil de um aluno, o professor escolhe uma medalha e deixa uma mensagem",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Teste automatizado dos fluxos principais com node:test, num banco temporário",
+                                             "trecho":  "Now an automated test that walks through the main flows",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Script de dados de exemplo, com todas as contas usando a senha senha1234",
+                                             "trecho":  "Todas as contas de exemplo usam a senha `senha1234`",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Telas conferidas por script, sem abrir no navegador",
+                                             "trecho":  "Só não cheguei a olhar as telas no navegador; conferi as páginas por um script.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "README em português com instruções de execução",
+                                             "trecho":  "I\u0027ll stop the server and write the README in Portuguese",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "App roda só localmente, na porta 3000, e a hospedagem fica para depois",
+                                             "trecho":  "por enquanto o app roda só no seu computador",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Sem confirmação de e-mail por código nesta versão (deixada para depois)",
+                                             "trecho":  "Ele não envia um código para provar que a pessoa é dona daquele endereço",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  ".gitignore tira dados/ e node_modules/ do versionamento",
+                                             "trecho":  "A pasta dados/ ... não entrou no commit, de propósito.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Mecanismo de sessão e login não aparece na transcrição; há só o import de crypto no app.js",
+                                             "trecho":  "const crypto = require(\u0027node:crypto\u0027);",
+                                             "tipo":  "segurança",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Posso fazer um commit nesta branch se você quiser.",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Quer seguir com algum dos próximos passos? As opções são a confirmação de e-mail com código, colocar o app na internet ou mudar algo no app.",
+                                              "respondida":  false
+                                          }
+                                      ]
+                    },
+                    {
+                        "export_id":  "leigo_01_login",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_01_login-sessao.txt",
+                        "hash_export":  "418b03fba8b16c1439d4ab09dd316104490d4dba6ef2f870c87554d4b992d4da",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "2be66fe1-42f5-4c83-a6ef-b07ab4478ba5",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  18,
+                                         "declaradas":  15,
+                                         "silenciosas":  3,
+                                         "duvidosas":  4,
+                                         "perguntas":  2,
+                                         "perguntas_respondidas":  1
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Não alterar as telas de entrar/cadastrar que já existiam; implementar só o acesso da banca",
+                                             "trecho":  "as telas de entrar e de cadastro já existiam no app [...] Não mexi nelas",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Acesso da banca por código de acesso compartilhado, em vez de botão \u0027entrar sem senha\u0027",
+                                             "trecho":  "Por que escolhi um código em vez de um botão \"entrar sem senha\"",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Acesso da banca desligado por padrão, ligado pela variável de ambiente CODIGO_BANCA",
+                                             "trecho":  "Fica DESLIGADO por padrão. Para ligar [...] a variável CODIGO_BANCA",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Código de acesso com no mínimo 6 caracteres",
+                                             "trecho":  "a variável CODIGO_BANCA definida (mínimo 6 caracteres)",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Três perfis de teste: Aluno(a), Professor(a) e Faculdade (administrador)",
+                                             "trecho":  "clica em um de três botões: Aluno(a) [...] Professor(a) [...] Faculdade",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Contas de teste criadas automaticamente no primeiro acesso",
+                                             "trecho":  "As contas de teste são criadas sozinhas no primeiro acesso.",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Contas de teste com e-mails fixos no domínio da faculdade (ex.: banca.aluno@unimax.edu.br)",
+                                             "trecho":  "email: \u0027banca.aluno@unimax.edu.br\u0027",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Contas de teste sem senha e com e-mails bloqueados para cadastro",
+                                             "trecho":  "As contas de teste não têm senha [...] ninguém consegue se cadastrar com os e-mails delas",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Ao desligar o acesso, as sessões das contas de teste são invalidadas na hora (checagem no middleware)",
+                                             "trecho":  "até quem estava logado numa conta de teste perde o acesso na hora",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Limite de tentativas: 10 códigos errados bloqueiam o aparelho por 15 minutos",
+                                             "trecho":  "Depois de 10 códigos errados, o aparelho tem que esperar 15 minutos",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Código de acesso sem distinção entre maiúsculas e minúsculas",
+                                             "trecho":  "(sem ligar para maiúsculas) ... codigo: \u0027Banca-Teste\u0027",
+                                             "tipo":  "segurança",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Lógica em módulo dedicado src/banca.js, com rota nova POST /banca",
+                                             "trecho":  "vou criar um módulo dedicado",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Caixa \u0027Banca do TCC\u0027 na tela de entrar, com campo de código, botões por perfil e borda tracejada",
+                                             "trecho":  ".banca { margin-top: 1rem; border-style: dashed; }",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Código errado devolve 401 com a mensagem \u0027Código de acesso incorreto\u0027",
+                                             "trecho":  "assert.match(errado.html, /Código de acesso incorreto/)",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Escrever teste automatizado para o acesso da banca",
+                                             "trecho":  "Agora um teste para o acesso da banca",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Documentar no README como ligar o acesso da banca (PowerShell e Mac/Linux)",
+                                             "trecho":  "Agora documento no README",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Não commitar sem autorização; depois, commit na branch rodada/leigo_01_login com mensagem escolhida pelo agente",
+                                             "trecho":  "Fiz o commit [...] com o nome \"Acesso da banca do TCC com código de acesso\"",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Não enviar para o GitHub nem abrir pull request",
+                                             "trecho":  "Não enviei pro GitHub, o commit está só no seu computador.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Não fiz commit. Se quiser, eu faço na branch rodada/leigo_01_login.",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Se quiser que eu envie ou que abra um pull request para a main, é só falar.",
+                                              "respondida":  false
+                                          }
+                                      ]
+                    },
+                    {
+                        "export_id":  "leigo_02_feed",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_02_feed-sessao.txt",
+                        "hash_export":  "7b3c8f7d525f5d6e7488a29d5c00fa6f39e75029d21038ee4f5a152697fe3fc9",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "4418878b-ae23-4b2e-9dfa-66bcf4a2cf27",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  22,
+                                         "declaradas":  16,
+                                         "silenciosas":  6,
+                                         "duvidosas":  5,
+                                         "perguntas":  3,
+                                         "perguntas_respondidas":  1
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Incluir no feed cartões de medalhas dadas por professores, além das conquistas pedidas",
+                                             "trecho":  "Vou completar: conquistas e medalhas aparecendo no feed",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Criar tabela conquistas_alunos (aluno, conquista, anunciar, criado_em, UNIQUE aluno+conquista) para datar conquistas",
+                                             "trecho":  "Agora a tabela de conquistas desbloqueadas (para elas terem data e entrarem no feed)",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Conquistas antigas registradas sem aparecer no feed (anunciar = 0)",
+                                             "trecho":  "conquistas que os alunos já tinham antes desta mudança ficam registradas, mas não aparecem no feed",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Migração de dados via PRAGMA user_version executada no carregamento de pontos.js",
+                                             "trecho":  "if (db.prepare(\u0027PRAGMA user_version\u0027).get().user_version \u003c 1) {",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Conquista perdida depois continua no feed como histórico",
+                                             "trecho":  "o cartão continua no feed como histórico",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Cada conquista aparece uma única vez no feed",
+                                             "trecho":  "Cada conquista aparece uma vez só, mesmo que a pessoa faça outro post depois",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Comentar direto no feed, sem abrir a tela do post",
+                                             "trecho":  "Comentar direto no feed: cada post mostra ... uma caixa \u0027Adicione um comentário…\u0027",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Mostrar os 2 últimos comentários sob cada post no feed",
+                                             "trecho":  "const COMENTARIOS_NO_FEED = 2",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Cartões de medalha/conquista sem curtir nem comentar, só botão para o perfil",
+                                             "trecho":  "não dá para curtir nem comentar neles. Se quiser isso também, eu faço.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Feed misturado (posts, medalhas, conquistas) em ordem cronológica decrescente, com a paginação existente",
+                                             "trecho":  "tudo misturado do mais novo para o mais antigo",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Desempate no horário: conquista acima do post que a gerou",
+                                             "trecho":  "Em caso de empate no horário, a conquista aparece acima do post que a gerou.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Índices em posts(criado_em) e medalhas(criado_em)",
+                                             "trecho":  "CREATE INDEX IF NOT EXISTS idx_posts_data ON posts(criado_em);",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Novo módulo src/feed.js, movendo SQL_POST de app.js",
+                                             "trecho":  "Agora o módulo que monta o feed misturando posts, medalhas e conquistas",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Conteúdo dos cartões: medalha com professor, pontos e mensagem; conquista com descrição e bônus",
+                                             "trecho":  "com o nome do professor, os pontos e a mensagem dele",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Visual dos cartões de evento: emoji grande, gradiente radial, dourado para medalha, modo escuro",
+                                             "trecho":  ".evento-medalha .evento-corpo { background: radial-gradient(circle at 50% 0%, #fef3c7, transparent 70%); }",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Comentário pelo feed redireciona para âncora do post e recusa \u0027voltar\u0027 externo (pode ser preexistente)",
+                                             "trecho":  "voltar: \u0027//site-malicioso.com\u0027 })).local, \u0027/#post-2\u0027",
+                                             "tipo":  "segurança",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Script de demo com horários espalhados nas últimas horas",
+                                             "trecho":  "os dados de exemplo agora têm horários espalhados pelas últimas horas, para a banca ver",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Acrescentar testes automáticos do feed",
+                                             "trecho":  "Agora os testes automáticos:",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Conferência visual com print headless",
+                                             "trecho":  "Vou tirar um print rápido para conferir o visual",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Atualizar o README",
+                                             "trecho":  "Por último, atualizo o README",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Commit só após autorização, em branch própria, sem merge na main nem push",
+                                             "trecho":  "Não juntei com a main e não enviei nada para o GitHub.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Feed mostra só conquistas de usuários com papel aluno",
+                                             "trecho":  "WHERE ca.anunciar = 1 AND u.papel = \u0027aluno\u0027",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Se quiser, faço como nas rodadas anteriores (\"rodada: leigo_02_feed\").",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Se quiser isso também, eu faço. (curtir e comentar nos cartões de medalha e conquista)",
+                                              "respondida":  false
+                                          },
+                                          {
+                                              "texto":  "Não juntei com a main e não enviei nada para o GitHub. Se quiser, é só pedir.",
+                                              "respondida":  false
+                                          }
+                                      ]
+                    },
+                    {
+                        "export_id":  "leigo_03_perfil",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_03_perfil-sessao.txt",
+                        "hash_export":  "e8b29ac2b8d83b9c66532fa294decf324cb92b6683ab58e6fee895ee77a2b65e",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "232c1fb4-b1c0-48bd-a1bc-2aedd743ed0a",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  16,
+                                         "declaradas":  14,
+                                         "silenciosas":  2,
+                                         "duvidosas":  3,
+                                         "perguntas":  2,
+                                         "perguntas_respondidas":  1
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Reaproveitar e reorganizar a página de perfil existente (/u/:id) em vez de criar tela nova",
+                                             "trecho":  "The profile page (/u/:id) already exists with most of this… I\u0027m reorganizing the profile around points, prizes and posts next.",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Definir \u0027prêmios\u0027 como medalhas de professores + conquistas desbloqueadas, unificadas num único card",
+                                             "trecho":  "// Prêmios: medalhas dadas por professores + conquistas desbloqueadas.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Substituir o número de medalhas pelo total de prêmios (medalhas + conquistas) na linha de números do perfil",
+                                             "trecho":  "${stats.medalhas + stats.conquistas.length}\u003c/strong\u003e\u003cspan\u003eprêmios",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Adicionar extrato recolhível \u0027De onde vêm os pontos\u0027 com a origem dos pontos por categoria e o total",
+                                             "trecho":  "Novo link \"De onde vêm os pontos\": ao tocar, abre uma tabela que mostra de onde veio cada ponto",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Esconder conquistas não obtidas em bloco recolhível, com rótulo diferente no próprio perfil e no de terceiros",
+                                             "trecho":  "As que ainda faltam ficam escondidas em \"Próximas conquistas\" (no próprio perfil) ou \"Conquistas que faltam\"",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Exibir os pontos de bônus de cada conquista",
+                                             "trecho":  "Conquistas que o aluno já ganhou, com os pontos de bônus de cada uma.",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Estados vazios com texto explicativo e botão \u0027Publicar o primeiro post\u0027 no próprio perfil",
+                                             "trecho":  "No próprio perfil também aparece o botão \"Publicar o primeiro post\".",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Contador ao lado dos títulos das seções Prêmios e Posts",
+                                             "trecho":  "Posts (com o total ao lado do título)",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Texto alternativo das fotos derivado da legenda (ou \u0027Foto de \u003cnome\u003e\u0027) e aria-label \u0027Ver post\u0027 nos itens da grade",
+                                             "trecho":  "aria-label=\"Ver post\"\u003e… alt=\"${post.legenda || `Foto de ${p.nome}`}\"",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Novos estilos CSS: contador em pílula, tabela do extrato, subtítulos h3, summary na cor primária",
+                                             "trecho":  ".contador { font-size: .8rem; … border-radius: 999px",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Manter perfis de professor e faculdade como antes, só com título \u0027Posts\u0027 e aviso de vazio",
+                                             "trecho":  "Os perfis de professor e da faculdade continuam como antes, só com o título \"Posts\"",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Acrescentar asserções de teste para prêmios, extrato de pontos e contador de posts em test/fluxo.test.js",
+                                             "trecho":  "Now I\u0027ll add test assertions for the new profile pieces and run the tests.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Verificar a tela por screenshots com dados de demonstração numa pasta temporária, em largura de celular",
+                                             "trecho":  "check the page visually using demo data in a temporary folder, so your dados/ folder isn\u0027t touched",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Atribuir o corte à direita na captura à ferramenta de screenshot e não corrigir a página",
+                                             "trecho":  "the cropping comes from the screenshot tool, not the page",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Não fazer commit sem pedido e, após autorização, commitar no ramo rodada/leigo_03_perfil",
+                                             "trecho":  "Fiz o commit (4d1f8f7) no ramo rodada/leigo_03_perfil",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Não fazer push para o GitHub",
+                                             "trecho":  "Não enviei nada para o GitHub (push). Se quiser, é só pedir.",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Ainda não fiz o commit. É só pedir que eu faço.",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Não enviei nada para o GitHub (push). Se quiser, é só pedir.",
+                                              "respondida":  false
+                                          }
+                                      ]
+                    },
+                    {
+                        "export_id":  "leigo_04_mural",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_04_mural-sessao.txt",
+                        "hash_export":  "95a1c122e6dbe13c59e5129fa3ec179a89d0e01890b8ba68e569b48e0f967fe3",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "00748273-4ee7-4e4a-8cb0-4230d3695bc2",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  20,
+                                         "declaradas":  14,
+                                         "silenciosas":  6,
+                                         "duvidosas":  1,
+                                         "perguntas":  1,
+                                         "perguntas_respondidas":  1
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Estender o mural existente (antes só a faculdade publicava) em vez de criar outro",
+                                             "trecho":  "O mural já existe, mas hoje só a conta da faculdade publica. Vou ler o código relacionado para estender aos professores.",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Criar contador de avisos novos (bolinha com número no ícone do Mural)",
+                                             "trecho":  "um contador de avisos novos para os alunos",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Guardar o que já foi lido como coluna mural_visto_id (último id visto) em usuarios",
+                                             "trecho":  "um campo que guarda até qual aviso cada pessoa já leu",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Na migração, contas existentes começam com todos os avisos lidos; contas novas veem os antigos como Novo",
+                                             "trecho":  "quem já tinha conta começa com os avisos antigos marcados como lidos",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Abrir o Mural marca todos os avisos como lidos",
+                                             "trecho":  "Abriu o mural: tudo o que está nele passa a contar como lido.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Avisos publicados pela própria pessoa não contam como novos para ela",
+                                             "trecho":  "Quem publica não recebe aviso do próprio post.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Cada aviso mostra autor com nome, foto e etiqueta Oficial/Professor(a)",
+                                             "trecho":  "cada aviso mostrando quem publicou",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Só a faculdade fixa avisos no topo; opção oculta para professor",
+                                             "trecho":  "e só a faculdade fixa no topo",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Professor apaga só os próprios avisos; faculdade apaga qualquer um (403 nos demais casos)",
+                                             "trecho":  "cada um apaga só os próprios avisos (a faculdade apaga qualquer um)",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Campo fixado enviado por professor é ignorado silenciosamente no servidor, sem erro",
+                                             "trecho":  "const fixado = req.usuario.papel === \u0027admin\u0027 \u0026\u0026 req.body.fixado ? 1 : 0;",
+                                             "tipo":  "segurança",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Formulário de publicação recolhido em \u003cdetails\u003e, aberto quando há erro, com dica para o professor",
+                                             "trecho":  "\u003cdetails class=\"novo-aviso\" ${erro ? \u0027open\u0027 : \u0027\u0027}\u003e",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Após publicar, redireciona para a âncora do aviso criado",
+                                             "trecho":  "res.redirect(`/mural#aviso-${lastInsertRowid}`)",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Bolinha mostra 9+ acima de 9 avisos novos",
+                                             "trecho":  "${novos \u003e 9 ? \u00279+\u0027 : novos}",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Aviso de conta apagada aparece como da faculdade",
+                                             "trecho":  "Aviso de conta que foi apagada: mostra como da faculdade.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Destaque visual para avisos novos (borda lateral e selo Novo na cor primaria-2)",
+                                             "trecho":  ".aviso.novo { box-shadow: inset 4px 0 0 var(--primaria-2); }",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Ampliar o teste de fluxo para bolinha, publicação do professor e permissões de apagar/fixar",
+                                             "trecho":  "Agora os testes do fluxo.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Testar a migração em banco antigo",
+                                             "trecho":  "confiro a atualização num banco antigo (sem o campo novo)",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Incluir aviso de professor no npm run demo",
+                                             "trecho":  "incluo um aviso de professor no npm run demo",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Atualizar o README com as regras do mural",
+                                             "trecho":  "Atualizo o README para refletir as mudanças",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Não permitir edição de aviso após publicado",
+                                             "trecho":  "Deixei de fora: não dá para editar um aviso depois de publicado.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Quer que eu faça o commit?",
+                                              "respondida":  true
+                                          }
+                                      ]
+                    },
+                    {
+                        "export_id":  "leigo_05_trofeus",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_05_trofeus-sessao.txt",
+                        "hash_export":  "5b5aa358c115e849f8aaba9cdf2aac3b6ac775808a405df8178124d94b1aa2be",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "7422726c-ea1b-49cf-9db8-0575fa9a0b1c",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  23,
+                                         "declaradas":  18,
+                                         "silenciosas":  5,
+                                         "duvidosas":  3,
+                                         "perguntas":  1,
+                                         "perguntas_respondidas":  1
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Trocar o formato das conquistas de função \u0027atingiu\u0027 para campos numéricos \u0027conta\u0027/\u0027meta\u0027, ajustando também o cálculo em pontos.js",
+                                             "trecho":  "as conquistas passam a guardar a meta em números, para a tela conseguir mostrar o progresso",
+                                             "tipo":  "modelo de dados",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Criar a rota GET /u/:id/trofeus como página própria por aluno, com consulta agregada de medalhas por tipo (LEFT JOIN, COUNT, MAX)",
+                                             "trecho":  "app.get(\u0027/u/:id/trofeus\u0027, (req, res) =\u003e {",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Só alunos têm tela de troféus; professores e a conta da faculdade recebem 404",
+                                             "trecho":  "Professores e a conta da faculdade não têm essa tela, porque não participam dos prêmios",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Placar total soma conquistas e tipos de medalha (12), sem contar medalha repetida duas vezes",
+                                             "trecho":  "Placar no topo: por exemplo, \"3 de 12 troféus\"",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Destacar a \u0027próxima conquista\u0027, escolhida pelo maior percentual já cumprido",
+                                             "trecho":  "destaca a conquista que está mais perto de ser ganha",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Qualquer pessoa logada pode ver os troféus de qualquer aluno",
+                                             "trecho":  "Qualquer pessoa logada pode ver os troféus de um aluno",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Mostrar progresso numérico com barra e texto \u0027X/Y · Faltam N\u0027 em cada conquista que falta",
+                                             "trecho":  "uma barrinha de progresso e o que falta (ex.: \"8/50 · Faltam 42 curtidas\")",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Conquistas bloqueadas em cinza com borda tracejada e ganhas coloridas",
+                                             "trecho":  "As que faltam aparecem apagadas, em cinza",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Medalhas exibidas como coleção: ganhas em dourado, com contador ×N quando repetidas",
+                                             "trecho":  "se ganhou a mesma mais de uma vez aparece \"×2\"",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Mostrar há quanto tempo cada conquista foi desbloqueada",
+                                             "trecho":  "com \"✓ Desbloqueada\" e há quanto tempo",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Mostrar no placar os pontos rendidos pelos prêmios",
+                                             "trecho":  "quantos pontos esses prêmios renderam",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Ordenação: ganhas antes das que faltam; tipos de medalha por pontos, do maior para o menor",
+                                             "trecho":  "GROUP BY t.id ORDER BY t.pontos DESC, t.id",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Trocar a lista de conquistas que faltam no perfil por um botão para a tela de troféus",
+                                             "trecho":  "No perfil, a lista das conquistas que faltam foi trocada por esse botão",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Tornar o número de prêmios do topo do perfil um link para os troféus",
+                                             "trecho":  "Tocar no número de prêmios no topo do perfil também abre a tela",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Botão do cartão de conquista no feed passa a levar à tela de troféus",
+                                             "trecho":  "o botão dos cartões de conquista agora diz \"Ver troféus de Fulano\"",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Barras de progresso com role=progressbar e atributos ARIA",
+                                             "trecho":  "role=\"progressbar\" aria-valuemin=\"0\"",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Textos e menu ativo variam se é a própria tela ou a de outro aluno",
+                                             "trecho":  "ativo: p.id === req.usuario.id ? \u0027perfil\u0027 : \u0027\u0027",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Link para as mensagens dos professores no perfil via âncora #premios",
+                                             "trecho":  "Ver as mensagens dos professores ›",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Adicionar asserções da tela de troféus em test/fluxo.test.js e rodar a suíte",
+                                             "trecho":  "Let me add tests and run them",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Conferir a tela em navegador headless com dados de exemplo",
+                                             "trecho":  "I\u0027ll render the screen in a headless browser",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Atualizar o README com a seção Troféus",
+                                             "trecho":  "Atualizei o README e o teste automático",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Deixar finais de linha misturados confiando no .gitattributes",
+                                             "trecho":  "text=auto normalizes endings on commit, so mixed endings are harmless",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Commit só na branch rodada/leigo_05_trofeus, sem merge na main e sem push",
+                                             "trecho":  "Não juntei com a main e não enviei nada para o GitHub",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Ainda não fiz o commit. Quer que eu faça, seguindo o padrão das rodadas anteriores?",
+                                              "respondida":  true
+                                          }
+                                      ]
+                    },
+                    {
+                        "export_id":  "leigo_06_ranking",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_06_ranking-sessao.txt",
+                        "hash_export":  "ac3032591e65c0e37f22211f9aab99310033c2be6dd7fa4de95f112141d2d9af",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "0aed558c-c47e-48f8-ade9-6d19fffae7d6",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  17,
+                                         "declaradas":  14,
+                                         "silenciosas":  3,
+                                         "duvidosas":  4,
+                                         "perguntas":  2,
+                                         "perguntas_respondidas":  1
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Refazer a tela de ranking que já existia em vez de manter a lista simples, ampliando o que foi pedido com abas, cartão de posição, pódio e líderes de cada curso",
+                                             "trecho":  "vou transformá-la numa tela completa com abas, cartão de posição, pódio e o líder de cada curso",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Trocar o menu de seleção de curso por abas, mostrando em cada aba o número de alunos",
+                                             "trecho":  "As abas substituem o menu antigo.",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Pôr a aba do curso do aluno logo depois de \u0027Geral\u0027, com o rótulo \u0027(meu curso)\u0027",
+                                             "trecho":  "O curso do aluno vem primeiro, marcado como \"(meu curso)\"",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Criar o cartão \u0027sua posição\u0027, com pontos, posição no geral e no curso, e uma frase de quanto falta para passar o colega da frente (diferença + 1) ou de quantos pontos o líder está à frente",
+                                             "trecho":  "Faltam 5 pontos para passar Júlia e subir para o 2º lugar",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Pódio com os 3 primeiros, que só aparece com pelo menos 3 alunos e líder com mais de 0 pontos",
+                                             "trecho":  "const comPodio = lista.length \u003e= 3 \u0026\u0026 lista[0].total \u003e 0;",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Seção \u0027Líderes de cada curso\u0027, só na aba Geral, com aviso de quantos cursos ainda não têm alunos",
+                                             "trecho":  "Líderes de cada curso: só na aba Geral.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Alunos com zero pontos aparecem mais apagados",
+                                             "trecho":  "Alunos com zero pontos aparecem mais apagados.",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Mensagem explicando a professores e à conta da faculdade que eles só veem o ranking e não participam (a regra já existia; só o texto é novo)",
+                                             "trecho":  "Professores e a faculdade acompanham o ranking, mas só alunos participam.",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Mostrar só o primeiro nome no pódio, nas frases e na lista de líderes",
+                                             "trecho":  "const primeiroNome = (nome) =\u003e nome.split(\u0027 \u0027)[0];",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Nova função rankings(), que calcula o geral e todos os cursos de uma vez, com a função de posição separada (posicionar)",
+                                             "trecho":  "O ranking geral e o de cada curso de uma vez só (uma consulta ao banco).",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Regra global min-width: 0 em todos os cartões do app",
+                                             "trecho":  "Fiz mais uma mudança, no estilo de todos os cartões do app",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Texto da aba ativa com var(--cartao) no lugar de #fff (coerência com o tema)",
+                                             "trecho":  "color: var(--cartao);",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Novos testes de integração para posição, abas, líderes e visão do professor",
+                                             "trecho":  "Os testes automáticos passam, inclusive os novos que cobrem estas partes.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Conferir o visual num banco temporário, com print pelo Edge headless numa largura de celular (iframe de 375px) e no tema escuro",
+                                             "trecho":  "coloco a página num iframe de 375px",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Atualizar o README com a descrição da nova tela",
+                                             "trecho":  "atualizar o README",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Não fazer o commit de merge \u0027rodada: …\u0027 das rodadas anteriores",
+                                             "trecho":  "Não fiz o commit de merge \"rodada: leigo_06_ranking\"",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Novo texto para a lista vazia: \u0027Nenhum aluno … entrou no Maxx ainda\u0027",
+                                             "trecho":  "Nenhum aluno ${curso ? \u0027deste curso\u0027 : \u0027\u0027} entrou no Maxx ainda.",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Ainda não fiz o commit. Quer que eu faça, no mesmo formato das rodadas anteriores?",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Não fiz o commit de merge \"rodada: leigo_06_ranking\" [...] Se quiser, eu faço também.",
+                                              "respondida":  false
+                                          }
+                                      ]
+                    },
+                    {
+                        "export_id":  "leigo_07_deploy_v2",
+                        "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_07_deploy_v2-sessao.txt",
+                        "hash_export":  "23d516f865e6a59692202aada7e5ffc037fe90c911d0e95edba898ca8c8aa9fd",
+                        "status":  "ok",
+                        "motivos":  [
+
+                                    ],
+                        "tentativa":  1,
+                        "sessao_id":  "237c64bb-6602-4927-ab39-bb72a40fb57b",
+                        "leitura_completa":  true,
+                        "contagem":  {
+                                         "decisoes":  25,
+                                         "declaradas":  18,
+                                         "silenciosas":  7,
+                                         "duvidosas":  4,
+                                         "perguntas":  12,
+                                         "perguntas_respondidas":  11
+                                     },
+                        "decisoes":  [
+                                         {
+                                             "descricao":  "Configurou trust proxy \u0027loopback\u0027 no Express sem a persona aprovar a oferta",
+                                             "trecho":  "app.set(\u0027trust proxy\u0027, \u0027loopback\u0027);",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Em produção o app não sobe sem a variável ADMIN_SENHA",
+                                             "trecho":  "throw new Error(\u0027Defina a variável ADMIN_SENHA antes de colocar o Maxx no ar",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Manteve o domínio fictício unimax.edu.br entre os aceitos no cadastro",
+                                             "trecho":  "DOMINIOS_PERMITIDOS: [\u0027unimax.edu.br\u0027, \u0027al.unieduk.com.br\u0027]",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "A tela de cadastro passou a listar todos os domínios aceitos",
+                                             "trecho":  "const dominio = config.DOMINIOS_PERMITIDOS.join(\u0027 ou @\u0027);",
+                                             "tipo":  "UX e visual",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Reescreveu o conteúdo de exemplo (bios e posts) e os testes para os cursos novos",
+                                             "trecho":  "atualizo o conteúdo de exemplo e os testes, que usavam cursos antigos",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Deploy em servidor próprio: Node 22, Caddy para HTTPS, /opt/maxx, /var/lib/maxx, endereço sslip.io, scripts servidor.sh e publicar.ps1",
+                                             "trecho":  "instala Node.js 22 e o Caddy (que cuida do HTTPS sozinho)",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Regras para a senha do admin (mínimo 8, sem aspas) e para o código da banca (letras e números, mínimo 6), e arquivo de configuração com umask 077",
+                                             "trecho":  "Código de acesso da banca do TCC (mínimo 6 caracteres, só letras e números)",
+                                             "tipo":  "segurança",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Adicionou *.sh text eol=lf ao .gitattributes",
+                                             "trecho":  "printf \u0027*.sh text eol=lf\\n\u0027 \u003e\u003e .gitattributes",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Criou no README a seção de publicação no Oracle",
+                                             "trecho":  "Falta só registrar no README como publicar.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Cadastro com @prof.unieduk.com.br vira professor automaticamente, sem aprovação explícita",
+                                             "trecho":  "quem se cadastrar com @prof.unieduk.com.br vai virar professor automaticamente",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Escreveu um teste para o papel de professor definido pelo domínio",
+                                             "trecho":  "test(\u0027e-mail de professor já entra como professor(a)\u0027",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Recomendou o Azure for Students como caminho único",
+                                             "trecho":  "Para quem é aluno, o melhor caminho é o Azure for Students",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Criou a pasta .ssh e uma chave ed25519 no PC da persona por conta própria",
+                                             "trecho":  "Vou criar a pasta e a chave por você.",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "SQLite em journal_mode DELETE no Azure e busy_timeout de 5000",
+                                             "trecho":  "db.exec(`PRAGMA journal_mode = ${NO_AZURE ? \u0027DELETE\u0027 : \u0027WAL\u0027};`);",
+                                             "tipo":  "stack e arquitetura",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "No Azure, confia em 1 proxy e tira a porta do IP do visitante",
+                                             "trecho":  "app.set(\u0027trust proxy\u0027, process.env.WEBSITE_SITE_NAME ? 1 : \u0027loopback\u0027);",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Instalou o Azure CLI baixando o instalador MSI, sem winget",
+                                             "trecho":  "Vou baixar o instalador oficial direto da Microsoft.",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Mudou para o login do Azure por código (device-code)",
+                                             "trecho":  "Vamos usar o login por código, que não depende de o navegador abrir sozinho.",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Criou os recursos do Azure com o nome maxx-guilherme; demais parâmetros não aparecem",
+                                             "trecho":  "Atualiza o Maxx no Azure App Service (site maxx-guilherme.azurewebsites.net)",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Dados do app no Azure em /home/maxx-dados",
+                                             "trecho":  "As contas, posts e fotos ficam no Azure em /home/maxx-dados",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Gerou uma senha forte para o admin e a salvou num arquivo em Documents",
+                                             "trecho":  "eu gerei uma senha forte e salvei em C:\\Users\\Guilherme Gimenes\\Documents\\maxx-senha-admin.txt",
+                                             "tipo":  "segurança",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Teste no site já publicado: criou posts, reiniciou o site e apagou os posts de teste",
+                                             "trecho":  "entro como faculdade, publico um post com foto, reinicio o site e confiro",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Criou o script publicar-azure.ps1 e a seção do Azure no README",
+                                             "trecho":  "Write(scripts\\publicar-azure.ps1)",
+                                             "tipo":  "hospedagem e deploy",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Reiniciou de novo o site, já usado pela persona, com o post real dela",
+                                             "trecho":  "Vou religar o site mais uma vez para ver se a sua foto sobrevive",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         },
+                                         {
+                                             "descricao":  "Manteve o login admin@unimax.edu.br e o nome UniMax, mesmo com a faculdade sendo a Unieduk",
+                                             "trecho":  "Você vai entrar com admin@unimax.edu.br e essa senha.",
+                                             "tipo":  "regra de produto",
+                                             "forma":  "silenciosa",
+                                             "duvidosa":  true
+                                         },
+                                         {
+                                             "descricao":  "Reescreveu a seção de publicação do README trocando Oracle por Google, sem commit",
+                                             "trecho":  "Só troquei no README a parte que falava da Oracle.",
+                                             "tipo":  "testes e processo",
+                                             "forma":  "declarada",
+                                             "duvidosa":  false
+                                         }
+                                     ],
+                        "perguntas":  [
+                                          {
+                                              "texto":  "Quer que eu prepare isso? [...] Qual das duas opções você prefere?",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Qual você prefere? (Railway, Oracle ou banco online)",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "me diga qual é o domínio do e-mail de vocês",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Se os cursos de vocês forem outros, me diga quais são e eu troco.",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Professores: o e-mail deles também é @al.unieduk.com.br?",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Você tem um cartão para fazer o cadastro na Oracle?",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "As mudanças ainda não foram salvas no git. Quer que eu faça o commit?",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Tenta ver a opção de pessoa física na Oracle primeiro. Se não achar, me avisa",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Me conta se a série B apareceu com essa mudança.",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Posso seguir com o App Service?",
+                                              "respondida":  true
+                                          },
+                                          {
+                                              "texto":  "Os testes continuam passando, mas essas mudanças ainda não foram salvas no git. Quer que eu faça o commit? (19:11)",
+                                              "respondida":  false
+                                          },
+                                          {
+                                              "texto":  "As mudanças no código para o Azure e o script de atualização ainda não estão salvos no git. Quer que eu faça o commit? (19:20)",
+                                              "respondida":  true
+                                          }
+                                      ]
+                    }
+                ]
+}

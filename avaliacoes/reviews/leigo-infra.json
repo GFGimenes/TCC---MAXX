@@ -1,0 +1,165 @@
+{
+    "produto":  "leigo",
+    "eixo":  "infra",
+    "secao":  "3. Infraestrutura",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:07:27-03:00",
+    "fim":  "2026-11-08T20:08:46-03:00",
+    "duracao_s":  79,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo",
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "311fa8c1-b138-48d3-874a-59ba736925c2",
+    "tokens":  {
+                   "entrada":  12,
+                   "saida":  9062,
+                   "cache_criacao":  40194,
+                   "cache_leitura":  140548
+               },
+    "custo_usd":  0.5309496,
+    "turnos":  18,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "e8eacdadf6e39f645b31d914836aa965d9cfb5e36b18c0bc718daba2f756f528",
+    "encaixe":  {
+                    "presente":  false,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  "Sem relatório de carga em C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\avaliacoes\\carga para \u0027leigo-*\u0027. O eixo Infraestrutura segue sem ele."
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  17,
+    "nota":  3,
+    "justificativa":  "Há deploy numa URL pública declarada (Azure App Service F1) e um caminho alternativo por script para Ubuntu (systemd com Restart=always, Caddy com HTTPS, usuário sem privilégio, /etc/maxx.env com umask 077, versão anterior preservada). A configuração sensível e a que muda por ambiente vem de variáveis (ADMIN_SENHA, CODIGO_BANCA, MAXX_DADOS, PORT), com trava contra senha padrão em produção. Não chega ao 4: não há contêiner nem deploy reproduzível independente da máquina do autor (scripts PowerShell com caminho fixo do az.cmd), o banco é SQLite embutido no processo e no mesmo disco das fotos, não há backup além de uma frase no README e a observabilidade se resume a console.error. Fotos servidas pela própria API, rate limit em memória e banco em arquivo local impedem rodar mais de uma instância; plano F1 que hiberna. Não há relatório de teste de carga para este produto; a nota foi dada sem ele.",
+    "evidencias":  [
+                       {
+                           "local":  "README.md:16-27",
+                           "descricao":  "Instruções de execução local (Node \u003e= 22.13, npm install, npm start); dependências declaradas em package.json:12-18 com package-lock.json."
+                       },
+                       {
+                           "local":  "README.md:64-75",
+                           "descricao":  "Deploy declarado em https://maxx-guilherme.azurewebsites.net (Azure F1, hiberna após ~20 min, cerca de 1 GB de dados)."
+                       },
+                       {
+                           "local":  "scripts/publicar-azure.ps1:11-22",
+                           "descricao":  "Deploy via az webapp deploy em zip; caminho do Azure CLI fixo no Windows e grupo/site fixos como padrão: depende da máquina do autor."
+                       },
+                       {
+                           "local":  "scripts/servidor.sh:44-57",
+                           "descricao":  "Código em /opt/maxx e dados em /var/lib/maxx, usuário de sistema maxx, npm ci --omit=dev, versão anterior guardada em /opt/maxx.antigo."
+                       },
+                       {
+                           "local":  "scripts/servidor.sh:76-84",
+                           "descricao":  "Configuração de produção em /etc/maxx.env com umask 077 (NODE_ENV, PORT, MAXX_DADOS, ADMIN_SENHA, CODIGO_BANCA)."
+                       },
+                       {
+                           "local":  "scripts/servidor.sh:89-118",
+                           "descricao":  "Serviço systemd com Restart=always e Caddy como proxy reverso com HTTPS automático em sslip.io."
+                       },
+                       {
+                           "local":  "scripts/servidor.sh:128-141",
+                           "descricao":  "Checagem final com curl; se falhar, mostra o journalctl."
+                       },
+                       {
+                           "local":  "src/config.js:22-30",
+                           "descricao":  "Configuração por variáveis de ambiente; cursos, domínios e tamanho máximo de imagem fixos no código (linhas 9-19 e 31)."
+                       },
+                       {
+                           "local":  "src/db.js:120-122",
+                           "descricao":  "O app se recusa a subir em produção sem ADMIN_SENHA."
+                       },
+                       {
+                           "local":  "src/db.js:3-15",
+                           "descricao":  "SQLite embutido (node:sqlite) num arquivo da pasta de dados; WAL fora do Azure e DELETE no Azure; banco não separado da aplicação."
+                       },
+                       {
+                           "local":  "src/db.js:129",
+                           "descricao":  "Senha do admin escrita em texto claro no log de inicialização."
+                       },
+                       {
+                           "local":  "src/app.js:15,32-37,201",
+                           "descricao":  "Uploads gravados em disco local pelo multer diskStorage e servidos pela própria API em /uploads: fotos não estão fora da API."
+                       },
+                       {
+                           "local":  "src/banca.js:36",
+                           "descricao":  "Limite de tentativas num Map em memória: zera no restart e não é compartilhado entre instâncias."
+                       },
+                       {
+                           "local":  "src/app.js:59-72,126-130",
+                           "descricao":  "Sessões persistidas no banco (sobrevivem a restart); cookie secure em produção."
+                       },
+                       {
+                           "local":  "src/app.js:194",
+                           "descricao":  "Sessões só são apagadas no logout; não há limpeza das expiradas."
+                       },
+                       {
+                           "local":  "src/app.js:116-118",
+                           "descricao":  "trust proxy configurado conforme o ambiente (Azure ou loopback)."
+                       },
+                       {
+                           "local":  "src/app.js:477",
+                           "descricao":  "Observabilidade limitada a console.error em erros 500; sem log de requisição, health check ou métricas."
+                       },
+                       {
+                           "local":  "README.md:114",
+                           "descricao":  "Backup só recomendado em texto (\u0027Faça backup dela\u0027); sem script, rotina nem restauração."
+                       },
+                       {
+                           "local":  "raiz do repositório",
+                           "descricao":  "Sem Dockerfile, docker-compose, infraestrutura como código ou workflow de CI."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Login por RA (só e-mail)",
+                            "Tiers Bronze/Prata/Ouro/Diamante com faixas de pontos e progressão até o Diamante",
+                            "Professor só dá medalha a alunos com quem tem aula",
+                            "Rankings all-time geral e all-time por curso",
+                            "Categorias do mural (Faculdade, Curso, Professores) e log de leitura de avisos",
+                            "Ex-aluno que mantém acesso mas não pontua",
+                            "Prova por foto, denúncia e revogação de prêmios",
+                            "Esqueci minha senha",
+                            "Seguidores e seguindo",
+                            "Teste de carga executado"
+                        ],
+    "decisoes_do_agente":  [
+                               "Hospedar no Azure App Service, plano gratuito F1 do Azure for Students",
+                               "Criar deploy alternativo em Ubuntu próprio (Oracle Cloud Always Free) com systemd, Caddy, HTTPS por sslip.io e liberação de portas no iptables",
+                               "Usar SQLite embutido (node:sqlite) com troca de journal_mode (WAL/DELETE) conforme o ambiente",
+                               "Guardar as fotos no disco local, na mesma pasta de dados do banco",
+                               "Configurar por variáveis de ambiente e travar a subida em produção sem ADMIN_SENHA",
+                               "Criar o modo \u0027banca do TCC\u0027 ligado por variável de ambiente, com limite de tentativas em memória",
+                               "Ajustar trust proxy conforme o ambiente (Azure ou loopback)",
+                               "Rodar o serviço com usuário de sistema sem privilégio e guardar a versão anterior em /opt/maxx.antigo",
+                               "Fixar o caminho do Azure CLI e os nomes de grupo e site no script de publicação",
+                               "Escrever a senha do admin em texto claro no log de inicialização"
+                           ],
+    "nao_verificado":  [
+                           "Se a URL https://maxx-guilherme.azurewebsites.net está no ar e corresponde a este commit",
+                           "Se o deploy zip no Azure instala dependências (depende de SCM_DO_BUILD_DURING_DEPLOYMENT/Oryx, configurado fora do repositório)",
+                           "Se MAXX_DADOS=/home/maxx-dados e NODE_ENV=production estão definidas no portal do Azure",
+                           "Se scripts/servidor.sh funciona de ponta a ponta num Ubuntu limpo",
+                           "Se npm install, npm start e npm test rodam sem erro",
+                           "Comportamento sob carga e sob concorrência de escrita no SQLite em disco de rede (não há relatório de teste de carga)",
+                           "Existência de rotina de backup configurada fora do repositório"
+                       ]
+}

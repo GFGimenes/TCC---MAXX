@@ -1,0 +1,192 @@
+{
+    "produto":  "leigo",
+    "eixo":  "arquitetura",
+    "secao":  "6. Projeto e arquitetura",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:11:46-03:00",
+    "fim":  "2026-11-08T20:13:18-03:00",
+    "duracao_s":  92,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo",
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "4325a51f-d8b6-4741-a82b-163e250dff14",
+    "tokens":  {
+                   "entrada":  14,
+                   "saida":  10403,
+                   "cache_criacao":  62580,
+                   "cache_leitura":  213879
+               },
+    "custo_usd":  0.7515318,
+    "turnos":  20,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "db859cd7c126927aea7727f8c791c36c4d3ef1d948d16b2c4e5fe555f3bc2d45",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  19,
+    "nota":  3,
+    "justificativa":  "Monólito Express+SQLite coerente com a stack, com módulos razoavelmente separados por assunto (config, regras, pontos, feed, db, views, html, app). Valores de pontos e conquistas centralizados em regras.js e pontos calculados a partir dos fatos. Não chega a 4 porque as regras não ficam num lugar só: o critério de conquista e a fórmula de pontos são refeitos em views.js. app.js mistura rotas, SQL embutido e permissões sem camada de dados, e as views também decidem permissões. O acesso da banca está acoplado ao middleware de sessão. O modelo de dados não representa tiers, períodos, RA nem ex-aluno, e troféus e conquistas estão fixos no código. O ranking recalcula todos os alunos a cada pedido (duas vezes por perfil), sem preparo para o campus inteiro. O produto cobre o pitch geral (feed, perfil, pontos, medalhas, ranking geral e por curso, mural, troféus) com lacunas grandes de regra, listadas como ausentes sem reduzir a nota.",
+    "evidencias":  [
+                       {
+                           "local":  "src/regras.js:4-29",
+                           "descricao":  "Valores de pontos, conquistas e medalhas padrão centralizados num só módulo (ponto forte)."
+                       },
+                       {
+                           "local":  "src/pontos.js:7-30",
+                           "descricao":  "Pontos calculados a partir de contagens em SQL, sem saldo guardado."
+                       },
+                       {
+                           "local":  "src/views.js:369-371",
+                           "descricao":  "Extrato do perfil repete a fórmula de pontos por ação, duplicando pontos.js:23-28."
+                       },
+                       {
+                           "local":  "src/views.js:437",
+                           "descricao":  "Critério \u0027s[c.conta] \u003e= c.meta\u0027 repetido na view, duplicando pontos.js:21."
+                       },
+                       {
+                           "local":  "src/views.js:471-472",
+                           "descricao":  "Tela de troféus recalcula conquistas ganhas e faltantes em vez de usar stats.conquistas."
+                       },
+                       {
+                           "local":  "src/views.js:4-5",
+                           "descricao":  "Camada de apresentação importa banca.js e regras.js (dependência da view em módulos de regra)."
+                       },
+                       {
+                           "local":  "src/app.js:228-465",
+                           "descricao":  "Rotas com SQL embutido e regras de permissão misturadas, sem camada de repositório ou serviço."
+                       },
+                       {
+                           "local":  "src/app.js:132",
+                           "descricao":  "Regra das contas da banca dentro do middleware central de sessão (acoplamento evitável)."
+                       },
+                       {
+                           "local":  "src/pontos.js:41-45",
+                           "descricao":  "Ranking por curso refaz a consulta de todos os alunos e filtra em memória."
+                       },
+                       {
+                           "local":  "src/pontos.js:56-62",
+                           "descricao":  "statsDoAluno chama ranking() duas vezes a cada perfil visitado: custo cresce com o número de alunos."
+                       },
+                       {
+                           "local":  "src/pontos.js:77-80",
+                           "descricao":  "Migração de dados (PRAGMA user_version) escondida no módulo de pontos."
+                       },
+                       {
+                           "local":  "src/db.js:106-111",
+                           "descricao":  "Outra migração ad hoc (ALTER TABLE) em db.js; não há mecanismo único de migração."
+                       },
+                       {
+                           "local":  "src/db.js:20-30",
+                           "descricao":  "Tabela usuarios sem RA, semestre ou situação de ex-aluno; papel limitado por CHECK."
+                       },
+                       {
+                           "local":  "src/db.js:62-78",
+                           "descricao":  "tipos_medalha só com pontos; sem tier, encontrabilidade, tabela de troféus ou de períodos."
+                       },
+                       {
+                           "local":  "src/db.js:94-101",
+                           "descricao":  "avisos sem categoria e sem log de leitura."
+                       },
+                       {
+                           "local":  "src/app.js:333-346",
+                           "descricao":  "Qualquer professor dá medalha a qualquer aluno; o modelo não tem relação de turma."
+                       },
+                       {
+                           "local":  "src/config.js:9",
+                           "descricao":  "Domínios aceitos unimax.edu.br e unieduk, diferente do @unimax.com.br da especificação."
+                       },
+                       {
+                           "local":  "src/views.js:141",
+                           "descricao":  "Texto diz que o professor deve pedir liberação, mas config.js:11 e app.js:177 promovem automaticamente o domínio de professor (regra incoerente em dois lugares)."
+                       },
+                       {
+                           "local":  "src/views.js:84-90",
+                           "descricao":  "Navegação inferior sem Busca e sem Troféus, diferente da especificação (Home, Busca, Mural, Troféus, Perfil)."
+                       },
+                       {
+                           "local":  "src/feed.js:16-27",
+                           "descricao":  "Feed bem estruturado (união com paginação e carga em lote), mas conquistas como cartões separados, não como selo no post."
+                       },
+                       {
+                           "local":  "src/html.js:1-33",
+                           "descricao":  "Mini sistema de templates com escape padrão, abstração pequena e adequada."
+                       },
+                       {
+                           "local":  "Tela Ranking",
+                           "descricao":  "Só Geral e uma aba por curso (views.js:552-560); faltam as visões all-time pedidas na especificação."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Tiers Bronze, Prata, Ouro e Diamante com faixas de pontos 1-30, 31-70, 71-100, 101-150",
+                            "Progressão de tier ao repetir a mesma conquista",
+                            "Distinção entre troféus (peso maior) e medalhas como entidades próprias",
+                            "Nível de encontrabilidade dos prêmios",
+                            "Cadastro de troféus e medalhas pelo corpo da faculdade pela interface",
+                            "Professor só dá medalha a alunos de quem é professor ou orientador",
+                            "Prova por foto, denúncia e revogação de prêmios",
+                            "Login por RA; RA no cadastro e semestre no perfil",
+                            "Ex-aluno mantém acesso e posição mas não pontua",
+                            "Esqueci minha senha",
+                            "Rankings all-time geral e all-time por curso (períodos)",
+                            "Seguidores, seguindo e followed by",
+                            "Sino de notificações no header",
+                            "Busca na navegação",
+                            "Compartilhar post",
+                            "Selo de conquista associado ao post",
+                            "Categorias do mural (Faculdade, Curso, Professores) com filtro e público-alvo",
+                            "Colapso e semi-colapso do mural, bolinha amarela por aviso e botão ler todos",
+                            "Log de leitura dos avisos (diferença de escopo emergente esperada na trilha leiga)",
+                            "Troféus de assiduidade, techdays, feiras e acúmulo ligados a eventos acadêmicos",
+                            "Domínio institucional @unimax.com.br"
+                        ],
+    "decisoes_do_agente":  [
+                               "Monólito Express com HTML gerado no servidor, template próprio (html.js) e SQLite nativo do Node",
+                               "Pontos calculados a partir dos fatos, sem saldo guardado",
+                               "Sistema próprio de pontos por ação social (post +10, curtida recebida +2, comentário +3) no lugar da pontuação por tier dos prêmios",
+                               "Conquistas automáticas fixas em regras.js fazendo o papel de troféus, com tabela à parte só para o feed",
+                               "Medalhas padrão criadas no banco na primeira execução a partir de constante no código",
+                               "Feed único misturando posts, medalhas e conquistas com paginação",
+                               "Só alunos participam do ranking",
+                               "Papel admin (conta da faculdade) e tela de Administração para mudar papéis",
+                               "Promoção automática a professor por domínio de e-mail",
+                               "Mural com fixação só pelo admin e contador de não lidos por último id visto",
+                               "Módulo de acesso da banca com contas de teste sem senha, ligado por variável de ambiente",
+                               "Migrações ad hoc dentro de db.js e pontos.js sem ferramenta de migração",
+                               "Configuração da instituição (cursos, domínios) em config.js no código, não no banco",
+                               "Navegação inferior própria (Início, Mural, Postar, Ranking, Perfil), com Troféus acessível pelo perfil"
+                           ],
+    "nao_verificado":  [
+                           "Se a aplicação sobe e se as rotas funcionam de ponta a ponta",
+                           "Se npm test passa",
+                           "Desempenho real do ranking e do perfil com muitos alunos",
+                           "Se o deploy citado no README (Azure) está no ar e corresponde a este commit",
+                           "Comportamento visual das telas",
+                           "Compatibilidade de node:sqlite e json_each com a versão de Node indicada",
+                           "Quais regras a persona pediu de fato em cada rodada (sem acesso aos prompts e sessões); decisões do agente inferidas só pelo código"
+                       ]
+}

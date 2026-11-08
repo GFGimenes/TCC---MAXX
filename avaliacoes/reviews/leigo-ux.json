@@ -1,0 +1,215 @@
+{
+    "produto":  "leigo",
+    "eixo":  "ux",
+    "secao":  "1. Experiência do usuário",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:02:58-03:00",
+    "fim":  "2026-11-08T20:04:56-03:00",
+    "duracao_s":  118,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo",
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "d071c03a-0c79-45eb-bb17-4c7e10b09221",
+    "tokens":  {
+                   "entrada":  12,
+                   "saida":  12652,
+                   "cache_criacao":  70020,
+                   "cache_leitura":  217543
+               },
+    "custo_usd":  0.8567566000000001,
+    "turnos":  15,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "e5fae6be371a748317c6a5ccb5f278d5bcf7ca30397b0ed015cac00363f20776",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  14,
+    "nota":  4,
+    "justificativa":  "As seis telas existem e são utilizáveis de ponta a ponta pela leitura do código (SSR em Express, sem JS no cliente). Visual coerente com uma folha de estilo única, componentes repetidos, tema escuro automático e navegação inferior fixa com aba ativa. Estados vazios e de erro bem tratados: formulários re-renderizados com mensagem e dados preservados, página de erro padrão, mensagens claras de upload, estados vazios com chamada para a ação. O agente resolveu com bom senso o que a especificação não diz (quanto falta para passar o colega, próxima conquista com progresso, extrato de pontos, contador de avisos novos). Não chega a 5 por divergências em funções existentes: Mural não é o botão central (é \u0027Postar\u0027), Troféus fora da navegação, pontos e posição do perfil não abrem o ranking, troféus e medalhas como seções e não abas, tema escuro sem botão, cadastro listando três domínios de marcas diferentes, professor obrigado a escolher curso. Também não há indicação de carregamento nem bloqueio de duplo envio, e a legenda se perde quando o upload falha. As regras ausentes não reduziram a nota.",
+    "evidencias":  [
+                       {
+                           "local":  "src/views.js:113-126",
+                           "descricao":  "Login só por e-mail e senha; sem RA e sem \u0027esqueci minha senha\u0027; Entrar e Cadastrar são páginas separadas ligadas por link, não abas."
+                       },
+                       {
+                           "local":  "src/views.js:132 / src/config.js:9",
+                           "descricao":  "Dica do cadastro lista \u0027@unimax.edu.br ou @al.unieduk.com.br ou @prof.unieduk.com.br\u0027, misturando marcas; diverge da especificação (@unimax.com.br) e do README.md:8."
+                       },
+                       {
+                           "local":  "src/views.js:137,141 / src/app.js:177",
+                           "descricao":  "Professor precisa escolher curso obrigatório; a dica manda pedir liberação à faculdade, mas o domínio prof já entra como professor automaticamente."
+                       },
+                       {
+                           "local":  "src/app.js:147,173",
+                           "descricao":  "Erros de login e cadastro re-renderizam o formulário com mensagem e valores preservados."
+                       },
+                       {
+                           "local":  "src/views.js:84-90",
+                           "descricao":  "Navegação: Início, Mural, Postar (centro), Ranking, Perfil. Especificação: Home, Busca, Mural (centro), Troféus, Perfil."
+                       },
+                       {
+                           "local":  "src/views.js:60-63",
+                           "descricao":  "Bolinha com contagem de avisos não vistos no ícone do Mural, com aria-label descritivo."
+                       },
+                       {
+                           "local":  "src/views.js:148-192",
+                           "descricao":  "Cartão de post com autor e curso, foto ou texto, curtir/descurtir, comentar, contagem de curtidas, legenda, últimos comentários e campo de comentário no feed; sem compartilhar."
+                       },
+                       {
+                           "local":  "src/app.js:252,263",
+                           "descricao":  "Curtir e comentar fazem POST com redirect para a âncora do post, mantendo a posição no feed sem JavaScript."
+                       },
+                       {
+                           "local":  "src/views.js:195-225",
+                           "descricao":  "Cartões de medalha e conquista no feed, aproximando o selo de conquista do post."
+                       },
+                       {
+                           "local":  "src/views.js:242,245-248",
+                           "descricao":  "Estado vazio do feed com botão \u0027Faça o primeiro post\u0027 e paginação Mais recentes / Mais antigos."
+                       },
+                       {
+                           "local":  "src/views.js:253 + 169-170",
+                           "descricao":  "Na página do post, o link \u0027Ver N comentários\u0027 aponta para a própria página, acima da lista de comentários: redundante."
+                       },
+                       {
+                           "local":  "src/views.js:310-316",
+                           "descricao":  "Perfil mostra pontos e posição geral e no curso como \u003cdiv\u003e sem link; clicar não abre o ranking, como a especificação pede."
+                       },
+                       {
+                           "local":  "src/views.js:353-361",
+                           "descricao":  "Grade de posts em 3 colunas estilo Instagram; prêmios ficam em seção separada (385-414)."
+                       },
+                       {
+                           "local":  "src/views.js:330-343 / src/app.js:294",
+                           "descricao":  "Formulário de medalha visível só para professor no perfil de aluno; mensagem de sucesso após a entrega."
+                       },
+                       {
+                           "local":  "src/views.js:688-737",
+                           "descricao":  "Mural como lista plana, sem categorias e sem colapso; selos Novo e Fixado; formulário de publicar recolhido que reabre em caso de erro."
+                       },
+                       {
+                           "local":  "src/app.js:399-413",
+                           "descricao":  "Abrir o mural marca todos os avisos como lidos (mural_visto_id)."
+                       },
+                       {
+                           "local":  "src/views.js:468-525",
+                           "descricao":  "Troféus: placar, próxima conquista com barra e \u0027Faltam N\u0027, obtidos antes dos que faltam, link de voltar ao perfil; seções empilhadas em vez de abas Troféus | Medalhas."
+                       },
+                       {
+                           "local":  "src/views.js:552-595",
+                           "descricao":  "Ranking com abas Geral e por curso (meu curso primeiro, aria-current) e quadro \u0027sua posição\u0027 com pontos para passar o colega da frente, tratando empate e liderança."
+                       },
+                       {
+                           "local":  "src/views.js:605-678",
+                           "descricao":  "Pódio dos três primeiros, líderes de cada curso e seção \u0027Como ganhar pontos\u0027."
+                       },
+                       {
+                           "local":  "src/app.js:466-480 / src/views.js:768-770",
+                           "descricao":  "Tratamento de erro central com mensagem amigável e botão Voltar; erro de tamanho de imagem descarta o formulário e a legenda."
+                       },
+                       {
+                           "local":  "src/views.js:285-290",
+                           "descricao":  "Upload de foto sem indicação de progresso e sem bloqueio de duplo envio, como os demais formulários."
+                       },
+                       {
+                           "local":  "src/views.js:256,731",
+                           "descricao":  "Confirmação antes de apagar post e aviso."
+                       },
+                       {
+                           "local":  "public/estilo.css:1-32",
+                           "descricao":  "Variáveis de cor com tema escuro automático por prefers-color-scheme, sem botão para alternar."
+                       },
+                       {
+                           "local":  "public/estilo.css:106-107",
+                           "descricao":  ".alerta e .sucesso com cores claras fixas também no tema escuro; destoam do restante."
+                       },
+                       {
+                           "local":  "src/views.js:159,427",
+                           "descricao":  "Cuidados de acessibilidade: aria-label Curtir/Descurtir e role=progressbar nas barras."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Login por RA e RA no cadastro",
+                            "Esqueci minha senha",
+                            "Botão para alternar tema claro e escuro (só automático)",
+                            "Semestre no perfil e no cartão de post",
+                            "Status de ex-aluno que mantém acesso e ranking sem pontuar",
+                            "Sino de notificações no topo",
+                            "Busca na navegação inferior",
+                            "Compartilhar post",
+                            "Seguidores, seguindo e \u0027followed by\u0027",
+                            "Último troféu em destaque no perfil",
+                            "Prêmios e fotos de troféus na grade do perfil",
+                            "Categorias do mural (Faculdade, Curso, Professores) e filtro por categoria",
+                            "Colapso e semi-colapso dos avisos com visão quase em tela cheia",
+                            "Mural mostrando a cada aluno só o que lhe diz respeito",
+                            "Log de leitura de avisos (quem leu e quando)",
+                            "Abas Troféus | Medalhas",
+                            "Tiers Bronze, Prata, Ouro e Diamante com faixas de pontos",
+                            "Nível de encontrabilidade",
+                            "Filtro \u0027mostrar não obtidos\u0027",
+                            "Progressão de tier da mesma conquista",
+                            "Prêmios com prova por foto, denúncia e revogação",
+                            "Medalha restrita a professor que dá aula ao aluno",
+                            "Cadastro de troféus e medalhas pela faculdade via interface",
+                            "Rankings all-time geral e por curso",
+                            "Abrir o ranking ao clicar nos pontos ou na posição do perfil"
+                        ],
+    "decisoes_do_agente":  [
+                               "Caixa \u0027Banca do TCC\u0027 na tela de entrar, com código de acesso e escolha de perfil (Aluno, Professor, Faculdade)",
+                               "\u0027Postar\u0027 como botão central da navegação e Ranking no lugar de Troféus",
+                               "Cartões automáticos de medalha e conquista misturados aos posts no feed",
+                               "Comentar direto no feed, mostrando os dois últimos comentários",
+                               "Posts só de texto com fundo em degradê",
+                               "Faixa do aviso fixado no topo do feed",
+                               "Paginação do feed com Mais recentes / Mais antigos",
+                               "Avatar com a inicial do nome e cor derivada do id",
+                               "Extrato \u0027De onde vêm os pontos\u0027 no perfil",
+                               "Card \u0027Sua próxima conquista\u0027 com barra de progresso e \u0027Faltam N\u0027",
+                               "Frase \u0027faltam N pontos para passar Fulano\u0027 no ranking",
+                               "Pódio dos três primeiros, líderes de cada curso e seção \u0027Como ganhar pontos\u0027 no ranking",
+                               "Empatados na mesma posição do ranking",
+                               "Selo \u0027Você\u0027 no ranking e na tela de administração",
+                               "Contador de avisos não vistos no ícone do Mural e marcação de tudo como lido ao abrir",
+                               "Selos Novo e Fixado no mural, com fixação restrita à faculdade",
+                               "Tela de Administração para definir papéis, acessível pelo topo",
+                               "Papel de professor definido automaticamente pelo domínio do e-mail",
+                               "Tema escuro automático por prefers-color-scheme",
+                               "Datas relativas (\u0027há 3 h\u0027)",
+                               "Confirmação antes de apagar post e aviso",
+                               "Página de erro padrão \u0027Ops!\u0027 com botão Voltar"
+                           ],
+    "nao_verificado":  [
+                           "Renderização real no navegador (layout, contraste no tema escuro, quebra das abas e do pódio em telas estreitas)",
+                           "Execução do fluxo completo: test/fluxo.test.js não pôde ser rodado",
+                           "Rolagem até a âncora após curtir ou comentar",
+                           "Tempo de resposta e falta de retorno durante upload no deploy Azure, incluindo a espera de 20 a 30 s do plano gratuito",
+                           "Se o deploy em maxx-guilherme.azurewebsites.net está no ar e corresponde a este commit",
+                           "Acessibilidade real com leitor de tela"
+                       ]
+}

@@ -1,0 +1,243 @@
+{
+    "produto":  "leigo",
+    "eixo":  "seguranca",
+    "secao":  "2. Segurança",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:04:58-03:00",
+    "fim":  "2026-11-08T20:07:26-03:00",
+    "duracao_s":  149,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo",
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "3e50e1d8-e03a-4c24-8b5e-74354bd3e874",
+    "tokens":  {
+                   "entrada":  20,
+                   "saida":  15466,
+                   "cache_criacao":  57032,
+                   "cache_leitura":  363073
+               },
+    "custo_usd":  0.8382706,
+    "turnos":  25,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "80c1b06e5d355a9b9bc06e53c749bae61392ca648f58f94c6adba2ff56ac0faf",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  24,
+    "nota":  2,
+    "justificativa":  "Base técnica sólida: SQL parametrizado, escape automático de HTML, scrypt com comparação em tempo constante, token de sessão guardado como hash e com expiração, proteção contra open redirect, limites de upload, checagem de papel nas rotas e testes de 403. Mas o papel de professor é dado pelo domínio do e-mail digitado no cadastro, sem confirmação de posse (src/app.js:177, src/config.js:11): qualquer pessoa, inclusive de fora da faculdade, vira professor e dá medalhas com pontos sem limite a qualquer aluno, inclusive à própria conta de aluno. É o caso \u0027aluno chama rota de professor\u0027 da nota 2. A falta de confirmação também permite contas falsas para inflar pontos e ocupar o e-mail de terceiros. Somam-se a senha padrão do admin no código e no README (só barrada com NODE_ENV=production, que o deploy no Azure não garante) e a ausência de limite de tentativas no login.",
+    "evidencias":  [
+                       {
+                           "local":  "src/app.js:177",
+                           "descricao":  "Papel \u0027professor\u0027 atribuído só pelo domínio do e-mail informado no cadastro, sem confirmação de posse."
+                       },
+                       {
+                           "local":  "src/app.js:165-172",
+                           "descricao":  "Cadastro confere só formato e domínio do e-mail; não envia e-mail de confirmação."
+                       },
+                       {
+                           "local":  "src/config.js:9-11",
+                           "descricao":  "Domínios permitidos e domínio de professor (prof.unieduk.com.br) que promove automaticamente."
+                       },
+                       {
+                           "local":  "src/app.js:333-346",
+                           "descricao":  "Professor dá qualquer medalha a qualquer aluno, quantas vezes quiser, sem vínculo de turma."
+                       },
+                       {
+                           "local":  "src/regras.js:4-8",
+                           "descricao":  "Post +10 e curtida recebida +2, sem limite de frequência; base da fazenda de pontos."
+                       },
+                       {
+                           "local":  "src/config.js:22-23",
+                           "descricao":  "Senha padrão do admin \u0027unimax-admin\u0027 no código."
+                       },
+                       {
+                           "local":  "README.md:27",
+                           "descricao":  "Senha padrão do admin publicada no README."
+                       },
+                       {
+                           "local":  "src/db.js:119-130",
+                           "descricao":  "Senha padrão só é barrada com NODE_ENV=production; a senha do admin é escrita em texto claro no log."
+                       },
+                       {
+                           "local":  "scripts/publicar-azure.ps1:15-22",
+                           "descricao":  "Deploy no Azure (produção atual) não define NODE_ENV nem ADMIN_SENHA; depende do portal."
+                       },
+                       {
+                           "local":  "src/app.js:143-151",
+                           "descricao":  "Login sem limite de tentativas; só o código da banca tem limite (src/banca.js:35-46)."
+                       },
+                       {
+                           "local":  "src/app.js:146",
+                           "descricao":  "scrypt só roda quando o usuário existe: diferença de tempo revela contas."
+                       },
+                       {
+                           "local":  "src/app.js:172",
+                           "descricao":  "Mensagem \u0027Já existe uma conta com esse e-mail\u0027 revela contas cadastradas."
+                       },
+                       {
+                           "local":  "src/app.js:31-41",
+                           "descricao":  "Upload: tipo conferido só pelo Content-Type declarado pelo cliente; 5 MB e 1 arquivo por requisição; sem cota por usuário."
+                       },
+                       {
+                           "local":  "src/app.js:19",
+                           "descricao":  "Sessão de 30 dias; sessões vencidas nunca são apagadas do banco."
+                       },
+                       {
+                           "local":  "src/app.js:66-71",
+                           "descricao":  "Cookie httpOnly e SameSite=Lax; secure só com NODE_ENV=production; sem token CSRF."
+                       },
+                       {
+                           "local":  "src/app.js:122-125",
+                           "descricao":  "Cabeçalhos nosniff, X-Frame-Options DENY e Referrer-Policy; sem CSP."
+                       },
+                       {
+                           "local":  "src/html.js:14-31",
+                           "descricao":  "Escape automático de toda interpolação nas telas (proteção contra XSS)."
+                       },
+                       {
+                           "local":  "src/senha.js:3-15",
+                           "descricao":  "scrypt com sal aleatório e timingSafeEqual."
+                       },
+                       {
+                           "local":  "src/app.js:49-72",
+                           "descricao":  "Token de sessão de 32 bytes aleatórios, guardado como hash SHA-256."
+                       },
+                       {
+                           "local":  "src/app.js:99",
+                           "descricao":  "caminhoSeguro impede redirecionamento para outro site."
+                       },
+                       {
+                           "local":  "src/app.js:454-461",
+                           "descricao":  "Admin (inclusive a conta da banca) muda o papel de qualquer usuário; a promoção continua depois que a banca é desligada."
+                       },
+                       {
+                           "local":  "src/banca.js:30-46",
+                           "descricao":  "Código da banca comparado em tempo constante, com limite de 10 erros por IP em 15 minutos (em memória)."
+                       },
+                       {
+                           "local":  "src/views.js:751",
+                           "descricao":  "E-mails só aparecem na tela de administração; o app não guarda RA."
+                       },
+                       {
+                           "local":  "src/views.js:141",
+                           "descricao":  "Texto do cadastro diz que professores pedem liberação à faculdade, o que contradiz a promoção automática por domínio."
+                       },
+                       {
+                           "local":  "scripts/servidor.sh:46-84",
+                           "descricao":  "Usuário de sistema dedicado, pasta de dados 700, configuração com umask 077, HTTPS via Caddy."
+                       },
+                       {
+                           "local":  "test/fluxo.test.js:109-138",
+                           "descricao":  "Testes de autorização que conferem 403 para aluno e professor em rotas restritas."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Login e cadastro por RA",
+                            "Esqueci minha senha",
+                            "Vínculo da conta via portal da instituição",
+                            "Professor só dá medalha a alunos com quem tem aula ou que orienta",
+                            "Denúncia e revogação de prêmio marcado errado",
+                            "Prêmios que exigem prova por foto",
+                            "Ex-aluno mantém acesso mas não pontua",
+                            "Mural mostra a cada aluno só o que lhe diz respeito (categorias Faculdade, Curso, Professores)",
+                            "Log de leitura do mural (quem leu e quando)",
+                            "Cadastro de troféus e medalhas pelo corpo da faculdade",
+                            "Tiers Bronze, Prata, Ouro e Diamante e progressão de prêmios"
+                        ],
+    "decisoes_do_agente":  [
+                               "Senhas com scrypt, sal aleatório e comparação em tempo constante",
+                               "Sessões no servidor com token aleatório guardado como hash SHA-256 e expiração de 30 dias",
+                               "Cookie httpOnly, SameSite=Lax e secure só com NODE_ENV=production",
+                               "Mini-motor de templates com escape automático contra XSS",
+                               "Cabeçalhos nosniff, X-Frame-Options DENY e Referrer-Policy; x-powered-by desligado",
+                               "Proteção contra redirecionamento para fora do site (caminhoSeguro)",
+                               "Upload limitado a 5 MB, 1 arquivo e tipos JPG/PNG/WEBP/GIF, com nome aleatório, servido só a quem está logado",
+                               "Papel admin \u0027Faculdade\u0027 com painel para trocar papéis; admin não troca o próprio papel",
+                               "Promoção automática a professor pelo domínio de e-mail prof.unieduk.com.br",
+                               "Mural: professor e admin publicam, só o admin fixa, cada um apaga os próprios avisos",
+                               "Acesso da banca por código (mínimo 6 caracteres), com limite de tentativas por IP e contas que deixam de funcionar quando a banca é desligada",
+                               "Bloqueio da senha padrão do admin quando NODE_ENV=production",
+                               "Limite de 100 kb no corpo das requisições e de tamanho em cada campo de texto",
+                               "Configuração de trust proxy para Azure ou loopback",
+                               "Testes automáticos de autorização (403)",
+                               "Deploy Ubuntu com usuário de sistema dedicado, permissões restritas, HTTPS via Caddy e senha do admin pedida no instalador"
+                           ],
+    "nao_verificado":  [
+                           "Se o Azure tem NODE_ENV=production, ADMIN_SENHA e CODIGO_BANCA definidos, e se a conta admin de lá usa a senha padrão",
+                           "Se npm run demo foi rodado em produção, criando contas com a senha pública senha1234",
+                           "Se o Azure força HTTPS (o cookie só ganha secure com NODE_ENV=production)",
+                           "Comportamento real do SameSite contra CSRF em cada navegador",
+                           "Se o limite por IP da banca funciona atrás do proxy do Azure",
+                           "Vulnerabilidades conhecidas nas versões instaladas de express e multer",
+                           "Se a suíte de testes passa"
+                       ],
+    "falhas":  [
+                   {
+                       "titulo":  "Qualquer pessoa se cadastra como professor e dá medalhas com pontos",
+                       "reproducao":  "1) Em /cadastrar, informar o e-mail x@prof.unieduk.com.br (não precisa existir), escolher um curso e uma senha de 8 caracteres. 2) A conta já entra como professor. 3) Enviar POST /u/\u003cid de um aluno\u003e/medalha com tipo_id=1 (+50 pontos). 4) Repetir sem limite; o aluno sobe no ranking. A mesma conta publica avisos com POST /mural.",
+                       "local":  "src/app.js:177"
+                   },
+                   {
+                       "title_placeholder_removed":  null,
+                       "titulo":  "Cadastro sem confirmar o e-mail: ocupação do e-mail de terceiros e acesso de pessoas de fora",
+                       "reproducao":  "1) Em /cadastrar, usar o e-mail de um colega (ex.: nome.colega@unimax.edu.br) com qualquer senha. 2) A conta é criada sem confirmação e se passa pelo colega. 3) O dono real recebe \u0027Já existe uma conta com esse e-mail.\u0027",
+                       "local":  "src/app.js:165-172"
+                   },
+                   {
+                       "titulo":  "Pontos inflados com contas falsas e spam de posts",
+                       "reproducao":  "1) Criar N contas com e-mails inventados @unimax.edu.br. 2) Com cada uma, curtir os posts do aluno-alvo (+2 por curtida; conquistas de +50 e +100 com 50 e 200 curtidas). 3) Ou publicar em série posts com legenda \u0027a\u0027 (+10 cada; bônus de +50 aos 10 posts).",
+                       "local":  "src/regras.js:4-8"
+                   },
+                   {
+                       "titulo":  "Senha padrão do admin pública",
+                       "reproducao":  "1) Subir o app pela primeira vez sem NODE_ENV=production e sem ADMIN_SENHA (o script do Azure não define nenhuma das duas). 2) Em /entrar, usar admin@unimax.edu.br / unimax-admin. 3) Acessar /admin e promover qualquer conta.",
+                       "local":  "src/config.js:23"
+                   },
+                   {
+                       "titulo":  "Login sem limite de tentativas (força bruta)",
+                       "reproducao":  "Enviar POST /entrar em repetição com email=\u003calvo\u003e e senhas de uma lista. Não há bloqueio nem atraso.",
+                       "local":  "src/app.js:143-151"
+                   },
+                   {
+                       "titulo":  "Enumeração de contas",
+                       "reproducao":  "1) Em /cadastrar, enviar um e-mail já cadastrado: a resposta \u0027Já existe uma conta com esse e-mail\u0027 confirma a conta. 2) Em /entrar, comparar o tempo de resposta: e-mails inexistentes respondem mais rápido, porque o scrypt não roda.",
+                       "local":  "src/app.js:172"
+                   },
+                   {
+                       "titulo":  "Upload sem conferência de conteúdo e sem cota",
+                       "reproducao":  "Enviar POST /posts com um arquivo qualquer de até 5 MB declarando Content-Type image/png. Ele é gravado como .png. Repetir em série enche o disco (cerca de 1 GB no Azure F1).",
+                       "local":  "src/app.js:31-41"
+                   },
+                   {
+                       "titulo":  "Promoções feitas pela conta da banca não são desfeitas",
+                       "reproducao":  "1) Com CODIGO_BANCA ativo, entrar pela banca como \u0027Faculdade\u0027. 2) Enviar POST /admin/usuarios/\u003cid da sua conta real\u003e/papel com papel=admin. 3) Desligar a banca: a conta real continua admin.",
+                       "local":  "src/app.js:454-461"
+                   }
+               ]
+}

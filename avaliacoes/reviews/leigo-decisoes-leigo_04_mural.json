@@ -1,0 +1,207 @@
+{
+    "produto":  "leigo",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (leigo_04_mural)",
+    "export_id":  "leigo_04_mural",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_04_mural-sessao.txt",
+    "hash_export":  "95a1c122e6dbe13c59e5129fa3ec179a89d0e01890b8ba68e569b48e0f967fe3",
+    "linhas_export":  542,
+    "linhas_lidas":  542,
+    "leituras_export":  1,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:17:09-03:00",
+    "fim":  "2026-11-08T20:17:57-03:00",
+    "duracao_s":  48,
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "00748273-4ee7-4e4a-8cb0-4230d3695bc2",
+    "tokens":  {
+                   "entrada":  4,
+                   "saida":  5899,
+                   "cache_criacao":  20414,
+                   "cache_leitura":  10044
+               },
+    "custo_usd":  0.2833168,
+    "turnos":  3,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "780818ce65dca749c8aee8245586e9f0dad70af7f32526e90d4c278418a6bc40",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  2,
+    "decisoes":  [
+                     {
+                         "descricao":  "Estender o mural existente (antes só a faculdade publicava) em vez de criar outro",
+                         "trecho":  "O mural já existe, mas hoje só a conta da faculdade publica. Vou ler o código relacionado para estender aos professores.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Criar contador de avisos novos (bolinha com número no ícone do Mural)",
+                         "trecho":  "um contador de avisos novos para os alunos",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Guardar o que já foi lido como coluna mural_visto_id (último id visto) em usuarios",
+                         "trecho":  "um campo que guarda até qual aviso cada pessoa já leu",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Na migração, contas existentes começam com todos os avisos lidos; contas novas veem os antigos como Novo",
+                         "trecho":  "quem já tinha conta começa com os avisos antigos marcados como lidos",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Abrir o Mural marca todos os avisos como lidos",
+                         "trecho":  "Abriu o mural: tudo o que está nele passa a contar como lido.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Avisos publicados pela própria pessoa não contam como novos para ela",
+                         "trecho":  "Quem publica não recebe aviso do próprio post.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Cada aviso mostra autor com nome, foto e etiqueta Oficial/Professor(a)",
+                         "trecho":  "cada aviso mostrando quem publicou",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Só a faculdade fixa avisos no topo; opção oculta para professor",
+                         "trecho":  "e só a faculdade fixa no topo",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Professor apaga só os próprios avisos; faculdade apaga qualquer um (403 nos demais casos)",
+                         "trecho":  "cada um apaga só os próprios avisos (a faculdade apaga qualquer um)",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Campo fixado enviado por professor é ignorado silenciosamente no servidor, sem erro",
+                         "trecho":  "const fixado = req.usuario.papel === \u0027admin\u0027 \u0026\u0026 req.body.fixado ? 1 : 0;",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Formulário de publicação recolhido em \u003cdetails\u003e, aberto quando há erro, com dica para o professor",
+                         "trecho":  "\u003cdetails class=\"novo-aviso\" ${erro ? \u0027open\u0027 : \u0027\u0027}\u003e",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Após publicar, redireciona para a âncora do aviso criado",
+                         "trecho":  "res.redirect(`/mural#aviso-${lastInsertRowid}`)",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Bolinha mostra 9+ acima de 9 avisos novos",
+                         "trecho":  "${novos \u003e 9 ? \u00279+\u0027 : novos}",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Aviso de conta apagada aparece como da faculdade",
+                         "trecho":  "Aviso de conta que foi apagada: mostra como da faculdade.",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Destaque visual para avisos novos (borda lateral e selo Novo na cor primaria-2)",
+                         "trecho":  ".aviso.novo { box-shadow: inset 4px 0 0 var(--primaria-2); }",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Ampliar o teste de fluxo para bolinha, publicação do professor e permissões de apagar/fixar",
+                         "trecho":  "Agora os testes do fluxo.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Testar a migração em banco antigo",
+                         "trecho":  "confiro a atualização num banco antigo (sem o campo novo)",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Incluir aviso de professor no npm run demo",
+                         "trecho":  "incluo um aviso de professor no npm run demo",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Atualizar o README com as regras do mural",
+                         "trecho":  "Atualizo o README para refletir as mudanças",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Não permitir edição de aviso após publicado",
+                         "trecho":  "Deixei de fora: não dá para editar um aviso depois de publicado.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "Quer que eu faça o commit?",
+                          "respondida":  true
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  20,
+                     "declaradas":  14,
+                     "silenciosas":  6,
+                     "duvidosas":  1,
+                     "perguntas":  1,
+                     "perguntas_respondidas":  1
+                 }
+}

@@ -1,0 +1,229 @@
+{
+    "produto":  "leigo",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (leigo_02_feed)",
+    "export_id":  "leigo_02_feed",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_02_feed-sessao.txt",
+    "hash_export":  "7b3c8f7d525f5d6e7488a29d5c00fa6f39e75029d21038ee4f5a152697fe3fc9",
+    "linhas_export":  585,
+    "linhas_lidas":  585,
+    "leituras_export":  1,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:15:19-03:00",
+    "fim":  "2026-11-08T20:16:19-03:00",
+    "duracao_s":  60,
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "4418878b-ae23-4b2e-9dfa-66bcf4a2cf27",
+    "tokens":  {
+                   "entrada":  4,
+                   "saida":  7353,
+                   "cache_criacao":  21779,
+                   "cache_leitura":  10044
+               },
+    "custo_usd":  0.3233168,
+    "turnos":  3,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "fce563a0c3da1a9436c0d63333c72ad9d761cf2fbd2af42b614bf435ccdf9c13",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  2,
+    "decisoes":  [
+                     {
+                         "descricao":  "Incluir no feed cartões de medalhas dadas por professores, além das conquistas pedidas",
+                         "trecho":  "Vou completar: conquistas e medalhas aparecendo no feed",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Criar tabela conquistas_alunos (aluno, conquista, anunciar, criado_em, UNIQUE aluno+conquista) para datar conquistas",
+                         "trecho":  "Agora a tabela de conquistas desbloqueadas (para elas terem data e entrarem no feed)",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conquistas antigas registradas sem aparecer no feed (anunciar = 0)",
+                         "trecho":  "conquistas que os alunos já tinham antes desta mudança ficam registradas, mas não aparecem no feed",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Migração de dados via PRAGMA user_version executada no carregamento de pontos.js",
+                         "trecho":  "if (db.prepare(\u0027PRAGMA user_version\u0027).get().user_version \u003c 1) {",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conquista perdida depois continua no feed como histórico",
+                         "trecho":  "o cartão continua no feed como histórico",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Cada conquista aparece uma única vez no feed",
+                         "trecho":  "Cada conquista aparece uma vez só, mesmo que a pessoa faça outro post depois",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Comentar direto no feed, sem abrir a tela do post",
+                         "trecho":  "Comentar direto no feed: cada post mostra ... uma caixa \u0027Adicione um comentário…\u0027",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Mostrar os 2 últimos comentários sob cada post no feed",
+                         "trecho":  "const COMENTARIOS_NO_FEED = 2",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Cartões de medalha/conquista sem curtir nem comentar, só botão para o perfil",
+                         "trecho":  "não dá para curtir nem comentar neles. Se quiser isso também, eu faço.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Feed misturado (posts, medalhas, conquistas) em ordem cronológica decrescente, com a paginação existente",
+                         "trecho":  "tudo misturado do mais novo para o mais antigo",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Desempate no horário: conquista acima do post que a gerou",
+                         "trecho":  "Em caso de empate no horário, a conquista aparece acima do post que a gerou.",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Índices em posts(criado_em) e medalhas(criado_em)",
+                         "trecho":  "CREATE INDEX IF NOT EXISTS idx_posts_data ON posts(criado_em);",
+                         "tipo":  "modelo de dados",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Novo módulo src/feed.js, movendo SQL_POST de app.js",
+                         "trecho":  "Agora o módulo que monta o feed misturando posts, medalhas e conquistas",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conteúdo dos cartões: medalha com professor, pontos e mensagem; conquista com descrição e bônus",
+                         "trecho":  "com o nome do professor, os pontos e a mensagem dele",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Visual dos cartões de evento: emoji grande, gradiente radial, dourado para medalha, modo escuro",
+                         "trecho":  ".evento-medalha .evento-corpo { background: radial-gradient(circle at 50% 0%, #fef3c7, transparent 70%); }",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Comentário pelo feed redireciona para âncora do post e recusa \u0027voltar\u0027 externo (pode ser preexistente)",
+                         "trecho":  "voltar: \u0027//site-malicioso.com\u0027 })).local, \u0027/#post-2\u0027",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Script de demo com horários espalhados nas últimas horas",
+                         "trecho":  "os dados de exemplo agora têm horários espalhados pelas últimas horas, para a banca ver",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Acrescentar testes automáticos do feed",
+                         "trecho":  "Agora os testes automáticos:",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conferência visual com print headless",
+                         "trecho":  "Vou tirar um print rápido para conferir o visual",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Atualizar o README",
+                         "trecho":  "Por último, atualizo o README",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Commit só após autorização, em branch própria, sem merge na main nem push",
+                         "trecho":  "Não juntei com a main e não enviei nada para o GitHub.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Feed mostra só conquistas de usuários com papel aluno",
+                         "trecho":  "WHERE ca.anunciar = 1 AND u.papel = \u0027aluno\u0027",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "Se quiser, faço como nas rodadas anteriores (\"rodada: leigo_02_feed\").",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se quiser isso também, eu faço. (curtir e comentar nos cartões de medalha e conquista)",
+                          "respondida":  false
+                      },
+                      {
+                          "texto":  "Não juntei com a main e não enviei nada para o GitHub. Se quiser, é só pedir.",
+                          "respondida":  false
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  22,
+                     "declaradas":  16,
+                     "silenciosas":  6,
+                     "duvidosas":  5,
+                     "perguntas":  3,
+                     "perguntas_respondidas":  1
+                 }
+}

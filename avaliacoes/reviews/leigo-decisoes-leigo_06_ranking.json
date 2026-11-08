@@ -1,0 +1,190 @@
+{
+    "produto":  "leigo",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (leigo_06_ranking)",
+    "export_id":  "leigo_06_ranking",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\leigo\\leigo_06_ranking-sessao.txt",
+    "hash_export":  "ac3032591e65c0e37f22211f9aab99310033c2be6dd7fa4de95f112141d2d9af",
+    "linhas_export":  582,
+    "linhas_lidas":  582,
+    "leituras_export":  1,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-08T20:18:55-03:00",
+    "fim":  "2026-11-08T20:19:39-03:00",
+    "duracao_s":  43,
+    "ref":  "main",
+    "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "0aed558c-c47e-48f8-ade9-6d19fffae7d6",
+    "tokens":  {
+                   "entrada":  4,
+                   "saida":  5229,
+                   "cache_criacao":  22076,
+                   "cache_leitura":  10048
+               },
+    "custo_usd":  0.28321359999999995,
+    "turnos":  3,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "c402443affdba5cc62cf9e74876ea9960d0f5e395467dc20a2eef86242a4b212",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  2,
+    "decisoes":  [
+                     {
+                         "descricao":  "Refazer a tela de ranking que já existia em vez de manter a lista simples, ampliando o que foi pedido com abas, cartão de posição, pódio e líderes de cada curso",
+                         "trecho":  "vou transformá-la numa tela completa com abas, cartão de posição, pódio e o líder de cada curso",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Trocar o menu de seleção de curso por abas, mostrando em cada aba o número de alunos",
+                         "trecho":  "As abas substituem o menu antigo.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Pôr a aba do curso do aluno logo depois de \u0027Geral\u0027, com o rótulo \u0027(meu curso)\u0027",
+                         "trecho":  "O curso do aluno vem primeiro, marcado como \"(meu curso)\"",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Criar o cartão \u0027sua posição\u0027, com pontos, posição no geral e no curso, e uma frase de quanto falta para passar o colega da frente (diferença + 1) ou de quantos pontos o líder está à frente",
+                         "trecho":  "Faltam 5 pontos para passar Júlia e subir para o 2º lugar",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Pódio com os 3 primeiros, que só aparece com pelo menos 3 alunos e líder com mais de 0 pontos",
+                         "trecho":  "const comPodio = lista.length \u003e= 3 \u0026\u0026 lista[0].total \u003e 0;",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Seção \u0027Líderes de cada curso\u0027, só na aba Geral, com aviso de quantos cursos ainda não têm alunos",
+                         "trecho":  "Líderes de cada curso: só na aba Geral.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Alunos com zero pontos aparecem mais apagados",
+                         "trecho":  "Alunos com zero pontos aparecem mais apagados.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Mensagem explicando a professores e à conta da faculdade que eles só veem o ranking e não participam (a regra já existia; só o texto é novo)",
+                         "trecho":  "Professores e a faculdade acompanham o ranking, mas só alunos participam.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Mostrar só o primeiro nome no pódio, nas frases e na lista de líderes",
+                         "trecho":  "const primeiroNome = (nome) =\u003e nome.split(\u0027 \u0027)[0];",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Nova função rankings(), que calcula o geral e todos os cursos de uma vez, com a função de posição separada (posicionar)",
+                         "trecho":  "O ranking geral e o de cada curso de uma vez só (uma consulta ao banco).",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Regra global min-width: 0 em todos os cartões do app",
+                         "trecho":  "Fiz mais uma mudança, no estilo de todos os cartões do app",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Texto da aba ativa com var(--cartao) no lugar de #fff (coerência com o tema)",
+                         "trecho":  "color: var(--cartao);",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Novos testes de integração para posição, abas, líderes e visão do professor",
+                         "trecho":  "Os testes automáticos passam, inclusive os novos que cobrem estas partes.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conferir o visual num banco temporário, com print pelo Edge headless numa largura de celular (iframe de 375px) e no tema escuro",
+                         "trecho":  "coloco a página num iframe de 375px",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Atualizar o README com a descrição da nova tela",
+                         "trecho":  "atualizar o README",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Não fazer o commit de merge \u0027rodada: …\u0027 das rodadas anteriores",
+                         "trecho":  "Não fiz o commit de merge \"rodada: leigo_06_ranking\"",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Novo texto para a lista vazia: \u0027Nenhum aluno … entrou no Maxx ainda\u0027",
+                         "trecho":  "Nenhum aluno ${curso ? \u0027deste curso\u0027 : \u0027\u0027} entrou no Maxx ainda.",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "Ainda não fiz o commit. Quer que eu faça, no mesmo formato das rodadas anteriores?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Não fiz o commit de merge \"rodada: leigo_06_ranking\" [...] Se quiser, eu faço também.",
+                          "respondida":  false
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  17,
+                     "declaradas":  14,
+                     "silenciosas":  3,
+                     "duvidosas":  4,
+                     "perguntas":  2,
+                     "perguntas_respondidas":  1
+                 }
+}
