@@ -7352,3 +7352,1876 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
   Posso commitar e fazer o push? Se aprovar o ponto 2, incluo a linha na seção 8
   do produto.md antes do commit.
 ✻ Cogitated for 15m 58s · done 17:33
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt     
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
+
+> Etapa 4 aprovada. Os três pontos pela sua leitura: o post em averiguação      
+  aparece sem o prêmio para os outros leitores, como você registrou; a          
+  notificação PremioRevogado entra na seção 8 do produto.md antes do commit; a  
+  corrida rara com 404 fica. Commita com a mensagem proposta, push, acompanha a 
+  CI e segue para a etapa 5; no fim dela, para para a minha revisão com         
+  capturas do novo post em modo reivindicação, das marcas no cartão e da seção  
+  Reivindicações em Troféus, no claro e no escuro.                              
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 2 lines, removed 1 line
+      505  Push nativo é evolução de fase 2.
+      506  
+      507  Geram notificação: medalha recebida, comprovação aprovada ou r
+           eprovada, contestação
+      508 -aberta, decisão de contestação, aviso novo. Bolinha dourada de
+          - novidade aparece nas abas                                    
+      508 +aberta, decisão de contestação, prêmio revogado sem contestaçã
+          +o (pela remoção do post pela                                  
+      509 +instituição, seção 4.7), aviso novo. Bolinha dourada de novida
+          +de aparece nas abas                                           
+      510  Mural (aviso não lido) e Troféus (prêmio novo).
+      511  
+      512  ---
+
+● A edição entrou; commito só agora, depois de ver o resultado dela.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Commit 39ecd1c foi enviado, com a linha da PremioRevogado conferida. A CI
+  segue rodando, e agora começo a etapa 5 lendo o estado atual do app.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Vou desenhar a etapa 5 com a identidade visual atual, já que não há prancheta:
+  o novo post ganha o modo de reivindicação, o cartão marca o pendente e os
+  troféus recebem a seção de reivindicações. Faltam duas rotas na API, uma para
+  saber se o item pede matéria e outra para listar as matérias do aluno no
+  semestre, e vou reusar os componentes existentes.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Primeiro os dois acréscimos na API: exigeMateria no item do catálogo do aluno
+  e GET /v1/eu/materias.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i '32s|
+        IReadOnlyList<PremioObtido> Obtidos);|    IReadOnlyList<Prem…)
+  ⎿  internal sealed class ConsultaDePremios(MaxxDbContext db) : IConsultaD
+     ePremios
+     {
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs (+2
+     -1)
+      29      string? Familia,
+      30      int? OrdemNaFamilia,
+      31      RaridadeAtual? Raridade,
+      32 -    IReadOnlyList<PremioObtido> Obtidos);                      
+      32 +    IReadOnlyList<PremioObtido> Obtidos,                       
+      33 +    bool ExigeMateria = false);                                
+      34  
+      35  public sealed record RaridadeAtual(Raridade Nivel, int AlunosCo
+          mItem, int AlunosElegiveis)
+      36  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+7 -1)
+      12  namespace Maxx.Infrastructure.Premios;
+      13  
+      14  internal sealed class ConsultaDePremios(MaxxDbContext db) : ICo
+          nsultaDePremios
+      15 +{                                                              
+      16 +    // A reivindicação que deduplica por matéria (P17) pede a m
+         +atéria no app.                                                 
+      17 +    private static readonly string _tipoPremioParticipacao = No
+         +meJson.De(TipoDeItem.PremioParticipacao);                      
+      18 +    private static readonly string _materia = NomeJson.De(Campo
+         +DeDeduplicacao.Materia);                                       
+      19 +                                                               
+      20  {
+      21      public async Task<PremiosDoAluno?> DoAlunoAsync(Guid alunoI
+          d, CancellationToken cancellationToken)
+      22      {
+     ...
+      102                      raridades.TryGetValue(item.Codigo, out var
+            raridade)
+      103                          ? new RaridadeAtual(Ler<Raridade>(rari
+           dade.Raridade), raridade.AlunosComItem, raridade.AlunosElegive
+           is)
+      104                          : null,
+      100 -                    [.. obtidos[item.Codigo]]))]);            
+      105 +                    [.. obtidos[item.Codigo]],                
+      106 +                    item.Tipo == _tipoPremioParticipacao && (i
+          +tem.ChaveDeDeduplicacao ?? []).Contains(_materia)))]);        
+      107      }
+      108  
+      109      private static T Ler<T>(string texto)
+
+● The { duplicated; I'll fix it with an exact edit.
+
+● Update(apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs)
+  ⎿  Removed 1 line
+      17      private static readonly string _tipoPremioParticipacao = No
+          meJson.De(TipoDeItem.PremioParticipacao);
+      18      private static readonly string _materia = NomeJson.De(Campo
+          DeDeduplicacao.Materia);
+      19  
+      20 -{                                                              
+      20      public async Task<PremiosDoAluno?> DoAlunoAsync(Guid alunoI
+          d, CancellationToken cancellationToken)
+      21      {
+      22          var aluno = await (
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|^
+       IReadOnlyList<PremioObtidoResponse> Obtidos);$|    IReadOnlyL…)
+  ⎿  Updated apps\api\src\Maxx.Api\Premios\PremiosEndpoints.cs (+6 -2)
+      58                      obtido.Materia,
+      59                      obtido.Bimestre,
+      60                      obtido.ObtidoEm,
+      61 -                    obtido.PostId))]))]);                      
+      61 +                    obtido.PostId))],                          
+      62 +                item.ExigeMateria))]);                         
+      63  }
+      64  
+      65  public sealed record PremiosDoAlunoResponse(int Pontos, IReadOn
+          lyList<FamiliaResponse> Familias, IReadOnlyList<ItemDoAlunoResp
+          onse> Itens);
+     ...
+      67  public sealed record FamiliaResponse(string Codigo, string Nome
+          , string Descricao, int Passos);
+      68  
+      69  // Tipo, tier e raridade em camelCase, como no catálogo ("premi
+          oParticipacao", "lendario").
+      70 +// ExigeMateria: o prêmio de participação que deduplica por mat
+         +éria (apresentação em sala),                                   
+      71 +// cuja reivindicação pede a matéria (passo 8).                
+      72  // Critério é a descrição do item: não há prêmio secreto (produ
+          to.md 4.5).
+      73  public sealed record ItemDoAlunoResponse(
+      74      string Codigo,
+     ...
+      80      string? Familia,
+      81      int? OrdemNaFamilia,
+      82      RaridadeResponse? Raridade,
+      80 -    IReadOnlyList<PremioObtidoResponse> Obtidos);              
+      83 +    IReadOnlyList<PremioObtidoResponse> Obtidos,               
+      84 +    bool ExigeMateria);                                        
+      85  
+      86  // Percentual dos alunos que têm o item, com uma casa: "x% dos 
+          alunos".
+      87  public sealed record RaridadeResponse(string Nivel, double Perc
+          entual);
+  ⎿  (timeout 5m)
+
+● Agora GET /v1/eu/materias, as matérias que o aluno cursa no semestre de hoje,
+  para a apresentação em sala.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|^
+       Task<Evento?> BuscarAsync(Guid id, CancellationToken cancella…)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      100  builder.Services.AddScoped<Maxx.Application.Feed.FeedHandler>(
+           );
+      101  builder.Services.AddScoped<Maxx.Application.Perfil.EditarPerfi
+           lHandler>();
+      102  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.EventosHandler>();
+      103 +builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+          +o.MateriasDoAlunoHandler>();                                  
+      104  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.ReivindicarHandler>();
+      105  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.DecidirComprovacaoHandler>();
+      106  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.FilaDeComprovacoesHandler>();
+  ⎿  Updated
+     apps\api\src\Maxx.Application\PremiosParticipacao\EventosHandler.cs
+     (+12 -0)
+      36      }
+      37  }
+      38  
+      39 +// As matérias que o aluno cursa hoje: o que a apresentação em 
+         +sala (P17) oferece. A data do                                  
+      40 +// evento vale de hoje para trás e não começa antes do fim do s
+         +emestre anterior (D3), então a                                 
+      41 +// matéria da apresentação é deste semestre.                   
+      42 +public sealed class MateriasDoAlunoHandler(IEventoRepository ev
+         +entos, TimeProvider relogio)                                   
+      43 +{                                                              
+      44 +    public Task<IReadOnlyList<Materia>> CursadasAsync(Guid alun
+         +oId, CancellationToken cancellationToken) =>                   
+      45 +        eventos.MateriasCursadasAsync(alunoId, FusoHorario.Data
+         +Local(relogio.GetUtcNow()), cancellationToken);                
+      46 +}                                                              
+      47 +                                                               
+      48  public interface IEventoRepository
+      49  {
+      50      // Poucos por semestre: a lista inteira, filtrada pela regr
+          a do domínio.
+     ...
+      54  
+      55      Task<Evento?> BuscarAsync(Guid id, CancellationToken cancel
+          lationToken);
+      56  
+      57 +    // As matérias das turmas do aluno (usuário) cujo semestre 
+         +contém a data, por nome.                                       
+      58 +    Task<IReadOnlyList<Materia>> MateriasCursadasAsync(Guid alu
+         +noId, DateOnly data, CancellationToken cancellationToken);     
+      59 +                                                               
+      60      // O semestre letivo de fim mais recente antes da data, com
+           os bimestres; nulo se nenhum
+      61      // terminou ainda.
+      62      Task<SemestreLetivo?> UltimoSemestreEncerradoAsync(DateOnly
+           data, CancellationToken cancellationToken);
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\PremiosParticipacao\EventoRep
+     ository.cs (+16 -0)
+      41          .AsNoTracking()
+      42          .SingleOrDefaultAsync(cancellationToken);
+      43  
+      44 +    public async Task<IReadOnlyList<Materia>> MateriasCursadasA
+         +sync(Guid alunoId, DateOnly data, CancellationToken cancellatio
+         +nToken)                                                        
+      45 +    {                                                          
+      46 +        var semestres = SemestreVigente.Ids(db, data);         
+      47 +        return await (                                         
+      48 +                from usuario in db.Set<Usuario>()              
+      49 +                join matricula in db.Set<Matricula>() on usuari
+         +o.CadastroElegivelId equals matricula.AlunoId                  
+      50 +                join turma in db.Set<Turma>() on matricula.Turm
+         +aId equals turma.Id                                            
+      51 +                join materia in db.Set<Materia>() on turma.Mate
+         +riaId equals materia.Id                                        
+      52 +                where usuario.Id == alunoId && semestres.Contai
+         +ns(turma.SemestreLetivoId)                                     
+      53 +                orderby materia.Nome                           
+      54 +                select materia)                                
+      55 +            .Distinct()                                        
+      56 +            .AsNoTracking()                                    
+      57 +            .ToListAsync(cancellationToken);                   
+      58 +    }                                                          
+      59 +                                                               
+      60      public Task<Evento?> BuscarAsync(Guid id, CancellationToken
+           cancellationToken) =>
+      61          db.Set<Evento>().SingleOrDefaultAsync(evento => evento.
+          Id == id, cancellationToken);
+      62  }
+  ⎿  (timeout 5m)
+
+● OrderBy antes de Distinct pode perder a ordem no EF; inverto.
+
+● Update(apps\api\src\Maxx.Infrastructure\PremiosParticipacao\EventoRepository.c
+        s)
+  ⎿  Added 1 line, removed 1 line
+      50                  join turma in db.Set<Turma>() on matricula.Turm
+          aId equals turma.Id
+      51                  join materia in db.Set<Materia>() on turma.Mate
+          riaId equals materia.Id
+      52                  where usuario.Id == alunoId && semestres.Contai
+          ns(turma.SemestreLetivoId)
+      53 -                orderby materia.Nome                           
+      53                  select materia)
+      54              .Distinct()
+      55 +            .OrderBy(materia => materia.Nome)                  
+      56              .AsNoTracking()
+      57              .ToListAsync(cancellationToken);
+      58      }
+
+● Update(apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs)
+  ⎿  Added 6 lines
+      23              .ProducesProblem(StatusCodes.Status403Forbidden)
+      24              .ProducesProblem(StatusCodes.Status404NotFound);
+      25  
+      26 +        v1.MapGet("/eu/materias", MateriasAsync)               
+      27 +            .WithName("GetMinhasMaterias")                     
+      28 +            .WithTags("Eventos")                               
+      29 +            .RequireAuthorization(Politicas.Aluno)             
+      30 +            .ProducesProblem(StatusCodes.Status403Forbidden);  
+      31 +                                                               
+      32          v1.MapPost("/reivindicacoes", ReivindicarAsync)
+      33              .WithName("ReivindicarPremioParticipacao")
+      34              .WithTags("Eventos")
+
+● Update(apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs)
+  ⎿  Added 6 lines
+      41          return v1;
+      42      }
+      43  
+      44 +    // As matérias que o aluno cursa no semestre de hoje, para 
+         +a apresentação em sala (P17).                                  
+      45 +    private static async Task<Ok<IReadOnlyList<MateriaResponse>
+         +>> MateriasAsync(                                              
+      46 +        ClaimsPrincipal principal, MateriasDoAlunoHandler handl
+         +er, CancellationToken cancellationToken) =>                    
+      47 +        TypedResults.Ok<IReadOnlyList<MateriaResponse>>([.. (aw
+         +ait handler.CursadasAsync(PostEndpoints.UsuarioId(principal), c
+         +ancellationToken))                                             
+      48 +            .Select(materia => new MateriaResponse(materia.Id, 
+         +materia.Nome))]);                                              
+      49 +                                                               
+      50      // O post de reivindicação com o prêmio pendente (fluxos/02
+          -post-com-comprovacao.md). A
+      51      // resposta é o post, como o feed o mostra, com a marca de 
+          pendente.
+      52      private static async Task<Created<PostResponse>> Reivindica
+          rAsync(
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      echo '
+      public sealed record MateriaResponse(Guid Id, string Nome);' >>
+      apps/api/src/Maxx.…)
+  ⎿  Updated apps\api\src\Maxx.Api\PremiosParticipacao\EventoEndpoints.cs
+     (+2 -0)
+      105  
+      106  // Datas em America/Sao_Paulo, inclusivas. Itens: os códigos d
+           os prêmios que o evento aceita.
+      107  public sealed record EventoResponse(Guid Id, string Nome, Date
+           Only Inicio, DateOnly Fim, IReadOnlyList<string> Itens);
+      108 +                                                              
+      109 +public sealed record MateriaResponse(Guid Id, string Nome);   
+  ⎿  (timeout 5m)
+
+● Build limpo. Testes de integração dos dois acréscimos.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\Reivindica
+        caoTests.cs)
+  ⎿  Added 21 lines
+      221          }
+      222      }
+      223  
+      224 +    [Fact]                                                    
+      225 +    public async Task O_app_sabe_quais_itens_pedem_materia_e_q
+          +uais_materias_o_aluno_cursa()                                 
+      226 +    {                                                         
+      227 +        await using var mundo = await MundoAsync();           
+      228 +        using var ana = await mundo.Social.ComoAsync(Ana);    
+      229 +        using var elisa = await mundo.Social.ComoAsync(MundoDe
+          +Premios.Elisa);                                               
+      230 +        using var renata = await mundo.Social.ComoAsync(Renata
+          +);                                                            
+      231 +        var materias = new Uri("/api/v1/eu/materias", UriKind.
+          +Relative);                                                    
+      232 +                                                              
+      233 +        var itens = (await ana.GetFromJsonAsync<Api.Premios.Pr
+          +emiosDoAlunoResponse>(new Uri("/api/v1/eu/premios", UriKind.Re
+          +lative), Ct))!.Itens;                                         
+      234 +                                                              
+      235 +        Assert.True(itens.Single(item => item.Codigo == "P17")
+          +.ExigeMateria);                                               
+      236 +        Assert.False(itens.Single(item => item.Codigo == "P06"
+          +).ExigeMateria);                                              
+      237 +        Assert.False(itens.Single(item => item.Codigo == "M01"
+          +).ExigeMateria);                                              
+      238 +        Assert.Equal(                                         
+      239 +            [new Api.PremiosParticipacao.MateriaResponse(mundo
+          +.BancoDeDados, "Banco de Dados")],                            
+      240 +            (await ana.GetFromJsonAsync<List<Api.PremiosPartic
+          +ipacao.MateriaResponse>>(materias, Ct))!);                    
+      241 +        Assert.Empty((await elisa.GetFromJsonAsync<List<Api.Pr
+          +emiosParticipacao.MateriaResponse>>(materias, Ct))!);         
+      242 +        Assert.Equal(HttpStatusCode.Forbidden, (await renata.G
+          +etAsync(materias, Ct)).StatusCode);                           
+      243 +    }                                                         
+      244 +                                                              
+      245      private static Task<HttpResponseMessage> ReivindicarAsync(
+           HttpClient client, object pedido) =>
+      246          client.PostAsJsonAsync(new Uri("/api/v1/reivindicacoes
+           ", UriKind.Relative), pedido, Ct);
+      247  
+
+  Ran 1 shell command (ctrl+o to expand)
+● Teste verde. Regenero o cliente e vejo como os testes do novo post simulam a
+  API, para seguir o mesmo padrão.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      (cd packages/api-client && npm run gerar >/dev/null 2>&1; git diff --stat
+      .); sed -n 1,14…)
+  ⎿   packages/api-client/openapi.json    | 60 ++++++++++++++++++++++++++++
+     ++++++++-
+      packages/api-client/src/schema.d.ts | 51 ++++++++++++++++++++++++++++
+     … +140 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+59 -1)
+      439          ]
+      440        }
+      441      },
+      442 +    "/api/v1/eu/materias": {                                  
+      443 +      "get": {                                                
+      444 +        "tags": [                                             
+      445 +          "Eventos"                                           
+      446 +        ],                                                    
+      447 +        "operationId": "GetMinhasMaterias",                   
+      448 +        "responses": {                                        
+      449 +          "200": {                                            
+      450 +            "description": "OK",                              
+      451 +            "content": {                                      
+      452 +              "application/json": {                           
+      453 +                "schema": {                                   
+      454 +                  "type": "array",                            
+      455 +                  "items": {                                  
+      456 +                    "$ref": "#/components/schemas/MateriaRespo
+          +nse"                                                          
+      457 +                  }                                           
+      458 +                }                                             
+      459 +              }                                               
+      460 +            }                                                 
+      461 +          },                                                  
+      462 +          "403": {                                            
+      463 +            "description": "Forbidden",                       
+      464 +            "content": {                                      
+      465 +              "application/problem+json": {                   
+      466 +                "schema": {                                   
+      467 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+      468 +                }                                             
+      469 +              }                                               
+      470 +            }                                                 
+      471 +          }                                                   
+      472 +        },                                                    
+      473 +        "security": [                                         
+      474 +          {                                                   
+      475 +            "Bearer": [ ]                                     
+      476 +          }                                                   
+      477 +        ]                                                     
+      478 +      }                                                       
+     … 44 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+51 -0)
+      164          patch?: never;
+      165          trace?: never;
+      166      };
+      167 +    "/api/v1/eu/materias": {                                  
+      168 +        parameters: {                                         
+      169 +            query?: never;                                    
+      170 +            header?: never;                                   
+      171 +            path?: never;                                     
+      172 +            cookie?: never;                                   
+      173 +        };                                                    
+      174 +        get: operations["GetMinhasMaterias"];                 
+      175 +        put?: never;                                          
+      176 +        post?: never;                                         
+      177 +        delete?: never;                                       
+      178 +        options?: never;                                      
+      179 +        head?: never;                                         
+      180 +        patch?: never;                                        
+      181 +        trace?: never;                                        
+      182 +    };                                                        
+      183      "/api/v1/reivindicacoes": {
+      184          parameters: {
+      185              query?: never;
+     ...
+      1023              ordemNaFamilia: null | number;
+      1024              raridade: null | components["schemas"]["RaridadeR
+            esponse"];
+      1025              obtidos: components["schemas"]["PremioObtidoRespo
+            nse"][];
+      1026 +            exigeMateria: boolean;                           
+      1027          };
+      1028          LoginRequest: {
+      1029              identificador: string;
+      1030              senha: string;
+      1031          };
+      1032 +        MateriaResponse: {                                   
+      1033 +            /** Format: uuid */                              
+      1034 +            id: string;                                      
+      1035 +            nome: string;                                    
+      1036 +        };                                                   
+      1037          MedalhaConcedidaResponse: {
+      1038              /** Format: uuid */
+      1039              id: string;
+     ...
+      1610              };
+     … 34 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Cliente regenerado. Agora o código do app, começando pelos hooks da API do
+  prêmio de participação.
+
+● Write(apps\mobile\src\premiosParticipacao\api.ts)
+  ⎿  Wrote 142 lines to apps\mobile\src\premiosParticipacao\api.ts
+       1 import type { components } from "@maxx/api-client";
+       2 import { useMutation, useQuery, useQueryClient } from "@tanstack
+         /react-query";
+       3 import { useRef } from "react";
+       4 
+       5 import { useApiClient } from "../api/ApiClientProvider";
+       6 import { FalhaDaApi } from "../api/FalhaDaApi";
+       7 import type { Derivadas } from "../fotos/derivadas";
+       8 import { enviarFoto } from "../fotos/envio";
+       9 
+     … +133 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora os textos auxiliares: as datas digitadas e a linha de detalhe do prêmio
+  no post.
+
+● Write(apps\mobile\src\premiosParticipacao\textos.ts)
+  ⎿  Wrote 50 lines to apps\mobile\src\premiosParticipacao\textos.ts
+       1 // Textos e datas do prêmio de participação. As datas vão para a
+          API em ISO (aaaa-mm-dd) e
+       2 // aparecem para o aluno em dd/mm, como no resto do app.
+       3 
+       4 // "dd/mm/aaaa", com ou sem zero à esquerda, numa data que exist
+         e; nulo se não for.
+       5 export function lerData(texto: string): string | null {
+       6   const partes = /^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*$/.exec(te
+         xto);
+       7   if (!partes) return null;
+     … +43 lines (ctrl+o to expand)
+
+● Agora o formulário da reivindicação, que o novo post mostra no modo
+  "Reivindicar prêmio".
+
+● Write(apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx)
+  ⎿  Wrote 302 lines to
+     apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx
+       1 import { ActivityIndicator, Pressable, StyleSheet, Text, View } 
+         from "react-native";
+       2 
+       3 import { falhaParaTela } from "../api/FalhaDaApi";
+       4 import { Icon } from "../components/Icon";
+       5 import { ErrorState } from "../components/StateMessage";
+       6 import { TextField } from "../components/TextField";
+       7 import { Medalhao } from "../premios/Medalhao";
+       8 import { rotulosDeTier } from "../premios/rotulos";
+       9 import { textStyles } from "../theme/fonts";
+     … +293 lines (ctrl+o to expand)
+
+● Troco React.ReactNode por um import de tipo e ligo o formulário no novo post.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/m
+      obile/src/premiosParticipacao" && sed -i '1s/^/import type { ReactNode }
+      from "react";\…)
+  ⎿  import type { ReactNode } from "react";
+     import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "
+     react-native";
+  ⎿  Updated apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx
+     (+2 -1)
+      1 +import type { ReactNode } from "react";                         
+      2  import { ActivityIndicator, Pressable, StyleSheet, Text, View } 
+         from "react-native";
+      3  
+      4  import { falhaParaTela } from "../api/FalhaDaApi";
+     ...
+      261    marcada: boolean;
+      262    rotulo: string;
+      263    onPress: () => void;
+      263 -  children: React.ReactNode;                                  
+      264 +  children: ReactNode;                                        
+      265  }) {
+      266    const { colors } = useTheme();
+      267    return (
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 1 line
+      16  import { Cabecalho } from "../components/Cabecalho";
+      17  import { Icon } from "../components/Icon";
+      18  import { Screen } from "../components/Screen";
+      19 +import { SegmentedControl } from "../components/SegmentedContro
+         +l";                                                            
+      20  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      21  import { TextField } from "../components/TextField";
+      22  import {
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 7 lines
+      27  import { escolherFoto } from "../fotos/envio";
+      28  import { Medalhao } from "../premios/Medalhao";
+      29  import { rotulosDeTier } from "../premios/rotulos";
+      30 +import { useReivindicar } from "../premiosParticipacao/api";   
+      31 +import {                                                       
+      32 +  ESCOLHA_VAZIA,                                               
+      33 +  EscolhaDaReivindicacao,                                      
+      34 +  eventoDaEscolha,                                             
+      35 +  type Escolha,                                                
+      36 +} from "../premiosParticipacao/EscolhaDaReivindicacao";        
+      37  import { textStyles } from "../theme/fonts";
+      38  import { useTheme } from "../theme/ThemeProvider";
+      39  import { raios, tiers } from "../theme/tokens";
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 31 lines, removed 3 lines
+      48  // Caracteres como a API conta: um emoji vale um.
+      49  const caracteres = (texto: string) => Array.from(texto).length;
+      50  
+      51 +type Modo = "post" | "reivindicacao";                          
+      52 +                                                               
+      53 +const MODOS = [                                                
+      54 +  { value: "post", label: "Post" },                            
+      55 +  { value: "reivindicacao", label: "Reivindicar prêmio" },     
+      56 +] as const;                                                    
+      57 +                                                               
+      58  // Novo post (produto.md 6.1): foto, legenda e prêmio, todos op
+          cionais, mas ao menos um. Sem
+      59  // prancheta: segue a identidade visual e o "novo post" do Inst
+          agram, com a foto quadrada em
+      53 -// cima.                                                       
+      60 +// cima. No modo de reivindicação (produto.md 4.7), o post é a 
+         +comprovação de um prêmio de                                    
+      61 +// participação: a foto passa a ser obrigatória, e o prêmio vem
+         + do catálogo, com o evento.                                    
+      62  export function NovoPostScreen() {
+      63    const { colors } = useTheme();
+      64    const router = useRouter();
+     ...
+       66    const ehAluno = eu.data?.papeis.includes("aluno") ?? false;
+       67    const premios = usePremiosParaPostar(ehAluno);
+       68    const publicar = usePublicarPost();
+       69 +  const reivindicar = useReivindicar();                       
+       70  
+       71 +  const [modo, setModo] = useState<Modo>("post");             
+       72    const [derivadas, setDerivadas] = useState<Derivadas | null>
+           (null);
+       73    const [preparando, setPreparando] = useState(false);
+       74    const [erroDaFoto, setErroDaFoto] = useState<string | null>(
+           null);
+       75    const [legenda, setLegenda] = useState("");
+       76    const [medalhaId, setMedalhaId] = useState<string | null>(nu
+           ll);
+       77 +  const [escolha, setEscolha] = useState<Escolha>(ESCOLHA_VAZI
+          +A);                                                           
+       78  
+       79 +  const participacao = (premios.data?.itens ?? []).filter(    
+       80 +    (item) => item.tipo === "premioParticipacao",             
+       81 +  );                                                          
+       82 +  const itemEscolhido = participacao.find((item) => item.codig
+          +o === escolha.item);                                          
+       83 +  const evento = itemEscolhido                                
+       84 +    ? eventoDaEscolha(escolha, itemEscolhido.exigeMateria)    
+       85 +    : null;                                                   
+       86 +  const reivindicacaoCompleta =                               
+       87 +    !!derivadas &&                                            
+       88 +    !!evento &&                                               
+       89 +    (!itemEscolhido?.exigeMateria || !!escolha.materiaId);    
+       90 +                                                              
+       91    const tamanhoDaLegenda = caracteres(legenda);
+       92    const legendaLonga = tamanhoDaLegenda > LIMITE_DA_LEGENDA;
+       93    const vazio = legenda.trim() === "" && !derivadas && !medalh
+           aId;
+       71 -  const ocupado = preparando || publicar.isPending;           
+       94 +  const ocupado = preparando || publicar.isPending || reivindi
+          +car.isPending;                                                
+       95 +  const envio = modo === "post" ? publicar : reivindicar;     
+       96 +  const limparFalhas = () => {                                
+       97 +    publicar.reset();                                         
+       98 +    reivindicar.reset();                                      
+       99 +  };                                                          
+      100  
+      101    const trocarFoto = async () => {
+      102      setErroDaFoto(null);
+       75 -    publicar.reset();                                         
+      103 +    limparFalhas();                                           
+      104      try {
+      105        const foto = await escolherFoto();
+      106        if (!foto) return;
+
+● Agora o envio, o controle segmentado e as seções que mudam com o modo.
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 19 lines, removed 5 lines
+      117      }
+      118    };
+      119  
+      120 -  const enviar = () =>                                        
+      121 -    publicar.mutate(                                          
+      122 -      { legenda, derivadas, medalhaId },                      
+      123 -      { onSuccess: () => router.dismissTo("/") },             
+      124 -    );                                                        
+      120 +  const enviar = () => {                                      
+      121 +    if (modo === "post") {                                    
+      122 +      publicar.mutate(                                        
+      123 +        { legenda, derivadas, medalhaId },                    
+      124 +        { onSuccess: () => router.dismissTo("/") },           
+      125 +      );                                                      
+      126 +    } else if (derivadas && evento && escolha.item) {         
+      127 +      reivindicar.mutate(                                     
+      128 +        {                                                     
+      129 +          item: escolha.item,                                 
+      130 +          evento,                                             
+      131 +          materiaId: itemEscolhido?.exigeMateria ? escolha.mat
+          +eriaId : null,                                                
+      132 +          derivadas,                                          
+      133 +          legenda,                                            
+      134 +        },                                                    
+      135 +        { onSuccess: () => router.dismissTo("/") },           
+      136 +      );                                                      
+      137 +    }                                                         
+      138 +  };                                                          
+      139  
+      140    if (eu.isSuccess && !ehAluno) {
+      141      return (
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 16 lines
+      155        <Cabecalho titulo="Novo post" voltarPara="/" />
+      156  
+      157        <View style={styles.coluna}>
+      158 +        <SegmentedControl                                     
+      159 +          label="Tipo de post"                                
+      160 +          options={MODOS}                                     
+      161 +          value={modo}                                        
+      162 +          disabled={ocupado}                                  
+      163 +          onChange={(novo) => {                               
+      164 +            limparFalhas();                                   
+      165 +            setModo(novo);                                    
+      166 +          }}                                                  
+      167 +        />                                                    
+      168 +        {modo === "reivindicacao" && (                        
+      169 +          <Text style={[textStyles.legenda, { color: colors.in
+          +k2 }]}>                                                       
+      170 +            A foto é a comprovação. O post fica público com a 
+          +marca de                                                      
+      171 +            pendente até alguém aprovar.                      
+      172 +          </Text>                                             
+      173 +        )}                                                    
+      174          <Pressable
+      175            role="button"
+      176            accessibilityLabel={derivadas ? "Trocar foto" : "Esc
+           olher foto"}
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 22 lines, removed 10 lines
+      253            </Text>
+      254          </View>
+      255  
+      256 -        <View style={styles.secao}>                           
+      256 +        {premios.isPending && ehAluno && (                    
+      257 +          <ActivityIndicator style={styles.espera} color={colo
+          +rs.ink2} />                                                   
+      258 +        )}                                                    
+      259 +        {premios.isError && (                                 
+      260 +          <ErrorState                                         
+      261 +            message={falhaParaTela(premios.error).mensagem}   
+      262 +            onRetry={() => void premios.refetch()}            
+      263 +          />                                                  
+      264 +        )}                                                    
+      265 +                                                              
+      266 +        {modo === "reivindicacao" && premios.isSuccess && (   
+      267 +          <EscolhaDaReivindicacao                             
+      268 +            itens={participacao}                              
+      269 +            valor={escolha}                                   
+      270 +            onChange={(nova) => {                             
+      271 +              limparFalhas();                                 
+      272 +              setEscolha(nova);                               
+      273 +            }}                                                
+      274 +          />                                                  
+      275 +        )}                                                    
+      276 +                                                              
+      277 +        <View style={[styles.secao, modo !== "post" && styles.
+          +oculto]}>                                                     
+      278            <Text
+      279              role="heading"
+      280              style={[textStyles.secao, { color: colors.ink }]}
+     ...
+      284            <Text style={[textStyles.legenda, { color: colors.in
+           k2 }]}>
+      285              Opcional. Cada prêmio rende um post.
+      286            </Text>
+      266 -          {premios.isPending && ehAluno && (                  
+      267 -            <ActivityIndicator style={styles.espera} color={co
+          -lors.ink2} />                                                 
+      268 -          )}                                                  
+      269 -          {premios.isError && (                               
+      270 -            <ErrorState                                       
+      271 -              message={falhaParaTela(premios.error).mensagem} 
+      272 -              onRetry={() => void premios.refetch()}          
+      273 -            />                                                
+      274 -          )}                                                  
+      287            {premios.isSuccess && premios.opcoes.length === 0 &&
+            (
+      288              <Text style={[textStyles.legenda, { color: colors.
+           ink3 }]}>
+      289                Seus prêmios que ainda não têm post aparecem aqu
+           i.
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 15 lines, removed 7 lines
+      304            ))}
+      305          </View>
+      306  
+      307 -        {publicar.isError && (                                
+      308 -          <AvisoDeErro mensagem={falhaParaTela(publicar.error)
+          -.mensagem} />                                                 
+      307 +        {envio.isError && (                                   
+      308 +          <AvisoDeErro mensagem={falhaParaTela(envio.error).me
+          +nsagem} />                                                    
+      309          )}
+      310 -        <Button                                               
+      311 -          label={publicar.isPending ? "Publicando..." : "Publi
+          -car"}                                                         
+      312 -          disabled={vazio || legendaLonga || ocupado}         
+      313 -          onPress={enviar}                                    
+      314 -        />                                                    
+      310 +        {modo === "reivindicacao" ? (                         
+      311 +          <Button                                             
+      312 +            label={reivindicar.isPending ? "Enviando..." : "Re
+          +ivindicar"}                                                   
+      313 +            disabled={!reivindicacaoCompleta || legendaLonga |
+          +| ocupado}                                                    
+      314 +            onPress={enviar}                                  
+      315 +          />                                                  
+      316 +        ) : (                                                 
+      317 +          <Button                                             
+      318 +            label={publicar.isPending ? "Publicando..." : "Pub
+          +licar"}                                                       
+      319 +            disabled={vazio || legendaLonga || ocupado}       
+      320 +            onPress={enviar}                                  
+      321 +          />                                                  
+      322 +        )}                                                    
+      323        </View>
+      324      </Screen>
+      325    );
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/posts" && sed
+      -i 's/^                  publicar.reset();$/                  l…)
+  ⎿  96:  const limparFalhas = () => {
+     97:    publicar.reset();
+     103:    limparFalhas();
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\posts\NovoPostScreen.tsx (+4 -3)
+      219                  variant="secondary"
+      220                  disabled={ocupado}
+      221                  onPress={() => {
+      222 -                  publicar.reset();                           
+      222 +                  limparFalhas();                             
+      223                    setDerivadas(null);
+      224                  }}
+      225                />
+     ...
+      234              multiline
+      235              value={legenda}
+      236              onChangeText={(texto) => {
+      237 -              publicar.reset();                               
+      237 +              limparFalhas();                                 
+      238                setLegenda(texto);
+      239              }}
+      240              placeholder="Conte o que aconteceu."
+     ...
+      295                premio={premio}
+      296                marcado={medalhaId === premio.id}
+      297                onPress={() => {
+      298 -                publicar.reset();                             
+      298 +                limparFalhas();                               
+      299                  setMedalhaId((atual) =>
+      300                    atual === premio.id ? null : premio.id,
+      301                  );
+     ...
+      408    },
+      409    textoDoPremio: { flex: 1, gap: 2 },
+      410    pressionado: { opacity: 0.85 },
+      411 +  oculto: { display: "none" },                                
+      412  });
+
+● Prefiro não renderizar a seção a escondê-la com display: none, para os testes
+  não acharem texto escondido. Ajusto.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 2 lines, removed 1 line
+      274            />
+      275          )}
+      276  
+      277 -        <View style={[styles.secao, modo !== "post" && styles.
+          -oculto]}>                                                     
+      277 +        {modo === "post" && (                                 
+      278 +        <View style={styles.secao}>                           
+      279            <Text
+      280              role="heading"
+      281              style={[textStyles.secao, { color: colors.ink }]}
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 1 line
+      304              />
+      305            ))}
+      306          </View>
+      307 +        )}                                                    
+      308  
+      309          {envio.isError && (
+      310            <AvisoDeErro mensagem={falhaParaTela(envio.error).me
+           nsagem} />
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '/^  oculto: { display: "none" },$/d'
+      apps/mobile/src/posts/NovoPostScreen.tsx &&…)
+  ⎿  src/trofeus/trofeus.test.tsx(22,3): error TS2322: Type '{ codigo: stri
+     ng; tipo: string; nome: string; criterio: string; tier: string; pontos
+     : number; familia: null | string; ordemNaFamilia: null | number; rarid
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\posts\NovoPostScreen.tsx (+33 -32)
+      79    const participacao = (premios.data?.itens ?? []).filter(
+      80      (item) => item.tipo === "premioParticipacao",
+      81    );
+      82 -  const itemEscolhido = participacao.find((item) => item.codigo
+         - === escolha.item);                                            
+      82 +  const itemEscolhido = participacao.find(                     
+      83 +    (item) => item.codigo === escolha.item,                    
+      84 +  );                                                           
+      85    const evento = itemEscolhido
+      86      ? eventoDaEscolha(escolha, itemEscolhido.exigeMateria)
+      87      : null;
+     ...
+      169          />
+      170          {modo === "reivindicacao" && (
+      171            <Text style={[textStyles.legenda, { color: colors.in
+           k2 }]}>
+      170 -            A foto é a comprovação. O post fica público com a 
+          -marca de                                                      
+      171 -            pendente até alguém aprovar.                      
+      172 +            A foto é a comprovação. O post fica público com a 
+          +marca de pendente                                             
+      173 +            até alguém aprovar.                               
+      174            </Text>
+      175          )}
+      176          <Pressable
+     ...
+      277          )}
+      278  
+      279          {modo === "post" && (
+      278 -        <View style={styles.secao}>                           
+      279 -          <Text                                               
+      280 -            role="heading"                                    
+      281 -            style={[textStyles.secao, { color: colors.ink }]} 
+      282 -          >                                                   
+      283 -            Prêmio                                            
+      284 -          </Text>                                             
+      285 -          <Text style={[textStyles.legenda, { color: colors.in
+          -k2 }]}>                                                       
+      286 -            Opcional. Cada prêmio rende um post.              
+      287 -          </Text>                                             
+      288 -          {premios.isSuccess && premios.opcoes.length === 0 &&
+          - (                                                            
+      289 -            <Text style={[textStyles.legenda, { color: colors.
+          -ink3 }]}>                                                     
+      290 -              Seus prêmios que ainda não têm post aparecem aqu
+          -i.                                                            
+      280 +          <View style={styles.secao}>                         
+      281 +            <Text                                             
+      282 +              role="heading"                                  
+      283 +              style={[textStyles.secao, { color: colors.ink }]
+          +}                                                             
+     … 48 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx
+     (+23 -6)
+       1  import type { ReactNode } from "react";
+       2 -import { ActivityIndicator, Pressable, StyleSheet, Text, View }
+         - from "react-native";                                          
+       2 +import {                                                       
+       3 +  ActivityIndicator,                                           
+       4 +  Pressable,                                                   
+       5 +  StyleSheet,                                                  
+       6 +  Text,                                                        
+       7 +  View,                                                        
+       8 +} from "react-native";                                         
+       9  
+      10  import { falhaParaTela } from "../api/FalhaDaApi";
+      11  import { Icon } from "../components/Icon";
+     ...
+      80    const eventos = useEventos(item && !exigeMateria ? item.codig
+          o : null);
+      81    const materias = useMateriasDoAluno(exigeMateria);
+      82    const digitado = exigeMateria || valor.eventoId === OUTRO_EVE
+          NTO;
+      77 -  const mudar = (parcial: Partial<Escolha>) => onChange({ ...va
+         -lor, ...parcial });                                            
+      83 +  const mudar = (parcial: Partial<Escolha>) =>                 
+      84 +    onChange({ ...valor, ...parcial });                        
+      85  
+      86    return (
+      87      <View style={styles.coluna}>
+     ...
+      172            {digitado && (
+      173              <View style={styles.campos}>
+      174                <TextField
+      168 -                label={exigeMateria ? "O que você apresentou" 
+          -: "Nome do evento"}                                           
+      175 +                label={                                       
+      176 +                  exigeMateria ? "O que você apresentou" : "No
+          +me do evento"                                                 
+      177 +                }                                             
+      178                  value={valor.nome}
+      179                  onChangeText={(nome) => mudar({ nome })}
+      171 -                placeholder={exigeMateria ? "Seminário de norm
+          -alização" : "Palestra sobre LGPD"}                            
+      180 +                placeholder={                                 
+      181 +                  exigeMateria                                
+      182 +                    ? "Seminário de normalização"             
+      183 +                    : "Palestra sobre LGPD"                   
+      184 +                }                                             
+      185                />
+      186                <TextField
+      187                  label="Data de início"
+     ...
+      234                rotulo={materia.nome}
+     … 19 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\premiosParticipacao\textos.ts (+13 -3)
+       5  export function lerData(texto: string): string | null {
+       6    const partes = /^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*$/.exec(t
+          exto);
+       7    if (!partes) return null;
+       8 -  const [dia, mes, ano] = [Number(partes[1]), Number(partes[2])
+         -, Number(partes[3])];                                          
+       8 +  const [dia, mes, ano] = [                                    
+       9 +    Number(partes[1]),                                         
+      10 +    Number(partes[2]),                                         
+      11 +    Number(partes[3]),                                         
+      12 +  ];                                                           
+      13    const data = new Date(Date.UTC(ano, mes - 1, dia));
+      10 -  if (data.getUTCFullYear() !== ano || data.getUTCMonth() !== m
+         -es - 1 || data.getUTCDate() !== dia) {                         
+      14 +  if (                                                         
+      15 +    data.getUTCFullYear() !== ano ||                           
+      16 +    data.getUTCMonth() !== mes - 1 ||                          
+      17 +    data.getUTCDate() !== dia                                  
+      18 +  ) {                                                          
+      19      return null;
+      20    }
+      21    return `${ano}-${String(mes).padStart(2, "0")}-${String(dia).
+          padStart(2, "0")}`;
+     ...
+      29  
+      30  // "14/09" para um dia só, "14/09 a 18/09" para um período.
+      31  export function periodo(inicio: string, fim: string): string {
+      24 -  return inicio === fim ? diaEMes(inicio) : `${diaEMes(inicio)}
+         - a ${diaEMes(fim)}`;                                           
+      32 +  return inicio === fim                                        
+      33 +    ? diaEMes(inicio)                                          
+      34 +    : `${diaEMes(inicio)} a ${diaEMes(fim)}`;                  
+      35  }
+      36  
+      37  // O rótulo do estado de uma reivindicação que ainda não pontua
+          .
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      '0,/^    obtidos: \[\],$/s//    obtidos: [],\n    exigeMateria: fa…)
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+1 -0)
+      29      ordemNaFamilia: null,
+      30      raridade: { nivel: "lendario", percentual: 0 },
+      31      obtidos: [],
+      32 +    exigeMateria: false,                                       
+      33      ...parcial,
+      34    };
+      35  }
+  ⎿  (timeout 5m)
+
+● Tipos limpos. Agora a marca de estado do cartão. Vejo antes quais ícones o
+  componente Icon oferece.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\mobile\src\premiosParticipacao\MarcaDeEstado.tsx)
+  ⎿  Wrote 43 lines to
+     apps\mobile\src\premiosParticipacao\MarcaDeEstado.tsx
+       1 import { StyleSheet, Text, View } from "react-native";
+       2 
+       3 import { fontFamily } from "../theme/fonts";
+       4 import { useTheme } from "../theme/ThemeProvider";
+       5 import { raios } from "../theme/tokens";
+       6 import { rotulosDeEstado } from "./textos";
+       7 
+       8 // A marca do prêmio de participação que ainda não pontua (produ
+         to.md 4.7): "Pendente" para o
+       9 // reivindicado, que todos veem, e "Em averiguação", que só o al
+     … +35 lines (~1 KB) (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Uso o raio dos filtros (8), que é o raio de chip da identidade, e aplico as
+  marcas no cartão.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i 's/
+         borderRadius: raios.chip,/    borderRadius: raios.filtros,/…)
+  ⎿  ./feed/CartaoDePost.tsx:25:  descreverMedalha,
+     ./feed/CartaoDePost.tsx:228:            detalhe={descreverMedalha(prem
+     io)}
+     ./feed/textos.ts:74:export function descreverMedalha(premio: {
+  ⎿  Updated apps\mobile\src\premiosParticipacao\MarcaDeEstado.tsx (+1 -1)
+      32    marca: {
+      33      alignSelf: "flex-start",
+      34      height: 26,
+      35 -    borderRadius: raios.chip,                                  
+      35 +    borderRadius: raios.filtros,                               
+      36      paddingHorizontal: 10,
+      37      justifyContent: "center",
+      38    },
+
+● Update(apps\mobile\src\feed\CartaoDePost.tsx)
+  ⎿  Added 11 lines, removed 5 lines
+      151            </Text>
+      152            {premio && (
+      153              <View style={styles.selo}>
+      154 -              <SeloPremio                                     
+      155 -                nome={premio.nome}                            
+      156 -                tier={premio.tier as Tier}                    
+      157 -                glifo={glifo}                                 
+      158 -              />                                              
+      154 +              {/* Em averiguação, sem metal e sem tier: só a m
+          +arca (produto.md 4.7). */}                                    
+      155 +              {!emAveriguacao && (                            
+      156 +                <SeloPremio                                   
+      157 +                  nome={premio.nome}                          
+      158 +                  tier={premio.tier as Tier}                  
+      159 +                  glifo={glifo}                               
+      160 +                />                                            
+      161 +              )}                                              
+      162 +              {temMarca(premio.estado) && (                   
+      163 +                <MarcaDeEstado estado={premio.estado!} />     
+      164 +              )}                                              
+      165              </View>
+      166            )}
+      167          </View>
+
+● Update(apps\mobile\src\feed\CartaoDePost.tsx)
+  ⎿  Added 7 lines, removed 2 lines
+      224        </View>
+      225  
+      226        <View style={styles.texto}>
+      227 -        {premio && (                                          
+      227 +        {premio && !emAveriguacao && (                        
+      228            <FaixaPremio
+      229              nome={premio.nome}
+      230              tier={premio.tier as Tier}
+      231              raridade={(premio.raridade?.nivel as Raridade | un
+           defined) ?? null}
+      232              glifo={glifo}
+      233              pontos={premio.pontos}
+      234 -            detalhe={descreverMedalha(premio)}                
+      234 +            nota={                                            
+      235 +              premio.estado === "reivindicado"                
+      236 +                ? "Aguardando aprovação"                      
+      237 +                : undefined                                   
+      238 +            }                                                 
+      239 +            detalhe={descreverPremio(premio)}                 
+      240            />
+      241          )}
+      242          {descreverCurtidas(curtida.curtidas) && (
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/feed" && sed
+      -i 's/^  const glifo = premio?.tipo === "medalha" ? "fita" : "ta…)
+  ⎿  Updated apps\mobile\src\feed\CartaoDePost.tsx (+4 -2)
+       6  import { Avatar } from "../components/Avatar";
+       7  import { Icon } from "../components/Icon";
+       8  import { FaixaPremio } from "../premios/FaixaPremio";
+       9 +import { MarcaDeEstado, temMarca } from "../premiosParticipacao
+         +/MarcaDeEstado";                                               
+      10 +import { descreverPremio } from "../premiosParticipacao/textos"
+         +;                                                              
+      11  import { SeloPremio } from "../premios/SeloPremio";
+      12  import { textStyles } from "../theme/fonts";
+      13  import { useTheme } from "../theme/ThemeProvider";
+     ...
+      24    descreverAutor,
+      25    descreverComentarios,
+      26    descreverCurtidas,
+      25 -  descreverMedalha,                                            
+      27    tempoDesde,
+      28    usuarioDoArroba,
+      29  } from "./textos";
+     ...
+      90      (leitor.papeis.includes("aluno") || leitor.papeis.includes(
+          "professor"));
+      91    const premio = post.premio;
+      92    const glifo = premio?.tipo === "medalha" ? "fita" : "taca";
+      93 +  const emAveriguacao = premio?.estado === "emAveriguacao";    
+      94  
+      95    const alternarCurtida = () => {
+      96      const anterior = curtida;
+     ...
+      289      paddingVertical: 12,
+      290    },
+      291    quem: { flex: 1, gap: 4 },
+      290 -  selo: { alignSelf: "flex-start" },                          
+      292 +  selo: { flexDirection: "row", flexWrap: "wrap", gap: 6 },   
+      293    botaoDeIcone: {
+      294      width: tamanhos.alvoDeToque,
+      295      height: tamanhos.alvoDeToque,
+  ⎿  (timeout 5m)
+
+● Tipos e lint limpos. Agora a seção "Reivindicações" na aba Troféus.
+
+● Write(apps\mobile\src\premiosParticipacao\SecaoDeReivindicacoes.tsx)
+  ⎿  Wrote 121 lines to
+     apps\mobile\src\premiosParticipacao\SecaoDeReivindicacoes.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { Pressable, StyleSheet, Text, View } from "react-native"
+         ;
+       3 
+       4 import { falhaParaTela } from "../api/FalhaDaApi";
+       5 import { ErrorState } from "../components/StateMessage";
+       6 import { Medalhao } from "../premios/Medalhao";
+       7 import { textStyles } from "../theme/fonts";
+       8 import { useTheme } from "../theme/ThemeProvider";
+       9 import type { Tier } from "../theme/tokens";
+     … +112 lines (ctrl+o to expand)
+
+● A data "desde" é um instante com hora. Cortar a string ISO daria o dia em UTC,
+  que pode estar um dia à frente de São Paulo. Uso o tempoDesde do feed ("há 2
+  dias"), que já resolve isso.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/m
+      obile/src/premiosParticipacao" && sed -i 's/            {`desde
+      ${diaEMes(reivindicacao…)
+  ⎿  12:import { tempoDesde } from "../feed/textos";
+     97:            {tempoDesde(reivindicacao.desde)}
+  ⎿  Updated apps\mobile\src\premiosParticipacao\SecaoDeReivindicacoes.tsx
+     (+3 -2)
+       9  import type { Tier } from "../theme/tokens";
+      10  import { useReivindicacoes, type Reivindicacao } from "./api";
+      11  import { MarcaDeEstado } from "./MarcaDeEstado";
+      12 -import { diaEMes, rotulosDeEstado } from "./textos";           
+      12 +import { tempoDesde } from "../feed/textos";                   
+      13 +import { rotulosDeEstado } from "./textos";                    
+      14  
+      15  // A seção Reivindicações da aba Troféus (D9): os prêmios de pa
+          rticipação do aluno que ainda
+      16  // não pontuam, pendentes, em averiguação, reprovados e revogad
+          os, com o motivo nos dois
+     ...
+       94          <View style={styles.estado}>
+       95            <MarcaDeEstado estado={reivindicacao.estado} />
+       96            <Text style={[textStyles.legenda, { color: colors.in
+           k3 }]}>
+       96 -            {`desde ${diaEMes(reivindicacao.desde)}`}         
+       97 +            {tempoDesde(reivindicacao.desde)}                 
+       98            </Text>
+       99          </View>
+      100          {reivindicacao.motivo && (
+
+● Agora a seção entra na tela de Troféus, só na aba Troféus.
+
+● Update(apps\mobile\src\trofeus\TrofeusScreen.tsx)
+  ⎿  Added 2 lines
+      103              />
+      104            </View>
+      105  
+      106 +          {aba === "trofeus" && <SecaoDeReivindicacoes ativo={
+          +ehAluno} />}                                                  
+      107 +                                                              
+      108            {trilhas.map((trilha) => (
+      109              <View key={trilha.codigo} style={styles.trilha}>
+      110                <TrilhaFamilia
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/mobile/src/trofeus/TrofeusScreen.tsx && sed -i 's#^import {
+      TrilhaFamilia } from "…)
+  ⎿  Updated apps\mobile\src\trofeus\TrofeusScreen.tsx (+1 -0)
+      13  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      14  import { Logo } from "../marca/Logo";
+      15  import { TrilhaFamilia } from "../premios/TrilhaFamilia";
+      16 +import { SecaoDeReivindicacoes } from "../premiosParticipacao/S
+         +ecaoDeReivindicacoes";                                         
+      17  import { textStyles } from "../theme/fonts";
+      18  import { useTheme } from "../theme/ThemeProvider";
+      19  import { cores } from "../theme/tokens";
+  ⎿  (timeout 5m)
+
+● Tipos e lint limpos. Rodo o Jest: os testes antigos de Troféus simulam a API,
+  e a rota nova pode quebrar algum.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 387 continuam passando. Agora os testes novos; antes vejo o resto da
+  preparação do teste do novo post (foto e bucket) para reaproveitar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\mobile\src\premiosParticipacao\reivindicacao.test.tsx)
+  ⎿  Wrote 340 lines to
+     apps\mobile\src\premiosParticipacao\reivindicacao.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 import { launchImageLibraryAsync } from "expo-image-picker";
+       3 
+       4 import { NovoPostScreen } from "../posts/NovoPostScreen";
+       5 import { json, renderComApi } from "../test/renderComApi";
+       6 import { eventoDaEscolha, ESCOLHA_VAZIA } from "./EscolhaDaReivi
+         ndicacao";
+       7 import { lerData, periodo } from "./textos";
+       8 
+     … +332 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src/premiosParticipacao >/dev/null; cd
+      apps/mobile && np…)
+  ⎿  Tests:       9 passed, 9 total
+  ⎿  Updated apps\mobile\src\premiosParticipacao\reivindicacao.test.tsx (+4
+     -12)
+      217  
+      218      await apertar(/Semana acadêmica/, "radio");
+      219      await apertar(/Semana Acadêmica de Computação/, "radio");
+      220 -    expect(                                                   
+      221 -      screen.getByRole("button", { name: "Reivindicar" }),    
+      222 -    ).toBeDisabled();                                         
+      220 +    expect(screen.getByRole("button", { name: "Reivindicar" })
+          +).toBeDisabled();                                             
+      221  
+      222      await apertar("Escolher foto");
+      223      expect(await screen.findByTestId("previa-da-foto")).toBeOn
+           TheScreen();
+      226 -    expect(                                                   
+      227 -      screen.getByRole("button", { name: "Reivindicar" }),    
+      228 -    ).toBeEnabled();                                          
+      224 +    expect(screen.getByRole("button", { name: "Reivindicar" })
+          +).toBeEnabled();                                              
+      225    });
+      226  
+      227    it("reivindica com o evento da lista, envia a foto e volta a
+           o início", async () => {
+     ...
+      257      expect(
+      258        await screen.findByText("Use o formato dd/mm/aaaa."),
+      259      ).toBeOnTheScreen();
+      264 -    expect(                                                   
+      265 -      screen.getByRole("button", { name: "Reivindicar" }),    
+      266 -    ).toBeDisabled();                                         
+      260 +    expect(screen.getByRole("button", { name: "Reivindicar" })
+          +).toBeDisabled();                                             
+      261  
+      262      await escrever("Data de início", "05/10/2026");
+      263      await escrever("Data de fim, se durou mais de um dia", "09
+           /10/2026");
+     ...
+      285  
+      286      expect(screen.queryByRole("radio", { name: "Outro evento" 
+           })).toBeNull();
+      287      expect(eventos).not.toHaveBeenCalled();
+      294 -    expect(                                                   
+      295 -      screen.getByRole("button", { name: "Reivindicar" }),    
+      296 -    ).toBeDisabled();                                         
+      288 +    expect(screen.getByRole("button", { name: "Reivindicar" })
+          +).toBeDisabled();                                             
+      289  
+      290      await apertar("Banco de Dados", "radio");
+      291      await apertar("Reivindicar");
+  ⎿  (timeout 10m)
+
+● Background command "Watch stage 4 CI" completed (exit code 0)
+  Read 1 file (ctrl+o to expand)
+
+● A CI do 39ecd1c passou nos seis jobs, e com isso a etapa 4 está pronta. Os 9
+  testes da reivindicação no app passaram. Agora os testes das marcas do cartão
+  e da seção de Troféus.
+
+● Write(apps\mobile\src\premiosParticipacao\marcas.test.tsx)
+  ⎿  Wrote 130 lines to apps\mobile\src\premiosParticipacao\marcas.test.tsx
+      1 import { screen, within } from "@testing-library/react-native";
+      2 
+      3 import { CartaoDePost } from "../feed/CartaoDePost";
+      4 import type { Post } from "../feed/api";
+      5 import { json, renderComApi } from "../test/renderComApi";
+      6 import { TrofeusScreen } from "../trofeus/TrofeusScreen";
+      7 
+      8 const mockRoteador = { push: jest.fn(), navigate: jest.fn() };
+      9 jest.mock("expo-router", () => ({ useRouter: () => mockRoteador }
+        ));
+     … +121 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write apps/mobile/src/premiosParticipacao >/dev/null; cd
+      apps/mobile && np…)
+  ⎿  Tests:       14 passed, 14 total
+  ⎿  Updated apps\mobile\src\premiosParticipacao\marcas.test.tsx (+76 -19)
+      22        foto: null,
+      23      },
+      24      legenda: "Na semana acadêmica.",
+      25 -    foto: { feed: "http://cdn.test/feed.jpg", grade: "http://cd
+         -n.test/grade.jpg" },                                           
+      25 +    foto: {                                                    
+      26 +      feed: "http://cdn.test/feed.jpg",                        
+      27 +      grade: "http://cdn.test/grade.jpg",                      
+      28 +    },                                                         
+      29      premio: {
+      30        tipo: "premioParticipacao",
+      31        id: "0193a000-0000-7000-8000-0000000000d1",
+     ...
+      46    };
+      47  }
+      48  
+      46 -const api = jest.fn(async (_pedido: Request) => new Response(nu
+         -ll, { status: 404 }));                                         
+      49 +const api = jest.fn(                                           
+      50 +  async (_pedido: Request) => new Response(null, { status: 404 
+         +}),                                                            
+      51 +);                                                             
+      52  
+      53  describe("marcas do prêmio de participação no cartão", () => {
+      54    it("pendente: selo, marca Pendente e a faixa com o evento e A
+          guardando aprovação", async () => {
+      50 -    await renderComApi(<CartaoDePost post={postCom("reivindicad
+         -o")} leitor={{ id: "outro", papeis: ["aluno"] }} />, api);     
+      55 +    await renderComApi(                                        
+      56 +      <CartaoDePost                                            
+      57 +        post={postCom("reivindicado")}                         
+      58 +        leitor={{ id: "outro", papeis: ["aluno"] }}            
+      59 +      />,                                                      
+      60 +      api,                                                     
+      61 +    );                                                         
+      62  
+      52 -    expect(await screen.findByTestId("marca-reivindicado")).toH
+         -aveTextContent("Pendente");                                    
+      63 +    expect(await screen.findByTestId("marca-reivindicado")).toH
+         +aveTextContent(                                                
+      64 +      "Pendente",                                              
+      65 +    );                                                         
+      66      expect(screen.getByTestId("selo")).toBeOnTheScreen();
+      67      const faixa = screen.getByTestId("faixa");
+      55 -    expect(within(faixa).getByText("Semana Acadêmica de Computa
+         -ção")).toBeOnTheScreen();                                      
+      68 +    expect(                                                    
+      69 +      within(faixa).getByText("Semana Acadêmica de Computação")
+         +,                                                              
+      70 +    ).toBeOnTheScreen();                                       
+     … 108 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● 14 verdes. Agora o job do app inteiro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Job do app limpo: 401 testes. Faltam as capturas. Para tirá-las, preciso da
+  pilha inteira de pé, com o build web novo e dados de verdade. Vejo como o e2e
+  da CI sobe o compose e cria contas.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Docker está ativo e o .env existe. Vou usar os auxiliares do Playwright do e2e
+  num spec temporário para as capturas e apagá-lo depois, sem commitá-lo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Subo a pilha com o build novo em segundo plano, que demora, e enquanto isso
+  vejo como o e2e social escolhe a foto e faz o login.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Build and start the compose stack" failed with exit code 1
+
+  Read 1 file (ctrl+o to expand)
+
+● A pasta de rascunho ainda não existia, então o log não foi gravado. Crio a
+  pasta e subo de novo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Pilha de pé. Rodo o seed demo e confiro que os eventos entraram.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 8 eventos entraram. Leio o trecho do e2e social que desenha a foto e
+  escolhe o arquivo, para copiar no spec das capturas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou criar um spec temporário só para as capturas, fora do commit, e gerar as
+  reivindicações em averiguação, reprovada e revogada pela API com fotos reais.
+  A pendente passa pela tela, e é dela que sai a captura do novo post.
+
+● Write(e2e\tests\_capturas.spec.ts)
+  ⎿  Wrote 168 lines to e2e\tests\_capturas.spec.ts
+       1 // TEMPORÁRIO, fora do commit: capturas da etapa 5 do passo 8 pa
+         ra a revisão do autor.
+       2 import { readFileSync, writeFileSync } from "node:fs";
+       3 
+       4 import { expect, test, type APIRequestContext, type Page } from 
+         "@playwright/test";
+       5 
+       6 import { novaConta, sql, type Aluno } from "./apoio/contas";
+       7 import { linkDeRecuperacao } from "./apoio/mailpit";
+       8 import { matricular, novaProfessora } from "./apoio/medalhas";
+     … +160 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste no modo claro passou, mas no escuro o login da instituição falhou
+  porque a busca no Mailpit pegou o e-mail antigo, cujo link já tinha sido
+  usado. Vou fixar uma senha para a instituição e deixar a recuperação só para
+  quando o login falhar.
+
+● Update(e2e\tests\_capturas.spec.ts)
+  ⎿  Added 9 lines, removed 6 lines
+      81  
+      82    // A instituição do seed, com senha pelo primeiro acesso.
+      83    const instituicao = "coordenacao@unieduk.com.br";
+      84 -  const senhaDaInstituicao = `senha-inst-${Date.now()}`;       
+      85 -  await request.post("/api/v1/auth/recuperacao", { data: { emai
+         -l: instituicao } });                                           
+      86 -  const link = await linkDeRecuperacao(request, instituicao);  
+      87 -  await request.post("/api/v1/auth/recuperacao/confirmar", {   
+      88 -    data: { token: new URL(link).hash.replace("#token=", ""), s
+         -enha: senhaDaInstituicao },                                    
+      89 -  });                                                          
+      84 +  const senhaDaInstituicao = "senha-inst-capturas";            
+      85 +  const jaTemSenha = (await request.post("/api/v1/auth/login", 
+         +{ data: { identificador: instituicao, senha: senhaDaInstituicao
+         + } })).status() === 200;                                       
+      86 +  if (!jaTemSenha) {                                           
+      87 +    await request.post("/api/v1/auth/recuperacao", { data: { em
+         +ail: instituicao } });                                         
+      88 +    const link = await linkDeRecuperacao(request, instituicao);
+      89 +    await request.post("/api/v1/auth/recuperacao/confirmar", { 
+      90 +      data: { token: new URL(link).hash.replace("#token=", ""),
+         + senha: senhaDaInstituicao },                                  
+      91 +    });                                                        
+      92 +  }                                                            
+      93  
+      94    const doAluno = await token(request, aluno.ra, aluno.senha);
+      95    const daProfessora = await token(request, professora.email, p
+          rofessora.senha);
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A falha é do spec, não do app: o feed mostra também o post pendente da
+  execução anterior, com a mesma legenda. Pego o primeiro cartão, que é o post
+  mais novo da própria aluna.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i "s/  const cartao = page.locator('\[data-testid^=\"post-\"\]', {
+      hasText: \"Semana…)
+  ⎿  154:  const cartao = page.locator('[data-testid^="post-"]', { hasText:
+      "Semana acadêmica de Computação!" }).first();
+       ok 2 [celular-escuro] › tests\_capturas.spec.ts:75:5 › capturas da r
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\_capturas.spec.ts (+1 -1)
+      151  
+      152    // O cartão pendente, no feed.
+      153    await page.setViewportSize({ width: 390, height: 844 });
+      154 -  const cartao = page.locator('[data-testid^="post-"]', { hasT
+          -ext: "Semana acadêmica de Computação!" });                    
+      154 +  const cartao = page.locator('[data-testid^="post-"]', { hasT
+          +ext: "Semana acadêmica de Computação!" }).first();            
+      155    await expect(cartao.getByTestId("marca-reivindicado")).toBeV
+           isible();
+      156    await expect.poll(() => cartao.getByTestId("foto-do-post").l
+           ocator("img").evaluate((img: HTMLImageElement) => img.naturalW
+           idth)).toBeGreaterThan(0);
+      157    await cartao.screenshot({ path: `${SAIDA}/cartao-pendente-${
+           tema}.png` });
+  ⎿  (timeout 10m)
+
+● Oito capturas geradas. Confiro cada uma antes de entregar.
+
+  Read 4 files (ctrl+o to expand)
+
+● Três capturas já estão boas. Vou corrigir a do novo post, que ainda mostra a
+  lista inteira dos 17 prêmios depois da escolha, e refazê-la com a tela rolada
+  até o topo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/m
+      obile/src/premiosParticipacao" && sed -i 's/^        {itens.map((opcao) =>
+      ($/        {…)
+  ⎿                  {opcao.criterio}
+                   </Text>
+                 </View>
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx
+     (+20 -1)
+      11  import { Icon } from "../components/Icon";
+      12  import { ErrorState } from "../components/StateMessage";
+      13  import { TextField } from "../components/TextField";
+      14 +import { TextLink } from "../components/TextLink";             
+      15  import { Medalhao } from "../premios/Medalhao";
+      16  import { rotulosDeTier } from "../premios/rotulos";
+      17  import { textStyles } from "../theme/fonts";
+     ...
+      70  // Reivindicação de prêmio de participação (produto.md 4.6 e 4.
+          7): o prêmio, o evento, da
+      71  // lista ou digitado com nome e período, e a matéria quando o p
+          rêmio pede (apresentação em
+      72  // sala). Sem prancheta: segue a identidade visual, em linhas c
+          omo as do modal de medalha.
+      73 +// Escolhido o prêmio, a lista recolhe para ele, com "Trocar pr
+         +êmio": o catálogo tem 17 itens                                 
+      74 +// e empurraria o evento para longe da foto.                   
+      75  export function EscolhaDaReivindicacao({
+      76    itens,
+      77    valor,
+     ...
+      93          <Text style={[textStyles.legenda, { color: colors.ink2 
+          }]}>
+      94            O prêmio que a foto comprova.
+      95          </Text>
+      93 -        {itens.map((opcao) => (                                
+      96 +        {(item ? [item] : itens).map((opcao) => (              
+      97            <Linha
+      98              key={opcao.codigo}
+      99              marcada={valor.item === opcao.codigo}
+     ...
+      120              </View>
+      121            </Linha>
+      122          ))}
+      123 +        {item && (                                            
+      124 +          <View style={styles.trocar}>                        
+      125 +            <TextLink                                         
+      126 +              label="Trocar prêmio"                           
+      127 +              onPress={() =>                                  
+      128 +                onChange({                                    
+      129 +                  ...valor,                                   
+      130 +                  item: null,                                 
+      131 +                  eventoId: null,                             
+      132 +                  materiaId: null,                            
+      133 +                })                                            
+      134 +              }                                               
+      135 +            />                                                
+      136 +          </View>                                             
+     … 11 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Acrescento ao teste do app a lista recolhida e o "Trocar prêmio", e rodo os
+  testes da reivindicação.
+● Update(apps\mobile\src\premiosParticipacao\reivindicacao.test.tsx)
+  ⎿  Added 17 lines
+      320      expect(mockRoteador.dismissTo).not.toHaveBeenCalled();
+      321    });
+      322  
+      323 +  it("escolhido o prêmio, a lista recolhe para ele, e Trocar p
+          +rêmio a devolve", async () => {                               
+      324 +    await noModoDeReivindicacao();                            
+      325 +                                                              
+      326 +    await apertar(/Semana acadêmica/, "radio");               
+      327 +    expect(                                                   
+      328 +      screen.queryByRole("radio", { name: /Apresentação de tra
+          +balho em sala/ }),                                            
+      329 +    ).toBeNull();                                             
+      330 +                                                              
+      331 +    await apertar("Trocar prêmio");                           
+      332 +    expect(                                                   
+      333 +      await screen.findByRole("radio", {                      
+      334 +        name: /Apresentação de trabalho em sala/,             
+      335 +      }),                                                     
+      336 +    ).toBeOnTheScreen();                                      
+      337 +    expect(screen.queryByRole("heading", { name: "Evento" })).
+          +toBeNull();                                                   
+      338 +  });                                                         
+      339 +                                                              
+      340    it("voltar ao modo Post mostra as medalhas e o botão Publica
+           r", async () => {
+      341      await noModoDeReivindicacao();
+      342      await apertar("Post", "radio");
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O TextLink tem papel de link, não de botão; ajusto o teste.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's/
+      await apertar("Trocar prêmio");/    await apertar("Trocar prêmi…)
+  ⎿  Tests:       15 passed, 15 total
+  ⎿  Updated apps\mobile\src\premiosParticipacao\reivindicacao.test.tsx (+1
+     -1)
+      328        screen.queryByRole("radio", { name: /Apresentação de tra
+           balho em sala/ }),
+      329      ).toBeNull();
+      330  
+      331 -    await apertar("Trocar prêmio");                           
+      331 +    await apertar("Trocar prêmio", "link");                   
+      332      expect(
+      333        await screen.findByRole("radio", {
+      334          name: /Apresentação de trabalho em sala/,
+  ⎿  (timeout 10m)
+
+● 15 verdes. Reconstruo o build web no Caddy e ajusto a captura para rolar para
+  o topo as áreas de rolagem internas (a tela usa ScrollView, e window.scrollTo
+  não basta).
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/  await page.evaluate(() => window.scrollTo(0, 0));/  await
+      page.evaluate(() =>…)
+  ⎿  148:  await page.evaluate(() => document.querySelectorAll("*").forEach
+     ((el) => { el.scrollTop = 0; }));
+      Container maxx-caddy-1 Starting
+      Container maxx-caddy-1 Started
+  ⎿  Updated e2e\tests\_capturas.spec.ts (+1 -1)
+      145    await page.getByLabel("Legenda").fill("Semana acadêmica de C
+           omputação!");
+      146    await page.getByRole("radio", { name: /^Semana acadêmica/ })
+           .click();
+      147    await page.getByRole("radio", { name: /Semana Acadêmica de C
+           iência da Computação/ }).click();
+      148 -  await page.evaluate(() => window.scrollTo(0, 0));           
+      148 +  await page.evaluate(() => document.querySelectorAll("*").for
+          +Each((el) => { el.scrollTop = 0; }));                         
+      149    await page.screenshot({ path: `${SAIDA}/novo-post-reivindica
+           cao-${tema}.png` });
+      150    await page.getByRole("button", { name: "Reivindicar", exact:
+            true }).click();
+      151  
+  ⎿  (timeout 10m)
+
+  Read 5 files, ran 1 shell command (ctrl+o to expand)
+
+● As oito capturas estão boas. Apago o spec temporário e rodo tudo de novo: a
+  etapa mexeu na API (o exigeMateria e a rota de matérias) e no app.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      e2e/tests/_capturas.spec.ts && git status --short | grep -v "^ M\|^??" ;
+      git status --…)
+  ⎿  All matched files use Prettier code style!
+     Tests:       402 passed, 402 total
+      2 files changed, 110 insertions(+), 1 deletion(-)
+  ⎿  Deleted e2e\tests\_capturas.spec.ts (+0 -171)
+        1 -// TEMPORÁRIO, fora do commit: capturas da etapa 5 do passo 8 
+          -para a revisão do autor.                                      
+        2 -import { readFileSync, writeFileSync } from "node:fs";        
+        3 -                                                              
+        4 -import { expect, test, type APIRequestContext, type Page } fro
+          -m "@playwright/test";                                         
+        5 -                                                              
+        6 -import { novaConta, sql, type Aluno } from "./apoio/contas";  
+        7 -import { linkDeRecuperacao } from "./apoio/mailpit";          
+        8 -import { matricular, novaProfessora } from "./apoio/medalhas";
+        9 -                                                              
+       10 -const SAIDA = process.env.CAPTURAS!;                          
+       11 -                                                              
+       12 -async function foto(page: Page, caminho: string, lado: number,
+          - cor: string) {                                               
+       13 -  await page.setContent(`<canvas id=c width=${lado} height=${l
+          -ado}></canvas>`);                                             
+       14 -  const base64 = await page.evaluate(                         
+       15 -    ({ lado, cor }) => {                                      
+       16 -      const canvas = document.getElementById("c") as HTMLCanva
+          -sElement;                                                     
+       17 -      const contexto = canvas.getContext("2d")!;              
+       18 -      const ceu = contexto.createLinearGradient(0, 0, 0, lado)
+          -;                                                             
+       19 -      ceu.addColorStop(0, cor);                               
+       20 -      ceu.addColorStop(1, "#0b2a55");                         
+       21 -      contexto.fillStyle = ceu;                               
+       22 -      contexto.fillRect(0, 0, lado, lado);                    
+       23 -      contexto.fillStyle = "#f5b400";                         
+       24 -      contexto.beginPath();                                   
+       25 -      contexto.arc(lado / 2, lado / 2, lado / 5, 0, Math.PI * 
+          -2);                                                           
+       26 -      contexto.fill();                                        
+       27 -      return canvas.toDataURL("image/jpeg", 0.85).split(",")[1
+          -];                                                            
+       28 -    },                                                        
+       29 -    { lado, cor },                                            
+       30 -  );                                                          
+       31 -  writeFileSync(caminho, Buffer.from(base64!, "base64"));     
+       32 -}                                                             
+       33 -                                                              
+       34 -async function token(request: APIRequestContext, identificador
+          -: string, senha: string) {                                    
+       35 -  const resposta = await request.post("/api/v1/auth/login", { 
+          -data: { identificador, senha } });                            
+       36 -  expect(resposta.status()).toBe(200);                        
+       37 -  return (await resposta.json()).accessToken as string;       
+       38 -}                                                             
+       39 -                                                              
+       40 -const comToken = (t: string) => ({ Authorization: `Bearer ${t}
+          -` });                                                         
+     … 131 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Etapa 5 pronta para a sua revisão (ainda sem commit)
+
+  A etapa 4 está pronta: a CI do 39ecd1c passou nos seis jobs.
+
+  Capturas, claro e escuro
+
+  Todas tiradas no build web servido pelo Caddy, com 390 de largura, como as
+  pranchetas, e dados criados de verdade pela API. Eu abri e conferi cada uma.
+
+  ┌─────────────┬────────────────────────────┬─────────────────────────────┐
+  │    Tela     │           Claro            │           Escuro            │
+  ├─────────────┼────────────────────────────┼─────────────────────────────┤
+  │ Novo post   │ novo-post-reivindicacao-cl │ novo-post-reivindicacao-esc │
+  │ em modo rei │ aro.png                    │ uro.png                     │
+  │ vindicação  │                            │                             │
+  ├─────────────┼────────────────────────────┼─────────────────────────────┤
+  │ Cartão      │                            │                             │
+  │ pendente    │ cartao-pendente-claro.png  │ cartao-pendente-escuro.png  │
+  │ (feed)      │                            │                             │
+  ├─────────────┼────────────────────────────┼─────────────────────────────┤
+  │ Cartão em   │                            │                             │
+  │ averiguação │ cartao-averiguacao-claro.p │ cartao-averiguacao-escuro.p │
+  │  (visto     │ ng                         │ ng                          │
+  │ pela aluna) │                            │                             │
+  ├─────────────┼────────────────────────────┼─────────────────────────────┤
+  │ Seção Reivi │ trofeus-reivindicacoes-cla │ trofeus-reivindicacoes-escu │
+  │ ndicações   │ ro.png                     │ ro.png                      │
+  │ em Troféus  │                            │                             │
+  └─────────────┴────────────────────────────┴─────────────────────────────┘
+
+  Pasta: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-
+  Documents-Repos-tcc-maxx-engenheiro\eda7b978-0adb-4556-9470-43140c532640\scrat
+  chpad\capturas
+
+  O spec que gerou as capturas era temporário e já foi apagado; não entra no
+  commit. A pilha do compose continua de pé, com os dados das capturas.
+
+  O que entrou no app
+
+  Novo post
+  - Controle segmentado "Post" | "Reivindicar prêmio", com um aviso curto de que
+    a foto é a comprovação e de que o post fica público com a marca de
+    pendente.
+  - Prêmio: só os prêmios de participação do catálogo do aluno. Escolhido um, a
+    lista recolhe para ele, com "Trocar prêmio". Fiz essa mudança depois de ver
+    a primeira captura: com os 17 itens abertos, o evento ficava longe da foto.
+  - Evento: a lista de GET /v1/eventos?item=, ou "Outro evento", com nome, data
+    de início e data de fim opcional, no formato dd/mm/aaaa, com aviso de
+    formato inválido.
+  - Apresentação em sala: não lista eventos e pede o que foi apresentado, as
+    datas e a matéria.
+  - O botão "Reivindicar" só se ativa com foto, evento e, quando for o caso,
+    matéria. A recusa da API vira mensagem na tela, e o upload é reaproveitado
+    numa nova tentativa, como na publicação.
+
+  Cartão
+  - Pendente: selo do metal, mais a marca "Pendente" e "Aguardando aprovação"
+    sob os pontos. A faixa traz o evento.
+  - Em averiguação: só a marca, sem selo, sem tier e sem pontos.
+  - Válido ou definitivo: como uma medalha.
+
+  Troféus: a seção "Reivindicações" fica só na aba Troféus e some quando está
+  vazia.
+  - Medalhão apagado, nome, evento, marca do estado e há quanto tempo.
+  - "Motivo: ..." na reprovada e na revogada.
+  - Tocar abre o post, quando ele existe.
+
+  Dois acréscimos na API
+
+  Os dois são mudanças aditivas, com teste de integração:
+
+  - exigeMateria no item de GET /v1/eu/premios: sem ele, o app teria de cravar
+    "P17" no código.
+  - GET /v1/eu/materias: as matérias do aluno no semestre de hoje, para a
+    apresentação em sala.
+
+  Testes e verificações
+
+  - Jest: 402 testes, entre eles 15 novos de reivindicação, marcas e seção.
+  - Job do app local: formatação, lint e tipos limpos.
+  - Suíte .NET em Release: 892 testes, 886 aprovados, 0 falhas e 6 ignorados (os
+    de antes).
+  - Cliente e formatação: cliente regenerado, dotnet format e Prettier limpos.
+
+  Mensagem de commit proposta
+
+  feat(mobile): adiciona reivindicação de prêmio e marcas de estado no post
+
+  O commit leva junto os dois acréscimos da API, que existem para servir a tela.
+  Posso commitar e fazer o push?
+
+✻ Cooked for 24m 13s · done 18:00
