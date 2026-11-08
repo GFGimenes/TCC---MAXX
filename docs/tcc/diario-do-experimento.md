@@ -458,3 +458,8 @@ semestre, depois o recesso apontado pelo agente). Duas falhas de processo do age
 corrigidas pela regra do fix separado. PR #10, merge na `main` (`7417ebe`). Registro em
 `resultados/engenheiro/eng_08_premios.md`. Próxima: `eng_09_conquistas`.
 
+08/11 (19h15): `maxx-engenheiro` passou a público por causa do limite de minutos do
+GitHub Actions (1.800 de 2.000 gastos no mês); detalhe na linha do tempo. Decisão do autor
+entre tornar público e pagar o excedente; escolheu público, coerente com a publicação dos
+repositórios no fim do TCC.
+

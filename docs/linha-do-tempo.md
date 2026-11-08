@@ -97,6 +97,13 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   `eng_03_auth` (2.1.316, `claude-opus-5-5`, `medium`, auto). Executada entre os
   passos 7 e 8 da trilha do engenheiro, `eng_pu` antes de `leigo_pu`, no mesmo dia.
   Commit de pré-registro: `4d4cc4b` (08/11/2026, 04:10 UTC).
+- Repositório `maxx-engenheiro` tornado público em 08/11/2026 (19h15, horário de Brasília),
+  durante a etapa 1 da `eng_09_conquistas`: o GitHub avisou que 1.800 dos 2.000 minutos
+  mensais de Actions do plano gratuito para repositórios privados estavam gastos (cada
+  push roda seis jobs), e com o limite a CI pararia no meio do passo, bloqueando a regra
+  de CI verde por etapa. Em repositório público os runners padrão não contam minutos.
+  Alternativa descartada: manter privado com limite de gasto pago. Nada muda para o
+  agente nem no código; o gitleaks já roda na CI e os segredos ficam fora do repositório.
 
 ## Dependências entre fases
 
