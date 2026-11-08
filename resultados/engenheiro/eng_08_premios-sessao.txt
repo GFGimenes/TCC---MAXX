@@ -4177,3 +4177,1612 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
   Posso registrar a trava no produto.md, commitar e fazer o push?
 
 ✻ Baked for 4m 53s · done 16:55
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt     
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
+
+> Etapa 2 aprovada. Registra a trava no produto.md 4.7 neste commit. A matéria  
+  do P17 pela matrícula no semestre letivo da data do evento fica, com a        
+  consequência no recesso. A trava na remoção pela instituição fica por         
+  enquanto, mas não é a regra final: na etapa 4, quando existirem reprovação e  
+  revogação, a remoção pela instituição passa a resolver o prêmio no mesmo ato, 
+  reprovando se pendente e revogando se válido ou em averiguação, com o motivo  
+  "removido pela instituição", e só então remove o post; a instituição não      
+  pode depender da fila para tirar do ar uma foto imprópria. Anota isso no      
+  plano da etapa 4 e no produto.md quando chegar lá. O fix separado da CI da    
+  etapa 1 está certo, e a lição de rodar o job do app antes do push vale para o 
+  resto do passo. Commita com a mensagem proposta, push, acompanha a CI e       
+  segue para a etapa 3; para para a minha revisão no fim dela.                  
+
+● Registro a trava na 4.7 do produto.md.
+
+● Update(docs\produto.md)
+  ⎿  Error editing file
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A edição do produto.md falhou, então o commit b093836 saiu sem ela; a trava
+  vai num commit docs em seguida, já que a regra proíbe amend e force push. Foi
+  erro meu ter mandado o commit antes de ver o resultado da edição.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 4 lines
+      341  não existe. Em averiguação, o post continua
+      342  visível, sem exibir pontos nem tier.
+      343  
+      344 +O post de reivindicação é a comprovação: enquanto o prêmio est
+          +á reivindicado, válido ou em                                  
+      345 +averiguação, o autor não o apaga, porque a foto sairia junto e
+          + a aprovação e a contestação                                  
+      346 +dependem dela. Definitivo, o post é como outro qualquer.      
+      347 +                                                              
+      348  ### 4.8 Medalha: concessão e anulação
+      349  
+      350  O professor concede escolhendo o item do catálogo. No passo 6,
+            a concessão entra pela
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Saíram dois pushes seguidos. A CI tem concurrency, então a execução do b093836
+  pode ser cancelada; a do 9ec311a cobre o mesmo código mais a frase do
+  produto.md. Acompanho as duas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A trava ficou no commit 9ec311a e a CI dos dois pushes segue rodando. Agora
+  começo a etapa 3, lendo fila, notificações, escopo de turma, paginação e
+  cálculo de pontos e raridade.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Entrego a etapa 3 em dois adiantamentos: o handler tornar-premio-definitivo
+  entra já com o enfileiramento, e a raridade dos prêmios válidos e definitivos
+  também, pois é a aprovação que cria o primeiro. Começo pelo domínio: aprovar,
+  reprovar, motivo e prêmio definitivo.
+
+● Write(apps\api\src\Maxx.Domain\Premios\Motivo.cs)  ⎿  Wrote 15 lines to apps\api\src\Maxx.Domain\Premios\Motivo.cs
+       1 namespace Maxx.Domain.Premios;
+       2 
+       3 // O motivo de uma reprovação, contestação ou revogação (produto
+         .md 4.7): obrigatório, de 1 a
+       4 // 500 caracteres depois de aparado, contando um emoji como um (
+         decisão do passo 8, D10).
+       5 public static class Motivo
+       6 {
+       7     public const int TamanhoMaximo = 500;
+       8 
+     … +7 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs)
+  ⎿  Added 5 lines, removed 2 lines
+      13  //        │                       └──15 dias sem contestação──>
+           definitivo
+      14  //        └──reprovado──> post comum (nova tentativa é outro po
+          st de reivindicação)
+      15  //
+      16 -// Nesta etapa nasce a reivindicação; aprovação, reprovação, co
+         -ntestação e decisão vêm                                        
+      17 -// nas seguintes.                                              
+      16 +// A reivindicação e a decisão sobre a comprovação nascem aqui;
+         + contestação e decisão da                                      
+      17 +// instituição, na etapa seguinte.                             
+      18  public sealed class PremioParticipacao
+      19  {
+      20 +    // Da aprovação correm 15 dias de janela de contestação (pr
+         +oduto.md 4.7).                                                 
+      21 +    public static readonly TimeSpan JanelaDeContestacao = TimeS
+         +pan.FromDays(15);                                              
+      22 +                                                               
+      23      // Para o EF Core materializar do banco.
+      24      private PremioParticipacao()
+      25      {
+
+● Update(apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs)
+  ⎿  Added 19 lines
+      74  
+      75      public DateTimeOffset ReivindicadoEm { get; private set; }
+      76  
+      77 +    // Quem aprovou e quando (produto.md 4.10). Da aprovação co
+         +rre a janela.                                                  
+      78 +    public Guid? AprovadoPorId { get; private set; }           
+      79 +                                                               
+      80 +    public DateTimeOffset? AprovadoEm { get; private set; }    
+      81 +                                                               
+      82 +    // Quem reprovou, quando e por quê. O motivo é visível ao a
+         +luno.                                                          
+      83 +    public Guid? ReprovadoPorId { get; private set; }          
+      84 +                                                               
+      85 +    public DateTimeOffset? ReprovadoEm { get; private set; }   
+      86 +                                                               
+      87 +    public string? MotivoDaReprovacao { get; private set; }    
+      88 +                                                               
+      89 +    // Quando o prêmio ficou definitivo: pelo fim da janela sem
+         + contestação ou pela                                           
+      90 +    // confirmação da instituição.                             
+      91 +    public DateTimeOffset? DefinitivoEm { get; private set; }  
+      92 +                                                               
+      93 +    // O instante em que a janela de contestação fecha, para o 
+         +prêmio aprovado.                                               
+      94 +    public DateTimeOffset? FimDaJanela => AprovadoEm + JanelaDe
+         +Contestacao;                                                   
+      95 +                                                               
+      96      // Todos os estados seguram a chave, menos o reprovado: a n
+          ova tentativa é outra
+      97      // reivindicação do mesmo evento. O revogado segura (decisã
+          o do passo 8, D5).
+      98      public bool SeguraAChave => Estado != EstadoDoPremioPartici
+          pacao.Reprovado;
+
+● Update(apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs)
+  ⎿  Added 76 lines
+      185              null);
+      186      }
+      187  
+      188 +    // Aprovação da comprovação (produto.md 4.7): o professor 
+          +de uma turma do aluno no                                      
+      189 +    // semestre vigente (escopo conferido no banco por quem ch
+          +ama) ou a instituição. Vale quem                              
+      190 +    // chega primeiro: decidida, a comprovação recusa a segund
+          +a decisão. Aprovado, o prêmio                                 
+      191 +    // pontua na hora e abre a janela de contestação.         
+      192 +    public RecusaDaDecisao? Aprovar(Usuario aluno, Usuario que
+          +m, DateTimeOffset agora)                                      
+      193 +    {                                                         
+      194 +        ArgumentNullException.ThrowIfNull(aluno);             
+      195 +        ArgumentNullException.ThrowIfNull(quem);              
+      196 +        if (aluno.Id != AlunoId)                              
+      197 +        {                                                     
+      198 +            throw new ArgumentException($"O prêmio {Id} não é 
+          +de {aluno.Id}.", nameof(aluno));                              
+      199 +        }                                                     
+      200 +                                                              
+      201 +        ExigirAprovador(quem);                                
+      202 +        if (Estado != EstadoDoPremioParticipacao.Reivindicado)
+      203 +        {                                                     
+      204 +            return RecusaDaDecisao.JaDecidida;                
+      205 +        }                                                     
+      206 +                                                              
+      207 +        if (aluno.EhExAluno)                                  
+      208 +        {                                                     
+      209 +            return RecusaDaDecisao.ExAluno;                   
+      210 +        }                                                     
+      211 +                                                              
+      212 +        Estado = EstadoDoPremioParticipacao.Valido;           
+      213 +        AprovadoPorId = quem.Id;                              
+      214 +        AprovadoEm = agora;                                   
+      215 +        return null;                                          
+      216 +    }                                                         
+      217 +                                                              
+      218 +    // Reprovação, sempre com motivo. A reivindicação se encer
+          +ra e libera a chave: a nova                                   
+      219 +    // tentativa é outro post, com outra foto. O post desta pe
+          +rde o vínculo (quem chama).                                   
+      220 +    public RecusaDaDecisao? Reprovar(Usuario quem, string? mot
+          +ivo, DateTimeOffset agora)                                    
+      221 +    {                                                         
+      222 +        ArgumentNullException.ThrowIfNull(quem);              
+      223 +        ExigirAprovador(quem);                                
+      224 +                                                              
+      225 +        if (Estado != EstadoDoPremioParticipacao.Reivindicado)
+      226 +        {                                                     
+      227 +            return RecusaDaDecisao.JaDecidida;                
+      228 +        }                                                     
+      229 +                                                              
+      230 +        if (Motivo.Normalizar(motivo) is not { } normalizado) 
+      231 +        {                                                     
+      232 +            return RecusaDaDecisao.MotivoInvalido;            
+      233 +        }                                                     
+      234 +                                                              
+      235 +        Estado = EstadoDoPremioParticipacao.Reprovado;        
+      236 +        ReprovadoPorId = quem.Id;                             
+      237 +        ReprovadoEm = agora;                                  
+      238 +        MotivoDaReprovacao = normalizado;                     
+      239 +        return null;                                          
+      240 +    }                                                         
+      241 +                                                              
+      242 +    // Passados os 15 dias sem contestação, o prêmio válido fi
+          +ca definitivo (produto.md 4.7).                               
+      243 +    // Contestado, em averiguação ou já decidido, nada muda: q
+          +uem resolve é a instituição.                                  
+      244 +    public bool TornarDefinitivoSeAJanelaFechou(DateTimeOffset
+          + agora)                                                       
+      245 +    {                                                         
+      246 +        if (Estado != EstadoDoPremioParticipacao.Valido || ago
+          +ra < FimDaJanela)                                             
+      247 +        {                                                     
+      248 +            return false;                                     
+      249 +        }                                                     
+      250 +                                                              
+      251 +        Estado = EstadoDoPremioParticipacao.Definitivo;       
+      252 +        DefinitivoEm = agora;                                 
+      253 +        return true;                                          
+      254 +    }                                                         
+      255 +                                                              
+      256 +    private static void ExigirAprovador(Usuario quem)         
+      257 +    {                                                         
+      258 +        if (!quem.Papeis.HasFlag(Papeis.Professor) && !quem.Pa
+          +peis.HasFlag(Papeis.Instituicao))                             
+      259 +        {                                                     
+      260 +            throw new DomainException($"Só professor ou instit
+          +uição decide comprovação; {quem.Id} é {quem.Papeis}.");       
+      261 +        }                                                     
+      262 +    }                                                         
+      263 +                                                              
+      264      // A chave do catálogo (produto.md 4.6). Com evento semead
+           o, aluno e evento. Com evento
+      265      // digitado, o evento não identifica nada (cada reivindica
+           ção digita o seu), e a chave
+      266      // degrada para aluno, item e data de início do evento. P1
+           7 já declara aluno, item, data
+
+● Update(apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs)
+  ⎿  Added 8 lines
+      314  
+      315  public sealed record ResultadoDaReivindicacao(PremioParticipac
+           ao? Premio, RecusaDaReivindicacao? Recusa);
+      316  
+      317 +public enum RecusaDaDecisao                                   
+      318 +{                                                             
+      319 +    // Outro aprovador chegou antes, ou a comprovação já não e
+          +stá pendente.                                                 
+      320 +    JaDecidida,                                               
+      321 +    ExAluno,                                                  
+      322 +    MotivoInvalido,                                           
+      323 +}                                                             
+      324 +                                                              
+      325  // A comprovação (glossário): a foto que sustenta o prêmio de 
+           participação reivindicado, que
+      326  // é a do post da reivindicação. Guarda o evento, para a fila 
+           filtrar por ele e para a
+      327  // aprovação em lote da fase 2 (produto.md 13). A concessão di
+           reta da instituição não tem
+
+● Update(apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs)
+  ⎿  Added 3 lines
+      328  // comprovação.
+      329  public sealed class Comprovacao
+      330  {
+      331 +    // A fila marca o que passou de 7 dias, sem decidir nada s
+          +ozinha (produto.md 4.7 e 12.6).                               
+      332 +    public static readonly TimeSpan PrazoDaMarca = TimeSpan.Fr
+          +omDays(7);                                                    
+      333 +                                                              
+      334      // Para o EF Core materializar do banco.
+      335      private Comprovacao()
+      336      {
+
+● Update(apps\api\src\Maxx.Domain\Premios\PremioParticipacao.cs)
+  ⎿  Added 3 lines
+      360  
+      361      public DateTimeOffset CriadaEm { get; private set; }
+      362  
+      363 +    // Passou de 7 vezes 24 horas desde a reivindicação (D11).
+      364 +    public static bool PassouDoPrazo(DateTimeOffset criadaEm, 
+          +DateTimeOffset agora) => agora - criadaEm > PrazoDaMarca;     
+      365 +                                                              
+      366      public static Comprovacao De(PremioParticipacao premio, Gu
+           id postId)
+      367      {
+      368          ArgumentNullException.ThrowIfNull(premio);
+
+● Agora as notificações de aprovação e reprovação no domínio.
+
+● Update(apps\api\src\Maxx.Domain\Notificacoes\Notificacao.cs)
+  ⎿  Added 26 lines
+      44  
+      45          return new Notificacao(medalha.AlunoId, TipoDeNotificac
+          ao.MedalhaRecebida, medalha.Id, agora);
+      46      }
+      47 +                                                               
+      48 +    // Comprovação aprovada (passo 8): o prêmio foi aprovado, m
+         +esmo que depois contestado.                                    
+      49 +    public static Notificacao ComprovacaoAprovada(PremioPartici
+         +pacao premio, DateTimeOffset agora)                            
+      50 +    {                                                          
+      51 +        ArgumentNullException.ThrowIfNull(premio);             
+      52 +        if (premio.AprovadoEm is null)                         
+      53 +        {                                                      
+      54 +            throw new DomainException($"O prêmio {premio.Id} nã
+         +o foi aprovado.");                                             
+      55 +        }                                                      
+      56 +                                                               
+      57 +        return new Notificacao(premio.AlunoId, TipoDeNotificaca
+         +o.ComprovacaoAprovada, premio.Id, agora);                      
+      58 +    }                                                          
+      59 +                                                               
+      60 +    // Comprovação reprovada: o motivo o app lê do prêmio.     
+      61 +    public static Notificacao ComprovacaoReprovada(PremioPartic
+         +ipacao premio, DateTimeOffset agora)                           
+      62 +    {                                                          
+      63 +        ArgumentNullException.ThrowIfNull(premio);             
+      64 +        if (premio.Estado != EstadoDoPremioParticipacao.Reprova
+         +do)                                                            
+      65 +        {                                                      
+      66 +            throw new DomainException($"O prêmio {premio.Id} nã
+         +o foi reprovado.");                                            
+      67 +        }                                                      
+      68 +                                                               
+      69 +        return new Notificacao(premio.AlunoId, TipoDeNotificaca
+         +o.ComprovacaoReprovada, premio.Id, agora);                     
+      70 +    }                                                          
+      71  }
+      72  
+      73  public enum TipoDeNotificacao
+      74  {
+      75      MedalhaRecebida,
+      76 +    ComprovacaoAprovada,                                       
+      77 +    ComprovacaoReprovada,                                      
+      78  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O ck_notificacao_tipo é montado a partir do enum, então a migration atualiza a
+  lista sozinha. Agora os testes de domínio da decisão.
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Premios\PremioParticipacaoTests.cs)
+  ⎿  Added 139 lines
+      199          Assert.Equal(RecusaDaPublicacao.PremioNaoEncontrado, P
+           ost.Reivindicar(bruno, null, doBruno, premio, _agora).Recusa);
+      200      }
+      201  
+      202 +    private static Usuario Renata(bool tambemInstituicao = fal
+          +se) => Usuario.CriarPeloSeed(                                 
+      203 +        CadastroElegivel.Professor("renata@prof.unieduk.com.br
+          +", "Renata Albuquerque", tambemInstituicao), "renataA", _agora
+          +.AddDays(-90));                                               
+      204 +                                                              
+      205 +    private static Usuario Coordenacao() =>                   
+      206 +        Usuario.CriarPeloSeed(CadastroElegivel.Instituicao("co
+          +ordenacao@unieduk.com.br", "Coordenação UniMax"), "coordenacao
+          +", _agora.AddDays(-90));                                      
+      207 +                                                              
+      208 +    private PremioParticipacao Pendente() => Reivindicar(Catal
+          +ogoDeTeste.P06, Semana()).Premio!;                            
+      209 +                                                              
+      210      [Fact]
+      211 +    public void Aprovado_fica_valido_pontua_grava_quem_e_quand
+          +o_e_abre_a_janela_de_15_dias()                                
+      212 +    {                                                         
+      213 +        var premio = Pendente();                              
+      214 +        var renata = Renata();                                
+      215 +                                                              
+      216 +        Assert.Null(premio.Aprovar(_ana, renata, _agora.AddHou
+          +rs(2)));                                                      
+      217 +                                                              
+      218 +        Assert.Equal(EstadoDoPremioParticipacao.Valido, premio
+          +.Estado);                                                     
+      219 +        Assert.True(premio.Pontua);                           
+      220 +        Assert.True(premio.SeguraAChave);                     
+      221 +        Assert.True(premio.PrendeOPost);                      
+      222 +        Assert.Equal((renata.Id, _agora.AddHours(2)), (premio.
+          +AprovadoPorId!.Value, premio.AprovadoEm!.Value));             
+      223 +        Assert.Equal(_agora.AddHours(2).AddDays(15), premio.Fi
+          +mDaJanela);                                                   
+      224 +    }                                                         
+      225 +                                                              
+      226 +    [Fact]                                                    
+      227 +    public void A_instituicao_e_a_conta_que_acumula_os_dois_pa
+          +peis_tambem_aprovam()                                         
+      228 +    {                                                         
+      229 +        Assert.Null(Pendente().Aprovar(_ana, Coordenacao(), _a
+          +gora));                                                       
+      230 +        Assert.Null(Pendente().Aprovar(_ana, Renata(tambemInst
+          +ituicao: true), _agora));                                     
+      231 +    }                                                         
+      232 +                                                              
+      233 +    [Fact]                                                    
+      234 +    public void Vale_quem_chega_primeiro()                    
+      235 +    {                                                         
+      236 +        var premio = Pendente();                              
+      237 +        premio.Aprovar(_ana, Renata(), _agora);               
+      238 +                                                              
+      239 +        Assert.Equal(RecusaDaDecisao.JaDecidida, premio.Aprova
+          +r(_ana, Coordenacao(), _agora.AddMinutes(1)));                
+      240 +        Assert.Equal(RecusaDaDecisao.JaDecidida, premio.Reprov
+          +ar(Coordenacao(), "Foto de outro evento.", _agora.AddMinutes(1
+          +)));                                                          
+      241 +        Assert.Equal(EstadoDoPremioParticipacao.Valido, premio
+          +.Estado);                                                     
+      242 +    }                                                         
+      243 +                                                              
+      244 +    [Fact]                                                    
+      245 +    public void Reprovado_grava_quem_quando_e_o_motivo_e_liber
+          +a_a_chave()                                                   
+      246 +    {                                                         
+      247 +        var premio = Pendente();                              
+      248 +        var coordenacao = Coordenacao();                      
+      249 +                                                              
+      250 +        Assert.Null(premio.Reprovar(coordenacao, "  A foto não
+          + mostra o evento.  ", _agora));                               
+      251 +                                                              
+      252 +        Assert.Equal(EstadoDoPremioParticipacao.Reprovado, pre
+          +mio.Estado);                                                  
+      253 +        Assert.Equal((coordenacao.Id, _agora, "A foto não most
+          +ra o evento."), (premio.ReprovadoPorId!.Value, premio.Reprovad
+          +oEm!.Value, premio.MotivoDaReprovacao));                      
+      254 +        Assert.False(premio.Pontua);                          
+      255 +        Assert.False(premio.SeguraAChave);                    
+      256 +        Assert.False(premio.PrendeOPost);                     
+      257 +        Assert.Null(premio.FimDaJanela);                      
+      258 +        Assert.Equal(RecusaDaDecisao.JaDecidida, premio.Aprova
+          +r(_ana, Renata(), _agora));                                   
+      259 +    }                                                         
+      260 +                                                              
+      261 +    [Theory]                                                  
+      262 +    [InlineData(null)]                                        
+      263 +    [InlineData("   ")]                                       
+      264 +    public void Reprovar_sem_motivo_e_recusado(string? motivo)
+      265 +    {                                                         
+      266 +        var premio = Pendente();                              
+      267 +                                                              
+      268 +        Assert.Equal(RecusaDaDecisao.MotivoInvalido, premio.Re
+          +provar(Renata(), motivo, _agora));                            
+      269 +        Assert.Equal(EstadoDoPremioParticipacao.Reivindicado, 
+          +premio.Estado);                                               
+      270 +    }                                                         
+      271 +                                                              
+      272 +    [Fact]                                                    
+      273 +    public void Motivo_vai_ate_500_caracteres_contando_emoji_c
+          +omo_um()                                                      
+      274 +    {                                                         
+      275 +        var limite = new string('a', 499) + "\U0001F4F7";     
+      276 +                                                              
+      277 +        Assert.Equal(limite, Motivo.Normalizar(limite));      
+      278 +        Assert.Null(Motivo.Normalizar(limite + "a"));         
+      279 +        Assert.Equal(RecusaDaDecisao.MotivoInvalido, Pendente(
+          +).Reprovar(Renata(), limite + "a", _agora));                  
+      280 +    }                                                         
+      281 +                                                              
+      282 +    [Fact]                                                    
+      283 +    public void Ex_aluno_nao_tem_a_comprovacao_aprovada_mas_po
+          +de_ter_reprovada()                                            
+      284 +    {                                                         
+      285 +        var premio = Pendente();                              
+      286 +        _ana.MarcarExAluno(_agora);                           
+      287 +                                                              
+      288 +        Assert.Equal(RecusaDaDecisao.ExAluno, premio.Aprovar(_
+          +ana, Renata(), _agora));                                      
+      289 +        Assert.Null(premio.Reprovar(Renata(), "Ex-aluno não re
+          +cebe prêmio.", _agora));                                      
+      290 +    }                                                         
+      291 +                                                              
+      292 +    [Fact]                                                    
+      293 +    public void Aluno_nao_decide_comprovacao()                
+      294 +    {                                                         
+      295 +        var bruno = Aluno("20260102", "bruno.lima", "brunoLima
+          +");                                                           
+      296 +                                                              
+      297 +        Assert.Throws<DomainException>(() => Pendente().Aprova
+          +r(_ana, bruno, _agora));                                      
+      298 +        Assert.Throws<DomainException>(() => Pendente().Reprov
+          +ar(bruno, "Não.", _agora));                                   
+      299 +    }                                                         
+      300 +                                                              
+      301 +    [Fact]                                                    
+      302 +    public void Fica_definitivo_so_quando_a_janela_fecha_e_so_
+          +se_ainda_valido()                                             
+      303 +    {                                                         
+      304 +        var premio = Pendente();                              
+      305 +        Assert.False(premio.TornarDefinitivoSeAJanelaFechou(_a
+          +gora.AddDays(30)));                                           
+      306 +                                                              
+      307 +        premio.Aprovar(_ana, Renata(), _agora);               
+      308 +        Assert.False(premio.TornarDefinitivoSeAJanelaFechou(_a
+          +gora.AddDays(15).AddSeconds(-1)));                            
+      309 +        Assert.True(premio.TornarDefinitivoSeAJanelaFechou(_ag
+          +ora.AddDays(15)));                                            
+      310 +                                                              
+      311 +        Assert.Equal((EstadoDoPremioParticipacao.Definitivo, _
+          +agora.AddDays(15)), (premio.Estado, premio.DefinitivoEm!.Value
+          +));                                                           
+      312 +        Assert.True(premio.Pontua);                           
+      313 +        Assert.False(premio.PrendeOPost);                     
+      314 +        Assert.False(premio.TornarDefinitivoSeAJanelaFechou(_a
+          +gora.AddDays(16)));                                           
+      315 +    }                                                         
+      316 +                                                              
+      317 +    [Fact]                                                    
+      318 +    public void A_marca_da_fila_vem_depois_de_7_vezes_24_horas
+          +()                                                            
+      319 +    {                                                         
+      320 +        Assert.False(Comprovacao.PassouDoPrazo(_agora, _agora.
+          +AddDays(7)));                                                 
+      321 +        Assert.True(Comprovacao.PassouDoPrazo(_agora, _agora.A
+          +ddDays(7).AddSeconds(1)));                                    
+      322 +    }                                                         
+      323 +                                                              
+      324 +    [Fact]                                                    
+      325 +    public void Notificacao_de_aprovacao_e_de_reprovacao_vao_p
+          +ara_o_aluno()                                                 
+      326 +    {                                                         
+      327 +        var aprovado = Pendente();                            
+      328 +        aprovado.Aprovar(_ana, Renata(), _agora);             
+      329 +        var reprovado = Pendente();                           
+      330 +        reprovado.Reprovar(Renata(), "Outro evento.", _agora);
+      331 +                                                              
+      332 +        var aprovacao = Notificacoes.Notificacao.ComprovacaoAp
+          +rovada(aprovado, _agora);                                     
+      333 +        var reprovacao = Notificacoes.Notificacao.ComprovacaoR
+          +eprovada(reprovado, _agora);                                  
+      334 +                                                              
+      335 +        Assert.Equal((_ana.Id, aprovado.Id, Notificacoes.TipoD
+          +eNotificacao.ComprovacaoAprovada), (aprovacao.UsuarioId, aprov
+          +acao.ReferenciaId, aprovacao.Tipo));                          
+      336 +        Assert.Equal((_ana.Id, reprovado.Id, Notificacoes.Tipo
+          +DeNotificacao.ComprovacaoReprovada), (reprovacao.UsuarioId, re
+          +provacao.ReferenciaId, reprovacao.Tipo));                     
+      337 +        Assert.Throws<DomainException>(() => Notificacoes.Noti
+          +ficacao.ComprovacaoAprovada(Pendente(), _agora));             
+      338 +        Assert.Throws<DomainException>(() => Notificacoes.Noti
+          +ficacao.ComprovacaoReprovada(aprovado, _agora));              
+      339 +    }                                                         
+      340 +                                                              
+      341 +    [Fact]                                                    
+      342      public void Post_de_reivindicacao_desvinculado_perde_o_pre
+           mio()
+      343      {
+      344          var premio = Reivindicar(CatalogoDeTeste.P06, Semana()
+           ).Premio!;
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Domain.Tests/Premios/PremioParticipacaoTests.cs &&
+      sed -i 's/Notifi…)
+  ⎿    total: 422
+       falhou: 0
+       concluído com êxito: 422
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Premios\PremioParticipacaoTests.cs
+     (+7 -6)
+      2  using Maxx.Domain.Catalogo;
+      3  using Maxx.Domain.Fotos;
+      4  using Maxx.Domain.Identidade;
+      5 +using Maxx.Domain.Notificacoes;                                 
+      6  using Maxx.Domain.Premios;
+      7  using Maxx.Domain.Social;
+      8  using Maxx.Domain.Tests.Catalogo;
+     ...
+      330          var reprovado = Pendente();
+      331          reprovado.Reprovar(Renata(), "Outro evento.", _agora);
+      332  
+      332 -        var aprovacao = Notificacoes.Notificacao.ComprovacaoAp
+          -rovada(aprovado, _agora);                                     
+      333 -        var reprovacao = Notificacoes.Notificacao.ComprovacaoR
+          -eprovada(reprovado, _agora);                                  
+      333 +        var aprovacao = Notificacao.ComprovacaoAprovada(aprova
+          +do, _agora);                                                  
+      334 +        var reprovacao = Notificacao.ComprovacaoReprovada(repr
+          +ovado, _agora);                                               
+      335  
+      335 -        Assert.Equal((_ana.Id, aprovado.Id, Notificacoes.TipoD
+          -eNotificacao.ComprovacaoAprovada), (aprovacao.UsuarioId, aprov
+          -acao.ReferenciaId, aprovacao.Tipo));                          
+      336 -        Assert.Equal((_ana.Id, reprovado.Id, Notificacoes.Tipo
+          -DeNotificacao.ComprovacaoReprovada), (reprovacao.UsuarioId, re
+          -provacao.ReferenciaId, reprovacao.Tipo));                     
+      337 -        Assert.Throws<DomainException>(() => Notificacoes.Noti
+          -ficacao.ComprovacaoAprovada(Pendente(), _agora));             
+      338 -        Assert.Throws<DomainException>(() => Notificacoes.Noti
+          -ficacao.ComprovacaoReprovada(aprovado, _agora));              
+      336 +        Assert.Equal((_ana.Id, aprovado.Id, TipoDeNotificacao.
+          +ComprovacaoAprovada), (aprovacao.UsuarioId, aprovacao.Referenc
+          +iaId, aprovacao.Tipo));                                       
+      337 +        Assert.Equal((_ana.Id, reprovado.Id, TipoDeNotificacao
+          +.ComprovacaoReprovada), (reprovacao.UsuarioId, reprovacao.Refe
+          +renciaId, reprovacao.Tipo));                                  
+      338 +        Assert.Throws<DomainException>(() => Notificacao.Compr
+          +ovacaoAprovada(Pendente(), _agora));                          
+      339 +        Assert.Throws<DomainException>(() => Notificacao.Compr
+          +ovacaoReprovada(aprovado, _agora));                           
+      340      }
+      341  
+      342      [Fact]
+  ⎿  (timeout 5m)
+
+● Domínio verde (422). Confiro a CI da etapa 2.
+
+  Read 1 file (ctrl+o to expand)
+
+● Ainda rodando. Sigo com a persistência das colunas de decisão.
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PremioParti
+        cipacaoConfiguration.cs)
+  ⎿  Added 15 lines
+      19          {
+      20              table.HasCheckConstraint("ck_premio_participacao_po
+          ntos", "pontos >= 1");
+      21              table.HasCheckConstraint("ck_premio_participacao_ve
+          rsao_do_item", "versao_do_item >= 1");
+      22 +                                                               
+      23 +            // Auditoria (produto.md 4.10): quem e quando sempr
+         +e juntos, e o motivo junto da                                  
+      24 +            // reprovação. A aprovação existe em todo estado de
+         +pois de válido; a reprovação, só                               
+      25 +            // no reprovado.                                   
+      26 +            table.HasCheckConstraint(                          
+      27 +                "ck_premio_participacao_aprovacao",            
+      28 +                "(aprovado_em IS NULL) = (aprovado_por_id IS NU
+         +LL) " +                                                        
+      29 +                "AND (aprovado_em IS NULL) = (estado IN ('reivi
+         +ndicado', 'reprovado'))");                                     
+      30 +            table.HasCheckConstraint(                          
+      31 +                "ck_premio_participacao_reprovacao",           
+      32 +                "(reprovado_em IS NULL) = (reprovado_por_id IS 
+         +NULL) " +                                                      
+      33 +                "AND (reprovado_em IS NULL) = (motivo_da_reprov
+         +acao IS NULL) " +                                              
+      34 +                "AND (reprovado_em IS NULL) = (estado <> 'repro
+         +vado')");                                                      
+      35 +            table.HasCheckConstraint(                          
+      36 +                "ck_premio_participacao_definitivo", "(definiti
+         +vo_em IS NULL) = (estado <> 'definitivo')");                   
+      37          });
+      38          builder.HasKey(premio => premio.Id);
+      39          builder.Property(premio => premio.Id).ValueGeneratedNev
+          er();
+
+● Update(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PremioParti
+        cipacaoConfiguration.cs)
+  ⎿  Added 3 lines
+      58          builder.HasOne<ItemCatalogoRow>().WithMany().HasForeign
+          Key(premio => premio.ItemCodigo).OnDelete(DeleteBehavior.Restri
+          ct);
+      59          builder.HasOne<Evento>().WithMany().HasForeignKey(premi
+          o => premio.EventoId).OnDelete(DeleteBehavior.Restrict);
+      60          builder.HasOne<Materia>().WithMany().HasForeignKey(prem
+          io => premio.MateriaId).OnDelete(DeleteBehavior.Restrict);
+      61 +        builder.HasOne<Usuario>().WithMany().HasForeignKey(prem
+         +io => premio.AprovadoPorId).OnDelete(DeleteBehavior.Restrict); 
+      62 +        builder.HasOne<Usuario>().WithMany().HasForeignKey(prem
+         +io => premio.ReprovadoPorId).OnDelete(DeleteBehavior.Restrict);
+      63 +        builder.Property(premio => premio.MotivoDaReprovacao).H
+         +asMaxLength(4 * Motivo.TamanhoMaximo);                         
+      64  
+      65          // Duas decisões ao mesmo tempo (passo 8, etapas 3 e 4)
+          : o xmin deixa só a primeira gravar.
+      66          builder.Property<uint>("Versao").IsRowVersion();
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/        builder.Ignore(premio => premio.PrendeOPost);/&\n
+      builder.Ignore…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+     14:            migrationBuilder.DropCheckConstraint(
+     15:                name: "ck_notificacao_tipo",
+     … +38 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Pr
+     emioParticipacaoConfiguration.cs (+1 -0)
+      68          builder.Ignore(premio => premio.SeguraAChave);
+      69          builder.Ignore(premio => premio.Pontua);
+      70          builder.Ignore(premio => premio.PrendeOPost);
+      71 +        builder.Ignore(premio => premio.FimDaJanela);          
+      72      }
+      73  }
+      74  
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08200327_DecisaoDaComprovacao.cs (+167 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class DecisaoDaComprovacao : Migration     
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.DropCheckConstraint(             
+       15 +                name: "ck_notificacao_tipo",                  
+       16 +                table: "notificacao");                        
+       17 +                                                              
+       18 +            migrationBuilder.AddColumn<DateTimeOffset>(       
+       19 +                name: "aprovado_em",                          
+       20 +                table: "premio_participacao",                 
+       21 +                type: "timestamp with time zone",             
+       22 +                nullable: true);                              
+       23 +                                                              
+       24 +            migrationBuilder.AddColumn<Guid>(                 
+       25 +                name: "aprovado_por_id",                      
+       26 +                table: "premio_participacao",                 
+       27 +                type: "uuid",                                 
+       28 +                nullable: true);                              
+       29 +                                                              
+       30 +            migrationBuilder.AddColumn<DateTimeOffset>(       
+       31 +                name: "definitivo_em",                        
+       32 +                table: "premio_participacao",                 
+       33 +                type: "timestamp with time zone",             
+       34 +                nullable: true);                              
+       35 +                                                              
+       36 +            migrationBuilder.AddColumn<string>(               
+       37 +                name: "motivo_da_reprovacao",                 
+       38 +                table: "premio_participacao",                 
+       39 +                type: "character varying(2000)",              
+       40 +                maxLength: 2000,                              
+     … 127 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+● Migration DecisaoDaComprovacao gerada, com a lista de tipos de notificação
+  atualizada. Agora a Application: cargas da fila, handlers do worker e a
+  decisão.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Agora o handler da decisão, as cargas da fila e os handlers do worker.
+
+● Write(apps\api\src\Maxx.Application\PremiosParticipacao\DecidirComprovacaoHand
+       ler.cs)
+  ⎿  Wrote 194 lines to apps\api\src\Maxx.Application\PremiosParticipacao\D
+     ecidirComprovacaoHandler.cs
+      1 using Maxx.Application.Autenticacao;
+      2 using Maxx.Application.Autorizacao;
+      3 using Maxx.Application.Fila;
+      4 using Maxx.Application.Medalhas;
+      5 using Maxx.Application.Notificacoes;
+      6 using Maxx.Application.Posts;
+      7 using Maxx.Domain.Identidade;
+      8 using Maxx.Domain.Notificacoes;
+      9 using Maxx.Domain.Premios;
+     … +185 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|
+      public const string PremioJaReivindicado = "premio-ja-reivindi…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Application\PremiosParticipacao\DecidirComprovacaoHandler.c
+     s(77,34): error CS0103: O nome "Papeis" não existe no contexto atual [
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      101  builder.Services.AddScoped<Maxx.Application.Perfil.EditarPerfi
+           lHandler>();
+      102  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.EventosHandler>();
+      103  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.ReivindicarHandler>();
+      104 +builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+          +o.DecidirComprovacaoHandler>();                               
+      105  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      106  
+      107  var app = builder.Build();
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+3 -0)
+      24      // Se o prêmio já rendeu um post que não foi removido.
+      25      Task<bool> PremioTemPostAsync(Guid medalhaId, CancellationT
+          oken cancellationToken);
+      26  
+      27 +    // Os posts do prêmio de participação, removidos ou não.   
+      28 +    Task<IReadOnlyList<Post>> DoPremioParticipacaoAsync(Guid pr
+         +emioId, CancellationToken cancellationToken);                  
+      29 +                                                               
+      30      void Apagar(Post post);
+      31  }
+      32  
+  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\CodigosDoPre
+     mioParticipacao.cs (+9 -0)
+      45      // Um prêmio por evento: o aluno já tem uma reivindicação q
+          ue não foi reprovada com a
+      46      // mesma chave.
+      47      public const string PremioJaReivindicado = "premio-ja-reivi
+          ndicado";
+      48 +                                                               
+      49 +    // O id não é de comprovação nenhuma.                      
+      50 +    public const string ComprovacaoNaoEncontrada = "comprovacao
+         +-nao-encontrada";                                              
+      51 +                                                               
+      52 +    // Outro aprovador chegou antes: vale quem decidiu primeiro
+         +.                                                              
+      53 +    public const string ComprovacaoJaDecidida = "comprovacao-ja
+         +-decidida";                                                    
+      54 +                                                               
+      55 +    // Reprovação, contestação ou revogação sem motivo, ou com 
+         +mais de 500 caracteres.                                        
+      56 +    public const string MotivoInvalido = "motivo-invalido";    
+      57  }
+  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\ReivindicarH
+     andler.cs (+2 -0)
+      182  
+      183      Task<PremioParticipacao?> BuscarAsync(Guid id, Cancellatio
+           nToken cancellationToken);
+      184  
+      185 +    Task<Comprovacao?> ComprovacaoAsync(Guid id, CancellationT
+          +oken cancellationToken);                                      
+      186 +                                                              
+      187      // O item com a versão de agora, que o prêmio congela (ADR
+            0007).
+      188      Task<ItemDePremioParticipacao?> ItemAsync(string codigo, C
+           ancellationToken cancellationToken);
+      189  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+3 
+     -0)
+       95          services.AddTrabalho<RecalcularRaridade, RecalculoDeRa
+           ridade>();
+       96          services.AddTrabalho<LimparUploadAbandonado, LimparUpl
+           oadAbandonadoHandler>();
+       97          services.AddTrabalho<RemoverFotos, RemoverFotosHandler
+           >();
+       98 +        services.AddTrabalho<NotificarComprovacaoAprovada, Not
+          +ificarComprovacaoHandler>();                                  
+       99 +        services.AddTrabalho<NotificarComprovacaoReprovada, No
+          +tificarComprovacaoHandler>();                                 
+      100 +        services.AddTrabalho<TornarPremioDefinitivo, TornarPre
+          +mioDefinitivoHandler>();                                      
+      101  
+      102          // Toda verificação registrada aqui entra no /ready.
+      103          services.AddHealthChecks()
+  ⎿  … 2 more files changed
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^using Maxx.Domain.Identidade;/using Maxx.Domain.Academico;\n&/'
+      apps/api/src/M…)  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\DecidirCompr
+     ovacaoHandler.cs (+1 -0)
+       4  using Maxx.Application.Medalhas;
+       5  using Maxx.Application.Notificacoes;
+       6  using Maxx.Application.Posts;
+       7 +using Maxx.Domain.Academico;                                   
+       8  using Maxx.Domain.Identidade;
+       9  using Maxx.Domain.Notificacoes;
+      10  using Maxx.Domain.Premios;
+  ⎿  (timeout 5m)
+
+  Read 1 file (ctrl+o to expand)
+
+● Build limpo. Agora a consulta da fila. Vejo como o feed comparou o id no
+  cursor, porque Guid não tem operador > em C#.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Escrevo a consulta da fila: a interface e o handler na Application, a
+  implementação na Infrastructure.
+
+● Write(apps\api\src\Maxx.Application\PremiosParticipacao\FilaDeComprovacoesHand
+       ler.cs)
+  ⎿  Wrote 73 lines to apps\api\src\Maxx.Application\PremiosParticipacao\Fi
+     laDeComprovacoesHandler.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Application.Paginacao;
+       3 using Maxx.Application.Posts;
+       4 using Maxx.Domain.Academico;
+       5 using Maxx.Domain.Catalogo;
+       6 
+       7 namespace Maxx.Application.PremiosParticipacao;
+       8 
+       9 // A fila de comprovações (produto.md 4.7): as pendentes, das ma
+         is antigas para as mais novas,
+     … +64 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\PremiosParticipacao\ConsultaDeComprovac
+       oes.cs)
+  ⎿  Wrote 178 lines to apps\api\src\Maxx.Infrastructure\PremiosParticipaca
+     o\ConsultaDeComprovacoes.cs
+      1 using Maxx.Application.Paginacao;
+      2 using Maxx.Application.Posts;
+      3 using Maxx.Application.PremiosParticipacao;
+      4 using Maxx.Domain.Academico;
+      5 using Maxx.Domain.Identidade;
+      6 using Maxx.Domain.Premios;
+      7 using Maxx.Domain.Social;
+      8 using Maxx.Infrastructure.Persistence;
+      9 using Microsoft.EntityFrameworkCore;
+     … +169 lines (ctrl+o to expand)
+
+● Agora as rotas da fila e da decisão, com uma policy nova que aceita professor
+  ou instituição.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Api\PremiosParticipacao\ComprovacaoEndpoints.cs)
+  ⎿  Wrote 140 lines to
+     apps\api\src\Maxx.Api\PremiosParticipacao\ComprovacaoEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using System.Security.Claims;
+       3 using Maxx.Api.Autenticacao;
+       4 using Maxx.Api.Medalhas;
+       5 using Maxx.Api.Posts;
+       6 using Maxx.Application.Fotos;
+       7 using Maxx.Application.PremiosParticipacao;
+       8 using Microsoft.AspNetCore.Http.HttpResults;
+       9 
+      10 namespace Maxx.Api.PremiosParticipacao;
+     … +130 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|
+      public const string Instituicao = "instituicao";|&\n\n    // Q…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Infrastructure\PremiosParticipacao\ConsultaDeComprovacoes.c
+     s(36,22): error CS1931: A variável de intervalo "evento" está em confl
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\Politicas.cs (+4 -0)
+      12  
+      13      public const string Instituicao = "instituicao";
+      14  
+      15 +    // Quem decide comprovação: professor ou instituição. O esc
+         +opo do professor é do banco.                                   
+      16 +    public const string Aprovador = "aprovador";               
+      17 +                                                               
+      18      public static void Configurar(AuthorizationOptions options)
+      19      {
+      20          ArgumentNullException.ThrowIfNull(options);
+     ...
+      22          options.AddPolicy(Aluno, policy => policy.RequireAuthen
+          ticatedUser().RequireRole(Aluno));
+      23          options.AddPolicy(Professor, policy => policy.RequireAu
+          thenticatedUser().RequireRole(Professor));
+      24          options.AddPolicy(Instituicao, policy => policy.Require
+          AuthenticatedUser().RequireRole(Instituicao));
+      25 +        options.AddPolicy(Aprovador, policy => policy.RequireAu
+         +thenticatedUser().RequireRole(Professor, Instituicao));        
+      26      }
+      27  }
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+2 -0)
+      102  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.EventosHandler>();
+      103  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.ReivindicarHandler>();
+      104  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.DecidirComprovacaoHandler>();
+      105 +builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+          +o.FilaDeComprovacoesHandler>();                               
+      106  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      107  
+      108  var app = builder.Build();
+     ...
+      173  v1.MapFeedEndpoints();
+      174  v1.MapPerfilEndpoints();
+      175  v1.MapEventoEndpoints();
+      176 +v1.MapComprovacaoEndpoints();                                 
+      177  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      178  if (demonstracao)
+      179  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -0)
+      67          services.AddScoped<IConsultaDePremios, ConsultaDePremio
+          s>();
+      68          services.AddScoped<IEventoRepository, EventoRepository>
+          ();
+      69          services.AddScoped<IPremioParticipacaoRepository, Premi
+          oParticipacaoRepository>();
+      70 +        services.AddScoped<IConsultaDeComprovacoes, ConsultaDeC
+         +omprovacoes>();                                                
+      71  
+      72          // O bucket das fotos (ADR 0002). As opções vêm da bord
+          a, que recusa subir sem elas
+      73          // fora de desenvolvimento.
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Infrastructure/PremiosParticipacao/ConsultaDeComprovac
+      oes.cs && sed -…)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\PremiosParticipacao\ConsultaD
+     eComprovacoes.cs (+2 -2)
+      16          EscopoDaFila escopo, Guid? eventoId, PosicaoNoTempo? de
+          poisDe, int limite, DateTimeOffset agora, CancellationToken can
+          cellationToken)
+      17      {
+      18          var comprovacoes = Pendentes(escopo, agora);
+      19 -        if (eventoId is { } evento)                            
+      19 +        if (eventoId is { } filtro)                            
+      20          {
+      21 -            comprovacoes = comprovacoes.Where(comprovacao => co
+         -mprovacao.EventoId == evento);                                 
+      21 +            comprovacoes = comprovacoes.Where(comprovacao => co
+         +mprovacao.EventoId == filtro);                                 
+      22          }
+      23  
+      24          if (depoisDe is { } posicao)
+  ⎿  (timeout 5m)
+
+  Read 1 file (ctrl+o to expand)
+
+● Build limpo. Agora os pontos (perfil e Troféus) e a raridade passam a contar o
+  prêmio válido e o definitivo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs)
+  ⎿  Added 27 lines, removed 3 lines
+      45                      PostId = db.Set<Post>().Where(post => post.
+          MedalhaId == medalha.Id && post.RemovidoEm == null).Select(post
+           => (Guid?)post.Id).FirstOrDefault(),
+      46                  })
+      47              .ToListAsync(cancellationToken);
+      48 -        var obtidos = medalhas.ToLookup(                       
+      49 -            medalha => medalha.ItemCodigo,                     
+      50 -            medalha => new PremioObtido(medalha.Id, medalha.Tie
+         -r, medalha.Pontos, medalha.Materia, medalha.Numero, medalha.Con
+         -cedidaEm, medalha.PostId));                                    
+      48 +        // O prêmio de participação conta como obtido quando po
+         +ntua: válido ou definitivo                                     
+      49 +        // (produto.md 4.7). Obtido na aprovação; sem bimestre,
+         + e com matéria só na sala.                                     
+      50 +        var participacoes = await (                            
+      51 +                from premio in db.Set<PremioParticipacao>()    
+      52 +                join materia in db.Set<Materia>() on premio.Mat
+         +eriaId equals materia.Id into materias                         
+      53 +                from materia in materias.DefaultIfEmpty()      
+      54 +                where premio.AlunoId == alunoId                
+      55 +                    && (premio.Estado == EstadoDoPremioParticip
+         +acao.Valido || premio.Estado == EstadoDoPremioParticipacao.Defi
+         +nitivo)                                                        
+      56 +                orderby premio.AprovadoEm descending           
+      57 +                select new                                     
+      58 +                {                                              
+      59 +                    premio.Id,                                 
+      60 +                    premio.ItemCodigo,                         
+      61 +                    premio.Tier,                               
+      62 +                    premio.Pontos,                             
+      63 +                    Materia = materia == null ? null : materia.
+         +Nome,                                                          
+      64 +                    premio.AprovadoEm,                         
+      65 +                    PostId = db.Set<Post>().Where(post => post.
+         +PremioParticipacaoId == premio.Id && post.RemovidoEm == null).S
+         +elect(post => (Guid?)post.Id).FirstOrDefault(),                
+      66 +                })                                             
+      67 +            .ToListAsync(cancellationToken);                   
+      68  
+      69 +        var obtidos = medalhas                                 
+      70 +            .Select(medalha => (medalha.ItemCodigo, Obtido: new
+         + PremioObtido(                                                 
+      71 +                medalha.Id, medalha.Tier, medalha.Pontos, medal
+         +ha.Materia, medalha.Numero, medalha.ConcedidaEm, medalha.PostId
+         +)))                                                            
+      72 +            .Concat(participacoes.Select(premio => (premio.Item
+         +Codigo, Obtido: new PremioObtido(                              
+      73 +                premio.Id, premio.Tier, premio.Pontos, premio.M
+         +ateria, null, premio.AprovadoEm!.Value, premio.PostId))))      
+      74 +            .ToLookup(par => par.ItemCodigo, par => par.Obtido)
+         +;                                                              
+      75 +                                                               
+      76          var raridades = await db.Set<RaridadeDoItemRow>().AsNoT
+          racking()
+      77              .ToDictionaryAsync(linha => linha.ItemCodigo, cance
+          llationToken);
+      78          var itens = await db.Set<ItemCatalogoRow>().AsNoTrackin
+          g().OrderBy(item => item.Codigo).ToListAsync(cancellationToken)
+          ;
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's/^
+               medalhas.Sum(medalha => medalha.Pontos),$/…)
+  ⎿  Maxx.Infrastructure/Perfil/ConsultaDePerfil.cs:44:
+         + db.Set<PremioParticipacao>()
+     Maxx.Infrastructure/Perfil/ConsultaDePerfil.cs:46:
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs (+2
+     -1)
+      11      Task<PremiosDoAluno?> DoAlunoAsync(Guid alunoId, Cancellati
+          onToken cancellationToken);
+      12  }
+      13  
+      14 -// Pontos: a soma do que pontua hoje (as medalhas ativas, no pa
+         -sso 6).                                                        
+      14 +// Pontos: a soma do que pontua hoje: as medalhas ativas e os p
+         +rêmios de participação                                         
+      15 +// válidos e definitivos.                                      
+      16  public sealed record PremiosDoAluno(int Pontos, IReadOnlyList<F
+          amiliaDoCatalogo> Familias, IReadOnlyList<ItemDoAluno> Itens);
+      17  
+      18  public sealed record FamiliaDoCatalogo(string Codigo, string No
+          me, string Descricao, int Passos);
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+     (+5 -1)
+      40                      Seguidores = db.Set<Seguimento>().Count(seg
+          uimento => seguimento.SeguidoId == usuario.Id),
+      41                      Seguindo = db.Set<Seguimento>().Count(segui
+          mento => seguimento.SeguidorId == usuario.Id),
+      42                      EuSigo = db.Set<Seguimento>().Any(seguiment
+          o => seguimento.SeguidorId == leitorId && seguimento.SeguidoId 
+          == usuario.Id),
+      43 -                    Pontos = db.Set<Medalha>().Where(medalha =>
+         - medalha.AlunoId == usuario.Id && medalha.AnuladaEm == null).Su
+         -m(medalha => medalha.Pontos),                                  
+      43 +                    Pontos = db.Set<Medalha>().Where(medalha =>
+         + medalha.AlunoId == usuario.Id && medalha.AnuladaEm == null).Su
+         +m(medalha => medalha.Pontos)                                   
+      44 +                        + db.Set<PremioParticipacao>()         
+      45 +                            .Where(premio => premio.AlunoId == 
+         +usuario.Id                                                     
+      46 +                                && (premio.Estado == EstadoDoPr
+         +emioParticipacao.Valido || premio.Estado == EstadoDoPremioParti
+         +cipacao.Definitivo))                                           
+      47 +                            .Sum(premio => premio.Pontos),     
+      48                      MedalhasConcedidas = db.Set<Medalha>().Coun
+          t(medalha => medalha.ConcedidaPorId == usuario.Id && medalha.An
+          uladaEm == null),
+      49                  })
+      50              .AsNoTracking()
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+1 -1)
+      79          var familias = await db.Set<FamiliaRow>().AsNoTracking(
+          ).OrderBy(familia => familia.Codigo).ToListAsync(cancellationTo
+          ken);
+      80  
+      81          return new PremiosDoAluno(
+      82 -            medalhas.Sum(medalha => medalha.Pontos),           
+      82 +            medalhas.Sum(medalha => medalha.Pontos) + participa
+         +coes.Sum(premio => premio.Pontos),                             
+      83              [.. familias.Select(familia => new FamiliaDoCatalog
+          o(familia.Codigo, familia.Nome, familia.Descricao, familia.Pass
+          os))],
+      84              [.. itens
+      85                  .Where(item => item.RestricaoCurso is null
+
+● Agora o numerador da raridade.
+
+● Update(apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeRaridade.c
+        s)
+  ⎿  Added 13 lines
+      102              .Select(item => new { Codigo = item.Key, Alunos = 
+           item.Select(medalha => medalha.AlunoId).Distinct().Count() })
+      103              .ToDictionaryAsync(item => item.Codigo, item => it
+           em.Alunos, cancellationToken);
+      104  
+      105 +        // Prêmio de participação conta quando pontua, válido 
+          +ou definitivo (D6 do passo 8): o                              
+      106 +        // reivindicado ainda não foi aprovado, e o em averigu
+          +ação só o aluno e a instituição                               
+      107 +        // veem. Os códigos não se repetem entre os tipos, ent
+          +ão os dois somam sem colidir.                                 
+      108 +        var comParticipacao = await db.Set<PremioParticipacao>
+          +()                                                            
+      109 +            .Where(premio => premio.Estado == EstadoDoPremioPa
+          +rticipacao.Valido || premio.Estado == EstadoDoPremioParticipac
+          +ao.Definitivo)                                                
+      110 +            .GroupBy(premio => premio.ItemCodigo)             
+      111 +            .Select(item => new { Codigo = item.Key, Alunos = 
+          +item.Select(premio => premio.AlunoId).Distinct().Count() })   
+      112 +            .ToListAsync(cancellationToken);                  
+      113 +        foreach (var item in comParticipacao)                 
+      114 +        {                                                     
+      115 +            comItem[item.Codigo] = item.Alunos;               
+      116 +        }                                                     
+      117 +                                                              
+      118          var itens = await db.Set<ItemCatalogoRow>().AsNoTracki
+           ng()
+      119              .Select(item => new { item.Codigo, item.RestricaoC
+           urso })
+      120              .ToListAsync(cancellationToken);
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|^//
+      O numerador são os alunos distintos com ao menos uma medalha a…)
+  ⎿  // coalescência (ADR 0005). Os outros pedidos pendentes de recálculo v
+     iram este, porque a
+     // conta lê o estado de agora; e se a última execução foi há menos de
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeR
+     aridade.cs (+3 -2)
+      39  // conta lê o estado de agora; e se a última execução foi há me
+          nos de dez segundos, este não
+      40  // calcula e deixa um pedido só para quando os dez segundos fec
+          harem.
+      41  //
+      42 -// O numerador são os alunos distintos com ao menos uma medalha
+         - ativa do item, ativos ou                                      
+      42 +// O numerador são os alunos distintos com ao menos uma medalha
+         + ativa ou um prêmio de                                         
+      43 +// participação válido ou definitivo do item, ativos ou        
+      44  // ex-alunos. O divisor são os alunos com conta, ativos e ex-al
+          unos, os de demonstração
+      45  // inclusive: o campus inteiro para item aberto, o curso atual 
+          para item restrito. Prêmio de
+      45 -// participação e conquista entram no numerador quando nascerem
+         - (passos 8 e 9).                                               
+      46 +// participação entrou no passo 8; a conquista entra no passo 9
+         +.                                                              
+      47  internal sealed partial class RecalculoDeRaridade(
+      48      MaxxDbContext db, IFilaDeTrabalhos fila, TimeProvider relog
+          io, ILogger<RecalculoDeRaridade> logger)
+      49      : ITrabalhoHandler<RecalcularRaridade>
+  ⎿  (timeout 5m)
+
+● Update(apps\api\src\Maxx.Infrastructure\RaridadeDosItens\RecalculoDeRaridade.c
+        s)
+  ⎿  Added 3 lines, removed 4 lines
+      40  // calcula e deixa um pedido só para quando os dez segundos fec
+          harem.
+      41  //
+      42  // O numerador são os alunos distintos com ao menos uma medalha
+           ativa ou um prêmio de
+      43 -// participação válido ou definitivo do item, ativos ou        
+      44 -// ex-alunos. O divisor são os alunos com conta, ativos e ex-al
+         -unos, os de demonstração                                       
+      45 -// inclusive: o campus inteiro para item aberto, o curso atual 
+         -para item restrito. Prêmio de                                  
+      46 -// participação entrou no passo 8; a conquista entra no passo 9
+         -.                                                              
+      43 +// participação válido ou definitivo do item (passo 8), ativos 
+         +ou ex-alunos; a conquista entra                                
+      44 +// no passo 9. O divisor são os alunos com conta, ativos e ex-a
+         +lunos, os de demonstração                                      
+      45 +// inclusive: o campus inteiro para item aberto, o curso atual 
+         +para item restrito.                                            
+      46  internal sealed partial class RecalculoDeRaridade(
+      47      MaxxDbContext db, IFilaDeTrabalhos fila, TimeProvider relog
+          io, ILogger<RecalculoDeRaridade> logger)
+      48      : ITrabalhoHandler<RecalcularRaridade>
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A execução b093836 foi cancelada pelo concurrency como previsto, e 9ec311a
+  continua rodando. Agora movo o mundo de teste para um auxiliar compartilhado,
+  para depois rodar os testes de integração da etapa 3.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\MundoDePrem
+       ios.cs)
+  ⎿  Wrote 77 lines to apps\api\tests\Maxx.Api.IntegrationTests\PremiosPart
+     icipacao\MundoDePremios.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using Maxx.Api.IntegrationTests.Fotos;
+       4 using Maxx.Api.IntegrationTests.Social;
+       5 using Maxx.Api.Posts;
+       6 using Maxx.Domain.Academico;
+       7 using Maxx.Domain.Identidade;
+       8 using Maxx.Domain.Premios;
+       9 using Maxx.Infrastructure.Autenticacao;
+      10 using Maxx.Infrastructure.Persistence;
+     … +67 lines (ctrl+o to expand)
+
+● Troco o mundo privado da ReivindicacaoTests pelo auxiliar compartilhado.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/PremiosParticipacao" && n=$(grep -n "
+       // O MundoS…)
+  ⎿          }
+         }
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\R
+     eivindicacaoTests.cs (+1 -26)
+      229      private static Task<HttpResponseMessage> ReivindicarAsync(
+           HttpClient client, object pedido) =>
+      230          client.PostAsJsonAsync(new Uri("/api/v1/reivindicacoes
+           ", UriKind.Relative), pedido, Ct);
+      231  
+      232 -    // O MundoSocial, com três prêmios de participação no catá
+          -logo, a semana acadêmica de CC                                
+      233 -    // (começou há 10 dias, aceita P06) e uma de Administração
+          - (curso sem ninguém do mundo).                                
+      234 -    private async Task<Mundo> MundoAsync()                    
+      235 -    {                                                         
+      236 -        var social = await CriarAsync(postgres, armazenamento)
+          -;                                                             
+      237 -        await using var scope = social.Factory.Services.Create
+          -AsyncScope();                                                 
+      238 -        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          -DbContext>();                                                 
+      239 -        var cc = await db.Set<Curso>().SingleAsync(curso => cu
+          -rso.Sigla == "CC", Ct);                                       
+      240 -        var bancoDeDados = await db.Set<Materia>().SingleAsync
+          -(Ct);                                                         
+      241 -        var adm = new Curso("Administração", "ADM", 8);       
+      242 -        var hoje = FusoHorario.DataLocal(social.Relogio.GetUtc
+          -Now());                                                       
+      243 -        var semana = Evento.Semeado(                          
+      244 -            "semana-academica-cc", "Semana Acadêmica de Comput
+          -ação", hoje.AddDays(-10), hoje.AddDays(-6), [CatalogoDePartici
+          -pacao.P06], cc);                                              
+      245 -        var semanaDeAdm = Evento.Semeado(                     
+      246 -            "semana-academica-adm", "Semana Acadêmica de Admin
+          -istração", hoje.AddDays(-10), hoje.AddDays(-6), [CatalogoDePar
+          -ticipacao.P06], adm);                                         
+      247 -        db.AddRange(CatalogoDeParticipacao.Linhas());         
+      248 -        db.AddRange(adm, semana, semanaDeAdm);                
+      249 -        await db.SaveChangesAsync(Ct);                        
+      250 -                                                              
+      251 -        return new Mundo(social, hoje, semana.Id, semanaDeAdm.
+          -Id, bancoDeDados.Id);                                         
+      252 -    }                                                         
+      253 -                                                              
+      254 -    private sealed record Mundo(Social.MundoSocial Social, Dat
+          -eOnly Hoje, Guid Semana, Guid SemanaDeAdm, Guid BancoDeDados) 
+          -: IAsyncDisposable                                            
+      255 -    {                                                         
+      256 -        public ValueTask DisposeAsync() => Social.DisposeAsync
+          -();                                                           
+      257 -    }                                                         
+      232 +    private Task<MundoDePremios> MundoAsync() => MundoDePremio
+          +s.CriarAsync(postgres, armazenamento);                        
+      233  }
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/PremiosParticipacao/Reivindicac
+      aoTests.cs && s…)
+  ⎿  using Maxx.Domain.Academico;
+     using Maxx.Infrastructure.Persistence;
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\R
+     eivindicacaoTests.cs (+0 -2)
+       3  using Maxx.Api.IntegrationTests.Fotos;
+       4  using Maxx.Api.Perfil;
+       5  using Maxx.Api.Posts;
+       6 -using Maxx.Domain.Academico;                                   
+       6  using Maxx.Domain.Fotos;
+       7  using Maxx.Domain.Premios;
+       8  using Maxx.Domain.Social;
+      10 -using Maxx.Infrastructure.Persistence;                         
+       9  using Microsoft.EntityFrameworkCore;
+      10  using Microsoft.Extensions.DependencyInjection;
+      11  using static Maxx.Api.IntegrationTests.Social.MundoSocial;
+  ⎿  (timeout 5m)
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/PremiosParticipacao/Reivindicac
+      aoTests.cs && h…)
+  ⎿  using System.Net;
+     using System.Net.Http.Json;
+     using Maxx.Api.IntegrationTests.Fotos;
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\R
+     eivindicacaoTests.cs (+0 -2)
+       6  using Maxx.Domain.Fotos;
+       7  using Maxx.Domain.Premios;
+       8  using Maxx.Domain.Social;
+       9 -using Microsoft.EntityFrameworkCore;                           
+      10 -using Microsoft.Extensions.DependencyInjection;                
+       9  using static Maxx.Api.IntegrationTests.Social.MundoSocial;
+      10  
+      11  namespace Maxx.Api.IntegrationTests.PremiosParticipacao;
+  ⎿  (timeout 10m)
+
+● Background command "Watch stage 2 CI runs" completed (exit code 0)
+
+● A CI do commit 9ec311a passou em todos os seis jobs, então a etapa 2 está
+  concluída. Agora vou rodar os testes de integração da fila e da decisão.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\Comprovacoe
+       sTests.cs)
+  ⎿  Wrote 346 lines to apps\api\tests\Maxx.Api.IntegrationTests\PremiosPar
+     ticipacao\ComprovacoesTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using Maxx.Api.IntegrationTests.Fotos;
+       4 using Maxx.Api.Perfil;
+       5 using Maxx.Api.Posts;
+       6 using Maxx.Api.Premios;
+       7 using Maxx.Api.PremiosParticipacao;
+       8 using Maxx.Application.Fila;
+       9 using Maxx.Application.PremiosParticipacao;
+      10 using Maxx.Domain.Identidade;
+     … +336 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -n 27,34p apps/api/src/Maxx.Infrastructure/Fila/Trabalho.cs;
+      f=apps/api/tests/Maxx.Ap…)
+  ⎿  public enum EstadoDoTrabalho
+     {
+         Pendente,
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\C
+     omprovacoesTests.cs (+1 -1)
+      175          var premio = await mundo.PremioAsync(post.Premio.Id);
+      176          Assert.Equal((EstadoDoPremioParticipacao.Definitivo, a
+           provadoEm.AddDays(15)), (premio.Estado, premio.DefinitivoEm!.V
+           alue));
+      177          Assert.Equal(30, (await ana.GetFromJsonAsync<PerfilRes
+           ponse>(new Uri("/api/v1/eu/perfil", UriKind.Relative), Ct))!.P
+           ontos);
+      178 -        Assert.DoesNotContain(await mundo.Social.LinhasAsync<T
+          -rabalho>(), trabalho => trabalho.Estado == "falho");          
+      178 +        Assert.DoesNotContain(await mundo.Social.LinhasAsync<T
+          +rabalho>(), trabalho => trabalho.Estado == EstadoDoTrabalho.Fa
+          +lho);                                                         
+      179      }
+      180  
+      181      [Fact]
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/PremiosParticipacao/Comprovacoe
+      sTests.cs && se…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\C
+     omprovacoesTests.cs (+1 -0)
+       6  using Maxx.Api.Premios;
+       7  using Maxx.Api.PremiosParticipacao;
+       8  using Maxx.Application.Fila;
+       9 +using Maxx.Application.Medalhas;                               
+      10  using Maxx.Application.PremiosParticipacao;
+      11  using Maxx.Domain.Identidade;
+      12  using Maxx.Domain.Notificacoes;
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 45 testes de prêmio de participação passaram. Agora as mensagens dos três
+  códigos novos no app, o cliente regenerado e o job do app rodando localmente,
+  como combinado.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's/
+      "premio-ja-reivindicado": "Você já reivindicou esse prêmio para e…)
+  ⎿  1
+     0
+     All matched files use Prettier code style!
+     Tests:       387 passed, 387 total
+  ⎿  Updated apps\mobile\src\api\erros.ts (+3 -0)
+      64    "materia-nao-se-aplica": "Esse prêmio não pede matéria.",
+      65    "materia-nao-encontrada": "Você não cursava essa matéria na d
+          ata do evento.",
+      66    "premio-ja-reivindicado": "Você já reivindicou esse prêmio pa
+          ra esse evento.",
+      67 +  "comprovacao-nao-encontrada": "Essa comprovação não existe ma
+         +is.",                                                          
+      68 +  "comprovacao-ja-decidida": "Outra pessoa já decidiu essa comp
+         +rovação.",                                                     
+      69 +  "motivo-invalido": "Escreva o motivo, com até 500 caracteres.
+         +",                                                             
+      70    // Curtida, comentário e seguir (CodigosSociais.cs)
+      71    "interacao-nao-permitida": "A instituição não curte nem comen
+          ta.",
+      72    "comentario-vazio": "Escreva alguma coisa antes de enviar.",
+  ⎿  Updated packages\api-client\src\schema.d.ts (+289 -0)
+      420          patch?: never;
+      421          trace?: never;
+      422      };
+      423 +    "/api/v1/comprovacoes": {                                 
+      424 +        parameters: {                                         
+      425 +            query?: never;                                    
+      426 +            header?: never;                                   
+      427 +            path?: never;                                     
+      428 +            cookie?: never;                                   
+      429 +        };                                                    
+      430 +        get: operations["GetFilaDeComprovacoes"];             
+      431 +        put?: never;                                          
+      432 +        post?: never;                                         
+      433 +        delete?: never;                                       
+      434 +        options?: never;                                      
+      435 +        head?: never;                                         
+      436 +        patch?: never;                                        
+      437 +        trace?: never;                                        
+      438 +    };                                                        
+      439 +    "/api/v1/comprovacoes/eventos": {                         
+      440 +        parameters: {                                         
+      441 +            query?: never;                                    
+      442 +            header?: never;                                   
+      443 +            path?: never;                                     
+      444 +            cookie?: never;                                   
+      445 +        };                                                    
+      446 +        get: operations["GetEventosDaFilaDeComprovacoes"];    
+      447 +        put?: never;                                          
+      448 +        post?: never;                                         
+      449 +        delete?: never;                                       
+      450 +        options?: never;                                      
+      451 +        head?: never;                                         
+      452 +        patch?: never;                                        
+      453 +        trace?: never;                                        
+      454 +    };                                                        
+      455 +    "/api/v1/comprovacoes/{comprovacaoId}/aprovacao": {       
+      456 +        parameters: {                                         
+      457 +            query?: never;                                    
+      458 +            header?: never;                                   
+      459 +            path?: never;                                     
+     … 291 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 10m)
+
+● Job do app limpo. Agora formatação .NET e a suíte inteira em Release.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 3 pronta para a sua revisão (ainda sem commit)
+
+  A etapa 2 está pronta: a CI do 9ec311a passou nos seis jobs.
+
+  Correção no fechamento da etapa 2
+
+  Mandei o commit b093836 na mesma resposta da edição do produto.md, sem esperar
+  o resultado. A edição falhou, porque o texto não bateu com o arquivo, e o
+  commit saiu sem a trava.
+
+  Como a sua regra proíbe amend e force push, a frase entrou num commit
+  seguinte: 9ec311a docs(docs): registra a trava do post de comprovação na regra
+  do prêmio de participação. A CI do b093836 foi cancelada pelo concurrency; a
+  do 9ec311a cobre o mesmo código mais a frase.
+
+  Daqui em diante, só commito depois de ver o resultado das edições.
+
+  Duas coisas adiantadas da etapa 4
+
+  - Handler tornar-premio-definitivo: o plano previa só o enfileiramento nesta
+    etapa, mas a fila conta como falha um trabalho sem handler. O handler é
+    pequeno:
+    - só age se o prêmio ainda está válido e a janela fechou;
+    - se rodar antes do fim da janela, volta para a fila no instante certo.
+
+    A contestação da etapa 4 não precisa mexer nele.
+  - Raridade (D6): passa a contar prêmios de participação válidos e definitivos.
+    Adiantei porque é a aprovação que cria o primeiro prêmio que conta.
+
+  O que entrou
+
+  Domínio
+  - PremioParticipacao ganhou:
+    - Aprovar: grava quem e quando e passa a pontuar. Recusa uma segunda decisão
+      (JaDecidida) e aluno que virou ex-aluno.
+    - Reprovar: exige motivo, grava quem e quando e libera a chave do prêmio.
+    - TornarDefinitivoSeAJanelaFechou.
+    - FimDaJanela, que vence 15 dias depois da aprovação.
+  - Motivo: de 1 a 500 caracteres depois de aparado, contando emoji como um;
+    serve também à etapa 4.
+  - Comprovacao.PassouDoPrazo: a marca da fila, depois de 7 vezes 24 horas.
+  - Notificações ComprovacaoAprovada e ComprovacaoReprovada.
+
+  Persistência: migration DecisaoDaComprovacao.
+  - Colunas de aprovação, reprovação com motivo e definitivo.
+  - Uma constraint por par quem e quando, coerente com o estado do prêmio.
+  - A lista de tipos de notificação atualizada.
+
+  Rotas (policy nova aprovador, que aceita professor ou instituição):
+  - GET /v1/comprovacoes?eventoId=&cursor=:
+    - Das mais antigas para as mais novas, 20 por página, com a marca dos 7
+      dias.
+    - Traz aluno, item, evento (semeado ou digitado), foto, legenda e as
+      matérias em comum (D13).
+    - O professor vê só os alunos de turma sua no semestre vigente, conferido no
+      banco; a instituição vê todos.
+  - GET /v1/comprovacoes/eventos: os eventos com comprovação pendente e quantas,
+    para o chip de filtro da etapa 6.
+  - POST /v1/comprovacoes/{id}/aprovacao:
+    - Enfileira, na mesma transação, a notificação, o recálculo de raridade e o
+      fim da janela, agendado para 15 dias depois.
+    - Responde 403 fora-do-escopo, 404 comprovacao-nao-encontrada, 409
+      comprovacao-ja-decidida ou 409 ex-aluno.
+  - POST /v1/comprovacoes/{id}/reprovacao {motivo}: desvincula o post, que fica
+    comum e pode ser apagado, e enfileira a notificação. Sem motivo, 400
+    motivo-invalido.
+
+  Pontos: o perfil e a tela de Troféus somam as medalhas e os prêmios válidos e
+  definitivos. O item obtido aparece com o post e a data de aprovação.
+
+  App: três mensagens novas em erros.ts.
+
+  Testes
+  - 12 de domínio novos, 422 no total.
+  - 13 casos de integração da fila e da decisão:
+    - escopo da professora e da instituição;
+    - ordem e marca de 7 dias;
+    - filtro e lista de eventos;
+    - paginação com 21 reivindicações e cursor adulterado;
+    - aprovação com pontos, Troféus, trabalhos, notificação e raridade;
+    - prêmio definitivo exatamente no fim da janela, e o trabalho que chega cedo
+      voltando para a fila;
+    - reprovação seguida de nova tentativa;
+    - motivo inválido;
+    - corrida de seis decisões, com uma só aceita;
+    - professor fora do escopo e aluno barrado;
+    - ex-aluno.
+  - O mundo de teste dos prêmios virou o auxiliar compartilhado MundoDePremios,
+    com a aluna Elisa fora da turma e o professor Marcos sem turma.
+  - Suíte .NET em Release: 867 testes, 861 aprovados, 0 falhas e 6 ignorados (os
+    de antes).
+  - Job do app local: formatação, lint, tipos e 387 testes passando.
+
+  Formatação e cliente: OpenAPI e cliente regenerados; dotnet format limpo.
+
+  Anotado para a etapa 4
+
+  A remoção pela instituição vai resolver o prêmio no mesmo ato: reprova se
+  pendente, revoga se válido ou em averiguação, com o motivo "removido pela
+  instituição", e só depois remove o post. A regra entra no produto.md nessa
+  etapa.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona fila de comprovações com aprovação e reprovação
+
+  Posso commitar e fazer o push?
+
+✻ Cooked for 16m 42s · done 17:15
