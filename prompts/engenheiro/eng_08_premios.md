@@ -1,8 +1,8 @@
 ID: eng_08_premios
 Trilha: engenheiro
 Tela: passo 8 do plano mestre (prêmios de participação)
-Data: a preencher no envio
-Origem: rascunho do Cowork (Anthropic) no molde dos passos 1 a 3, a partir do plano mestre do repo em 05/11/2026 (`main` em `5b7cb45`). Antes do envio, conferir contra o plano mestre atualizado, porque passos anteriores podem ter acrescentado itens a este. Ao enviar, mover para `prompts/engenheiro/eng_08_premios.md`, preencher a data e registrar o ambiente (`claude --version`, `/model`).
+Data: 2026-11-08
+Origem: rascunho do Cowork (Anthropic) no molde dos passos 1 a 3, a partir do plano mestre do repo em 05/11/2026 (`main` em `5b7cb45`), conferido em 08/11/2026 contra o plano mestre da `main` em `f28f404` (seção do passo 8 sem mudança). Ambiente: CLI 2.1.316, `claude-opus-5-5`, `medium`, auto mode, conferidos pelo autor antes do envio.
 
 Notas de registro:
 - Texto relembra o que fecha o passo pelo plano mestre, sem regra nova, mais a regra da CI verde por etapa fixada na `eng_03_auth-r13`.
