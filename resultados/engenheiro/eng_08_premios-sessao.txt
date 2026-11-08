@@ -10008,3 +10008,990 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
 ✻ Cooked for 9m 43s · done 18:14
 
 ※ recap: Passo 8 (prêmios de participação): as etapas 1 a 5 estão com CI verde, e a etapa 6, a fila de comprovações e a contestação do professor no app, está pronta com as capturas. Falta a sua aprovação para eu commitar e fazer o push. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt     
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_08_premios-sessao.txt
+
+> Etapa 6 aprovada; capturas conferidas. A folha de motivo compartilhada e o    
+  chip da marca sem ouro sobre claro estão certos. Commita com a mensagem       
+  proposta, push, acompanha a CI e segue para a etapa 7, a última: docs, e2e e  
+  PR; para para a minha revisão no fim dela, com o relatório de fechamento do   
+  passo e o que ficou para os passos seguintes.                                 
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O commit 247e611 já foi enviado e a CI roda em segundo plano. Agora começo a
+  etapa 7, lendo como o e2e da medalha conduz a professora e o aluno.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Vou escrever os auxiliares do e2e de prêmios com foto desenhada no navegador,
+  token e upload pela API, usando uma conta própria por teste para não bater no
+  limite de recuperações de senha.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && sed -i 's/^function comandoDaApi(argumentos: string\[\]): string
+      {/export function co…)
+  ⎿  123:export function comandoDaApi(argumentos: string[]): string {
+  ⎿  Updated e2e\tests\apoio\medalhas.ts (+1 -1)
+      120  // imagem e a mesma conexão. O `compose run` do seeder refazia
+            também o migrator a cada
+      121  // chamada (4,6 s contra 1,9 s com a pilha parada, bem mais co
+           m a suíte em paralelo), e o
+      122  // caso da medalha passava dos 30 s (passo 7, etapa 11).
+      123 -function comandoDaApi(argumentos: string[]): string {         
+      123 +export function comandoDaApi(argumentos: string[]): string {  
+      124    return execFileSync(
+      125      "docker",
+      126      [
+
+● Write(e2e\tests\apoio\premios.ts)
+  ⎿  Wrote 142 lines to e2e\tests\apoio\premios.ts
+       1 import { readFileSync, writeFileSync } from "node:fs";
+       2 import { randomInt } from "node:crypto";
+       3 
+       4 import { expect, type APIRequestContext, type Page } from "@play
+         wright/test";
+       5 
+       6 import { sql } from "./contas";
+       7 import { linkDeRecuperacao } from "./mailpit";
+       8 import { comandoDaApi } from "./medalhas";
+       9 
+     … +133 lines (ctrl+o to expand)
+
+● Agora o spec de prêmios, com dois casos só no celular, claro e escuro, como os
+  outros fluxos com conta.
+
+● Write(e2e\tests\premios.spec.ts)
+  ⎿  Wrote 207 lines to e2e\tests\premios.spec.ts
+       1 import { expect, test, type Browser, type Page } from "@playwrig
+         ht/test";
+       2 
+       3 import { arroba, novaConta, type Aluno } from "./apoio/contas";
+       4 import { matricular, novaProfessora } from "./apoio/medalhas";
+       5 import { abrirMenu } from "./apoio/navegacao";
+       6 import {
+       7   comprovacaoDoPremio,
+       8   comToken,
+       9   fotoDeTeste,
+     … +198 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write e2e/tests >/dev/null && npm run typecheck -w
+      @maxx/e2e 2>&1 | grep "…)
+  ⎿    x  2 [celular-claro] › tests\premios.spec.ts:78:5 › o aluno reivindi
+     ca com foto, a professora aprova pela fila e os pontos aparecem @celul
+     ar (11.9s)
+     … +25 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\premios.spec.ts (+6 -2)
+      110      // Aprovado, pontua na hora.
+      111      await trofeus(doAluno);
+      112      await expect(doAluno.getByText("30 pts", { exact: true }))
+           .toBeVisible();
+      113 -    await expect(doAluno.getByTestId("premio-P06").getByText("
+          -+30")).toBeVisible();                                         
+      113 +    await expect(                                             
+      114 +      doAluno.getByTestId("premio-P06").getByText("+30"),     
+      115 +    ).toBeVisible();                                          
+      116    },
+      117  );
+      118  
+     ...
+      144        .getByRole("button", { name: `Reprovar a comprovação de 
+           ${nome}` })
+      145        .click();
+      146      const folha = daProfessora.getByTestId("folha-de-motivo");
+      145 -    await folha.getByLabel("Motivo").fill("A foto não mostra a
+          - semana acadêmica.");                                         
+      147 +    await folha                                               
+      148 +      .getByLabel("Motivo")                                   
+      149 +      .fill("A foto não mostra a semana acadêmica.");         
+      150      await folha.getByRole("button", { name: "Reprovar", exact:
+            true }).click();
+      151      await expect(cartao).toHaveCount(0);
+      152  
+  ⎿  (timeout 10m)
+
+● O segundo caso passou nos dois temas. O primeiro falhou num seletor do próprio
+  teste: "Semana acadêmica" casa também com o evento e com a legenda. Uso
+  correspondência exata.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      grep -n 'getByText("Semana acadêmica")' e2e/tests/premios.spec.ts && sed
+      -i 's/getByText(…)
+  ⎿  104:    await expect(cartao.getByText("Semana acadêmica")).toBeVisible
+     ();
+       4 passed (33.1s)
+  ⎿  Updated e2e\tests\premios.spec.ts (+3 -1)
+      101      await entrar(daProfessora, professora.email, professora.se
+           nha);
+      102      await abrirComprovacoes(daProfessora);
+      103      const cartao = cartaoNaFila(daProfessora, aluno);
+      104 -    await expect(cartao.getByText("Semana acadêmica")).toBeVis
+          -ible();                                                       
+      104 +    await expect(                                             
+      105 +      cartao.getByText("Semana acadêmica", { exact: true }),  
+      106 +    ).toBeVisible();                                          
+      107      await cartao
+      108        .getByRole("button", { name: `Aprovar a comprovação de $
+           {nome}` })
+      109        .click();
+  ⎿  (timeout 10m)
+
+● Os quatro passam. Rodo o e2e inteiro, com a demonstração desligada como na
+  primeira passada da CI, para ver se nada mais quebrou.
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● O mesmo teste de escuro falhou numa rodada e passou na seguinte, o que aponta
+  para instabilidade sob carga paralela. Vou reproduzi-la repetidamente e
+  guardar o erro antes do commit, já que a CI só repete uma vez e isso pode
+  esconder o problema.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch stage 6 CI" completed (exit code 0)
+
+● A CI do commit 247e611 passou nos seis jobs, então a etapa 6 está pronta. Não
+  reproduzi a falha em mais três rodadas (4 de 5 passaram); vou procurar nos
+  logs da API sinais de recusa por limite de taxa no login antes de mexer no
+  teste.
+
+  Ran 1 shell command (ctrl+o to expand)
+● Os avisos são do limite por identificador, que o login.spec estoura de
+  propósito, e não há sinal do limite por IP; a causa da falha não foi
+  confirmada. Vou tirar do segundo caso os logins e e-mails de recuperação,
+  deixando aprovar e contestar pela tela da professora e mantendo só a revogação
+  da instituição pela API.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(e2e\tests\premios.spec.ts)
+  ⎿  Added 22 lines, removed 31 lines
+      161      await doAluno.getByRole("tab", { name: "Home" }).click();
+      162      await reivindicarNaSemana(doAluno, segunda, `Segunda tenta
+           tiva ${nome}`);
+      163  
+      164 -    // Pela API (D7): a professora aprova e contesta, a instit
+          -uição revoga.                                                 
+      165 -    const daAluna = await token(request, aluno.ra, aluno.senha
+          -);                                                            
+      166 -    const reivindicacoes = await (                            
+      167 -      await request.get("/api/v1/eu/reivindicacoes", {        
+      168 -        headers: comToken(daAluna),                           
+      169 -      })                                                      
+      170 -    ).json();                                                 
+      171 -    const premioId = reivindicacoes.find(                     
+      172 -      (item: { estado: string }) => item.estado === "reivindic
+          -ado",                                                         
+      173 -    ).premioId as string;                                     
+      174 -    const deRenata = await token(request, professora.email, pr
+          -ofessora.senha);                                              
+      175 -    expect(                                                   
+      176 -      (                                                       
+      177 -        await request.post(                                   
+      178 -          `/api/v1/comprovacoes/${comprovacaoDoPremio(premioId
+          -)}/aprovacao`,                                                
+      179 -          { headers: comToken(deRenata) },                    
+      180 -        )                                                     
+      181 -      ).status(),                                             
+      182 -    ).toBe(204);                                              
+      183 -    const contestacao = await request.post(                   
+      184 -      `/api/v1/premios-participacao/${premioId}/contestacao`, 
+      185 -      { headers: comToken(deRenata), data: { motivo: "Revi a f
+          -oto." } },                                                    
+      186 -    );                                                        
+      187 -    expect(contestacao.status()).toBe(201);                   
+      164 +    // A professora aprova a nova tentativa pela fila e a cont
+          +esta pelo "..." do post.                                      
+      165 +    await daProfessora.reload();                              
+      166 +    await cartao                                              
+      167 +      .getByRole("button", { name: `Aprovar a comprovação de $
+          +{nome}` })                                                    
+      168 +      .click();                                               
+      169 +    await expect(cartao).toHaveCount(0);                      
+      170 +    await daProfessora.goto(`/post/${postId}`);               
+      171 +    await daProfessora.getByRole("button", { name: "Mais opçõe
+          +s" }).click();                                                
+      172 +    await daProfessora.getByRole("button", { name: "Contestar 
+          +prêmio" }).click();                                           
+      173 +    const contestar = daProfessora.getByTestId("folha-de-motiv
+          +o");                                                          
+      174 +    await contestar.getByLabel("Motivo").fill("Revi a foto.");
+      175 +    await contestar                                           
+      176 +      .getByRole("button", { name: "Contestar", exact: true })
+      177 +      .click();                                               
+      178 +    await expect(contestar).toBeHidden();                     
+      179 +                                                              
+      180 +    // A instituição revoga pela API (D7): a tela dela chega n
+          +o passo 12.                                                   
+      181 +    const contestacao = contestacaoDoPost(postId);            
+      182      const daInstituicao = await token(
+      183        request,
+      184        instituicao.email,
+     ...
+      186      );
+      187      expect(
+      188        (
+      195 -        await request.post(                                   
+      196 -          `/api/v1/contestacoes/${(await contestacao.json()).i
+          -d}/revogacao`,                                                
+      197 -          {                                                   
+      198 -            headers: comToken(daInstituicao),                 
+      199 -            data: { motivo: "A foto é de outro evento." },    
+      200 -          },                                                  
+      201 -        )                                                     
+      189 +        await request.post(`/api/v1/contestacoes/${contestacao
+          +}/revogacao`, {                                               
+      190 +          headers: comToken(daInstituicao),                   
+      191 +          data: { motivo: "A foto é de outro evento." },      
+      192 +        })                                                    
+      193        ).status(),
+      194      ).toBe(204);
+      195  
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=e2e/tests/premios.spec.ts && grep -n "await reivindicarNaSemana(doAluno,
+      segunda" $f &&…)
+  ⎿  162:    await reivindicarNaSemana(doAluno, segunda, `Segunda tentativa
+      ${nome}`);
+     66:  await expect(cartao.getByTestId("marca-reivindicado")).toBeVisibl
+     e();
+  ⎿  Updated e2e\tests\premios.spec.ts (+10 -2)
+      41  }
+      42  
+      43  // A reivindicação da semana acadêmica pela tela do novo post, 
+          com a foto da galeria.
+      44 -async function reivindicarNaSemana(page: Page, foto: string, le
+         -genda: string) {                                               
+      44 +async function reivindicarNaSemana(                            
+      45 +  page: Page,                                                  
+      46 +  foto: string,                                                
+      47 +  legenda: string,                                             
+      48 +): Promise<string> {                                           
+      49    await page.getByRole("button", { name: "Novo post" }).first()
+          .click();
+      50    await page.getByRole("radio", { name: "Reivindicar prêmio" })
+          .click();
+      51    const seletor = page.waitForEvent("filechooser");
+     ...
+      163        doAluno.getByText("Motivo: A foto não mostra a semana ac
+           adêmica."),
+      164      ).toBeVisible();
+      165      await doAluno.getByRole("tab", { name: "Home" }).click();
+      162 -    await reivindicarNaSemana(doAluno, segunda, `Segunda tenta
+          -tiva ${nome}`);                                               
+      166 +    const postId = await reivindicarNaSemana(                 
+      167 +      doAluno,                                                
+      168 +      segunda,                                                
+      169 +      `Segunda tentativa ${nome}`,                            
+      170 +    );                                                        
+      171  
+      172      // A professora aprova a nova tentativa pela fila e a cont
+           esta pelo "..." do post.
+      173      await daProfessora.reload();
+
+● Update(e2e\tests\premios.spec.ts)
+  ⎿  Added 1 line
+      64      .locator('[data-testid^="post-"]', { hasText: legenda })
+      65      .first();
+      66    await expect(cartao.getByTestId("marca-reivindicado")).toBeVi
+          sible();
+      67 +  return (await cartao.getAttribute("data-testid"))!.replace("p
+         +ost-", "");                                                    
+      68  }
+      69  
+      70  async function abrirComprovacoes(page: Page) {
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat >> e2e/tests/apoio/premios.ts <<'EOF'…)
+  ⎿  e2e/tests/apoio/premios.ts:140:export const contestacaoDoPost = (postI
+     d: string) =>
+     e2e/tests/premios.spec.ts:7:  contestacaoDoPost,
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\apoio\premios.ts (+6 -3)
+      135    return instituicao;
+      136  }
+      137  
+      138 -// A comprovação de um prêmio, lida do banco.                 
+      139 -export const comprovacaoDoPremio = (premioId: string) =>      
+      138 +                                                              
+      139 +// A contestação do prêmio de um post, lida do banco.         
+      140 +export const contestacaoDoPost = (postId: string) =>          
+      141    sql(
+      141 -    `SELECT id FROM comprovacao WHERE premio_participacao_id =
+          - '${premioId}';`,                                             
+      142 +    `SELECT c.id FROM contestacao c                           
+      143 +     JOIN post p ON p.premio_participacao_id = c.premio_partic
+          +ipacao_id                                                     
+      144 +     WHERE p.id = '${postId}';`,                              
+      145    );
+  ⎿  Updated e2e\tests\premios.spec.ts (+4 -2)
+       4  import { matricular, novaProfessora } from "./apoio/medalhas";
+       5  import { abrirMenu } from "./apoio/navegacao";
+       6  import {
+       7 -  comprovacaoDoPremio,                                         
+       7 +  contestacaoDoPost,                                           
+       8    comToken,
+       9    fotoDeTeste,
+      10    novaInstituicao,
+     ...
+      178      await expect(cartao).toHaveCount(0);
+      179      await daProfessora.goto(`/post/${postId}`);
+      180      await daProfessora.getByRole("button", { name: "Mais opçõe
+           s" }).click();
+      181 -    await daProfessora.getByRole("button", { name: "Contestar 
+          -prêmio" }).click();                                           
+      181 +    await daProfessora                                        
+      182 +      .getByRole("button", { name: "Contestar prêmio" })      
+      183 +      .click();                                               
+      184      const contestar = daProfessora.getByTestId("folha-de-motiv
+           o");
+      185      await contestar.getByLabel("Motivo").fill("Revi a foto.");
+      186      await contestar
+  ⎿  (timeout 5m)
+
+● Tipos limpos. Ajusto o comentário do topo do spec, porque agora só a decisão
+  da instituição passa pela API, e rodo o e2e inteiro três vezes seguidas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=e2e/tests/premios.spec.ts && sed -i '16s|.*|// aluno vê os pontos e as
+      reivindicações e…)
+  ⎿  // O passo 8 de ponta a ponta (fluxos/02-post-com-comprovacao.md e 04-
+     contestacao.md): o
+     // aluno reivindica pela tela com foto, a professora decide pela fila
+     … +37 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\premios.spec.ts (+2 -2)
+      13  
+      14  // O passo 8 de ponta a ponta (fluxos/02-post-com-comprovacao.m
+          d e 04-contestacao.md): o
+      15  // aluno reivindica pela tela com foto, a professora decide pel
+          a fila de comprovações, e o
+      16 -// aluno vê os pontos e as reivindicações em Troféus. A contest
+         -ação e a decisão da                                            
+      17 -// instituição passam pela API, porque as telas da instituição 
+         -chegam no passo 12 (D7). Só                                    
+      16 +// aluno vê os pontos e as reivindicações em Troféus; a profess
+         +ora contesta pelo "..." do post.                               
+      17 +// A decisão da instituição passa pela API, porque as telas del
+         +a chegam no passo 12 (D7). Só                                  
+      18  // no celular, claro e escuro; cada execução tem os seus alunos
+          , professora e instituição.
+      19  // Depende do evento semeado "Semana Acadêmica de Ciência da Co
+          mputação" (14 a 18/09) no
+      20  // semestre vigente, como o e2e da medalha depende da turma vig
+          ente.
+  ⎿  (timeout 10m)
+
+● Os testes de prêmios passaram nas três rodadas. Na terceira, falhou outro
+  teste. Vejo qual.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste de limite de taxa do login falhou, mas ele é anterior a este passo e
+  está fora do escopo, então não o alterei; registrei no relatório e no risco do
+  plano mestre. Agora formato o spec e passo para os docs.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write e2e/tests >/dev/null && npx prettier --check e2e 2>&1
+      | tail -1; gre…)
+  ⎿  All matched files use Prettier code style!
+     194:### Passo 8. Prêmios de participação
+     195-
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\apoio\premios.ts (+0 -1)
+      135    return instituicao;
+      136  }
+      137  
+      138 -                                                              
+      138  // A contestação do prêmio de um post, lida do banco.
+      139  export const contestacaoDoPost = (postId: string) =>
+      140    sql(
+
+● Começo pelo plano mestre: o que ficou pendente do passo 8 e os ganchos nos
+  passos 9, 11 e 12.
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 9 lines
+      203  - Trabalho na fila que torna o prêmio definitivo após quinze d
+           ias.
+      204  - `Comprovacao` filtrável por evento, já pensando na aprovação
+            em lote da fase 2.
+      205  
+      206 +Ficam pendentes: a concessão direta pela instituição e as tela
+          +s dela (fila de                                               
+      207 +contestações, confirmar e revogar), no passo 12, que já tem a 
+          +API pronta (D7); o texto das                                  
+      208 +notificações de comprovação, contestação, decisão e revogação,
+          + e o sininho, no passo 10; o                                  
+      209 +recálculo do ranking que a aprovação, a contestação, a decisão
+          + e a remoção pela instituição                                 
+      210 +devem enfileirar (ADR 0005), e a regra de em que semestre o pr
+          +êmio conta (D4), no passo 11;                                 
+      211 +a reavaliação de conquistas quando o prêmio fica definitivo, n
+          +o passo 9; os eventos                                         
+      212 +passados e futuros do seed completo, no passo 12. Decisões do 
+          +passo em                                                      
+      213 +`decisoes/README.md`, Prêmios de participação (passo 8).      
+      214 +                                                              
+      215  ### Passo 9. Conquistas
+      216  
+      217  - Avaliador das duas formas de contagem, lendo a regra do catá
+           logo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/plano-mestre.md && sed -i '225s|^  `regras-conquista.md`.$|
+      `regras-conquista.md`…)
+  ⎿  - Um teste por forma, um por item e os testes de fronteira previstos e
+     m
+       `regras-conquista.md`.
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+8 -1)
+      223  - Índice de unicidade por instância de período.
+      224  - Um teste por forma, um por item e os testes de fronteira pre
+           vistos em
+      225    `regras-conquista.md`.
+      226 +- Do passo 8: reavaliar as conquistas quando o prêmio de parti
+          +cipação fica definitivo,                                      
+      227 +  pelo fim da janela de 15 dias (trabalho `tornar-premio-defin
+          +itivo`) ou pela confirmação                                   
+      228 +  da contestação, e contar o prêmio de participação na raridad
+          +e das conquistas.                                             
+      229  
+      230  ### Passo 10. Mural e notificações
+      231  
+     ...
+      244  - Entrada pelo toque na própria posição no perfil e pelos atal
+           hos da Busca.
+      245  - Filtro entre semestre atual e histórico; topo e linha do pró
+           prio aluno em destaque.
+      246  - Ex-aluno só no histórico.
+      247 +- Do passo 8: o recálculo do ranking enfileirado também pela a
+          +provação de comprovação,                                      
+      248 +  pela contestação, pela decisão da instituição e pela remoção
+          + do post pela instituição                                     
+      249 +  (ADR 0005), e a regra de em que semestre o prêmio de partici
+          +pação conta (D4); hoje o                                      
+      250 +  prêmio guarda só as datas do evento.                        
+      251  
+      252  ### Passo 12. Área web da instituição
+      253  
+     ...
+      318  | Foto pública para quem tem o link | Decisão consciente, ADR 
+           0002, coberta pelo termo de uso no passo 5 |
+      319  | Semestre vigente na avaliação | A demonstração só oferece cu
+           rsos com turma no semestre vigente, e o e2e dela depende disso
+           : no recesso (2026/2 termina em 05/12/2026), `GET /v1/demo` ve
+           m sem cursos, e o e2e da medalha não acha turma vigente nem bi
+           mestre para conceder. A avaliação acontece antes de 05/12 e nã
+           o há apresentação presencial, então o semestre vigente cobre. 
+           Depois disso, os e2e da demonstração e da medalha falham até o
+            calendário ganhar o semestre seguinte |
+      320  | Resposta perdida no meio de um refresh | Se a rede cai ou a 
+           página recarrega com o refresh em voo, o cliente fica com o to
+           ken antigo, a próxima renovação conta como reuso e a pessoa vo
+           lta ao login. A decisão atual não tem janela de tolerância. Ac
+           ompanhar no passo 13 |
+      314 -| Limite de taxa no e2e | Os fluxos com conta rodam só no celu
+          -lar, cada teste com a própria conta, e o teste do limite só no
+          - `celular-claro`. Mais testes de login podem esbarrar nos 30 p
+          -or minuto por IP |                                            
+      321 +| Limite de taxa no e2e | Os fluxos com conta rodam só no celu
+          +lar, cada teste com a própria conta, e o teste do limite só no
+          + `celular-claro`. Mais testes de login podem esbarrar nos 30 p
+          +or minuto por IP. No fechamento do passo 8, uma rodada local d
+          +a suíte inteira (69 testes, em paralelo) teve uma falha no tes
+          +te do limite do login, que passou nas outras; o limite é por r
+          +éplica, e há duas atrás do Caddy |                            
+      322  | Nativo sem teste em aparelho | Secure store, sessão e telas 
+           de autenticação só passam pelo Jest até o Maestro do passo 13.
+            No nativo, o link de senha nova abre no navegador |
+
+● A última cláusula do gancho do passo 9 ("contar o prêmio de participação na
+  raridade das conquistas") está errada: o passo 8 já conta o prêmio de
+  participação na raridade. Removo.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^  da contestação, e contar o prêmio de participação na raridade
+      das conquistas…)
+  ⎿  - Do passo 8: reavaliar as conquistas quando o prêmio de participação
+     fica definitivo,
+       pelo fim da janela de 15 dias (trabalho `tornar-premio-definitivo`)
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+1 -1)
+      225    `regras-conquista.md`.
+      226  - Do passo 8: reavaliar as conquistas quando o prêmio de parti
+           cipação fica definitivo,
+      227    pelo fim da janela de 15 dias (trabalho `tornar-premio-defin
+           itivo`) ou pela confirmação
+      228 -  da contestação, e contar o prêmio de participação na raridad
+          -e das conquistas.                                             
+      228 +  da contestação.                                             
+      229  
+      230  ### Passo 10. Mural e notificações
+      231  
+
+● Agora o índice de decisões. Primeiro atualizo duas linhas antigas do passo 6,
+  sobre quem entra no numerador da raridade e quem pede o recálculo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/decisoes/README.md && sed -i '265s/Prêmio de participação e
+      conquista entram nos p…)
+  ⎿  | Numerador | Alunos distintos com ao menos uma medalha ativa do item,
+      ex-alunos inclusive. Desde o passo 8, também o prêmio de participação
+      válido ou definitivo; a conquista entra no passo 9 |
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+3 -3)
+      262  | Notificação | Tabela `notificacao`, com usuário, tipo, refer
+           ência, criada em e lida em. Uma por usuário, tipo e referência
+           , por índice único. Medalha anulada antes do trabalho, ou apag
+           ada pela purga, não notifica. O texto é do cliente, pelo tipo,
+            no passo 10 |
+      263  | Bolinha de novidade | A de Troféus chega no passo 10, com o 
+           sininho. No passo 6, a notificação só é gravada |
+      264  | Raridade | Tabela `raridade_do_item`, uma linha por item do 
+           catálogo, com alunos com o item, alunos elegíveis, raridade e 
+           quando foi calculada. A leitura só lê |
+      265 -| Numerador | Alunos distintos com ao menos uma medalha ativa 
+          -do item, ex-alunos inclusive. Prêmio de participação e conquis
+          -ta entram nos passos 8 e 9 |                                  
+      265 +| Numerador | Alunos distintos com ao menos uma medalha ativa 
+          +do item, ex-alunos inclusive. Desde o passo 8, também o prêmio
+          + de participação válido ou definitivo; a conquista entra no pa
+          +sso 9 |                                                       
+      266  | Divisor | Alunos com conta, ativos e ex-alunos, os de demons
+           tração inclusive: o campus inteiro para item aberto, o curso a
+           tual para item restrito |
+      267  | Troca de curso | Quem trocou de curso leva a medalha de item
+            restrito ao curso antigo e não é elegível no curso novo: o nu
+           merador fica limitado ao divisor |
+      268  | Faixas | Em inteiros, com "abaixo de" estrito: Lendário abai
+           xo de 1%, Épico abaixo de 5%, Raro abaixo de 20%. Item que nin
+           guém tem é Lendário com 0% |
+      269  | Coalescência | Uma linha travada em `recalculo` impede dois 
+           cálculos ao mesmo tempo; o recálculo apaga os outros pedidos p
+           endentes, e, se a última execução foi há menos de 10 s, deixa 
+           um pedido só para quando a janela fechar (ADR 0005) |
+      270 -| Quem pede o recálculo | Concessão e anulação de medalha; cad
+          -astro de aluno e registro da demonstração, porque mudam o divi
+          -sor (ADR 0005); e o seed base, quando há item novo, mudado ou 
+          -ainda sem raridade, sem acrescentar pedido se já houver um pen
+          -dente |                                                       
+      270 +| Quem pede o recálculo | Concessão e anulação de medalha; cad
+          +astro de aluno e registro da demonstração, porque mudam o divi
+          +sor (ADR 0005); e o seed base, quando há item novo, mudado ou 
+          +ainda sem raridade, sem acrescentar pedido se já houver um pen
+          +dente. Desde o passo 8, também a aprovação de comprovação, a c
+          +ontestação, a decisão da instituição e a remoção do post pela 
+          +instituição quando revoga |                                   
+      271  
+      272  ### Leitura do aluno e tela de Troféus
+      273  
+     ...
+      313  
+      314  | Decisão | Detalhe |
+      315  |---|---|
+      316 -| Post (D5) | Ao menos um entre medalha, foto e legenda. Legen
+          -da de até 1.000 caracteres. Não é editável. Um prêmio rende um
+          - post, por índice único `ix_post_medalha_ativa`, e a corrida r
+          -esponde 409, nunca 500. Os passos 8 e 9 acrescentam os outros 
+          -prêmios com no máximo um por post |                           
+      316 +| Post (D5) | Ao menos um entre medalha, foto e legenda. Legen
+          +da de até 1.000 caracteres. Não é editável. Um prêmio rende um
+          + post, por índice único `ix_post_medalha_ativa`, e a corrida r
+          +esponde 409, nunca 500. O passo 8 acrescentou o prêmio de part
+          +icipação (`ix_post_premio_participacao_ativo`, e `ck_post_um_p
+          +remio` contra os dois no mesmo post); a conquista entra no pas
+          +so 9 |                                                        
+      317  | Quem posta | Só aluno ativo. Ex-aluno, professor e instituiç
+           ão recebem 403. A medalha tem de ser do autor e não estar anul
+           ada |
+      318  | Remoção pelo autor | Física: curtidas e comentários saem em 
+           cascata, as fotos pela fila, e o prêmio fica livre para um pos
+           t novo |
+      319  | Remoção pela instituição (D7) | Lógica, com `removido_em` e 
+           `removido_por_id`: o post some do feed, do perfil e do link, e
+            o registro fica. No app, pelo menu "..." do post e do comentá
+           rio |
+
+● Agora a seção nova do passo 8, antes de "Processo e qualidade".
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O heredoc quebrou no shell. Escrevo o trecho num arquivo de rascunho com a
+  ferramenta de escrita e insiro com sed.
+
+  Made 1 scratchpad edit +88 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      S="C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-
+      Documents-Repos…)
+  ⎿  220:## Medalhas, fila e worker (passo 6)
+     288:## Posts, upload e feed (passo 7)
+     384:## Prêmios de participação (passo 8)
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+87 -0)
+      381  | A conferência do `content-length` assinado foi provada no em
+           ulador, não no R2 | `VerificacaoDoR2Tests`, quando a conta exi
+           stir |
+      382  | As fotos do lote de demonstração não saem pelo SQL da purga 
+           (D14) | Purga pela área web, passo 12 |
+      383  
+      384 +## Prêmios de participação (passo 8)                          
+      385 +                                                              
+      386 +Eventos, reivindicação, fila de comprovações, contestação e de
+          +cisão da instituição. As                                      
+      387 +decisões D1 a D13 foram fechadas no plano do passo; as demais,
+          + nas etapas. As regras de                                     
+      388 +produto que nasceram aqui estão em `produto.md` 4.6 (datas do 
+          +evento, itens do evento                                       
+      389 +semeado, o revogado segurando a chave), 4.7 (post de reivindic
+          +ação preso enquanto o prêmio                                  
+      390 +pode ser decidido, remoção pela instituição, averiguação para 
+          +os outros leitores) e 8                                       
+      391 +(prêmio revogado sem contestação).                            
+      392 +                                                              
+      393 +### Eventos                                                   
+      394 +                                                              
+      395 +| Decisão | Detalhe |                                         
+      396 +|---|---|                                                     
+      397 +| Evento (D1) | Semeado, com os itens do catálogo que aceita e
+          +, se for o caso, o curso a que se restringe; ou digitado pelo 
+          +aluno na reivindicação, com nome (3 a 120 caracteres) e períod
+          +o, aceitando qualquer item. O item que deduplica por matéria (
+          +P17) vai sempre por texto livre, com a matéria: um evento seme
+          +ado que o aceite faz o seed falhar |                          
+      398 +| Seed (D2) | `data/demo/eventos.json`, com 8 eventos de 2026/
+          +2 (4 abertos e 1 de cada curso), lido pelo seed demo: só acres
+          +centa, e falha sem gravar nada com evento divergente, item que
+          + não é prêmio de participação, P17, curso inexistente ou códig
+          +o repetido. A CI confere o arquivo contra o catálogo sem banco
+          +, no passo "Catálogo e eventos válidos". O resto chega com o s
+          +eed completo do passo 12 |                                    
+      399 +| Datas (D3) | O evento já começou (início até hoje, em São Pa
+          +ulo) e começou depois do fim do último semestre letivo encerra
+          +do. O limite é o fim do semestre anterior, e não o início do v
+          +igente, para o evento do recesso continuar reivindicável e a r
+          +eivindicação não parar no recesso. O fim pode estar adiante | 
+      400 +| Semestre do evento (D4) | O prêmio guarda só as datas do eve
+          +nto. Em que semestre ele conta é regra do passo 11 |          
+      401 +| Lista | `GET /v1/eventos?item=`, só aluno: os semeados abert
+          +os ao curso dele, reivindicáveis hoje e que aceitam o item, do
+          + mais recente ao mais antigo. Item que não é prêmio de partici
+          +pação: 404 `item-nao-encontrado` |                            
+      402 +| Matérias do aluno | `GET /v1/eu/materias`, só aluno: as maté
+          +rias das turmas dele no semestre de hoje, para a apresentação 
+          +em sala. Pela D3, a data do evento é deste semestre. A matéria
+          + vale se o aluno estava matriculado numa turma dela no semestr
+          +e que contém a data do evento; P17 com data no recesso não ach
+          +a matéria |                                                   
+      403 +                                                              
+      404 +### Reivindicação                                             
+      405 +                                                              
+      406 +| Decisão | Detalhe |                                         
+      407 +|---|---|                                                     
+      408 +| Modelo | `PremioParticipacao` (estado, tier, pontos e versão
+          + do item congelados, evento, matéria, chave de deduplicação, a
+          +provação, reprovação com motivo, contestação, revogação com mo
+          +tivo, definitivo) e `Comprovacao` (prêmio, aluno, evento e pos
+          +t), filtrável por evento pensando no lote da fase 2. A concess
+          +ão direta da instituição, do passo 12, não terá comprovação | 
+      409 +| Rota | `POST /v1/reivindicacoes`, só aluno: item, o id do ev
+          +ento semeado ou o evento digitado (nunca os dois), a matéria n
+          +o P17, o upload e a legenda. Grava evento digitado, prêmio, po
+          +st e comprovação numa transação só, depois do HEAD das duas de
+          +rivadas, e responde 201 com o post. Nada vai para a fila |    
+      410 +| Deduplicação (D5) | Chave montada do catálogo: aluno e event
+          +o; com evento digitado, aluno, item e data de início; no P17, 
+          +também a matéria. Índice único `ix_premio_participacao_chave_a
+          +tiva` entre os que não foram reprovados: o reprovado libera a 
+          +nova tentativa, o revogado bloqueia o mesmo evento. A corrida 
+          +responde 409 `premio-ja-reivindicado` |                       
+      411 +| Post de reivindicação | A foto é obrigatória (`foto-obrigato
+          +ria`). O post ganhou `premio_participacao_id`, com índice únic
+          +o e `ck_post_um_premio`. O prêmio do post traz, só como acrésc
+          +imo, `estado` e `evento`; "reivindicado" é a marca de pendente
+          + |                                                            
+      412 +| Post preso | Enquanto o prêmio está reivindicado, válido ou 
+          +em averiguação, o autor não apaga o post (409 `comprovacao-em-
+          +andamento`): a foto sairia do bucket, e a aprovação e a contes
+          +tação dependem dela. Definitivo, o post é como outro qualquer 
+          +|                                                             
+      413 +                                                              
+      414 +### Fila de comprovações e decisão                            
+      415 +                                                              
+      416 +| Decisão | Detalhe |                                         
+      417 +|---|---|                                                     
+      418 +| Quem decide | Policy `aprovador` (professor ou instituição) 
+          +na borda; o papel de instituição e o escopo do professor lidos
+          + do banco. O professor decide só a comprovação de aluno matric
+          +ulado em turma sua no semestre vigente (`fora-do-escopo`, 403)
+          + |                                                            
+      419 +| Fila | `GET /v1/comprovacoes?eventoId=&cursor=`: as pendente
+          +s, das mais antigas para as mais novas, 20 por página por curs
+          +or `(criada_em, id)`, com aluno, item, evento (semeado ou digi
+          +tado), foto, legenda e as matérias em comum (D13: para o profe
+          +ssor, só as que ele também leciona). `GET /v1/comprovacoes/eve
+          +ntos` traz os eventos com pendentes e quantas, para os chips |
+      420 +| Marca de 7 dias (D11) | Mais de 7 vezes 24 horas desde a rei
+          +vindicação, na fila de comprovações, e desde a contestação, na
+          + fila de contestações. Sem decisão automática por decurso |   
+     … 53 more lines (ctrl+o to expand)
+
+● A seção ficou no lugar certo e não há travessões nos três documentos. Agora
+  vou acrescentar ao produto.md 4.6 as duas regras de produto que estavam só no
+  plano.
+
+  Ran 1 shell command (ctrl+o to expand)
+● Update(docs\produto.md)
+  ⎿  Added 5 lines
+      289  quem aprova. Exceção: apresentação de trabalho em sala dedupli
+           ca por item + data +
+      290  matéria, e o aprovador natural é o professor daquela matéria.
+      291  
+      292 +O evento semeado lista os itens do catálogo que aceita e pode 
+          +se restringir a um curso; o                                   
+      293 +digitado aceita qualquer item. A apresentação de trabalho em s
+          +ala vai sempre por texto                                      
+      294 +livre, com a matéria. A reprovação libera nova reivindicação d
+          +o mesmo evento; a revogação                                   
+      295 +não.                                                          
+      296 +                                                              
+      297  ### 4.7 Ciclo de vida do prêmio de participação
+      298  
+      299  ```
+
+● O produto.md está pronto; agora confiro os fluxos 02 e 04 e registro que o
+  recálculo de ranking e a reavaliação de conquistas ainda não existem, além de
+  a remoção pela instituição não aparecer.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat >> docs/fluxos/02-post-com-comprovacao.md <<'FIM'…)
+  ⎿  - A instituição também revoga sem contestação, quando remove o post de
+      um prêmio válido; em
+       averiguação, remover o post decide a contestação revogando. O motivo
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated docs\fluxos\02-post-com-comprovacao.md (+12 -0)
+      74  A instituição também pode conceder prêmio de participação diret
+          o, já aprovado e sem
+      75  comprovação (`produto.md` 4.7). Esse caminho não tem foto nem f
+          ila e fica fora deste
+      76  diagrama.
+      77 +                                                               
+      78 +## Como ficou no passo 8                                       
+      79 +                                                               
+      80 +- A aprovação enfileira a notificação, o recálculo de raridade 
+         +e o trabalho que torna o                                       
+      81 +  prêmio definitivo no fim da janela. O recálculo de ranking do
+         + diagrama chega com a tabela                                   
+      82 +  de ranking, no passo 11.                                     
+      83 +- Enquanto o prêmio está reivindicado, válido ou em averiguação
+         +, o autor não apaga o post de                                  
+      84 +  reivindicação. A instituição remove, e resolve o prêmio no me
+         +smo ato: pendente, reprova                                     
+      85 +  com o motivo "Removido pela instituição." (`produto.md` 4.7).
+      86 +- O evento semeado lista os itens que aceita; a apresentação em
+         + sala vai sempre por texto                                     
+      87 +  livre, com a matéria (`produto.md` 4.6).                     
+      88 +- Rotas, códigos e decisões em `decisoes/README.md`, Prêmios de
+         + participação (passo 8).                                       
+  ⎿  Updated docs\fluxos\04-contestacao.md (+11 -0)
+      74  Prêmio revogado nunca chega a ser evidência de conquista, porqu
+          e só conta depois de
+      75  definitivo e, depois de definitivo, não pode mais ser contestad
+          o
+      76  (`regras-conquista.md` 6).
+      77 +                                                               
+      78 +## Como ficou no passo 8                                       
+      79 +                                                               
+      80 +- A contestação e a decisão enfileiram a notificação e o recálc
+         +ulo de raridade. O recálculo                                   
+      81 +  de ranking chega no passo 11, e a reavaliação de conquistas, 
+         +que o trabalho do fim da                                       
+      82 +  janela e a confirmação devem disparar, no passo 9.           
+      83 +- A instituição também revoga sem contestação, quando remove o 
+         +post de um prêmio válido; em                                   
+      84 +  averiguação, remover o post decide a contestação revogando. O
+         + motivo é "Removido pela                                       
+      85 +  instituição." (`produto.md` 4.7).                            
+      86 +- Em averiguação, o post aparece sem o prêmio para quem não é o
+         + aluno nem a instituição.                                      
+      87 +- Rotas, códigos e decisões em `decisoes/README.md`, Prêmios de
+         + participação (passo 8).                                       
+
+● Docs prontos e sem travessão. O teste da purga lê o primeiro bloco SQL do
+  README, e a seção nova não tem bloco SQL; para garantir, rodo a classe dele,
+  que depende desse README.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Etapa 7 pronta para a sua revisão (ainda sem commit), com o fechamento do 
+  passo 8
+
+  A etapa 6 está pronta: a CI do 247e611 passou nos seis jobs.
+
+  Etapa 7
+
+  e2e (e2e/tests/premios.spec.ts), só no celular, claro e escuro:
+
+  1. Aprovação: o aluno reivindica pela tela com foto, e o post sai com a marca
+     "Pendente". Em Troféus aparecem 0 pts e a reivindicação pendente. A
+     professora aprova pela fila de Comprovações, e o aluno passa a ver 30 pts e
+     o P06 com +30.
+  2. Reprovação e revogação:
+     - A professora reprova pela folha, com motivo. O aluno vê "Reprovada" com o
+       motivo e tenta de novo com outra foto.
+     - A professora aprova a nova tentativa pela fila e contesta pelo "..." do
+       post.
+     - A instituição revoga pela API (D7). O aluno vê "Revogada" com o motivo e
+       0 pts.
+
+  Os auxiliares novos ficam em e2e/tests/apoio/premios.ts, com uma conta de
+  instituição própria por teste por causa do limite de 3 recuperações de senha a
+  cada 15 minutos por e-mail. O comandoDaApi de medalhas.ts passou a ser
+  exportado.
+
+  Instabilidade observada, causa não confirmada. Na primeira rodada local da
+  suíte inteira, o segundo caso falhou uma vez no tema escuro. Não reproduzi a
+  falha nem achei a causa: os logs não mostram limite de taxa por IP. Reduzi o
+  que ele dependia de API: aprovar e contestar passaram a ser pela tela da
+  professora, e os ids saem do banco. Depois disso, em três rodadas da suíte
+  inteira, os testes de prêmios passaram em todas.
+
+  Numa dessas rodadas, falhou uma vez o teste do limite de taxa do login, que
+  existe desde o passo 5 e não foi tocado aqui. Registrei isso no risco "Limite
+  de taxa no e2e" do plano mestre.
+
+  Docs
+  - decisoes/README.md: seção "Prêmios de participação (passo 8)" com D1 a D13 e
+    as decisões das etapas, o e2e e os limites conhecidos. Também atualizei
+    três linhas antigas dos passos 6 e 7 (numerador da raridade, quem pede o
+    recálculo e post com prêmio).
+  - produto.md 4.6: os itens do evento semeado e o revogado bloqueando o mesmo
+    evento. As regras de 4.6, 4.7 e 8 entraram ao longo das etapas.
+  - Fluxos 02 e 04: uma seção "Como ficou no passo 8" em cada, com o que difere
+    do diagrama e por quê.
+  - plano-mestre.md: o que fica pendente no passo 8, ganchos nos passos 9 e 11 e
+    a nota no risco.
+  - Nenhum travessão; o teste que lê o SQL da purga no README continua verde.
+
+  Fechamento do passo 8
+
+  Commits na feat/passo-08-premios
+
+  ┌───────┬────────────────────────────────────────┬────────────────────────┐
+  │ Etapa │                 Commit                 │           CI           │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ 78e2112 feat(seed): adiciona eventos   │ mobile falhou          │
+  │ 1     │ semeados e evento em texto livre       │ (contagem de arquivos  │
+  │       │                                        │ de códigos)            │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ ba4c40a fix(mobile): conta o arquivo   │                        │
+  │ 1     │ de códigos do prêmio de participação   │ 6/6                    │
+  │       │ no teste de mensagens                  │                        │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ b093836 feat(api): adiciona            │ cancelada pelo         │
+  │ 2     │ reivindicação de prêmio de             │ concurrency            │
+  │       │ participação como post com foto        │                        │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ 9ec311a docs(docs): registra a trava   │ 6/6, cobrindo o        │
+  │ 2     │ do post de comprovação na regra do     │ b093836                │
+  │       │ prêmio de participação                 │                        │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ 1777b8a feat(api): adiciona fila de    │                        │
+  │ 3     │ comprovações com aprovação e           │ 6/6                    │
+  │       │ reprovação                             │                        │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ 39ecd1c feat(api): adiciona            │                        │
+  │ 4     │ contestação, decisão da instituição e  │ 6/6                    │
+  │       │ prêmio definitivo pela fila            │                        │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ 12bc2a1 feat(mobile): adiciona         │                        │
+  │ 5     │ reivindicação de prêmio e marcas de    │ 6/6                    │
+  │       │ estado no post                         │                        │
+  ├───────┼────────────────────────────────────────┼────────────────────────┤
+  │       │ 247e611 feat(mobile): adiciona fila de │                        │
+  │ 6     │  comprovações e contestação do         │ 6/6                    │
+  │       │ professor                              │                        │
+  └───────┴────────────────────────────────────────┴────────────────────────┘
+
+  Definição de pronto
+
+  ┌───────────────────┬─────────────────────────────────────────────────────┐
+  │       Item        │                      Situação                       │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Testes de domínio │ 434 verdes                                          │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Testes de         │ Suíte .NET em Release: 892 testes, 886 aprovados, 0 │
+  │ integração com    │  falhas e 6 ignorados (os de antes)                 │
+  │ Postgres real     │                                                     │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Testes do cliente │ 414 verdes                                          │
+  │  (Jest)           │                                                     │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ e2e               │ Os 4 novos verdes; suíte inteira com 69 testes, com │
+  │                   │  as duas falhas isoladas descritas acima            │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Lint e formatação │ dotnet format, ESLint e Prettier limpos             │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │                   │ Quatro (Evento, PremioParticipacao,                 │
+  │ Migrations        │ DecisaoDaComprovacao, Contestacao), aplicadas pelo  │
+  │                   │ contêiner de migração no compose e na CI            │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ OpenAPI e cliente │ Regenerados a cada etapa, e o job api-client verde  │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ p95               │ Não se aplica: nenhuma decisão de cache neste passo │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Revisão humana    │ Feita em cada etapa; falta esta                     │
+  └───────────────────┴─────────────────────────────────────────────────────┘
+
+  O que ficou para os passos seguintes
+
+  ┌───────┬──────────────────────────────────────────────────────────────────┐
+  │ Passo │                           O que ficou                            │
+  ├───────┼──────────────────────────────────────────────────────────────────┤
+  │ 9     │ Reavaliar conquistas quando o prêmio fica definitivo, pelo fim   │
+  │       │ da janela ou pela confirmação                                    │
+  ├───────┼──────────────────────────────────────────────────────────────────┤
+  │ 10    │ Texto das cinco notificações novas e o sininho                   │
+  ├───────┼──────────────────────────────────────────────────────────────────┤
+  │       │ O recálculo de ranking enfileirado pela aprovação, pela          │
+  │ 11    │ contestação, pela decisão e pela remoção pela instituição; e em  │
+  │       │ que semestre o prêmio conta (D4)                                 │
+  ├───────┼──────────────────────────────────────────────────────────────────┤
+  │       │ Telas da instituição (fila de contestações, confirmar e          │
+  │ 12    │ revogar), concessão direta e eventos passados e futuros no seed  │
+  │       │ completo                                                         │
+  ├───────┼──────────────────────────────────────────────────────────────────┤
+  │ 13    │ A instabilidade de e2e sob carga paralela, dentro do risco já    │
+  │       │ registrado                                                       │
+  └───────┴──────────────────────────────────────────────────────────────────┘
+
+  Aceitos, sem passo: P17 com data no recesso não acha matéria; e a corrida rara
+  da remoção pela instituição responde 404.
+
+  Próximos passos, se você aprovar
+
+  1. Commito com a mensagem abaixo, faço o push e acompanho a CI.
+  2. Com a CI verde, abro o PR da feat/passo-08-premios para a
+     rodada/eng_08_premios. A descrição em português segue sem rodapé de
+     co-autoria nem menção a ferramenta, como pede o CLAUDE.md, e o PR é ação
+     externa, por isso espero o seu ok.
+
+  docs(docs): registra as decisões do passo 8 e adiciona o e2e de prêmios
+
+  A pilha do compose continua de pé na sua máquina, com os dados de teste.
+
+✻ Worked for 19m 14s · done 18:38
+
+※ recap: O passo 8 (prêmios de participação) está fechado nas etapas 1 a 6 com CI verde, e a etapa 7 (docs e e2e) aguarda a sua revisão. Com o seu ok, eu commito, faço o push, acompanho a CI e abro o PR para a `rodada/eng_08_premios`. (disable recaps in /config)
