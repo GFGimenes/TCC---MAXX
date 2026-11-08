@@ -14,7 +14,7 @@ function Confere {
 }
 
 Write-Host '1. Ensaio ponta a ponta com -Manter'
-$r = & (Join-Path $avaliador 'avaliar.ps1') -Ensaio -Manter
+$r = & (Join-Path $avaliador 'avaliar.ps1') -Ensaio -Manter -SomenteCheckout
 $co = $r.checkout
 $origem = $r.repo
 Confere 'hash avaliado igual ao HEAD da main da origem' ($r.hash_avaliado -eq (Resolve-RefCommit -Repo $origem -Ref 'main'))
@@ -54,7 +54,7 @@ Confere 'Ref inexistente interrompe com mensagem clara' ($erro -like "*não exis
 
 Write-Host '4. Ensaio sem -Manter apaga as pastas temporárias'
 $antesPastas = @(Get-ChildItem (Get-PastaTemporaria) -Directory).Count
-& (Join-Path $avaliador 'avaliar.ps1') -Ensaio | Out-Null
+& (Join-Path $avaliador 'avaliar.ps1') -Ensaio -SomenteCheckout | Out-Null
 $depoisPastas = @(Get-ChildItem (Get-PastaTemporaria) -Directory).Count
 Confere 'nenhuma pasta temporária sobra' ($antesPastas -eq $depoisPastas)
 
