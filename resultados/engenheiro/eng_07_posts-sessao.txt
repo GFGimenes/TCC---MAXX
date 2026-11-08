@@ -1,0 +1,347 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 7 do plano mestre: posts, upload e feed. Estamos na                     
+  rodada/eng_07_posts, saída da main com os passos 1 a 6 mergeados. Antes de    
+  qualquer código, me traga o plano de etapas, com entrega e critério de aceite 
+  por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá: decisão que   
+  não está nos docs não foi tomada, então pergunte antes de assumir. Uma regra  
+  que fixei no passo 3 e vale daqui em diante: cada etapa só é dada como pronta 
+  depois de a CI do push dela passar, e o resultado da CI entra no relatório    
+  da etapa. Lembro o que fecha o passo: assinatura de upload com tipo e tamanho 
+  presos, duas derivadas geradas no cliente e limpeza de upload abandonado      
+  pela fila; post com ao menos um entre prêmio, foto e legenda, e um prêmio     
+  rende um post; feed por cursor com índice, intercalando seguidos e            
+  recomendação com semente de sessão; curtida, comentário e remoção de          
+  comentário por autor e por instituição; seguir e deixar de seguir; perfil com 
+  grade de três colunas, abas por ícone, pontos e prêmios; busca de alunos por  
+  nome de exibição e arroba com filtros de curso e semestre; editar perfil com  
+  foto, nome de exibição e prefixo do arroba; deep link /post/:id atrás do      
+  login; e o limite de taxa de upload, que ficou só declarado no passo 3,       
+  aplicado e testado aqui. Sobre o armazenamento: o ADR define Cloudflare R2,   
+  mas ainda não existe conta nem bucket; no plano, diga como o desenvolvimento  
+  local, os testes e a CI funcionam sem o R2 real (emulador compatível com S3   
+  no compose ou equivalente) e o que você precisa de mim para o R2 de verdade,  
+  que eu crio quando chegar a etapa de upload. Entram também as pendências que  
+  ficaram para cá: controle de tema no menu do perfil e anel dourado no avatar  
+  do próprio aluno. Eu reviso o plano e aí começamos a primeira etapa.          
+
+● Vou ler os documentos e o estado atual do código antes de montar o plano.
+
+  Read 2 files, ran 4 shell commands (ctrl+o to expand)
+
+● Agora as pranchetas de feed e perfil, a identidade visual e o estado do
+  código.
+
+  Read 2 files, ran 5 shell commands (ctrl+o to expand)
+
+● Passo 7: posts, upload e feed. Plano de etapas
+
+  Li o plano mestre, o produto.md, o decisoes/README.md, os ADRs 0002, 0003 e
+  0008, o fluxo 02, a identidade visual, as pranchetas de feed e perfil e o
+  código atual. Nenhum código foi escrito. As etapas abaixo dependem das
+  decisões em aberto listadas no fim. Onde houver uma decisão pendente, a etapa
+  indica qual.
+
+  Branch: feat/passo-07-posts, saindo da rodada/eng_07_posts e voltando a ela
+  por PR.
+
+  Regra que vale para todas as etapas: um commit por etapa, revisado por você
+  antes de existir, sem rodapé de co-autoria. A etapa só fica pronta quando a CI
+  do push dela passa nos seis jobs, e o resultado da CI entra no relatório da
+  etapa. Se algo falhar depois do push, a correção vai num commit fix separado,
+  sem amend. Toda etapa que mexe na API regenera o OpenAPI e o cliente, para o
+  job api-client continuar verde.
+
+  Etapas
+
+  1. Armazenamento compatível com S3 e emulador local · feat(infra)
+  - Entrega:
+    - Um emulador S3 no compose, com bucket privado e CORS (PUT a partir da
+      origem do app) criados por um contêiner de inicialização.
+    - O adaptador IArmazenamentoDeFotos na Infrastructure, com AWSSDK.S3, que
+      serve tanto para R2 quanto para o emulador. Ele faz três coisas: assinar o
+      PUT, conferir a existência do objeto (HEAD) e remover objetos.
+    - ArmazenamentoOptions com dois endereços: o interno, que a API usa para
+      HEAD e remoção, e o público, que vai na URL assinada e na leitura. Sem
+      configuração, a API não sobe fora de desenvolvimento e teste.
+    - Testcontainers com o mesmo emulador nos testes de integração.
+  - Aceite:
+    - Um teste de integração faz o PUT real no emulador e prova que a assinatura
+      prende o tipo e o tamanho: o PUT com outro content-type é recusado, o PUT
+      com outro Content-Length é recusado, e o PUT exato é aceito.
+    - Nenhum segredo fica versionado. O .env.example ganha as variáveis com
+      valores locais.
+
+  2. Pedido de upload, limite de taxa e limpeza pela fila · feat(api)
+  - Entrega:
+    - Tabela upload_pendente, com dono, finalidade (post ou foto de perfil), as
+      duas chaves ULID, tipo, tamanhos, criado em e confirmado em.
+    - POST /v1/uploads: valida tipo e tamanho das duas derivadas e devolve as
+      duas URLs assinadas.
+    - O limite UploadPorUsuario finalmente aplicado.
+    - Um trabalho adiado limpar-upload, enfileirado na mesma transação da
+      assinatura. Quando roda, apaga os objetos e a linha se o upload continuar
+      pendente.
+  - Aceite:
+    - Tipo ou tamanho fora da regra recebe 400 em ProblemDetails com codigo.
+    - O pedido acima do limite recebe 429 com Retry-After. O limite é por
+      usuário, e um usuário não esgota o de outro.
+    - Upload abandonado some do banco e do bucket. Upload já confirmado não é
+      tocado.
+    - A limpeza é idempotente: rodar duas vezes não quebra nada.
+
+  3. Post no domínio e na API · feat(api)
+  - Entrega:
+    - Entidade Post: autor, legenda, chaves das derivadas, MedalhaId (e mais
+      adiante, nos passos 8 e 9, os outros tipos de prêmio, com uma constraint
+      de no máximo um), criado em.
+    - Rotas POST /v1/posts, GET /v1/posts/{id} e DELETE /v1/posts/{id}.
+    - Migration.
+  - Aceite (testes unitários no domínio, escritos antes, mais integração):
+    - Post vazio é recusado.
+    - Um prêmio rende um post, garantido por índice único e com a corrida
+      resolvida em 409, nunca 500.
+    - Só aluno ativo posta. Ex-aluno, professor e instituição recebem 403.
+    - O prêmio precisa ser do próprio autor e não estar anulado.
+    - O upload precisa ser do próprio usuário, estar pendente, e o HEAD tem de
+      confirmar os dois objetos. A criação do post confirma o upload.
+    - Apagar o post remove a foto pela fila (D3, D5, D6, D7).
+
+  4. Curtida, comentário e seguir · feat(api)
+  - Entrega:
+    - Curtida com PUT e DELETE, idempotente.
+    - Comentários paginados por cursor, com criação e remoção.
+    - Seguir e deixar de seguir.
+    - Migration com as três tabelas.
+  - Aceite:
+    - O dono do post não consegue apagar comentário de outra pessoa (403).
+    - O autor do comentário e a instituição conseguem apagar. A remoção pela
+      instituição grava quem fez e quando.
+    - As regras de quem segue quem (D9) são checadas no banco, nunca lidas do
+      token.
+    - Curtir duas vezes conta uma curtida só.
+
+  5. Feed por cursor · feat(api) (e, se D13 for aceita, um feat(seed) na mesma
+  etapa)
+  - Entrega:
+    - GET /v1/feed?cursor=, que intercala posts de quem a pessoa segue com
+      recomendações. A semente da sessão vai dentro do cursor, que é opaco.
+    - Índice (autor_id, criado_em desc, id).
+  - Aceite (integração):
+    - Percorrer todas as páginas não repete post nem pula post.
+    - A mesma semente produz a mesma ordem, e uma semente nova produz outra.
+    - Aluno sem ninguém seguido recebe recomendações, nunca um feed vazio quando
+      existem posts.
+    - O EXPLAIN do trecho de seguidos usa o índice, e um teste verifica isso.
+    - Sem offset em lugar nenhum (D8).
+
+  6. Perfil, busca e editar perfil na API · feat(api)
+  - Entrega:
+    - Perfil por arroba: nome, arroba, curso, semestre, pontos, contadores, se a
+      pessoa já segue, e o RA só para o próprio aluno.
+    - Grade de posts paginada por cursor e prêmios obtidos, públicos.
+    - ETag com resposta 304 no perfil, como já está decidido no README.
+    - GET /v1/busca/alunos com unaccent e pg_trgm.
+    - PATCH /v1/eu/perfil (nome, prefixo, foto) e uma consulta autenticada de
+      disponibilidade do prefixo.
+    - A foto antiga do perfil é removida pela fila.
+    - A purga da demonstração ganha as tabelas novas.
+  - Aceite:
+    - O RA não aparece no perfil visto por outra pessoa e não é buscável.
+    - Faltantes e progresso não vazam para outro usuário.
+    - O prefixo segue a reserva permanente do passo 3.
+    - Um ETag igual devolve 304.
+    - A busca encontra "joao" quando o nome é "João" e encontra o resultado
+      também com "@" na frente (D11, D12).
+
+  7. Cliente: derivadas, upload e novo post · feat(mobile)
+  - Entrega:
+    - Seleção com expo-image-picker e recorte e reencode com
+      expo-image-manipulator, gerando as duas derivadas JPEG sem EXIF.
+    - PUT direto na URL assinada.
+    - Tela de novo post (foto opcional, legenda, prêmio opcional entre as
+      medalhas que ainda não têm post), aberta pelo "+" do cabeçalho.
+  - Aceite (Jest):
+    - As derivadas saem no tamanho e no tipo combinados.
+    - O botão de publicar fica desativado com o post vazio.
+    - 429, falha de rede e falha no PUT viram mensagem amigável com "Tentar de
+      novo".
+    - Todo código novo da API tem mensagem em erros.ts, e o teste existente
+      falha se faltar alguma.
+
+  8. Cliente: feed, post e comentários · feat(mobile)
+  - Entrega:
+    - A Home vira o feed e o início provisório sai.
+    - Cartão de post como na prancheta: selo, foto em largura total, coração,
+      comentário e enviar, a faixa do prêmio, curtidas, legenda e tempo. O ícone
+      de salvar sai, porque salvar não existe na fase 1.
+    - Curtida otimista, tela de comentários e "Enviar" com a folha de
+      compartilhamento (cópia do link quando a web não tiver navigator.share).
+    - /post/:id atrás do login, que volta ao post depois de entrar.
+  - Aceite:
+    - Claro e escuro.
+    - Rolagem infinita pelo cursor.
+    - Remover comentário só aparece para quem tem permissão.
+    - Testes Jest do cartão, da curtida otimista e do retorno ao post depois do
+      login.
+
+  9. Cliente: perfil, seguir e menu · feat(mobile)
+  - Entrega:
+    - Perfil próprio com anel dourado no avatar do cabeçalho, pontos,
+      contadores, botões discretos, abas só com ícone e grade de três colunas.
+    - Perfil de outro aluno com Seguir e Deixar de seguir.
+    - Perfil do professor e, para o professor, "Conceder medalha" no perfil do
+      aluno (produto.md 4.8).
+    - Menu do perfil com o controle de tema, Minhas turmas (para o professor) e
+      Sair. Isso fecha a pendência do tema do passo 4 (D10).
+  - Aceite:
+    - O anel aparece só no próprio perfil.
+    - Nenhuma cor de tier aparece em aluno.
+    - A grade mostra três colunas na largura do celular e na moldura do desktop.
+    - Testes Jest.
+
+  10. Cliente: busca, editar perfil e foto na demonstração · feat(mobile)
+  - Entrega:
+    - Busca com chips de curso e de semestre.
+    - Editar perfil: foto (trocar e remover), nome e prefixo, com debounce de
+      500 ms.
+    - Foto opcional no registro da demonstração. O produto.md 11 diz que ela
+      "chega com o upload, no passo 7" (D12).
+  - Aceite:
+    - Prefixo ocupado ou fora da forma mostra o erro de campo.
+    - Busca sem resultado mostra o estado vazio.
+    - Testes Jest.
+
+  11. e2e e documentação · docs(docs) mais os testes de e2e
+  - Entrega:
+    - Playwright, só no celular por causa do limite de taxa por IP: post com
+      foto passando pelo emulador de verdade na CI, curtida, comentário, remoção
+      de comentário, seguir, busca, editar perfil e deep link depois do login.
+    - Decisões do passo registradas no decisoes/README.md, plano mestre e fluxo
+      02 atualizados, purga atualizada.
+    - Pendência registrada para o passo 13: a CSP terá de liberar o domínio da
+      CDN em img-src e o endpoint do R2 em connect-src.
+  - Aceite: a CI completa fica verde, incluindo a segunda passada com a
+    demonstração ligada.
+
+  Armazenamento sem o R2 real
+
+  - Desenvolvimento e CI: o emulador sobe no compose, com bucket e CORS criados
+    na inicialização. O e2e da CI faz o PUT real do navegador no emulador.
+  - Testes de integração: o mesmo emulador via Testcontainers.
+  - Código: a API fala S3 pelo AWSSDK. Trocar o emulador pelo R2 muda só o .env.
+  - Um risco que eu registro: a garantia de "tamanho preso" depende de o
+    servidor validar o Content-Length assinado. A CI prova isso no emulador. No
+    R2, eu confiro uma vez à mão, com um script versionado, quando a conta
+    existir. O R2 não aceita POST com política, então o caminho é PUT com o
+    tamanho exato assinado.
+
+  O que preciso de você para o R2, quando a conta existir:
+  1. Conta Cloudflare com R2 ativado e o Account ID.
+  2. Um bucket privado só para as fotos. O backup do passo 13 fica num bucket
+     separado.
+  3. Um token de API do R2 com permissão de leitura e escrita de objetos,
+     restrito a esse bucket. Preciso do Access Key ID e do Secret.
+  4. Um domínio próprio ligado ao bucket para a leitura pela CDN, por exemplo
+     fotos.<seu domínio>. O r2.dev tem limite de taxa e não serve para a
+     avaliação.
+  5. CORS no bucket permitindo PUT a partir da URL pública do app, com o
+     cabeçalho content-type.
+
+  Tudo isso vai para o .env da VPS como MAXX_R2_*, nunca para o git.
+
+  Decisões em aberto (cada uma com a minha recomendação)
+
+  - D1. Emulador. Recomendo MinIO, fixado na última tag da edição comunitária,
+    porque valida os cabeçalhos assinados como o S3 e já tem módulo no
+    Testcontainers para .NET. A MinIO deixou de publicar imagens da edição
+    comunitária em 2025. A última tag continua disponível e serve para
+    desenvolvimento e teste, nunca para produção. A alternativa é Garage ou
+    SeaweedFS, e nesse caso a etapa 1 começa provando que o emulador recusa o
+    tamanho errado.
+  - D2. Formato. Só image/jpeg, porque o cliente reencoda tudo. A derivada do
+    feed tem 1080×1080 e no máximo 1 MB. A da grade tem 320×320 e no máximo 200
+    KB. O recorte é quadrado e central em todas as plataformas, sem editor.
+  - D3. Tempos.
+    - A assinatura vale 15 minutos.
+    - A limpeza do upload abandonado acontece 24 horas depois de assinado.
+    - Criar o post ou salvar a foto confere os dois objetos com HEAD.
+    - Foto trocada e post apagado têm os objetos removidos pela fila.
+  - D4. Limite de upload. Manter 30 por hora por usuário, contando pedidos de
+    assinatura. Cada pedido cobre as duas derivadas.
+  - D5. Post.
+    - Legenda de até 1.000 caracteres e comentário de até 500.
+    - O post não é editável.
+    - O autor apaga o próprio post (produto.md 4.7, "o aluno apaga se quiser"),
+      e as curtidas e os comentários vão junto.
+    - Depois de apagado o post, o prêmio fica livre para um post novo.
+  - D6. Lacuna nos docs. O que acontece com o post quando a medalha é anulada?
+    Recomendo: o post perde o vínculo, como na reprovação. Se sobrar vazio, sem
+    foto e sem legenda, ele sai, porque post vazio não existe. A mesma regra
+    valeria para prêmio revogado no passo 8.
+  - D7. Instituição no app.
+    - O produto.md dá à instituição a remoção de post impróprio, mas nenhum
+      passo a lista.
+    - Recomendo entregar já no passo 7 a remoção de comentário e de post pela
+      API, gravando quem fez e quando.
+    - No app, a instituição veria o feed só com recomendações, com "Remover" no
+      menu "..." do post e do comentário.
+    - A alternativa é só a API mais um comando administrativo, como na anulação.
+  - D8. Feed.
+    - Páginas de 12 posts, no padrão 3 de seguidos para 1 recomendado. Os posts
+      do próprio aluno entram no fluxo de seguidos. A recomendação usa posts de
+      alunos que a pessoa não segue.
+    - Para a ordem aleatória há duas opções:
+      - A, a minha recomendação: ordenar por hash da semente com o id. É
+        aleatório de verdade, mas o trecho de recomendação varre os candidatos
+        sem índice na ordenação. Isso é barato nesta escala, e o p95 é medido no
+        passo 13.
+      - B: a semente sorteia um ponto de partida na linha do tempo, o feed anda
+        para trás pelo índice e dá a volta. É 100% indexado, mas parece menos
+        aleatório.
+    - Como o critério do passo é "por cursor com índice", quero o seu aval
+      explícito na escolha.
+  - D9. Seguir.
+    - Aluno segue aluno, ativo ou ex-aluno.
+    - Professor segue só aluno matriculado em turma dele no semestre vigente,
+      checado no banco, e o vínculo continua depois do semestre.
+    - Ninguém segue professor.
+    - Os contadores aparecem, mas sem tela de lista de seguidores.
+  - D10. Perfil. A prancheta tem coisas que não estão nos docs: bio, "Seguida
+    por", o botão Compartilhar e a posição #29. A posição só chega no passo 11,
+    e o sininho no passo 10.
+    - Recomendo tirar a bio, o "Seguida por" e o Compartilhar, porque não existe
+      deep link de perfil.
+    - Aba da taça: troféus obtidos, vazia até os passos 8 e 9. Aba da fita:
+      medalhas obtidas. As duas como lista igual à de Troféus, só com os
+      obtidos.
+    - Na grade, o post sem foto aparece como medalhão sobre o metal, como na
+      prancheta. O post só com legenda mostra o começo da legenda sobre surface.
+    - Perfil do professor: matérias, turmas e medalhas concedidas. Os avisos
+      chegam no passo 10.
+  - D11. Busca.
+    - Busca por trecho, sem diferenciar acento nem maiúsculas.
+    - Encontra alunos ativos e ex-alunos. O filtro usa o curso atual.
+    - Exige ao menos 2 caracteres ou um filtro ativo.
+    - Os atalhos de ranking ficam para o passo 11.
+  - D12. Editar perfil e demonstração. Incluir "Remover foto" e a foto opcional
+    no registro da demonstração, como passo depois de criar a conta, porque o
+    upload exige login.
+  - D13. Seed. Recomendo semear posts sem foto, com legenda e medalha, para os
+    20 alunos do mundo de demonstração, para o feed não nascer vazio. As fotos
+    ficam para o seed completo do passo 12.
+  - D14. Purga. O SQL da purga não apaga objetos do bucket. Recomendo registrar
+    que as fotos de demonstração saem na purga da área web, no passo 12.
+
+  Quando você revisar as etapas e responder D1 a D14 (pode ser "aceito" em bloco
+  e comentar só onde discordar), começo a etapa 1.
+
+✻ Sautéed for 4m 32s · done 21:26
+
+※ recap: O objetivo é o Passo 7 (posts, upload e feed), e o plano de 11 etapas está pronto, sem nenhum código escrito. Falta você revisar o plano e responder às decisões D1 a D14, para eu começar a etapa 1, que é o emulador S3 no compose. (disable recaps in /config)

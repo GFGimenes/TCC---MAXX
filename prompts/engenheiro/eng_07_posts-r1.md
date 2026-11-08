@@ -1,0 +1,13 @@
+ID: eng_07_posts-r1
+Trilha: engenheiro
+Tela: passo 7 (resposta 1 do autor: aprovação do plano de onze etapas e catorze decisões)
+Data: 2026-11-07
+Origem: leitura do Cowork (Anthropic) do export da sessão; decisões do autor pela recomendação do agente; redigida pelo Cowork, o autor revisou.
+
+Notas de registro:
+- Ambiente: Claude Code 2.1.316, `/model` manteve Opus 5.5 (medium).
+- Plano de onze etapas: armazenamento S3 com emulador; pedido de upload, limite e limpeza pela fila; post no domínio e na API; curtida, comentário e seguir; feed por cursor; perfil, busca e edição na API; cliente de derivadas, upload e novo post; cliente de feed, post e comentários; cliente de perfil, seguir e menu (fecha a pendência do tema); cliente de busca, editar perfil e foto na demonstração; e2e e docs. Armazenamento sem R2 real: MinIO no compose e no Testcontainers, troca para o R2 só por `.env`; lista de cinco itens que o autor precisa criar na Cloudflare (conta e Account ID, bucket privado, token restrito, domínio próprio para a CDN, CORS). Risco registrado: o tamanho preso depende de o servidor validar o Content-Length assinado; provado no emulador, a conferir no R2 com script versionado.
+- Catorze decisões (D1 a D14) com recomendação, todas aceitas: MinIO; só JPEG com duas derivadas (1080 e 320); assinatura de 15 min, limpeza em 24 h, HEAD na confirmação; limite de 30 por hora por usuário; post não editável, legenda 1.000 e comentário 500, autor apaga; medalha anulada tira o vínculo do post e post vazio sai; remoção pela instituição no app pelo menu do post; feed 3 para 1 com ordem por hash da semente (opção A, aval explícito do autor); regras de seguir; perfil sem bio, "Seguida por" e Compartilhar; busca por trecho sem acento com mínimo de 2 caracteres; remover foto e foto opcional na demonstração; seed de posts sem foto para os 20 alunos demo; purga do bucket na área web do passo 12.
+
+---
+Plano do passo 7 aprovado, onze etapas, um PR da feat/passo-07-posts para a rodada/eng_07_posts. D1 a D14 aceitas pela sua recomendação, com estes registros: D1, MinIO na última tag comunitária só para desenvolvimento e teste, nunca produção, e a etapa 1 prova que ele recusa tipo e tamanho errados; D8, opção A, hash da semente com o id, com o aval explícito de que o trecho de recomendação não usa índice na ordenação nesta escala e o p95 fica para o passo 13; D7, remoção de post e comentário pela instituição já no app, pelo menu do post, gravando quem e quando; D6 e a regra do prêmio revogado vão para o produto.md. O R2 real eu crio quando chegar a hora, com os cinco itens da sua lista; até lá tudo roda no emulador. Começa pela etapa 1 e para para a minha revisão no fim dela.
