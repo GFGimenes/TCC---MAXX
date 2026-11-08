@@ -8848,3 +8848,1661 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
   para a etapa 9 (perfil, seguir e menu).
 
 ✻ Cooked for 29m 38s · done 0:18
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Etapa 8 aprovada. O retorno do login restrito a /post/:id fica, boa decisão.  
+  O nome de usuário no cartão sem arroba e sem sufixo fica como está, registra. 
+  A aba Perfil provisória até a etapa 9 está certa. O caso de medalha que       
+  estourou 30 s em paralelo fica anotado para a etapa 11 olhar o tempo. Commita 
+  com a mensagem proposta, push, acompanha a CI e segue para a etapa 9; para    
+  para a minha revisão no fim dela, com capturas do perfil próprio e do perfil  
+  de outro aluno ao lado da prancheta.                                          
+
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● Commit ed78c95 enviado, CI em segundo plano. Para a etapa 9, revejo a
+  prancheta do perfil e os componentes que dá para reaproveitar: linha de
+  prêmio, abas, gradiente do metal e tokens de ouro.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Dá para reaproveitar a linha de prêmio das abas, o gradiente dos tokens na
+  grade e o modal do professor. Agora começo pela camada de dados do perfil.
+
+● Write(apps\mobile\src\perfil\api.ts)
+  ⎿  Wrote 132 lines to apps\mobile\src\perfil\api.ts
+       1 import type { components } from "@maxx/api-client";
+       2 import {
+       3   useInfiniteQuery,
+       4   useMutation,
+       5   useQueries,
+       6   useQuery,
+       7   useQueryClient,
+       8 } from "@tanstack/react-query";
+       9 
+      10 import { useApiClient } from "../api/ApiClientProvider";
+     … +122 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e 's/export function useTurmasDoProfessor\(\) \{\n  const clie…)
+  ⎿  9:// `ativo` falso para quem não é professor: a rota responderia 403.
+     10:export function useTurmasDoProfessor(ativo = true) {
+     15:    enabled: ativo,
+  ⎿  Updated apps\mobile\src\professor\api.ts (+3 -1)
+       6  // As consultas e a concessão do professor (passo 6). O escopo 
+          de turma é conferido pela
+       7  // API no banco: uma turma que não é dele responde 403 com `for
+          a-do-escopo`.
+       8  
+       9 -export function useTurmasDoProfessor() {                       
+       9 +// `ativo` falso para quem não é professor: a rota responderia 
+         +403.                                                           
+      10 +export function useTurmasDoProfessor(ativo = true) {           
+      11    const client = useApiClient();
+      12  
+      13    return useQuery({
+      14      queryKey: ["professor", "turmas"],
+      15 +    enabled: ativo,                                            
+      16      queryFn: async () => {
+      17        const { data, error } = await client.GET("/api/v1/profess
+          or/turmas");
+      18        if (!data) {
+
+● Agora o anel dourado no avatar e o ícone do menu (hambúrguer do Lucide).
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/components" &&
+      perl -0pi -e 's/(  inbox: \[)/  \/\/ menu do Lucide: o menu do…)
+  ⎿  import { Image, StyleSheet, Text, View } from "react-native";
+
+     import { fontFamily } from "../theme/fonts";
+     … +47 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\Icon.tsx (+6 -0)
+      141      { cx: 19, cy: 12, r: 1 },
+      142      { cx: 5, cy: 12, r: 1 },
+      143    ],
+      144 +  // menu do Lucide: o menu do próprio perfil (tema, turmas, s
+          +air).                                                         
+      145 +  menu: [                                                     
+      146 +    { d: "M4 6h16", modo: "aberto" },                         
+      147 +    { d: "M4 12h16", modo: "aberto" },                        
+      148 +    { d: "M4 18h16", modo: "aberto" },                        
+      149 +  ],                                                          
+      150    inbox: [
+      151      {
+      152        d: "M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l
+           -3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",
+
+  Read 1 file (ctrl+o to expand)
+
+● Write(apps\mobile\src\components\Avatar.tsx)
+  ⎿  Added 43 lines, removed 24 lines
+      10    // A derivada da grade da foto de perfil. Sem ela, as iniciai
+          s.
+      11    foto?: string | null;
+      12    size?: number;
+      13 +  // O anel dourado do próprio aluno, no cabeçalho do perfil de
+         +le (prancheta do perfil). É o                                  
+      14 +  // ouro da marca, não cor de tier: o aluno não tem tier.     
+      15 +  anel?: boolean;                                              
+      16  }
+      17  
+      15 -// Só com as cores do token: aluno nunca é pintado com cor de t
+         -ier. O anel dourado do próprio                                 
+      16 -// aluno fica para os passos 7 e 11.                           
+      18 +// Espessura do anel e a folga entre ele e o avatar, como na pr
+         +ancheta.                                                       
+      19 +const ANEL = 3;                                                
+      20 +const FOLGA = 3;                                               
+      21 +                                                               
+      22 +// Só com as cores do token: aluno nunca é pintado com cor de t
+         +ier.                                                           
+      23  export function Avatar({
+      24    nome,
+      25    foto,
+      26    size = tamanhos.avatarPost,
+      27 +  anel = false,                                                
+      28  }: AvatarProps) {
+      29    const { colors } = useTheme();
+      30 +  const interno = anel ? size - 2 * (ANEL + FOLGA) : size;     
+      31  
+      24 -  if (foto) {                                                  
+      25 -    return (                                                   
+      26 -      <Image                                                   
+      27 -        accessible                                             
+      28 -        role="img"                                             
+      29 -        aria-label={nome}                                      
+      30 -        source={{ uri: foto }}                                 
+      31 -        style={[                                               
+      32 -          styles.circulo,                                      
+      33 -          { width: size, height: size, backgroundColor: colors.
+         -avatarBg },                                                    
+      34 -        ]}                                                     
+      35 -      />                                                       
+      36 -    );                                                         
+      37 -  }                                                            
+      38 -                                                               
+      39 -  return (                                                     
+      32 +  const circulo = foto ? (                                     
+      33 +    <Image                                                     
+      34 +      accessible                                               
+      35 +      role="img"                                               
+      36 +      aria-label={nome}                                        
+      37 +      source={{ uri: foto }}                                   
+      38 +      style={[                                                 
+      39 +        styles.circulo,                                        
+      40 +        { width: interno, height: interno, backgroundColor: col
+         +ors.avatarBg },                                                
+      41 +      ]}                                                       
+      42 +    />                                                         
+      43 +  ) : (                                                        
+      44      <View
+      45        accessible
+      46        role="img"
+      47        aria-label={nome}
+      48        style={[
+      49          styles.circulo,
+      46 -        {                                                      
+      47 -          width: size,                                         
+      48 -          height: size,                                        
+      49 -          backgroundColor: colors.avatarBg,                    
+      50 -        },                                                     
+      50 +        { width: interno, height: interno, backgroundColor: col
+         +ors.avatarBg },                                                
+      51        ]}
+      52      >
+      53        <Text
+      54          numberOfLines={1}
+      55          style={[
+      56            styles.iniciais,
+      57 -          { color: colors.avatarFg, fontSize: Math.round(size *
+         - 0.4) },                                                       
+      57 +          { color: colors.avatarFg, fontSize: Math.round(intern
+         +o * 0.4) },                                                    
+      58          ]}
+      59        >
+      60          {iniciais(nome)}
+      61        </Text>
+      62      </View>
+      63    );
+      64 +                                                               
+      65 +  if (!anel) return circulo;                                   
+      66 +                                                               
+      67 +  return (                                                     
+      68 +    <View                                                      
+      69 +      testID="anel-do-avatar"                                  
+      70 +      style={[                                                 
+      71 +        styles.circulo,                                        
+      72 +        {                                                      
+      73 +          width: size,                                         
+      74 +          height: size,                                        
+      75 +          borderWidth: ANEL,                                   
+      76 +          borderColor: colors.gold,                            
+      77 +        },                                                     
+      78 +      ]}                                                       
+      79 +    >                                                          
+      80 +      {circulo}                                                
+      81 +    </View>                                                    
+      82 +  );                                                           
+      83  }
+      84  
+      85  // Primeira letra do primeiro e do último nome: "Ana Paula Souz
+          a" vira AS.
+
+● Agora a célula da grade: foto quando há; senão o medalhão sobre o metal do
+  tier, como na prancheta; e, para o post só de legenda, o começo da legenda
+  sobre surface.
+
+● Write(apps\mobile\src\perfil\CelulaDaGrade.tsx)
+  ⎿  Wrote 85 lines to apps\mobile\src\perfil\CelulaDaGrade.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useId } from "react";
+       3 import { Image, Pressable, StyleSheet, Text, View } from "react-
+         native";
+       4 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-nat
+         ive-svg";
+       5 
+       6 import type { Post } from "../feed/api";
+       7 import { Medalhao } from "../premios/Medalhao";
+       8 import { textStyles } from "../theme/fonts";
+     … +77 lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● O cliente não tem PerfilResponse porque as rotas de perfil devolvem IResult
+  (ETag e 304), e sem Produces<PerfilResponse>(200) o OpenAPI perdeu o corpo da
+  resposta; é uma falha de contrato da etapa 6. Vou declarar o tipo na API para
+  corrigir.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Perfil/PerfilEndpoints.cs && perl -0pi -e 's/(
+         perfis\.Map…)
+  ⎿  35:            .Produces<PerfilResponse>()
+     52:            .Produces<PerfilResponse>()
+     57:            .Produces<PerfilResponse>()
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs (+3 -0)
+      32  
+      33          perfis.MapGet("/", PerfilAsync)
+      34              .WithName("GetPerfil")
+      35 +            .Produces<PerfilResponse>()                        
+      36              .Produces(StatusCodes.Status304NotModified)
+      37              .ProducesProblem(StatusCodes.Status404NotFound);
+      38  
+     ...
+      49  
+      50          eu.MapGet("/", MeuPerfilAsync)
+      51              .WithName("GetMeuPerfil")
+      52 +            .Produces<PerfilResponse>()                        
+      53              .Produces(StatusCodes.Status304NotModified);
+      54  
+      55          eu.MapPatch("/", EditarAsync)
+      56              .WithName("EditarPerfil")
+      57 +            .Produces<PerfilResponse>()                        
+      58              .ProducesValidationProblem()
+      59              .ProducesProblem(StatusCodes.Status404NotFound)
+      60              .ProducesProblem(StatusCodes.Status409Conflict);
+  ⎿  Updated packages\api-client\openapi.json (+169 -0)
+      1120            }
+      1121          ],
+      1122          "responses": {
+      1123 +          "200": {                                           
+      1124 +            "description": "OK",                             
+      1125 +            "content": {                                     
+      1126 +              "application/json": {                          
+      1127 +                "schema": {                                  
+      1128 +                  "$ref": "#/components/schemas/PerfilRespons
+           +e"                                                           
+      1129 +                }                                            
+      1130 +              }                                              
+      1131 +            }                                                
+      1132 +          },                                                 
+      1133            "304": {
+      1134              "description": "Not Modified"
+      1135            },
+     ...
+      1267          ],
+      1268          "operationId": "GetMeuPerfil",
+      1269          "responses": {
+      1270 +          "200": {                                           
+      1271 +            "description": "OK",                             
+      1272 +            "content": {                                     
+      1273 +              "application/json": {                          
+      1274 +                "schema": {                                  
+      1275 +                  "$ref": "#/components/schemas/PerfilRespons
+           +e"                                                           
+      1276 +                }                                            
+      1277 +              }                                              
+      1278 +            }                                                
+      1279 +          },                                                 
+      1280            "304": {
+      1281              "description": "Not Modified"
+      1282            }
+     ...
+      1303            "required": true
+      1304          },
+      1305          "responses": {
+      1306 +          "200": {                                           
+      1307 +            "description": "OK",                             
+      1308 +            "content": {                                     
+      1309 +              "application/json": {                          
+      1310 +                "schema": {                                  
+     … 165 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+59 -0)
+      764              /** Format: int64 */
+      765              tamanhoDaGrade: number;
+      766          };
+      767 +        PerfilResponse: {                                     
+      768 +            /** Format: uuid */                               
+      769 +            id: string;                                       
+      770 +            nomeDeExibicao: string;                           
+      771 +            arroba: string;                                   
+      772 +            papel: string;                                    
+      773 +            curso: null | string;                             
+      774 +            nomeDoCurso: null | string;                       
+      775 +            /** Format: int32 */                              
+      776 +            semestre: null | number;                          
+      777 +            exAluno: boolean;                                 
+      778 +            ra: null | string;                                
+      779 +            /** Format: int32 */                              
+      780 +            pontos: null | number;                            
+      781 +            /** Format: int32 */                              
+      782 +            seguidores: number;                               
+      783 +            /** Format: int32 */                              
+      784 +            seguindo: number;                                 
+      785 +            euSigo: boolean;                                  
+      786 +            foto: null | components["schemas"]["FotoDoPostResp
+          +onse"];                                                       
+      787 +            professor: null | components["schemas"]["Professor
+          +DoPerfilResponse"];                                           
+      788 +        };                                                    
+      789          PostResponse: {
+      790              /** Format: uuid */
+      791              id: string;
+     ...
+      843              detail?: null | string;
+      844              instance?: null | string;
+      845          };
+      846 +        ProfessorDoPerfilResponse: {                          
+      847 +            turmas: components["schemas"]["TurmaDoPerfilRespon
+          +se"][];                                                       
+      848 +            /** Format: int32 */                              
+      849 +            medalhasConcedidas: number;                       
+      850 +        };                                                    
+      851          PublicarPostRequest: {
+      852              legenda: null | string;
+      853              /** Format: uuid */
+     ...
+      894              versao: number;
+     … 55 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● O tipo apareceu no cliente e o typecheck passa. Agora o menu do perfil
+  próprio: tema, "Minhas turmas" (professor) e "Sair", numa folha como as
+  outras.
+
+● Write(apps\mobile\src\perfil\MenuDoPerfil.tsx)
+  ⎿  Wrote 80 lines to apps\mobile\src\perfil\MenuDoPerfil.tsx
+      1 import { useRouter } from "expo-router";
+      2 import { Modal, Pressable, StyleSheet, View } from "react-native"
+        ;
+      3 import { useSafeAreaInsets } from "react-native-safe-area-context
+        ";
+      4 
+      5 import { Button } from "../components/Button";
+      6 import { useSessao } from "../sessao/SessaoProvider";
+      7 import { ThemePreferenceControl } from "../theme/ThemePreferenceC
+        ontrol";
+     … +73 lines (ctrl+o to expand)
+
+● Antes da tela, confiro os tamanhos da escala tipográfica para acertar números
+  e nome com a prancheta.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A escala tem o título em 22 (Archivo 700), que serve aos números e ao nome,
+  como na prancheta. Escrevo a tela do perfil.
+
+● Write(apps\mobile\src\perfil\PerfilScreen.tsx)
+  ⎿  Wrote 460 lines to apps\mobile\src\perfil\PerfilScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   FlatList,
+       6   Pressable,
+       7   StyleSheet,
+       8   Text,
+       9   View,
+      10 } from "react-native";
+     … +450 lines (ctrl+o to expand)
+
+● Três ajustes são necessários antes de compilar: remover uma linha sem efeito,
+  renomear o componente interno para DadosDoPerfil e incluir o menu no perfil do
+  professor. Depois ainda falta o ícone da grade (layout-grid, do Lucide).
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f=perfil/PerfilScreen.tsx && sed -i '/    perfil.ehAluno === undefined ?…)
+  ⎿  145:  const menu = (
+     187:      {menu}
+     274:      {menu}
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\Icon.tsx (+7 -0)
+      147      { d: "M4 12h16", modo: "aberto" },
+      148      { d: "M4 18h16", modo: "aberto" },
+      149    ],
+      150 +  // layout-grid do Lucide: a aba da grade de posts no perfil.
+      151 +  grade: [                                                    
+      152 +    { x: 3, y: 3, width: 7, height: 7, rx: 1 },               
+      153 +    { x: 14, y: 3, width: 7, height: 7, rx: 1 },              
+      154 +    { x: 14, y: 14, width: 7, height: 7, rx: 1 },             
+      155 +    { x: 3, y: 14, width: 7, height: 7, rx: 1 },              
+      156 +  ],                                                          
+      157    inbox: [
+      158      {
+      159        d: "M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l
+           -3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",
+  ⎿  Updated apps\mobile\src\perfil\MenuDoPerfil.tsx (+13 -3)
+      17  // O menu do próprio perfil (o "≡" da prancheta): o lugar defin
+          itivo do tema (decisoes,
+      18  // Design system: o controle saiu da tela de status para cá no 
+          passo 7), as turmas do
+      19  // professor e a saída. Folha que sobe de baixo, como as do Ins
+          tagram.
+      20 -export function MenuDoPerfil({ aberto, professor, onFechar }: M
+         -enuDoPerfilProps) {                                            
+      20 +export function MenuDoPerfil({                                 
+      21 +  aberto,                                                      
+      22 +  professor,                                                   
+      23 +  onFechar,                                                    
+      24 +}: MenuDoPerfilProps) {                                        
+      25    const { colors } = useTheme();
+      26    const insets = useSafeAreaInsets();
+      27    const router = useRouter();
+      28    const { sair } = useSessao();
+      29  
+      30    return (
+      27 -    <Modal visible={aberto} transparent animationType="slide" o
+         -nRequestClose={onFechar}>                                      
+      31 +    <Modal                                                     
+      32 +      visible={aberto}                                         
+      33 +      transparent                                              
+      34 +      animationType="slide"                                    
+      35 +      onRequestClose={onFechar}                                
+      36 +    >                                                          
+      37        <View style={styles.fundo}>
+      38          <Pressable
+      39            accessibilityLabel="Fechar"
+     ...
+      48              styles.folha,
+      49              {
+      50                backgroundColor: colors.bg,
+      42 -              paddingBottom: espacamento.respiroAntesDaNavegaca
+         -o + insets.bottom,                                             
+      51 +              paddingBottom:                                   
+      52 +                espacamento.respiroAntesDaNavegacao + insets.bo
+         +ttom,                                                          
+      53              },
+      54            ]}
+      55          >
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+151 -58)
+      70    const premios = usePremiosDoPerfil(dados?.id, ehAluno && aba 
+          !== "posts");
+      71  
+      72    const lado = largura > 0 ? Math.floor((largura - 2 * VAO) / 3
+          ) : 0;
+      73 -  const listaDePosts = posts.data?.pages.flatMap((pagina) => pa
+         -gina.itens) ?? [];                                             
+      73 +  const listaDePosts =                                         
+      74 +    posts.data?.pages.flatMap((pagina) => pagina.itens) ?? []; 
+      75    const itensDePremio = (premios.data?.itens ?? []).filter((ite
+          m) =>
+      76      aba === "medalhas" ? item.tipo === "medalha" : item.tipo !=
+          = "medalha",
+      77    );
+     ...
+       97  
+       98    if (!dados) {
+       99      return (
+       99 -      <View style={[styles.fill, { paddingTop: insets.top, bac
+          -kgroundColor: colors.bg }]}>                                  
+      100 +      <View                                                   
+      101 +        style={[                                              
+      102 +          styles.fill,                                        
+      103 +          { paddingTop: insets.top, backgroundColor: colors.bg
+          + },                                                           
+      104 +        ]}                                                    
+      105 +      >                                                       
+      106          {topo}
+      107          <View style={styles.margem}>
+      108            {perfil.isPending ? (
+      109              <ActivityIndicator style={styles.espera} color={co
+           lors.ink2} />
+      104 -          ) : falhaParaTela(perfil.error).codigo === "usuario-
+          -nao-encontrado" ? (                                           
+      110 +          ) : falhaParaTela(perfil.error).codigo ===          
+      111 +            "usuario-nao-encontrado" ? (                      
+      112              <EmptyState icon="user" title="Esse perfil não exi
+           ste." />
+      113            ) : (
+      114              <ErrorState
+     ...
+      124    const cabecalho = (
+      125      <View>
+      126        {topo}
+      120 -      <Cabecalho_ perfil={dados} proprio={proprio} />         
+      127 +      <DadosDoPerfil perfil={dados} proprio={proprio} />      
+      128        {ehAluno && (
+      122 -        <View style={[styles.abas, { borderBottomColor: colors
+          -.line }]} role="tablist">                                     
+      129 +        <View                                                 
+      130 +          style={[styles.abas, { borderBottomColor: colors.lin
+          +e }]}                                                         
+      131 +          role="tablist"                                      
+      132 +        >                                                     
+     … 299 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\api.ts (+4 -1)
+      62  }
+      63  
+      64  // Só os prêmios obtidos: faltantes e progresso são do próprio 
+          aluno, na tela de Troféus.
+      65 -export function usePremiosDoPerfil(usuarioId: string | undefine
+         -d, ativo: boolean) {                                           
+      65 +export function usePremiosDoPerfil(                            
+      66 +  usuarioId: string | undefined,                               
+      67 +  ativo: boolean,                                              
+      68 +) {                                                            
+      69    const client = useApiClient();
+      70  
+      71    return useQuery({
+  ⎿  (timeout 5m)
+
+● O descreverTurma do professor pede o número de alunos, que o perfil não traz.
+  Monto o texto direto ("CC · 2026/2").
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      '207s|.*|                {`${turma.curso} · ${turma.semestre}`}|'…)
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+1 -2)
+      22  import { formatarNumero } from "../feed/textos";
+      23  import { Logo } from "../marca/Logo";
+      24  import { ModalDeConcessao } from "../professor/ModalDeConcessao
+          ";
+      25 -import { descreverTurma } from "../professor/textos";          
+      25  import { textStyles } from "../theme/fonts";
+      26  import { useTheme } from "../theme/ThemeProvider";
+      27  import { espacamento, raios, tamanhos } from "../theme/tokens";
+     ...
+      203                  {turma.materia}
+      204                </Text>
+      205                <Text style={[textStyles.legenda, { color: color
+           s.ink2 }]}>
+      207 -                {descreverTurma({ ...turma, alunos: undefined 
+          -})}                                                           
+      206 +                {`${turma.curso} · ${turma.semestre}`}        
+      207                </Text>
+      208              </View>
+      209            )}
+  ⎿  (timeout 5m)
+
+● Typecheck e lint estão limpos. Agora vou fazer as rotas: a aba Perfil vira o
+  perfil real, /usuarios/:id abre o perfil de outra pessoa, e "Editar perfil"
+  fica com "Em breve" até a etapa 10.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && printf
+      '%s\n' 'import { PerfilScreen } from "../../../perfil/PerfilScreen…)
+  ⎿  src/professor/professor.test.tsx(3,34): error TS2307: Cannot find modu
+     le '../inicio/PerfilProvisorio' or its corresponding type declarations
+     .
+  ⎿  Updated apps\mobile\src\app\(app)\(abas)\perfil.tsx (+5 -2)
+      1 -import { PerfilProvisorio } from "../../../inicio/PerfilProvisor
+        -io";                                                            
+      1 +import { PerfilScreen } from "../../../perfil/PerfilScreen";    
+      2  
+      3 -export default PerfilProvisorio;                                
+      3 +// O próprio perfil, na aba.                                    
+      4 +export default function MeuPerfil() {                           
+      5 +  return <PerfilScreen />;                                      
+      6 +}                                                               
+  ⎿  Created apps\mobile\src\app\(app)\editar-perfil.tsx (+3 -0)
+      1 +import { EditarPerfilEmBreve } from "../../navegacao/EmBreve";  
+      2 +                                                                
+      3 +export default EditarPerfilEmBreve;                             
+  ⎿  Created apps\mobile\src\app\(app)\usuarios\[id].tsx (+9 -0)
+      1 +import { useLocalSearchParams } from "expo-router";             
+      2 +                                                                
+      3 +import { PerfilScreen } from "../../../perfil/PerfilScreen";    
+      4 +                                                                
+      5 +// O perfil de outra pessoa, aberto pelo feed, pelos comentários
+        + ou pela Busca.                                                 
+      6 +export default function PerfilDeOutro() {                       
+      7 +  const { id } = useLocalSearchParams<{ id: string }>();        
+      8 +  return <PerfilScreen usuarioId={id} />;                       
+      9 +}                                                               
+  ⎿  Deleted apps\mobile\src\inicio\PerfilProvisorio.tsx (+0 -66)
+       1 -import { useRouter } from "expo-router";                       
+       2 -import { ActivityIndicator, StyleSheet, Text, View } from "reac
+         -t-native";                                                     
+       3 -                                                               
+       4 -import { useEu } from "../api/useEu";                          
+       5 -import { Button } from "../components/Button";                 
+       6 -import { Screen } from "../components/Screen";                 
+       7 -import { ErrorState } from "../components/StateMessage";       
+       8 -import { Logo } from "../marca/Logo";                          
+       9 -import { useSessao } from "../sessao/SessaoProvider";          
+      10 -import { textStyles } from "../theme/fonts";                   
+      11 -import { ThemePreferenceControl } from "../theme/ThemePreferenc
+         -eControl";                                                     
+      12 -import { useTheme } from "../theme/ThemeProvider";             
+      13 -                                                               
+      14 -// A aba Perfil até o perfil de verdade (passo 7, etapa 9): que
+         -m entrou, o tema e a saída. Para                               
+      15 -// o professor, a entrada das turmas e da concessão de medalha.
+         - Era o início provisório antes                                 
+      16 -// de o feed ocupar a Home.                                    
+      17 -export function PerfilProvisorio() {                           
+      18 -  const { colors } = useTheme();                               
+      19 -  const router = useRouter();                                  
+      20 -  const { sair } = useSessao();                                
+      21 -  const eu = useEu();                                          
+      22 -                                                               
+      23 -  return (                                                     
+      24 -    <Screen aboveNav>                                          
+      25 -      <View style={styles.coluna}>                             
+      26 -        <Logo largura={160} />                                 
+      27 -                                                               
+      28 -        {eu.isPending && <ActivityIndicator color={colors.ink2}
+         - />}                                                           
+      29 -        {eu.isError && <ErrorState onRetry={() => void eu.refet
+         -ch()} />}                                                      
+      30 -        {eu.isSuccess && (                                     
+      31 -          <View style={styles.quem}>                           
+      32 -            <Text style={[textStyles.corpo, { color: colors.ink
+         -2 }]}>                                                         
+      33 -              Você entrou como                                 
+      34 -            </Text>                                            
+      35 -            <Text                                              
+      36 -              testID="arroba"                                  
+      37 -              style={[textStyles.titulo, { color: colors.ink }]
+         -}                                                              
+      38 -            >                                                  
+      39 -              {eu.data.arroba}                                 
+      40 -            </Text>                                            
+     … 26 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\navegacao\EmBreve.tsx (+17 -0)
+      1  import { StyleSheet, View } from "react-native";
+      2  
+      3 +import { Cabecalho } from "../components/Cabecalho";            
+      4  import { type IconName } from "../components/Icon";
+      5  import { Screen } from "../components/Screen";
+      6  import { EmptyState } from "../components/StateMessage";
+     ...
+      43  const styles = StyleSheet.create({
+      44    centro: { flex: 1, justifyContent: "center" },
+      45  });
+      46 +                                                               
+      47 +// Até a tela de editar perfil (passo 7, etapa 10), o botão do 
+         +perfil chega aqui.                                             
+      48 +export function EditarPerfilEmBreve() {                        
+      49 +  return (                                                     
+      50 +    <Screen>                                                   
+      51 +      <Cabecalho titulo="Editar perfil" voltarPara="/perfil" />
+      52 +      <View style={styles.centro}>                             
+      53 +        <EmptyState                                            
+      54 +          icon="user"                                          
+      55 +          title="Em breve."                                    
+      56 +          message="Aqui você vai trocar a foto, o nome e o arro
+         +ba."                                                           
+      57 +        />                                                     
+      58 +      </View>                                                  
+      59 +    </Screen>                                                  
+      60 +  );                                                           
+      61 +}                                                              
+  ⎿  (timeout 5m)
+
+● Retiro do teste do professor o caso que usava o perfil provisório; ele volta
+  nos testes do perfil novo, pelo menu.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/professor" &&
+      grep -n "PerfilProvisorio\|it(\"o professor vê Minhas turmas" p…)
+  ⎿  3:import { PerfilProvisorio } from "../inicio/PerfilProvisorio";
+     265:  it("o professor vê Minhas turmas; o aluno, não", async () => {
+     274:      <PerfilProvisorio />,
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\professor\professor.test.tsx (+0 -21)
+      1  import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+      2  
+      3 -import { PerfilProvisorio } from "../inicio/PerfilProvisorio";  
+      3  import { caminhos, json, renderComApi } from "../test/renderComA
+         pi";
+      4  import { TurmaScreen } from "./TurmaScreen";
+      5  import { TurmasScreen } from "./TurmasScreen";
+     ...
+      261  });
+      262  
+      263  describe("entrada pelo início", () => {
+      265 -  it("o professor vê Minhas turmas; o aluno, não", async () =>
+          - {                                                            
+      266 -    const comPapeis = (papeis: string[]) =>                   
+      267 -      jest.fn(async (pedido: Request) =>                      
+      268 -        new URL(pedido.url).pathname === "/api/v1/eu"         
+      269 -          ? json(200, { id: ANA, papeis, arroba: "@renataA-PRO
+          -F" })                                                         
+      270 -          : new Response(null, { status: 404 }),              
+      271 -      );                                                      
+      272 -                                                              
+      273 -    const professor = await renderComApi(                     
+      274 -      <PerfilProvisorio />,                                   
+      275 -      comPapeis(["professor"]),                               
+      276 -    );                                                        
+      277 -    await apertarBotao("Minhas turmas");                      
+      278 -    expect(mockRoteador.push).toHaveBeenCalledWith("/turmas");
+      279 -    professor.unmount();                                      
+      280 -                                                              
+      281 -    await renderComApi(<PerfilProvisorio />, comPapeis(["aluno
+          -"]));                                                         
+      282 -    expect(await screen.findByTestId("arroba")).toBeOnTheScree
+          -n();                                                          
+      283 -    expect(screen.queryByRole("button", { name: "Minhas turmas
+          -" })).toBeNull();                                             
+      284 -  });                                                         
+      264  });
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && perl -0pi -e
+      's/\n\ndescribe\("entrada pelo início", \(\) => \{\n\}\);\n/\n/'…)
+  ⎿      ).toBeOnTheScreen();
+       });
+     });
+  ⎿  Updated apps\mobile\src\professor\professor.test.tsx (+0 -3)
+      259      ).toBeOnTheScreen();
+      260    });
+      261  });
+      262 -                                                              
+      263 -describe("entrada pelo início", () => {                       
+      264 -});                                                           
+  ⎿  (timeout 5m)
+
+● Agora, no cartão do feed, o avatar e o nome levam ao perfil do autor (o
+  próprio vai para a aba Perfil). Faço o mesmo nos comentários.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\mobile\src\feed\CartaoDePost.tsx)
+  ⎿  Added 11 lines, removed 5 lines
+      119        style={[styles.cartao, { borderBottomColor: colors.line 
+           }]}
+      120      >
+      121        <View style={styles.cabecalho}>
+      122 -        <Avatar                                               
+      123 -          nome={post.autor.nomeDeExibicao}                    
+      124 -          foto={post.autor.foto}                              
+      125 -          size={44}                                           
+      126 -        />                                                    
+      122 +        <Pressable                                            
+      123 +          role="link"                                         
+      124 +          accessibilityLabel={`Perfil de ${post.autor.nomeDeEx
+          +ibicao}`}                                                     
+      125 +          onPress={() => router.push(perfilDe(post.autor.id, l
+          +eitor))}                                                      
+      126 +        >                                                     
+      127 +          <Avatar                                             
+      128 +            nome={post.autor.nomeDeExibicao}                  
+      129 +            foto={post.autor.foto}                            
+      130 +            size={44}                                         
+      131 +          />                                                  
+      132 +        </Pressable>                                          
+      133          <View style={styles.quem}>
+      134            <Text numberOfLines={1}>
+      135              <Text style={[textStyles.secao, { color: colors.in
+           k }]}>
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e 's/(          <Text numberOfLines=\{1\}>\n            <Text…)
+  ⎿  Updated apps\mobile\src\feed\CartaoDePost.tsx (+11 -1)
+      37    papeis: string[];
+      38  }
+      39  
+      40 +// O perfil de quem aparece: o próprio, na aba Perfil; o de out
+         +ra pessoa, em /usuarios/:id.                                   
+      41 +export function perfilDe(usuarioId: string, leitor: Leitor | un
+         +defined) {                                                     
+      42 +  return leitor?.id === usuarioId                              
+      43 +    ? ("/perfil" as const)                                     
+      44 +    : (`/usuarios/${usuarioId}` as const);                     
+      45 +}                                                              
+      46 +                                                               
+      47  interface CartaoDePostProps {
+      48    post: Post;
+      49    leitor: Leitor | undefined;
+     ...
+      138            />
+      139          </Pressable>
+      140          <View style={styles.quem}>
+      134 -          <Text numberOfLines={1}>                            
+      141 +          <Text                                               
+      142 +            numberOfLines={1}                                 
+      143 +            onPress={() => router.push(perfilDe(post.autor.id,
+          + leitor))}                                                    
+      144 +          >                                                   
+      145              <Text style={[textStyles.secao, { color: colors.in
+           k }]}>
+      146                {usuario}
+      147              </Text>
+  ⎿  Updated apps\mobile\src\posts\ComentariosScreen.tsx (+15 -6)
+       1 -import { useLocalSearchParams } from "expo-router";            
+       1 +import { useLocalSearchParams, useRouter } from "expo-router"; 
+       2  import { useState } from "react";
+       3  import {
+       4    ActivityIndicator,
+       5    FlatList,
+       6    KeyboardAvoidingView,
+       7 +  Pressable,                                                   
+       8    Platform,
+       9    StyleSheet,
+      10    Text,
+     ...
+      27    useRemoverComentario,
+      28    type Comentario,
+      29  } from "../feed/api";
+      30 +import { perfilDe } from "../feed/CartaoDePost";               
+      31  import { tempoDesde, usuarioDoArroba } from "../feed/textos";
+      32  import { textStyles } from "../theme/fonts";
+      33  import { useTheme } from "../theme/ThemeProvider";
+     ...
+      43  export function ComentariosScreen() {
+      44    const { colors } = useTheme();
+      45    const insets = useSafeAreaInsets();
+      46 +  const router = useRouter();                                  
+      47    const { id } = useLocalSearchParams<{ id: string }>();
+      48    const eu = useEu();
+      49    const comentarios = useComentarios(id);
+     ...
+      73      const acao = proprio ? "Apagar" : instituicao ? "Remover" :
+           null;
+      74      return (
+      75        <View testID={`comentario-${item.id}`} style={styles.linh
+          a}>
+      73 -        <Avatar                                                
+      74 -          nome={item.autor.nomeDeExibicao}                     
+      75 -          foto={item.autor.foto}                               
+      76 -          size={32}                                            
+      77 -        />                                                     
+      76 +        <Pressable                                             
+      77 +          role="link"                                          
+      78 +          accessibilityLabel={`Perfil de ${item.autor.nomeDeExi
+         +bicao}`}                                                       
+      79 +          onPress={() => router.push(perfilDe(item.autor.id, eu
+         +.data))}                                                       
+      80 +        >                                                      
+      81 +          <Avatar                                              
+      82 +            nome={item.autor.nomeDeExibicao}                   
+     … 7 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Um teste de regra de gradiente listava os arquivos permitidos; a célula entra
+  na lista, já que o fundo dela é o metal do prêmio.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\mobile\src\premios\premios.test.tsx)
+  ⎿  Added 3 lines
+      339        .map((f) => f.replace(/^.*[\\/]/, ""))
+      340        .sort();
+      341  
+      342 +  // A célula da grade do perfil pinta o fundo do post de prêm
+          +io com o metal do tier                                        
+      343 +  // (`fundoGrade` dos tokens, como na prancheta do perfil).  
+      344    test("gradiente só no metal dos prêmios", () => {
+      345      expect(usam(/(Radial|Linear)Gradient/)).toEqual([
+      346 +      "CelulaDaGrade.tsx",                                    
+      347        "Medalhao.tsx",
+      348        "SeloPremio.tsx",
+      349      ]);
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A regra continua guardada, agora com o motivo. Antes dos testes do perfil,
+  ponho um testID na raiz da tela, para o teste disparar a medida de largura de
+  que a grade depende.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      '226s|^      style={\[styles.fill, { backgroundColor: colors.bg }\…)
+  ⎿    return (
+         <View
+           testID="perfil"
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+1 -0)
+      223  
+      224    return (
+      225      <View
+      226 +      testID="perfil"                                         
+      227        style={[styles.fill, { backgroundColor: colors.bg }]}
+      228        onLayout={(evento) => setLargura(evento.nativeEvent.layo
+           ut.width)}
+      229      >
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo os testes do perfil.
+
+● Write(apps\mobile\src\perfil\perfil.test.tsx)
+  ⎿  Wrote 289 lines to apps\mobile\src\perfil\perfil.test.tsx
+       1 import { act, fireEvent, screen, within } from "@testing-library
+         /react-native";
+       2 
+       3 import { json, renderComApi } from "../test/renderComApi";
+       4 import { PerfilScreen } from "./PerfilScreen";
+       5 
+       6 const mockRoteador = {
+       7   push: jest.fn(),
+       8   replace: jest.fn(),
+       9   back: jest.fn(),
+     … +280 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && grep -n
+      "testID" src/premios/Medalhao.tsx | head -3; npx prettier --write src…)
+  ⎿  68:      testID="anel"
+     120:                  testID="raio"
+     135:          testID="metal"
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\perfil.test.tsx (+108 -25)
+      42  
+      43  const post = (id: string, mudancas: Record<string, unknown> = {
+          }) => ({
+      44    id,
+      45 -  autor: { id: ANA, nomeDeExibicao: "Ana Souza", arroba: "@anaS
+         -ouza-CC", curso: "CC", semestre: 3, foto: null },              
+      45 +  autor: {                                                     
+      46 +    id: ANA,                                                   
+      47 +    nomeDeExibicao: "Ana Souza",                               
+      48 +    arroba: "@anaSouza-CC",                                    
+      49 +    curso: "CC",                                               
+      50 +    semestre: 3,                                               
+      51 +    foto: null,                                                
+      52 +  },                                                           
+      53    legenda: null,
+      54    foto: null,
+      55    premio: null,
+     ...
+      109  
+      110  beforeEach(() => {
+      111    jest.clearAllMocks();
+      105 -  eu = { id: ANA, papeis: ["aluno"], arroba: "@anaSouza-CC", n
+          -omeDeExibicao: "Ana Souza", foto: null };                     
+      112 +  eu = {                                                      
+      113 +    id: ANA,                                                  
+      114 +    papeis: ["aluno"],                                        
+      115 +    arroba: "@anaSouza-CC",                                   
+      116 +    nomeDeExibicao: "Ana Souza",                              
+      117 +    foto: null,                                               
+      118 +  };                                                          
+      119    perfis = {
+      120      eu: perfilDe(ANA, { ra: "20260101" }),
+      108 -    [BRUNO]: perfilDe(BRUNO, { nomeDeExibicao: "Bruno Lima", a
+          -rroba: "@brunoLima-CC", seguidores: 3, seguindo: 2 }),        
+      121 +    [BRUNO]: perfilDe(BRUNO, {                                
+      122 +      nomeDeExibicao: "Bruno Lima",                           
+      123 +      arroba: "@brunoLima-CC",                                
+      124 +      seguidores: 3,                                          
+      125 +      seguindo: 2,                                            
+      126 +    }),                                                       
+      127      [RENATA]: perfilDe(RENATA, {
+      128        nomeDeExibicao: "Renata Albuquerque",
+      129        arroba: "@renataA-PROF",
+     ...
+      134        pontos: null,
+      135        seguidores: 0,
+     … 192 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Background command "Watch CI for etapa 8 commit" completed (exit code 0)
+
+● O medalhão expõe testID="metal", não medalhao. Ajusto o teste e vejo o
+  resultado da CI da etapa 8.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i
+      's|getByTestId("medalhao")|getAllByTestId("metal")[0]|g' src/perfil/pe…)
+  ⎿    ● o próprio perfil do aluno › o menu tem o tema e a saída
+     Tests:       1 failed, 10 passed, 11 total
+     success
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\perfil.test.tsx (+2 -2)
+      233      await medir();
+      234  
+      235      const comFoto = await screen.findByTestId("celula-p1");
+      236 -    expect(within(comFoto).getByTestId("medalhao")).toBeOnTheS
+          -creen();                                                      
+      236 +    expect(within(comFoto).getAllByTestId("metal")[0]).toBeOnT
+          +heScreen();                                                   
+      237      expect(
+      238 -      within(screen.getByTestId("celula-p2")).getByTestId("med
+          -alhao"),                                                      
+      238 +      within(screen.getByTestId("celula-p2")).getAllByTestId("
+          +metal")[0],                                                   
+      239      ).toBeOnTheScreen();
+      240      expect(
+      241        within(screen.getByTestId("celula-p3")).getByText(
+  ⎿  (timeout 5m)
+
+● A CI da etapa 8 fechou verde (run 42442382653). Agora falha outro caso, o do
+  menu, que antes passava. Vejo o erro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O botão Menu também aparece durante o carregamento do perfil, mas nesse estado
+  a folha não é renderizada e o toque se perde, o que é um defeito real. Vou
+  colocar o menu em todos os estados da tela.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/perfil" &&
+      perl -0pi -e 's/\n  const menu = \(\n    <MenuDoPerfil\n      aber…)
+  ⎿  98:  const menu = (
+     220:        {menu}
+     318:      {menu}
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+9 -8)
+       94      </View>
+       95    );
+       96  
+       97 +  // Em todos os estados da tela: o "≡" aparece antes de o per
+          +fil chegar.                                                   
+       98 +  const menu = (                                              
+       99 +    <MenuDoPerfil                                             
+      100 +      aberto={menuAberto}                                     
+      101 +      professor={eu.data?.papeis.includes("professor") ?? fals
+          +e}                                                            
+      102 +      onFechar={() => setMenuAberto(false)}                   
+      103 +    />                                                        
+      104 +  );                                                          
+      105 +                                                              
+      106    if (!dados) {
+      107      return (
+      108        <View
+     ...
+      166      <View style={{ height: espacamento.respiroAntesDaNavegacao
+            }} />
+      167    );
+      168  
+      160 -  const menu = (                                              
+      161 -    <MenuDoPerfil                                             
+      162 -      aberto={menuAberto}                                     
+      163 -      professor={eu.data?.papeis.includes("professor") ?? fals
+          -e}                                                            
+      164 -      onFechar={() => setMenuAberto(false)}                   
+      165 -    />                                                        
+      166 -  );                                                          
+      167 -                                                              
+      169    if (!ehAluno) {
+      170      return (
+      171        <View style={[styles.fill, { backgroundColor: colors.bg 
+           }]}>
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/perfil" &&
+      perl -0pi -e 's/(              onRetry=\{\(\) => void perfil\.refe…)
+  ⎿  3
+     Tests:       11 passed, 11 total
+       ● o próprio perfil do aluno › o menu tem o tema e a saída
+     Tests:       1 failed, 10 passed, 11 total
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+1 -0)
+      125              />
+      126            )}
+      127          </View>
+      128 +        {menu}                                                
+      129        </View>
+      130      );
+      131    }
+  ⎿  (timeout 5m)
+
+● O teste ainda oscila, então vou fazê-lo esperar o perfil carregar antes de
+  abrir o menu e rodarei três vezes para confirmar.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && perl -0pi -e
+      's/(  it\("o menu tem o tema e a saída", async \(\) => \{\n    a…)
+  ⎿  264:    await screen.findByText("15.020");
+       ● o professor › no próprio perfil, o menu leva às turmas
+     Tests:       1 failed, 10 passed, 11 total
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\perfil.test.tsx (+1 -0)
+      261  
+      262    it("o menu tem o tema e a saída", async () => {
+      263      await renderComApi(<PerfilScreen />, api);
+      264 +    await screen.findByText("15.020");                        
+      265  
+      266      await apertar("Menu");
+      267      expect(
+  ⎿  (timeout 5m)
+
+● Agora o caso do professor falha de forma consistente. Vejo o que a tela mostra
+  no momento da falha.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Sozinho passa; em sequência, falha. Vejo a saída da falha dentro da suíte.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● É intermitente: desta vez passou inteiro. Faço o caso do professor esperar o
+  perfil carregar, como o do aluno, e rodo cinco vezes seguidas.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && perl -0pi -e
+      's/(    perfis\.eu = perfis\[RENATA\]!;\n    await renderComApi\…)
+  ⎿  1
+     Tests:       11 passed, 11 total
+     Tests:       11 passed, 11 total
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\perfil.test.tsx (+1 -0)
+      364    it("no próprio perfil, o menu leva às turmas", async () => {
+      365      perfis.eu = perfis[RENATA]!;
+      366      await renderComApi(<PerfilScreen />, api);
+      367 +    await screen.findByText("Turmas neste semestre");         
+      368  
+      369      await apertar("Menu");
+      370      await apertar("Minhas turmas");
+  ⎿  (timeout 10m)
+
+● Cinco de cinco. Agora os e2e: "Sair" e "Minhas turmas" passaram para o menu do
+  perfil, então ganham um ajudante abrirMenu.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e/tests" && printf '%s\n'
+      'import type { Page } from "@playwright/test";' '' '// Desde o pa…)
+  ⎿  demonstracao.spec.ts:50:    await page.getByRole("button", { name: "Sa
+     ir" }).click();
+     login.spec.ts:52:    await page.getByRole("button", { name: "Sair" }).
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\apoio\navegacao.ts (+7 -2)
+       1  import type { Page } from "@playwright/test";
+       2  
+       3 -// Desde o passo 7 a Home é o feed. O arroba, o tema, "Minhas t
+         -urmas" e "Sair" ficam na aba                                   
+       4 -// Perfil (provisória até o perfil de verdade, na etapa 9 do pa
+         -sso).                                                          
+       3 +// Desde o passo 7 a Home é o feed, e o perfil é a aba Perfil: 
+         +o arroba fica no cabeçalho                                     
+       4 +// dele, e o tema, "Minhas turmas" e "Sair", no menu (≡) do pró
+         +prio perfil.                                                   
+       5  export async function abrirPerfil(page: Page) {
+       6    await page.getByRole("tab", { name: "Perfil" }).click();
+       7  }
+       8 +                                                               
+       9 +export async function abrirMenu(page: Page) {                  
+      10 +  await abrirPerfil(page);                                     
+      11 +  await page.getByRole("button", { name: "Menu" }).click();    
+      12 +}                                                              
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e/tests" && sed -i '50s|^
+      await page.getByRole("button", { name: "Sair" }).click();|…)
+  ⎿      const daProfessora = await novaPagina(browser);
+         await entrar(daProfessora, professora.email, professora.senha);
+         await abrirPerfil(daProfessora);
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\demonstracao.spec.ts (+1 -0)
+      47      await abrirPerfil(page);
+      48      await expect(page.getByTestId("arroba")).toHaveText(/-CC$/)
+          ;
+      49  
+      50 +    await abrirMenu(page);                                     
+      51      await page.getByRole("button", { name: "Sair" }).click();
+      52      await expect(page).toHaveURL(/\/login$/);
+      53      await page.getByRole("button", { name: "Entrar na demonstra
+          ção" }).click();
+  ⎿  Updated e2e\tests\login.spec.ts (+1 -0)
+      49      await page.reload();
+      50      await estaDentro(page, aluno);
+      51  
+      52 +    await abrirMenu(page);                                     
+      53      await page.getByRole("button", { name: "Sair" }).click();
+      54      await expect(page).toHaveURL(/\/login$/);
+      55      await page.goto("/");
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e/tests" && sed -i '55s|^
+      await abrirPerfil(daProfessora);|    await abrirMenu(daProfess…)
+  ⎿  medalhas.spec.ts:4:import { abrirMenu } from "./apoio/navegacao";
+     medalhas.spec.ts:55:    await abrirMenu(daProfessora);
+     login.spec.ts:4:import { abrirMenu, abrirPerfil } from "./apoio/navega
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\demonstracao.spec.ts (+1 -1)
+      1  import { expect, test } from "@playwright/test";
+      2  
+      3 -import { abrirPerfil } from "./apoio/navegacao";                
+      3 +import { abrirMenu, abrirPerfil } from "./apoio/navegacao";     
+      4  
+      5  // A demonstração existe só com a flag. Os testes @demo rodam nu
+         ma passada própria, com o
+      6  // docker-compose.demo.yml por cima; a passada normal os exclui 
+         (--grep-invert @demo) e
+  ⎿  Updated e2e\tests\login.spec.ts (+1 -1)
+      1  import { expect, test, type Page } from "@playwright/test";
+      2  
+      3  import { arroba, novaConta, type Aluno } from "./apoio/contas";
+      4 -import { abrirPerfil } from "./apoio/navegacao";                
+      4 +import { abrirMenu, abrirPerfil } from "./apoio/navegacao";     
+      5  
+      6  // Os fluxos com conta rodam só no celular, claro e escuro: cada
+          um gasta tentativas de
+      7  // login, e o limite é por IP. O desktop confere o caminho de qu
+         em não entrou.
+  ⎿  Updated e2e\tests\medalhas.spec.ts (+2 -2)
+      1  import { expect, test, type Browser, type Page } from "@playwrig
+         ht/test";
+      2  
+      3  import { novaConta } from "./apoio/contas";
+      4 -import { abrirPerfil } from "./apoio/navegacao";                
+      4 +import { abrirMenu } from "./apoio/navegacao";                  
+      5  import {
+      6    anularMedalha,
+      7    matricular,
+     ...
+      52      // A professora, pela lista da turma e pelo modal do catálo
+          go.
+      53      const daProfessora = await novaPagina(browser);
+      54      await entrar(daProfessora, professora.email, professora.sen
+          ha);
+      55 -    await abrirPerfil(daProfessora);                           
+      55 +    await abrirMenu(daProfessora);                             
+      56      await daProfessora.getByRole("button", { name: "Minhas turm
+          as" }).click();
+      57      await daProfessora.getByRole("button", { name: /^Banco de D
+          ados/ }).click();
+      58      await daProfessora
+  ⎿  (timeout 5m)
+
+● Typecheck do e2e limpo. Rodo a bateria do app e depois subo a pilha isolada
+  para os e2e e as capturas.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Desta vez o caso de medalha estourou nos dois temas, o que não parece só
+  lentidão. Rodo esse spec sozinho para ver onde para.
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste sozinho passa (19 s), mas na suíte inteira em paralelo chega a 30 s
+  por causa do seed; marco só esse caso com test.slow() (limite de 90 s) e deixo
+  a causa para a etapa 11.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(e2e\tests\medalhas.spec.ts)
+  ⎿  Added 3 lines
+      43    "a professora concede, o aluno vê em Troféus e a anulação tir
+          a a medalha",
+      44    { tag: "@celular" },
+      45    async ({ browser, request }) => {
+      46 +    // Paliativo do passo 7: criar a professora roda o seed num
+         + contêiner, e com a suíte                                      
+      47 +    // inteira em paralelo o caso passa dos 30 s. A causa fica 
+         +para a etapa 11.                                               
+      48 +    test.slow();                                               
+      49      const professora = await novaProfessora(request);
+      50      const n = Date.now().toString().slice(-6);
+      51      const nome = `Aluno ${n}`;
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A suíte normal passa inteira (61). Agora a passada com a demonstração ligada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 4 testes da demonstração também passam. Agora monto um perfil parecido com
+  o dela, com posts de foto e medalha, só medalha e só legenda, além de
+  seguimento cruzado, para comparar com as capturas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      mkdir -p e2e/captura-temp && printf '%s\n' 'import { defineConfig } from
+      "@playwright/tes…)
+  ⎿  ok
+  ⎿  Created e2e\captura-temp\playwright.config.ts (+12 -0)
+       1 +import { defineConfig } from "@playwright/test";               
+       2 +                                                               
+       3 +export default defineConfig({                                  
+       4 +  testDir: ".",                                                
+       5 +  timeout: 240_000,                                            
+       6 +  workers: 1,                                                  
+       7 +  use: { baseURL: "http://localhost:18080", viewport: { width: 
+         +390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTo
+         +uch: true },                                                   
+       8 +  projects: [                                                  
+       9 +    { name: "claro", use: { colorScheme: "light" } },          
+      10 +    { name: "escuro", use: { colorScheme: "dark" } },          
+      11 +  ],                                                           
+      12 +});                                                            
+
+● Write(e2e\captura-temp\perfil.spec.ts)
+  ⎿  Wrote 108 lines to e2e\captura-temp\perfil.spec.ts
+       1 import { readFileSync } from "node:fs";
+       2 import path from "node:path";
+       3 
+       4 import { expect, test, type APIRequestContext, type Page } from 
+         "@playwright/test";
+       5 
+       6 import { novaConta } from "../tests/apoio/contas";
+       7 import { matricular, novaProfessora } from "../tests/apoio/medal
+         has";
+       8 
+     … +100 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A tela mostra "Você ainda não publicou.", mas os posts podem não ter sido
+  criados ou a grade ainda não mediu a largura, o que cai no estado vazio. Vou
+  conferir direto na API.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os quatro posts já estão no banco, então a grade só não recebe a largura no
+  navegador. Vou calcular o lado da célula a partir da largura da janela, já que
+  a moldura do celular limita o tamanho no desktop, em vez de depender do
+  onLayout.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A moldura tem 390 px de largura, então crio o hook useLarguraDoApp ao lado
+  dela para a grade calcular o lado da célula sem esperar medida.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && cat >>
+      components/PhoneFrame.tsx <<'FIM'…)
+  ⎿  23:import { useLarguraDoApp } from "../components/PhoneFrame";
+     71:  const lado = Math.floor((useLarguraDoApp() - 2 * VAO) / 3);
+     80:      <Logo largura={110} />
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\components\PhoneFrame.tsx (+10 -0)
+      52    // Sem sombra: separação só pela borda de 1 px em `line`.
+      53    frame: { width: FRAME_WIDTH, borderWidth: 1, overflow: "hidde
+          n" },
+      54  });
+      55 +                                                               
+      56 +// A largura em que o app desenha: a da moldura no navegador de
+         + desktop (sem a borda de 1 px                                  
+      57 +// de cada lado), a da janela no resto. É o que a grade do perf
+         +il divide em três colunas,                                     
+      58 +// sem esperar o primeiro onLayout.                            
+      59 +export function useLarguraDoApp(): number {                    
+      60 +  const { width } = useWindowDimensions();                     
+      61 +  return Platform.OS === "web" && width >= FRAME_MIN_WINDOW_WID
+         +TH                                                             
+      62 +    ? FRAME_WIDTH - 2                                          
+      63 +    : width;                                                   
+      64 +}                                                              
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+4 -8)
+      20  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      21  import type { Post } from "../feed/api";
+      22  import { formatarNumero } from "../feed/textos";
+      23 +import { useLarguraDoApp } from "../components/PhoneFrame";    
+      24  import { Logo } from "../marca/Logo";
+      25  import { ModalDeConcessao } from "../professor/ModalDeConcessao
+          ";
+      26  import { textStyles } from "../theme/fonts";
+     ...
+      60    const eu = useEu();
+      61    const perfil = usePerfil(usuarioId);
+      62    const [aba, setAba] = useState<Aba>("posts");
+      62 -  const [largura, setLargura] = useState(0);                   
+      63    const [menuAberto, setMenuAberto] = useState(false);
+      64  
+      65    const dados = perfil.data;
+     ...
+      68    const posts = usePostsDoPerfil(ehAluno ? dados?.id : undefine
+          d);
+      69    const premios = usePremiosDoPerfil(dados?.id, ehAluno && aba 
+          !== "posts");
+      70  
+      71 -  const lado = largura > 0 ? Math.floor((largura - 2 * VAO) / 3
+         -) : 0;                                                         
+      71 +  const lado = Math.floor((useLarguraDoApp() - 2 * VAO) / 3);  
+      72    const listaDePosts =
+      73      posts.data?.pages.flatMap((pagina) => pagina.itens) ?? [];
+      74    const itensDePremio = (premios.data?.itens ?? []).filter((ite
+          m) =>
+     ...
+      224    }
+      225  
+      226    return (
+      227 -    <View                                                     
+      228 -      testID="perfil"                                         
+      229 -      style={[styles.fill, { backgroundColor: colors.bg }]}   
+      230 -      onLayout={(evento) => setLargura(evento.nativeEvent.layo
+          -ut.width)}                                                    
+      231 -    >                                                         
+      227 +    <View testID="perfil" style={[styles.fill, { backgroundCol
+          +or: colors.bg }]}>                                            
+      228        {aba === "posts" ? (
+      229          <FlatList
+      230            key="posts"
+      231            testID="grade"
+      236 -          data={lado > 0 ? listaDePosts : []}                 
+      232 +          data={listaDePosts}                                 
+      233            keyExtractor={(post) => post.id}
+      234            numColumns={3}
+      235            columnWrapperStyle={{ gap: VAO }}
+  ⎿  Updated apps\mobile\src\perfil\perfil.test.tsx (+0 -8)
+      202    });
+      203  }
+      204  
+      205 -async function medir() {                                      
+      206 -  await act(async () => {                                     
+      207 -    fireEvent(await screen.findByTestId("perfil"), "layout", {
+      208 -      nativeEvent: { layout: { width: 390, height: 844, x: 0, 
+          -y: 0 } },                                                     
+      209 -    });                                                       
+      210 -  });                                                         
+      211 -}                                                             
+      212 -                                                              
+      205  describe("o próprio perfil do aluno", () => {
+      206    it("mostra o anel dourado, pontos, contagens, nome, arroba, 
+           curso, semestre e RA", async () => {
+      207      await renderComApi(<PerfilScreen />, api);
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i '225{/^
+         await medir();$/d}' src/perfil/perfil.test.tsx && npx tsc -…)
+  ⎿  Tests:       11 passed, 11 total
+     Tests:       11 passed, 11 total
+     Tests:       11 passed, 11 total
+  ⎿  Updated apps\mobile\src\perfil\perfil.test.tsx (+0 -1)
+      222  
+      223    it("a grade tem foto com o medalhão no canto, o medalhão no 
+           metal e a legenda, e abre o post", async () => {
+      224      await renderComApi(<PerfilScreen />, api);
+      225 -    await medir();                                            
+      225  
+      226      const comFoto = await screen.findByTestId("celula-p1");
+      227      expect(within(comFoto).getAllByTestId("metal")[0]).toBeOnT
+           heScreen();
+  ⎿  (timeout 5m)
+
+● Estável. Reconstruo o web na pilha isolada e repito as capturas.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Os testes visuais dos dois temas estão aprovados, incluindo o perfil de outro
+  usuário. Agora removo os arquivos temporários, encerro a pilha e rodo a
+  bateria final.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      -rf e2e/captura-temp e2e/test-results e2e/playwright-report;
+      S2=/c/Users/GUILHE~1/AppD…)
+  ⎿   Network maxx-etapa9_default Removed
+     All matched files use Prettier code style!
+     Tests:       370 passed, 370 total
+     … +3 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\captura-temp\perfil.spec.ts (+0 -108)
+        1 -import { readFileSync } from "node:fs";                       
+        2 -import path from "node:path";                                 
+        3 -                                                              
+        4 -import { expect, test, type APIRequestContext, type Page } fro
+          -m "@playwright/test";                                         
+        5 -                                                              
+        6 -import { novaConta } from "../tests/apoio/contas";            
+        7 -import { matricular, novaProfessora } from "../tests/apoio/med
+          -alhas";                                                       
+        8 -                                                              
+        9 -// Captura temporária, fora do git: perfil próprio e de outro 
+          -aluno ao lado da prancheta.                                   
+       10 -const SAIDA =                                                 
+       11 -  "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilhe
+          -rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro/db2e3dff-90c5-
+          -43a0-a9fa-f91217b12056/scratchpad";                           
+       12 -                                                              
+       13 -async function token(request: APIRequestContext, identificador
+          -: string, senha: string) {                                    
+       14 -  const resposta = await request.post("/api/v1/auth/login", { 
+          -data: { identificador, senha } });                            
+       15 -  return { Authorization: `Bearer ${(await resposta.json()).ac
+          -cessToken}` };                                                
+       16 -}                                                             
+       17 -                                                              
+       18 -async function lado(page: Page, nossa: string, prancheta: stri
+          -ng, saida: string, legenda: [string, string]) {               
+       19 -  const dados = (arquivo: string) => `data:image/png;base64,${
+          -readFileSync(arquivo).toString("base64")}`;                   
+       20 -  await page.setViewportSize({ width: 1600, height: 900 });   
+       21 -  await page.setContent(`                                     
+       22 -    <body style="margin:0;background:#888;font:600 28px sans-s
+          -erif;color:#fff">                                             
+       23 -      <div id="par" style="display:flex;gap:24px;padding:24px;
+          -width:max-content">                                           
+       24 -        <figure style="margin:0"><figcaption style="padding-bo
+          -ttom:12px">${legenda[0]}</figcaption><img src="${dados(pranche
+          -ta)}" width="780"></figure>                                   
+       25 -        <figure style="margin:0"><figcaption style="padding-bo
+          -ttom:12px">${legenda[1]}</figcaption><img src="${dados(nossa)}
+          -" width="780"></figure>                                       
+       26 -      </div>                                                  
+       27 -    </body>`);                                                
+       28 -  await page.locator("#par").screenshot({ path: saida });     
+       29 -}                                                             
+       30 -                                                              
+       31 -async function entrar(page: Page, identificador: string, senha
+          -: string) {                                                   
+       32 -  await page.goto("/login");                                  
+       33 -  await page.getByLabel("RA ou e-mail").fill(identificador);  
+       34 -  await page.getByLabel("Senha", { exact: true }).fill(senha);
+       35 -  await page.getByRole("button", { name: "Entrar", exact: true
+          - }).click();                                                  
+       36 -  await expect(page).toHaveURL(/\/$/);                        
+       37 -}                                                             
+       38 -                                                              
+       39 -test("perfil próprio e de outro aluno", async ({ page, browser
+          -, request }, info) => {                                       
+       40 -  const tema = info.project.name;                             
+     … 68 more lines (ctrl+o to expand)
+  ⎿  Deleted e2e\captura-temp\playwright.config.ts (+0 -12)
+       1 -import { defineConfig } from "@playwright/test";               
+       2 -                                                               
+       3 -export default defineConfig({                                  
+       4 -  testDir: ".",                                                
+       5 -  timeout: 240_000,                                            
+       6 -  workers: 1,                                                  
+       7 -  use: { baseURL: "http://localhost:18080", viewport: { width: 
+         -390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTo
+         -uch: true },                                                   
+       8 -  projects: [                                                  
+       9 -    { name: "claro", use: { colorScheme: "light" } },          
+      10 -    { name: "escuro", use: { colorScheme: "dark" } },          
+      11 -  ],                                                           
+      12 -});                                                            
+  ⎿  (timeout 10m)
+
+● A etapa 9 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 8 fechada: commit ed78c95, CI verde nos seis jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42442382653
+
+  Capturas ao lado da prancheta
+
+  Feitas com a pilha completa deste código, num projeto isolado já derrubado,
+  com contas, medalhas e posts reais, na mesma escala da prancheta:
+  - Perfil próprio, tema claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--U
+    sers-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a
+    0-a9fa-f91217b12056\scratchpad\etapa9-perfil-proprio-claro.png
+  - Perfil próprio, tema escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--
+    Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43
+    a0-a9fa-f91217b12056\scratchpad\etapa9-perfil-proprio-escuro.png
+  - Perfil de outro aluno, tema claro: C:\Users\GUILHE~1\AppData\Local\Temp\clau
+    de\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-9
+    0c5-43a0-a9fa-f91217b12056\scratchpad\etapa9-perfil-de-outro-claro.png
+  - Perfil de outro aluno, tema escuro: C:\Users\GUILHE~1\AppData\Local\Temp\cla
+    ude\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-
+    90c5-43a0-a9fa-f91217b12056\scratchpad\etapa9-perfil-de-outro-escuro.png
+
+  Só existe a prancheta do perfil próprio, então o perfil de outro aluno aparece
+  ao lado dela como referência.
+
+  Como na prancheta:
+  - Logo e "≡".
+  - Anel dourado no avatar, só no próprio perfil.
+  - Caixa de pontos com "pts" em goldText; seguidores e seguindo.
+  - Nome; curso e semestre, com o RA só no próprio perfil.
+  - Botão discreto.
+  - Abas só com ícone e o traço na ativa.
+  - Grade de três colunas sem legenda: com foto, o medalhão pequeno no canto;
+    sem foto, o medalhão sobre o metal do tier (fundoGrade dos tokens). Nas
+    capturas aparecem bronze e prata.
+
+  Diferenças de propósito:
+  - Sem bio, "Seguida por" e Compartilhar, pela D10.
+  - Sem "#29": a posição chega no passo 11.
+  - Sem sininho: chega no passo 10.
+  - Sem "Último troféu": troféu é prêmio de participação ou conquista, dos
+    passos 8 e 9, e a medalha não é troféu.
+  - Linha do arroba: a prancheta não tem; incluí sob o nome, porque é o
+    identificador público e os e2e a usam.
+  - Post só de legenda: mostra o começo do texto sobre surface (D10).
+  - Perfil de outro sem a barra de abas: ele abre em /usuarios/:id, fora das
+    abas, com voltar. Se você preferir com a barra, é uma troca de pasta da
+    rota.
+
+  O que a etapa entrega
+
+  Perfil do aluno (próprio e de outro)
+  - "Editar perfil" no próprio. A tela de verdade é da etapa 10; até lá o botão
+    abre um "Em breve.".
+  - "Seguir" e "Seguindo" no de outro. O botão aparece para aluno vendo aluno e
+    para professor vendo aluno dele; quem já segue sempre pode deixar de seguir.
+  - Abas por ícone: posts em grade com rolagem infinita, troféus obtidos (vazio
+    até os passos 8 e 9) e medalhas obtidas, reaproveitando a linha da tela de
+    Troféus.
+  - Tocar numa célula abre o post. No feed e nos comentários, o avatar e o nome
+    levam ao perfil do autor (o próprio vai para a aba Perfil).
+
+  Professor
+  - No perfil de um aluno dele: "Conceder medalha", pelo mesmo modal do passo 6
+    (produto.md 4.8). Se o aluno estiver em mais de uma turma dele, o professor
+    escolhe a turma antes.
+  - O perfil do professor mostra "Professor · N medalhas concedidas" e as turmas
+    do semestre, sem pontos e sem abas.
+
+  Menu (≡) do próprio perfil
+  - Tema (o lugar definitivo, que era pendência do passo 4), "Minhas turmas"
+    para o professor e "Sair". O perfil provisório da etapa 8 saiu.
+  - Os e2e ganharam o ajudante abrirMenu.
+
+  API, um ajuste: as rotas de perfil devolvem IResult por causa do ETag, e o
+  OpenAPI tinha ficado sem o corpo da resposta. Declarei
+  Produces<PerfilResponse>() nelas, e o cliente regenerado ganhou o tipo. Era
+  uma falha de contrato da etapa 6.
+
+  Defeitos que os testes e a captura pegaram, já corrigidos
+
+  1. Menu antes do perfil carregar: o "≡" aparecia, mas a folha não era
+     desenhada nesse estado, e o toque se perdia. Agora o menu existe em todos
+     os estados da tela.
+  2. Grade vazia no navegador: ela esperava o onLayout para saber a largura e,
+     sem largura, caía em "Você ainda não publicou.". Agora o lado da célula vem
+     de useLarguraDoApp (a largura da moldura no desktop, a da janela no
+     resto), sem esperar medida.
+  3. Regra do gradiente: o teste que guarda "gradiente só no metal dos prêmios"
+     ganhou CelulaDaGrade.tsx na lista, com o motivo.
+
+  Verificação
+
+  - Jest: 11 testes novos do perfil, estáveis em cinco execuções seguidas. Total
+    do app: 370 passando, com prettier, lint e typecheck limpos.
+  - e2e completo contra a pilha isolada: 61 passando na passada normal e 4 na
+    passada com a demonstração ligada.
+  - Um paliativo para você saber: o caso de medalha voltou a estourar 30 s nos
+    dois temas com a suíte em paralelo. Para a CI não ficar vermelha, marquei só
+    esse caso com test.slow() (limite de 90 s), com comentário. A causa
+    continua para a etapa 11, como você anotou.
+
+  Commit proposto: feat(mobile): adiciona perfil com grade, seguir, menu e anel 
+  dourado. Ele inclui o ajuste do contrato do perfil na API.
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 10 (busca, editar perfil e foto na demonstração).
+
+✻ Baked for 26m 22s · done 0:47
+
+※ recap: No passo 7 (posts, upload e feed), a etapa 9 está pronta e esperando a sua revisão: perfil com grade, seguir, menu e anel dourado, com as capturas ao lado da prancheta. Com a sua aprovação, eu commito, faço o push e acompanho a CI antes da etapa 10.
