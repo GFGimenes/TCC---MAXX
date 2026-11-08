@@ -463,3 +463,16 @@ GitHub Actions (1.800 de 2.000 gastos no mês); detalhe na linha do tempo. Decis
 entre tornar público e pagar o excedente; escolheu público, coerente com a publicação dos
 repositórios no fim do TCC.
 
+08/11 (noite): trilha do leigo completa, oito rodadas no mesmo dia (abertura e sete
+pedidos), todas em paralelo com os passos 8 e 9 do engenheiro, sem conflito de portas. O
+produto é um app web em Node com Express e SQLite, renderizado no servidor, com pontos
+por atividade no app (decisão silenciosa do agente, já que o prompt não dizia onde os
+prêmios nascem), acesso da banca por código, feed com medalhas e conquistas, perfil,
+mural com professores, troféus com progresso e ranking com pódio. A última rodada
+(`leigo_07_deploy_v2`, prompt ajustado antes do envio) levou 2 h 03 min e passou por
+três provedores até o Azure App Service gratuito da conta de estudante, com o produto
+no ar em `https://maxx-guilherme.azurewebsites.net` e aberto no celular do autor. A lista
+de pontos de exposição (e-mail colado no chat, cartão pedido a um leigo, software
+instalado e conta de nuvem operada pelo agente, senha em texto puro) está no registro
+da rodada e entra na discussão. Registros em `resultados/leigo/`.
+
