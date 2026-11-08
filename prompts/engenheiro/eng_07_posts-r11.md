@@ -1,0 +1,14 @@
+ID: eng_07_posts-r11
+Trilha: engenheiro
+Tela: passo 7 (resposta 11 do autor: revisão da etapa 10, busca, editar perfil e foto na demonstração)
+Data: 2026-11-08
+Origem: leitura do Cowork (Anthropic) do export da sessão e de `data/demo/mundo.json` e `docs/produto.md` do repo; o autor conferiu as quatro capturas (busca e editar perfil, claro e escuro); decisão do autor; redigida pelo Cowork, o autor revisou.
+
+Notas de registro:
+- Etapa 9 fechada em `72ba60e`, CI verde nos seis jobs.
+- Etapa 10 entregue sem commit: Busca com campo (debounce de 500 ms reaproveitado do cadastro), chips de curso e de semestre, lista com avatar, nome, arroba, curso, semestre, "Ex-aluno" e "Seguindo", rolagem infinita, estados vazio e de erro; `GET /v1/cursos` só leitura com teste de integração; Editar perfil com foto (trocar e remover), nome de exibição e prefixo do arroba com disponibilidade em `/v1/eu/perfil/disponibilidade`; foto opcional no registro da demonstração, de melhor esforço (falha do envio não impede a entrada). 14 Jest novos (384 no app), 745 na API, 61 mais 4 e2e contra a pilha isolada. As duas telas não têm prancheta (produto.md 10.1); capturas feitas pelo agente.
+- Correção pedida pelo autor antes do commit: os chips de semestre vão do 1º ao 8º, mas Medicina tem 12 semestres (`duracaoEmSemestres: 12` em `data/demo/mundo.json`, decidido na `eng_02_dados`, com aluno do 12º no mundo de demonstração). Com os chips atuais, alunos do 9º ao 12º não podem ser filtrados. O `GET /v1/cursos` passa a devolver a duração em semestres e os chips seguem o curso escolhido, ou o maior curso quando nenhum está escolhido. O "(1º ao 8º)" de `docs/produto.md` é resíduo do passo 0, anterior à decisão dos cursos, e é ajustado no mesmo commit.
+- Aceitos sem ressalva: foto de melhor esforço na demonstração; prefixo atual não consultado; Salvar desativado sem mudança; atalhos de ranking adiados para o passo 11.
+
+---
+Etapa 10 quase aprovada; uma correção antes do commit. Os chips de semestre vão do 1º ao 8º, mas Medicina tem 12 semestres (duracaoEmSemestres 12 no mundo de demonstração, decidido no passo 2, e há aluno do 12º no seed). Com os chips atuais ninguém filtra do 9º ao 12º. Faz o GET /v1/cursos devolver também a duração em semestres, e os chips de semestre seguirem o curso escolhido; sem curso escolhido, vão até a maior duração entre os cursos. O "(1º ao 8º)" do produto.md é resíduo do passo 0, anterior à decisão dos cursos: ajusta para "do 1º ao último semestre do curso" no mesmo commit. Teste de integração da rota e teste da tela cobrindo o caso de Medicina. O resto fica como está: a foto de melhor esforço na demonstração, o prefixo atual não consultado, o Salvar desativado sem mudança e os atalhos de ranking no passo 11. As capturas da busca e do editar perfil estão aprovadas. Com a correção feita e a bateria verde, commita com a mensagem proposta, push, acompanha a CI e segue para a etapa 11; para para a minha revisão no fim dela.

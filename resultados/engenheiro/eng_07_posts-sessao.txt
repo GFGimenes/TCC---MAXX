@@ -10506,3 +10506,1011 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
 ✻ Baked for 26m 22s · done 0:47
 
 ※ recap: No passo 7 (posts, upload e feed), a etapa 9 está pronta e esperando a sua revisão: perfil com grade, seguir, menu e anel dourado, com as capturas ao lado da prancheta. Com a sua aprovação, eu commito, faço o push e acompanho a CI antes da etapa 10.
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Etapa 9 aprovada. O arroba sob o nome fica; o perfil de outro fora das abas,  
+  com voltar, fica. O ajuste de contrato da etapa 6 no mesmo commit está certo. 
+  O test.slow() no caso de medalha é paliativo aceito, com a causa investigada  
+  na etapa 11. Commita com a mensagem proposta, push, acompanha a CI e segue    
+  para a etapa 10; para para a minha revisão no fim dela, com capturas da busca 
+  e do editar perfil.                                                           
+
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● Commit 72ba60e foi enviado e o CI roda em segundo plano; agora vou revisar o
+  chip de filtro, a disponibilidade do arroba, as regras do prefixo e o fluxo da
+  demonstração para a etapa 10.
+
+  Ran 3 shell commands (ctrl+o to expand)
+● A lista de cursos ainda não existe na API, então vou criar GET /v1/cursos só
+  para leitura; depois disso sobe a foto de perfil.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && perl -0pi -e
+      's/(    \/\/ Se o prefixo é de outra pessoa, agora ou no passad…)
+  ⎿  66:        v1.MapGet("/cursos", CursosAsync)
+     67:            .WithName("GetCursos")
+     147:    private static async Task<Ok<IReadOnlyList<CursoResponse>>> Cu
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs (+9 -0)
+      63              .WithName("GetDisponibilidadeDoMeuPrefixo")
+      64              .ProducesProblem(StatusCodes.Status400BadRequest);
+      65  
+      66 +        v1.MapGet("/cursos", CursosAsync)                      
+      67 +            .WithName("GetCursos")                             
+      68 +            .WithTags("Busca");                                
+      69 +                                                               
+      70          v1.MapGet("/busca/alunos", BuscarAsync)
+      71              .WithName("BuscarAlunos")
+      72              .WithTags("Busca")
+     ...
+      144          TypedResults.Ok(new DisponibilidadeDoPrefixoResponse(
+      145              await handler.PrefixoDisponivelAsync(PostEndpoints
+           .UsuarioId(principal), prefixo, cancellationToken)));
+      146  
+      147 +    private static async Task<Ok<IReadOnlyList<CursoResponse>>
+          +> CursosAsync(IConsultaDePerfil consulta, CancellationToken ca
+          +ncellationToken) =>                                           
+      148 +        TypedResults.Ok<IReadOnlyList<CursoResponse>>([.. (awa
+          +it consulta.CursosAsync(cancellationToken)).Select(curso => ne
+          +w CursoResponse(curso.Sigla, curso.Nome))]);                  
+      149 +                                                              
+      150      private static async Task<Ok<PaginaDeAlunosResponse>> Busc
+           arAsync(
+      151          string? termo,
+      152          string? curso,
+     ...
+      249  public sealed record AlunoEncontradoResponse(
+      250      Guid Id, string NomeDeExibicao, string Arroba, string? Cur
+           so, int? Semestre, bool ExAluno, string? Foto, bool EuSigo);
+      251  
+      252 +public sealed record CursoResponse(string Sigla, string Nome);
+      253 +                                                              
+      254  public sealed record PaginaDeAlunosResponse(IReadOnlyList<Alun
+           oEncontradoResponse> Itens, string? Proximo);
+  ⎿  Updated apps\api\src\Maxx.Application\Perfil\Perfil.cs (+5 -0)
+      25      Task<Pagina<AlunoEncontrado>> BuscarAlunosAsync(
+      26          FiltroDaBusca filtro, string? cursor, int limite, Guid 
+          leitorId, CancellationToken cancellationToken);
+      27  
+      28 +    // Os cursos, pela sigla: os filtros da Busca (produto.md 6
+         +.4).                                                           
+      29 +    Task<IReadOnlyList<CursoDaBusca>> CursosAsync(CancellationT
+         +oken cancellationToken);                                       
+      30 +                                                               
+      31      // Se o prefixo é de outra pessoa, agora ou no passado (res
+          erva permanente).
+      32      Task<bool> PrefixoDeOutraPessoaAsync(string prefixo, Guid u
+          suarioId, CancellationToken cancellationToken);
+      33  }
+     ...
+      57  // Termo sem "@" e sem o sufixo; curso pela sigla; semestre do 
+          aluno, de 1 a 8.
+      58  public sealed record FiltroDaBusca(string Termo, string? Curso,
+           int? Semestre);
+      59  
+      60 +public sealed record CursoDaBusca(string Sigla, string Nome);  
+      61 +                                                               
+      62  public sealed record AlunoEncontrado(
+      63      Guid Id, string NomeDeExibicao, string Arroba, string? Curs
+          o, int? Semestre, bool ExAluno, string? ChaveDaFotoDaGrade, boo
+          l EuSigo);
+      64  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+     (+3 -0)
+      167              achados.Count > limite ? CursorDaBusca.Codificar(p
+           agina[^1]) : null);
+      168      }
+      169  
+      170 +    public async Task<IReadOnlyList<CursoDaBusca>> CursosAsync
+          +(CancellationToken cancellationToken) =>                      
+      171 +        await db.Set<Curso>().OrderBy(curso => curso.Sigla).Se
+          +lect(curso => new CursoDaBusca(curso.Sigla, curso.Nome)).ToLis
+          +tAsync(cancellationToken);                                    
+      172 +                                                              
+      173      public Task<bool> PrefixoDeOutraPessoaAsync(string prefixo
+           , Guid usuarioId, CancellationToken cancellationToken) =>
+      174          db.Set<PrefixoReservado>().AnyAsync(reservado => reser
+           vado.Prefixo == prefixo && reservado.UsuarioId != usuarioId, c
+           ancellationToken);
+      175  
+  ⎿  (timeout 10m)
+
+● Acrescento um teste de integração da rota de cursos no PerfilTests.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Social/PerfilTests.cs && perl
+      -0pi -e 's/(…)
+  ⎿      0 Erro(s)
+       total: 1
+       falhou: 0
+     2
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs
+     (+11 -0)
+      320          Assert.Equal(nomes.Order(StringComparer.Ordinal), nome
+           s);
+      321      }
+      322  
+      323 +    [Fact]                                                    
+      324 +    public async Task Cursos_para_os_filtros_da_busca_vem_pela
+          +_sigla()                                                      
+      325 +    {                                                         
+      326 +        await using var mundo = await CriarAsync(postgres, arm
+          +azenamento);                                                  
+      327 +        using var ana = await mundo.ComoAsync(Ana);           
+      328 +                                                              
+      329 +        var cursos = await ana.GetFromJsonAsync<List<CursoResp
+          +onse>>("/api/v1/cursos", Ct);                                 
+      330 +                                                              
+      331 +        Assert.Equal([new CursoResponse("CC", "Ciência da Comp
+          +utação")], cursos);                                           
+      332 +    }                                                         
+      333 +                                                              
+      334      private static async Task AlunosAsync(MundoSocial mundo, i
+           nt quantos)
+      335      {
+      336          await using var scope = mundo.Factory.Services.CreateA
+           syncScope();
+  ⎿  Updated packages\api-client\openapi.json (+43 -0)
+      274          ]
+      275        }
+      276      },
+      277 +    "/api/v1/cursos": {                                       
+      278 +      "get": {                                                
+      279 +        "tags": [                                             
+      280 +          "Busca"                                             
+      281 +        ],                                                    
+      282 +        "operationId": "GetCursos",                           
+      283 +        "responses": {                                        
+      284 +          "200": {                                            
+      285 +            "description": "OK",                              
+      286 +            "content": {                                      
+      287 +              "application/json": {                           
+      288 +                "schema": {                                   
+      289 +                  "type": "array",                            
+      290 +                  "items": {                                  
+      291 +                    "$ref": "#/components/schemas/CursoRespons
+          +e"                                                            
+      292 +                  }                                           
+      293 +                }                                             
+      294 +              }                                               
+      295 +            }                                                 
+      296 +          }                                                   
+      297 +        },                                                    
+      298 +        "security": [                                         
+      299 +          {                                                   
+      300 +            "Bearer": [ ]                                     
+      301 +          }                                                   
+      302 +        ]                                                     
+      303 +      }                                                       
+      304 +    },                                                        
+      305      "/api/v1/busca/alunos": {
+      306        "get": {
+      307          "tags": [
+     ...
+      2291            }
+      2292          }
+      2293        },
+      2294 +      "CursoResponse": {                                     
+      2295 +        "required": [                                        
+      2296 +          "sigla",                                           
+     … 15 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+40 -0)
+      116          patch?: never;
+      117          trace?: never;
+      118      };
+      119 +    "/api/v1/cursos": {                                       
+      120 +        parameters: {                                         
+      121 +            query?: never;                                    
+      122 +            header?: never;                                   
+      123 +            path?: never;                                     
+      124 +            cookie?: never;                                   
+      125 +        };                                                    
+      126 +        get: operations["GetCursos"];                         
+      127 +        put?: never;                                          
+      128 +        post?: never;                                         
+      129 +        delete?: never;                                       
+      130 +        options?: never;                                      
+      131 +        head?: never;                                         
+      132 +        patch?: never;                                        
+      133 +        trace?: never;                                        
+      134 +    };                                                        
+      135      "/api/v1/busca/alunos": {
+      136          parameters: {
+      137              query?: never;
+     ...
+      637              sigla: string;
+      638              nome: string;
+      639          };
+      640 +        CursoResponse: {                                      
+      641 +            sigla: string;                                    
+      642 +            nome: string;                                     
+      643 +        };                                                    
+      644          CurtidasResponse: {
+      645              /** Format: int32 */
+      646              curtidas: number;
+     ...
+      1172              };
+      1173          };
+      1174      };
+      1175 +    GetCursos: {                                             
+      1176 +        parameters: {                                        
+      1177 +            query?: never;                                   
+      1178 +            header?: never;                                  
+      1179 +            path?: never;                                    
+     … 18 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Rotas de cursos testadas e cliente regenerado; agora exporto o debounce do
+  cadastro para reaproveitar na busca e no editar perfil, e escrevo a camada de
+  dados dessas duas telas.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      's|^function useValorParado<T>(valor: T, espera: number): T {|// O…)
+  ⎿  21:export function useValorParado<T>(valor: T, espera: number): T {
+  ⎿  Updated apps\mobile\src\cadastro\useDisponibilidadeDoPrefixo.ts (+2 
+     -1)
+      17    // 429 ou rede: não bloqueia. O cadastro confere de novo ao c
+          riar a conta.
+      18    | { estado: "nao-verificado" };
+      19  
+      20 -function useValorParado<T>(valor: T, espera: number): T {      
+      20 +// O valor depois que a digitação para: a pergunta à API sai um
+         +a vez, não a cada tecla.                                       
+      21 +export function useValorParado<T>(valor: T, espera: number): T 
+         +{                                                              
+      22    const [parado, setParado] = useState(valor);
+      23    useEffect(() => {
+      24      const relogio = setTimeout(() => setParado(valor), espera);
+
+● Write(apps\mobile\src\busca\api.ts)
+  ⎿  Wrote 155 lines to apps\mobile\src\busca\api.ts
+       1 import type { components } from "@maxx/api-client";
+       2 import {
+       3   useInfiniteQuery,
+       4   useMutation,
+       5   useQuery,
+       6   useQueryClient,
+       7 } from "@tanstack/react-query";
+       8 
+       9 import { useApiClient } from "../api/ApiClientProvider";
+      10 import { FalhaDaApi } from "../api/FalhaDaApi";
+     … +145 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && perl -0pi -e
+      's/      const fotoUploadId = foto \? await enviarFoto\(client,…)
+  ⎿  Updated apps\mobile\src\busca\api.ts (+6 -4)
+      131  
+      132    return useMutation({
+      133      mutationFn: async ({ nomeDeExibicao, prefixo, foto }: Edic
+           aoDoPerfil) => {
+      134 -      const fotoUploadId = foto ? await enviarFoto(client, "fo
+          -toDePerfil", foto) : undefined;                               
+      134 +      const fotoUploadId = foto                               
+      135 +        ? await enviarFoto(client, "fotoDePerfil", foto)      
+      136 +        : null;                                               
+      137        const { data, error } = await client.PATCH("/api/v1/eu/p
+           erfil", {
+      138          body: {
+      137 -          nomeDeExibicao,                                     
+      138 -          prefixo,                                            
+      139 +          nomeDeExibicao: nomeDeExibicao ?? null,             
+      140 +          prefixo: prefixo ?? null,                           
+      141            fotoUploadId,
+      140 -          removerFoto: foto === null ? true : undefined,      
+      142 +          removerFoto: foto === null ? true : null,           
+      143          },
+      144        });
+      145        if (!data) {
+  ⎿  (timeout 5m)
+
+● Agora a tela da Busca: campo, chips de curso e de semestre e a lista de
+  alunos.
+
+● Write(apps\mobile\src\busca\BuscaScreen.tsx)
+  ⎿  Wrote 165 lines to apps\mobile\src\busca\BuscaScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   FlatList,
+       6   Pressable,
+       7   ScrollView,
+       8   StyleSheet,
+       9   Text,
+      10   View,
+     … +155 lines (ctrl+o to expand)
+
+● Deixei por engano um bloco de ícone oculto sem função no fim da tela. Removo,
+  ligo a rota da aba Busca e tiro o "Em breve" dela.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e 's/      <View pointerEvents="none" style=\{styles\.oculto\}…)
+  ⎿  0
+     0
+  ⎿  Updated apps\mobile\src\app\(app)\(abas)\busca.tsx (+2 -2)
+      1 -import { BuscaEmBreve } from "../../../navegacao/EmBreve";      
+      1 +import { BuscaScreen } from "../../../busca/BuscaScreen";       
+      2  
+      3 -export default BuscaEmBreve;                                    
+      3 +export default BuscaScreen;                                     
+  ⎿  Updated apps\mobile\src\busca\BuscaScreen.tsx (+46 -16)
+      15  import { useEu } from "../api/useEu";
+      16  import { Avatar } from "../components/Avatar";
+      17  import { FilterChip } from "../components/FilterChip";
+      18 -import { Icon } from "../components/Icon";                     
+      18  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      19  import { TextField } from "../components/TextField";
+      20  import { perfilDe } from "../feed/CartaoDePost";
+     ...
+      56      >
+      57        <Avatar nome={item.nomeDeExibicao} foto={item.foto} size=
+          {44} />
+      58        <View style={styles.texto}>
+      60 -        <Text style={[textStyles.secao, { color: colors.ink }]}
+         ->{item.nomeDeExibicao}</Text>                                  
+      59 +        <Text style={[textStyles.secao, { color: colors.ink }]}
+         +>                                                              
+      60 +          {item.nomeDeExibicao}                                
+      61 +        </Text>                                                
+      62          <Text style={[textStyles.legenda, { color: colors.ink2 
+          }]}>
+      63            {[
+      64              item.arroba,
+     ...
+      71          </Text>
+      72        </View>
+      73        {item.euSigo && (
+      73 -        <Text style={[textStyles.legenda, { color: colors.ink3 
+         -}]}>Seguindo</Text>                                            
+      74 +        <Text style={[textStyles.legenda, { color: colors.ink3 
+         +}]}>                                                           
+      75 +          Seguindo                                             
+      76 +        </Text>                                                
+      77        )}
+      78      </Pressable>
+      79    );
+     ...
+       87    ) : busca.isPending ? (
+       88      <ActivityIndicator style={styles.espera} color={colors.ink
+           2} />
+       89    ) : busca.isError ? (
+       87 -    <ErrorState message={falhaParaTela(busca.error).mensagem} 
+          -onRetry={() => void busca.refetch()} />                       
+       90 +    <ErrorState                                               
+       91 +      message={falhaParaTela(busca.error).mensagem}           
+       92 +      onRetry={() => void busca.refetch()}                    
+       93 +    />                                                        
+       94    ) : (
+       89 -    <EmptyState icon="search" title="Nenhum aluno encontrado."
+          - message="Tente outro nome ou outro filtro." />               
+       95 +    <EmptyState                                               
+       96 +      icon="search"                                           
+       97 +      title="Nenhum aluno encontrado."                        
+     … 91 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\navegacao\EmBreve.tsx (+0 -8)
+      24    );
+      25  }
+      26  
+      27 -export const BuscaEmBreve = () => (                            
+      28 -  <EmBreve                                                     
+      29 -    icone="search"                                             
+      30 -    titulo="Busca em breve."                                   
+      31 -    mensagem="Aqui você vai encontrar alunos pelo nome e pelo a
+         -rroba."                                                        
+      32 -  />                                                           
+      33 -);                                                             
+      34 -                                                               
+      27  export const MuralEmBreve = () => (
+      28    <EmBreve
+      29      icone="newspaper"
+  ⎿  (timeout 5m)
+
+● Agora a tela de editar perfil: foto (trocar e remover), nome de exibição e
+  prefixo do arroba, com a disponibilidade consultada depois que a digitação
+  para.
+
+● Write(apps\mobile\src\perfil\EditarPerfilScreen.tsx)
+  ⎿  Wrote 192 lines to apps\mobile\src\perfil\EditarPerfilScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import { ActivityIndicator, Image, StyleSheet, Text, View } from
+          "react-native";
+       4 
+       5 import { falhaParaTela } from "../api/FalhaDaApi";
+       6 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       7 import { useEditarPerfil } from "../busca/api";
+       8 import { useDisponibilidadeDoMeuPrefixo } from "../busca/api";
+       9 import { erroDoNome } from "../cadastro/regras";
+     … +183 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      's|^import { useEditarPerfil } from "../busca/api";$|import { useD…)
+  ⎿  0
+  ⎿  Updated apps\mobile\src\app\(app)\editar-perfil.tsx (+2 -2)
+      1 -import { EditarPerfilEmBreve } from "../../navegacao/EmBreve";  
+      1 +import { EditarPerfilScreen } from "../../perfil/EditarPerfilScr
+        +een";                                                           
+      2  
+      3 -export default EditarPerfilEmBreve;                             
+      3 +export default EditarPerfilScreen;                              
+  ⎿  Updated apps\mobile\src\navegacao\EmBreve.tsx (+0 -17)
+      1  import { StyleSheet, View } from "react-native";
+      2  
+      3 -import { Cabecalho } from "../components/Cabecalho";            
+      3  import { type IconName } from "../components/Icon";
+      4  import { Screen } from "../components/Screen";
+      5  import { EmptyState } from "../components/StateMessage";
+     ...
+      34  const styles = StyleSheet.create({
+      35    centro: { flex: 1, justifyContent: "center" },
+      36  });
+      38 -                                                               
+      39 -// Até a tela de editar perfil (passo 7, etapa 10), o botão do 
+         -perfil chega aqui.                                             
+      40 -export function EditarPerfilEmBreve() {                        
+      41 -  return (                                                     
+      42 -    <Screen>                                                   
+      43 -      <Cabecalho titulo="Editar perfil" voltarPara="/perfil" />
+      44 -      <View style={styles.centro}>                             
+      45 -        <EmptyState                                            
+      46 -          icon="user"                                          
+      47 -          title="Em breve."                                    
+      48 -          message="Aqui você vai trocar a foto, o nome e o arro
+         -ba."                                                           
+      49 -        />                                                     
+      50 -      </View>                                                  
+      51 -    </Screen>                                                  
+      52 -  );                                                           
+      53 -}                                                              
+  ⎿  Updated apps\mobile\src\perfil\EditarPerfilScreen.tsx (+36 -12)
+       4  
+       5  import { falhaParaTela } from "../api/FalhaDaApi";
+       6  import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       7 -import { useEditarPerfil } from "../busca/api";                
+       8 -import { useDisponibilidadeDoMeuPrefixo } from "../busca/api"; 
+       7 +import { useDisponibilidadeDoMeuPrefixo, useEditarPerfil } from
+         + "../busca/api";                                               
+       8  import { erroDoNome } from "../cadastro/regras";
+       9  import { Avatar } from "../components/Avatar";
+      10  import { Button } from "../components/Button";
+     ...
+      32    return (
+      33      <Screen scroll>
+      34        <Cabecalho titulo="Editar perfil" voltarPara="/perfil" />
+      36 -      {perfil.isPending && <ActivityIndicator style={styles.esp
+         -era} color={colors.ink2} />}                                   
+      35 +      {perfil.isPending && (                                   
+      36 +        <ActivityIndicator style={styles.espera} color={colors.
+         +ink2} />                                                       
+      37 +      )}                                                       
+      38        {perfil.isError && (
+      38 -        <ErrorState message={falhaParaTela(perfil.error).mensag
+         -em} onRetry={() => void perfil.refetch()} />                   
+      39 +        <ErrorState                                            
+      40 +          message={falhaParaTela(perfil.error).mensagem}       
+      41 +          onRetry={() => void perfil.refetch()}                
+      42 +        />                                                     
+      43        )}
+      44        {perfil.isSuccess && <Formulario perfil={perfil.data} />}
+      45      </Screen>
+     ...
+      63    const [foto, setFoto] = useState<Derivadas | null | undefined
+          >(undefined);
+      64    const [preparando, setPreparando] = useState(false);
+      65    const [erroDaFoto, setErroDaFoto] = useState<string | null>(n
+          ull);
+      62 -  const disponibilidade = useDisponibilidadeDoMeuPrefixo(prefix
+         -o, atual.prefixo);                                             
+      66 +  const disponibilidade = useDisponibilidadeDoMeuPrefixo(      
+      67 +    prefixo,                                                   
+      68 +    atual.prefixo,                                             
+      69 +  );                                                           
+      70  
+      71    const erroNome = erroDoNome(nome);
+      72    const erroPrefixo =
+     ...
+      90        setFoto(await gerarDerivadas(escolhida));
+      91      } catch (erro) {
+      92        setErroDaFoto(
+      86 -        erro instanceof FotoGrandeDemais ? erro.message : "Não 
+         -deu para abrir essa foto. Escolha outra.",                     
+     … 49 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Typecheck e lint limpos. Agora a foto opcional no registro da demonstração
+  (produto.md 11). Vejo a parte da tela onde a pessoa escolhe nome e curso.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Coloco a seção de foto opcional depois do curso; ela sobe logo após criar a
+  conta e, se falhar, a pessoa pode colocar a foto depois em "Editar perfil".
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/demonstracao"
+      && perl -0pi -e 's/(            \{erros\.curso && <AvisoDeErro…)
+  ⎿  5
+  ⎿  Updated apps\mobile\src\demonstracao\DemonstracaoScreen.tsx (+77 -0)
+       8  import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       9  import { TelaDeAutenticacao } from "../autenticacao/TelaDeAuten
+          ticacao";
+      10  import { erroDoNome } from "../cadastro/regras";
+      11 +import { Avatar } from "../components/Avatar";                 
+      12  import { Button } from "../components/Button";
+      13  import { FilterChip } from "../components/FilterChip";
+      14  import { ErrorState } from "../components/StateMessage";
+      15  import { TextField } from "../components/TextField";
+      16  import { TextLink } from "../components/TextLink";
+      17 +import {                                                       
+      18 +  FotoGrandeDemais,                                            
+      19 +  gerarDerivadas,                                              
+      20 +  type Derivadas,                                              
+      21 +} from "../fotos/derivadas";                                   
+      22 +import { enviarFoto, escolherFoto } from "../fotos/envio";     
+      23  import { useSessao } from "../sessao/SessaoProvider";
+      24  import { TextoDoTermo } from "../termo/TextoDoTermo";
+      25  import { useTermoDeUso } from "../termo/useTermoDeUso";
+     ...
+       87    const [curso, setCurso] = useState<string | null>(null);
+       88    const [erros, setErros] = useState<{ nome?: string; curso?: 
+           string }>({});
+       89    const [aviso, setAviso] = useState<string | null>(null);
+       90 +  // A foto opcional do registro (produto.md 11): as derivadas
+          + saem na hora da escolha e sobem                              
+       91 +  // como foto de perfil logo depois de a conta nascer.       
+       92 +  const [foto, setFoto] = useState<Derivadas | null>(null);   
+       93 +  const [preparandoFoto, setPreparandoFoto] = useState(false);
+       94 +  const [erroDaFoto, setErroDaFoto] = useState<string | null>(
+          +null);                                                        
+       95 +                                                              
+       96 +  const trocarFoto = async () => {                            
+       97 +    setErroDaFoto(null);                                      
+       98 +    try {                                                     
+       99 +      const escolhida = await escolherFoto();                 
+      100 +      if (!escolhida) return;                                 
+      101 +      setPreparandoFoto(true);                                
+      102 +      setFoto(await gerarDerivadas(escolhida));               
+      103 +    } catch (erro) {                                          
+      104 +      setErroDaFoto(                                          
+      105 +        erro instanceof FotoGrandeDemais                      
+      106 +          ? erro.message                                      
+      107 +          : "Não deu para abrir essa foto. Escolha outra.",   
+      108 +      );                                                      
+     … 71 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora os testes da busca e do editar perfil.
+
+● Write(apps\mobile\src\busca\busca.test.tsx)
+  ⎿  Wrote 123 lines to apps\mobile\src\busca\busca.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 
+       3 import { json, renderComApi } from "../test/renderComApi";
+       4 import { BuscaScreen } from "./BuscaScreen";
+       5 
+       6 const mockRoteador = {
+       7   push: jest.fn(),
+       8   replace: jest.fn(),
+       9   back: jest.fn(),
+     … +114 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\perfil\editarPerfil.test.tsx)
+  ⎿  Wrote 186 lines to apps\mobile\src\perfil\editarPerfil.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 import { launchImageLibraryAsync } from "expo-image-picker";
+       3 
+       4 import { json, renderComApi } from "../test/renderComApi";
+       5 import { EditarPerfilScreen } from "./EditarPerfilScreen";
+       6 
+       7 const mockRoteador = {
+       8   push: jest.fn(),
+       9   replace: jest.fn(),
+     … +177 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx prettier
+      --write src/busca src/perfil >/dev/null; npx tsc --noEmit 2>&1 |…)
+  ⎿  Tests:       12 passed, 12 total
+  ⎿  Updated apps\mobile\src\busca\busca.test.tsx (+18 -5)
+      30  
+      31  beforeEach(() => {
+      32    jest.clearAllMocks();
+      33 -  busca = jest.fn(async (_pedido: Request) => json(200, { itens
+         -: [JOAO_ENCONTRADO], proximo: null }));                        
+      33 +  busca = jest.fn(async (_pedido: Request) =>                  
+      34 +    json(200, { itens: [JOAO_ENCONTRADO], proximo: null }),    
+      35 +  );                                                           
+      36    api = jest.fn(async (pedido: Request) => {
+      37      const { pathname } = new URL(pedido.url);
+      38      if (pathname === "/api/v1/eu")
+      37 -      return json(200, { id: ANA, papeis: ["aluno"], arroba: "@
+         -anaSouza-CC", nomeDeExibicao: "Ana Souza", foto: null });      
+      39 +      return json(200, {                                       
+      40 +        id: ANA,                                               
+      41 +        papeis: ["aluno"],                                     
+      42 +        arroba: "@anaSouza-CC",                                
+      43 +        nomeDeExibicao: "Ana Souza",                           
+      44 +        foto: null,                                            
+      45 +      });                                                      
+      46      if (pathname === "/api/v1/cursos")
+      47        return json(200, [
+      48          { sigla: "ADS", nome: "Análise e Desenvolvimento de Sis
+          temas" },
+     ...
+      53    });
+      54  });
+      55  
+      48 -const consulta = (chamada = 0) => new URL(busca.mock.calls[cham
+         -ada]![0].url).searchParams;                                    
+      56 +const consulta = (chamada = 0) =>                              
+      57 +  new URL(busca.mock.calls[chamada]![0].url).searchParams;     
+      58  
+      59  async function digitar(texto: string) {
+      60    await act(async () => {
+     ...
+      78      await digitar("joa");
+      79  
+      80      expect(await screen.findByText("João Lima")).toBeOnTheScree
+          n();
+      72 -    expect(screen.getByText("@joaoLima-CC · CC · 5º semestre"))
+         -.toBeOnTheScreen();                                            
+      81 +    expect(                                                    
+      82 +      screen.getByText("@joaoLima-CC · CC · 5º semestre"),     
+      83 +    ).toBeOnTheScreen();                                       
+      84      expect(screen.getByText("Seguindo")).toBeOnTheScreen();
+      85      expect(busca).toHaveBeenCalledTimes(1);
+      86      expect(consulta().get("termo")).toBe("joa");
+     … 10 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\editarPerfil.test.tsx (+59 -14)
+      22            crop: () => contexto,
+      23            resize: () => contexto,
+      24            renderAsync: async () => ({
+      25 -            saveAsync: async () => ({ uri: `file:///derivada-${
+         -++gerada}.jpg`, width: 0, height: 0 }),                        
+      25 +            saveAsync: async () => ({                          
+      26 +              uri: `file:///derivada-${++gerada}.jpg`,         
+      27 +              width: 0,                                        
+      28 +              height: 0,                                       
+      29 +            }),                                                
+      30            }),
+      31          };
+      32          return contexto;
+     ...
+      65    jest.clearAllMocks();
+      66    perfil = { ...PERFIL };
+      67    edicao = jest.fn(async (_pedido: Request) => json(200, perfil
+          ));
+      64 -  disponibilidade = jest.fn(async (_pedido: Request) => json(20
+         -0, { disponivel: true }));                                     
+      68 +  disponibilidade = jest.fn(async (_pedido: Request) =>        
+      69 +    json(200, { disponivel: true }),                           
+      70 +  );                                                           
+      71    api = jest.fn(async (pedido: Request) => {
+      72      const { pathname } = new URL(pedido.url);
+      67 -    if (pathname === "/api/v1/eu/perfil" && pedido.method === "
+         -PATCH") return edicao(pedido);                                 
+      73 +    if (pathname === "/api/v1/eu/perfil" && pedido.method === "
+         +PATCH")                                                        
+      74 +      return edicao(pedido);                                   
+      75      if (pathname === "/api/v1/eu/perfil") return json(200, perf
+          il);
+      69 -    if (pathname === "/api/v1/eu/perfil/disponibilidade") retur
+         -n disponibilidade(pedido);                                     
+      76 +    if (pathname === "/api/v1/eu/perfil/disponibilidade")      
+      77 +      return disponibilidade(pedido);                          
+      78      if (pathname === "/api/v1/uploads")
+      79        return json(201, {
+      80          id: "upload-1",
+      81          expiraEm: "2026-11-10T13:15:00Z",
+      74 -        feed: { url: "http://bucket.test/a/feed.jpg", tipoDeCon
+         -teudo: "image/jpeg", tamanho: 300 },                           
+      75 -        grade: { url: "http://bucket.test/a/grade.jpg", tipoDeC
+         -onteudo: "image/jpeg", tamanho: 40 },                          
+      82 +        feed: {                                                
+      83 +          url: "http://bucket.test/a/feed.jpg",                
+      84 +          tipoDeConteudo: "image/jpeg",                        
+      85 +          tamanho: 300,                                        
+      86 +        },                                                     
+      87 +        grade: {                                               
+     … 90 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Os 12 passam. Falta o teste da foto no registro da demonstração. Vejo como o
+  teste existente registra uma conta.
+
+  Ran 2 shell commands (ctrl+o to expand)
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/demonstracao"
+      && perl -0pi -e 's/(\}\)\);\n\nconst CURSOS = \[)/}));\njest.mo…)
+  ⎿  Tests:       10 passed, 10 total
+  ⎿  Updated apps\mobile\src\demonstracao\demonstracao.test.tsx (+113 -0)
+      12      return <Text>{`redireciona para ${href}`}</Text>;
+      13    },
+      14  }));
+      15 +jest.mock("expo-image-picker", () => ({                        
+      16 +  launchImageLibraryAsync: jest.fn(async () => ({              
+      17 +    canceled: false,                                           
+      18 +    assets: [{ uri: "file:///galeria.jpg", width: 800, height: 
+         +800 }],                                                        
+      19 +  })),                                                         
+      20 +}));                                                           
+      21 +jest.mock("expo-image-manipulator", () => ({                   
+      22 +  SaveFormat: { JPEG: "jpeg" },                                
+      23 +  ImageManipulator: {                                          
+      24 +    manipulate: () => {                                        
+      25 +      const contexto = {                                       
+      26 +        crop: () => contexto,                                  
+      27 +        resize: () => contexto,                                
+      28 +        renderAsync: async () => ({                            
+      29 +          saveAsync: async () => ({                            
+      30 +            uri: "file:///derivada.jpg",                       
+      31 +            width: 0,                                          
+      32 +            height: 0,                                         
+      33 +          }),                                                  
+      34 +        }),                                                    
+      35 +      };                                                       
+      36 +      return contexto;                                         
+      37 +    },                                                         
+      38 +  },                                                           
+      39 +}));                                                           
+      40  
+      41  const CURSOS = [
+      42    { sigla: "CC", nome: "Ciência da Computação" },
+     ...
+      55  let entrada: jest.Mock<Promise<Response>, [Request]>;
+      56  let demo: jest.Mock<Promise<Response>, [Request]>;
+      57  let api: jest.Mock<Promise<Response>, [Request]>;
+      58 +let uploads: jest.Mock<Promise<Response>, [Request]>;          
+      59 +let edicao: jest.Mock<Promise<Response>, [Request]>;           
+      60  
+      61  function aparelho(contas: ContaDeDemonstracao[] = []) {
+      62    let guardadas = contas;
+     ...
+      73    jest.clearAllMocks();
+     … 100 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Os 10 da demonstração passam. Rodo a bateria do app e depois subo a pilha
+  isolada para os e2e e as capturas da busca e do editar perfil.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bateria verde (384 no app). A CI da etapa 9 ainda está rodando. Subo a pilha
+  isolada e rodo a suíte e2e.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI for etapa 9 commit" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 9 passou no verde e a suíte e2e fecha inteira contra ela; agora
+  faço as capturas da busca e do editar perfil, que não têm prancheta própria.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      mkdir -p e2e/captura-temp && printf '%s\n' 'import { defineConfig } from
+      "@playwright/tes…)
+  ⎿  ok
+  ⎿  Created e2e\captura-temp\playwright.config.ts (+12 -0)
+       1 +import { defineConfig } from "@playwright/test";               
+       2 +                                                               
+       3 +export default defineConfig({                                  
+       4 +  testDir: ".",                                                
+       5 +  timeout: 240_000,                                            
+       6 +  workers: 1,                                                  
+       7 +  use: { baseURL: "http://localhost:18080", viewport: { width: 
+         +390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTo
+         +uch: true },                                                   
+       8 +  projects: [                                                  
+       9 +    { name: "claro", use: { colorScheme: "light" } },          
+      10 +    { name: "escuro", use: { colorScheme: "dark" } },          
+      11 +  ],                                                           
+      12 +});                                                            
+
+● Write(e2e\captura-temp\busca.spec.ts)
+  ⎿  Wrote 67 lines to e2e\captura-temp\busca.spec.ts
+       1 import { readFileSync } from "node:fs";
+       2 import path from "node:path";
+       3 
+       4 import { expect, test, type APIRequestContext } from "@playwrigh
+         t/test";
+       5 
+       6 import { novaConta } from "../tests/apoio/contas";
+       7 
+       8 // Captura temporária, fora do git: busca e editar perfil, que n
+         ão têm prancheta.
+     … +59 lines (ctrl+o to expand)
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Os dois testes passaram: a busca, com chips de curso e semestre e o "jo"
+  achando "João", e a edição de perfil, com foto, nome e arroba. Agora limpo os
+  temporários, derrubo a pilha e faço o commit.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      -rf e2e/captura-temp e2e/test-results e2e/playwright-report;
+      S2=/c/Users/GUILHE~1/AppD…)
+  ⎿   Network maxx-etapa10_default Removed
+     verificar=0
+       total: 745
+     … +18 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\captura-temp\busca.spec.ts (+0 -67)
+       1 -import { readFileSync } from "node:fs";                        
+       2 -import path from "node:path";                                  
+       3 -                                                               
+       4 -import { expect, test, type APIRequestContext } from "@playwrig
+         -ht/test";                                                      
+       5 -                                                               
+       6 -import { novaConta } from "../tests/apoio/contas";             
+       7 -                                                               
+       8 -// Captura temporária, fora do git: busca e editar perfil, que 
+         -não têm prancheta.                                             
+       9 -const SAIDA =                                                  
+      10 -  "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilher
+         -me-Gimenes-Documents-Repos-tcc-maxx-engenheiro/db2e3dff-90c5-43
+         -a0-a9fa-f91217b12056/scratchpad";                              
+      11 -                                                               
+      12 -async function token(request: APIRequestContext, identificador:
+         - string, senha: string) {                                      
+      13 -  const resposta = await request.post("/api/v1/auth/login", { d
+         -ata: { identificador, senha } });                              
+      14 -  return { Authorization: `Bearer ${(await resposta.json()).acc
+         -essToken}` };                                                  
+      15 -}                                                              
+      16 -                                                               
+      17 -test("busca e editar perfil", async ({ page, request }, info) =
+         -> {                                                            
+      18 -  const tema = info.project.name;                              
+      19 -  const n = `${Date.now()}`.slice(-4);                         
+      20 -  const ana = await novaConta(request, "Ana Souza");           
+      21 -  const daAna = await token(request, ana.ra, ana.senha);       
+      22 -  await request.patch("/api/v1/eu/perfil", { headers: daAna, da
+         -ta: { prefixo: `anaSouza${n}` } });                            
+      23 -                                                               
+      24 -  // Colegas com nomes que a busca por "jo" encontra, um deles 
+         -seguido pela Ana.                                              
+      25 -  for (const nome of ["João Lima", "Joana Prado", "Jonas Ávila"
+         -]) {                                                           
+      26 -    const colega = await novaConta(request, nome);             
+      27 -    const doColega = await token(request, colega.ra, colega.sen
+         -ha);                                                           
+      28 -    const prefixo = nome.normalize("NFD").replace(/[^A-Za-z]/g,
+         - "");                                                          
+      29 -    await request.patch("/api/v1/eu/perfil", { headers: doColeg
+         -a, data: { prefixo: `${prefixo}${n}` } });                     
+      30 -    if (nome === "João Lima") {                                
+      31 -      const id = (await (await request.get("/api/v1/eu", { head
+         -ers: doColega })).json()).id;                                  
+      32 -      await request.put(`/api/v1/seguindo/${id}`, { headers: da
+         -Ana });                                                        
+      33 -    }                                                          
+      34 -  }                                                            
+      35 -                                                               
+      36 -  // A foto de perfil da Ana, pelo mesmo caminho do app.       
+      37 -  const feed = readFileSync(path.join(SAIDA, "campus.jpg"));   
+      38 -  const grade = readFileSync(path.join(SAIDA, "grade.jpg"));   
+      39 -  const upload = await (await request.post("/api/v1/uploads", {
+      40 -    headers: daAna,                                            
+     … 27 more lines (ctrl+o to expand)
+  ⎿  Deleted e2e\captura-temp\playwright.config.ts (+0 -12)
+       1 -import { defineConfig } from "@playwright/test";               
+       2 -                                                               
+       3 -export default defineConfig({                                  
+       4 -  testDir: ".",                                                
+       5 -  timeout: 240_000,                                            
+       6 -  workers: 1,                                                  
+       7 -  use: { baseURL: "http://localhost:18080", viewport: { width: 
+         -390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTo
+         -uch: true },                                                   
+       8 -  projects: [                                                  
+       9 -    { name: "claro", use: { colorScheme: "light" } },          
+      10 -    { name: "escuro", use: { colorScheme: "dark" } },          
+      11 -  ],                                                           
+      12 -});                                                            
+  ⎿  (timeout 10m)
+
+● A etapa 10 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 9 fechada: commit 72ba60e, CI verde nos seis jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42444608943
+
+  Capturas
+
+  Feitas com a pilha completa deste código, num projeto isolado já derrubado,
+  com contas reais. Nenhuma das duas telas tem prancheta (produto.md 10.1);
+  ambas seguem a identidade visual.
+  - Busca, tema claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guil
+    herme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0-a9fa-f9
+    1217b12056\scratchpad\etapa10-busca-claro.png
+  - Busca, tema escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Gui
+    lherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0-a9fa-f
+    91217b12056\scratchpad\etapa10-busca-escuro.png
+  - Editar perfil, tema claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Us
+    ers-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0
+    -a9fa-f91217b12056\scratchpad\etapa10-editar-perfil-claro.png
+  - Editar perfil, tema escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--U
+    sers-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a
+    0-a9fa-f91217b12056\scratchpad\etapa10-editar-perfil-escuro.png
+
+  O que a etapa entrega
+
+  Busca (aba Busca, D11)
+  - Campo "Nome ou arroba", consultado 500 ms depois que a digitação para (o
+    mesmo debounce do cadastro, agora exportado).
+  - Chips de curso e de semestre (1º ao 8º), que rolam na horizontal; tocar de
+    novo tira o filtro.
+  - Resultados com avatar (foto ou iniciais), nome, arroba, curso, semestre,
+    "Ex-aluno" quando for o caso e "Seguindo" quando a pessoa já segue. Tocar
+    abre o perfil. Rolagem infinita.
+  - Sem critério, a tela explica o que buscar e não consulta a API. Também há
+    estado vazio e erro amigável.
+  - Os atalhos de ranking ficam para o passo 11.
+  - API: GET /v1/cursos (sigla e nome, por sigla), para os chips. Só leitura,
+    com teste de integração.
+
+  Editar perfil (/editar-perfil, no lugar do "Em breve" da etapa 9)
+  - Foto: trocar (as derivadas são geradas na escolha e sobem como foto de
+    perfil ao salvar) e remover.
+  - Nome de exibição: com a regra do cadastro.
+  - Prefixo do arroba:
+    - a prévia "Seu arroba: @aninha-CC" explica que o sufixo vem do curso;
+    - a disponibilidade é consultada em /v1/eu/perfil/disponibilidade depois que
+      a digitação para;
+    - "Esse arroba já é de outra pessoa." ou erro de forma aparecem no próprio
+      campo;
+    - o prefixo atual nem é consultado.
+  - Salvar: fica desativado sem mudança ou com erro, manda só o que mudou e
+    volta. Recusa da API vira mensagem amigável.
+
+  Foto opcional na demonstração (produto.md 11)
+  - A seção "Foto (opcional)" fica no registro, com prévia no avatar. A foto
+    sobe como foto de perfil logo depois de a conta nascer.
+  - É de melhor esforço: se o envio falhar (429, rede), a pessoa entra do mesmo
+    jeito e pode pôr a foto depois em Editar perfil. A conta já existe nesse
+    ponto, e travar a entrada por causa da foto seria pior.
+
+  Verificação
+
+  - Jest, 14 testes novos:
+    - busca: sem critério; termo com debounce e abertura do perfil; filtros
+      ligando e desligando; vazio; erro;
+    - editar perfil: valores atuais e Salvar desativado; só o nome; prefixo
+      conferido e salvo; prefixo ocupado ou fora da forma; recusa da API; foto
+      nova; remover foto;
+    - demonstração: a foto sobe depois do registro, na ordem certa; foto que
+      falha não impede a entrada.
+  - Total do app: 384 passando, com prettier, lint e typecheck limpos.
+  - API: 745 testes, formatação, build sem aviso e verificar limpos.
+  - e2e completo contra a pilha isolada: 61 passando na passada normal e 4 na
+    passada com a demonstração ligada.
+
+  Commit proposto: feat(mobile): adiciona busca de alunos, editar perfil e foto 
+  na demonstração. Ele inclui a rota GET /v1/cursos.
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 11, a última: e2e dos fluxos do passo e a documentação. Ela já
+  carrega a lista que fomos acumulando:
+  - D1 trocada para o VersityGW, D13 adiada para o passo 12, D6 e as outras
+    decisões nos docs;
+  - o privilégio de CREATE EXTENSION no passo 13 do plano mestre;
+  - as quatro ressalvas da etapa 6;
+  - o nome de usuário sem "@" e sem sufixo no cartão;
+  - a causa do tempo do caso de medalha no e2e.
+
+✻ Sautéed for 15m 15s · done 1:09
