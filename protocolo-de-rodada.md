@@ -95,7 +95,8 @@ execução da condição de prompt único:
 1. Rodar a suíte de testes de referência e, se houver, o teste de carga; guardar os
    resultados em `avaliacoes/reviews/<produto>-testes-referencia.md` e
    `avaliacoes/carga/`.
-2. Seis sessões novas do Claude Code, uma por eixo, na pasta do repo avaliado, com o
+2. Seis sessões novas do Claude Code, uma por eixo, abertas por
+   `avaliacoes/avaliador/avaliar.ps1` sobre um checkout limpo do repo avaliado, com o
    prompt do revisor de `avaliacoes/rubrica.md`. Não ler os reviews ainda.
 3. O autor pontua os seis eixos pela rubrica sem ver as notas do revisor e registra na
    planilha.
