@@ -11514,3 +11514,2454 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
   - a causa do tempo do caso de medalha no e2e.
 
 ✻ Sautéed for 15m 15s · done 1:09
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+※ recap: Estamos no passo 7 (posts, upload e feed). A etapa 10 (busca, editar perfil e foto na demonstração) está pronta, com testes verdes, e aguarda sua revisão. Com sua aprovação, eu commito, faço o push e sigo para a etapa 11.
+
+> Etapa 10 quase aprovada; uma correção antes do commit. Os chips de semestre   
+  vão do 1º ao 8º, mas Medicina tem 12 semestres (duracaoEmSemestres 12 no      
+  mundo de demonstração, decidido no passo 2, e há aluno do 12º no seed). Com   
+  os chips atuais ninguém filtra do 9º ao 12º. Faz o GET /v1/cursos devolver    
+  também a duração em semestres, e os chips de semestre seguirem o curso        
+  escolhido; sem curso escolhido, vão até a maior duração entre os cursos. O    
+  "(1º ao 8º)" do produto.md é resíduo do passo 0, anterior à decisão dos       
+  cursos: ajusta para "do 1º ao último semestre do curso" no mesmo commit.      
+  Teste de integração da rota e teste da tela cobrindo o caso de Medicina. O    
+  resto fica como está: a foto de melhor esforço na demonstração, o prefixo     
+  atual não consultado, o Salvar desativado sem mudança e os atalhos de ranking 
+  no passo 11. As capturas da busca e do editar perfil estão aprovadas. Com a   
+  correção feita e a bateria verde, commita com a mensagem proposta, push,      
+  acompanha a CI e segue para a etapa 11; para para a minha revisão no fim      
+  dela.                                                                         
+
+● Vou à correção. Além dos chips, a própria API tem o mesmo resíduo: a busca
+  valida semestre com [Range(1, 8)], e um aluno do 9º ao 12º receberia 400. Vejo
+  como o domínio limita o semestre do aluno, para alinhar as duas pontas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O domínio já valida o semestre pela duração de cada curso, então a busca só
+  recusa valores menores que 1 e o teto de 8 sai do código. Vou fazer a rota de
+  cursos devolver a duração.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|
+          \[Range(1, 8)\] int? semestre,|        [Range(1, int.MaxVa…)
+  ⎿  Maxx.Api/Perfil/PerfilEndpoints.cs:148:        TypedResults.Ok<IReadOn
+     lyList<CursoResponse>>([.. (await consulta.CursosAsync(cancellationTok
+     en)).Select(curso => new CursoResponse(curso.Sigla, curso.Nome, curso.
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs (+4 -3)
+      145              await handler.PrefixoDisponivelAsync(PostEndpoints
+           .UsuarioId(principal), prefixo, cancellationToken)));
+      146  
+      147      private static async Task<Ok<IReadOnlyList<CursoResponse>>
+           > CursosAsync(IConsultaDePerfil consulta, CancellationToken ca
+           ncellationToken) =>
+      148 -        TypedResults.Ok<IReadOnlyList<CursoResponse>>([.. (awa
+          -it consulta.CursosAsync(cancellationToken)).Select(curso => ne
+          -w CursoResponse(curso.Sigla, curso.Nome))]);                  
+      148 +        TypedResults.Ok<IReadOnlyList<CursoResponse>>([.. (awa
+          +it consulta.CursosAsync(cancellationToken)).Select(curso => ne
+          +w CursoResponse(curso.Sigla, curso.Nome, curso.DuracaoEmSemest
+          +res))]);                                                      
+      149  
+      150      private static async Task<Ok<PaginaDeAlunosResponse>> Busc
+           arAsync(
+      151          string? termo,
+      152          string? curso,
+      153 -        [Range(1, 8)] int? semestre,                          
+      153 +        [Range(1, int.MaxValue)] int? semestre,               
+      154          string? cursor,
+      155          ClaimsPrincipal principal,
+      156          BuscaDeAlunosHandler handler,
+     ...
+      249  public sealed record AlunoEncontradoResponse(
+      250      Guid Id, string NomeDeExibicao, string Arroba, string? Cur
+           so, int? Semestre, bool ExAluno, string? Foto, bool EuSigo);
+      251  
+      252 -public sealed record CursoResponse(string Sigla, string Nome);
+      252 +// DuracaoEmSemestres: os chips de semestre da Busca seguem o 
+          +curso escolhido.                                              
+      253 +public sealed record CursoResponse(string Sigla, string Nome, 
+          +int DuracaoEmSemestres);                                      
+      254  
+      255  public sealed record PaginaDeAlunosResponse(IReadOnlyList<Alun
+           oEncontradoResponse> Itens, string? Proximo);
+  ⎿  Updated apps\api\src\Maxx.Application\Perfil\Perfil.cs (+2 -1)
+      57  // Termo sem "@" e sem o sufixo; curso pela sigla; semestre do 
+          aluno, de 1 a 8.
+      58  public sealed record FiltroDaBusca(string Termo, string? Curso,
+           int? Semestre);
+      59  
+      60 -public sealed record CursoDaBusca(string Sigla, string Nome);  
+      60 +// A duração dá os semestres do filtro: cada curso vai do 1º ao
+         + último dele (Medicina tem 12).                                
+      61 +public sealed record CursoDaBusca(string Sigla, string Nome, in
+         +t DuracaoEmSemestres);                                         
+      62  
+      63  public sealed record AlunoEncontrado(
+      64      Guid Id, string NomeDeExibicao, string Arroba, string? Curs
+          o, int? Semestre, bool ExAluno, string? ChaveDaFotoDaGrade, boo
+          l EuSigo);
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+     (+1 -1)
+      168      }
+      169  
+      170      public async Task<IReadOnlyList<CursoDaBusca>> CursosAsync
+           (CancellationToken cancellationToken) =>
+      171 -        await db.Set<Curso>().OrderBy(curso => curso.Sigla).Se
+          -lect(curso => new CursoDaBusca(curso.Sigla, curso.Nome)).ToLis
+          -tAsync(cancellationToken);                                    
+      171 +        await db.Set<Curso>().OrderBy(curso => curso.Sigla).Se
+          +lect(curso => new CursoDaBusca(curso.Sigla, curso.Nome, curso.
+          +DuracaoEmSemestres)).ToListAsync(cancellationToken);          
+      172  
+      173      public Task<bool> PrefixoDeOutraPessoaAsync(string prefixo
+           , Guid usuarioId, CancellationToken cancellationToken) =>
+      174          db.Set<PrefixoReservado>().AnyAsync(reservado => reser
+           vado.Prefixo == prefixo && reservado.UsuarioId != usuarioId, c
+           ancellationToken);
+
+● Agora os testes de integração: a rota de cursos com a duração, um curso de
+  Medicina com aluno do 12º semestre achado pelo filtro, e o caso de 400
+  passando para semestre 0.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Social" && sed -i
+      's|"/api/v1/busca/alunos?semestre=…)
+  ⎿  324:    public async Task Cursos_para_os_filtros_da_busca_vem_pela_sig
+     la()
+     325-    {
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs
+     (+1 -1)
+      299          using var ana = await mundo.ComoAsync(Ana);
+      300  
+      301          await AssertRecusaAsync(await ana.GetAsync(new Uri($"/
+           api/v1/busca/alunos{consulta}", UriKind.Relative), Ct), HttpSt
+           atusCode.BadRequest, "busca-sem-criterio");
+      302 -        await AssertRecusaAsync(await ana.GetAsync(new Uri("/a
+          -pi/v1/busca/alunos?semestre=9", UriKind.Relative), Ct), HttpSt
+          -atusCode.BadRequest, "dados-invalidos");                      
+      302 +        await AssertRecusaAsync(await ana.GetAsync(new Uri("/a
+          +pi/v1/busca/alunos?semestre=0", UriKind.Relative), Ct), HttpSt
+          +atusCode.BadRequest, "dados-invalidos");                      
+      303      }
+      304  
+      305      [Fact]
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs)
+  ⎿  Added 33 lines, removed 2 lines
+      321      }
+      322  
+      323      [Fact]
+      324 -    public async Task Cursos_para_os_filtros_da_busca_vem_pela
+          -_sigla()                                                      
+      324 +    public async Task Cursos_para_os_filtros_da_busca_vem_pela
+          +_sigla_com_a_duracao()                                        
+      325      {
+      326          await using var mundo = await CriarAsync(postgres, arm
+           azenamento);
+      327          using var ana = await mundo.ComoAsync(Ana);
+      328 +        await MedicinaAsync(mundo);                           
+      329  
+      330          var cursos = await ana.GetFromJsonAsync<List<CursoResp
+           onse>>("/api/v1/cursos", Ct);
+      331  
+      331 -        Assert.Equal([new CursoResponse("CC", "Ciência da Comp
+          -utação")], cursos);                                           
+      332 +        Assert.Equal(                                         
+      333 +            [new CursoResponse("CC", "Ciência da Computação", 
+          +8), new CursoResponse("MED", "Medicina", 12)],                
+      334 +            cursos);                                          
+      335      }
+      336  
+      337 +    [Fact]                                                    
+      338 +    public async Task Busca_filtra_semestres_alem_do_oitavo_em
+          +_curso_mais_longo()                                           
+      339 +    {                                                         
+      340 +        await using var mundo = await CriarAsync(postgres, arm
+          +azenamento);                                                  
+      341 +        using var ana = await mundo.ComoAsync(Ana);           
+      342 +        await MedicinaAsync(mundo);                           
+      343 +                                                              
+      344 +        var doDecimoSegundo = await BuscarAsync(ana, "semestre
+          +=12");                                                        
+      345 +        var deMedicinaNoDecimoSegundo = await BuscarAsync(ana,
+          + "curso=MED&semestre=12");                                    
+      346 +                                                              
+      347 +        var lucas = Assert.Single(doDecimoSegundo.Itens);     
+      348 +        Assert.Equal(("Lucas Mendes", "MED", 12), (lucas.NomeD
+          +eExibicao, lucas.Curso, lucas.Semestre));                     
+      349 +        Assert.Equal(lucas.Id, Assert.Single(deMedicinaNoDecim
+          +oSegundo.Itens).Id);                                          
+      350 +        Assert.Empty((await BuscarAsync(ana, "semestre=13")).I
+          +tens);                                                        
+      351 +    }                                                         
+      352 +                                                              
+      353 +    // Medicina, com 12 semestres, e um aluno com conta no 12º
+          +, como no mundo de demonstração.                              
+      354 +    private static async Task MedicinaAsync(MundoSocial mundo)
+      355 +    {                                                         
+      356 +        var medicina = new Curso("Medicina", "MED", 12);      
+      357 +        var cadastro = CadastroElegivel.Aluno("20269001", "luc
+          +as.mendes@al.unieduk.com.br", "Lucas Mendes", medicina, 12);  
+      358 +        await BancoDeTeste.SalvarAsync(                       
+      359 +            mundo.Factory,                                    
+      360 +            medicina,                                         
+      361 +            cadastro,                                         
+      362 +            Usuario.CadastrarAluno(cadastro, medicina, "Lucas 
+          +Mendes", "lucasMendes", "hash", DateTimeOffset.UtcNow));      
+      363 +    }                                                         
+      364 +                                                              
+      365      private static async Task AlunosAsync(MundoSocial mundo, i
+           nt quantos)
+      366      {
+      367          await using var scope = mundo.Factory.Services.CreateA
+           syncScope();
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A API passou nos 25 testes do perfil; agora vou para a tela, onde os chips de
+  semestre passam a vir da duração do curso escolhido (ou do maior curso, se
+  nenhum for escolhido), desmarcando o semestre se o curso for mais curto.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/busca" && sed
+      -i '31d' BuscaScreen.tsx && perl -0pi -e 's/(  const filtro = \…)
+  ⎿            placeholder="Nome ou arroba"
+               autoCapitalize="none"
+               autoCorrect={false}
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\busca\BuscaScreen.tsx (+22 -6)
+      28    type AlunoEncontrado,
+      29  } from "./api";
+      30  
+      31 -const SEMESTRES = [1, 2, 3, 4, 5, 6, 7, 8];                    
+      32 -                                                               
+      31  // A Busca (produto.md 6.4): alunos por nome de exibição e por 
+          arroba, com filtros de curso
+      32  // e de semestre, como a busca do Instagram. Os atalhos para os
+           rankings chegam no passo 11.
+      33  // Sem prancheta: segue a identidade visual.
+     ...
+      40    const [termo, setTermo] = useState("");
+      41    const [curso, setCurso] = useState<string | null>(null);
+      42    const [semestre, setSemestre] = useState<number | null>(null)
+          ;
+      43 +  // Os semestres do filtro vão do 1º ao último do curso escolh
+         +ido (Medicina tem 12); sem                                     
+      44 +  // curso, até o mais longo deles.                            
+      45 +  const duracaoDe = (sigla: string | null) =>                  
+      46 +    sigla                                                      
+      47 +      ? (cursos.data?.find((item) => item.sigla === sigla)     
+      48 +          ?.duracaoEmSemestres ?? 0)                           
+      49 +      : Math.max(                                              
+      50 +          0,                                                   
+      51 +          ...(cursos.data ?? []).map((item) => item.duracaoEmSe
+         +mestres),                                                      
+      52 +        );                                                     
+      53 +  const semestres = Array.from(                                
+      54 +    { length: duracaoDe(curso) },                              
+      55 +    (_, indice) => indice + 1,                                 
+      56 +  );                                                           
+      57    const filtro = { termo, curso, semestre };
+      58    const busca = useBuscaDeAlunos(filtro);
+      59    const alunos = busca.data?.pages.flatMap((pagina) => pagina.i
+          tens) ?? [];
+     ...
+      139                label={item.sigla}
+      140                role="radio"
+      141                selected={curso === item.sigla}
+      130 -              onPress={() =>                                  
+      131 -                setCurso((atual) => (atual === item.sigla ? nu
+          -ll : item.sigla))                                             
+      132 -              }                                               
+      142 +              onPress={() => {                                
+      143 +                const novo = curso === item.sigla ? null : ite
+          +m.sigla;                                                      
+      144 +                setCurso(novo);                               
+      145 +                // O semestre marcado que o curso novo não tem
+          + sai do filtro.                                               
+      146 +                if (semestre !== null && semestre > duracaoDe(
+          +novo))                                                        
+      147 +                  setSemestre(null);                          
+     … 12 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Falta regenerar o cliente da API com o campo novo.
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client >/dev/null 2>&1; cd apps/mobile && npx
+      tsc --noEmit 2>&…)
+  ⎿    ● busca › filtra por curso e por semestre sem termo, e tocar de novo
+      tira o filtro
+     Tests:       1 failed, 4 passed, 5 total
+  ⎿  Updated packages\api-client\openapi.json (+7 -2)
+      327              "name": "semestre",
+      328              "in": "query",
+      329              "schema": {
+      330 -              "maximum": 8,                                   
+      330 +              "maximum": 2147483647,                          
+      331                "minimum": 1,
+      332                "type": "integer",
+      333                "format": "int32"
+     ...
+      2294        "CursoResponse": {
+      2295          "required": [
+      2296            "sigla",
+      2297 -          "nome"                                             
+      2297 +          "nome",                                            
+      2298 +          "duracaoEmSemestres"                               
+      2299          ],
+      2300          "type": "object",
+      2301          "properties": {
+     ...
+      2304            },
+      2305            "nome": {
+      2306              "type": "string"
+      2307 +          },                                                 
+      2308 +          "duracaoEmSemestres": {                            
+      2309 +            "type": "integer",                               
+      2310 +            "format": "int32"                                
+      2311            }
+      2312          }
+      2313        },
+  ⎿  Updated packages\api-client\src\schema.d.ts (+2 -0)
+      640          CursoResponse: {
+      641              sigla: string;
+      642              nome: string;
+      643 +            /** Format: int32 */                              
+      644 +            duracaoEmSemestres: number;                       
+      645          };
+      646          CurtidasResponse: {
+      647              /** Format: int32 */
+  ⎿  (timeout 10m)
+
+● O fixture da tela não tem a duração dos cursos, então não sai chip de semestre
+  nenhum. Atualizo o fixture e escrevo o caso de Medicina.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/busca" && perl
+      -0pi -e 's/        \{ sigla: "ADS", nome: "Análise e Desenvolv…)
+  ⎿  Tests:       6 passed, 6 total
+     Tests:       6 passed, 6 total
+  ⎿  Updated apps\mobile\src\busca\busca.test.tsx (+45 -2)
+      45        });
+      46      if (pathname === "/api/v1/cursos")
+      47        return json(200, [
+      48 -        { sigla: "ADS", nome: "Análise e Desenvolvimento de Sis
+         -temas" },                                                      
+      49 -        { sigla: "CC", nome: "Ciência da Computação" },        
+      48 +        {                                                      
+      49 +          sigla: "ADS",                                        
+      50 +          nome: "Análise e Desenvolvimento de Sistemas",       
+      51 +          duracaoEmSemestres: 6,                               
+      52 +        },                                                     
+      53 +        { sigla: "CC", nome: "Ciência da Computação", duracaoEm
+         +Semestres: 8 },                                                
+      54 +        { sigla: "MED", nome: "Medicina", duracaoEmSemestres: 1
+         +2 },                                                           
+      55        ]);
+      56      if (pathname === "/api/v1/busca/alunos") return busca(pedid
+          o);
+      57      return new Response(null, { status: 404 });
+     ...
+      119      expect(screen.getByText("Busque alunos.")).toBeOnTheScreen
+           ();
+      120    });
+      121  
+      122 +  it("os semestres seguem o curso: sem curso até o 12º de Medi
+          +cina, com CC até o 8º", async () => {                         
+      123 +    await renderComApi(<BuscaScreen />, api);                 
+      124 +                                                              
+      125 +    expect(                                                   
+      126 +      await screen.findByRole("radio", { name: "12º semestre" 
+          +}),                                                           
+      127 +    ).toBeOnTheScreen();                                      
+      128 +    expect(screen.queryByRole("radio", { name: "13º semestre" 
+          +})).toBeNull();                                               
+      129 +                                                              
+      130 +    await act(async () => {                                   
+      131 +      fireEvent.press(screen.getByRole("radio", { name: "CC" }
+          +));                                                           
+      132 +    });                                                       
+      133 +    expect(                                                   
+      134 +      screen.getByRole("radio", { name: "8º semestre" }),     
+      135 +    ).toBeOnTheScreen();                                      
+      136 +    expect(screen.queryByRole("radio", { name: "9º semestre" }
+          +)).toBeNull();                                                
+      137 +                                                              
+      138 +    await act(async () => {                                   
+      139 +      fireEvent.press(screen.getByRole("radio", { name: "MED" 
+          +}));                                                          
+      140 +    });                                                       
+      141 +    await act(async () => {                                   
+      142 +      fireEvent.press(screen.getByRole("radio", { name: "12º s
+          +emestre" }));                                                 
+      143 +    });                                                       
+     … 19 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Agora o produto.md, sem travessões.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -n 165,168p docs/produto.md; sed -i 's|o \*\*semestre do aluno\*\* (1º
+      ao 8º) é infor…)
+  ⎿  Atenção a dois sentidos da palavra semestre: o **semestre letivo** (20
+     26/2) corta
+     ranking e conquistas; o **semestre do aluno** (1º ao 8º) é informação
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated docs\produto.md (+1 -1)
+      163  sem ela as conquistas de alvo dinâmico (todas as matérias) não
+            existem.
+      164  
+      165  Atenção a dois sentidos da palavra semestre: o **semestre leti
+           vo** (2026/2) corta
+      166 -ranking e conquistas; o **semestre do aluno** (1º ao 8º) é inf
+          -ormação de perfil, vem do                                     
+      166 +ranking e conquistas; o **semestre do aluno** (do 1º ao último
+          + semestre do curso) é informação de perfil, vem do            
+      167  seed e não entra em pontuação nem em conquista: serve para exi
+           bição e para o filtro da
+      168  Busca.
+      169  
+
+● Reajusto a quebra do parágrafo, que ficou com uma linha longa.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      perl -0pi -e 's/Atenção a dois sentidos da palavra semestre: o
+      \*\*semestre letivo\*\* \(…)
+  ⎿  Atenção a dois sentidos da palavra semestre: o **semestre letivo** (20
+     26/2) corta
+     ranking e conquistas; o **semestre do aluno** (do 1º ao último semestr
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated docs\produto.md (+3 -3)
+      163  sem ela as conquistas de alvo dinâmico (todas as matérias) não
+            existem.
+      164  
+      165  Atenção a dois sentidos da palavra semestre: o **semestre leti
+           vo** (2026/2) corta
+      166 -ranking e conquistas; o **semestre do aluno** (do 1º ao último
+          - semestre do curso) é informação de perfil, vem do            
+      167 -seed e não entra em pontuação nem em conquista: serve para exi
+          -bição e para o filtro da                                      
+      168 -Busca.                                                        
+      166 +ranking e conquistas; o **semestre do aluno** (do 1º ao último
+          + semestre do curso) é                                         
+      167 +informação de perfil, vem do seed e não entra em pontuação nem
+          + em conquista: serve para                                     
+      168 +exibição e para o filtro da Busca.                            
+      169  
+      170  Datas e horas são guardadas em UTC; as fronteiras de bimestre,
+            semestre e ano são
+      171  interpretadas em `America/Sao_Paulo`.
+
+● Agora a bateria completa: API, app e cliente gerado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo verde: 746 testes da API, 385 do app, formatação, lint, typecheck e
+  verificar. Faço o commit com a mensagem proposta e o push.
+
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● O commit e46f52d já foi enviado e o CI roda em segundo plano. Vou começar a
+  etapa 11 pela causa da lentidão: o helper novaProfessora sobe um contêiner
+  novo a cada teste, e estou revendo o Dockerfile para avaliar reutilizar um
+  contêiner já em execução.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A imagem é a mesma em todos os serviços e o worker fica de pé com a mesma
+  conexão, então o seed roda via docker compose exec sem criar contêiner novo.
+  Vou ajustar o ajudante e o da anulação e medir contra a pilha.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e/tests/apoio" && perl -0pi
+      -e 's/  execFileSync\(\n    "docker",\n    \["compose", "run",…)
+  ⎿  63:  comandoDaApi(["seed", "demo"]);
+     111:  return comandoDaApi(["anular-medalha", medalhaId, "--instituicao
+     ", instituicao]);
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\apoio\medalhas.ts (+9 -16)
+      60       INSERT INTO vinculo_professor (id, professor_id, turma_id)
+      61       SELECT gen_random_uuid(), id, '${professora.turmaId}' FROM
+           cadastro;`,
+      62    );
+      63 -  execFileSync(                                                
+      64 -    "docker",                                                  
+      65 -    ["compose", "run", "--rm", "-T", "seeder", "seed", "demo"],
+      66 -    { cwd: RAIZ, encoding: "utf8" },                           
+      67 -  );                                                           
+      63 +  comandoDaApi(["seed", "demo"]);                              
+      64  
+      65    // Primeiro acesso: o link chega ao e-mail institucional.
+      66    expect(
+     ...
+      108       JOIN usuario u ON u.cadastro_elegivel_id = c.id
+      109       WHERE c.papeis & 4 = 4 ORDER BY c.email LIMIT 1;`,
+      110    );
+      111 +  return comandoDaApi(["anular-medalha", medalhaId, "--institu
+          +icao", instituicao]);                                         
+      112 +}                                                             
+      113 +                                                              
+      114 +// Um subcomando da API (seed, anulação) dentro do worker, que
+          + já está de pé com a mesma                                    
+      115 +// imagem e a mesma conexão: subir um contêiner do seeder a ca
+          +da teste custava uns 10 s, e                                  
+      116 +// com a suíte em paralelo o caso da medalha passava dos 30 s 
+          +(passo 7, etapa 11).                                          
+      117 +function comandoDaApi(argumentos: string[]): string {         
+      118    return execFileSync(
+      119      "docker",
+      117 -    [                                                         
+      118 -      "compose",                                              
+      119 -      "run",                                                  
+      120 -      "--rm",                                                 
+      121 -      "-T",                                                   
+      122 -      "seeder",                                               
+      123 -      "anular-medalha",                                       
+      124 -      medalhaId,                                              
+      125 -      "--instituicao",                                        
+      126 -      instituicao,                                            
+      127 -    ],                                                        
+      120 +    ["compose", "exec", "-T", "worker", "dotnet", "Maxx.Api.dl
+          +l", ...argumentos],                                           
+      121      { cwd: RAIZ, encoding: "utf8" },
+      122    );
+      123  }
+
+● Tiro o paliativo do test.slow() e ajusto o comentário da anulação. Depois meço
+  contra a pilha isolada.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e/tests" && perl -0pi -e 's/
+         \/\/ Paliativo do passo 7: criar a professora roda o seed n…)
+  ⎿  apoio/medalhas.ts:103:// O comando administrativo da fase 1, no mesmo
+     contêiner que roda o seed, com a primeira
+     apoio/medalhas.ts:115:// imagem e a mesma conexão: subir um contêiner
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\medalhas.spec.ts (+0 -3)
+      43    "a professora concede, o aluno vê em Troféus e a anulação tir
+          a a medalha",
+      44    { tag: "@celular" },
+      45    async ({ browser, request }) => {
+      46 -    // Paliativo do passo 7: criar a professora roda o seed num
+         - contêiner, e com a suíte                                      
+      47 -    // inteira em paralelo o caso passa dos 30 s. A causa fica 
+         -para a etapa 11.                                               
+      48 -    test.slow();                                               
+      46      const professora = await novaProfessora(request);
+      47      const n = Date.now().toString().slice(-6);
+      48      const nome = `Aluno ${n}`;
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '103s|.*|// O comando administrativo da fase 1, dentro do worker
+      (comandoDaApi), c…)
+  ⎿   Container maxx-etapa11-caddy-1 Started
+     ready
+           Seed Demo concluído: ResultadoDoS
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\apoio\medalhas.ts (+16 -3)
+      100    );
+      101  }
+      102  
+      103 -// O comando administrativo da fase 1, no mesmo contêiner que 
+          -roda o seed, com a primeira                                   
+      103 +// O comando administrativo da fase 1, dentro do worker (coman
+          +doDaApi), com a primeira                                      
+      104  // conta da instituição do seed demo.
+      105  export function anularMedalha(medalhaId: string): string {
+      106    const instituicao = sql(
+     ...
+      108       JOIN usuario u ON u.cadastro_elegivel_id = c.id
+      109       WHERE c.papeis & 4 = 4 ORDER BY c.email LIMIT 1;`,
+      110    );
+      111 -  return comandoDaApi(["anular-medalha", medalhaId, "--institu
+          -icao", instituicao]);                                         
+      111 +  return comandoDaApi([                                       
+      112 +    "anular-medalha",                                         
+      113 +    medalhaId,                                                
+      114 +    "--instituicao",                                          
+      115 +    instituicao,                                              
+      116 +  ]);                                                         
+      117  }
+      118  
+      119  // Um subcomando da API (seed, anulação) dentro do worker, que
+            já está de pé com a mesma
+     ...
+      122  function comandoDaApi(argumentos: string[]): string {
+      123    return execFileSync(
+      124      "docker",
+      120 -    ["compose", "exec", "-T", "worker", "dotnet", "Maxx.Api.dl
+          -l", ...argumentos],                                           
+      125 +    [                                                         
+      126 +      "compose",                                              
+      127 +      "exec",                                                 
+      128 +      "-T",                                                   
+      129 +      "worker",                                               
+      130 +      "dotnet",                                               
+      131 +      "Maxx.Api.dll",                                         
+      132 +      ...argumentos,                                          
+      133 +    ],                                                        
+      134      { cwd: RAIZ, encoding: "utf8" },
+      135    );
+      136  }
+  ⎿  (timeout 10m)
+
+● A causa foi confirmada e é maior do que parecia, porque docker compose run 
+  seeder reinicia as dependências do seeder a cada chamada. Vou montar o e2e do
+  passo 7 só no celular, nos dois temas, cobrindo post com foto, deep link,
+  curtida, comentário, busca, seguir e editar perfil.
+
+● Write(e2e\tests\social.spec.ts)
+  ⎿  Wrote 122 lines to e2e\tests\social.spec.ts
+       1 import { writeFileSync } from "node:fs";
+       2 
+       3 import { expect, test, type Page } from "@playwright/test";
+       4 
+       5 import { novaConta, type Aluno } from "./apoio/contas";
+       6 import { abrirPerfil } from "./apoio/navegacao";
+       7 
+       8 // O passo 7 de ponta a ponta: post com foto subindo de verdade 
+         ao bucket (o emulador do
+       9 // compose na CI), deep link atrás do login, curtida, comentário
+     … +114 lines (~5 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write e2e/tests >/dev/null && npm run typecheck -w
+      @maxx/e2e 2>&1 | grep -…)
+  ⎿      Error: locator.click: Error: strict mode violation: getByRole('but
+     ton', { name: 'Novo post' }) resolved to 2 elements:
+         Error: locator.click: Test timeout of 30000ms exceeded.
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\social.spec.ts (+10 -3)
+      63      await expect
+      64        .poll(() => imagem.evaluate((img: HTMLImageElement) => im
+          g.naturalWidth))
+      65        .toBeGreaterThan(0);
+      66 -    const postId = (await cartao.getAttribute("data-testid"))!.
+         -replace("post-", "");                                          
+      66 +    const postId = (await cartao.getAttribute("data-testid"))!.
+         +replace(                                                       
+      67 +      "post-",                                                 
+      68 +      "",                                                      
+      69 +    );                                                         
+      70  
+      71      // O leitor chega pelo link do post sem sessão, entra e cai
+           no post.
+      72      const contexto = await browser.newContext(info.project.use)
+          ;
+     ...
+      79  
+      80      await doLeitor.getByRole("button", { name: "Curtir" }).clic
+          k();
+      81      await expect(doLeitor.getByText("1 curtida")).toBeVisible()
+          ;
+      79 -    await expect(doLeitor.getByRole("button", { name: "Descurti
+         -r" })).toBeVisible();                                          
+      82 +    await expect(                                              
+      83 +      doLeitor.getByRole("button", { name: "Descurtir" }),     
+      84 +    ).toBeVisible();                                           
+      85  
+      86      await doLeitor.getByRole("button", { name: "Comentários" })
+          .click();
+      87      await doLeitor.getByLabel("Comentário").fill("Que foto boni
+          ta!");
+     ...
+      105      await entrar(page, aluna);
+      106      await page.getByRole("tab", { name: "Busca" }).click();
+      107      await page.getByLabel("Buscar").fill(`raro ${n}`);
+      103 -    await page.getByRole("link", { name: new RegExp(`^Colega R
+          -aro ${n}`) }).click();                                        
+      108 +    await page                                                
+      109 +      .getByRole("link", { name: new RegExp(`^Colega Raro ${n}
+          +`) })                                                         
+      110 +      .click();                                               
+      111  
+      112      await page.getByRole("button", { name: `Seguir Colega Raro
+            ${n}` }).click();
+      113      await expect(
+  ⎿  (timeout 10m)
+
+● Dois tropeços. No primeiro, o feed vazio também oferece um botão "Novo post"
+  no estado vazio, além do "+" do cabeçalho; uso o do cabeçalho. No segundo, um
+  clique esgotou o tempo; vejo qual.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O clique esgotado foi na aba Perfil, onde não há barra de navegação porque o
+  perfil de outra pessoa abre fora das abas. Vou testar voltando antes de abrir
+  o próprio perfil, como um usuário faria.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e/tests" && perl -0pi -e 's/
+         await page\.getByRole\("button", \{ name: "Novo post" \}\)\…)
+  ⎿  52:    await page.getByRole("button", { name: "Novo post" }).first().c
+     lick();
+     120:    await page.getByRole("button", { name: "Voltar" }).click();
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\social.spec.ts (+4 -1)
+      48      // A autora publica pelo "+" do feed, com a foto da galeria
+           (o seletor de arquivo na web).
+      49      await page.goto("/login");
+      50      await entrar(page, autora);
+      51 -    await page.getByRole("button", { name: "Novo post" }).click
+         -();                                                            
+      51 +    // O "+" do cabeçalho; com o feed vazio, o estado vazio tam
+         +bém oferece "Novo post".                                       
+      52 +    await page.getByRole("button", { name: "Novo post" }).first
+         +().click();                                                    
+      53      const seletor = page.waitForEvent("filechooser");
+      54      await page.getByRole("button", { name: "Escolher foto" }).c
+          lick();
+      55      await (await seletor).setFiles(foto);
+     ...
+      116      ).toBeVisible();
+      117      await expect(page.getByLabel("1 seguidores")).toBeVisible(
+           );
+      118  
+      119 +    // O perfil de outra pessoa abre fora das abas: volta para
+          + a Busca antes.                                               
+      120 +    await page.getByRole("button", { name: "Voltar" }).click()
+          +;                                                             
+      121      await abrirPerfil(page);
+      122      await expect(page.getByLabel("1 seguindo")).toBeVisible();
+      123      await page.getByRole("button", { name: "Editar perfil" }).
+           click();
+  ⎿  (timeout 10m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os dois testes e2e revelaram falhas reais: após o login pelo deep link o app
+  vai para / e não para o post, e depois de salvar o perfil a tela não retorna a
+  ele. Vou investigar primeiro o caso do login.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Ninguém navega para / de forma explícita depois do login. Vejo o layout raiz e
+  reproduzo no navegador, registrando as URLs por onde o app passa.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && mkdir -p captura-temp && cat > captura-temp/depurar.spec.ts <<'FIM'
+      import { test } f…)
+  ⎿  NAV http://localhost:18080/post/01a1b967-e172-7958-ac9e-37e9e7501eec
+     NAV http://localhost:18080/post/01a1b967-e172-7958-ac9e-37e9e7501eec
+     NAV http://localhost:18080/login?voltar=%2Fpost%2F01a1b967-e172-7958-a
+     … +14 lines (ctrl+o to expand)
+  ⎿  Created e2e\captura-temp\depurar.spec.ts (+14 -0)
+       1 +import { test } from "@playwright/test";                       
+       2 +import { novaConta } from "../tests/apoio/contas";             
+       3 +                                                               
+       4 +test("depurar deep link", async ({ page, request }) => {       
+       5 +  const aluno = await novaConta(request, "Depura");            
+       6 +  page.on("framenavigated", (f) => { if (f === page.mainFrame()
+         +) console.log("NAV", f.url()); });                             
+       7 +  await page.goto("/post/01a1b967-e172-7958-ac9e-37e9e7501eec")
+         +;                                                              
+       8 +  await page.waitForTimeout(1500);                             
+       9 +  console.log("ANTES", page.url());                            
+      10 +  await page.getByLabel("RA ou e-mail").fill(aluno.ra);        
+      11 +  await page.getByLabel("Senha", { exact: true }).fill(aluno.se
+         +nha);                                                          
+      12 +  await page.getByRole("button", { name: "Entrar", exact: true 
+         +}).click();                                                    
+      13 +  for (let i = 0; i < 8; i++) { await page.waitForTimeout(400);
+         + console.log("URL", page.url()); }                             
+      14 +});                                                            
+  ⎿  Created e2e\captura-temp\playwright.config.ts (+2 -0)
+      1 +import { defineConfig } from "@playwright/test";                
+      2 +export default defineConfig({ testDir: ".", use: { baseURL: "htt
+        +p://localhost:18080", viewport: { width: 390, height: 844 } } })
+        +;                                                               
+  ⎿  (timeout 5m)
+
+● Ao tocar em Entrar, a URL vira /login sem a consulta e só depois /. Alguém
+  está navegando para /login puro no meio do login. Procuro quem.
+
+  Ran 6 shell commands (ctrl+o to expand)
+  ⎿  Read ..\..\..\e2e\tests\social.spec.ts (133 lines)
+  ⎿  Read ..\..\..\e2e\tests\medalhas.spec.ts (96 lines)
+  ⎿  Referenced file 
+     ..\..\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs
+  ⎿  Read perfil\editarPerfil.test.tsx (232 lines)
+  ⎿  Read busca\busca.test.tsx (180 lines)
+
+● Task "Watch CI for etapa 10 commit" still running in background
+
+● Investigating the deep-link defect: something rewrites the URL to /login when
+  the user clicks Entrar. I'm tracing the history calls in the browser to find
+  what does it.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && cat > captura-temp/depurar.spec.ts <<'EOF'
+      import { test } from "@playwright/test";…)
+  ⎿  Running 1 test using 1 worker
+       x  1 captura-temp\depurar.spec.ts:4:5 › depurar deep link (487ms)
+       1) captura-temp\depurar.spec.ts:4:5 › depurar deep link ────────────
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated e2e\captura-temp\depurar.spec.ts (+12 -2)
+       3  
+       4  test("depurar deep link", async ({ page, request }) => {
+       5    const aluno = await novaConta(request, "Depura");
+       6 -  page.on("framenavigated", (f) => { if (f === page.mainFrame()
+         -) console.log("NAV", f.url()); });                             
+       6 +  await page.addInitScript(() => {                             
+       7 +    for (const k of ["pushState", "replaceState"] as const) {  
+       8 +      const orig = history[k].bind(history);                   
+       9 +      (history as any)[k] = (s: any, t: string, u?: string) => 
+         +{                                                              
+      10 +        console.log(k, u, new Error().stack?.split("\n").slice(
+         +2, 9).join(" | "));                                            
+      11 +        return orig(s, t, u);                                  
+      12 +      };                                                       
+      13 +    }                                                          
+      14 +  });                                                          
+      15 +  page.on("console", (m) => console.log("CONSOLE", m.text().sli
+         +ce(0, 900)));                                                  
+      16    await page.goto("/post/01a1b967-e172-7958-ac9e-37e9e7501eec")
+          ;
+      17    await page.waitForTimeout(1500);
+      18    console.log("ANTES", page.url());
+      19    await page.getByLabel("RA ou e-mail").fill(aluno.ra);
+      20    await page.getByLabel("Senha", { exact: true }).fill(aluno.se
+          nha);
+      21    await page.getByRole("button", { name: "Entrar", exact: true 
+          }).click();
+      13 -  for (let i = 0; i < 8; i++) { await page.waitForTimeout(400);
+         - console.log("URL", page.url()); }                             
+      22 +  await page.waitForTimeout(2500);                             
+      23 +  console.log("URL", page.url());                              
+      24  });
+  ⎿  (timeout 3m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Watch CI for etapa 10 commit" completed (exit code 0)
+
+  Listed 1 directory (ctrl+o to expand)
+
+● CI of etapa 10 (e46f52d) is green on all six jobs. Rerunning the trace with
+  the isolated stack's env vars.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The trace shows the voltar parameter is dropped by the time the redirect runs,
+  so I'm storing the intended destination earlier, while the user is still
+  anonymous.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && git mv
+      src/navegacao/voltar.ts src/navegacao/voltar.tsx 2>/dev/null; mv src/n…)
+  ⎿  RD src/navegacao/voltar.ts -> src/navegacao/voltar.tsx
+     ?? src/navegacao/voltar.ts
+     import { useState } from "react";
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\navegacao\voltar.ts (+17 -0)
+      1 +import { useState } from "react";                               
+      2 +                                                                
+      3  // Para onde voltar depois do login: o deep link /post/:id fica 
+         atrás do login (produto.md
+      4  // 6.1), e quem chega sem sessão entra e cai no post. Só o post 
+         e os comentários dele: nada
+      5  // de esquema, host ou "//", e um link de fora não manda ninguém
+          para outro site nem para
+     ...
+      14    const destino = destinoSeguro(caminho);
+      15    return destino ? `/login?voltar=${encodeURIComponent(destino)
+          }` : "/login";
+      16  }
+      17 +                                                               
+      18 +// O destino fica guardado enquanto não há sessão. Na web, ao e
+         +ntrar, o roteador reescreve a                                  
+      19 +// URL do login sem o `?voltar=` antes de o redirecionamento do
+         + grupo público acontecer;                                      
+      20 +// lendo só a URL naquele momento, o deep link cairia no início
+         +.                                                              
+      21 +export function useDestinoDepoisDoLogin(                       
+      22 +  autenticado: boolean,                                        
+      23 +  voltar: unknown,                                             
+      24 +): string | null {                                             
+      25 +  const atual = destinoSeguro(voltar);                         
+      26 +  const [guardado, setGuardado] = useState(atual);             
+      27 +  if (!autenticado && atual !== guardado) {                    
+      28 +    setGuardado(atual);                                        
+      29 +  }                                                            
+      30 +  return autenticado ? (guardado ?? atual) : atual;            
+      31 +}                                                              
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Now wire it into the public layout and add a test.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f="app/(publico)/_layout.tsx" && sed -i 's/import { destinoSeguro }
+      from/…)
+  ⎿  // com a API.
+     export default function PublicoLayout() {
+       const { estado } = useSessao();
+     … +47 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\app\(publico)\_layout.tsx (+3 -2)
+      1  import { Redirect, Slot, useGlobalSearchParams, type Href } from
+          "expo-router";
+      2  
+      3 -import { destinoSeguro } from "../../navegacao/voltar";         
+      3 +import { useDestinoDepoisDoLogin } from "../../navegacao/voltar"
+        +;                                                               
+      4  import { EsperaDaSessao } from "../../sessao/EsperaDaSessao";
+      5  import { useSessao } from "../../sessao/SessaoProvider";
+      6  
+     ...
+      11  export default function PublicoLayout() {
+      12    const { estado } = useSessao();
+      13    const { voltar } = useGlobalSearchParams<{ voltar?: string }>
+          ();
+      14 +  const destino = useDestinoDepoisDoLogin(estado === "autentica
+         +do", voltar);                                                  
+      15  
+      16    if (estado === "restaurando") {
+      17      return <EsperaDaSessao />;
+      18    }
+      19  
+      20    if (estado === "autenticado") {
+      20 -    return <Redirect href={(destinoSeguro(voltar) ?? "/") as Hr
+         -ef} />;                                                        
+      21 +    return <Redirect href={(destino ?? "/") as Href} />;       
+      22    }
+      23  
+      24    return <Slot />;
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      '1s/.*/import { renderHook } from "@testing-library\/react-native"…)
+  ⎿  /usr/bin/bash: line 34: python: command not found
+     Test Suites: 1 passed, 1 total
+     Tests:       6 passed, 6 total
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\feed\textos.test.ts (+7 -1)
+       1 -import { destinoSeguro, loginVoltandoPara } from "../navegacao/
+         -voltar";                                                       
+       1 +import { renderHook } from "@testing-library/react-native";    
+       2 +                                                               
+       3 +import {                                                       
+       4 +  destinoSeguro,                                               
+       5 +  loginVoltandoPara,                                           
+       6 +  useDestinoDepoisDoLogin,                                     
+       7 +} from "../navegacao/voltar";                                  
+       8  import {
+       9    descreverAutor,
+      10    descreverComentarios,
+  ⎿  (timeout 3m)
+
+● No Python here; I'll add the tests with Edit.
+
+● Update(apps\mobile\src\feed\textos.test.ts)
+  ⎿  Added 24 lines
+       86      expect(loginVoltandoPara("/post/abc")).toBe("/login?voltar
+           =%2Fpost%2Fabc");
+       87      expect(loginVoltandoPara("/")).toBe("/login");
+       88    });
+       89 +                                                              
+       90 +  it("guarda o destino quando a URL perde o voltar ao entrar",
+          + () => {                                                      
+       91 +    const { result, rerender } = renderHook(                  
+       92 +      ({ autenticado, voltar }: { autenticado: boolean; voltar
+          +?: string }) =>                                               
+       93 +        useDestinoDepoisDoLogin(autenticado, voltar),         
+       94 +      { initialProps: { autenticado: false, voltar: "/post/abc
+          +" } },                                                        
+       95 +    );                                                        
+       96 +    expect(result.current).toBe("/post/abc");                 
+       97 +                                                              
+       98 +    // Na web, a URL do login fica sem o voltar logo que a ses
+          +são abre.                                                     
+       99 +    rerender({ autenticado: true, voltar: undefined });       
+      100 +    expect(result.current).toBe("/post/abc");                 
+      101 +  });                                                         
+      102 +                                                              
+      103 +  it("sem voltar, ou com um voltar que não é post, não há dest
+          +ino", () => {                                                 
+      104 +    const { result, rerender } = renderHook(                  
+      105 +      ({ autenticado, voltar }: { autenticado: boolean; voltar
+          +?: string }) =>                                               
+      106 +        useDestinoDepoisDoLogin(autenticado, voltar),         
+      107 +      { initialProps: { autenticado: false, voltar: "//maligno
+          +.example" } },                                                
+      108 +    );                                                        
+      109 +    expect(result.current).toBeNull();                        
+      110 +    rerender({ autenticado: true, voltar: undefined });       
+      111 +    expect(result.current).toBeNull();                        
+      112 +  });                                                         
+      113  });
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● This Testing Library version makes renderHook async, so the tests need await.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's/
+      const { result, rerender } = renderHook(/    const { result, re…)
+  ⎿  Test Suites: 1 passed, 1 total
+     Tests:       8 passed, 8 total
+     Snapshots:   0 total
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\feed\textos.test.ts (+6 -6)
+      87      expect(loginVoltandoPara("/")).toBe("/login");
+      88    });
+      89  
+      90 -  it("guarda o destino quando a URL perde o voltar ao entrar", 
+         -() => {                                                        
+      91 -    const { result, rerender } = renderHook(                   
+      90 +  it("guarda o destino quando a URL perde o voltar ao entrar", 
+         +async () => {                                                  
+      91 +    const { result, rerender } = await renderHook(             
+      92        ({ autenticado, voltar }: { autenticado: boolean; voltar?
+          : string }) =>
+      93          useDestinoDepoisDoLogin(autenticado, voltar),
+      94        { initialProps: { autenticado: false, voltar: "/post/abc"
+           } },
+     ...
+       96      expect(result.current).toBe("/post/abc");
+       97  
+       98      // Na web, a URL do login fica sem o voltar logo que a ses
+           são abre.
+       99 -    rerender({ autenticado: true, voltar: undefined });       
+       99 +    await rerender({ autenticado: true, voltar: undefined }); 
+      100      expect(result.current).toBe("/post/abc");
+      101    });
+      102  
+      103 -  it("sem voltar, ou com um voltar que não é post, não há dest
+          -ino", () => {                                                 
+      104 -    const { result, rerender } = renderHook(                  
+      103 +  it("sem voltar, ou com um voltar que não é post, não há dest
+          +ino", async () => {                                           
+      104 +    const { result, rerender } = await renderHook(            
+      105        ({ autenticado, voltar }: { autenticado: boolean; voltar
+           ?: string }) =>
+      106          useDestinoDepoisDoLogin(autenticado, voltar),
+      107        { initialProps: { autenticado: false, voltar: "//maligno
+           .example" } },
+      108      );
+      109      expect(result.current).toBeNull();
+      110 -    rerender({ autenticado: true, voltar: undefined });       
+      110 +    await rerender({ autenticado: true, voltar: undefined }); 
+      111      expect(result.current).toBeNull();
+      112    });
+      113  });
+  ⎿  (timeout 3m)
+
+● Deep-link fix done and tested. Now the second defect, edit profile. Checking
+  what the page showed when the arroba wasn't found.
+  Ran 1 shell command (ctrl+o to expand)
+
+● The earlier results were overwritten. Rebuilding the web image on the isolated
+  stack with the fix, then rerunning the social spec.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The deep-link test passes now in both themes. Looking at the edit-profile page
+  snapshot.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● After Salvar the app landed on Home instead of the profile, though the save
+  itself worked (the tab avatar already shows "Aluna Editada"). Checking how the
+  tabs and the return are wired.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The tabs and their pages are all Slots, so router.back() from outside the tabs
+  lands on Home. I'm checking whether "Voltar" from another student's profile
+  in Busca has the same problem before choosing a fix.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && cat > captura-temp/depurar.spec.ts <<'EOF'
+      import { test } from "@playwright/test";…)
+  ⎿  NAV http://localhost:18080/login
+     NAV http://localhost:18080/login
+     NAV http://localhost:18080/login
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated e2e\captura-temp\depurar.spec.ts (+16 -16)
+       1  import { test } from "@playwright/test";
+       2  import { novaConta } from "../tests/apoio/contas";
+       3  
+       4 -test("depurar deep link", async ({ page, request }) => {       
+       4 +test("depurar voltar", async ({ page, request }) => {          
+       5 +  const n = `${Date.now()}`.slice(-7);                         
+       6    const aluno = await novaConta(request, "Depura");
+       6 -  await page.addInitScript(() => {                             
+       7 -    for (const k of ["pushState", "replaceState"] as const) {  
+       8 -      const orig = history[k].bind(history);                   
+       9 -      (history as any)[k] = (s: any, t: string, u?: string) => 
+         -{                                                              
+      10 -        console.log(k, u, new Error().stack?.split("\n").slice(
+         -2, 9).join(" | "));                                            
+      11 -        return orig(s, t, u);                                  
+      12 -      };                                                       
+      13 -    }                                                          
+      14 -  });                                                          
+      15 -  page.on("console", (m) => console.log("CONSOLE", m.text().sli
+         -ce(0, 900)));                                                  
+      16 -  await page.goto("/post/01a1b967-e172-7958-ac9e-37e9e7501eec")
+         -;                                                              
+      17 -  await page.waitForTimeout(1500);                             
+      18 -  console.log("ANTES", page.url());                            
+       7 +  await novaConta(request, `Colega Raro ${n}`);                
+       8 +  page.on("framenavigated", (f) => { if (f === page.mainFrame()
+         +) console.log("NAV", f.url()); });                             
+       9 +  await page.goto("/login");                                   
+      10    await page.getByLabel("RA ou e-mail").fill(aluno.ra);
+      11    await page.getByLabel("Senha", { exact: true }).fill(aluno.se
+          nha);
+      12    await page.getByRole("button", { name: "Entrar", exact: true 
+          }).click();
+      22 -  await page.waitForTimeout(2500);                             
+      23 -  console.log("URL", page.url());                              
+      13 +  await page.getByRole("tab", { name: "Busca" }).click();      
+      14 +  await page.getByLabel("Buscar").fill(`raro ${n}`);           
+      15 +  await page.getByRole("link", { name: new RegExp(`^Colega Raro
+         + ${n}`) }).click();                                            
+      16 +  await page.getByRole("button", { name: "Voltar" }).click();  
+      17 +  await page.waitForTimeout(800);                              
+      18 +  console.log("DEPOIS DO VOLTAR", page.url(), await page.getByL
+         +abel("Buscar").inputValue().catch(() => "sem campo"));         
+      19 +  await page.getByRole("tab", { name: "Perfil" }).click();     
+      20 +  await page.getByRole("button", { name: "Editar perfil" }).cli
+         +ck();                                                          
+      21 +  await page.getByRole("button", { name: "Voltar" }).click().ca
+         +tch(() => console.log("sem voltar"));                          
+      22 +  await page.waitForTimeout(800);                              
+      23 +  console.log("DEPOIS DO VOLTAR DO EDITAR", page.url());       
+      24  });
+  ⎿  (timeout 3m)
+
+● The tabs unmount under the Slot when a page sits on top of them, so back lands
+  on Home; I'm making (app) a headerless Stack so the tabs stay mounted and
+  back returns to the right tab.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f="app/(app)/_layout.tsx" && sed -i 's/import { Redirect, Slot,
+      usePathna…)
+  ⎿  import { Redirect, Stack, usePathname, type Href } from "expo-router";
+
+     import { Screen } from "../../components/Screen";
+     … +45 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\app\(app)\_layout.tsx (+13 -2)
+       1 -import { Redirect, Slot, usePathname, type Href } from "expo-ro
+         -uter";                                                         
+       1 +import { Redirect, Stack, usePathname, type Href } from "expo-r
+         +outer";                                                        
+       2  
+       3  import { Screen } from "../../components/Screen";
+       4  import { ErrorState } from "../../components/StateMessage";
+       5  import { loginVoltandoPara } from "../../navegacao/voltar";
+       6  import { EsperaDaSessao } from "../../sessao/EsperaDaSessao";
+       7  import { useSessao } from "../../sessao/SessaoProvider";
+       8 +import { useTheme } from "../../theme/ThemeProvider";          
+       9  
+      10  // Tudo que exige login. Sem sessão, vai para o login, que depo
+          is volta para cá (o deep link
+      11  // /post/:id); sem conexão para saber, explica e oferece tentar
+           de novo, sem apagar a sessão
+      12  // guardada.
+      13  export default function AppLayout() {
+      14    const { estado, tentarDeNovo } = useSessao();
+      15 +  const { colors } = useTheme();                               
+      16    const caminho = usePathname();
+      17  
+      18    if (estado === "restaurando") {
+     ...
+      35      );
+      36    }
+      37  
+      36 -  return <Slot />;                                             
+      38 +  // Pilha, não Slot: o post, o perfil de outra pessoa e o edit
+         +ar perfil ficam por cima das                                   
+      39 +  // abas, que continuam montadas embaixo; o voltar volta para 
+         +a aba de onde se veio.                                         
+      40 +  return (                                                     
+      41 +    <Stack                                                     
+      42 +      screenOptions={{                                         
+      43 +        headerShown: false,                                    
+      44 +        contentStyle: { backgroundColor: colors.bg },          
+      45 +      }}                                                       
+      46 +    />                                                         
+      47 +  );                                                           
+      48  }
+
+● Typecheck and lint, then rebuild and rerun both the probe and the social spec.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Back navigation works now: "Voltar" returns to Busca with the search term
+  kept, and edit profile goes to /perfil. The Stack change broke the post test,
+  likely because a second feed got stacked, so I'm checking how new post and the
+  others navigate after success.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Both NovoPostScreen and PostScreen call router.replace("/"), which stacks a
+  second tabs group under a Stack. I'm switching them to router.dismissTo("/")
+  and checking that publishing still refreshes the feed.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Stop Task
+  ⎿  cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+     d=$(dirname $(node -p
+     "require.resolve('expo-router/package.json',{paths:['apps/mobile']}… ·
+     stopped
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Switching the three replace("/") calls to dismissTo("/") and updating the
+  tests that mock the router.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      's/router\.replace("\/")/router.dismissTo("\/")/g' posts/NovoPostS…)
+  ⎿  ./feed/feed.test.tsx
+     ./posts/novoPost.test.tsx
+     posts/novoPost.test.tsx:9:  replace: jest.fn(),
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\posts\NovoPostScreen.tsx (+1 -1)
+      84    const enviar = () =>
+      85      publicar.mutate(
+      86        { legenda, derivadas, medalhaId },
+      87 -      { onSuccess: () => router.replace("/") },                
+      87 +      { onSuccess: () => router.dismissTo("/") },              
+      88      );
+      89  
+      90    if (eu.isSuccess && !ehAluno) {
+  ⎿  Updated apps\mobile\src\posts\PostScreen.tsx (+2 -2)
+      45              message="Ele pode ter sido apagado por quem publico
+          u."
+      46              action={{
+      47                label: "Ir para o início",
+      48 -              onPress: () => router.replace("/"),              
+      48 +              onPress: () => router.dismissTo("/"),            
+      49              }}
+      50            />
+      51          </View>
+     ...
+      62          <CartaoDePost
+      63            post={post.data}
+      64            leitor={eu.data}
+      65 -          onRemovido={() => router.replace("/")}               
+      65 +          onRemovido={() => router.dismissTo("/")}             
+      66          />
+      67        )}
+      68      </ScrollView>
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's/^
+      replace: jest.fn(),/  replace: jest.fn(),\n  dismissTo: jest.fn(…)
+  ⎿  5:import { PostScreen } from "../posts/PostScreen";
+     11:  replace: jest.fn(),
+     12:  dismissTo: jest.fn(),
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\feed\feed.test.tsx (+1 -0)
+       9  const mockRoteador = {
+      10    push: jest.fn(),
+      11    replace: jest.fn(),
+      12 +  dismissTo: jest.fn(),                                        
+      13    back: jest.fn(),
+      14    canGoBack: jest.fn(() => true),
+      15  };
+  ⎿  Updated apps\mobile\src\posts\novoPost.test.tsx (+2 -1)
+       7  const mockRoteador = {
+       8    push: jest.fn(),
+       9    replace: jest.fn(),
+      10 +  dismissTo: jest.fn(),                                        
+      11    back: jest.fn(),
+      12    canGoBack: jest.fn(() => true),
+      13  };
+     ...
+      191        medalhaId: null,
+      192      });
+      193      expect(uploads).not.toHaveBeenCalled();
+      193 -    expect(mockRoteador.replace).toHaveBeenCalledWith("/");   
+      194 +    expect(mockRoteador.dismissTo).toHaveBeenCalledWith("/"); 
+      195    });
+      196  
+      197    it("com foto, pede a assinatura com os tamanhos, envia as du
+           as derivadas ao bucket e publica com o upload", async () => {
+  ⎿  (timeout 5m)
+
+● Jest is green (387 tests). Rebuilding and running the whole e2e suite (normal
+  and @demo) on the isolated stack.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The stack currently has the demo overlay on, so I'll run the @demo pass first,
+  then bring the stack up without it for the normal pass, the way CI does.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Both failures are the post test timing out at 30 s during a fill. Running that
+  spec alone to tell whether it's load from the parallel run or a real defect.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● It fails consistently at the comment field after opening comments from the
+  post, so it's a real defect from the Stack change, not load. Looking at the
+  page snapshot.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● That snapshot is the author's page, not the reader's. Probing the reader's
+  flow directly.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && cat > captura-temp/depurar.spec.ts <<'EOF'
+      import { test } from "@playwright/test";…)
+  ⎿  Running 1 test using 1 worker
+     NAV http://localhost:18080/post/01a1b977-59b1-7396-8f04-03c7639bd15d
+     NAV http://localhost:18080/post/01a1b977-59b1-7396-8f04-03c7639bd15d
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated e2e\captura-temp\depurar.spec.ts (+23 -18)
+       1  import { test } from "@playwright/test";
+       2  import { novaConta } from "../tests/apoio/contas";
+       3  
+       4 -test("depurar voltar", async ({ page, request }) => {          
+       5 -  const n = `${Date.now()}`.slice(-7);                         
+       6 -  const aluno = await novaConta(request, "Depura");            
+       7 -  await novaConta(request, `Colega Raro ${n}`);                
+       8 -  page.on("framenavigated", (f) => { if (f === page.mainFrame()
+         -) console.log("NAV", f.url()); });                             
+       4 +test("depurar comentarios", async ({ page, request }) => {     
+       5 +  const autora = await novaConta(request, "Autora D");         
+       6 +  const leitor = await novaConta(request, "Leitor D");         
+       7    await page.goto("/login");
+      10 -  await page.getByLabel("RA ou e-mail").fill(aluno.ra);        
+      11 -  await page.getByLabel("Senha", { exact: true }).fill(aluno.se
+         -nha);                                                          
+       8 +  await page.getByLabel("RA ou e-mail").fill(autora.ra);       
+       9 +  await page.getByLabel("Senha", { exact: true }).fill(autora.s
+         +enha);                                                         
+      10    await page.getByRole("button", { name: "Entrar", exact: true 
+          }).click();
+      13 -  await page.getByRole("tab", { name: "Busca" }).click();      
+      14 -  await page.getByLabel("Buscar").fill(`raro ${n}`);           
+      15 -  await page.getByRole("link", { name: new RegExp(`^Colega Raro
+         - ${n}`) }).click();                                            
+      16 -  await page.getByRole("button", { name: "Voltar" }).click();  
+      17 -  await page.waitForTimeout(800);                              
+      18 -  console.log("DEPOIS DO VOLTAR", page.url(), await page.getByL
+         -abel("Buscar").inputValue().catch(() => "sem campo"));         
+      19 -  await page.getByRole("tab", { name: "Perfil" }).click();     
+      20 -  await page.getByRole("button", { name: "Editar perfil" }).cli
+         -ck();                                                          
+      21 -  await page.getByRole("button", { name: "Voltar" }).click().ca
+         -tch(() => console.log("sem voltar"));                          
+      22 -  await page.waitForTimeout(800);                              
+      23 -  console.log("DEPOIS DO VOLTAR DO EDITAR", page.url());       
+      11 +  await page.getByRole("button", { name: "Novo post" }).first()
+         +.click();                                                      
+      12 +  await page.getByLabel("Legenda").fill("so legenda depura");  
+      13 +  await page.getByRole("button", { name: "Publicar" }).click();
+      14 +  const cartao = page.locator('[data-testid^="post-"]', { hasTe
+         +xt: "so legenda depura" }).first();                            
+      15 +  const id = (await cartao.getAttribute("data-testid"))!.replac
+         +e("post-", "");                                                
+      16 +  const ctx = await page.context().browser()!.newContext({ view
+         +port: { width: 390, height: 844 } });                          
+      17 +  const p = await ctx.newPage();                               
+      18 +  p.on("framenavigated", (f) => { if (f === p.mainFrame()) cons
+         +ole.log("NAV", f.url()); });                                   
+      19 +  await p.goto(`http://localhost:18080/post/${id}`);           
+      20 +  await p.getByLabel("RA ou e-mail").fill(leitor.ra);          
+      21 +  await p.getByLabel("Senha", { exact: true }).fill(leitor.senh
+         +a);                                                            
+      22 +  await p.getByRole("button", { name: "Entrar", exact: true }).
+         +click();                                                       
+     … 7 more lines (ctrl+o to expand)
+  ⎿  (timeout 3m)
+
+● The comments screen is fine; the test now matches two "Comentário" labels
+  because the hidden post screen's button also matches, so I'm switching the
+  selector to target the textbox by role.
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && sed -i 's/    await doLeitor.getByLabel("Comentário").fill("Que foto
+      bonita!");/    \…)
+  ⎿  tests/cadastro.spec.ts:19:  await page.getByLabel("RA", { exact: true
+     }).fill(aluno.ra);
+     tests/cadastro.spec.ts:20:  await page.getByLabel("E-mail instituciona
+     … +47 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\social.spec.ts (+4 -1)
+      85      ).toBeVisible();
+      86  
+      87      await doLeitor.getByRole("button", { name: "Comentários" })
+          .click();
+      88 -    await doLeitor.getByLabel("Comentário").fill("Que foto boni
+         -ta!");                                                         
+      88 +    // Pelo papel: o post continua montado embaixo, com o botão
+         + "Comentários".                                                
+      89 +    await doLeitor                                             
+      90 +      .getByRole("textbox", { name: "Comentário" })            
+      91 +      .fill("Que foto bonita!");                               
+      92      await doLeitor.getByRole("button", { name: "Publicar" }).cl
+          ick();
+      93      await expect(doLeitor.getByText("Que foto bonita!")).toBeVi
+          sible();
+      94      await doLeitor.getByText("Apagar").click();
+  ⎿  (timeout 10m)
+
+● My grep cut off the summary line. Getting the totals.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The normal test pass is green with 65 passed and 1 skipped, and the medal
+  tests no longer need test.slow(). I'm now reading the existing storage tests
+  so I can reuse them for the versioned check against the real R2.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The manual R2 check reads the production MAXX_ARMAZENAMENTO_* values and only
+  runs when MAXX_VERIFICAR_R2=1 is set, so CI never calls R2 by accident. Next
+  I'm checking the xUnit version to see if dynamic skip is supported.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Fotos\VerificacaoDoR2Tests.cs)
+  ⎿  Wrote 169 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Fotos\VerificacaoDoR2Tests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using Maxx.Application.Fotos;
+       4 using Microsoft.Extensions.DependencyInjection;
+       5 
+       6 namespace Maxx.Api.IntegrationTests.Fotos;
+       7 
+       8 // Verificação manual do R2 de verdade, antes de a produção depe
+         nder dele. Fora da CI e
+       9 // pulada por padrão: só roda com MAXX_VERIFICAR_R2=1 e as MAXX_
+     … +161 lines (~6 KB) (ctrl+o to expand)
+
+● To check the test logic itself, I'll point it at the isolated stack's
+  emulator, which stands in for R2 here.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● With the flag on, all 6 checks pass against the emulator, CORS included.
+  Confirming they're skipped without the flag.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Skipped by default (6 skipped). Now the docs. Reading the decisions README and
+  the plano-mestre sections I need to touch.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● To write the passo 7 section accurately I need the exact D1 to D14 decisions
+  and the ressalvas the author registered, so I'm pulling them from the earlier
+  transcript.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Now the author's ressalvas from the etapa 5 and 6 approvals, and the other
+  approval texts.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● I also need my own lists from the etapa 6 report (the four ressalvas) and the
+  etapa 7 report (the two limits).
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● I have what I need for the decisions. Checking a few exact values in the code
+  (page sizes, job names, limits) so the docs match it.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Writing the docs now: first the existing rows in the decisions README that
+  passo 7 changed.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      27  |---|---|
+      28  | Hospedagem | Docker Compose em uma VPS, Caddy na frente, HTTP
+          S automático com HSTS e cabeçalhos de segurança, CSP no build w
+          eb |
+      29  | Réplicas | Duas réplicas de API sem estado atrás do Caddy: re
+          siliência de deploy, não capacidade |
+      30 -| Storage | Cloudflare R2 com a CDN da Cloudflare |            
+      30 +| Storage | Cloudflare R2 com a CDN da Cloudflare em produção. 
+         +No compose, na CI e nos testes de integração, o emulador Versit
+         +yGW, compatível com S3; trocar um pelo outro muda só o `.env`. 
+         +Ver Posts, upload e feed (passo 7) |                           
+      31  | Migrations | Contêiner separado com advisory lock, antes de s
+          ubir as réplicas. Nunca no startup da aplicação |
+      32  | Worker | Contêiner separado, `Maxx.Api worker`, uma réplica, 
+          consumindo a fila do Postgres (ADR 0008). Ver Medalhas, fila e 
+          worker (passo 6) |
+      33  | Backup | `pg_dump` noturno para o bucket, mais dump manual ob
+          rigatório antes de cada migration, com restauração testada uma 
+          vez |
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      100  | Sugestão e disponibilidade do arroba | 60 por minuto por IP,
+            somadas as duas: elas respondem diferente para um par de RA e
+            e-mail que existe. Cabe na digitação porque o cliente do pass
+           o 5 faz debounce antes de perguntar |
+      101  | Recuperação de senha | 3 a cada 15 minutos por e-mail, só no
+            pedido. A confirmação não tem limite: o token tem 256 bits |
+      102  | Registro de demonstração | 60 por hora por IP. Alto de propó
+           sito: na avaliação remota, cada avaliador entra pela própria c
+           onexão, mas a rede móvel costuma pôr muitos aparelhos atrás do
+            mesmo IP (CGNAT da operadora), e o ensaio do passo 13 cria vá
+           rias contas a partir de poucas conexões. Um limite baixo recus
+           aria avaliador legítimo. A entrada pela chave do dispositivo n
+           ão tem limite: a chave tem 256 bits |
+      103 -| Upload | 30 por hora por usuário, número provisório. Declara
+          -do no passo 3; aplicado, testado e revisto no passo 7, quando 
+          -o endpoint nasce |                                            
+      103 +| Upload | 30 por hora por usuário, contando pedidos de assina
+          +tura: cada pedido cobre as duas derivadas. Declarado no passo 
+          +3, aplicado e testado no passo 7. Um usuário não esgota o limi
+          +te de outro |                                                 
+      104  
+      105  O IP vem do `X-Forwarded-For` posto pelo Caddy, aceito só dele
+           . Estourado o limite, a
+      106  resposta é 429 em ProblemDetails, com `Retry-After`.
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      166  
+      167  | Decisão | Detalhe |
+      168  |---|---|
+      169 -| Tema | Sistema, Claro e Escuro, com Sistema por padrão e a e
+          -scolha guardada no AsyncStorage. O controle fica na tela de st
+          -atus e na vitrine; o lugar definitivo é o perfil, no passo 7 |
+      169 +| Tema | Sistema, Claro e Escuro, com Sistema por padrão e a e
+          +scolha guardada no AsyncStorage. O controle fica na tela de st
+          +atus e na vitrine e, desde o passo 7, no menu do perfil, que é
+          + o lugar definitivo |                                         
+      170  | Ícones | Só `react-native-svg`, com os caminhos do Lucide 1.
+           70.0 num componente nosso (`Icon`), com a licença ao lado. Tra
+           ço 1.8 em grade de 24. A taça é o `trophy` e a fita é o `medal
+           `. No preenchido, o desenho interno sai recortado na cor de `d
+           etailColor`, o fundo sobre o qual o ícone está |
+      171  | Vitrine | Rota `/vitrine` só em `__DEV__`. Em produção, ela 
+           volta para o início e nem entra no bundle |
+      172  | Trilha | Por itens da família, de 2 a 5 passos, rolando na h
+           orizontal quando não couberem. O primeiro não obtido é o próxi
+           mo, com cadeado; os demais não obtidos ficam só tracejados. A 
+           linha é contínua só entre dois obtidos, e uma lacuna no meio f
+           ica sem linha contínua. Círculo de 36, passo de 82, com o cart
+           ão de título dentro do componente |
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      172  | Trilha | Por itens da família, de 2 a 5 passos, rolando na h
+           orizontal quando não couberem. O primeiro não obtido é o próxi
+           mo, com cadeado; os demais não obtidos ficam só tracejados. A 
+           linha é contínua só entre dois obtidos, e uma lacuna no meio f
+           ica sem linha contínua. Círculo de 36, passo de 82, com o cart
+           ão de título dentro do componente |
+      173  | Foco | Anel do token `focus`, com 2 px de espessura e 2 px d
+           e afastamento, só por teclado (`:focus-visible` na web). A pra
+           ncheta mostra ouro no claro; vale o token. O contorno padrão d
+           o navegador sai com `outline-style: none`, porque largura 0 nã
+           o o remove. O campo usa a borda de 1,5 px em `focus`, sem anel
+            |
+      174  | Pressionado e desativado | Pressionado com opacidade 0,85, e
+           mbora a prancheta escureça. Desativado em `surface2` com `ink3
+           `. O segmento ativo desativado mantém `segmentOn`, sem sombra,
+            para a escolha continuar visível |
+      175 -| Avatar | Iniciais com as cores do token, do primeiro e do úl
+          -timo nome, em Archivo 700 a 40% do tamanho. O anel dourado do 
+          -próprio aluno fica para os passos 7 e 11 |                    
+      175 +| Avatar | Iniciais com as cores do token, do primeiro e do úl
+          +timo nome, em Archivo 700 a 40% do tamanho. Com foto, a deriva
+          +da da grade no lugar das iniciais. O anel dourado marca o próp
+          +rio avatar no cabeçalho do perfil desde o passo 7; o do rankin
+          +g chega no passo 11 |                                         
+      176  | Raios | 8 nos chips. O segmento ativo tem raio 8, valor que 
+           vem de `identidade-visual.md`, porque o JSON só traz o raio do
+            trilho |
+      177  | Botão | Discreto com 32 de altura, 44 de toque e texto 13. O
+            grande tem 50, em Instrument Sans 700 tamanho 15. Desde o pas
+           so 5, o grande é o da ação principal das telas de autenticação
+            |
+      178  | Campo | Texto em 16, fora da escala, porque abaixo disso o S
+           afari do iPhone dá zoom ao focar. Rótulo em 14, peso 600. O er
+           ro de campo entrou no passo 5 (ver Autenticação no cliente) |
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      200  | Refresh serializado | Um refresh por vez na aba: quem chega 
+           durante a renovação espera o resultado dela. Na web, também en
+           tre abas, pela Web Locks API (`navigator.locks`), porque todas
+            as abas mandam o mesmo cookie e duas abas abrindo juntas cont
+           ariam como reuso. Sem a API (página fora de HTTPS), fica só a 
+           fila da aba |
+      201  | Onde o refresh fica | Na web, no cookie, e o JavaScript não 
+           guarda nada; todo pedido leva `X-Maxx-Cliente: web`. No nativo
+           , no `expo-secure-store`, e o refresh novo é gravado antes de 
+           valer |
+      202  | Sessão recusada e falha | Só `sessao-invalida` encerra a ses
+           são. Rede, 429 e 5xx deixam o estado "sem conexão", com o refr
+           esh guardado e Tentar de novo. O cache de consultas é esvaziad
+           o só na saída de uma sessão autenticada |
+      203 -| Rotas | O grupo `(app)` exige sessão e manda ao `/login`. O 
+          -grupo `(publico)` (login, cadastro, esqueci-senha, demonstraçã
+          -o) manda quem já entrou para `/`. `/status` e `/redefinir-senh
+          -a` ficam fora dos grupos. Em `/`, um início provisório (arroba
+          -, tema e Sair) até o feed do passo 7 |                        
+      203 +| Rotas | O grupo `(app)` exige sessão e manda ao `/login`. O 
+          +grupo `(publico)` (login, cadastro, esqueci-senha, demonstraçã
+          +o) manda quem já entrou para `/`. `/status` e `/redefinir-senh
+          +a` ficam fora dos grupos. Em `/`, um início provisório (arroba
+          +, tema e Sair) até o passo 7, quando `/` vira o feed e o `?vol
+          +tar=` do deep link entra (ver passo 7) |                      
+      204  | Cadastro em três telas | `/cadastro` segue a prancheta (RA, 
+           e-mail, senha) com "Continuar", que pede a sugestão de arroba 
+           e com ela confere RA e e-mail; `/cadastro/arroba` pede nome e 
+           arroba; `/cadastro/termo` mostra o termo vigente, e a conta na
+           sce no aceite. Os dados ficam só em memória: recarregar no mei
+           o volta ao primeiro passo |
+      205  | Debounce do arroba | A disponibilidade é consultada 500 ms d
+           epois de a digitação parar, e cada consulta cancela a anterior
+           . Arroba fora da forma e a própria sugestão não consultam. 429
+            ou rede na consulta não travam: o cadastro confere de novo ao
+            criar a conta |
+      206  | Primeiro acesso | "Primeiro acesso? Aluno cria a conta em Ca
+           dastrar. Professor define a senha em Esqueci minha senha.", se
+           m link, no lugar do Portal UniMax da prancheta, que não existe
+            na fase 1 |
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      278  | Professor na aba Troféus | Vê "Troféus e medalhas são dos al
+           unos.", e a tela não pede os prêmios |
+      279  | Modal de concessão | Folha que sobe de baixo, como as do Ins
+           tagram, com as medalhas do catálogo vigentes: medalhão, nome, 
+           tier e pontos, critério e limite. Recusa e falta de conexão fi
+           cam dentro da folha |
+      280  | Mensagens | Todo código de `Codigos*.cs` da Application tem 
+           mensagem em `erros.ts`; o teste lê todos esses arquivos |
+      281 -| e2e | Cada execução cria uma professora (cadastro e vínculo 
+          -no Postgres, conta pelo `seed demo`, senha pelo Mailpit) e um 
+          -aluno matriculado na turma vigente de Banco de Dados; a profes
+          -sora concede pela tela, o aluno vê em Troféus, e o comando de 
+          -anulação roda no contêiner do seeder. Só no celular |         
+      281 +| e2e | Cada execução cria uma professora (cadastro e vínculo 
+          +no Postgres, conta pelo `seed demo`, senha pelo Mailpit) e um 
+          +aluno matriculado na turma vigente de Banco de Dados; a profes
+          +sora concede pela tela, o aluno vê em Troféus, e o comando de 
+          +anulação roda no contêiner do seeder. Só no celular. Desde o p
+          +asso 7, o e2e roda o seed e a anulação com `docker compose exe
+          +c` no worker, que já está de pé (ver passo 7) |               
+      282  
+      283  ## Processo e qualidade
+      284  
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 3 lines, removed 2 lines
+      138  ```
+      139  
+      140  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+           os reservados, os aceites do
+      141 -termo e os refresh saem em cascata com o usuário e a família. 
+          -A lista cresce com os passos que gravam dados                 
+      142 -do aluno (posts, curtidas, prêmios, pontos): cada um acrescent
+          -a aqui a tabela dele, antes                                   
+      141 +termo e os refresh saem em cascata com o usuário e a família. 
+          +Curtidas e comentários de                                     
+      142 +outras pessoas nos posts do lote saem em cascata com o post. A
+          + lista cresce com os passos                                   
+      143 +que gravam dados do aluno (prêmios, pontos): cada um acrescent
+          +a aqui a tabela dele, antes                                   
+      144  de `usuario`. As fotos no bucket não saem por este SQL, que só
+            alcança o banco: saem na purga
+      145  pela área web da instituição, no passo 12.
+      146  
+● Verifying the cascade claim I just wrote before relying on it.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The cascade holds (curtida and comentario point at post with Cascade). Now the
+  new passo 7 section in the decisions README.
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 96 lines
+      281  | Mensagens | Todo código de `Codigos*.cs` da Application tem 
+           mensagem em `erros.ts`; o teste lê todos esses arquivos |
+      282  | e2e | Cada execução cria uma professora (cadastro e vínculo 
+           no Postgres, conta pelo `seed demo`, senha pelo Mailpit) e um 
+           aluno matriculado na turma vigente de Banco de Dados; a profes
+           sora concede pela tela, o aluno vê em Troféus, e o comando de 
+           anulação roda no contêiner do seeder. Só no celular. Desde o p
+           asso 7, o e2e roda o seed e a anulação com `docker compose exe
+           c` no worker, que já está de pé (ver passo 7) |
+      283  
+      284 +## Posts, upload e feed (passo 7)                             
+      285 +                                                              
+      286 +O upload direto ao bucket, o post, o feed, as interações, o pe
+          +rfil e a busca. As decisões                                   
+      287 +D1 a D14 foram fechadas no plano do passo; as demais, nas etap
+          +as. As regras de produto que                                  
+      288 +nasceram aqui (post de medalha anulada e de prêmio revogado) e
+          +stão em `produto.md` 4.7 e                                    
+      289 +4.8.                                                          
+      290 +                                                              
+      291 +### Armazenamento e upload                                    
+      292 +                                                              
+      293 +| Decisão | Detalhe |                                         
+      294 +|---|---|                                                     
+      295 +| Emulador | VersityGW `v1.10.0`, compatível com S3, no perfil
+          + `armazenamento-local` do compose (ligado por `COMPOSE_PROFILE
+          +S` no `.env.example`), com bucket e política de leitura criado
+          +s por um contêiner de inicialização com o `aws-cli`. O mesmo e
+          +mulador nos testes de integração, por Testcontainers. Só desen
+          +volvimento e teste, nunca produção. A MinIO, primeira escolha,
+          + deixou de publicar a imagem da edição comunitária |          
+      296 +| Adaptador | `IArmazenamentoDeFotos` na Application, implemen
+          +tado com AWSSDK.S3 na Infrastructure: assinar o PUT, conferir 
+          +com HEAD, remover e montar a URL de leitura. Serve ao R2 e ao 
+          +emulador. Região `auto`, como no R2 |                         
+      297 +| Dois endereços | `Armazenamento__Endpoint`, por onde a API f
+          +az HEAD e remoção, e `Armazenamento__EndpointPublico`, que vai
+          + na URL assinada. Vazio, o público é o interno, como no R2. No
+          + compose diferem: a API alcança o emulador pela rede interna, 
+          +e o navegador, pela porta publicada |                         
+      298 +| Configuração | `MAXX_ARMAZENAMENTO_*` no `.env`, com os valo
+          +res do emulador no `.env.example` e os do R2 só no `.env` da V
+          +PS. Sem bucket, endpoint, leitura, chave ou segredo, a API não
+          + sobe fora de desenvolvimento e teste |                       
+      299 +| Assinatura | PUT pré-assinado com `content-type` e `content-
+          +length` entre os cabeçalhos assinados, válido por 15 minutos. 
+          +Outro tipo, outro tamanho ou fora da validade: o próprio bucke
+          +t recusa (ADR 0002). O R2 não aceita POST com política, e por 
+          +isso o tamanho vai exato na assinatura |                      
+      300 +| Formato (D2) | Só `image/jpeg`, porque o cliente reencoda tu
+          +do. Derivada do feed com até 1080 de lado e 1 MiB; da grade, 3
+          +20 de lado e 200 KiB. Recorte quadrado e central, sem editor (
+          +ADR 0003) |                                                   
+      301 +| Chaves | `<ULID>/feed.jpg` e `<ULID>/grade.jpg`, um ULID nov
+          +o por pedido: aleatório e sem dado de ninguém na chave |      
+      302 +| Pedido de upload | `POST /v1/uploads` com finalidade (`post`
+          + ou `fotoDePerfil`) e os dois tamanhos, sob o limite `UploadPo
+          +rUsuario`. Grava `upload_pendente` (dono, finalidade, chaves, 
+          +tamanhos, criado em, confirmado em) e devolve as duas URLs |  
+      303 +| Confirmação | O post ou a foto de perfil confirmam o upload,
+          + depois de o HEAD achar os dois objetos. Upload de outro usuár
+          +io, de outra finalidade, já confirmado ou vencido é recusado |
+      304 +| Upload abandonado | O trabalho `limpar-upload-abandonado`, a
+          +diado 24 horas e enfileirado na mesma transação da assinatura,
+          + apaga os objetos e a linha se o upload continuar pendente. Co
+          +nfirmado, não toca. Idempotente, com `xmin` contra a confirmaç
+          +ão simultânea |                                               
+      305 +| Remoção de fotos | Post apagado, foto de perfil trocada ou r
+          +emovida: os objetos saem pelo trabalho `remover-fotos`, enfile
+          +irado na mesma transação. Remover chave que já não existe não 
+          +é erro |                                                      
+      306 +| Verificação do R2 | `VerificacaoDoR2Tests`, pulado por padrã
+          +o e fora da CI: com `MAXX_VERIFICAR_R2=1` e as `MAXX_ARMAZENAM
+          +ENTO_*` do bucket real, prova no R2 o que o emulador prova na 
+          +CI (tipo e tamanho presos, leitura pela CDN sem login, remoção
+          +), e o CORS do PUT com `MAXX_VERIFICAR_R2_ORIGEM`. Roda uma ve
+          +z à mão, quando a conta existir |                             
+      307 +                                                              
+      308 +### Post e interações                                         
+      309 +                                                              
+      310 +| Decisão | Detalhe |                                         
+      311 +|---|---|                                                     
+      312 +| Post (D5) | Ao menos um entre medalha, foto e legenda. Legen
+          +da de até 1.000 caracteres. Não é editável. Um prêmio rende um
+          + post, por índice único `ix_post_medalha_ativa`, e a corrida r
+          +esponde 409, nunca 500. Os passos 8 e 9 acrescentam os outros 
+          +prêmios com no máximo um por post |                           
+      313 +| Quem posta | Só aluno ativo. Ex-aluno, professor e instituiç
+          +ão recebem 403. A medalha tem de ser do autor e não estar anul
+          +ada |                                                         
+      314 +| Remoção pelo autor | Física: curtidas e comentários saem em 
+          +cascata, as fotos pela fila, e o prêmio fica livre para um pos
+          +t novo |                                                      
+      315 +| Remoção pela instituição (D7) | Lógica, com `removido_em` e 
+          +`removido_por_id`: o post some do feed, do perfil e do link, e
+          + o registro fica. No app, pelo menu "..." do post e do comentá
+          +rio |                                                         
+      316 +| Medalha anulada (D6) | O post perde o vínculo com ela; se fi
+          +car sem foto e sem legenda, sai, porque post vazio não existe.
+          + A mesma regra vale para o prêmio revogado no passo 8 (`produt
+          +o.md` 4.7 e 4.8) |                                            
+      317 +| Curtida | `PUT` e `DELETE`, idempotentes; curtir duas vezes 
+          +conta uma |                                                   
+      318 +| Comentário | Até 500 caracteres, do mais antigo ao mais novo
+          +, 20 por página por cursor. Apaga o autor do comentário e a in
+          +stituição, esta com registro de quem e quando; o dono do post 
+          +não apaga comentário alheio |                                 
+      319 +| Seguir (D9) | Aluno segue aluno, ativo ou ex-aluno. Professo
+          +r segue só aluno matriculado em turma dele no semestre vigente
+          +, conferido no banco, e o vínculo continua depois do semestre.
+          + Ninguém segue professor. A conta de professor e instituição s
+          +egue, curte e comenta como professora. Contadores sem tela de 
+          +lista |                                                       
+      320 +                                                              
+      321 +### Feed                                                      
+      322 +                                                              
+      323 +| Decisão | Detalhe |                                         
+      324 +|---|---|                                                     
+      325 +| Página (D8) | 12 posts, três de seguidos para cada recomenda
+          +ção, nas posições 4, 8 e 12. O trecho que acaba cede a vez ao 
+          +outro: quem não segue ninguém vê só recomendações, e o feed só
+          + vem vazio sem post nenhum. A regra está no domínio (`Feed.Int
+          +ercalar`) |                                                   
+      326 +| Seguidos | Os do próprio leitor e de quem ele segue, do mais
+          + novo ao mais antigo, pelo índice `(autor_id, criado_em desc, 
+          +id desc)` e cursor `(criado_em, id)` |                        
+      327 +| Recomendação (D8, opção A) | Posts de quem o leitor não segu
+          +e, por `md5(semente \|\| id)`, com o id desempatando e `COLLAT
+          +E "C"` na ordem e no cursor. Aval explícito: esse trecho varre
+          + os candidatos sem índice na ordenação, barato nesta escala; o
+          + p95 é medido no passo 13 |                                   
+      328 +| Semente | Sorteada na primeira página e levada dentro do cur
+          +sor opaco, com a posição de cada trecho. Rolar mantém a ordem;
+          + puxar para atualizar começa sessão nova. Cursor adulterado re
+          +cebe 400 `cursor-invalido` |                                  
+      329 +| Por papel | A professora vê os alunos que segue mais recomen
+          +dações; a instituição, só recomendações. Post removido pela in
+          +stituição não entra |                                         
+      330 +| Seed (D13) | Sem posts semeados neste passo: o mundo de demo
+          +nstração não tem contas de aluno. Fica para o seed completo do
+          + passo 12 |                                                   
+      331 +                                                              
+      332 +### Perfil e busca                                            
+      333 +                                                              
+      334 +| Decisão | Detalhe |                                         
+      335 +|---|---|                                                     
+      336 +| Rotas | `GET /v1/perfis/{id}` e `GET /v1/eu/perfil`; a grade
+          + em `GET /v1/perfis/{id}/posts`, 18 por página; os prêmios obt
+          +idos em `GET /v1/perfis/{id}/premios`. Instituição sem papel d
+          +e professor não tem perfil social (404) |                     
+      337 +| O que o perfil traz | Nome, arroba, papel, curso, semestre, 
+          +ex-aluno, pontos, contadores, `euSigo` e foto. O RA só no próp
+          +rio perfil. Faltantes e progresso só para o dono. O professor 
+          +mostra as turmas vigentes e quantas medalhas concedeu. A posiç
+          +ão no ranking chega no passo 11 |                             
+      338 +| ETag | Fraca, calculada do conteúdo, com 304 e `Cache-Contro
+          +l: private, no-cache`, porque a resposta depende de quem pede.
+          + Poupa banda, não banco: a resposta é montada antes de compara
+          +r |                                                           
+      339 +| Editar perfil | `PATCH /v1/eu/perfil` com nome, prefixo, upl
+          +oad de foto ou remoção, tudo ou nada. O prefixo antigo fica re
+          +servado ao dono, que pode voltar a ele; o de outra pessoa rece
+          +be 409. Trocar e remover a foto no mesmo pedido: 400 `foto-de-
+          +perfil-ambigua`. Disponibilidade em `GET /v1/eu/perfil/disponi
+          +bilidade` |                                                   
+      340 +| Busca (D11) | `GET /v1/busca/alunos`, 20 por página: por tre
+          +cho do nome sem acento nem maiúsculas, por trecho do prefixo o
+          +u pelo arroba inteiro com "@". Ativos e ex-alunos, filtro pelo
+          + curso atual e pelo semestre. Nunca professor, nunca pelo RA; 
+          +`%` e `_` são texto. Menos de 2 caracteres e nenhum filtro: 40
+          +0 `busca-sem-criterio` |                                      
+      341 +| Índices da busca | Extensões `unaccent` e `pg_trgm`, uma fun
+          +ção imutável `maxx_sem_acento` (o `unaccent` sozinho não entra
+          + em índice) e índices GIN de trigramas no nome sem acento e no
+          + prefixo |                                                    
+      342 +| Semestres | `GET /v1/cursos` traz a duração em semestres; o 
+          +filtro vai do 1º ao último semestre do curso, até o 12º de Med
+          +icina |                                                       
+      343 +                                                              
+      344 +### Cliente                                                   
+      345 +                                                              
+      346 +| Decisão | Detalhe |                                         
+      347 +|---|---|                                                     
+      348 +| Derivadas | `expo-image-picker` e `expo-image-manipulator`, 
+          +sem ampliar foto menor. Derivada acima do limite ganha uma seg
+          +unda tentativa mais comprimida; ainda grande, "Essa foto ficou
+          + grande demais. Escolha outra." |                             
+      349 +| Envio | PUT direto na URL assinada, com o tipo e sem token n
+          +em cabeçalho do Maxx. Post que falha depois do envio reaprovei
+          +ta o upload, sem gastar o limite |                            
+      350 +| Novo post | `/novo-post`, pelo "+" do cabeçalho do feed: fot
+          +o opcional, legenda com contador e a medalha opcional entre as
+          + que ainda não têm post. Professor vê "Só aluno publica no fee
+          +d." |                                                         
+      351 +| Cartão de post | Como a prancheta, sem o ícone de salvar (nã
+          +o existe na fase 1). O nome no cartão é o prefixo do arroba, s
+          +em "@" e sem o sufixo do curso. Curtida otimista; "Enviar" abr
+          +e a folha de compartilhamento ou copia o link |               
+      352 +| Deep link | `/post/:id` e `/post/:id/comentarios` atrás do l
+          +ogin: o grupo `(app)` manda ao `/login?voltar=`, e o grupo púb
+          +lico devolve só para esses dois caminhos, nunca para esquema, 
+          +host ou outra tela. Na web, o roteador tira o `?voltar=` da UR
+          +L ao entrar, antes do redirecionamento; por isso o destino é g
+          +uardado enquanto não há sessão |                              
+      353 +| Pilha sobre as abas | O grupo `(app)` é um `Stack` sem cabeç
+          +alho, não um `Slot`: post, comentários, perfil de outra pessoa
+          +, novo post e editar perfil ficam por cima das abas, que conti
+          +nuam montadas. O voltar volta para a aba de onde se veio, com 
+          +a busca digitada. Publicar e post removido voltam ao feed com 
+          +`dismissTo`, sem empilhar outro |                             
+      354 +| Perfil (D10) | Sem bio, sem "Seguida por" e sem Compartilhar
+          +. Arroba sob o nome; anel dourado no próprio avatar; abas por 
+          +ícone (grade, taça, fita) com a grade de três colunas. Post se
+          +m foto aparece na grade como medalhão sobre o metal, ou o come
+          +ço da legenda sobre `surface`. O perfil de outra pessoa abre f
+          +ora das abas, com voltar |                                    
+      355 +| Menu do perfil | Tema, "Minhas turmas" para o professor e Sa
+          +ir. Fecha a pendência do tema do passo 4 |                    
+      356 +| Busca | Chips de curso e de semestre; os semestres seguem a 
+          +duração do curso escolhido e, sem curso, vão até a maior. Os a
+          +talhos de ranking chegam no passo 11 |                        
+      357 +| Editar perfil | Foto (trocar e remover), nome e prefixo com 
+          +a disponibilidade consultada 500 ms depois de a digitação para
+          +r; o prefixo atual não é consultado. Salvar fica desativado se
+          +m mudança |                                                   
+      358 +| Foto na demonstração (D12) | Opcional, depois de a conta exi
+          +stir, porque o upload exige login. Melhor esforço: se a foto f
+          +alhar, a conta segue sem ela |                                
+      359 +                                                              
+      360 +### Testes de ponta a ponta                                   
+      361 +                                                              
+      362 +| Decisão | Detalhe |                                         
+      363 +|---|---|                                                     
+      364 +| Fluxos | Só no celular, pelo limite de login por IP: post co
+          +m foto desenhada no navegador e enviada de verdade ao emulador
+          +, deep link depois do login, curtida, comentário e remoção; bu
+          +sca, seguir e editar perfil |                                 
+      365 +| Comandos no worker | O seed e a anulação do e2e rodam com `d
+          +ocker compose exec -T worker`, no contêiner que já está de pé.
+          + O `docker compose run seeder` refazia também a dependência (o
+          + migrator) a cada chamada: cerca de 4,6 s contra 1,9 s com a p
+          +ilha parada, e bem mais com os testes em paralelo, o que estou
+          +rava os 30 s do caso de medalha. Com isso saiu o `test.slow()`
+          + |                                                            
+      366 +                                                              
+      367 +### Limites conhecidos                                        
+      368 +                                                              
+      369 +| Limite | Onde é tratado |                                   
+      370 +|---|---|                                                     
+      371 +| O teste do índice do feed desliga a varredura (`enable_seqsc
+          +an = off`): prova que o índice serve, não que o planejador o e
+          +scolhe com pouco dado | k6 do passo 13 |                      
+      372 +| A busca não tem teste com `EXPLAIN` dos índices de trigramas
+          + | k6 do passo 13 |                                           
+      373 +| Seguir no meio da sessão pode repetir um post já visto como 
+          +recomendação, e deixar de seguir pode tirar um da sessão. O fe
+          +ed não guarda estado no servidor; puxar para atualizar resolve
+          + | Aceito |                                                   
+      374 +| A migration cria extensões: o usuário do banco precisa de `C
+          +REATE EXTENSION` | Passo 13, revisar na VPS |                 
+      375 +| O PUT de Blob no Android e no iOS só passa pelo Jest | Maest
+          +ro do passo 13 |                                              
+      376 +| HEIC não abre no Chrome: quem escolher um vê "Não deu para a
+          +brir essa foto. Escolha outra." | Aceito |                    
+      377 +| A conferência do `content-length` assinado foi provada no em
+          +ulador, não no R2 | `VerificacaoDoR2Tests`, quando a conta exi
+          +stir |                                                        
+      378 +| As fotos do lote de demonstração não saem pelo SQL da purga 
+          +(D14) | Purga pela área web, passo 12 |                       
+      379 +                                                              
+      380  ## Processo e qualidade
+      381  
+      382  | Decisão | Detalhe |
+
+● Verifying a few claims I wrote against the code: upload expiry on
+  confirmation, and the grid cell for posts without a photo.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● There is no expiry check on confirmation (only owner, purpose, already used,
+  and the HEAD). Correcting that line.
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      300  | Formato (D2) | Só `image/jpeg`, porque o cliente reencoda tu
+           do. Derivada do feed com até 1080 de lado e 1 MiB; da grade, 3
+           20 de lado e 200 KiB. Recorte quadrado e central, sem editor (
+           ADR 0003) |
+      301  | Chaves | `<ULID>/feed.jpg` e `<ULID>/grade.jpg`, um ULID nov
+           o por pedido: aleatório e sem dado de ninguém na chave |
+      302  | Pedido de upload | `POST /v1/uploads` com finalidade (`post`
+            ou `fotoDePerfil`) e os dois tamanhos, sob o limite `UploadPo
+           rUsuario`. Grava `upload_pendente` (dono, finalidade, chaves, 
+           tamanhos, criado em, confirmado em) e devolve as duas URLs |
+      303 -| Confirmação | O post ou a foto de perfil confirmam o upload,
+          - depois de o HEAD achar os dois objetos. Upload de outro usuár
+          -io, de outra finalidade, já confirmado ou vencido é recusado |
+      303 +| Confirmação | O post ou a foto de perfil confirmam o upload,
+          + depois de o HEAD achar os dois objetos. Upload de outro usuár
+          +io ou de outra finalidade recebe 404 `upload-nao-encontrado`; 
+          +já confirmado, 409 `upload-ja-usado`, também na corrida. Não h
+          +á prazo próprio na confirmação: até a limpeza de 24 horas, o u
+          +pload pendente ainda serve |                                  
+      304  | Upload abandonado | O trabalho `limpar-upload-abandonado`, a
+           diado 24 horas e enfileirado na mesma transação da assinatura,
+            apaga os objetos e a linha se o upload continuar pendente. Co
+           nfirmado, não toca. Idempotente, com `xmin` contra a confirmaç
+           ão simultânea |
+      305  | Remoção de fotos | Post apagado, foto de perfil trocada ou r
+           emovida: os objetos saem pelo trabalho `remover-fotos`, enfile
+           irado na mesma transação. Remover chave que já não existe não 
+           é erro |
+      306  | Verificação do R2 | `VerificacaoDoR2Tests`, pulado por padrã
+           o e fora da CI: com `MAXX_VERIFICAR_R2=1` e as `MAXX_ARMAZENAM
+           ENTO_*` do bucket real, prova no R2 o que o emulador prova na 
+           CI (tipo e tamanho presos, leitura pela CDN sem login, remoção
+           ), e o CORS do PUT com `MAXX_VERIFICAR_R2_ORIGEM`. Roda uma ve
+           z à mão, quando a conta existir |
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Codes match and there are no em dashes. Now the plano mestre: closing note for
+  passo 7, then the items carried into passos 12 and 13.
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 6 lines
+      184  - Busca de alunos por nome de exibição e arroba, com filtros d
+           e curso e semestre.
+      185  - Editar perfil: foto, nome de exibição e a parte do arroba an
+           tes do hífen.
+      186  - Deep link `/post/:id` atrás do login.
+      187 +- Limite de upload aplicado e testado; controle de tema no men
+          +u do perfil; anel dourado no                                  
+      188 +  próprio avatar; foto opcional na demonstração.              
+      189  
+      190 +Ficam pendentes: os posts semeados, que precisam das contas de
+          + aluno do seed completo                                       
+      191 +(passo 12), e a remoção das fotos do lote no bucket, que o SQL
+          + da purga não alcança                                         
+      192 +(passo 12). Decisões do passo em `decisoes/README.md`, Posts, 
+          +upload e feed (passo 7).                                      
+      193 +                                                              
+      194  ### Passo 8. Prêmios de participação
+      195  
+      196  - Catálogo de eventos semeado, mais evento em texto livre com 
+           nome e período.
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 2 lines, removed 1 line
+      240  - Conceder prêmio de participação já aprovado.
+      241  - Publicar aviso de faculdade e de curso.
+      242  - Anular medalha; corrigir e-mail de aluno; marcar ex-aluno.
+      243 -- Purgar dados de demonstração por lote, em uma transação.    
+      243 +- Purgar dados de demonstração por lote, em uma transação, com
+          + as fotos do lote (posts e                                    
+      244 +  fotos de perfil) removidas do bucket, que o SQL sozinho não 
+          +alcança (D14 do passo 7).                                     
+      245  - Seed de demonstração completo: 150 alunos, 120 ativos distri
+           buídos por semestres e 30
+      246    ex-alunos, quatro cursos, turmas, matérias, professores, pos
+           ts com foto, prêmios
+      247    distribuídos de modo que as quatro raridades apareçam, aviso
+           s, eventos passados e
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 2 lines, removed 1 line
+      245  - Seed de demonstração completo: 150 alunos, 120 ativos distri
+           buídos por semestres e 30
+      246    ex-alunos, quatro cursos, turmas, matérias, professores, pos
+           ts com foto, prêmios
+      247    distribuídos de modo que as quatro raridades apareçam, aviso
+           s, eventos passados e
+      248 -  futuros, duas comprovações pendentes e uma contestação abert
+          -a.                                                            
+      248 +  futuros, duas comprovações pendentes e uma contestação abert
+          +a. Os posts semeados, que o                                   
+      249 +  passo 7 deixou para cá (D13), nascem com as contas desses al
+          +unos.                                                         
+      250  
+      251  ### Passo 13. Endurecimento e ensaio
+      252  
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 10 lines, removed 1 line
+      251  ### Passo 13. Endurecimento e ensaio
+      252  
+      253  - k6 a 2.000 usuários virtuais, p95 medido em feed, perfil e r
+           anking. Micro-cache da
+      254 -  primeira página do feed só se o número pedir.               
+      254 +  primeira página do feed só se o número pedir. Do passo 7: o 
+          +p95 do trecho de                                              
+      255 +  recomendação, que ordena sem índice; se o planejador escolhe
+          + o índice do feed com volume                                  
+      256 +  real (o teste dele desliga a varredura); e se a busca usa os
+          + índices de trigramas.                                        
+      257 +- CSP do build web liberando o domínio da CDN das fotos em `im
+          +g-src` e o endpoint do R2 em                                  
+      258 +  `connect-src`, para o PUT direto do navegador.              
+      259 +- R2 de verdade: rodar uma vez o `VerificacaoDoR2Tests`, que c
+          +onfere tipo e tamanho presos                                  
+      260 +  na assinatura, leitura pela CDN sem login, remoção e o CORS 
+          +do PUT.                                                       
+      261 +- Privilégio de `CREATE EXTENSION` do usuário do banco na VPS:
+          + a migration do passo 7 cria                                  
+      262 +  `unaccent` e `pg_trgm`. Revisar se a VPS usar um usuário com
+          + menos privilégio que o dono                                  
+      263 +  do banco.                                                   
+      264  - Verificação de saúde do worker e alerta de fila parada, pelo
+            defeito silencioso
+      265    descrito no ADR 0005, e de trabalho que ficou `falho` na fil
+           a.
+      266  - CSP, HSTS e cabeçalhos de segurança; varredura de dependênci
+           as e de segredos na CI.
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 2 lines, removed 1 line
+      266  - CSP, HSTS e cabeçalhos de segurança; varredura de dependênci
+           as e de segredos na CI.
+      267  - Backup: `pg_dump` noturno para o bucket e dump manual antes 
+           de migration, com
+      268    restauração testada uma vez.
+      269 -- APK gerado e fumaça mínima com Maestro.                     
+      269 +- APK gerado e fumaça mínima com Maestro, incluindo o PUT da f
+          +oto no Android, que até lá                                    
+      270 +  só passa pelo Jest.                                         
+      271  - Ensaio da demonstração remota: não há apresentação presencia
+           l, a avaliação é remota,
+      272    antes de 05/12, e cada avaliador entra pela própria conexão.
+            O ensaio entra na VPS de
+      273    fora, por conexões diferentes, com a demonstração ligada.
+
+● Now the fluxo 02 doc, to see whether it disagrees with what was built.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The upload flow is mostly right, but it's missing the HEAD check before
+  confirming, the size lock in the signature, and the cleanup job queued at URL
+  signing. I'm making small edits to match what was built.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\fluxos\02-post-com-comprovacao.md)
+  ⎿  Added 4 lines, removed 2 lines
+      18    Aluno->>API: pedido de upload (tipo e tamanho das duas)
+      19    API->>API: valida tipo e tamanho
+      20    API->>DB: registra upload pendente com chaves aleatorias
+      21 -  API-->>Aluno: duas URLs assinadas, content-type preso na assi
+         -natura                                                         
+      21 +  API->>Fila: limpeza do upload abandonado, adiada 24 horas    
+      22 +  API-->>Aluno: duas URLs assinadas, content-type e tamanho pre
+         +sos na assinatura                                              
+      23    Aluno->>R2: PUT das duas derivadas, direto no bucket
+      24  
+      24 -  Aluno->>API: cria o post de reivindicacao (item, evento, chav
+         -es das fotos)                                                  
+      25 +  Aluno->>API: cria o post de reivindicacao (item, evento, id d
+         +o upload)                                                      
+      26    API->>DB: confere a deduplicacao do premio
+      27 +  API->>R2: HEAD das duas derivadas                            
+      28    API->>DB: confirma o upload pendente
+      29    API->>DB: grava o post e o premio Reivindicado, com a Comprov
+          acao
+      30    Note over DB: post publico com marca pendente<br/>o premio ai
+          nda nao pontua
+
+● Update(docs\fluxos\02-post-com-comprovacao.md)
+  ⎿  Added 2 lines, removed 2 lines
+      55  | Passo | Fonte |
+      56  |---|---|
+      57  | Duas derivadas geradas no cliente (feed ~1080², grade ~320²),
+           sem metadado de localização | ADR 0003 |
+      58 -| API valida tipo e tamanho antes de assinar; assinatura prende
+         - o `content-type`; foto nunca passa pela API | ADR 0002; `CLAUD
+         -E.md` (Segurança) |                                            
+      58 +| API valida tipo e tamanho antes de assinar; assinatura prende
+         + o `content-type` e o tamanho exato; foto nunca passa pela API 
+         +| ADR 0002; `CLAUDE.md` (Segurança); `decisoes/README.md` (pass
+         +o 7) |                                                         
+      59  | Chave de objeto aleatória, porque a leitura é pública para qu
+          em tem o link | ADR 0002; `produto.md` 9.2 |
+      60 -| Upload pendente registrado e confirmado ao criar o post; limp
+         -eza do abandonado na fila | ADR 0002; `plano-mestre.md` passo 7
+         - |                                                             
+      60 +| Upload pendente registrado e confirmado ao criar o post, depo
+         +is de o HEAD achar as duas derivadas; limpeza do abandonado na 
+         +fila, 24 horas depois da assinatura | ADR 0002; `decisoes/READM
+         +E.md` (passo 7) |                                              
+      61  | Um prêmio por evento; evento em texto livre bloqueia o mesmo 
+          item na mesma data; apresentação em sala deduplica por item, da
+          ta e matéria | `produto.md` 4.6 |
+      62  | Post público desde o envio, com marca "pendente", sem pontuar
+           | `produto.md` 4.7 e 9.1 |
+      63  | Aprovam o professor de qualquer turma do aluno no semestre vi
+          gente ou a instituição; vale quem chega primeiro | `produto.md`
+           4.7 |
+
+● Docs done. Cleaning up the temp files and tearing down the isolated stack,
+  then running the full battery.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      -rf e2e/captura-temp e2e/test-results e2e/playwright-report &&
+      S="C:/Users/GUILHE~1/Ap…)
+  ⎿   Volume maxx-etapa11_postgres-data Removed
+      Network maxx-etapa11_default Removed
+      M apps/mobile/src/app/(app)/_layout.tsx
+     … +15 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\captura-temp\depurar.spec.ts (+0 -29)
+       1 -import { test } from "@playwright/test";                       
+       2 -import { novaConta } from "../tests/apoio/contas";             
+       3 -                                                               
+       4 -test("depurar comentarios", async ({ page, request }) => {     
+       5 -  const autora = await novaConta(request, "Autora D");         
+       6 -  const leitor = await novaConta(request, "Leitor D");         
+       7 -  await page.goto("/login");                                   
+       8 -  await page.getByLabel("RA ou e-mail").fill(autora.ra);       
+       9 -  await page.getByLabel("Senha", { exact: true }).fill(autora.s
+         -enha);                                                         
+      10 -  await page.getByRole("button", { name: "Entrar", exact: true 
+         -}).click();                                                    
+      11 -  await page.getByRole("button", { name: "Novo post" }).first()
+         -.click();                                                      
+      12 -  await page.getByLabel("Legenda").fill("so legenda depura");  
+      13 -  await page.getByRole("button", { name: "Publicar" }).click();
+      14 -  const cartao = page.locator('[data-testid^="post-"]', { hasTe
+         -xt: "so legenda depura" }).first();                            
+      15 -  const id = (await cartao.getAttribute("data-testid"))!.replac
+         -e("post-", "");                                                
+      16 -  const ctx = await page.context().browser()!.newContext({ view
+         -port: { width: 390, height: 844 } });                          
+      17 -  const p = await ctx.newPage();                               
+      18 -  p.on("framenavigated", (f) => { if (f === p.mainFrame()) cons
+         -ole.log("NAV", f.url()); });                                   
+      19 -  await p.goto(`http://localhost:18080/post/${id}`);           
+      20 -  await p.getByLabel("RA ou e-mail").fill(leitor.ra);          
+      21 -  await p.getByLabel("Senha", { exact: true }).fill(leitor.senh
+         -a);                                                            
+      22 -  await p.getByRole("button", { name: "Entrar", exact: true }).
+         -click();                                                       
+      23 -  await p.waitForTimeout(1500);                                
+      24 -  console.log("BOTOES", await p.getByRole("button", { name: "Co
+         -mentários" }).count());                                        
+      25 -  await p.getByRole("button", { name: "Comentários" }).click();
+      26 -  await p.waitForTimeout(1500);                                
+      27 -  console.log("URL", p.url(), "CAMPOS", await p.getByLabel("Com
+         -entário").count());                                            
+      28 -  console.log((await p.locator("body").ariaSnapshot()).slice(0,
+         - 1500));                                                       
+      29 -});                                                            
+  ⎿  Deleted e2e\captura-temp\playwright.config.ts (+0 -2)
+      1 -import { defineConfig } from "@playwright/test";                
+      2 -export default defineConfig({ testDir: ".", use: { baseURL: "htt
+        -p://localhost:18080", viewport: { width: 390, height: 844 } } })
+        -;                                                               
+
+● Running the full battery the way CI does (API format, build and tests in the
+  background since they take a while; client checks in parallel).
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Run API format, build and tests" completed (exit code 0)
+
+● The client output came back with blank lines where the typecheck and audit
+  results should be, so I'm rerunning those with exit codes. Reading the API
+  results too.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Client-side checks all pass (lint, both typechecks, verificar, and audit with
+  its 33 known findings). The API command failed only because I ran it from the
+  wrong folder, so I'm rerunning it from the correct one.
+
+  Ran 2 shell commands (ctrl+o to expand)
+● While the API battery runs, a last review of the full diff for this etapa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● One inconsistency: the code comment says the seeder container cost "uns 10 s",
+  while the docs give the measured 4.6 s idle versus 1.9 s. Aligning the
+  comment with the measurement.
+
+● Update(e2e\tests\apoio\medalhas.ts)
+  ⎿  Added 3 lines, removed 2 lines
+      117  }
+      118  
+      119  // Um subcomando da API (seed, anulação) dentro do worker, que
+            já está de pé com a mesma
+      120 -// imagem e a mesma conexão: subir um contêiner do seeder a ca
+          -da teste custava uns 10 s, e                                  
+      121 -// com a suíte em paralelo o caso da medalha passava dos 30 s 
+          -(passo 7, etapa 11).                                          
+      120 +// imagem e a mesma conexão. O `compose run` do seeder refazia
+          + também o migrator a cada                                     
+      121 +// chamada (4,6 s contra 1,9 s com a pilha parada, bem mais co
+          +m a suíte em paralelo), e o                                   
+      122 +// caso da medalha passava dos 30 s (passo 7, etapa 11).      
+      123  function comandoDaApi(argumentos: string[]): string {
+      124    return execFileSync(
+      125      "docker",
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Formatting is still clean. Waiting on the API battery running in the
+  background.
+
+  Read 1 file (ctrl+o to expand)
+
+● The API battery (format, Release build, all tests) is still running in the
+  background. I'll write the etapa 11 report once it finishes.
+
+✻ Cooked for 38m 51s · done 1:53
+
+● Background command "Run API format, Release build and tests from root" was
+stopped because the system is running low on memory
+
+  Read 1 file (ctrl+o to expand)
+
+● Etapa 11: e2e, two app fixes and docs, ready for your review (one check 
+  missing)
+
+  Nothing is committed. One part of the battery did not finish: Claude Code
+  stopped the API test run because the machine was critically low on memory. I
+  haven't restarted it on my own. Format and the Release build had already
+  passed (0 warnings, 0 errors). This etapa adds only one API file, the new R2
+  test class, and its 6 tests were run on their own (results below). The full
+  API suite still needs to run once before the commit. If you say so, I'll rerun
+  it, or you can run dotnet test --solution Maxx.sln.
+
+  Etapa 10 is closed: commit e46f52d, CI green on all six jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42446481199
+
+  Two real defects found by the new e2e
+
+  1. The deep link landed on Home after login.
+     - Cause: I recorded the browser's history calls. On the web, when you sign
+       in, the router rewrites the URL from /login?voltar=… to /login before the
+       public group's redirect runs, so the redirect no longer saw voltar.
+     - Fix: a new useDestinoDepoisDoLogin hook in navegacao/voltar.ts keeps the
+       destination while there is no session. It still only accepts /post/:id
+       and its comments page.
+     - Tests: two Jest tests, including one where the URL loses voltar during
+       login.
+  2. Back went to Home instead of the tab you came from. This hit "Voltar" from
+     another student's profile and saving in edit profile.
+     - Cause: the (app) group used a Slot. That unmounted the tabs while a page
+       sat on top of them, and when they remounted they started over on Home.
+     - Fix: (app) is now a Stack with no header, so the tabs stay mounted
+       underneath. Back now returns to Busca with the search term still typed,
+       and edit profile returns to Perfil. On native this also adds the
+       swipe-back gesture.
+     - Follow-on change: publishing a post, and a removed post, now go back with
+       dismissTo("/") instead of replace("/"), which would have stacked a
+       second feed.
+     - Test adjustment: one selector in the e2e had to change, because the
+       hidden post screen under the comments has a "Comentários" button that
+       also matched the comment field's label.
+
+  Slow medal e2e (the test.slow() stopgap)
+
+  - Cause: docker compose run seeder also re-ran its dependency, the migrator,
+    on every call: 4.6 s against 1.9 s with the stack idle, and much more with
+    the suite running in parallel.
+  - Fix: the seed and the annulment now run with docker compose exec -T worker 
+    dotnet Maxx.Api.dll …. test.slow() is gone.
+
+  New e2e: social.spec.ts (phone only, light and dark)
+
+  - A post with a real photo, drawn in the browser, uploaded to the emulator and
+    loaded back from the bucket. Then the deep link behind login, a like, a
+    comment and deleting it.
+  - Search, follow (counters on both profiles) and edit profile (name and
+    arroba).
+
+  Manual R2 check: VerificacaoDoR2Tests
+
+  - Off by default. It runs only with MAXX_VERIFICAR_R2=1 and the real bucket's
+    values in the environment.
+  - What it checks:
+    - an upload of the exact type and size is accepted and can be read through
+      the CDN without login;
+    - another type is refused;
+    - a larger size is refused (this is the open question about R2 that only the
+      real bucket can answer);
+    - removing an upload deletes it;
+    - CORS allows the PUT, when MAXX_VERIFICAR_R2_ORIGEM is set.
+  - Correction to my plan: the environment variables are MAXX_ARMAZENAMENTO_*
+    (with the R2 values in the VPS .env), not MAXX_R2_* as I wrote there.
+
+  Docs
+
+  - decisoes/README.md:
+    - a new section "Posts, upload e feed (passo 7)" with storage and upload,
+      post and interactions, feed, profile and search, client, e2e, and a table
+      of known limits (the ressalvas from etapas 5, 6 and 7);
+    - updated rows for Storage, the upload limit (no longer provisional), Tema,
+      Avatar, Rotas and the passo 6 e2e;
+    - one sentence in the purge section saying likes and comments of other
+      people on the batch's posts go in cascade with the post. I checked the
+      foreign keys before writing it.
+  - plano-mestre.md:
+    - passo 7 closes with what is left pending and a pointer to the decisions;
+    - passo 12 gets the seeded posts (D13) and removing the batch's photos from
+      the bucket (D14);
+    - passo 13 gets: the k6 checks (p95 of the recommendation, feed index,
+      trigram indexes), the CSP rules for the CDN and R2, running the R2 check,
+      the CREATE EXTENSION privilege, and the photo PUT on Android in Maestro.
+  - fluxos/02: the HEAD check before confirming, the size locked in the
+    signature, and the cleanup job queued when the URLs are signed.
+
+  Battery
+
+  ┌────────────────────────────────┬────────────────────────────────────────┐
+  │             Check              │                 Result                 │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ e2e, normal pass               │ 65 passed, 1 skipped (the same skip as │
+  │                                │  before)                               │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ e2e, @demo pass                │ 4 passed                               │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ Jest                           │ 387 passed                             │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ Prettier, lint, typecheck      │ clean                                  │
+  │ (mobile and e2e)               │                                        │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ verificar (OpenAPI and client) │ no difference                          │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ npm audit --audit-level=high   │ clean (the same 33 known findings      │
+  │                                │ below the cutoff)                      │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ dotnet format, Release build   │ clean, 0 warnings                      │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ R2 check                       │ 6 skipped without the flag; 6 passed   │
+  │                                │ against the emulator with it           │
+  ├────────────────────────────────┼────────────────────────────────────────┤
+  │ Full API test suite            │ not finished: stopped for low memory   │
+  └────────────────────────────────┴────────────────────────────────────────┘
+
+  Temporary files deleted (captura-temp, test-results, playwright-report), and
+  the maxx-etapa11 stack is down along with its volumes.
+
+  Proposed commit: docs(docs): registra as decisões do passo 7 e adiciona o e2e 
+  de posts, busca e perfil. It also carries the two mobile fixes found by the
+  e2e. If you'd rather keep them apart, I can split them into a separate
+  fix(mobile): … commit.
+
+  With your approval and the full API suite green, I'll commit, push, follow the
+  CI and open the PR from feat/passo-07-posts to rodada/eng_07_posts.
+
+✻ Brewed for 27s · done 1:54
+
+※ recap: Passo 7 (posts, upload and feed) is at etapa 11: e2e, two app fixes and the docs are done and waiting for your review. Next, rerun the full API test suite, which was stopped for low memory, then commit, push and open the PR.
+  ⎿  Read ..\..\..\..\..\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-G
+     imenes-Documents-Repos-tcc-maxx-engenheiro\db2e3dff-90c5-43a0-a9fa-f91217b1
+     2056\tasks\bxb1l7zc2.output (6 lines)
+  ⎿  Read e2e\tests\apoio\medalhas.ts (138 lines)
+  ⎿  Read docs\fluxos\02-post-com-comprovacao.md (77 lines)
+  ⎿  Referenced file docs\plano-mestre.md
+  ⎿  Referenced file docs\decisoes\README.md
+
+● Compacted while idle, before the prompt cache expired · turn off with 
+  "idleCompaction": false in settings.json

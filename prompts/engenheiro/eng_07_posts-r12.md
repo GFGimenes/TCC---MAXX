@@ -1,0 +1,14 @@
+ID: eng_07_posts-r12
+Trilha: engenheiro
+Tela: passo 7 (resposta 12 do autor: revisão da etapa 11, e2e, correções e documentação)
+Data: 2026-11-08
+Origem: leitura do Cowork (Anthropic) do export da sessão; decisão do autor; redigida pelo Cowork, o autor revisou.
+
+Notas de registro:
+- Etapa 10 fechada em `e46f52d`, CI verde nos seis jobs, com a correção dos semestres (a API também tinha `[Range(1, 8)]` na busca, removido; teto passa a vir da duração do curso).
+- Etapa 11 entregue sem commit. Causa do `test.slow()` confirmada: `docker compose run seeder` reiniciava o migrator a cada chamada (4,6 s contra 1,9 s); seed e anulação passam a `docker compose exec -T worker`, paliativo removido. E2e novo `social.spec.ts` (celular, dois temas) achou dois defeitos reais: deep link caía na Home depois do login (parâmetro `voltar` perdido; destino guardado antes do login) e voltar caía na Home em vez da aba de origem (abas como Slot desmontavam; `(app)` vira Stack sem cabeçalho, `router.replace("/")` vira `dismissTo("/")` em três telas). Verificação manual do R2 (`VerificacaoDoR2Tests`, só com `MAXX_VERIFICAR_R2=1`, 6 checagens, passaram no emulador). Docs: seção do passo 7 no README de decisões com tabela de limites conhecidos, plano mestre (passo 7 fechado, D13 e D14 no passo 12, k6, CSP, R2, CREATE EXTENSION e PUT no Android no passo 13), fluxo 02 alinhado ao que foi construído. 65 mais 4 e2e, 387 Jest; a suíte completa da API não terminou: o Claude Code interrompeu a execução por falta de memória na máquina, e o agente não reiniciou por conta própria.
+- Ambiente: no meio do turno o agente passou a escrever em inglês (a partir da investigação do deep link), sem ação do autor; no fim apareceu "Compacted while idle". O mesmo padrão da `eng_03_auth` depois de compactação. O export preservou o histórico (13.966 linhas). Registrado para o resultado da rodada; o autor pede a volta ao português na resposta.
+- Decisões do autor: rodar a suíte completa da API antes do commit; separar os dois defeitos achados pelo e2e num commit `fix(mobile)` próprio, antes do commit de docs e e2e, pela regra de fix separado; o resto aceito como entregue.
+
+---
+Etapa 11 aprovada, com três coisas antes de fechar. Primeira: volta a escrever em português, como no resto da sessão. Segunda: roda a suíte completa da API de novo, do começo, antes de qualquer commit; nada é commitado sem ela verde. Terceira: separa em dois commits, primeiro fix(mobile) com as duas correções achadas pelo e2e (deep link depois do login e voltar para a aba de origem, com a troca de replace por dismissTo), depois o commit de docs e e2e com a mensagem proposta, incluindo a troca do seeder pelo exec no worker e a verificação do R2. A causa da lentidão e a remoção do test.slow() estão certas. Com os dois commits verdes na CI, abre o PR de feat/passo-07-posts para rodada/eng_07_posts e me manda o relatório de fechamento do passo, com o que ficou para os passos 12 e 13.
