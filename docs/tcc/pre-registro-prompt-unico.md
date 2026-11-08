@@ -55,6 +55,11 @@ PowerShell, `claude-opus-5-5`, esforço `medium`, auto mode, `DISABLE_AUTOUPDATE
 
 ## 5. Momento e ordem
 
+Alteração declarada em 08/11/2026 (tarde), antes de qualquer execução: por limite de
+prazo das trilhas iterativas, as execuções de prompt único passam para depois do fim
+da trilha do engenheiro, mantidas no mesmo dia entre si e com a mesma ordem. Os prompts
+não mudam. Motivo no diário.
+
 As duas execuções no mesmo dia, uma depois da outra, `eng_pu` primeiro e `leigo_pu`
 em seguida, com a ordem registrada. Rodam durante a trilha iterativa do engenheiro
 (entre o passo 7 e o passo 8), e não depois da trilha do leigo como diz a ordem do

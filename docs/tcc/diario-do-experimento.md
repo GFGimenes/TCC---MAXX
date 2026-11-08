@@ -436,3 +436,17 @@ PR #9, merge na `main` (`f28f404`). Registro em `resultados/engenheiro/eng_07_po
 Em seguida, pelo pré-registro, a condição de prompt único (`eng_pu`, depois `leigo_pu`),
 com a pilha do engenheiro derrubada.
 
+08/11 (tarde): decisão de prazo. O autor tem até 09/11 ao meio-dia para fechar os
+produtos. Prioridade declarada: as duas trilhas iterativas completas; a condição de
+prompt único é adição e sai da janela, rodando depois do prazo se houver tempo, o que
+muda o momento fixado no pré-registro ("entre os passos 7 e 8") sem mudar os prompts;
+fica declarado aqui e no pré-registro. Para caber, a trilha do leigo passa a rodar em
+paralelo com os passos 8 a 13 do engenheiro, em janelas e repositórios separados, com
+memória desligada; o isolamento de contexto não muda, mas a máquina passa a ser
+compartilhada. Mitigação: a pilha do engenheiro sobe primeiro e ocupa as portas de
+sempre, de modo que um eventual conflito de porta recaia no agente do leigo, cuja
+trilha é observacional; qualquer contorno que ele fizer entra no registro da rodada e
+nas ameaças à validade. A ordem do protocolo (engenheiro inteiro, depois leigo) fica
+alterada por esta decisão. Passo 8 aberto às 15h58 (horário de Brasília) e abertura do
+leigo colada em seguida, na mesma tarde.
+
