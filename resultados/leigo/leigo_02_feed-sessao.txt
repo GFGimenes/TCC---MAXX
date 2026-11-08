@@ -1,0 +1,585 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-leigo
+
+
+❯ Agora quero a tela principal, tipo o feed do instagram, onde aparecem as      
+  fotos e as conquistas dos alunos, com curtir e comentar.                      
+
+  Read 2 files, ran 3 shell commands (ctrl+o to expand)
+
+● A tela de feed básica já existe (fotos, curtir e comentar no detalhe do post).
+  Vou completar: conquistas e medalhas aparecendo no feed, e comentar direto no
+  feed.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora a tabela de conquistas desbloqueadas (para elas terem data e entrarem no
+  feed):
+
+● Update(src\db.js)
+  ⎿  Added 14 lines
+      72  );
+      73  CREATE INDEX IF NOT EXISTS idx_medalhas_aluno ON medalhas(aluno
+          _id);
+      74  
+      75 +-- Quando cada aluno desbloqueou cada conquista (para mostrar n
+         +o feed).                                                       
+      76 +-- anunciar = 0: conquista antiga, registrada sem aparecer no f
+         +eed.                                                           
+      77 +CREATE TABLE IF NOT EXISTS conquistas_alunos (                 
+      78 +  id INTEGER PRIMARY KEY,                                      
+      79 +  aluno_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE C
+         +ASCADE,                                                        
+      80 +  conquista TEXT NOT NULL,                                     
+      81 +  anunciar INTEGER NOT NULL DEFAULT 1,                         
+      82 +  criado_em TEXT NOT NULL DEFAULT (datetime('now')),           
+      83 +  UNIQUE (aluno_id, conquista)                                 
+      84 +);                                                             
+      85 +                                                               
+      86 +CREATE INDEX IF NOT EXISTS idx_posts_data ON posts(criado_em); 
+      87 +CREATE INDEX IF NOT EXISTS idx_medalhas_data ON medalhas(criado
+         +_em);                                                          
+      88 +                                                               
+      89  CREATE TABLE IF NOT EXISTS avisos (
+      90    id INTEGER PRIMARY KEY,
+      91    autor_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+
+● Update(src\pontos.js)
+  ⎿  Added 18 lines, removed 1 line
+      49    return s;
+      50  }
+      51  
+      52 -module.exports = { ranking, statsDoAluno };                    
+      52 +// Registra as conquistas que o aluno acabou de desbloquear (pa
+         +ra aparecerem no feed).                                        
+      53 +// Conquistas já registradas são ignoradas; se o aluno perder u
+         +ma depois                                                      
+      54 +// (ex.: apagou posts), o registro fica como histórico.        
+      55 +function registrarConquistas(alunoId, anunciar = true) {       
+      56 +  const row = db.prepare(SQL_STATS + ' AND u.id = ?').get(aluno
+         +Id);                                                           
+      57 +  if (!row) return;                                            
+      58 +  const inserir = db.prepare('INSERT OR IGNORE INTO conquistas_
+         +alunos (aluno_id, conquista, anunciar) VALUES (?, ?, ?)');     
+      59 +  for (const c of calcular(row).conquistas) inserir.run(alunoId
+         +, c.id, anunciar ? 1 : 0);                                     
+      60 +}                                                              
+      61 +                                                               
+      62 +// Na primeira vez com esta versão, registra as conquistas que 
+         +os alunos já tinham,                                           
+      63 +// sem anunciar no feed (senão o feed seria inundado de conquis
+         +tas antigas).                                                  
+      64 +if (db.prepare('PRAGMA user_version').get().user_version < 1) {
+      65 +  for (const { id } of db.prepare("SELECT id FROM usuarios WHER
+         +E papel = 'aluno'").all()) registrarConquistas(id, false);     
+      66 +  db.exec('PRAGMA user_version = 1');                          
+      67 +}                                                              
+      68 +                                                               
+      69 +module.exports = { ranking, statsDoAluno, registrarConquistas }
+         +;                                                              
+
+● Agora o módulo que monta o feed misturando posts, medalhas e conquistas:
+
+● Write(src\feed.js)
+  ⎿  Wrote 94 lines to src\feed.js
+       1 // Monta o feed da tela inicial: posts, medalhas dadas por profe
+         ssores e
+       2 // conquistas desbloqueadas pelos alunos, tudo misturado do mais
+          novo para o mais antigo.
+       3 const db = require('./db');
+       4 const { CONQUISTAS } = require('./regras');
+       5 
+       6 const COMENTARIOS_NO_FEED = 2; // últimos comentários mostrados 
+         embaixo de cada post
+       7 
+     … +87 lines (ctrl+o to expand)
+
+● Agora as rotas em app.js:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Arquivos com quebra de linha CRLF; ajusto o script para isso.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && node -
+      <<'EOF'
+      const fs = require('fs');…)
+  ⎿   src/app.js    | 29 ++++++++++++++++-------------
+      src/db.js     | 14 ++++++++++++++
+      src/pontos.js | 19 ++++++++++++++++++-
+      3 files changed, 48 insertions(+), 14 deletions(-)
+  ⎿  Updated src\app.js (+16 -13)
+       9  const { hashSenha, confereSenha } = require('./senha');
+      10  const pontos = require('./pontos');
+      11  const banca = require('./banca');
+      12 +const feed = require('./feed');                                
+      13  const v = require('./views');
+      14  
+      15  const PASTA_UPLOADS = path.join(config.PASTA_DADOS, 'uploads');
+     ...
+       96    return id;
+       97  };
+       98  
+       98 -const SQL_POST = `                                            
+       99 -SELECT p.*, u.nome, u.avatar, u.papel, u.curso,               
+      100 -  (SELECT COUNT(*) FROM curtidas c WHERE c.post_id = p.id) AS 
+          -n_curtidas,                                                   
+      101 -  (SELECT COUNT(*) FROM comentarios c WHERE c.post_id = p.id) 
+          -AS n_comentarios,                                             
+      102 -  EXISTS (SELECT 1 FROM curtidas c WHERE c.post_id = p.id AND 
+          -c.usuario_id = ?) AS curti                                    
+      103 -FROM posts p JOIN usuarios u ON u.id = p.usuario_id`;         
+       99 +const { SQL_POST } = feed;                                    
+      100  
+      101  // ---------- App ----------
+      102  const app = express();
+     ...
+      188  // ----- Feed -----
+      189  app.get('/', (req, res) => {
+      190    const pagina = Math.max(1, parseInt(req.query.pagina, 10) ||
+            1);
+      195 -  const posts = db                                            
+      196 -    .prepare(`${SQL_POST} ORDER BY p.id DESC LIMIT ? OFFSET ?`
+          -)                                                             
+      197 -    .all(req.usuario.id, POSTS_POR_PAGINA + 1, (pagina - 1) * 
+          -POSTS_POR_PAGINA);                                            
+      198 -  const temMais = posts.length > POSTS_POR_PAGINA;            
+      191 +  const { itens, temMais } = feed.pagina({ usuarioId: req.usua
+          +rio.id, pagina, porPagina: POSTS_POR_PAGINA });               
+      192    const avisoFixado = db.prepare('SELECT * FROM avisos WHERE f
+           ixado = 1 ORDER BY id DESC LIMIT 1').get();
+      193    enviar(req, res, {
+      194      ativo: 'inicio',
+      202 -    conteudo: v.feed({ posts: posts.slice(0, POSTS_POR_PAGINA)
+          -, avisoFixado, pagina, temMais }),                            
+      195 +    conteudo: v.feed({ itens, avisoFixado, pagina, temMais }),
+      196    });
+      197  });
+      198  
+     ...
+      206      return enviar(req, res, { titulo: 'Novo post', ativo: 'nov
+           o', status: 400, conteudo: v.novoPost({ erro: 'Adicione uma fo
+           to ou escreva algo.' }) });
+      207    }
+      208    db.prepare('INSERT INTO posts (usuario_id, imagem, legenda) 
+           VALUES (?, ?, ?)').run(req.usuario.id, imagem, legenda);
+      209 +  pontos.registrarConquistas(req.usuario.id);                 
+     … 34 more lines (ctrl+o to expand)
+  ⎿  Updated src\feed.js (+94 -94)
+       1 -// Monta o feed da tela inicial: posts, medalhas dadas por prof
+         -essores e                                                      
+       2 -// conquistas desbloqueadas pelos alunos, tudo misturado do mai
+         -s novo para o mais antigo.                                     
+       3 -const db = require('./db');                                    
+       4 -const { CONQUISTAS } = require('./regras');                    
+       5 -                                                               
+       6 -const COMENTARIOS_NO_FEED = 2; // últimos comentários mostrados
+         - embaixo de cada post                                          
+       7 -                                                               
+       8 -const SQL_POST = `                                             
+       9 -SELECT p.*, u.nome, u.avatar, u.papel, u.curso,                
+      10 -  (SELECT COUNT(*) FROM curtidas c WHERE c.post_id = p.id) AS n
+         -_curtidas,                                                     
+      11 -  (SELECT COUNT(*) FROM comentarios c WHERE c.post_id = p.id) A
+         -S n_comentarios,                                               
+      12 -  EXISTS (SELECT 1 FROM curtidas c WHERE c.post_id = p.id AND c
+         -.usuario_id = ?) AS curti                                      
+      13 -FROM posts p JOIN usuarios u ON u.id = p.usuario_id`;          
+      14 -                                                               
+      15 -// Em caso de empate no horário, a conquista aparece acima do p
+         -ost que a gerou.                                               
+      16 -const SQL_ITENS = `                                            
+      17 -SELECT tipo, id FROM (                                         
+      18 -  SELECT 'post' AS tipo, id, criado_em, 2 AS ordem FROM posts  
+      19 -  UNION ALL                                                    
+      20 -  SELECT 'medalha', id, criado_em, 1 FROM medalhas             
+      21 -  UNION ALL                                                    
+      22 -  SELECT 'conquista', ca.id, ca.criado_em, 0 FROM conquistas_al
+         -unos ca                                                        
+      23 -    JOIN usuarios u ON u.id = ca.aluno_id                      
+      24 -    WHERE ca.anunciar = 1 AND u.papel = 'aluno'                
+      25 -)                                                              
+      26 -ORDER BY criado_em DESC, ordem, id DESC                        
+      27 -LIMIT ? OFFSET ?`;                                             
+      28 -                                                               
+      29 -const porId = (linhas) => new Map(linhas.map((l) => [l.id, l]))
+         -;                                                              
+      30 -const lista = (ids) => JSON.stringify(ids);                    
+      31 -                                                               
+      32 -function carregarPosts(ids, usuarioId) {                       
+      33 -  if (ids.length === 0) return new Map();                      
+      34 -  const posts = db.prepare(`${SQL_POST} WHERE p.id IN (SELECT v
+         -alue FROM json_each(?))`).all(usuarioId, lista(ids));          
+      35 -  // Últimos comentários de cada post, numa consulta só.       
+      36 -  const comentarios = db                                       
+      37 -    .prepare(                                                  
+      38 -      `SELECT * FROM (                                         
+      39 -         SELECT c.*, u.nome, u.papel, ROW_NUMBER() OVER (PARTIT
+         -ION BY c.post_id ORDER BY c.id DESC) AS n                      
+      40 -         FROM comentarios c JOIN usuarios u ON u.id = c.usuario
+         -_id                                                            
+     … 148 more lines (ctrl+o to expand)
+
+● Agora as telas (cartões de medalha/conquista e comentários direto no feed):
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && node -
+      <<'EOF'
+      const fs = require('fs');…)
+  ⎿   public/estilo.css | 25 +++++++++++++++++++
+      src/app.js        | 29 ++++++++++++----------
+      src/db.js         | 14 +++++++++++
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated public\estilo.css (+25 -0)
+      157  .comentarios li { display: flex; gap: .6rem; overflow-wrap: an
+           ywhere; }
+      158  .comentarios a { color: var(--texto); }
+      159  
+      160 +/* Comentários direto no feed */                              
+      161 +.comentario-curto { margin: 0; overflow-wrap: anywhere; }     
+      162 +.comentario-curto a { color: var(--texto); }                  
+      163 +.comentar-feed { display: flex; gap: .5rem; align-items: cente
+          +r; margin-top: .35rem; border-top: 1px solid var(--borda); pad
+          +ding-top: .5rem; }                                            
+      164 +.comentar-feed input { flex: 1; border: 0; background: none; p
+          +adding: .35rem 0; }                                           
+      165 +.comentar-feed input:focus { outline: none; }                 
+      166 +.comentar-feed .btn-link { font-weight: 700; }                
+      167 +                                                              
+      168 +/* Medalhas e conquistas no feed */                           
+      169 +.evento-corpo {                                               
+      170 +  display: grid; justify-items: center; text-align: center; ga
+          +p: .35rem; padding: 1.4rem 1.2rem 1.3rem;                     
+      171 +  background: radial-gradient(circle at 50% 0%, var(--primaria
+          +-suave), transparent 70%);                                    
+      172 +}                                                             
+      173 +.evento-medalha .evento-corpo { background: radial-gradient(ci
+          +rcle at 50% 0%, #fef3c7, transparent 70%); }                  
+      174 +.evento-emoji { font-size: 3.4rem; line-height: 1; filter: dro
+          +p-shadow(0 4px 8px rgb(0 0 0 / .15)); }                       
+      175 +.evento-rotulo { margin: .2rem 0 0; font-size: .75rem; font-we
+          +ight: 700; text-transform: uppercase; letter-spacing: .06em; c
+          +olor: var(--muted); }                                         
+      176 +.evento-corpo h2 { margin: 0; font-size: 1.15rem; }           
+      177 +.evento-destaque { color: var(--primaria); }                  
+      178 +.evento-corpo p { margin: 0; }                                
+      179 +.evento-corpo blockquote { margin: .3rem 0; font-style: italic
+          +; max-width: 32ch; overflow-wrap: anywhere; }                 
+      180 +.evento-corpo .btn { margin-top: .5rem; font-size: .9rem; padd
+          +ing: .5rem 1rem; }                                            
+      181 +@media (prefers-color-scheme: dark) {                         
+      182 +  .evento-medalha .evento-corpo { background: radial-gradient(
+          +circle at 50% 0%, #3b2a0a, transparent 70%); }                
+      183 +}                                                             
+      184 +                                                              
+      185  .paginacao { display: flex; justify-content: space-between; ga
+           p: .5rem; }
+      186  
+      187  /* ---------- Perfil ---------- */
+  ⎿  Updated src\views.js (+68 -5)
+      140  }
+      141  
+      142  // ---------- Feed ----------
+      143 -function cartaoPost(p, voltar) {                              
+      143 +// noFeed = true: mostra os últimos comentários e uma caixa pa
+          +ra comentar ali mesmo.                                        
+      144 +function cartaoPost(p, voltar, noFeed = false) {              
+      145    return html`<article class="post" id="post-${p.id}">
+      146    <header class="post-topo">${linkUsuario(p)}<span class="temp
+           o">${tempoRelativo(p.criado_em)}</span></header>
+      147    ${
+     ...
+      159    <div class="post-info">
+      160      <strong>${plural(p.n_curtidas, 'curtida', 'curtidas')}</st
+           rong>
+      161      ${p.imagem && p.legenda ? html`<p class="legenda"><a href=
+           "/u/${p.usuario_id}"><strong>${p.nome}</strong></a> ${p.legend
+           a}</p>` : ''}
+      161 -    ${p.n_comentarios > 0 ? html`<a class="muted" href="/posts
+          -/${p.id}">Ver ${plural(p.n_comentarios, 'comentário', 'comentá
+          -rios')}</a>` : ''}                                            
+      162 +    ${                                                        
+      163 +      noFeed                                                  
+      164 +        ? comentariosNoFeed(p, voltar)                        
+      165 +        : p.n_comentarios > 0                                 
+      166 +          ? html`<a class="muted" href="/posts/${p.id}">Ver ${
+          +plural(p.n_comentarios, 'comentário', 'comentários')}</a>`    
+      167 +          : ''                                                
+      168 +    }                                                         
+      169 +  </div>                                                      
+      170 +</article>`;                                                  
+      171 +}                                                             
+      172 +                                                              
+      173 +function comentariosNoFeed(p, voltar) {                       
+      174 +  const ultimos = p.ultimos_comentarios || [];                
+      175 +  return html`${                                              
+      176 +    p.n_comentarios > ultimos.length                          
+      177 +      ? html`<a class="muted" href="/posts/${p.id}">Ver todos 
+          +os ${p.n_comentarios} comentários</a>`                        
+      178 +      : ''                                                    
+      179 +  }                                                           
+      180 +  ${ultimos.map(                                              
+      181 +    (c) => html`<p class="comentario-curto"><a href="/u/${c.us
+          +uario_id}"><strong>${c.nome}</strong></a> ${selo(c.papel)} ${c
+          +.texto}</p>`,                                                 
+      182 +  )}                                                          
+      183 +  <form method="post" action="/posts/${p.id}/comentar" class="
+          +comentar-feed">                                               
+      184 +    <input type="hidden" name="voltar" value="${voltar}">     
+      185 +    <input name="texto" placeholder="Adicione um comentário…" 
+          +required maxlength="500" aria-label="Comentar no post de ${p.n
+          +ome}">                                                        
+      186 +    <button class="btn-link">Publicar</button>                
+      187 +  </form>`;                                                   
+      188 +}                                                             
+     … 56 more lines (ctrl+o to expand)
+
+● Agora o script de demonstração, para o feed de exemplo já mostrar medalhas e
+  conquistas espalhadas no tempo:
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && node -
+      <<'EOF'
+      const fs = require('fs');…)
+  ⎿   scripts/demo.js | 33 ++++++++++++++++++++++++++-------
+      1 file changed, 26 insertions(+), 7 deletions(-)
+  ⎿  Updated scripts\demo.js (+26 -7)
+      2  // Uso: npm run demo   (todas as contas de exemplo usam a senha 
+         "senha1234")
+      3  const db = require('../src/db');
+      4  const { hashSenha } = require('../src/senha');
+      5 +const pontos = require('../src/pontos');                        
+      6  
+      7  if (db.prepare("SELECT 1 FROM usuarios WHERE email = 'prof.marin
+         a@unimax.edu.br'").get()) {
+      8    console.log('Os dados de exemplo já foram criados.');
+     ...
+      37    'Quem mais vai na festa junina da faculdade?',
+      38    'Terminei meu primeiro app em React!',
+      39  ];
+      40 +// Posts espalhados nas últimas horas (o primeiro texto é o mai
+         +s antigo).                                                     
+      41  const posts = textos.map((t, i) =>
+      40 -  Number(db.prepare('INSERT INTO posts (usuario_id, legenda) VA
+         -LUES (?, ?)').run(alunos[i % alunos.length], t).lastInsertRowid
+         -),                                                             
+      42 +  Number(                                                      
+      43 +    db                                                         
+      44 +      .prepare("INSERT INTO posts (usuario_id, legenda, criado_
+         +em) VALUES (?, ?, datetime('now', ?))")                        
+      45 +      .run(alunos[i % alunos.length], t, `-${(textos.length - i
+         +) * 3} hours`).lastInsertRowid,                                
+      46 +  ),                                                           
+      47  );
+      48  
+      49  // Curtidas e comentários variados.
+     ...
+      60  comentar(posts[5], alunos[2], 'Precisamos de mais eventos assim
+          .');
+      61  
+      62  // Medalhas dos professores.
+      57 -const medalha = (aluno, prof, tipoNome, msg) => {              
+      63 +const medalha = (aluno, prof, tipoNome, msg, quando) => {      
+      64    const tipo = db.prepare('SELECT id FROM tipos_medalha WHERE n
+          ome = ?').get(tipoNome);
+      59 -  db.prepare('INSERT INTO medalhas (aluno_id, professor_id, tip
+         -o_id, mensagem) VALUES (?, ?, ?, ?)').run(aluno, prof, tipo.id,
+         - msg);                                                         
+      65 +  db.prepare("INSERT INTO medalhas (aluno_id, professor_id, tip
+         +o_id, mensagem, criado_em) VALUES (?, ?, ?, ?, datetime('now', 
+         +?))").run(                                                     
+      66 +    aluno,                                                     
+      67 +    prof,                                                      
+      68 +    tipo.id,                                                   
+      69 +    msg,                                                       
+      70 +    quando,                                                    
+      71 +  );                                                           
+      72  };
+      61 -medalha(alunos[0], marina, 'Projeto destaque', 'Projeto do hack
+         -athon impecável!');                                            
+      62 -medalha(alunos[1], marina, 'Ajudou os colegas', 'Obrigada por a
+         -judar a turma no laboratório.');                               
+      63 -medalha(alunos[2], roberto, 'Excelência acadêmica', 'Melhor not
+         -a da turma no júri simulado.');                                
+      64 -medalha(alunos[3], roberto, 'Participação em aula', '');       
+     … 14 more lines (ctrl+o to expand)
+
+● Agora os testes automáticos:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O shell está comendo as barras invertidas; troco por um trecho sem elas.
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && node -
+      <<'EOF'
+      const fs = require('fs');…)
+  ⎿  # pass 2
+     # fail 0
+     -  assert.match(ranking.html, /Ana Souza[\s\S]*114[\s\S]*Bruno Lima[\s
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated test\fluxo.test.js (+16 -2)
+       89    assert.ok(!feed.html.includes('<script>alert(1)</script>'));
+       90    assert.match(feed.html, /&lt;script&gt;/);
+       91  
+       92 +  // A conquista do primeiro post aparece no feed (uma vez só,
+          + mesmo com 2 posts).                                          
+       93 +  assert.match(feed.html, /Ana desbloqueou <span class="evento
+          +-destaque">Primeiro clique/);                                 
+       94 +  assert.equal(feed.html.match(/Primeiro clique/g).length, 1);
+       95 +                                                              
+       96    // Bruno curte e comenta os posts da Ana.
+       97    await bruno.post('/posts/1/curtir', { voltar: '/' });
+       98    await bruno.post('/posts/2/curtir', { voltar: 'https://site-
+           malicioso.com' }).then((r) => assert.equal(r.local, '/#post-2'
+           ));
+       99    await bruno.post('/posts/1/comentar', { texto: 'Bem-vinda!' 
+           });
+      100    await bruno.post('/posts/1/comentar', { texto: 'Comentário r
+           epetido não soma pontos de novo' });
+      101 +  // Comentar direto pelo feed volta para o post no feed, e o 
+          +comentário aparece lá.                                        
+      102 +  assert.equal((await bruno.post('/posts/2/comentar', { texto:
+          + 'Que vista!', voltar: '/' })).local, '/#post-2');            
+      103 +  assert.equal((await bruno.post('/posts/2/comentar', { texto:
+          + 'x', voltar: '//site-malicioso.com' })).local, '/#post-2');  
+      104 +  assert.match((await ana.get('/')).html, /Que vista!/);      
+      105    // Curtir o próprio post não dá pontos.
+      106    await ana.post('/posts/1/curtir', { voltar: '/' });
+      107  
+     ...
+      122    assert.equal((await prof.post('/u/2/medalha', { tipo_id: '1'
+           , mensagem: 'Excelente seminário' })).local, '/u/2?ok=medalha'
+           );
+      123    assert.equal((await prof.post('/u/4/medalha', { tipo_id: '1'
+            })).status, 400);
+      124  
+      125 +  // A medalha e a conquista Medalhista aparecem no feed de to
+          +do mundo.                                                     
+      126 +  const feedBruno = (await bruno.get('/')).html;              
+      127 +  assert.match(feedBruno, /Ana ganhou <span class="evento-dest
+          +aque">Excelência acadêmica/);                                 
+      128 +  assert.match(feedBruno, /Excelente seminário/);             
+      129 +  assert.match(feedBruno, /Ana desbloqueou <span class="evento
+          +-destaque">Medalhista/);                                      
+      130 +                                                              
+      131    // Pontos da Ana: 2 posts (20) + 2 curtidas de outros (4) + 
+           medalha Excelência (50)
+      132    //              + conquistas Primeiro clique (20) e Medalhis
+           ta (20) = 114
+      119 -  // Pontos do Bruno: 1 post comentado (3).                   
+      133 +  // Pontos do Bruno: 2 posts comentados (6).                 
+      134    const ranking = await ana.get('/ranking');
+      121 -  assert.match(ranking.html, /Ana Souza[\s\S]*114[\s\S]*Bruno 
+          -Lima[\s\S]*3 <small>pts/);                                    
+      135 +  assert.match(ranking.html, /Ana Souza[\s\S]*114[\s\S]*Bruno 
+          +Lima[\s\S]*6 <small>pts/);                                    
+      136    const perfil = await ana.get('/u/2');
+      137    assert.match(perfil.html, /114<\/strong><span>pontos/);
+      138    assert.match(perfil.html, /Excelente seminário/);
+
+● Testes passando. Vou conferir o código gerado e rodar a demonstração num banco
+  temporário:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Funciona: medalhas, conquistas e posts misturados por horário, com os últimos
+  comentários embaixo de cada post. Vou tirar um print rápido para conferir o
+  visual:
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● O CSS não carregou no print (o caminho começa com /). Corrijo isso só na cópia
+  do print:
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● O visual ficou bom (o corte na borda direita é do print headless, e acontece
+  também no topo e no menu, que eu não mexi). Por último, atualizo o README:
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && node -e
+      "
+      const fs=require('fs');let s=fs.readFileSync('README.md','utf8');…)
+  ⎿  # pass 2
+     # fail 0
+      M README.md
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated README.md (+2 -1)
+       4  
+       5  ## O que tem
+       6  
+       7 -- **Feed** com posts de foto e/ou texto, curtidas e comentários
+         - (sem stories, vídeos ou mensagens).                           
+       7 +- **Feed** com posts de foto e/ou texto, curtidas e comentários
+         + (dá para comentar direto no feed), e cartões comemorando as **
+         +medalhas** e **conquistas** dos alunos (sem stories, vídeos ou 
+         +mensagens).                                                    
+       8  - **Acesso restrito**: só e-mails `@unimax.edu.br` conseguem cr
+          iar conta.
+       9  - **Pontos e conquistas**: quem posta, comenta e recebe curtida
+          s ganha pontos, e desbloqueia conquistas com bônus.
+      10  - **Medalhas de professores**: professores entregam medalhas (c
+          om mensagem) que valem pontos.
+     ...
+      75  src/config.js   configurações (cursos, domínio, porta)
+      76  src/regras.js   pontos, conquistas e medalhas
+      77  src/app.js      rotas/páginas do site
+      78 +src/feed.js     monta o feed (posts, medalhas e conquistas)    
+      79  src/views.js    telas (HTML)
+      80  src/db.js       banco de dados (SQLite, arquivo em dados/maxx.d
+          b)
+      81  public/         estilo e ícone
+● A tela principal agora mostra as conquistas dos alunos junto com as fotos. O
+  Maxx já tinha um feed de posts com curtir e comentar, então completei o que
+  faltava. Os testes automáticos passam, testei a tela com os dados de exemplo e
+  conferi o visual num print.
+
+  O que mudou na tela inicial:
+  - Medalhas no feed: quando um professor dá uma medalha, aparece um cartão do
+    tipo "Júlia ganhou Excelência acadêmica", com o nome do professor, os pontos
+    e a mensagem dele.
+  - Conquistas no feed: quando um aluno desbloqueia uma conquista, aparece um
+    cartão do tipo "Rafael desbloqueou Primeiro clique", com a descrição e o
+    bônus. Cada conquista aparece uma vez só, mesmo que a pessoa faça outro post
+    depois.
+  - Comentar direto no feed: cada post mostra os 2 últimos comentários e uma
+    caixa "Adicione um comentário…". Ao publicar, a página volta para o mesmo
+    post, sem abrir a tela do post.
+  - Posts, medalhas e conquistas aparecem misturados, do mais novo para o mais
+    antigo, com a paginação que já existia.
+
+  Detalhes que vale saber:
+  - Dados antigos: conquistas que os alunos já tinham antes desta mudança ficam
+    registradas, mas não aparecem no feed. Só as novas, a partir de agora, viram
+    cartão. Assim o feed não fica lotado de conquistas antigas de uma vez.
+  - Conquistas perdidas: se um aluno perder uma conquista depois (por exemplo,
+    apagando posts), o cartão continua no feed como histórico. Os pontos do
+    ranking continuam sendo recalculados normalmente.
+  - Curtir e comentar só em posts: os cartões de medalha e conquista têm um
+    botão para ver o perfil do aluno, mas não dá para curtir nem comentar neles.
+    Se quiser isso também, eu faço.
+  - npm run demo: os dados de exemplo agora têm horários espalhados pelas
+    últimas horas, para a banca ver um feed com posts, medalhas e conquistas
+    intercaladas.
+
+  O código novo que monta o feed está em src/feed.js. Também mexi nas telas, no
+  estilo, no banco de dados, nos pontos, no script de exemplo, nos testes e no
+  README. Não fiz commit. Se quiser, faço como nas rodadas anteriores ("rodada:
+  leigo_02_feed").
+
+✻ Brewed for 4m 45s · done 16:36
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_02_feed-sessao.txt           
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_02_feed-sessao.txt
+
+❯ pode ir                                                                       
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Fiz o commit c6dba9e rodada: leigo_02_feed na branch rodada/leigo_02_feed.
+  Todas as mudanças do feed estão nele.
+
+  Não juntei com a main e não enviei nada para o GitHub. Se quiser, é só pedir.
+
+✻ Sautéed for 11s · done 16:37
