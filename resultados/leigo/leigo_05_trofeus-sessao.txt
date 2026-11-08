@@ -1,0 +1,664 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-leigo
+
+
+❯ Agora quero a tela dos troféus e medalhas, tipo conquistas de jogo, mostrando 
+  o que o aluno já ganhou e o que ainda falta ganhar.                           
+
+  Read 4 files, ran 3 shell commands (ctrl+o to expand)
+
+● Vou criar uma tela de troféus para cada aluno. Primeiro, as conquistas passam
+  a guardar a meta em números, para a tela conseguir mostrar o progresso (por
+  exemplo, "4 de 10 posts").
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && sed -i
+      -E "s/atingiu: \(s\) => s\.(\w+) >= ([0-9]+)/conta: '\1', meta: \2/; s#^//
+      Conquistas a…)
+  ⎿  };
+
+     // Conquistas automáticas: quando o aluno chega na meta, ganha o bônus
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated src\pontos.js (+1 -1)
+      18  WHERE u.papel = 'aluno'`;
+      19  
+      20  function calcular(s) {
+      21 -  const conquistas = CONQUISTAS.filter((c) => c.atingiu(s));   
+      21 +  const conquistas = CONQUISTAS.filter((c) => s[c.conta] >= c.m
+         +eta);                                                          
+      22    const pontosConquistas = conquistas.reduce((soma, c) => soma 
+          + c.bonus, 0);
+      23    const total =
+      24      s.posts * PONTOS.post +
+  ⎿  Updated src\regras.js (+9 -8)
+       7    curtida: 2, // cada curtida recebida de outra pessoa
+       8  };
+       9  
+      10 -// Conquistas automáticas: quando a condição é atingida, o alun
+         -o ganha o bônus.                                               
+      10 +// Conquistas automáticas: quando o aluno chega na meta, ganha 
+         +o bônus.                                                       
+      11 +// conta = o que é contado (posts, comentarios, curtidas ou med
+         +alhas); meta = quanto precisa.                                 
+      12  const CONQUISTAS = [
+      12 -  { id: 'primeiro_post', emoji: '📸', nome: 'Primeiro clique', 
+         -descricao: 'Publicou o primeiro post', bonus: 20, atingiu: (s) 
+         -=> s.posts >= 1 },                                             
+      13 -  { id: 'fotografo', emoji: '🎞️', nome: 'Fotógrafo do campus', 
+         -descricao: 'Publicou 10 posts', bonus: 50, atingiu: (s) => s.po
+         -sts >= 10 },                                                   
+      14 -  { id: 'bom_de_papo', emoji: '💬', nome: 'Bom de papo', descri
+         -cao: 'Comentou em 10 posts de colegas', bonus: 30, atingiu: (s)
+         - => s.comentarios >= 10 },                                     
+      15 -  { id: 'popular', emoji: '❤️', nome: 'Popular', descricao: 'Re
+         -cebeu 50 curtidas', bonus: 50, atingiu: (s) => s.curtidas >= 50
+         - },                                                            
+      16 -  { id: 'estrela', emoji: '🌟', nome: 'Estrela da UniMax', desc
+         -ricao: 'Recebeu 200 curtidas', bonus: 100, atingiu: (s) => s.cu
+         -rtidas >= 200 },                                               
+      17 -  { id: 'medalhista', emoji: '🏅', nome: 'Medalhista', descrica
+         -o: 'Ganhou a primeira medalha de um professor', bonus: 20, atin
+         -giu: (s) => s.medalhas >= 1 },                                 
+      18 -  { id: 'colecionador', emoji: '🏆', nome: 'Colecionador', desc
+         -ricao: 'Ganhou 5 medalhas de professores', bonus: 60, atingiu: 
+         -(s) => s.medalhas >= 5 },                                      
+      13 +  { id: 'primeiro_post', emoji: '📸', nome: 'Primeiro clique', 
+         +descricao: 'Publicou o primeiro post', bonus: 20, conta: 'posts
+         +', meta: 1 },                                                  
+      14 +  { id: 'fotografo', emoji: '🎞️', nome: 'Fotógrafo do campus', 
+         +descricao: 'Publicou 10 posts', bonus: 50, conta: 'posts', meta
+         +: 10 },                                                        
+      15 +  { id: 'bom_de_papo', emoji: '💬', nome: 'Bom de papo', descri
+         +cao: 'Comentou em 10 posts de colegas', bonus: 30, conta: 'come
+         +ntarios', meta: 10 },                                          
+      16 +  { id: 'popular', emoji: '❤️', nome: 'Popular', descricao: 'Re
+         +cebeu 50 curtidas', bonus: 50, conta: 'curtidas', meta: 50 },  
+      17 +  { id: 'estrela', emoji: '🌟', nome: 'Estrela da UniMax', desc
+         +ricao: 'Recebeu 200 curtidas', bonus: 100, conta: 'curtidas', m
+         +eta: 200 },                                                    
+      18 +  { id: 'medalhista', emoji: '🏅', nome: 'Medalhista', descrica
+         +o: 'Ganhou a primeira medalha de um professor', bonus: 20, cont
+         +a: 'medalhas', meta: 1 },                                      
+      19 +  { id: 'colecionador', emoji: '🏆', nome: 'Colecionador', desc
+         +ricao: 'Ganhou 5 medalhas de professores', bonus: 60, conta: 'm
+         +edalhas', meta: 5 },                                           
+      20  ];
+      21  
+      22  // Medalhas que os professores podem dar (criadas no banco na p
+          rimeira execução).
+
+● Now the route in app.js:
+
+● Update(src\app.js)
+  ⎿  Added 21 lines
+      303    });
+      304  });
+      305  
+      306 +// Troféus: conquistas e medalhas do aluno, as que já ganhou e
+          + as que faltam.                                               
+      307 +app.get('/u/:id/trofeus', (req, res) => {                     
+      308 +  const p = db.prepare("SELECT * FROM usuarios WHERE id = ? AN
+          +D papel = 'aluno'").get(idParam(req));                        
+      309 +  if (!p) throw new ErroUsuario('Só alunos ganham troféus.', 4
+          +04);                                                          
+      310 +  const datasConquistas = Object.fromEntries(                 
+      311 +    db.prepare('SELECT conquista, criado_em FROM conquistas_al
+          +unos WHERE aluno_id = ?').all(p.id).map((c) => [c.conquista, c
+          +.criado_em]),                                                 
+      312 +  );                                                          
+      313 +  const medalhasPorTipo = db                                  
+      314 +    .prepare(                                                 
+      315 +      `SELECT t.*, COUNT(m.id) AS vezes, MAX(m.criado_em) AS u
+          +ltima_em                                                      
+      316 +       FROM tipos_medalha t LEFT JOIN medalhas m ON m.tipo_id 
+          += t.id AND m.aluno_id = ?                                     
+      317 +       GROUP BY t.id ORDER BY t.pontos DESC, t.id`,           
+      318 +    )                                                         
+      319 +    .all(p.id);                                               
+      320 +  enviar(req, res, {                                          
+      321 +    titulo: `Troféus de ${p.nome}`,                           
+      322 +    ativo: p.id === req.usuario.id ? 'perfil' : '',           
+      323 +    conteudo: v.trofeus({ perfil: p, usuario: req.usuario, sta
+          +ts: pontos.statsDoAluno(p.id), datasConquistas, medalhasPorTip
+          +o }),                                                         
+      324 +  });                                                         
+      325 +});                                                           
+      326 +                                                              
+      327  app.post('/u/:id/medalha', exigePapel('professor'), (req, res)
+            => {
+      328    const aluno = db.prepare("SELECT * FROM usuarios WHERE id = 
+           ? AND papel = 'aluno'").get(idParam(req));
+      329    if (!aluno) throw new ErroUsuario('Medalhas só podem ser dad
+           as para alunos.');
+
+● Update(src\views.js)
+  ⎿  Added 111 lines
+      418  </section>`;
+      419  }
+      420  
+      421 +// ---------- Troféus ----------                              
+      422 +// Como cada contagem aparece no progresso ("Faltam 6 curtidas
+          +").                                                           
+      423 +const NOMES_CONTA = {                                         
+      424 +  posts: ['post', 'posts'],                                   
+      425 +  comentarios: ['post de colega comentado', 'posts de colegas 
+          +comentados'],                                                 
+      426 +  curtidas: ['curtida', 'curtidas'],                          
+      427 +  medalhas: ['medalha', 'medalhas'],                          
+      428 +};                                                            
+      429 +                                                              
+      430 +function barra(atual, meta, rotulo) {                         
+      431 +  const pct = Math.round((Math.min(atual, meta) / meta) * 100)
+          +;                                                             
+      432 +  return html`<div class="barra" role="progressbar" aria-value
+          +min="0" aria-valuemax="${meta}" aria-valuenow="${Math.min(atua
+          +l, meta)}" aria-label="${rotulo}"><span style="width:${pct}%">
+          +</span></div>`;                                               
+      433 +}                                                             
+      434 +                                                              
+      435 +function faltaQuanto(c, s) {                                  
+      436 +  const falta = c.meta - s[c.conta];                          
+      437 +  const [um, varios] = NOMES_CONTA[c.conta];                  
+      438 +  return `${falta === 1 ? 'Falta' : 'Faltam'} ${plural(falta, 
+          +um, varios)}`;                                                
+      439 +}                                                             
+      440 +                                                              
+      441 +function cartaoTrofeu(c, s, data) {                           
+      442 +  const ganhou = s[c.conta] >= c.meta;                        
+      443 +  const atual = Math.min(s[c.conta], c.meta);                 
+      444 +  return html`<li class="trofeu ${ganhou ? 'ganhou' : 'bloquea
+          +da'}">                                                        
+      445 +  <span class="trofeu-emoji" aria-hidden="true">${c.emoji}</sp
+          +an>                                                           
+      446 +  <strong>${c.nome}</strong>                                  
+      447 +  <small>${c.descricao}</small>                               
+      448 +  ${                                                          
+      449 +    ganhou                                                    
+      450 +      ? html`<span class="trofeu-status">✓ Desbloqueada${data 
+          +? ` · ${tempoRelativo(data)}` : ''}</span>`                   
+      451 +      : html`${barra(atual, c.meta, `Progresso de ${c.nome}`)}
+          +<span class="trofeu-status">${fmt(atual)}/${fmt(c.meta)} · ${f
+          +altaQuanto(c, s)}</span>`                                     
+      452 +  }                                                           
+      453 +  <span class="pts">+${c.bonus} pts</span>                    
+      454 +</li>`;                                                       
+      455 +}                                                             
+      456 +                                                              
+      457 +function cartaoMedalhaTipo(t, primeiroNome, proprio) {        
+      458 +  const ganhou = t.vezes > 0;                                 
+      459 +  return html`<li class="trofeu ${ganhou ? 'ganhou ouro' : 'bl
+          +oqueada'}">                                                   
+      460 +  <span class="trofeu-emoji" aria-hidden="true">${t.emoji}</sp
+          +an>                                                           
+      461 +  ${t.vezes > 1 ? html`<span class="trofeu-vezes">×${t.vezes}<
+          +/span>` : ''}                                                 
+      462 +  <strong>${t.nome}</strong>                                  
+      463 +  <small>${t.descricao}</small>                               
+      464 +  <span class="trofeu-status">${                              
+      465 +    ganhou                                                    
+      466 +      ? `✓ ${t.vezes === 1 ? 'Ganhou' : `Ganhou ${t.vezes} vez
+          +es`} · ${tempoRelativo(t.ultima_em)}`                         
+      467 +      : `${proprio ? 'Você ainda não ganhou' : `${primeiroNome
+          +} ainda não ganhou`}`                                         
+      468 +  }</span>                                                    
+      469 +  <span class="pts">+${t.pontos} pts</span>                   
+      470 +</li>`;                                                       
+      471 +}                                                             
+      472 +                                                              
+      473 +function trofeus({ perfil: p, usuario, stats: s, datasConquist
+          +as, medalhasPorTipo }) {                                      
+      474 +  const proprio = usuario.id === p.id;                        
+      475 +  const primeiroNome = p.nome.split(' ')[0];                  
+      476 +  const ganhas = CONQUISTAS.filter((c) => s[c.conta] >= c.meta
+          +);                                                            
+      477 +  const faltam = CONQUISTAS.filter((c) => s[c.conta] < c.meta)
+          +;                                                             
+      478 +  const tiposGanhos = medalhasPorTipo.filter((t) => t.vezes > 
+          +0).length;                                                    
+      479 +  const desbloqueados = ganhas.length + tiposGanhos;          
+      480 +  const totalTrofeus = CONQUISTAS.length + medalhasPorTipo.len
+          +gth;                                                          
+      481 +  // A conquista mais perto de sair (maior porcentagem já feit
+          +a).                                                           
+      482 +  const proxima = faltam.slice().sort((a, b) => s[b.conta] / b
+          +.meta - s[a.conta] / a.meta)[0];                              
+      483 +  return html`<section class="cartao trofeus-topo">           
+      484 +  <a class="voltar" href="/u/${p.id}">‹ ${proprio ? 'Meu perfi
+          +l' : `Perfil de ${primeiroNome}`}</a>                         
+      485 +  <h1>🏆 ${proprio ? 'Meus troféus' : `Troféus de ${primeiroNo
+          +me}`}</h1>                                                    
+      486 +  <p class="placar"><strong>${desbloqueados}</strong> de ${tot
+          +alTrofeus} troféus</p>                                        
+      487 +  ${barra(desbloqueados, totalTrofeus, 'Troféus desbloqueados'
+          +)}                                                            
+      488 +  <div class="numeros numeros-3">                             
+      489 +    <div><strong>${ganhas.length}/${CONQUISTAS.length}</strong
+          +><span>conquistas</span></div>                                
+      490 +    <div><strong>${tiposGanhos}/${medalhasPorTipo.length}</str
+          +ong><span>tipos de medalha</span></div>                       
+      491 +    <div><strong>+${fmt(s.pontos_conquistas + s.pontos_medalha
+          +s)}</strong><span>pontos em prêmios</span></div>              
+      492 +  </div>                                                      
+      493 +</section>                                                    
+      494 +                                                              
+      495 +${                                                            
+      496 +  proxima                                                     
+      497 +    ? html`<section class="cartao proxima">                   
+      498 +    <p class="evento-rotulo">${proprio ? '🎯 Sua próxima conqu
+          +ista' : '🎯 Próxima conquista'}</p>                           
+      499 +    <div class="proxima-corpo">                               
+      500 +      <span class="trofeu-emoji" aria-hidden="true">${proxima.
+          +emoji}</span>                                                 
+      501 +      <div>                                                   
+      502 +        <strong>${proxima.nome}</strong> <span class="pts">+${
+          +proxima.bonus} pts</span>                                     
+      503 +        <small class="muted">${proxima.descricao}</small>     
+      504 +        ${barra(s[proxima.conta], proxima.meta, `Progresso de 
+          +${proxima.nome}`)}                                            
+      505 +        <small><strong>${faltaQuanto(proxima, s)}</strong> · $
+          +{fmt(s[proxima.conta])}/${fmt(proxima.meta)}</small>          
+      506 +      </div>                                                  
+      507 +    </div>                                                    
+      508 +  </section>`                                                 
+      509 +    : html`<section class="cartao proxima completo"><p>🎉 ${pr
+          +oprio ? 'Você desbloqueou' : `${primeiroNome} desbloqueou`} to
+          +das as conquistas!</p></section>`                             
+      510 +}                                                             
+      511 +                                                              
+      512 +<section class="cartao">                                      
+      513 +  <h2>Conquistas <span class="contador">${ganhas.length}/${CON
+          +QUISTAS.length}</span></h2>                                   
+      514 +  <p class="muted">Desbloqueiam sozinhas quando a meta é ating
+          +ida e dão pontos de bônus.</p>                                
+      515 +  <ul class="trofeus">                                        
+      516 +    ${ganhas.map((c) => cartaoTrofeu(c, s, datasConquistas[c.i
+          +d]))}                                                         
+      517 +    ${faltam.map((c) => cartaoTrofeu(c, s))}                  
+      518 +  </ul>                                                       
+      519 +</section>                                                    
+      520 +                                                              
+      521 +<section class="cartao">                                      
+      522 +  <h2>Medalhas dos professores <span class="contador">${tiposG
+          +anhos}/${medalhasPorTipo.length}</span></h2>                  
+      523 +  <p class="muted">Entregues pelos professores. Dá para ganhar
+          + a mesma medalha mais de uma vez.</p>                         
+      524 +  <ul class="trofeus">                                        
+      525 +    ${medalhasPorTipo.filter((t) => t.vezes > 0).map((t) => ca
+          +rtaoMedalhaTipo(t, primeiroNome, proprio))}                   
+      526 +    ${medalhasPorTipo.filter((t) => t.vezes === 0).map((t) => 
+          +cartaoMedalhaTipo(t, primeiroNome, proprio))}                 
+      527 +  </ul>                                                       
+      528 +  ${s.medalhas ? html`<p class="muted"><a href="/u/${p.id}#pre
+          +mios">Ver as mensagens dos professores ›</a></p>` : ''}       
+      529 +</section>`;                                                  
+      530 +}                                                             
+      531 +                                                              
+      532  const itemConquista = (c, ganhou) =>
+      533    html`<li class="${ganhou ? 'ganhou' : 'bloqueada'}">
+      534    <span class="emoji">${c.emoji}</span><strong>${c.nome}</stro
+           ng><small>${c.descricao}</small><span class="pts">+${c.bonus}<
+           /span></li>`;
+
+● Now link the screen from the profile and feed, and export it:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && node -
+      <<'EOF'
+      const fs=require('fs');const p='src/views.js';let
+      s=fs.readFileSync(p,'utf8');…)
+  ⎿  [stdin]:2
+     const rep=(a,b)=>{if(!s.includes(a))throw new Error('nao achei: '+a);s
+     =s.replace(a,b);};
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated public\estilo.css (+40 -0)
+      265  /* ---------- Admin ---------- */
+      266  .lista-admin { list-style: none; padding: 0; margin: 1rem 0 0;
+            display: grid; gap: .6rem; }
+      267  .lista-admin li { display: flex; align-items: center; justify-
+           content: space-between; gap: .6rem; flex-wrap: wrap; padding-b
+           ottom: .6rem; border-bottom: 1px solid var(--borda); }
+      268 +                                                              
+      269 +/* ---------- Troféus ---------- */                           
+      270 +.numeros a { display: grid; color: var(--texto); border-radius
+          +: 10px; }                                                     
+      271 +.numeros a:hover { text-decoration: none; background: var(--pr
+          +imaria-suave); }                                              
+      272 +.numeros a span { color: var(--primaria); }                   
+      273 +.numeros-3 { grid-template-columns: repeat(3, 1fr); }         
+      274 +.btn-largo { display: block; margin-top: 1rem; }              
+      275 +.voltar { font-size: .85rem; display: inline-block; margin-bot
+          +tom: .5rem; }                                                 
+      276 +.trofeus-topo { text-align: center; }                         
+      277 +.placar { margin: 0 0 .5rem; color: var(--muted); }           
+      278 +.placar strong { font-size: 2rem; color: var(--texto); }      
+      279 +                                                              
+      280 +.barra { height: 8px; border-radius: 99px; background: var(--b
+          +orda); overflow: hidden; width: 100%; }                       
+      281 +.barra span { display: block; height: 100%; border-radius: inh
+          +erit; background: linear-gradient(90deg, var(--primaria), var(
+          +--primaria-2)); }                                             
+      282 +                                                              
+      283 +.proxima { border-color: var(--primaria); }                   
+      284 +.proxima .evento-rotulo { margin: 0 0 .6rem; }                
+      285 +.proxima-corpo { display: flex; gap: .9rem; align-items: cente
+          +r; }                                                          
+      286 +.proxima-corpo > div { display: grid; gap: .3rem; flex: 1; min
+          +-width: 0; }                                                  
+      287 +.proxima .trofeu-emoji { font-size: 2.8rem; }                 
+      288 +.proxima.completo p { margin: 0; text-align: center; font-weig
+          +ht: 700; }                                                    
+      289 +                                                              
+      290 +.trofeus { list-style: none; padding: 0; margin: .8rem 0 0; di
+          +splay: grid; grid-template-columns: repeat(auto-fill, minmax(1
+          +50px, 1fr)); gap: .6rem; }                                    
+      291 +.trofeu { position: relative; display: grid; justify-items: ce
+          +nter; align-content: start; text-align: center; gap: .3rem; pa
+          +dding: .9rem .6rem; border-radius: 14px; border: 1px solid var
+          +(--borda); }                                                  
+      292 +.trofeu small { color: var(--muted); font-size: .75rem; }     
+      293 +.trofeu .pts { font-size: .75rem; }                           
+      294 +.trofeu-emoji { font-size: 2.2rem; line-height: 1; }          
+      295 +.trofeu-status { font-size: .72rem; font-weight: 600; color: v
+          +ar(--muted); }                                                
+      296 +.trofeu .barra { height: 6px; margin-top: .2rem; }            
+      297 +.trofeu.ganhou { background: var(--primaria-suave); border-col
+          +or: var(--primaria); }                                        
+      298 +.trofeu.ganhou .trofeu-emoji { filter: drop-shadow(0 3px 6px r
+          +gb(0 0 0 / .2)); }                                            
+      299 +.trofeu.ganhou .trofeu-status { color: var(--sucesso); }      
+      300 +.trofeu.ouro { background: #fef3c7; border-color: var(--ouro);
+          + }                                                            
+      301 +.trofeu.bloqueada { border-style: dashed; }                   
+      302 +.trofeu.bloqueada .trofeu-emoji { filter: grayscale(1); opacit
+          +y: .4; }                                                      
+      303 +.trofeu.bloqueada strong { color: var(--muted); }             
+      304 +.trofeu-vezes { position: absolute; top: .4rem; right: .5rem; 
+          +font-size: .75rem; font-weight: 800; background: var(--ouro); 
+          +color: #fff; border-radius: 99px; padding: .05rem .45rem; }   
+     … 3 more lines (ctrl+o to expand)
+
+● The file uses Windows line endings; I'll do the remaining edits with the Edit
+  tool.
+
+● Update(src\views.js)
+  ⎿  Added 1 line, removed 1 line
+      311        <div><strong>${fmt(stats.total)}</strong><span>pontos</s
+           pan></div>
+      312        <div><strong>${stats.posicao_geral ?? '–'}º</strong><spa
+           n>no geral</span></div>
+      313        <div><strong>${stats.posicao_curso ?? '–'}º</strong><spa
+           n>no curso</span></div>
+      314 -      <div><strong>${stats.medalhas + stats.conquistas.length}
+          -</strong><span>prêmios</span></div>                           
+      314 +      <a href="/u/${p.id}/trofeus"><strong>${stats.medalhas + 
+          +stats.conquistas.length}</strong><span>prêmios</span></a>     
+      315      </div>
+      316      ${extratoPontos(stats)}`
+      317        : ''
+
+● Update(src\views.js)
+  ⎿  Added 1 line, removed 1 line
+      342      : ''
+      343  }
+      344  
+      345 -${stats ? premios({ stats, medalhas, proprio, primeiroNome: p.
+          -nome.split(' ')[0] }) : ''}                                   
+      345 +${stats ? premios({ id: p.id, stats, medalhas, proprio, primei
+          +roNome: p.nome.split(' ')[0] }) : ''}                         
+      346  
+      347  <section class="cartao">
+      348    <h2>Posts <span class="contador">${posts.length}</span></h2>
+
+● Update(src\views.js)
+  ⎿  Added 3 lines, removed 3 lines
+      382  }
+      383  
+      384  // Prêmios: medalhas dadas por professores + conquistas desblo
+           queadas.
+      385 -function premios({ stats, medalhas, proprio, primeiroNome }) {
+      385 +function premios({ id, stats, medalhas, proprio, primeiroNome 
+          +}) {                                                          
+      386    const ganhas = CONQUISTAS.filter((c) => stats.conquistas.som
+           e((x) => x.id === c.id));
+      387 -  const faltam = CONQUISTAS.filter((c) => !ganhas.includes(c))
+          -;                                                             
+      387 +  const faltam = CONQUISTAS.length - ganhas.length;           
+      388    const total = medalhas.length + ganhas.length;
+      389 -  return html`<section class="cartao">                        
+      389 +  return html`<section class="cartao" id="premios">           
+      390    <h2>Prêmios <span class="contador">${total}</span></h2>
+      391    ${total === 0 ? html`<p class="muted">${proprio ? 'Você' : p
+           rimeiroNome} ainda não ganhou prêmios. Posts, curtidas e medal
+           has dos professores desbloqueiam os primeiros!</p>` : ''}
+      392    ${
+
+● Update(src\views.js)
+  ⎿  Error editing file
+
+● Update(src\views.js)
+  ⎿  Added 1 line, removed 1 line
+      219      <p class="evento-rotulo">✨ Nova conquista</p>
+      220      <h2>${primeiroNome} desbloqueou <span class="evento-destaq
+           ue">${c.info.nome}</span></h2>
+      221      <p class="muted">${c.info.descricao} · <span class="pts">+
+           ${c.info.bonus} pts</span></p>
+      222 -    <a class="btn btn-sec" href="/u/${c.usuario_id}">Ver conqu
+          -istas de ${primeiroNome}</a>                                  
+      222 +    <a class="btn btn-sec" href="/u/${c.usuario_id}/trofeus">V
+          +er troféus de ${primeiroNome}</a>                             
+      223    </div>
+      224  </article>`;
+      225  }
+
+● Update(src\views.js)
+  ⎿  Added 1 line
+      689    novoPost,
+      690    perfil,
+      691    editarPerfil,
+      692 +  trofeus,                                                    
+      693    ranking,
+      694    mural,
+      695    admin,
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(src\views.js)
+  ⎿  Added 4 lines, removed 9 lines
+      404    ${
+      405      ganhas.length
+      406        ? html`<h3>Conquistas</h3>
+      407 -    <ul class="conquistas">${ganhas.map((c) => itemConquista(c
+          -, true))}</ul>`                                               
+      407 +    <ul class="conquistas">${ganhas.map(itemConquista)}</ul>` 
+      408        : ''
+      409    }
+      410 -  ${                                                          
+      411 -    faltam.length                                             
+      412 -      ? html`<details class="faltam">                         
+      413 -    <summary>${proprio ? 'Próximas conquistas' : 'Conquistas q
+          -ue faltam'} (${faltam.length})</summary>                      
+      414 -    <ul class="conquistas">${faltam.map((c) => itemConquista(c
+          -, false))}</ul>                                               
+      415 -  </details>`                                                 
+      416 -      : ''                                                    
+      417 -  }                                                           
+      410 +  <a class="btn btn-sec btn-largo" href="/u/${id}/trofeus">🏆 
+          +${                                                            
+      411 +    faltam ? `Ver troféus e ${proprio ? 'próximas conquistas' 
+          +: 'conquistas que faltam'} (${faltam})` : 'Ver todos os troféu
+          +s'                                                            
+      412 +  }</a>                                                       
+      413  </section>`;
+      414  }
+      415  
+
+● Update(src\views.js)
+  ⎿  Added 2 lines, removed 2 lines
+      524  </section>`;
+      525  }
+      526  
+      527 -const itemConquista = (c, ganhou) =>                          
+      528 -  html`<li class="${ganhou ? 'ganhou' : 'bloqueada'}">        
+      527 +const itemConquista = (c) =>                                  
+      528 +  html`<li class="ganhou">                                    
+      529    <span class="emoji">${c.emoji}</span><strong>${c.nome}</stro
+           ng><small>${c.descricao}</small><span class="pts">+${c.bonus}<
+           /span></li>`;
+      530  
+      531  function editarPerfil({ usuario, erro }) {
+
+● Now clean up unused CSS and check line endings of the appended styles:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && cat
+      .gitattributes; file public/estilo.css src/views.js src/regras.js; sed -i
+      '/^\.faltam /d;…)
+  ⎿  * text=auto
+     public/estilo.css: assembler source, Unicode text, UTF-8 text, with CR
+     LF, LF line terminators
+     … +6 lines (ctrl+o to expand)
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+● text=auto normalizes endings on commit, so mixed endings are harmless. Let me
+  add tests and run them:
+
+● Update(test\fluxo.test.js)
+  ⎿  Added 16 lines, removed 2 lines
+      162    assert.match(perfil.html, /2 posts publicados<\/td><td class
+           ="pts">\+20/);
+      163    assert.match(perfil.html, /1 medalha de professor<\/td><td c
+           lass="pts">\+50/);
+      164    assert.match(perfil.html, /Posts <span class="contador">2/);
+      165 -  assert.match(perfil.html, /Próximas conquistas/);           
+      166 -  assert.match((await bruno.get('/u/2')).html, /Conquistas que
+          - faltam/);                                                    
+      165 +  assert.match(perfil.html, /href="\/u\/2\/trofeus">🏆 Ver tro
+          +féus e próximas conquistas \(5\)/);                           
+      166 +  assert.match((await bruno.get('/u/2')).html, /conquistas que
+          + faltam \(5\)/);                                              
+      167  
+      168 +  // Troféus: o que a Ana já ganhou e o que falta, com o progr
+          +esso.                                                         
+      169 +  const trofeus = (await ana.get('/u/2/trofeus')).html;       
+      170 +  assert.match(trofeus, /Meus troféus/);                      
+      171 +  assert.match(trofeus, /<strong>3<\/strong> de 12 troféus/); 
+          +// 2 conquistas + 1 tipo de medalha                           
+      172 +  assert.match(trofeus, /Primeiro clique<\/strong>[\s\S]*?✓ De
+          +sbloqueada/);                                                 
+      173 +  assert.match(trofeus, /Fotógrafo do campus<\/strong>[\s\S]*?
+          +2\/10 · Faltam 8 posts/);                                     
+      174 +  assert.match(trofeus, /Popular<\/strong>[\s\S]*?2\/50 · Falt
+          +am 48 curtidas/);                                             
+      175 +  assert.match(trofeus, /Excelência acadêmica<\/strong>[\s\S]*
+          +?✓ Ganhou/);                                                  
+      176 +  assert.match(trofeus, /Projeto destaque<\/strong>[\s\S]*?Voc
+          +ê ainda não ganhou/);                                         
+      177 +  assert.match(trofeus, /Sua próxima conquista/);             
+      178 +  assert.match((await bruno.get('/u/2/trofeus')).html, /Troféu
+          +s de Ana[\s\S]*Ana ainda não ganhou/);                        
+      179 +  // Professores não têm troféus.                             
+      180 +  assert.equal((await ana.get('/u/4/trofeus')).status, 404);  
+      181 +                                                              
+      182    // Ranking por curso: Psicologia só tem o Bruno; professores
+            não aparecem.
+      183    const psico = await ana.get('/ranking?curso=Psicologia');
+      184    assert.match(psico.html, /Bruno Lima/);
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tests pass. Now a visual check with the demo data: I'll render the screen in a
+  headless browser.
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Looks good, but the right side is cut off. Let me compare with the profile
+  page to see whether that's my layout or just the screenshot tool:
+
+  Read 1 file (ctrl+o to expand)
+
+● The profile page is cut off the same way, which is just how the screenshot was
+  captured, and dark mode renders correctly. I'm stopping the test server and
+  updating the README next.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo" && for p
+      in $(netstat -ano | grep ':3917 .*LISTENING' | awk '{print $NF}' | sort
+      -u); do taskkill…)
+  ⎿   M README.md
+      M public/estilo.css
+      M src/app.js
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated README.md (+1 -0)
+       7  - **Feed** com posts de foto e/ou texto, curtidas e comentários
+           (dá para comentar direto no feed), e cartões comemorando as **
+          medalhas** e **conquistas** dos alunos (sem stories, vídeos ou 
+          mensagens).
+       8  - **Acesso restrito**: só e-mails `@unimax.edu.br` conseguem cr
+          iar conta.
+       9  - **Pontos e conquistas**: quem posta, comenta e recebe curtida
+          s ganha pontos, e desbloqueia conquistas com bônus.
+      10 +- **Troféus**: cada aluno tem uma tela de troféus, estilo conqu
+         +istas de jogo, com as conquistas e medalhas que já ganhou, as q
+         +ue faltam e quanto falta para cada uma (abre pelo botão "Ver tr
+         +oféus" do perfil).                                             
+      11  - **Medalhas de professores**: professores entregam medalhas (c
+          om mensagem) que valem pontos.
+      12  - **Ranking geral e por curso** (só alunos participam).
+      13  - **Mural de avisos**: a faculdade e os professores publicam av
+          isos, e todos leem. Cada aviso mostra quem publicou, e o ícone 
+          do Mural mostra quantos avisos novos a pessoa ainda não viu. Só
+           a faculdade fixa avisos no topo. Cada professor apaga só os pr
+          óprios avisos, e a faculdade pode apagar qualquer um.
+
+● A tela de troféus está pronta, e os testes automáticos passaram. Também abri a
+  tela com os dados de exemplo para conferir como ficou.
+
+  Onde fica: no perfil de um aluno, aparece o botão "🏆 Ver troféus e próximas 
+  conquistas". Tocar no número de prêmios no topo do perfil também abre a tela.
+  No feed, o botão dos cartões de conquista agora diz "Ver troféus de Fulano" e
+  leva direto para lá.
+
+  O que a tela mostra:
+  - Placar no topo: por exemplo, "3 de 12 troféus", com uma barra de progresso.
+    Logo abaixo vêm quantas conquistas o aluno tem, quantos tipos de medalha já
+    ganhou e quantos pontos esses prêmios renderam.
+  - Próxima conquista: destaca a conquista que está mais perto de ser ganha, com
+    o quanto falta. Por exemplo: "Fotógrafo do campus, faltam 8 posts".
+  - Conquistas: as já ganhas aparecem coloridas, com "✓ Desbloqueada" e há
+    quanto tempo. As que faltam aparecem apagadas, em cinza, com uma barrinha de
+    progresso e o que falta (ex.: "8/50 · Faltam 42 curtidas").
+  - Medalhas dos professores: os 5 tipos de medalha aparecem como uma coleção.
+    As que o aluno já ganhou ficam douradas, e se ganhou a mesma mais de uma vez
+    aparece "×2". As que ainda não ganhou aparecem apagadas.
+
+  Outras mudanças:
+  - Qualquer pessoa logada pode ver os troféus de um aluno. Professores e a
+    conta da faculdade não têm essa tela, porque não participam dos prêmios.
+  - No perfil, a lista das conquistas que faltam foi trocada por esse botão. O
+    perfil continua mostrando o que o aluno já ganhou e as mensagens dos
+    professores.
+  - Mudei por dentro o jeito de anotar as regras das conquistas em
+    src/regras.js, para a tela conseguir calcular o "quanto falta". Os pontos
+    continuam iguais. Para mudar uma meta, basta trocar o número em meta.
+  - Atualizei o README e o teste automático.
+
+  Ainda não fiz o commit. Quer que eu faça, seguindo o padrão das rodadas
+  anteriores?
+
+✻ Cogitated for 3m 12s · done 17:00
+
+❯ /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_05_trofeus-sessao.txt        
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\leigo\leigo_05_trofeus-sessao.txt
+
+❯ pode fazer                                                                    
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Pronto, fiz o commit na branch rodada/leigo_05_trofeus, com a mensagem
+  "Troféus: tela de conquistas e medalhas do aluno, com o que falta".
+
+  Seguindo o padrão das rodadas anteriores, fiz só o commit da funcionalidade.
+  Não juntei com a main e não enviei nada para o GitHub. Se quiser que eu faça
+  isso também, é só pedir.
+
+✻ Cooked for 13s · done 17:02
