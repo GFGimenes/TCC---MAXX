@@ -1,0 +1,318 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> Passo 9 do plano mestre: conquistas. Estamos na rodada/eng_09_conquistas,     
+  saída da main com os passos 1 a 8 mergeados. Antes de qualquer código, me     
+  traga o plano de etapas, com entrega e critério de aceite por etapa, como     
+  combinamos no CLAUDE.md. Vale tudo que está lá: decisão que não está nos docs 
+  não foi tomada, então pergunte antes de assumir. Uma regra que fixei no       
+  passo 3 e vale daqui em diante: cada etapa só é dada como pronta depois de a  
+  CI do push dela passar, e o resultado da CI entra no relatório da etapa.      
+  Lembro o que fecha o passo: avaliador das duas formas de contagem lendo a     
+  regra do catálogo; gatilho por fato e por fechamento de período, com          
+  reavaliação até o congelamento do semestre; evidências gravadas por conquista 
+  concedida; recálculo na anulação de medalha removendo conquista que deixou    
+  de ser satisfeita; progresso do tipo 2 de 3 na tela de Troféus; índice de     
+  unicidade por instância de período; um teste por forma, um por item e os      
+  testes de fronteira previstos em regras-conquista.md; e, vindo do passo 8,    
+  reavaliar as conquistas quando o prêmio de participação fica definitivo, pelo 
+  fim da janela ou pela confirmação da contestação. Eu reviso o plano e aí      
+  começamos a primeira etapa.                                                   
+
+● Vou ler os documentos e o estado atual do código antes de montar o plano.
+
+  Read 1 file, ran 6 shell commands (ctrl+o to expand)
+
+● Agora o estado do código: domínio, fila, catálogo, calendário e a tela de
+  Troféus.
+
+  Read 1 file, ran 9 shell commands (ctrl+o to expand)
+
+● Li os docs, o catálogo, o domínio e a tela de Troféus; falta só conferir o
+  vínculo entre conta e matrícula antes de fechar o plano.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Mais uma conferência: se o post já aceita prêmio genérico (o que tocaria a
+  conquista no feed).
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Pronto para revisão. Antes do plano, quatro pontos que os docs não decidem e
+  que mudam o que eu construo (seção "Perguntas abertas", no fim). Depois vêm as
+  decisões técnicas que proponho como D1 a D10, no padrão dos passos 6 e 8, e
+  as sete etapas.
+
+  Passo 9 · Conquistas · plano de etapas
+
+  Branch feat/passo-09-conquistas, saindo de rodada/eng_09_conquistas e voltando
+  a ela por PR. Um commit por etapa. Cada etapa só é dada como pronta quando a
+  CI do push dela passar, e o resultado da CI entra no relatório da etapa.
+
+  O que já existe e pesa no desenho
+
+  - RegraDeConquista, o validador do catálogo e o leitor do JSON já existem
+    desde o passo 2. Falta o avaliador.
+  - A medalha grava SemestreLetivoId e BimestreId. O prêmio de participação
+    guarda só as datas do evento: a D4 do passo 8 deixou "em que semestre ele
+    conta" para o passo 11, mas a conquista precisa disso agora (pergunta 1).
+  - Matricula aponta para CadastroElegivel, e Usuario.CadastroElegivelId faz a
+    ponte para "quantas matérias o aluno tem".
+  - Não existe agendador. O ADR 0008 desenha um "agendador de fechamento de
+    período", mas ninguém o construiu.
+  - Pelo calendário de 2026, os bimestres 1 a 3 e o semestre 2026/1 já fecharam.
+    O primeiro fechamento precisa alcançar o que ficou para trás.
+  - Hoje já existem os pontos de entrada da reavaliação: ConcederMedalhaHandler,
+    AnularMedalhaHandler, ContestacaoHandler.ConfirmarAsync e
+    TornarPremioDefinitivoHandler.
+
+  Decisões propostas (D1 a D10)
+
+  #: D1
+  Decisão: Modelo
+  Proposta: Tabela conquista: aluno, item, versão, tier e pontos congelados (ADR
+
+  0007), tipo e referência do período, concedida em, removida em. Tabela
+  evidencia_da_conquista, que aponta para uma medalha ou para um prêmio de
+  participação, com check de exatamente um dos dois
+  ────────────────────────────────────────
+  #: D2
+  Decisão: Unicidade
+  Proposta: Índice único parcial (aluno_id, item_codigo, tipo_de_periodo, 
+  referencia_do_periodo) só entre as conquistas não removidas. A referência é o
+   id do bimestre ou do semestre, o ano, ou o id do aluno no período curso.
+  Quem perde a corrida trata a violação como "já concedida", nunca como falha
+  ────────────────────────────────────────
+  #: D3
+  Decisão: Remoção
+  Proposta: É lógica: removida_em é preenchido e os pontos saem, para a remoção
+  ficar registrada (produto 4.10). Se o critério voltar a ser satisfeito, nasce
+   outra linha
+  ────────────────────────────────────────
+  #: D4
+  Decisão: Evidências
+  Proposta: No momento da concessão, são todos os fatos contáveis da instância.
+  Na anulação, o worker reconta a instância inteira: se a conquista continua
+  satisfeita, as evidências são regravadas com o conjunto atual. Isso mantém a
+  regra de "reavaliar só quem tem a medalha nas evidências" correta nas
+  anulações seguintes
+  ────────────────────────────────────────
+  #: D5
+  Decisão: Progresso
+  Proposta: Tabela progresso_de_conquista (aluno, item, instância, contagem,
+  alvo), escrita pelo worker, como desenham o ADR 0004 e o fluxo 03. A leitura
+  só lê. Cada fato atualiza o progresso de todas as conquistas afetadas,
+  inclusive as de fechamento: o aluno vê "3 de 4 matérias" antes do fim do
+  bimestre, mas a concessão espera o fechamento
+  ────────────────────────────────────────
+  #: D6
+  Decisão: Trabalhos
+  Proposta: reavaliar-conquistas (aluno e fato), enfileirado pela concessão de
+  medalha, pelo fim da janela que torna o prêmio definitivo e pela confirmação
+  da contestação, na mesma transação. recalcular-conquistas-da-medalha
+  (medalha), enfileirado pela anulação. Os dois enfileiram recalcular-raridade
+  quando concedem ou removem
+  ────────────────────────────────────────
+  #: D7
+  Decisão: Fechamento
+  Proposta: Tabela fechamento_de_periodo, uma linha por instância fechada. O
+  trabalho verificar-fechamentos se reenfileira adiado (proponho de hora em
+  hora). O seed base garante que exista um. Uma instância fecha à meia-noite de
+   São Paulo do dia seguinte ao fim, e cada uma gera fechar-periodo, que avalia
+   as conquistas de fechamento dos alunos com matrícula no período. Na primeira
+   execução, fecha as instâncias passadas ainda não fechadas
+  ────────────────────────────────────────
+  #: D8
+  Decisão: Congelamento
+  Proposta: Um fato que fica contável numa instância já fechada reavalia as
+  conquistas de fechamento até 30 dias depois do fim do semestre que contém a
+  instância. No período ano, o limite é o do semestre 2. O primeiro fechamento
+  roda mesmo depois do congelamento: o limite vale para a reavaliação, não para
+   o fechamento
+  ────────────────────────────────────────
+  #: D9
+  Decisão: Anulação
+  Proposta: A anulação recalcula sem limite de data, porque corrige um erro.
+  Quanto ao ranking semestral congelado, a regra é do passo 11
+  ────────────────────────────────────────
+  #: D10
+  Decisão: Notificação e pontos
+  Proposta: As notificações conquistaObtida e conquistaRemovida são gravadas e o
+
+  texto chega no passo 10. Os pontos (perfil e Troféus) e o numerador da
+  raridade passam a contar a conquista ativa. O ex-aluno é avaliado
+  normalmente, porque os pontos dele seguem no histórico
+
+  Uma lacuna nos docs: produto.md seção 8 não lista notificação de conquista,
+  mas o fluxo 03 e regras-conquista.md 6 a preveem. Corrijo isso na etapa de
+  docs.
+
+  Etapas
+
+  Etapa 1 · Avaliador no domínio (feat(api))
+
+  Entrega: Maxx.Domain/Conquistas/
+  - InstanciaDePeriodo e a atribuição de instância por fato: a medalha pelo
+    bimestre e pelo semestre; o prêmio de participação conforme a pergunta 1.
+  - FatoContavel.
+  - AvaliadorDeConquista, uma função pura que recebe a regra, os fatos e o alvo
+    resolvido e devolve contagem, alvo, se satisfaz e as evidências.
+  - A resolução de todasAsMatriculasDoPeriodo (pergunta 3).
+  - O filtro de vigência e de restrição de curso.
+  - O escape customizada, que delega a uma implementação registrada e falha com
+    erro claro se não houver nenhuma.
+  - A entidade Conquista, com concessão e remoção.
+
+  Aceite:
+  - Testes por forma: contagem e contagemDistinta, com alvo fixo e alvo
+    dinâmico.
+  - Testes por item: C01 a C18 lendo o conquistas.json real, cada um com o
+    cenário mínimo que fecha o critério e o que fica um fato abaixo.
+  - Testes de fronteira puros:
+    - duas medalhas no bimestre 1 e uma no 2 não fecham C02, mas contam para
+      C08;
+    - prêmio de participação válido não conta, definitivo conta;
+    - medalha anulada não conta.
+  - Testes de arquitetura passando, lint limpo, CI verde. Sem migration.
+
+  Etapa 2 · Persistência e gatilho por fato (feat(api))
+
+  Entrega:
+  - Migration das tabelas conquista, evidencia_da_conquista e
+    progresso_de_conquista, com o índice da D2.
+  - Handler de reavaliar-conquistas.
+  - Enfileiramento na concessão de medalha, no TornarPremioDefinitivoHandler e
+    na confirmação da contestação.
+  - Notificação conquistaObtida.
+  - Pontos e raridade contando a conquista.
+  - Purga da demonstração apagando as três tabelas do lote.
+
+  Aceite (integração, Postgres real):
+  - A quinta medalha no bimestre concede C01, com cinco evidências.
+  - O prêmio definitivo pelo fim da janela concede C05, e pela confirmação
+    também.
+  - O prêmio válido ou em averiguação não concede.
+  - Dois trabalhos simultâneos para o mesmo aluno geram uma conquista só.
+  - O mesmo trabalho rodado duas vezes não muda nada.
+  - O progresso aparece gravado.
+  - Migration aplicada, CI verde.
+
+  Etapa 3 · Recálculo na anulação (feat(api))
+
+  Entrega:
+  - AnularMedalhaHandler enfileira recalcular-conquistas-da-medalha.
+  - O handler reconta a instância e remove a conquista ou regrava as evidências
+    (D3, D4).
+  - Notificação conquistaRemovida e progresso refeito.
+
+  Aceite:
+  - Anular uma das três notas 10 derruba C02 e tira os pontos.
+  - Com quatro notas 10, anular uma mantém C02 com as evidências trocadas.
+  - Anular uma M01 derruba C04 já fechada.
+  - Conquista sem a medalha nas evidências não é tocada.
+  - Anular de novo não muda nada.
+  - CI verde.
+
+  Etapa 4 · Fechamento de período e reavaliação até o congelamento (feat(api))
+
+  Entrega:
+  - Migration de fechamento_de_periodo.
+  - verificar-fechamentos e fechar-periodo (D7).
+  - O seed base garante o trabalho recorrente.
+  - reavaliar-conquistas passa a cobrir as conquistas de fechamento de
+    instâncias já fechadas, até o congelamento (D8).
+
+  Aceite:
+  - C03 no fechamento com M03 em todas as matérias; com uma faltando, nada.
+  - Aluno sem matrícula no período não ganha.
+  - Fato depois do fechamento e antes do congelamento concede.
+  - Fato depois do congelamento não concede.
+  - Fechar a mesma instância duas vezes não muda nada.
+  - A primeira execução fecha os bimestres 1 a 3 e o semestre 2026/1.
+  - C14 e C15 no fechamento do ano.
+  - Relógio controlado por TimeProvider nos testes. CI verde.
+
+  Etapa 5 · Leitura: Troféus, progresso e perfil (feat(api) + feat(client))
+
+  Entrega:
+  - GET /v1/eu/premios, com acréscimos só aditivos:
+    - a conquista obtida traz o rótulo da instância ("3º bimestre de 2026",
+      "2026/2", "2026", "curso");
+    - o item de conquista traz progresso { contagem, alvo } da instância
+      vigente, só para o dono.
+  - O perfil público lista as conquistas obtidas e nunca o progresso (produto
+    9.1).
+  - OpenAPI regenerado e schema.d.ts sem diferença pendente.
+
+  Aceite:
+  - Integração cobrindo a forma da resposta.
+  - O progresso aparece só para o dono.
+  - No recesso não há progresso de bimestre nem de semestre (pergunta 4).
+  - Teste do documento OpenAPI passando e job api-client verde.
+
+  Etapa 6 · Cliente: Troféus (feat(mobile))
+
+  Entrega:
+  - A conquista na aba Troféus traz "Regra automática" e o critério, como na
+    prancheta, o rótulo da instância e quantas vezes foi obtida.
+  - A linha de progresso "2 de 3", ou "3 de 4 matérias" na regra dinâmica
+    (pergunta 4).
+  - As trilhas que misturam medalha e conquista seguem funcionando.
+  - Claro e escuro.
+
+  Aceite:
+  - Jest com Testing Library para a montagem e para a linha.
+  - Sem texto em ouro sobre fundo claro.
+  - Lint, tsc e job mobile verdes.
+
+  Etapa 7 · Docs e e2e (docs(docs))
+
+  Entrega:
+  - Seção "Conquistas (passo 9)" em decisoes/README.md, com D1 a D10 e o que
+    surgir nas etapas.
+  - produto.md seção 8 com a notificação de conquista, e o que a pergunta 1
+    decidir em 4.9.
+  - regras-conquista.md ajustado (alvo dinâmico e semestre do prêmio).
+  - "No passo 9" nos fluxos 03 e 04.
+  - Pendências no plano mestre.
+  - e2e: a professora concede cinco medalhas a um aluno no bimestre vigente (M01
+    duas vezes, M02 duas vezes e M03), e o aluno vê "4 de 5" e depois C01
+    obtida em Troféus. Só no celular, claro e escuro.
+
+  Aceite:
+  - Suíte e2e verde na CI.
+  - Definição de pronto conferida item a item no relatório.
+
+  Se a pergunta 2 for "incluir", entra uma etapa entre a 6 e a 7, com o post de
+  conquista.
+
+  Perguntas abertas
+
+  1. Em que semestre conta o prêmio de participação? A D4 do passo 8 adiou isso
+     para o passo 11, mas a instância da conquista depende disso agora. Minha
+     recomendação é o semestre que contém a data de início do evento, e o evento
+     no recesso conta no semestre seguinte: a D3 deixa reivindicar evento de
+     julho, e o ranking de 2026/1 já congelou em 27/07. O passo 11 herda a mesma
+     regra.
+  2. Post de conquista entra agora? O produto 6.1 diz que "um prêmio rende um
+     post", e hoje o post só aceita medalha e prêmio de participação
+     (ck_post_um_premio). O plano mestre não lista isso no passo 9. Recomendo
+     incluir como etapa curta: post.conquista_id na API e a conquista entre os
+     prêmios postáveis no cliente. Sem isso, a conquista não chega ao feed.
+  3. Alvo todasAsMatriculasDoPeriodo. O texto diz "quantidade de matrículas". Na
+     C15 (ano), o aluno que cursa a mesma matéria nos dois semestres nunca
+     alcançaria o alvo, porque a contagem é por matéria distinta. Recomendo usar
+     as matérias distintas das matrículas do período, que dá o mesmo número no
+     caso normal. E o aluno sem matrícula no período não ganha: o alvo zero não
+     pode ser satisfeito de graça.
+  4. Onde fica o progresso na tela? A prancheta só mostra "3 de 4" na trilha da
+     família. Recomendo uma linha "2 de 3 neste bimestre" (ou semestre, ano,
+     curso) logo abaixo do critério, na conquista ainda não obtida na instância
+     vigente. No recesso, sem linha.
+
+  Responda as quatro e ajuste o que quiser nas decisões. Só depois disso começo
+  a etapa 1.
+
+✻ Baked for 3m 26s · done 19:05
