@@ -11,3 +11,5 @@ Notas de registro:
 
 ---
 Etapa 4 aprovada. Confirmo os dois pontos: comentários do mais antigo ao mais novo, e a conta de professor e instituição segue, curte e comenta como professora. Commita com a mensagem proposta, push, acompanha a CI e segue para a etapa 5; para para a minha revisão no fim dela.
+
+Nota posterior (antes da etapa 5): o agente verificou a premissa da D13 (semear posts para os 20 alunos demo) e mostrou que ela não vale: o seed demo grava os alunos só como cadastro elegível, sem conta, porque aluno só se cadastra pelo app (`produto.md` 2.5) e `Usuario.CriarPeloSeed` recusa aluno; post exige autor com conta. Perguntou por menu interativo com três opções (adiar para o passo 12; criar contas de seed agora com regra nova; abandonar a D13). O autor escolheu adiar para o passo 12, pela recomendação do agente e do Cowork: não mudar regra do passo 3 só para o feed não nascer vazio. D13 registrada como adiada.
