@@ -3020,3 +3020,1071 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
   para a etapa 4.
 
 ✻ Brewed for 13m 28s · done 22:44
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Etapa 3 aprovada. A remoção em dois modos fica: física pelo autor, lógica     
+  pela instituição com registro. A D6 como está. O MundoSocial fica, sem        
+  refatorar o UploadTests. Commita com a mensagem proposta, push, acompanha a   
+  CI e segue para a etapa 4; para para a minha revisão no fim dela.             
+
+  Pushed to feat/passo-07-posts, ran 1 shell command (ctrl+o to expand)
+
+● Commit 8097034 enviado, CI em segundo plano. Começo a etapa 4 (curtida,
+  comentário e seguir) pelo escopo de turma, que a regra do professor que segue
+  vai usar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Acrescento ao escopo de turma a pergunta "este professor dá aula para este
+  aluno no semestre vigente?", consultada no banco como as outras.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && grep -n
+      "public Guid" Maxx.Domain/Academico/Matricula.cs Maxx.Domain/Academi…)
+  ⎿  Maxx.Domain/Academico/Matricula.cs:32:    public Guid Id { get; privat
+     e set; }
+     Maxx.Domain/Academico/Matricula.cs:35:    public Guid AlunoId { get; p
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Autorizacao\IEscopoDeTurma.cs
+     (+5 -0)
+       8      // Verdadeiro só se o usuário está vinculado à turma e a tu
+          rma é do semestre letivo
+       9      // vigente hoje em America/Sao_Paulo. Fora de semestre vige
+          nte (recesso, férias), falso.
+      10      Task<bool> ProfessorLecionaAsync(Guid usuarioId, Guid turma
+          Id, CancellationToken cancellationToken);
+      11 +                                                               
+      12 +    // Verdadeiro só se o aluno (pela conta) está matriculado n
+         +uma turma do semestre vigente                                  
+      13 +    // em que o professor (pela conta) leciona. É o que deixa o
+         + professor seguir o aluno                                      
+      14 +    // (produto.md 6.3).                                       
+      15 +    Task<bool> ProfessorEnsinaAlunoAsync(Guid professorId, Guid
+         + alunoId, CancellationToken cancellationToken);                
+      16  }
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Autorizacao\EscopoDeTurma.cs
+     (+15 -0)
+      23              .Join(db.Set<Turma>(), par => par.vinculo.TurmaId, 
+          turma => turma.Id, (_, turma) => turma)
+      24              .AnyAsync(turma => semestresVigentes.Contains(turma
+          .SemestreLetivoId), cancellationToken);
+      25      }
+      26 +                                                               
+      27 +    public Task<bool> ProfessorEnsinaAlunoAsync(Guid professorI
+         +d, Guid alunoId, CancellationToken cancellationToken)          
+      28 +    {                                                          
+      29 +        var hoje = FusoHorario.DataLocal(relogio.GetUtcNow()); 
+      30 +        var semestresVigentes = SemestreVigente.Ids(db, hoje); 
+      31 +        var cadastroDoProfessor = db.Set<Usuario>().Where(usuar
+         +io => usuario.Id == professorId).Select(usuario => usuario.Cada
+         +stroElegivelId);                                               
+      32 +        var cadastroDoAluno = db.Set<Usuario>().Where(usuario =
+         +> usuario.Id == alunoId).Select(usuario => usuario.CadastroEleg
+         +ivelId);                                                       
+      33 +                                                               
+      34 +        return db.Set<VinculoProfessor>()                      
+      35 +            .Where(vinculo => cadastroDoProfessor.Contains(vinc
+         +ulo.ProfessorId))                                              
+      36 +            .Join(db.Set<Matricula>(), vinculo => vinculo.Turma
+         +Id, matricula => matricula.TurmaId, (vinculo, matricula) => mat
+         +ricula)                                                        
+      37 +            .Where(matricula => cadastroDoAluno.Contains(matric
+         +ula.AlunoId))                                                  
+      38 +            .Join(db.Set<Turma>(), matricula => matricula.Turma
+         +Id, turma => turma.Id, (_, turma) => turma)                    
+      39 +            .AnyAsync(turma => semestresVigentes.Contains(turma
+         +.SemestreLetivoId), cancellationToken);                        
+      40 +    }                                                          
+      41  }
+
+● Agora o domínio: curtida, comentário e seguimento.
+
+● Write(apps\api\src\Maxx.Domain\Social\Interacoes.cs)
+  ⎿  Wrote 194 lines to apps\api\src\Maxx.Domain\Social\Interacoes.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Domain.Social;
+       5 
+       6 // Quem curte e comenta (produto.md 2.1, 2.2 e 6.3): aluno, incl
+         usive o ex-aluno, e
+       7 // professor. A instituição não participa do social: a voz dela 
+         é o mural, e no feed ela só
+       8 // remove o que é impróprio.
+     … +186 lines (ctrl+o to expand)
+
+● Agora os testes de domínio das interações.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Social\InteracoesTests.cs)
+  ⎿  Wrote 153 lines to
+     apps\api\tests\Maxx.Domain.Tests\Social\InteracoesTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 using Maxx.Domain.Social;
+       4 
+       5 namespace Maxx.Domain.Tests.Social;
+       6 
+       7 public class InteracoesTests
+       8 {
+       9     private static readonly DateTimeOffset _agora = new(2026, 11
+         , 10, 13, 0, 0, TimeSpan.Zero);
+     … +144 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 31 testes de domínio passam. Agora a Application: paginação por cursor
+  (reaproveitada no feed e no perfil), códigos, repositórios, consulta e
+  handlers.
+
+● Write(apps\api\src\Maxx.Application\Paginacao\Cursor.cs)
+  ⎿  Wrote 56 lines to apps\api\src\Maxx.Application\Paginacao\Cursor.cs
+      1 using System.Buffers.Text;
+      2 using System.Globalization;
+      3 using System.Text;
+      4 
+      5 namespace Maxx.Application.Paginacao;
+      6 
+      7 // Paginação por cursor, sem offset (decisoes/README.md, Feed): a
+         página seguinte começa
+      8 // depois do último item lido, pelo índice, e o que entrou no mei
+        o não desloca nada.
+     … +48 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Social\CodigosSociais.cs)
+  ⎿  Wrote 24 lines to
+     apps\api\src\Maxx.Application\Social\CodigosSociais.cs
+       1 namespace Maxx.Application.Social;
+       2 
+       3 // Os códigos de recusa de curtida, comentário e seguir, como o 
+         cliente os recebe em
+       4 // ProblemDetails.
+       5 public static class CodigosSociais
+       6 {
+       7     // A instituição não curte nem comenta (produto.md 2.1).
+       8     public const string InteracaoNaoPermitida = "interacao-nao-p
+         ermitida";
+     … +16 lines (ctrl+o to expand)
+
+● O teste do app só lê arquivos Codigos*.cs, então o código do cursor precisa de
+  arquivo próprio para não escapar da conferência. Separo.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Application/Paginacao" && awk '/^public static class
+      CodigosDaPaginacao/{sk…)
+  ⎿  // depois do último item lido, pelo índice, e o que entrou no meio não
+      desloca nada.
+     public sealed record Pagina<T>(IReadOnlyList<T> Itens, string? Proximo
+     … +10 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Application\Paginacao\CodigosDaPaginacao.cs
+     (+7 -0)
+      1 +namespace Maxx.Application.Paginacao;                           
+      2 +                                                                
+      3 +public static class CodigosDaPaginacao                          
+      4 +{                                                               
+      5 +    // Cursor que não foi a API que emitiu: adulterado, cortado 
+        +ou de outra lista.                                              
+      6 +    public const string CursorInvalido = "cursor-invalido";     
+      7 +}                                                               
+  ⎿  Updated apps\api\src\Maxx.Application\Paginacao\Cursor.cs (+0 -6)
+      11  // A posição numa lista ordenada por instante e id. O id desemp
+          ata itens do mesmo instante.
+      12  public sealed record PosicaoNoTempo(DateTimeOffset Instante, Gu
+          id Id);
+      13  
+      14 -public static class CodigosDaPaginacao                         
+      15 -{                                                              
+      16 -    // Cursor que não foi a API que emitiu: adulterado, cortado
+         - ou de outra lista.                                            
+      17 -    public const string CursorInvalido = "cursor-invalido";    
+      18 -}                                                              
+      19 -                                                               
+      14  // O cursor é opaco para o app: base64url de "<ticks UTC>.<id>"
+          . Não é segredo nem
+      15  // assinatura; só não é para o app montar.
+      16  public static class CursorDeTempo
+
+● Agora os repositórios, a consulta e os handlers sociais.
+
+● Write(apps\api\src\Maxx.Application\Social\Social.cs)
+  ⎿  Wrote 235 lines to apps\api\src\Maxx.Application\Social\Social.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Application.Autorizacao;
+       3 using Maxx.Application.Paginacao;
+       4 using Maxx.Application.Posts;
+       5 using Maxx.Domain.Identidade;
+       6 using Maxx.Domain.Social;
+       7 
+       8 namespace Maxx.Application.Social;
+       9 
+      10 public interface ICurtidaRepository
+     … +225 lines (ctrl+o to expand)
+
+● Acrescento as unicidades novas e as contagens de curtida e comentário ao post
+  lido. São só campos novos, então a mudança no contrato é aditiva.
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|^
+       PostPorPremio,$|&\n\n    // A mesma pessoa curtindo o mesmo p…)
+  ⎿  // do momento e raridade atual. Só consulta, sem regra.
+     public interface IConsultaDePosts
+     {
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+6 -2)
+      31  public interface IConsultaDePosts
+      32  {
+      33      // Nulo para o que não existe e para o removido pela instit
+          uição.
+      34 -    Task<PostLido?> PostAsync(Guid id, CancellationToken cancel
+         -lationToken);                                                  
+      34 +    // Com as curtidas e os comentários contados, e se o leitor
+         + curtiu.                                                       
+      35 +    Task<PostLido?> PostAsync(Guid id, Guid leitorId, Cancellat
+         +ionToken cancellationToken);                                   
+      36  }
+      37  
+      38  public sealed record PostLido(
+     ...
+      42      string? ChaveDaFotoDoFeed,
+      43      string? ChaveDaFotoDaGrade,
+      44      PremioDoPost? Premio,
+      44 -    DateTimeOffset CriadoEm);                                  
+      45 +    DateTimeOffset CriadoEm,                                   
+      46 +    int Curtidas,                                              
+      47 +    int Comentarios,                                           
+      48 +    bool Curtiu);                                              
+      49  
+      50  // Curso e semestre do aluno são perfil (produto.md 3); o RA nu
+          nca sai daqui.
+      51  public sealed record AutorDoPost(Guid Id, string NomeDeExibicao
+          , string Arroba, string? Curso, int? Semestre);
+  ⎿  Updated apps\api\src\Maxx.Application\Recusa.cs (+6 -0)
+      79  
+      80      // Dois posts não removidos para o mesmo prêmio: um prêmio 
+          rende um post.
+      81      PostPorPremio,
+      82 +                                                               
+      83 +    // A mesma pessoa curtindo o mesmo post duas vezes ao mesmo
+         + tempo.                                                        
+      84 +    Curtida,                                                   
+      85 +                                                               
+      86 +    // O mesmo seguimento gravado duas vezes ao mesmo tempo.   
+      87 +    Seguimento,                                                
+      88  }
+      89  
+      90  // Gravação recusada porque a linha mudou desde a leitura (xmin
+          ): outro pedido chegou
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs (+2
+     -0)
+      14          ["pk_prefixo_reservado"] = Unicidade.Prefixo,
+      15          ["ix_medalha_chave_ativa"] = Unicidade.MedalhaAtiva,
+      16          ["ix_post_medalha_ativa"] = Unicidade.PostPorPremio,
+      17 +        ["pk_curtida"] = Unicidade.Curtida,                    
+      18 +        ["pk_seguimento"] = Unicidade.Seguimento,              
+      19      };
+      20  
+      21      public async Task SalvarAsync(CancellationToken cancellatio
+          nToken)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Application/Posts/Posts.cs && perl -0pi -e 's|    // Nulo para o
+      que…)
+  ⎿  33:    public async Task<PostLido?> PostAsync(Guid id, Guid leitorId,
+     CancellationToken cancellationToken)
+     56:                    Curtidas = db.Set<Curtida>().Count(curtida => c
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+2 -2)
+      30  // do momento e raridade atual. Só consulta, sem regra.
+      31  public interface IConsultaDePosts
+      32  {
+      33 -    // Nulo para o que não existe e para o removido pela instit
+         -uição.                                                         
+      34 -    // Com as curtidas e os comentários contados, e se o leitor
+         - curtiu.                                                       
+      33 +    // Nulo para o que não existe e para o removido pela instit
+         +uição. Com as curtidas e os                                    
+      34 +    // comentários contados, e se o leitor curtiu.             
+      35      Task<PostLido?> PostAsync(Guid id, Guid leitorId, Cancellat
+          ionToken cancellationToken);
+      36  }
+      37  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs (+8 
+     -2)
+      30  
+      31  internal sealed class ConsultaDePosts(MaxxDbContext db) : ICons
+          ultaDePosts
+      32  {
+      33 -    public async Task<PostLido?> PostAsync(Guid id, Cancellatio
+         -nToken cancellationToken)                                      
+      33 +    public async Task<PostLido?> PostAsync(Guid id, Guid leitor
+         +Id, CancellationToken cancellationToken)                       
+      34      {
+      35          var linha = await (
+      36                  from post in db.Set<Post>()
+     ...
+      53                      autor.Sufixo,
+      54                      Curso = curso == null ? null : curso.Sigla,
+      55                      cadastro.Semestre,
+      56 +                    Curtidas = db.Set<Curtida>().Count(curtida 
+         +=> curtida.PostId == post.Id),                                 
+      57 +                    Comentarios = db.Set<Comentario>().Count(co
+         +mentario => comentario.PostId == post.Id && comentario.Removido
+         +Em == null),                                                   
+      58 +                    Curtiu = db.Set<Curtida>().Any(curtida => c
+         +urtida.PostId == post.Id && curtida.UsuarioId == leitorId),    
+      59                  })
+      60              .AsNoTracking()
+      61              .SingleOrDefaultAsync(cancellationToken);
+     ...
+      71              linha.ChaveDaFotoDoFeed,
+      72              linha.ChaveDaFotoDaGrade,
+      73              linha.MedalhaId is { } medalhaId ? await MedalhaAsy
+          nc(medalhaId, cancellationToken) : null,
+      71 -            linha.CriadoEm);                                   
+      74 +            linha.CriadoEm,                                    
+      75 +            linha.Curtidas,                                    
+      76 +            linha.Comentarios,                                 
+      77 +            linha.Curtiu);                                     
+      78      }
+      79  
+      80      private async Task<PremioDoPost?> MedalhaAsync(Guid medalha
+          Id, CancellationToken cancellationToken)
+
+● Agora a Infrastructure social: mapeamentos, repositórios e consulta.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\SocialConfig
+       uration.cs)
+  ⎿  Wrote 67 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\SocialConfiguration.cs
+       1 using Maxx.Domain.Identidade;
+       2 using Maxx.Domain.Social;
+       3 using Microsoft.EntityFrameworkCore;
+       4 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       5 
+       6 namespace Maxx.Infrastructure.Persistence.Configurations;
+       7 
+       8 // Curtida, comentário e seguimento. O que pende de um post sai 
+         com ele quando o autor o
+       9 // apaga (cascata no post); o que pende de um usuário, não: a pu
+     … +59 lines (~3 KB) (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Social\SocialRepositories.cs)
+  ⎿  Wrote 91 lines to
+     apps\api\src\Maxx.Infrastructure\Social\SocialRepositories.cs
+       1 using Maxx.Application.Paginacao;
+       2 using Maxx.Application.Social;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Domain.Social;
+       5 using Maxx.Infrastructure.Persistence;
+       6 using Microsoft.EntityFrameworkCore;
+       7 
+       8 namespace Maxx.Infrastructure.Social;
+       9 
+      10 internal sealed class CurtidaRepository(MaxxDbContext db) : ICur
+     … +82 lines (~4 KB) (ctrl+o to expand)
+
+● Dois pontos corrigidos: a ordem de Guid no .NET difere do uuid no Postgres, e
+  o join após o Take não garante ordem. Vou ordenar e paginar tudo no SQL,
+  usando a comparação de linha (criado_em, id) do Npgsql.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Social" && perl -0pi -e 's/        var
+      comentarios = db\.Set…)
+  ⎿              await curtidas.CountAsync(cancellationToken),
+                 await curtidas.AnyAsync(curtida => curtida.UsuarioId == le
+     itorId, cancellationToken));
+     … +41 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Social\SocialRepositories.cs
+     (+7 -5)
+      57          var comentarios = db.Set<Comentario>().Where(comentario
+           => comentario.PostId == postId && comentario.RemovidoEm == nul
+          l);
+      58          if (depoisDe is { } posicao)
+      59          {
+      60 +            // Comparação de linha do Postgres, (criado_em, id)
+         + > (instante, id): anda pelo                                   
+      61 +            // índice e desempata pelo id na ordem do próprio b
+         +anco, não na do Guid do .NET.                                  
+      62              comentarios = comentarios.Where(comentario =>
+      61 -                comentario.CriadoEm > posicao.Instante || (come
+         -ntario.CriadoEm == posicao.Instante && comentario.Id.CompareTo(
+         -posicao.Id) > 0));                                             
+      63 +                EF.Functions.GreaterThan(ValueTuple.Create(come
+         +ntario.CriadoEm, comentario.Id), ValueTuple.Create(posicao.Inst
+         +ante, posicao.Id)));                                           
+      64          }
+      65  
+      66          // Um a mais que o limite: se ele vier, existe página s
+          eguinte.
+      67          var linhas = await comentarios
+      66 -            .OrderBy(comentario => comentario.CriadoEm)        
+      67 -            .ThenBy(comentario => comentario.Id)               
+      68 -            .Take(limite + 1)                                  
+      68              .Join(db.Set<Usuario>(), comentario => comentario.A
+          utorId, autor => autor.Id, (comentario, autor) => new
+      69              {
+      70                  comentario.Id,
+     ...
+      75                  autor.Prefixo,
+      76                  autor.Sufixo,
+      77              })
+      78 +            .OrderBy(linha => linha.CriadoEm)                  
+      79 +            .ThenBy(linha => linha.Id)                         
+      80 +            .Take(limite + 1)                                  
+      81              .AsNoTracking()
+      82              .ToListAsync(cancellationToken);
+      83  
+      82 -        var pagina = linhas.OrderBy(linha => linha.CriadoEm).Th
+         -enBy(linha => linha.Id).Take(limite).ToList();                 
+      84 +        var pagina = linhas.Take(limite).ToList();             
+      85          return new Pagina<ComentarioLido>(
+      86              [.. pagina.Select(linha => new ComentarioLido(
+      87                  linha.Id,
+
+● Agora o registro e as rotas sociais, e o post lido passa a receber o leitor.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Infrastructure/DependencyInjection.cs && sed -i 's|^using
+      Maxx.Applic…)
+  ⎿  12:using Maxx.Application.Social;
+     26:using Maxx.Infrastructure.Social;
+     72:        services.AddScoped<IConsultaSocial, ConsultaSocial>();
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Posts\PostEndpoints.cs (+16 -6)
+      46          CancellationToken cancellationToken)
+      47      {
+      48          var post = await handler.PublicarAsync(UsuarioId(princi
+          pal), pedido.Legenda, pedido.UploadId, pedido.MedalhaId, cancel
+          lationToken);
+      49 -        var lido = await consulta.PostAsync(post.Id, cancellati
+         -onToken)                                                       
+      49 +        var lido = await consulta.PostAsync(post.Id, UsuarioId(
+         +principal), cancellationToken)                                 
+      50              ?? throw new InvalidOperationException($"O post {po
+          st.Id} acabou de ser gravado e não foi lido.");
+      51          return TypedResults.Created($"/api/v1/posts/{post.Id}",
+           PostResponse.De(lido, armazenamento));
+      52      }
+      53  
+      54      private static async Task<Ok<PostResponse>> LerAsync(
+      55 -        Guid postId, IConsultaDePosts consulta, IArmazenamentoD
+         -eFotos armazenamento, CancellationToken cancellationToken)     
+      55 +        Guid postId,                                           
+      56 +        ClaimsPrincipal principal,                             
+      57 +        IConsultaDePosts consulta,                             
+      58 +        IArmazenamentoDeFotos armazenamento,                   
+      59 +        CancellationToken cancellationToken)                   
+      60      {
+      57 -        var lido = await consulta.PostAsync(postId, cancellatio
+         -nToken)                                                        
+      61 +        var lido = await consulta.PostAsync(postId, UsuarioId(p
+         +rincipal), cancellationToken)                                  
+      62              ?? throw new RecusaException(TipoDeRecusa.NaoEncont
+          rado, CodigosDoPost.PostNaoEncontrado, $"Post {postId} não exis
+          te.");
+      63          return TypedResults.Ok(PostResponse.De(lido, armazename
+          nto));
+      64      }
+     ...
+      71      }
+      72  
+      73      // O sub do token; o grupo /v1 já exigiu um usuário autenti
+          cado.
+      70 -    private static Guid UsuarioId(ClaimsPrincipal principal) =>
+      74 +    internal static Guid UsuarioId(ClaimsPrincipal principal) =
+         +>                                                              
+      75          Guid.TryParse(principal.FindFirstValue(MaxxClaims.Sub),
+           out var id)
+      76              ? id
+      77              : throw new InvalidOperationException("Token autent
+          icado sem sub.");
+     ...
+      87      string? Legenda,
+      88      FotoDoPostResponse? Foto,
+      89      PremioDoPostResponse? Premio,
+      86 -    DateTimeOffset CriadoEm)                                   
+      90 +    DateTimeOffset CriadoEm,                                   
+      91 +    int Curtidas,                                              
+      92 +    int Comentarios,                                           
+      93 +    bool Curtiu)                                               
+      94  {
+      95      public static PostResponse De(PostLido post, IArmazenamento
+          DeFotos armazenamento) => new(
+     … 12 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+6 
+     -0)
+       9  using Maxx.Application.Notificacoes;
+      10  using Maxx.Application.Posts;
+      11  using Maxx.Application.Premios;
+      12 +using Maxx.Application.Social;                                 
+      13  using Maxx.Infrastructure.Autenticacao;
+      14  using Maxx.Infrastructure.Autorizacao;
+      15  using Maxx.Infrastructure.Demonstracao;
+     ...
+      23  using Maxx.Infrastructure.Premios;
+      24  using Maxx.Infrastructure.RaridadeDosItens;
+      25  using Maxx.Infrastructure.Seed;
+      26 +using Maxx.Infrastructure.Social;                              
+      27  using Microsoft.EntityFrameworkCore;
+      28  using Microsoft.Extensions.DependencyInjection;
+      29  using Npgsql;
+     ...
+      66          services.AddScoped<IUploadPendenteRepository, UploadPen
+          denteRepository>();
+      67          services.AddScoped<IPostRepository, PostRepository>();
+      68          services.AddScoped<IConsultaDePosts, ConsultaDePosts>()
+          ;
+      69 +        services.AddScoped<ICurtidaRepository, CurtidaRepositor
+         +y>();                                                          
+      70 +        services.AddScoped<IComentarioRepository, ComentarioRep
+         +ository>();                                                    
+      71 +        services.AddScoped<ISeguimentoRepository, SeguimentoRep
+         +ository>();                                                    
+      72 +        services.AddScoped<IConsultaSocial, ConsultaSocial>(); 
+      73  
+      74          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      75          services.AddOptions<FilaOptions>();
+
+● Write(apps\api\src\Maxx.Api\Social\SocialEndpoints.cs)
+  ⎿  Wrote 149 lines to apps\api\src\Maxx.Api\Social\SocialEndpoints.cs
+       1 using System.ComponentModel.DataAnnotations;
+       2 using System.Security.Claims;
+       3 using Maxx.Api.Posts;
+       4 using Maxx.Application.Paginacao;
+       5 using Maxx.Application.Social;
+       6 using Microsoft.AspNetCore.Http.HttpResults;
+       7 
+       8 namespace Maxx.Api.Social;
+       9 
+      10 // Curtida, comentário e seguir (produto.md 6.1 e 6.3). Curtir, 
+     … +140 lines (~7 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Program.cs && sed -i
+      's|^builder.Services.AddScoped<Maxx.Applicat…)
+  ⎿      1 Erro(s)
+     C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Api\Social\SocialEndpoints.cs(73,9): error CS0246: O nome d
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+5 -0)
+      10  using Maxx.Api.OpenApi;
+      11  using Maxx.Api.Posts;
+      12  using Maxx.Api.Premios;
+      13 +using Maxx.Api.Social;                                         
+      14  using Maxx.Infrastructure;
+      15  using Maxx.Infrastructure.Fila;
+      16  using Maxx.Infrastructure.Persistence;
+     ...
+      91  builder.Services.AddScoped<Maxx.Application.Fotos.PedirUploadHa
+          ndler>();
+      92  builder.Services.AddScoped<Maxx.Application.Posts.PublicarPostH
+          andler>();
+      93  builder.Services.AddScoped<Maxx.Application.Posts.RemoverPostHa
+          ndler>();
+      94 +builder.Services.AddScoped<Maxx.Application.Social.CurtidaHandl
+         +er>();                                                         
+      95 +builder.Services.AddScoped<Maxx.Application.Social.ComentarioHa
+         +ndler>();                                                      
+      96 +builder.Services.AddScoped<Maxx.Application.Social.SeguimentoHa
+         +ndler>();                                                      
+      97  
+      98  var app = builder.Build();
+      99  
+     ...
+      159  v1.MapPremiosEndpoints();
+      160  v1.MapUploadEndpoints();
+      161  v1.MapPostEndpoints();
+      162 +v1.MapSocialEndpoints();                                      
+      163  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      164  if (demonstracao)
+      165  {
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Social/SocialEndpoints.cs && sed -i 's|^using
+      Maxx.Api.Posts;|&\n…)
+  ⎿      0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Api\Social\SocialEndpoints.cs (+6 -3)
+       1  using System.ComponentModel.DataAnnotations;
+       2  using System.Security.Claims;
+       3  using Maxx.Api.Posts;
+       4 +using Maxx.Application;                                        
+       5 +using Maxx.Application.Autenticacao;                           
+       6  using Maxx.Application.Paginacao;
+       7 +using Maxx.Application.Posts;                                  
+       8  using Maxx.Application.Social;
+       9  using Microsoft.AspNetCore.Http.HttpResults;
+      10  
+     ...
+      79      {
+      80          var posicao = CursorDeTempo.Ler(cursor);
+      81          _ = await consultaDePosts.PostAsync(postId, PostEndpoin
+          ts.UsuarioId(principal), cancellationToken)
+      79 -            ?? throw new Application.RecusaException(          
+      80 -                Application.TipoDeRecusa.NaoEncontrado, Applica
+         -tion.Posts.CodigosDoPost.PostNaoEncontrado, $"Post {postId} não
+         - existe.");                                                    
+      82 +            ?? throw new RecusaException(                      
+      83 +                TipoDeRecusa.NaoEncontrado, CodigosDoPost.PostN
+         +aoEncontrado, $"Post {postId} não existe.");                   
+      84  
+      85          var pagina = await consulta.ComentariosAsync(postId, po
+          sicao, ComentariosPorPagina, cancellationToken);
+      86          return TypedResults.Ok(new PaginaDeComentariosResponse(
+          [.. pagina.Itens.Select(ComentarioResponse.De)], pagina.Proximo
+          ));
+     ...
+      91          ComentarioRequest pedido,
+      92          ClaimsPrincipal principal,
+      93          ComentarioHandler handler,
+      91 -        Application.Autenticacao.IUsuarioRepository usuarios,  
+      94 +        IUsuarioRepository usuarios,                           
+      95          CancellationToken cancellationToken)
+      96      {
+      97          var autorId = PostEndpoints.UsuarioId(principal);
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet ef migrations add Social --project apps/api/src/Maxx.Infrastructure
+      --output-dir P…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+     15:                name: "comentario",
+     29:                    table.PrimaryKey("pk_comentario", x => x.id);
+     … +29 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08015314_Social.cs (+142 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class Social : Migration                   
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.CreateTable(                     
+       15 +                name: "comentario",                           
+       16 +                columns: table => new                         
+       17 +                {                                             
+       18 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       19 +                    post_id = table.Column<Guid>(type: "uuid",
+          + nullable: false),                                            
+       20 +                    autor_id = table.Column<Guid>(type: "uuid"
+          +, nullable: false),                                           
+       21 +                    texto = table.Column<string>(type: "text",
+          + nullable: false),                                            
+       22 +                    criado_em = table.Column<DateTimeOffset>(t
+          +ype: "timestamp with time zone", nullable: false),            
+       23 +                    removido_em = table.Column<DateTimeOffset>
+          +(type: "timestamp with time zone", nullable: true),           
+       24 +                    removido_por_id = table.Column<Guid>(type:
+          + "uuid", nullable: true),                                     
+       25 +                    xmin = table.Column<uint>(type: "xid", row
+          +Version: true, nullable: false)                               
+       26 +                },                                            
+       27 +                constraints: table =>                         
+       28 +                {                                             
+       29 +                    table.PrimaryKey("pk_comentario", x => x.i
+          +d);                                                           
+       30 +                    table.CheckConstraint("ck_comentario_remoc
+          +ao", "(removido_em IS NULL) = (removido_por_id IS NULL)");    
+       31 +                    table.CheckConstraint("ck_comentario_texto
+          +", "length(texto) > 0");                                      
+       32 +                    table.ForeignKey(                         
+       33 +                        name: "fk_comentario_post_post_id",   
+       34 +                        column: x => x.post_id,               
+       35 +                        principalTable: "post",               
+       36 +                        principalColumn: "id",                
+       37 +                        onDelete: ReferentialAction.Cascade); 
+       38 +                    table.ForeignKey(                         
+       39 +                        name: "fk_comentario_usuario_autor_id"
+          +,                                                             
+       40 +                        column: x => x.autor_id,              
+     … 102 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+163 -0)
+      841                          });
+      842                  });
+      843  
+      844 +            modelBuilder.Entity("Maxx.Domain.Social.Comentario
+          +", b =>                                                       
+      845 +                {                                             
+      846 +                    b.Property<Guid>("Id")                    
+      847 +                        .HasColumnType("uuid")                
+      848 +                        .HasColumnName("id");                 
+      849 +                                                              
+      850 +                    b.Property<Guid>("AutorId")               
+      851 +                        .HasColumnType("uuid")                
+      852 +                        .HasColumnName("autor_id");           
+      853 +                                                              
+      854 +                    b.Property<DateTimeOffset>("CriadoEm")    
+      855 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      856 +                        .HasColumnName("criado_em");          
+      857 +                                                              
+      858 +                    b.Property<Guid>("PostId")                
+      859 +                        .HasColumnType("uuid")                
+      860 +                        .HasColumnName("post_id");            
+      861 +                                                              
+      862 +                    b.Property<DateTimeOffset?>("RemovidoEm") 
+      863 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      864 +                        .HasColumnName("removido_em");        
+      865 +                                                              
+      866 +                    b.Property<Guid?>("RemovidoPorId")        
+      867 +                        .HasColumnType("uuid")                
+      868 +                        .HasColumnName("removido_por_id");    
+      869 +                                                              
+      870 +                    b.Property<string>("Texto")               
+      871 +                        .IsRequired()                         
+      872 +                        .HasColumnType("text")                
+      873 +                        .HasColumnName("texto");              
+      874 +                                                              
+      875 +                    b.Property<uint>("Versao")                
+      876 +                        .IsConcurrencyToken()                 
+      877 +                        .ValueGeneratedOnAddOrUpdate()        
+      878 +                        .HasColumnType("xid")                 
+      879 +                        .HasColumnName("xmin");               
+      880 +                                                              
+     … 147 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 10m)
+
+● A migration Social saiu como esperado. Agora os testes de integração de
+  curtida, comentário e seguir.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Social\InteracoesTests.cs)
+  ⎿  Wrote 343 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Social\InteracoesTests.cs
+      1 using System.Net;
+      2 using System.Net.Http.Json;
+      3 using Maxx.Api.IntegrationTests.Fotos;
+      4 using Maxx.Api.Posts;
+      5 using Maxx.Api.Social;
+      6 using Maxx.Domain.Social;
+      7 using static Maxx.Api.IntegrationTests.Social.MundoSocial;
+      8 
+      9 namespace Maxx.Api.IntegrationTests.Social;
+     … +334 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O [Required] da borda recusa só espaços antes de o domínio responder com o
+  código próprio. Deixo o texto opcional na borda, para o vazio sair como
+  comentario-vazio, igual ao post vazio.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Social/SocialEndpoints.cs && sed -i 's|^// O
+      limite de 500 caract…)
+  ⎿  91:        ComentarioRequest pedido,
+     139:public sealed record ComentarioRequest([property: StringLength(200
+     0)] string? Texto);
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Social\SocialEndpoints.cs (+3 -2)
+      134      public static CurtidasResponse De(EstadoDaCurtida estado) 
+           => new(estado.Curtidas, estado.Curtiu);
+      135  }
+      136  
+      137 -// O limite de 500 caracteres é do domínio, contando emoji com
+          -o um; aqui, só um teto bruto.                                 
+      138 -public sealed record ComentarioRequest([property: Required, St
+          -ringLength(2000)] string Texto);                              
+      137 +// Vazio e o limite de 500 caracteres são do domínio, contando
+          + emoji como um, com códigos                                   
+      138 +// próprios; aqui, só um teto bruto.                          
+      139 +public sealed record ComentarioRequest([property: StringLength
+          +(2000)] string? Texto);                                       
+      140  
+      141  public sealed record AutorDoComentarioResponse(Guid Id, string
+            NomeDeExibicao, string Arroba);
+      142  
+  ⎿  (timeout 10m)
+
+● Os 16 testes de interação passam. Agora a purga: as três tabelas novas,
+  primeiro no teste (vermelho) e depois no SQL.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DemonstracaoTests
+        .cs)
+  ⎿  Added 20 lines
+      368              await SalvarAsync(factory, Post.Publicar(aluno, "N
+           ota 10!", null, medalha, DateTimeOffset.UtcNow).Post!);
+      369          }
+      370  
+      371 +        // Entre os dois: a Ana curte e comenta o post da Carl
+          +a, a Carla curte o da Ana e                                   
+      372 +        // comenta o próprio, e cada uma segue a outra. Do lad
+          +o da Carla fica só o comentário                               
+      373 +        // dela no post dela; o resto toca a Ana e sai com ela
+          +.                                                             
+      374 +        await using (var scope = factory.Services.CreateAsyncS
+          +cope())                                                       
+      375 +        {                                                     
+      376 +            var banco = scope.ServiceProvider.GetRequiredServi
+          +ce<MaxxDbContext>();                                          
+      377 +            var ana = await banco.Set<Usuario>().SingleAsync(u
+          +suario => usuario.NomeDeExibicao == "Ana Paula", Ct);         
+      378 +            var carla = await banco.Set<Usuario>().SingleAsync
+          +(usuario => usuario.NomeDeExibicao == "Carla Dias", Ct);      
+      379 +            var doPost = await banco.Set<Post>().ToDictionaryA
+          +sync(post => post.AutorId, Ct);                               
+      380 +            var agora = DateTimeOffset.UtcNow;                
+      381 +            await SalvarAsync(                                
+      382 +                factory,                                      
+      383 +                Curtida.Curtir(ana, doPost[carla.Id], agora)!,
+      384 +                Curtida.Curtir(carla, doPost[ana.Id], agora)!,
+      385 +                Comentario.Escrever(ana, doPost[carla.Id], "Pa
+          +rabéns!", agora).Comentario!,                                 
+      386 +                Comentario.Escrever(carla, doPost[carla.Id], "
+          +Valeu!", agora).Comentario!,                                  
+      387 +                Seguimento.Seguir(ana, carla, professorDoSegui
+          +do: false, agora)!,                                           
+      388 +                Seguimento.Seguir(carla, ana, professorDoSegui
+          +do: false, agora)!);                                          
+      389 +        }                                                     
+      390 +                                                              
+      391          // O worker grava as notificações de medalha recebida,
+            que a purga também leva.
+      392          var consumidor = factory.Services.GetRequiredService<C
+           onsumidorDeTrabalhos>();
+      393          while (await consumidor.ProcessarProximoAsync(Ct))
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/DemonstracaoTests.cs
+      && sed -i 's…)
+  ⎿      0 Erro(s)
+       Xunit.MicrosoftTestingPlatform.XunitException: Npgsql.PostgresExcept
+     ion : 23001: update or delete on table "usuario" violates RESTRICT set
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+4 -1)
+      301  
+      302      // O SQL é o do README das decisões, o que será rodado dep
+           ois da apresentação.
+      303      [Fact]
+      304 -    public async Task A_purga_do_readme_apaga_o_lote_com_aceit
+          -es_medalhas_uploads_e_posts_e_mantem_o_termo_e_o_que_nao_e_do_
+          -lote()                                                        
+      304 +    public async Task A_purga_do_readme_apaga_o_lote_com_aceit
+          +es_medalhas_uploads_posts_e_interacoes_e_mantem_o_termo_e_o_qu
+          +e_nao_e_do_lote()                                             
+      305      {
+      306          await using var factory = await MundoAsync();
+      307          using var client = factory.CreateClient();
+     ...
+      414          Assert.Equal(restante.Id, (await db.Set<Notificacao>()
+           .SingleAsync(Ct)).UsuarioId);
+      415          Assert.Equal(restante.Id, (await db.Set<UploadPendente
+           >().SingleAsync(Ct)).UsuarioId);
+      416          Assert.Equal(restante.Id, (await db.Set<Post>().Single
+           Async(Ct)).AutorId);
+      417 +        Assert.Empty(await db.Set<Curtida>().ToListAsync(Ct));
+      418 +        Assert.Empty(await db.Set<Seguimento>().ToListAsync(Ct
+          +));                                                           
+      419 +        Assert.Equal("Valeu!", (await db.Set<Comentario>().Sin
+          +gleAsync(Ct)).Texto);                                         
+      420          Assert.Equal(1, await db.Set<CadastroElegivel>().Count
+           Async(cadastro => cadastro.Papeis == Papeis.Aluno, Ct));
+      421          Assert.Equal(1, await db.Set<TermoDeUso>().CountAsync(
+           Ct));
+      422      }
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^DELETE FROM post WHERE autor_id IN (SELECT usuario_id FROM
+      alvo);|DELETE FROM…)
+  ⎿  ```sql
+     BEGIN;
+     CREATE TEMP TABLE alvo ON COMMIT DROP AS
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+3 -0)
+      125  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario
+           _id FROM alvo);
+      126  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      127  DELETE FROM notificacao WHERE usuario_id IN (SELECT usuario_id
+            FROM alvo);
+      128 +DELETE FROM curtida WHERE usuario_id IN (SELECT usuario_id FRO
+          +M alvo);                                                      
+      129 +DELETE FROM comentario WHERE autor_id IN (SELECT usuario_id FR
+          +OM alvo);                                                     
+      130 +DELETE FROM seguimento WHERE seguidor_id IN (SELECT usuario_id
+          + FROM alvo) OR seguido_id IN (SELECT usuario_id FROM alvo);   
+      131  DELETE FROM post WHERE autor_id IN (SELECT usuario_id FROM alv
+           o);
+      132  DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM 
+           alvo);
+      133  DELETE FROM upload_pendente WHERE usuario_id IN (SELECT usuari
+           o_id FROM alvo);
+  ⎿  (timeout 10m)
+
+● A purga passa. Agora as mensagens dos códigos novos no app (sociais e o do
+  cursor), a regeneração do cliente e a bateria completa.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/mobile/src/api/erros.ts && sed -i 's|^  "remocao-nao-permitida":
+      "Você não pode ap…)  ⎿  format=0
+         0 Aviso(s)
+         0 Erro(s)
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.test.ts (+3 -1)
+      42    it("todo código que a API manda tem mensagem própria", () => 
+          {
+      43      const daApi = codigosDaApi();
+      44  
+      45 -    expect(arquivosDeCodigos()).toHaveLength(4);               
+      45 +    expect(arquivosDeCodigos()).toHaveLength(6);               
+      46      expect(daApi).toEqual(
+      47        expect.arrayContaining([
+      48          "registro-simultaneo",
+      49          "limite-atingido",
+      50          "tamanho-de-foto-invalido",
+      51          "premio-ja-postado",
+      52 +        "seguir-nao-permitido",                                
+      53 +        "cursor-invalido",                                     
+      54          "dados-invalidos",
+      55        ]),
+      56      );
+  ⎿  Updated apps\mobile\src\api\erros.ts (+11 -0)
+      49    "premio-ja-postado": "Esse prêmio já tem um post.",
+      50    "post-nao-encontrado": "Esse post não existe mais.",
+      51    "remocao-nao-permitida": "Você não pode apagar este post.",
+      52 +  // Curtida, comentário e seguir (CodigosSociais.cs)          
+      53 +  "interacao-nao-permitida": "A instituição não curte nem comen
+         +ta.",                                                          
+      54 +  "comentario-vazio": "Escreva alguma coisa antes de enviar.", 
+      55 +  "comentario-longo": "O comentário passou de 500 caracteres.",
+      56 +  "comentario-nao-encontrado": "Esse comentário não existe mais
+         +.",                                                            
+      57 +  "remocao-de-comentario-nao-permitida":                       
+      58 +    "Você não pode apagar este comentário.",                   
+      59 +  "usuario-nao-encontrado": "Essa pessoa não está mais no Maxx.
+         +",                                                             
+      60 +  "seguir-nao-permitido": "Não dá para seguir este perfil.",   
+      61 +  // Paginação (CodigosDaPaginacao.cs)                         
+      62 +  "cursor-invalido": "Não deu para carregar mais. Puxe para atu
+         +alizar.",                                                      
+      63    // Genéricos, pelo status (DomainExceptionHandler.cs)
+      64    "requisicao-invalida": "Confira os dados e tente de novo.",
+      65    "dados-invalidos": "Confira os dados e tente de novo.",
+  ⎿  … 2 more files changed
+  ⎿  (timeout 10m)
+
+● Background command "Watch CI for etapa 3 commit" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A etapa 4 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 3 fechada: commit 8097034, CI verde nos seis jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42435830084
+
+  Etapa 4: curtida, comentário e seguir
+
+  Rotas
+
+  ┌────────────────────────────────────────────┬────────────────────────────┐
+  │                    Rota                    │         O que faz          │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │                                            │ Curtir. Devolve {curtidas, │
+  │ PUT /v1/posts/{id}/curtida                 │  curtiu}, para o app       │
+  │                                            │ acertar o coração e o      │
+  │                                            │ número                     │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │ DELETE /v1/posts/{id}/curtida              │ Descurtir, com a mesma     │
+  │                                            │ resposta                   │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │                                            │ Comentários do mais antigo │
+  │ GET /v1/posts/{id}/comentarios?cursor=     │  ao mais novo, 20 por      │
+  │                                            │ página, com proximo nulo   │
+  │                                            │ na última                  │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │                                            │ Comentar: {texto}, até 500 │
+  │ POST /v1/posts/{id}/comentarios            │  caracteres contando emoji │
+  │                                            │  como um, sem espaços nas  │
+  │                                            │ pontas                     │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │ DELETE                                     │ Apagar ou remover          │
+  │ /v1/posts/{id}/comentarios/{comentarioId}  │ comentário                 │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │ PUT /v1/seguindo/{usuarioId}               │ Seguir                     │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │ DELETE /v1/seguindo/{usuarioId}            │ Deixar de seguir           │
+  └────────────────────────────────────────────┴────────────────────────────┘
+
+  Regras
+  - Idempotência: curtir, descurtir, seguir e deixar de seguir podem ser
+    repetidos sem efeito. A corrida de oito curtidas simultâneas da mesma pessoa
+    vira uma curtida, decidida pela chave da tabela.
+  - Quem curte e comenta: aluno (ex-aluno inclusive) e professor. A instituição
+    recebe 403 interacao-nao-permitida.
+  - Post removido ou inexistente: 404 para curtir, comentar e listar
+    comentários.
+  - Remoção de comentário: os mesmos dois modos aprovados para o post. O autor
+    apaga de verdade; a instituição remove, gravando quem e quando. O dono do
+    post e o professor recebem 403.
+  - Comentário pelo caminho de outro post: 404.
+  - Post apagado pelo autor: leva curtidas e comentários junto, por cascata no
+    post.
+  - Seguir (D9):
+    - aluno segue aluno, ativo ou ex-aluno;
+    - professor segue só aluno matriculado numa turma dele no semestre vigente.
+      Isso é checado no banco por uma pergunta nova do escopo de turma,
+      ProfessorEnsinaAlunoAsync;
+    - passado o semestre, o seguimento continua, deixar de seguir vale, e seguir
+      alguém novo não;
+    - ninguém segue professor, a instituição ou a si mesmo, e a instituição não
+      segue ninguém.
+  - Post lido: ganhou curtidas, comentarios (só os não removidos) e curtiu, de
+    quem lê. São só campos novos.
+
+  Paginação, reaproveitada no feed e no perfil
+  - O cursor é opaco, base64url do instante com o id. Cursor adulterado recebe
+    400 cursor-invalido.
+  - A comparação é a de linha do Postgres, (criado_em, id) > (…), que anda pelo
+    índice (post_id, criado_em, id).
+  - Evitei comparar Guid no .NET de propósito: a ordem dele não é a do uuid no
+    Postgres, e a paginação poderia pular ou repetir item.
+  - Um teste com 45 comentários no mesmo instante (o relógio do teste fica
+    parado) prova páginas de 20, 20 e 5, sem repetir e sem pular.
+
+  Banco, purga e cliente
+  - Migration Social: tabelas curtida, comentario e seguimento.
+  - Purga: curtida, comentario e seguimento entraram no SQL antes de post. O
+    teste da purga ganhou interações cruzadas entre a aluna do lote e a de outro
+    lote; falhou sem as linhas e passou com elas.
+  - Códigos: sete códigos sociais e cursor-invalido em arquivos Codigos*.cs
+    próprios, com mensagem no erros.ts. O teste do app agora conta 6 arquivos.
+  - OpenAPI e cliente regenerados, sem diferença.
+
+  Testes, todos passando
+  - 14 testes novos de domínio, 31 no namespace Social.
+  - 16 testes de integração novos.
+  - Bateria completa: 698 testes da API, 317 do app, formatação, build sem
+    aviso, lint, typecheck e verificar limpos.
+
+  Dois pontos para você confirmar
+  1. Ordem dos comentários: do mais antigo ao mais novo, como no Instagram. A D5
+     não fixava isso.
+  2. Conta de professor e instituição: segue os alunos dela como professora, e
+     curte e comenta normalmente. A conta só de instituição não faz nada disso.
+
+  Commit proposto: feat(api): adiciona curtida, comentário e seguir
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 5, o feed.
+
+✻ Worked for 11m 23s · done 22:59
