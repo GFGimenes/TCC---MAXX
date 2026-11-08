@@ -1926,3 +1926,1097 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
   para a etapa 3.
 
 ✻ Worked for 12m 34s · done 22:26
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Etapa 2 aprovada, com um ajuste neste commit: acrescenta upload_pendente ao   
+  SQL da purga no README de decisões agora, e o teste da purga passa a criar um 
+  upload para o usuário do lote, para o documento não ficar errado até a etapa  
+  11; as outras tabelas do passo entram na purga nas etapas em que nascerem. A  
+  migration na minha base local entra no próximo compose up, sem problema.      
+  Commita com a mensagem proposta, push, acompanha a CI e segue para a etapa 3; 
+  para para a minha revisão no fim dela.                                        
+
+● Vou achar o teste da purga e o SQL no README.
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Crio os uploads direto pelo domínio, um para a Ana (do lote) e outro para a
+  Carla (de outro lote). Não preciso do bucket: a purga só mexe nas linhas.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/DemonstracaoTests.cs
+      && cat > /tm…)
+  ⎿      0 Erro(s)
+       Xunit.MicrosoftTestingPlatform.XunitException: Npgsql.PostgresExcept
+     ion : 23001: update or delete on table "usuario" violates RESTRICT set
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+15 -1)
+      11  using Maxx.Application;
+      12  using Maxx.Application.Medalhas;
+      13  using Maxx.Domain.Academico;
+      14 +using Maxx.Domain.Fotos;                                       
+      15  using Maxx.Domain.Identidade;
+      16  using Maxx.Domain.Notificacoes;
+      17  using Maxx.Domain.Premios;
+     ...
+      300  
+      301      // O SQL é o do README das decisões, o que será rodado dep
+           ois da apresentação.
+      302      [Fact]
+      302 -    public async Task A_purga_do_readme_apaga_o_lote_com_aceit
+          -es_e_medalhas_e_mantem_o_termo_e_o_que_nao_e_do_lote()        
+      303 +    public async Task A_purga_do_readme_apaga_o_lote_com_aceit
+          +es_medalhas_e_uploads_e_mantem_o_termo_e_o_que_nao_e_do_lote()
+      304      {
+      305          await using var factory = await MundoAsync();
+      306          using var client = factory.CreateClient();
+     ...
+      345              await scope.ServiceProvider.GetRequiredService<Con
+           cederMedalhaHandler>().ConcederAsync(contaDaRenata.Id, turma, 
+           aluno.Id, "M03", Ct);
+      346          }
+      347  
+      348 +        // Um upload de foto pendente para cada um dos dois: a
+          + linha segura o usuário, sem                                  
+      349 +        // cascata. Os objetos do bucket não entram aqui: a pu
+          +rga é só do banco.                                            
+      350 +        foreach (var nome in new[] { "Ana Paula", "Carla Dias"
+          + })                                                           
+      351 +        {                                                     
+      352 +            await using var scope = factory.Services.CreateAsy
+          +ncScope();                                                    
+      353 +            var aluno = await scope.ServiceProvider.GetRequire
+          +dService<MaxxDbContext>().Set<Usuario>()                      
+      354 +                .SingleAsync(usuario => usuario.NomeDeExibicao
+          + == nome, Ct);                                                
+      355 +            await SalvarAsync(                                
+      356 +                factory,                                      
+      357 +                UploadPendente.Pedir(aluno, FinalidadeDoUpload
+          +.FotoDePerfil, "image/jpeg", 1000, 1000, DateTimeOffset.UtcNow
+          +).Upload!);                                                   
+      358 +        }                                                     
+      359 +                                                              
+      360          // O worker grava as notificações de medalha recebida,
+            que a purga também leva.
+      361          var consumidor = factory.Services.GetRequiredService<C
+           onsumidorDeTrabalhos>();
+      362          while (await consumidor.ProcessarProximoAsync(Ct))
+     ...
+      381          Assert.Equal(restante.Id, (await db.Set<AceiteDeTermo>
+           ().SingleAsync(Ct)).UsuarioId);
+      382          Assert.Equal(restante.Id, (await db.Set<Medalha>().Sin
+           gleAsync(Ct)).AlunoId);
+      383          Assert.Equal(restante.Id, (await db.Set<Notificacao>()
+           .SingleAsync(Ct)).UsuarioId);
+      384 +        Assert.Equal(restante.Id, (await db.Set<UploadPendente
+          +>().SingleAsync(Ct)).UsuarioId);                              
+      385          Assert.Equal(1, await db.Set<CadastroElegivel>().Count
+           Async(cadastro => cadastro.Papeis == Papeis.Aluno, Ct));
+      386          Assert.Equal(1, await db.Set<TermoDeUso>().CountAsync(
+           Ct));
+      387      }
+  ⎿  (timeout 10m)
+
+● O teste falha pelo motivo certo: a chave estrangeira sem cascata barra a
+  purga. Agora acrescento a linha no SQL do README.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM
+      alvo);|&\nDELETE…)
+  ⎿  ```sql
+     BEGIN;
+     CREATE TEMP TABLE alvo ON COMMIT DROP AS
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+1 -0)
+      126  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      127  DELETE FROM notificacao WHERE usuario_id IN (SELECT usuario_id
+            FROM alvo);
+      128  DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM 
+           alvo);
+      129 +DELETE FROM upload_pendente WHERE usuario_id IN (SELECT usuari
+          +o_id FROM alvo);                                              
+      130  DELETE FROM usuario WHERE id IN (SELECT usuario_id FROM alvo);
+      131  DELETE FROM matricula WHERE aluno_id IN (SELECT cadastro_id FR
+           OM alvo);
+      132  DELETE FROM cadastro_elegivel WHERE id IN (SELECT cadastro_id 
+           FROM alvo) AND demonstracao;
+  ⎿  (timeout 10m)
+
+● A purga passa, e acrescento uma frase no documento a dizer que os objetos do
+  bucket não saem por esse SQL, para não dar a impressão de que a purga das
+  fotos está completa. Depois faço a formatação e o commit.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^de `usuario`.$|de `usuario`. As fotos no bucket não saem por
+      este SQL, que só…)
+  ⎿  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefixos reser
+     vados, os aceites do
+     termo e os refresh saem em cascata com o usuário e a família. A lista
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+2 -1)
+      136  Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+           os reservados, os aceites do
+      137  termo e os refresh saem em cascata com o usuário e a família. 
+           A lista cresce com os passos que gravam dados
+      138  do aluno (posts, curtidas, prêmios, pontos): cada um acrescent
+           a aqui a tabela dele, antes
+      139 -de `usuario`.                                                 
+      139 +de `usuario`. As fotos no bucket não saem por este SQL, que só
+          + alcança o banco: saem na purga                               
+      140 +pela área web da instituição, no passo 12.                    
+      141  
+      142  ## Cliente
+      143  
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 2 roda em segundo plano. Enquanto isso começo a etapa 3, o post.
+  Leio a anulação (que precisa da regra D6), o arroba e a consulta de prêmios,
+  que tem tier e raridade.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Desenho fechado; escrevo agora o domínio do post. Uma escolha de implementação
+  ficará no relatório para sua revisão: o autor apaga de fato, e a instituição
+  remove logicamente, registrando quem e quando.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Domain" &&
+      grep -n "EstaAtiva\|public bool Anular" Premios/Medalha.cs | hea…)
+  ⎿  85:    public bool EstaAtiva => AnuladaEm is null;
+     164:            .Where(medalha => medalha.EstaAtiva && medalha.Materia
+     Id == turma.MateriaId)
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Fotos\UploadPendente.cs (+12 -0)
+      74  
+      75      public IReadOnlyList<string> Chaves => [ChaveDoFeed, ChaveD
+          aGrade];
+      76  
+      77 +    // Quem usa a foto confirma, e a limpeza da fila passa a de
+         +ixá-la em paz. Uma vez só: a                                   
+      78 +    // mesma foto não vira dois posts.                         
+      79 +    internal void Confirmar(DateTimeOffset agora)              
+      80 +    {                                                          
+      81 +        if (EstaConfirmado)                                    
+      82 +        {                                                      
+      83 +            throw new DomainException($"O upload {Id} já foi us
+         +ado.");                                                        
+      84 +        }                                                      
+      85 +                                                               
+      86 +        ConfirmadoEm = agora;                                  
+      87 +    }                                                          
+      88 +                                                               
+      89      // Recusa em vez de exceção: a borda responde com o código 
+          de cada caso. O tipo é
+      90      // comparado como o HTTP compara, sem diferenciar maiúscula
+          s, e gravado na forma canônica,
+      91      // que é a que vai presa na assinatura.
+
+● Write(apps\api\src\Maxx.Domain\Social\Post.cs)
+  ⎿  Wrote 188 lines to apps\api\src\Maxx.Domain\Social\Post.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Fotos;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Domain.Premios;
+       5 
+       6 namespace Maxx.Domain.Social;
+       7 
+       8 // O post do feed (produto.md 6.1): ao menos um entre prêmio, fo
+         to e legenda. Um prêmio
+       9 // rende um post. Só aluno ativo publica; o ex-aluno mantém os q
+     … +180 lines (~6 KB) (ctrl+o to expand)
+
+● Agora os testes de domínio do post.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Social\PostTests.cs)
+  ⎿  Wrote 210 lines to
+     apps\api\tests\Maxx.Domain.Tests\Social\PostTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Fotos;
+      3 using Maxx.Domain.Identidade;
+      4 using Maxx.Domain.Premios;
+      5 using Maxx.Domain.Social;
+      6 using Maxx.Domain.Tests.Academico;
+      7 using Maxx.Domain.Tests.Catalogo;
+      8 
+      9 namespace Maxx.Domain.Tests.Social;
+     … +201 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 17 testes de domínio do post passam. Agora a Application: códigos,
+  repositório, consulta, publicação, remoção e o trabalho que remove as fotos.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O heredoc quebrou no shell. Escrevo os arquivos com a ferramenta de escrita.
+
+● Write(apps\api\src\Maxx.Application\Posts\CodigosDoPost.cs)  ⎿  Wrote 35 lines to apps\api\src\Maxx.Application\Posts\CodigosDoPost.cs
+      1 namespace Maxx.Application.Posts;
+      2 
+      3 // Os códigos de recusa do post, como o cliente os recebe em Prob
+        lemDetails.
+      4 public static class CodigosDoPost
+      5 {
+      6     // Sem prêmio, sem foto e sem legenda (produto.md 6.1).
+      7     public const string PostVazio = "post-vazio";
+      8 
+      9     public const string LegendaLonga = "legenda-longa";
+     … +26 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Posts\Posts.cs)
+  ⎿  Wrote 200 lines to apps\api\src\Maxx.Application\Posts\Posts.cs
+      1 using Maxx.Application.Autenticacao;
+      2 using Maxx.Application.Fila;
+      3 using Maxx.Application.Fotos;
+      4 using Maxx.Application.Medalhas;
+      5 using Maxx.Application.Premios;
+      6 using Maxx.Domain.Catalogo;
+      7 using Maxx.Domain.Fotos;
+      8 using Maxx.Domain.Premios;
+      9 using Maxx.Domain.Social;
+     … +191 lines (ctrl+o to expand)
+
+● Agora o trabalho que remove fotos, a unicidade nova e a regra D6 na anulação.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && printf '%s\n' '' \
+      '// Fotos que já foram usadas e deixaram…)
+  ⎿  81:    PostPorPremio,
+         {
+             ArgumentNullException.ThrowIfNull(carga);
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Fotos\Uploads.cs (+17 -0)
+       99          await armazenamento.RemoverAsync(upload.Chaves, cancel
+           lationToken);
+      100      }
+      101  }
+      102 +                                                              
+      103 +// Fotos que já foram usadas e deixaram de ser: post apagado o
+          +u removido, foto de perfil                                    
+      104 +// trocada. As chaves não são segredo, só endereço.           
+      105 +public sealed record RemoverFotos(IReadOnlyList<string> Chaves
+          +) : ICargaDeTrabalho                                          
+      106 +{                                                             
+      107 +    public static string Tipo => "remover-fotos";             
+      108 +}                                                             
+      109 +                                                              
+      110 +// No worker. Remover chave que já não existe não é erro: o tr
+          +abalho pode rodar de novo.                                    
+      111 +public sealed class RemoverFotosHandler(IArmazenamentoDeFotos 
+          +armazenamento) : ITrabalhoHandler<RemoverFotos>               
+      112 +{                                                             
+      113 +    public async Task ExecutarAsync(RemoverFotos carga, Cancel
+          +lationToken cancellationToken)                                
+      114 +    {                                                         
+      115 +        ArgumentNullException.ThrowIfNull(carga);             
+      116 +        await armazenamento.RemoverAsync(carga.Chaves, cancell
+          +ationToken);                                                  
+      117 +    }                                                         
+      118 +}                                                             
+  ⎿  Updated apps\api\src\Maxx.Application\Recusa.cs (+3 -0)
+      76  
+      77      // Duas medalhas ativas com a mesma chave de deduplicação: 
+          a mesma vaga do período.
+      78      MedalhaAtiva,
+      79 +                                                               
+      80 +    // Dois posts não removidos para o mesmo prêmio: um prêmio 
+         +rende um post.                                                 
+      81 +    PostPorPremio,                                             
+      82  }
+      83  
+      84  // Gravação recusada porque a linha mudou desde a leitura (xmin
+          ): outro pedido chegou
+
+● Agora aplico a regra D6 à anulação: post só com o prêmio é apagado, e os que
+  têm foto ou legenda apenas perdem o vínculo. Posts já removidos pela
+  instituição ficam como estão.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && f=Medalhas/AnularMedalhaHandler.cs && sed -i 's|^using Maxx…)
+  ⎿  // público e sem averiguação. Na fase 1, por comando administrativo, a
+     té a área web do
+     // passo 12. Grava quem anulou e quando e enfileira o recálculo de rar
+     … +40 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\AnularMedalhaHandler.cs
+     (+24 -1)
+      1  using Maxx.Application.Autenticacao;
+      2  using Maxx.Application.Fila;
+      3 +using Maxx.Application.Posts;                                   
+      4  using Maxx.Domain.Academico;
+      5  
+      6  namespace Maxx.Application.Medalhas;
+     ...
+       8  // Anulação de medalha pela instituição (produto.md 4.8): ato a
+          dministrativo, sem motivo
+       9  // público e sem averiguação. Na fase 1, por comando administra
+          tivo, até a área web do
+      10  // passo 12. Grava quem anulou e quando e enfileira o recálculo
+           de raridade, na mesma
+      10 -// transação; a reavaliação das conquistas chega no passo 9, e 
+         -o ranking no 11.                                               
+      11 +// transação; a reavaliação das conquistas chega no passo 9, e 
+         +o ranking no 11. O post da                                     
+      12 +// medalha perde o vínculo e fica como post comum; o que era só
+         + a medalha é apagado, porque                                   
+      13 +// post vazio não existe (decisão do passo 7).                 
+      14  public sealed class AnularMedalhaHandler(
+      15      IUsuarioRepository usuarios,
+      16      IMedalhaRepository medalhas,
+      17 +    IPostRepository posts,                                     
+      18      IFilaDeTrabalhos fila,
+      19      IUnitOfWork unitOfWork,
+      20      TimeProvider relogio)
+     ...
+      54              return false;
+      55          }
+      56  
+      57 +        // O removido pela instituição fica como está: some par
+         +a todos de qualquer jeito, e                                   
+      58 +        // apagá-lo perderia quem removeu e quando.            
+      59 +        foreach (var post in await posts.DoPremioAsync(medalha.
+         +Id, cancellationToken))                                        
+      60 +        {                                                      
+      61 +            if (post.EstaRemovido)                             
+      62 +            {                                                  
+      63 +                continue;                                      
+      64 +            }                                                  
+      65 +                                                               
+      66 +            if (post.FicariaVazioSemPremio)                    
+      67 +            {                                                  
+      68 +                posts.Apagar(post);                            
+      69 +            }                                                  
+      70 +            else                                               
+      71 +            {                                                  
+      72 +                post.DesvincularPremio();                      
+      73 +            }                                                  
+     … 5 more lines (ctrl+o to expand)
+
+● Agora a Infrastructure do post: mapeamento, repositório e consulta.
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PostConfigur
+       ation.cs)
+  ⎿  Wrote 54 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\PostConfiguration.cs
+       1 using Maxx.Domain.Identidade;
+       2 using Maxx.Domain.Premios;
+       3 using Maxx.Domain.Social;
+       4 using Microsoft.EntityFrameworkCore;
+       5 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       6 
+       7 namespace Maxx.Infrastructure.Persistence.Configurations;
+       8 
+       9 // O post (produto.md 6.1). As regras de forma do domínio repeti
+         das no banco, como última
+     … +45 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs)
+  ⎿  Wrote 115 lines to
+     apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs
+       1 using Maxx.Application.Posts;
+       2 using Maxx.Application.Premios;
+       3 using Maxx.Domain.Academico;
+       4 using Maxx.Domain.Catalogo;
+       5 using Maxx.Domain.Identidade;
+       6 using Maxx.Domain.Premios;
+       7 using Maxx.Domain.Social;
+       8 using Maxx.Infrastructure.Persistence;
+       9 using Maxx.Infrastructure.RaridadeDosItens;
+      10 using Maxx.Infrastructure.Seed;
+     … +105 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && grep -n "enum TipoDeItem" -A5
+      ../Maxx.Domain/Catalogo/En…)
+  ⎿  3:public enum TipoDeItem
+     4-{
+     5-    Medalha,
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+5 
+     -0)
+       7  using Maxx.Application.Fotos;
+       8  using Maxx.Application.Medalhas;
+       9  using Maxx.Application.Notificacoes;
+      10 +using Maxx.Application.Posts;                                  
+      11  using Maxx.Application.Premios;
+      12  using Maxx.Infrastructure.Autenticacao;
+      13  using Maxx.Infrastructure.Autorizacao;
+     ...
+      18  using Maxx.Infrastructure.Medalhas;
+      19  using Maxx.Infrastructure.Notificacoes;
+      20  using Maxx.Infrastructure.Persistence;
+      21 +using Maxx.Infrastructure.Posts;                               
+      22  using Maxx.Infrastructure.Premios;
+      23  using Maxx.Infrastructure.RaridadeDosItens;
+      24  using Maxx.Infrastructure.Seed;
+     ...
+      62          // fora de desenvolvimento.
+      63          services.AddSingleton<IArmazenamentoDeFotos, Armazename
+          ntoS3>();
+      64          services.AddScoped<IUploadPendenteRepository, UploadPen
+          denteRepository>();
+      65 +        services.AddScoped<IPostRepository, PostRepository>(); 
+      66 +        services.AddScoped<IConsultaDePosts, ConsultaDePosts>()
+         +;                                                              
+      67  
+      68          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      69          services.AddOptions<FilaOptions>();
+     ...
+      78          services.AddTrabalho<NotificarMedalhaRecebida, Notifica
+          rMedalhaRecebidaHandler>();
+      79          services.AddTrabalho<RecalcularRaridade, RecalculoDeRar
+          idade>();
+      80          services.AddTrabalho<LimparUploadAbandonado, LimparUplo
+          adAbandonadoHandler>();
+      81 +        services.AddTrabalho<RemoverFotos, RemoverFotosHandler>
+         +();                                                            
+      82  
+      83          // Toda verificação registrada aqui entra no /ready.
+      84          services.AddHealthChecks()
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs (+1
+     -0)
+      13          ["ix_usuario_cadastro_elegivel_id"] = Unicidade.ContaPo
+          rCadastro,
+      14          ["pk_prefixo_reservado"] = Unicidade.Prefixo,
+      15          ["ix_medalha_chave_ativa"] = Unicidade.MedalhaAtiva,
+      16 +        ["ix_post_medalha_ativa"] = Unicidade.PostPorPremio,   
+      17      };
+      18  
+      19      public async Task SalvarAsync(CancellationToken cancellatio
+          nToken)
+
+● Agora as rotas do post na API.
+
+● Write(apps\api\src\Maxx.Api\Posts\PostEndpoints.cs)
+  ⎿  Wrote 127 lines to apps\api\src\Maxx.Api\Posts\PostEndpoints.cs
+      1 using System.ComponentModel.DataAnnotations;
+      2 using System.Security.Claims;
+      3 using Maxx.Api.Autenticacao;
+      4 using Maxx.Api.Medalhas;
+      5 using Maxx.Api.Premios;
+      6 using Maxx.Application;
+      7 using Maxx.Application.Fotos;
+      8 using Maxx.Application.Posts;
+      9 using Microsoft.AspNetCore.Http.HttpResults;
+     … +118 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Program.cs && sed -i
+      's|^builder.Services.AddScoped<Maxx.Applicat…)
+  ⎿  11:using Maxx.Api.Posts;
+     28:// `Maxx.Api worker` consome a fila de trabalhos do Postgres (ADR 0
+     008), sem servidor HTTP.
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+4 -0)
+       8  using Maxx.Api.LimiteDeTaxa;
+       9  using Maxx.Api.Medalhas;
+      10  using Maxx.Api.OpenApi;
+      11 +using Maxx.Api.Posts;                                          
+      12  using Maxx.Api.Premios;
+      13  using Maxx.Infrastructure;
+      14  using Maxx.Infrastructure.Fila;
+     ...
+      88  builder.Services.AddScoped<Maxx.Application.Medalhas.ConcederMe
+          dalhaHandler>();
+      89  builder.Services.AddScoped<Maxx.Application.Medalhas.AnularMeda
+          lhaHandler>();
+      90  builder.Services.AddScoped<Maxx.Application.Fotos.PedirUploadHa
+          ndler>();
+      91 +builder.Services.AddScoped<Maxx.Application.Posts.PublicarPostH
+         +andler>();                                                     
+      92 +builder.Services.AddScoped<Maxx.Application.Posts.RemoverPostHa
+         +ndler>();                                                      
+      93  
+      94  var app = builder.Build();
+      95  
+     ...
+      154  v1.MapProfessorEndpoints();
+      155  v1.MapPremiosEndpoints();
+      156  v1.MapUploadEndpoints();
+      157 +v1.MapPostEndpoints();                                        
+      158  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      159  if (demonstracao)
+      160  {
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Infrastructure/Posts/PostRepository.cs && sed -i
+      's|NomeJson.TentarLe…)
+  ⎿      0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs (+2 
+     -2)
+      106                  medalha.Nome,
+      107                  medalha.Tier,
+      108                  medalha.Pontos,
+      109 -                medalha.Raridade is { } nivel && NomeJson.Tent
+          -arLer<Raridade>(nivel, out var raridade)                      
+      110 -                    ? new RaridadeAtual(raridade, medalha.Alun
+          -osComItem, medalha.AlunosElegiveis)                           
+      109 +                medalha.Raridade is { } nivel && NomeJson.Tent
+          +arLer<Raridade>(nivel, out var lida)                          
+      110 +                    ? new RaridadeAtual(lida, medalha.AlunosCo
+          +mItem, medalha.AlunosElegiveis)                               
+      111                      : null,
+      112                  medalha.Materia,
+      113                  medalha.Numero);
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet ef migrations add Post --project apps/api/src/Maxx.Infrastructure
+      --output-dir Per…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+     15:                name: "post",
+     32:                    table.CheckConstraint("ck_post_foto_completa",
+     … +17 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08013756_Post.cs (+81 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class Post : Migration                      
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "post",                                  
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    id = table.Column<Guid>(type: "uuid", nulla
+         +ble: false),                                                   
+      19 +                    autor_id = table.Column<Guid>(type: "uuid",
+         + nullable: false),                                             
+      20 +                    legenda = table.Column<string>(type: "text"
+         +, nullable: true),                                             
+      21 +                    chave_da_foto_do_feed = table.Column<string
+         +>(type: "text", nullable: true),                               
+      22 +                    chave_da_foto_da_grade = table.Column<strin
+         +g>(type: "text", nullable: true),                              
+      23 +                    medalha_id = table.Column<Guid>(type: "uuid
+         +", nullable: true),                                            
+      24 +                    criado_em = table.Column<DateTimeOffset>(ty
+         +pe: "timestamp with time zone", nullable: false),              
+      25 +                    removido_em = table.Column<DateTimeOffset>(
+         +type: "timestamp with time zone", nullable: true),             
+      26 +                    removido_por_id = table.Column<Guid>(type: 
+         +"uuid", nullable: true),                                       
+      27 +                    xmin = table.Column<uint>(type: "xid", rowV
+         +ersion: true, nullable: false)                                 
+      28 +                },                                             
+      29 +                constraints: table =>                          
+      30 +                {                                              
+      31 +                    table.PrimaryKey("pk_post", x => x.id);    
+      32 +                    table.CheckConstraint("ck_post_foto_complet
+         +a", "(chave_da_foto_do_feed IS NULL) = (chave_da_foto_da_grade 
+         +IS NULL)");                                                    
+      33 +                    table.CheckConstraint("ck_post_nao_vazio", 
+         +"legenda IS NOT NULL OR chave_da_foto_do_feed IS NOT NULL OR me
+         +dalha_id IS NOT NULL");                                        
+      34 +                    table.CheckConstraint("ck_post_remocao", "(
+         +removido_em IS NULL) = (removido_por_id IS NULL)");            
+      35 +                    table.ForeignKey(                          
+      36 +                        name: "fk_post_medalha_medalha_id",    
+      37 +                        column: x => x.medalha_id,             
+      38 +                        principalTable: "medalha",             
+      39 +                        principalColumn: "id",                 
+      40 +                        onDelete: ReferentialAction.Restrict); 
+     … 41 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+91 -0)
+      841                          });
+      842                  });
+      843  
+      844 +            modelBuilder.Entity("Maxx.Domain.Social.Post", b =
+          +>                                                             
+      845 +                {                                             
+      846 +                    b.Property<Guid>("Id")                    
+      847 +                        .HasColumnType("uuid")                
+      848 +                        .HasColumnName("id");                 
+      849 +                                                              
+      850 +                    b.Property<Guid>("AutorId")               
+      851 +                        .HasColumnType("uuid")                
+      852 +                        .HasColumnName("autor_id");           
+      853 +                                                              
+      854 +                    b.Property<string>("ChaveDaFotoDaGrade")  
+      855 +                        .HasColumnType("text")                
+      856 +                        .HasColumnName("chave_da_foto_da_grade
+          +");                                                           
+      857 +                                                              
+      858 +                    b.Property<string>("ChaveDaFotoDoFeed")   
+      859 +                        .HasColumnType("text")                
+      860 +                        .HasColumnName("chave_da_foto_do_feed"
+          +);                                                            
+      861 +                                                              
+      862 +                    b.Property<DateTimeOffset>("CriadoEm")    
+      863 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      864 +                        .HasColumnName("criado_em");          
+      865 +                                                              
+      866 +                    b.Property<string>("Legenda")             
+      867 +                        .HasColumnType("text")                
+      868 +                        .HasColumnName("legenda");            
+      869 +                                                              
+      870 +                    b.Property<Guid?>("MedalhaId")            
+      871 +                        .HasColumnType("uuid")                
+      872 +                        .HasColumnName("medalha_id");         
+      873 +                                                              
+      874 +                    b.Property<DateTimeOffset?>("RemovidoEm") 
+      875 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      876 +                        .HasColumnName("removido_em");        
+      877 +                                                              
+      878 +                    b.Property<Guid?>("RemovidoPorId")        
+      879 +                        .HasColumnType("uuid")                
+      880 +                        .HasColumnName("removido_por_id");    
+     … 63 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 10m)
+
+● A migração correu como previsto. Os testes de post, curtida, seguir, feed e
+  perfil precisam dos mesmos dados base, por isso vou criar um auxiliar
+  compartilhado, MundoSocial.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Social\MundoSocial.cs)
+  ⎿  Wrote 209 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Social\MundoSocial.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using System.Text.Json;
+       5 using Maxx.Api.Autenticacao;
+       6 using Maxx.Api.Fotos;
+       7 using Maxx.Api.IntegrationTests.Fotos;
+       8 using Maxx.Api.IntegrationTests.Medalhas;
+       9 using Maxx.Application.Fotos;
+      10 using Maxx.Application.Medalhas;
+     … +199 lines (ctrl+o to expand)
+
+● Agora os testes de integração do post.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Social\PostTests.cs)
+  ⎿  Wrote 291 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Social\PostTests.cs
+      1 using System.Net;
+      2 using System.Net.Http.Json;
+      3 using Maxx.Api.IntegrationTests.Fotos;
+      4 using Maxx.Api.Posts;
+      5 using Maxx.Application.Fotos;
+      6 using Maxx.Domain.Fotos;
+      7 using Maxx.Domain.Social;
+      8 using Maxx.Infrastructure.Fila;
+      9 using static Maxx.Api.IntegrationTests.Social.MundoSocial;
+     … +282 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 17 testes de post passam. Agora a purga: a tabela post entra no SQL antes
+  de medalha (o post referencia a medalha), e o teste da purga ganha um post com
+  a medalha da Ana e outro da Carla.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet build Maxx.sln -c Release 2>&1 | grep -E "Aviso\(s\)|Erro\(s\)";
+      f=apps/api/tests/…)
+  ⎿      0 Aviso(s)
+         0 Erro(s)
+     1:using System.Net;
+     … +23 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+13 -1)
+      15  using Maxx.Domain.Identidade;
+      16  using Maxx.Domain.Notificacoes;
+      17  using Maxx.Domain.Premios;
+      18 +using Maxx.Domain.Social;                                      
+      19  using Maxx.Infrastructure.Fila;
+      20  using Maxx.Infrastructure.Persistence;
+      21  using Microsoft.EntityFrameworkCore;
+     ...
+      301  
+      302      // O SQL é o do README das decisões, o que será rodado dep
+           ois da apresentação.
+      303      [Fact]
+      303 -    public async Task A_purga_do_readme_apaga_o_lote_com_aceit
+          -es_medalhas_e_uploads_e_mantem_o_termo_e_o_que_nao_e_do_lote()
+      304 +    public async Task A_purga_do_readme_apaga_o_lote_com_aceit
+          +es_medalhas_uploads_e_posts_e_mantem_o_termo_e_o_que_nao_e_do_
+          +lote()                                                        
+      305      {
+      306          await using var factory = await MundoAsync();
+      307          using var client = factory.CreateClient();
+     ...
+      358                  UploadPendente.Pedir(aluno, FinalidadeDoUpload
+           .FotoDePerfil, "image/jpeg", 1000, 1000, DateTimeOffset.UtcNow
+           ).Upload!);
+      359          }
+      360  
+      361 +        // Um post com a medalha de cada um dos dois: o post s
+          +egura o autor e a medalha.                                    
+      362 +        foreach (var nome in new[] { "Ana Paula", "Carla Dias"
+          + })                                                           
+      363 +        {                                                     
+      364 +            await using var scope = factory.Services.CreateAsy
+          +ncScope();                                                    
+      365 +            var banco = scope.ServiceProvider.GetRequiredServi
+          +ce<MaxxDbContext>();                                          
+      366 +            var aluno = await banco.Set<Usuario>().SingleAsync
+          +(usuario => usuario.NomeDeExibicao == nome, Ct);              
+      367 +            var medalha = await banco.Set<Medalha>().SingleAsy
+          +nc(linha => linha.AlunoId == aluno.Id, Ct);                   
+      368 +            await SalvarAsync(factory, Post.Publicar(aluno, "N
+          +ota 10!", null, medalha, DateTimeOffset.UtcNow).Post!);       
+      369 +        }                                                     
+      370 +                                                              
+      371          // O worker grava as notificações de medalha recebida,
+            que a purga também leva.
+      372          var consumidor = factory.Services.GetRequiredService<C
+           onsumidorDeTrabalhos>();
+      373          while (await consumidor.ProcessarProximoAsync(Ct))
+     ...
+      393          Assert.Equal(restante.Id, (await db.Set<Medalha>().Sin
+           gleAsync(Ct)).AlunoId);
+      394          Assert.Equal(restante.Id, (await db.Set<Notificacao>()
+           .SingleAsync(Ct)).UsuarioId);
+      395          Assert.Equal(restante.Id, (await db.Set<UploadPendente
+           >().SingleAsync(Ct)).UsuarioId);
+      396 +        Assert.Equal(restante.Id, (await db.Set<Post>().Single
+          +Async(Ct)).AutorId);                                          
+      397          Assert.Equal(1, await db.Set<CadastroElegivel>().Count
+           Async(cadastro => cadastro.Papeis == Papeis.Aluno, Ct));
+      398          Assert.Equal(1, await db.Set<TermoDeUso>().CountAsync(
+           Ct));
+      399      }
+  ⎿  (timeout 10m)
+
+● Vermelho pelo motivo certo. Acrescento a linha no SQL.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM
+      alvo);|DELETE FR…)
+  ⎿  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario_id FROM
+      alvo);
+     DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usuario_id F
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+1 -0)
+      125  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario
+           _id FROM alvo);
+      126  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      127  DELETE FROM notificacao WHERE usuario_id IN (SELECT usuario_id
+            FROM alvo);
+      128 +DELETE FROM post WHERE autor_id IN (SELECT usuario_id FROM alv
+          +o);                                                           
+      129  DELETE FROM medalha WHERE aluno_id IN (SELECT usuario_id FROM 
+           alvo);
+      130  DELETE FROM upload_pendente WHERE usuario_id IN (SELECT usuari
+           o_id FROM alvo);
+      131  DELETE FROM usuario WHERE id IN (SELECT usuario_id FROM alvo);
+  ⎿  (timeout 10m)
+
+● A purga passa. Agora a D6 e a regra do prêmio revogado no produto.md, sem
+  travessões.
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/produto.md && sed -i 's|^permanece como post comum; o aluno apaga
+      se quiser. Em av…)
+  ⎿  diff --git a/docs/produto.md b/docs/produto.md
+     index d3d686d..2b60acd 100644
+     --- a/docs/produto.md
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated docs\produto.md (+6 -2)
+      328    comprovação. Nunca concede medalha.
+      329  
+      330  Quando um prêmio é reprovado ou revogado, o post perde o víncu
+           lo com o prêmio e
+      331 -permanece como post comum; o aluno apaga se quiser. Em averigu
+          -ação, o post continua                                         
+      331 +permanece como post comum; o aluno apaga se quiser. Se o post 
+          +era só o prêmio, sem foto e                                   
+      332 +sem legenda (como na concessão direta pela instituição), ele é
+          + apagado, porque post vazio                                   
+      333 +não existe. Em averiguação, o post continua                   
+      334  visível, sem exibir pontos nem tier.
+      335  
+      336  ### 4.8 Medalha: concessão e anulação
+     ...
+      349  Medalha não é contestável e não é revogável. A instituição pod
+           e **anular** uma medalha:
+      350  é ato administrativo, sem motivo público e sem passar por aver
+           iguação, para corrigir
+      351  erro de concessão ou nota revista. A anulação recalcula as con
+           quistas que dependiam
+      350 -daquela medalha.                                              
+      352 +daquela medalha. O post da medalha anulada perde o vínculo e f
+          +ica como post comum; se ele era                               
+      353 +só a medalha, sem foto e sem legenda, é apagado, porque post v
+          +azio não existe. O post que a                                 
+      354 +instituição já tinha removido fica como estava.               
+      355  
+      356  ### 4.9 Conquistas
+      357  
+
+● Agora as mensagens dos onze códigos do post no app, a regeneração do cliente e
+  a bateria completa.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/mobile/src/api/erros.ts && sed -i 's|^  "tamanho-de-foto-invalido":
+      "Essa foto fic…)
+  ⎿  Tests:       6 passed, 6 total
+     All matched files use Prettier code style!
+  ⎿  Updated apps\mobile\src\api\erros.test.ts (+2 -1)
+      42    it("todo código que a API manda tem mensagem própria", () => 
+          {
+      43      const daApi = codigosDaApi();
+      44  
+      45 -    expect(arquivosDeCodigos()).toHaveLength(3);               
+      45 +    expect(arquivosDeCodigos()).toHaveLength(4);               
+      46      expect(daApi).toEqual(
+      47        expect.arrayContaining([
+      48          "registro-simultaneo",
+      49          "limite-atingido",
+      50          "tamanho-de-foto-invalido",
+      51 +        "premio-ja-postado",                                   
+      52          "dados-invalidos",
+      53        ]),
+      54      );
+  ⎿  Updated apps\mobile\src\api\erros.ts (+12 -0)
+      37    "envio-nao-permitido": "Você não pode enviar foto aqui.",
+      38    "tipo-de-foto-nao-aceito": "Não deu para usar essa foto. Esco
+          lha outra.",
+      39    "tamanho-de-foto-invalido": "Essa foto ficou grande demais. E
+          scolha outra.",
+      40 +  // Posts (CodigosDoPost.cs)                                  
+      41 +  "post-vazio": "Escreva uma legenda, escolha uma foto ou um pr
+         +êmio.",                                                        
+      42 +  "legenda-longa": "A legenda passou de 1.000 caracteres.",    
+      43 +  "post-nao-permitido": "Só aluno publica no feed.",           
+      44 +  "upload-nao-encontrado": "A foto se perdeu no caminho. Escolh
+         +a de novo.",                                                   
+      45 +  "upload-ja-usado": "Essa foto já está em outro post.",       
+      46 +  "foto-nao-enviada": "A foto não terminou de subir. Tente de n
+         +ovo.",                                                         
+      47 +  "premio-nao-encontrado": "Esse prêmio não está mais disponíve
+         +l.",                                                           
+      48 +  "premio-anulado": "Esse prêmio foi anulado.",                
+      49 +  "premio-ja-postado": "Esse prêmio já tem um post.",          
+      50 +  "post-nao-encontrado": "Esse post não existe mais.",         
+      51 +  "remocao-nao-permitida": "Você não pode apagar este post.",  
+      52    // Genéricos, pelo status (DomainExceptionHandler.cs)
+      53    "requisicao-invalida": "Confira os dados e tente de novo.",
+      54    "dados-invalidos": "Confira os dados e tente de novo.",
+  ⎿  Updated packages\api-client\openapi.json (+362 -0)
+      441          ]
+      442        }
+      443      },
+      444 +    "/api/v1/posts": {                                        
+      445 +      "post": {                                               
+      446 +        "tags": [                                             
+      447 +          "Posts"                                             
+      448 +        ],                                                    
+      449 +        "operationId": "PublicarPost",                        
+      450 +        "requestBody": {                                      
+      451 +          "content": {                                        
+      452 +            "application/json": {                             
+      453 +              "schema": {                                     
+      454 +                "$ref": "#/components/schemas/PublicarPostRequ
+          +est"                                                          
+      455 +              }                                               
+      456 +            }                                                 
+      457 +          },                                                  
+      458 +          "required": true                                    
+      459 +        },                                                    
+      460 +        "responses": {                                        
+      461 +          "201": {                                            
+      462 +            "description": "Created",                         
+      463 +            "content": {                                      
+      464 +              "application/json": {                           
+      465 +                "schema": {                                   
+      466 +                  "$ref": "#/components/schemas/PostResponse" 
+      467 +                }                                             
+      468 +              }                                               
+      469 +            }                                                 
+      470 +          },                                                  
+      471 +          "400": {                                            
+      472 +            "description": "Bad Request",                     
+      473 +            "content": {                                      
+      474 +              "application/problem+json": {                   
+      475 +                "schema": {                                   
+      476 +                  "$ref": "#/components/schemas/HttpValidation
+          +ProblemDetails"                                               
+      477 +                }                                             
+      478 +              }                                               
+      479 +            }                                                 
+      480 +          },                                                  
+     … 358 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+205 -0)
+      164          patch?: never;
+      165          trace?: never;
+      166      };
+      167 +    "/api/v1/posts": {                                        
+      168 +        parameters: {                                         
+      169 +            query?: never;                                    
+      170 +            header?: never;                                   
+      171 +            path?: never;                                     
+      172 +            cookie?: never;                                   
+      173 +        };                                                    
+      174 +        get?: never;                                          
+      175 +        put?: never;                                          
+      176 +        post: operations["PublicarPost"];                     
+      177 +        delete?: never;                                       
+      178 +        options?: never;                                      
+      179 +        head?: never;                                         
+      180 +        patch?: never;                                        
+      181 +        trace?: never;                                        
+      182 +    };                                                        
+      183 +    "/api/v1/posts/{postId}": {                               
+      184 +        parameters: {                                         
+      185 +            query?: never;                                    
+      186 +            header?: never;                                   
+      187 +            path?: never;                                     
+      188 +            cookie?: never;                                   
+      189 +        };                                                    
+      190 +        get: operations["GetPost"];                           
+      191 +        put?: never;                                          
+      192 +        post?: never;                                         
+      193 +        delete: operations["RemoverPost"];                    
+      194 +        options?: never;                                      
+      195 +        head?: never;                                         
+      196 +        patch?: never;                                        
+      197 +        trace?: never;                                        
+      198 +    };                                                        
+      199      "/api/v1/auth/cadastro/sugestao": {
+      200          parameters: {
+      201              query?: never;
+     ...
+      383              arroba: string;
+      384              medalhas: components["schemas"]["MedalhaNaTurmaRes
+           ponse"][];
+     … 201 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Background command "Watch CI for etapa 2 commit" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI da etapa 2 está verde nos seis jobs. Sigo com a bateria completa da etapa
+  3.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 3 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 2 fechada: commit 9929c99, CI verde nos seis jobs:
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42434693481. No
+  mesmo commit entraram upload_pendente no SQL da purga e o upload no teste da
+  purga, como você pediu. Acrescentei também uma frase dizendo que as fotos do
+  bucket não saem por esse SQL e ficam para o passo 12 (D14).
+
+  Etapa 3: post no domínio e na API
+
+  Rotas
+  - POST /v1/posts recebe {legenda?, uploadId?, medalhaId?} e responde 201 com o
+    post pronto para o feed:
+    - autor com nome, arroba, sigla do curso e semestre, sem RA;
+    - foto com as URLs de leitura das duas derivadas;
+    - prêmio com tipo, item, nome, tier e pontos da concessão, raridade atual,
+      matéria e bimestre;
+    - criadoEm.
+  - GET /v1/posts/{id} é para qualquer usuário logado; é a rota que o deep link
+    /post/:id vai abrir.
+  - DELETE /v1/posts/{id} remove.
+
+  Regras, no domínio (Post)
+  - Ao menos um entre prêmio, foto e legenda.
+  - Legenda de até 1.000 caracteres, contando emoji como um.
+  - Só aluno ativo publica.
+  - O upload tem de ser do autor, de finalidade post e ainda não usado; publicar
+    confirma o upload.
+  - A medalha tem de ser do autor e ativa.
+  - Um prêmio rende um post: índice único filtrado e corrida resolvida em 409.
+    Dois posts com a mesma foto ao mesmo tempo também viram um só, pelo xmin do
+    upload.
+  - A API confere com HEAD que as duas derivadas chegaram ao bucket antes de
+    gravar.
+
+  Uma escolha de implementação da D5 e da D7 para você aprovar
+  - O autor apaga de verdade: a linha sai do banco.
+  - A instituição remove de forma lógica: grava removido_em e removido_por_id. O
+    post some para todos e o texto fica guardado como registro.
+  - Nos dois casos a foto sai do bucket pelo trabalho novo remover-fotos, e o
+    prêmio fica livre para render outro post.
+  - Ninguém mais remove, nem o professor (403). O ex-aluno ainda apaga o próprio
+    post.
+
+  D6, já no código e no produto.md
+  - Medalha anulada: o post com foto ou legenda perde o vínculo e fica como post
+    comum; o post que era só a medalha é apagado. O post já removido pela
+    instituição fica como estava, para não perder o registro de quem removeu. A
+    regra está no AnularMedalhaHandler, que o comando administrativo já usa.
+  - Prêmio revogado: a mesma regra foi registrada no produto.md (seção 4.7) para
+    o passo 8.
+
+  Banco, purga e cliente
+  - Migration Post: check constraints para post não vazio, foto sempre com as
+    duas derivadas e remoção com quem e quando juntos; índice único do prêmio.
+    Também já cria o índice (autor_id, criado_em desc, id), que o perfil e o
+    trecho de seguidos do feed vão usar nas etapas 5 e 6.
+  - Purga: DELETE FROM post entrou antes de medalha, porque o post segura a
+    medalha. O teste da purga cria um post com a medalha de cada aluno; ele
+    falhou sem a linha nova e passou com ela.
+  - Códigos: onze códigos novos em CodigosDoPost.cs, com mensagem em erros.ts; o
+    teste do app agora conta 4 arquivos de códigos.
+  - OpenAPI e cliente regenerados, sem diferença.
+
+  Testes, todos passando
+  - Domínio, 17 testes:
+    - basta um dos três, e post vazio é recusado;
+    - limite da legenda com emoji;
+    - quem publica;
+    - upload alheio, de foto de perfil ou já usado;
+    - recusa não confirma o upload;
+    - prêmio alheio ou anulado;
+    - quem remove e de que modo;
+    - remoção registrada e sem repetição;
+    - desvincular, e a recusa de desvincular o post que ficaria vazio.
+  - Integração, 17 testes, com Postgres e VersityGW reais:
+    - post completo, lido pela API e com a foto lida do bucket sem login;
+    - a limpeza de 24 horas não apaga a foto do post;
+    - leitura por todos os papéis, 404 para post inexistente e 401 sem login;
+    - todas as recusas;
+    - seis publicações simultâneas com o mesmo prêmio rendem um post, e as
+      outras recebem 409, nunca 500; o mesmo vale para a mesma foto;
+    - o autor apaga e a foto sai do bucket;
+    - a instituição remove, gravando quem e quando;
+    - os 403 de quem não pode remover;
+    - D6 nos dois casos.
+  - Bateria completa: 668 testes da API, 317 do app, formatação, build sem
+    aviso, lint, typecheck e verificar limpos.
+
+  Também mudou
+  - MundoSocial: um ajudante de testes com o mundo do passo (alunos, ex-aluna,
+    professora com turma vigente, instituição, login, concessão, anulação e
+    envio de foto), para as etapas 4 a 6 não repetirem o montador. Não refatorei
+    o UploadTests da etapa 2 para usá-lo: ele continua com o mundo próprio.
+
+  Commit proposto: feat(api): adiciona publicação, leitura e remoção de post
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 4.
+
+✻ Brewed for 13m 28s · done 22:44
