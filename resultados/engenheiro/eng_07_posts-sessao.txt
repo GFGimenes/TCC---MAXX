@@ -1090,3 +1090,839 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
 ✻ Crunched for 19m 35s · done 21:59
 
 ※ recap: Passo 7 (posts, upload e feed): a etapa 1, bucket de fotos com o emulador VersityGW, está pronta e com tudo passando localmente, mas ainda sem commit. Falta a sua revisão; aprovando, eu commito, faço o push e trago o resultado da CI. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+※ recap: Estamos no passo 7 (posts, upload e feed), e a etapa 1, o bucket de fotos com o emulador VersityGW, está pronta e testada, sem commit. Falta sua revisão: aprovando, eu commito, faço o push e trago o resultado da CI. (disable recaps in /config)
+
+> Etapa 1 aprovada. Copia você mesmo o bloco novo do .env.example para o meu    
+  .env local (MAXX_ARMAZENAMENTO_* e COMPOSE_PROFILES), com os valores do       
+  emulador, e me diz o que entrou. Commita com a mensagem proposta, push,       
+  acompanha a CI e segue para a etapa 2; para para a minha revisão no fim dela. 
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O bloco entrou no .env, que continua fora do git. Agora o commit, sem rodapé
+  de co-autoria, como manda o CLAUDE.md, e o push.
+
+  Pushed to feat/passo-07-posts, ran 2 shell commands (ctrl+o to expand)
+
+● A CI roda em segundo plano. Enquanto isso, começo a etapa 2 lendo a fila, um
+  handler de trabalho, o estilo dos endpoints e o das recusas.
+
+  Ran 8 shell commands (ctrl+o to expand)
+
+● Ainda aguardo a CI da etapa 1. Já li a fila, os handlers e os testes
+  existentes, e começo a etapa 2 pelo domínio do upload pendente, com os testes
+  unitários primeiro.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Escrevo o domínio: a chave aleatória (ULID) e o upload pendente, com as regras
+  de tipo, tamanho e finalidade.
+
+● Write(apps\api\src\Maxx.Domain\Fotos\Ulid.cs)
+  ⎿  Wrote 63 lines to apps\api\src\Maxx.Domain\Fotos\Ulid.cs
+       1 using System.Security.Cryptography;
+       2 
+       3 namespace Maxx.Domain.Fotos;
+       4 
+       5 // ULID (ADR 0002): 48 bits de instante em milissegundos e 80 bi
+         ts aleatórios de gerador
+       6 // criptográfico, em 26 caracteres de base 32 de Crockford. Os 8
+         0 bits são o que torna a URL
+       7 // da foto não descobrível; o instante só ordena as chaves no bu
+         cket.
+     … +56 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Fotos\UploadPendente.cs)
+  ⎿  Wrote 135 lines to apps\api\src\Maxx.Domain\Fotos\UploadPendente.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 
+       4 namespace Maxx.Domain.Fotos;
+       5 
+       6 // O pedido de envio de uma foto, nas duas derivadas que o app g
+         era (ADR 0003): a do feed
+       7 // (~1080²) e a da grade (~320²). A API assina as duas URLs e re
+         gistra o pedido; quem usa a
+       8 // foto (o post, a foto de perfil) confirma. O que não for confi
+     … +128 lines (~4 KB) (ctrl+o to expand)
+
+● Simplifico a codificação do ULID com o BinaryPrimitives, que lê os 128 bits
+  direto em big-endian.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Domain/Fotos" && cat > /tmp/cod.txt <<'EOF'
+          // 128 bits em 26 grupos de…)
+  ⎿      public static bool EhValido(string? texto) =>
+             texto is { Length: Tamanho } && texto[0] <= '7' && texto.All(c
+     aractere => _alfabeto.Contains(caractere, StringComparison.Ordinal));
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Fotos\Ulid.cs (+3 -18)
+      1 +using System.Buffers.Binary;                                    
+      2  using System.Security.Cryptography;
+      3  
+      4  namespace Maxx.Domain.Fotos;
+     ...
+      36  
+      37      // 128 bits em 26 grupos de 5, do mais significativo para o
+           menos; o primeiro grupo tem
+      38      // só 3 bits, por isso o ULID começa por um dígito de 0 a 7
+          .
+      38 -    private static string Codificar(ReadOnlySpan<byte> bytes)  
+      39 -    {                                                          
+      40 -        var alto = ((UInt128)BitConverter.ToUInt64(Invertido(by
+         -tes[..8])) << 64) | BitConverter.ToUInt64(Invertido(bytes[8..])
+         -);                                                             
+      41 -        return string.Create(Tamanho, alto, static (destino, va
+         -lor) =>                                                        
+      39 +    private static string Codificar(ReadOnlySpan<byte> bytes) =
+         +>                                                              
+      40 +        string.Create(Tamanho, BinaryPrimitives.ReadUInt128BigE
+         +ndian(bytes), static (destino, valor) =>                       
+      41          {
+      42              for (var i = Tamanho - 1; i >= 0; i--)
+      43              {
+     ...
+      45                  valor >>= 5;
+      46              }
+      47          });
+      49 -    }                                                          
+      50 -                                                               
+      51 -    // BitConverter lê na ordem da máquina; os bytes do ULID es
+         -tão do mais significativo                                      
+      52 -    // para o menos.                                           
+      53 -    private static byte[] Invertido(ReadOnlySpan<byte> bytes)  
+      54 -    {                                                          
+      55 -        var copia = bytes.ToArray();                           
+      56 -        if (BitConverter.IsLittleEndian)                       
+      57 -        {                                                      
+      58 -            Array.Reverse(copia);                              
+      59 -        }                                                      
+      60 -                                                               
+      61 -        return copia;                                          
+      62 -    }                                                          
+      48  }
+
+● Agora os testes de domínio do ULID e do upload pendente.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Fotos\UlidTests.cs)
+  ⎿  Wrote 59 lines to apps\api\tests\Maxx.Domain.Tests\Fotos\UlidTests.cs
+       1 using Maxx.Domain.Fotos;
+       2 
+       3 namespace Maxx.Domain.Tests.Fotos;
+       4 
+       5 public class UlidTests
+       6 {
+       7     [Fact]
+       8     public void Tem_26_caracteres_de_crockford_e_comeca_pelo_ins
+         tante()
+       9     {
+     … +50 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Fotos\UploadPendenteTests.cs)
+  ⎿  Wrote 170 lines to
+     apps\api\tests\Maxx.Domain.Tests\Fotos\UploadPendenteTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Fotos;
+       3 using Maxx.Domain.Identidade;
+       4 
+       5 namespace Maxx.Domain.Tests.Fotos;
+       6 
+       7 public class UploadPendenteTests
+       8 {
+       9     private const long _feed = 300 * 1024;
+      10     private const long _grade = 40 * 1024;
+     … +160 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 41 testes de domínio passam. Agora a Application: os códigos de recusa, o
+  handler do pedido e o trabalho de limpeza.
+
+● Write(apps\api\src\Maxx.Application\Fotos\CodigosDaFoto.cs)
+  ⎿  Wrote 15 lines to apps\api\src\Maxx.Application\Fotos\CodigosDaFoto.cs
+       1 namespace Maxx.Application.Fotos;
+       2 
+       3 // Os códigos de recusa do envio de foto, como o cliente os rece
+         be em ProblemDetails.
+       4 public static class CodigosDaFoto
+       5 {
+       6     // Quem pede não pode enviar foto para aquilo: post de quem 
+         não é aluno ativo, foto de
+       7     // perfil da instituição.
+       8     public const string EnvioNaoPermitido = "envio-nao-permitido
+     … +8 lines (ctrl+o to expand)
+● Write(apps\api\src\Maxx.Application\Fotos\Uploads.cs)
+  ⎿  Wrote 101 lines to apps\api\src\Maxx.Application\Fotos\Uploads.cs
+      1 using Maxx.Application.Autenticacao;
+      2 using Maxx.Application.Fila;
+      3 using Maxx.Domain.Fotos;
+      4 
+      5 namespace Maxx.Application.Fotos;
+      6 
+      7 public interface IUploadPendenteRepository
+      8 {
+      9     void Adicionar(UploadPendente upload);
+     … +92 lines (ctrl+o to expand)
+
+● Antes da Infrastructure, confirmo que o handler do trabalho roda mesmo dentro
+  da transação que segura a linha. A garantia contra a corrida com a confirmação
+  depende disso.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Confirmado: o handler roda no mesmo escopo e na mesma transação do trabalho.
+  Agora a Infrastructure: o repositório, o mapeamento da tabela upload_pendente
+  e o registro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && cat >
+      Persistence/Configurations/UploadPendenteConfigura…)
+  ⎿  62:        services.AddScoped<IUploadPendenteRepository, UploadPendent
+     eRepository>();
+     76:        services.AddTrabalho<LimparUploadAbandonado, LimparUploadAb
+     andonadoHandler>();
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+2 
+     -0)
+      59          // O bucket das fotos (ADR 0002). As opções vêm da bord
+          a, que recusa subir sem elas
+      60          // fora de desenvolvimento.
+      61          services.AddSingleton<IArmazenamentoDeFotos, Armazename
+          ntoS3>();
+      62 +        services.AddScoped<IUploadPendenteRepository, UploadPen
+         +denteRepository>();                                            
+      63  
+      64          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      65          services.AddOptions<FilaOptions>();
+     ...
+      73          services.AddTrabalho<EmailDeRecuperacao, EmailDeRecuper
+          acaoHandler>();
+      74          services.AddTrabalho<NotificarMedalhaRecebida, Notifica
+          rMedalhaRecebidaHandler>();
+      75          services.AddTrabalho<RecalcularRaridade, RecalculoDeRar
+          idade>();
+      76 +        services.AddTrabalho<LimparUploadAbandonado, LimparUplo
+         +adAbandonadoHandler>();                                        
+      77  
+      78          // Toda verificação registrada aqui entra no /ready.
+      79          services.AddHealthChecks()
+  ⎿  Created
+     apps\api\src\Maxx.Infrastructure\Fotos\UploadPendenteRepository.cs
+     (+15 -0)
+       1 +using Maxx.Application.Fotos;                                  
+       2 +using Maxx.Domain.Fotos;                                       
+       3 +using Maxx.Infrastructure.Persistence;                         
+       4 +                                                               
+       5 +namespace Maxx.Infrastructure.Fotos;                           
+       6 +                                                               
+       7 +internal sealed class UploadPendenteRepository(MaxxDbContext db
+         +) : IUploadPendenteRepository                                  
+       8 +{                                                              
+       9 +    public void Adicionar(UploadPendente upload) => db.Add(uplo
+         +ad);                                                           
+      10 +                                                               
+      11 +    public async Task<UploadPendente?> BuscarAsync(Guid id, Can
+         +cellationToken cancellationToken) =>                           
+      12 +        await db.Set<UploadPendente>().FindAsync([id], cancella
+         +tionToken);                                                    
+      13 +                                                               
+      14 +    public void Remover(UploadPendente upload) => db.Remove(upl
+         +oad);                                                          
+      15 +}                                                              
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Up
+     loadPendenteConfiguration.cs (+50 -0)
+       1 +using Maxx.Domain.Fotos;                                       
+       2 +using Maxx.Domain.Identidade;                                  
+       3 +using Maxx.Infrastructure.Seed;                                
+       4 +using Microsoft.EntityFrameworkCore;                           
+       5 +using Microsoft.EntityFrameworkCore.Metadata.Builders;         
+       6 +                                                               
+       7 +namespace Maxx.Infrastructure.Persistence.Configurations;      
+       8 +                                                               
+       9 +// O pedido de envio de foto, do registro até a confirmação ou 
+         +a limpeza pela fila                                            
+      10 +// (ADR 0002). Os limites de tipo e tamanho do domínio repetido
+         +s no banco, como última                                        
+      11 +// barreira.                                                   
+      12 +internal sealed class UploadPendenteConfiguration : IEntityType
+         +Configuration<UploadPendente>                                  
+      13 +{                                                              
+      14 +    public void Configure(EntityTypeBuilder<UploadPendente> bui
+         +lder)                                                          
+      15 +    {                                                          
+      16 +        builder.ToTable("upload_pendente", table =>            
+      17 +        {                                                      
+      18 +            table.HasCheckConstraint(                          
+      19 +                "ck_upload_pendente_finalidade",               
+      20 +                $"finalidade IN ({string.Join(", ", Enum.GetVal
+         +ues<FinalidadeDoUpload>().Select(valor => $"'{NomeJson.De(valor
+         +)}'"))})");                                                    
+      21 +            table.HasCheckConstraint("ck_upload_pendente_tipo",
+         + $"tipo_de_conteudo = '{UploadPendente.TipoAceito}'");         
+      22 +            table.HasCheckConstraint(                          
+      23 +                "ck_upload_pendente_tamanho_do_feed", $"tamanho
+         +_do_feed BETWEEN 1 AND {UploadPendente.TamanhoMaximoDoFeed}"); 
+      24 +            table.HasCheckConstraint(                          
+      25 +                "ck_upload_pendente_tamanho_da_grade", $"tamanh
+         +o_da_grade BETWEEN 1 AND {UploadPendente.TamanhoMaximoDaGrade}"
+         +);                                                             
+      26 +        });                                                    
+      27 +        builder.HasKey(upload => upload.Id);                   
+      28 +        builder.Property(upload => upload.Id).ValueGeneratedNev
+         +er();                                                          
+      29 +        builder.Property(upload => upload.Finalidade)          
+      30 +            .HasConversion(finalidade => NomeJson.De(finalidade
+         +), texto => Enum.Parse<FinalidadeDoUpload>(texto, ignoreCase: t
+         +rue));                                                         
+      31 +                                                               
+      32 +        // Uma chave, um objeto: nenhum pedido aponta para a fo
+         +to de outro.                                                   
+      33 +        builder.HasIndex(upload => upload.ChaveDoFeed).IsUnique
+         +();                                                            
+      34 +        builder.HasIndex(upload => upload.ChaveDaGrade).IsUniqu
+         +e();                                                           
+      35 +        builder.HasIndex(upload => upload.UsuarioId);          
+      36 +                                                               
+      37 +        // Sem cascata, como o resto do que o usuário grava: a 
+         +purga da demonstração apaga                                    
+      38 +        // os uploads antes do usuário.                        
+      39 +        builder.HasOne<Usuario>().WithMany().HasForeignKey(uplo
+         +ad => upload.UsuarioId).OnDelete(DeleteBehavior.Restrict);     
+      40 +                                                               
+     … 10 more lines (ctrl+o to expand)
+
+● Agora o endpoint POST /v1/uploads, com o limite de taxa por usuário.
+
+● Write(apps\api\src\Maxx.Api\Fotos\UploadEndpoints.cs)
+  ⎿  Wrote 70 lines to apps\api\src\Maxx.Api\Fotos\UploadEndpoints.cs
+      1 using System.ComponentModel.DataAnnotations;
+      2 using System.Security.Claims;
+      3 using Maxx.Api.Autenticacao;
+      4 using Maxx.Api.LimiteDeTaxa;
+      5 using Maxx.Application.Fotos;
+      6 using Maxx.Domain.Fotos;
+      7 using Microsoft.AspNetCore.Http.HttpResults;
+      8 
+      9 namespace Maxx.Api.Fotos;
+     … +61 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Api/Program.cs && sed -i
+      's|^builder.Services.AddScoped<Maxx.Applicat…)
+  ⎿  -    // Declarado aqui; aplicado e testado no passo 7, quando o endpoi
+     nt de upload nasce.
+     +    // Por pedido de assinatura, que cobre as duas derivadas de uma f
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\LimiteDeTaxa\LimitesDeTaxa.cs (+2 -2)
+      23      // Alto de propósito: a banca inteira entra pelo mesmo celu
+          lar roteado.
+      24      RegistroDeDemonstracaoPorIp,
+      25  
+      26 -    // Declarado aqui; aplicado e testado no passo 7, quando o 
+         -endpoint de upload nasce.                                      
+      26 +    // Por pedido de assinatura, que cobre as duas derivadas de
+         + uma foto.                                                     
+      27      UploadPorUsuario,
+      28  }
+      29  
+     ...
+      52          [Limite.RecuperacaoPorEmail] = new(3, TimeSpan.FromMinu
+          tes(15)),
+      53          [Limite.RegistroDeDemonstracaoPorIp] = new(60, TimeSpan
+          .FromHours(1)),
+      54  
+      55 -        // Números provisórios, revistos no passo 7.           
+      55 +        // Revisto no passo 7: um post ou uma foto de perfil po
+         +r pedido, 30 por hora sobram.                                  
+      56          [Limite.UploadPorUsuario] = new(30, TimeSpan.FromHours(
+          1)),
+      57      };
+      58  
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+2 -0)
+      86  builder.Services.AddLimitesDeTaxa();
+      87  builder.Services.AddScoped<Maxx.Application.Medalhas.ConcederMe
+          dalhaHandler>();
+      88  builder.Services.AddScoped<Maxx.Application.Medalhas.AnularMeda
+          lhaHandler>();
+      89 +builder.Services.AddScoped<Maxx.Application.Fotos.PedirUploadHa
+         +ndler>();                                                      
+      90  
+      91  var app = builder.Build();
+      92  
+     ...
+      150  v1.MapTermoDeUsoEndpoints();
+      151  v1.MapProfessorEndpoints();
+      152  v1.MapPremiosEndpoints();
+      153 +v1.MapUploadEndpoints();                                      
+      154  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      155  if (demonstracao)
+      156  {
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Compila. Agora a migration.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet tool restore >/dev/null && dotnet ef migrations add UploadPendente
+      --project apps/…)
+  ⎿  Build started...
+     Build succeeded.
+     Done. To undo this action, use 'ef migrations remove'
+     … +70 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08012003_UploadPendente.cs (+70 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class UploadPendente : Migration            
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "upload_pendente",                       
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    id = table.Column<Guid>(type: "uuid", nulla
+         +ble: false),                                                   
+      19 +                    usuario_id = table.Column<Guid>(type: "uuid
+         +", nullable: false),                                           
+      20 +                    finalidade = table.Column<string>(type: "te
+         +xt", nullable: false),                                         
+      21 +                    chave_do_feed = table.Column<string>(type: 
+         +"text", nullable: false),                                      
+      22 +                    chave_da_grade = table.Column<string>(type:
+         + "text", nullable: false),                                     
+      23 +                    tipo_de_conteudo = table.Column<string>(typ
+         +e: "text", nullable: false),                                   
+      24 +                    tamanho_do_feed = table.Column<long>(type: 
+         +"bigint", nullable: false),                                    
+      25 +                    tamanho_da_grade = table.Column<long>(type:
+         + "bigint", nullable: false),                                   
+      26 +                    criado_em = table.Column<DateTimeOffset>(ty
+         +pe: "timestamp with time zone", nullable: false),              
+      27 +                    confirmado_em = table.Column<DateTimeOffset
+         +>(type: "timestamp with time zone", nullable: true),           
+      28 +                    xmin = table.Column<uint>(type: "xid", rowV
+         +ersion: true, nullable: false)                                 
+      29 +                },                                             
+      30 +                constraints: table =>                          
+      31 +                {                                              
+      32 +                    table.PrimaryKey("pk_upload_pendente", x =>
+         + x.id);                                                        
+      33 +                    table.CheckConstraint("ck_upload_pendente_f
+         +inalidade", "finalidade IN ('post', 'fotoDePerfil')");         
+      34 +                    table.CheckConstraint("ck_upload_pendente_t
+         +amanho_da_grade", "tamanho_da_grade BETWEEN 1 AND 204800");    
+      35 +                    table.CheckConstraint("ck_upload_pendente_t
+         +amanho_do_feed", "tamanho_do_feed BETWEEN 1 AND 1048576");     
+      36 +                    table.CheckConstraint("ck_upload_pendente_t
+         +ipo", "tipo_de_conteudo = 'image/jpeg'");                      
+      37 +                    table.ForeignKey(                          
+      38 +                        name: "fk_upload_pendente_usuario_usuar
+         +io_id",                                                        
+      39 +                        column: x => x.usuario_id,             
+      40 +                        principalTable: "usuario",             
+     … 30 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 10m)
+
+● A migração correu como esperado. Agora rodo os testes de integração da etapa 2
+  com Postgres e VersityGW reais, incluindo o da corrida entre limpeza e
+  confirmação.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Fotos\UploadTests.cs)
+  ⎿  Wrote 462 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Fotos\UploadTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using System.Text.Json;
+       5 using Maxx.Api.Autenticacao;
+       6 using Maxx.Api.Fotos;
+       7 using Maxx.Application.Fila;
+       8 using Maxx.Application.Fotos;
+       9 using Maxx.Domain.Academico;
+      10 using Maxx.Domain.Fotos;
+     … +452 lines (ctrl+o to expand)
+
+● Background command "Wait for CI run to finish" completed (exit code 0)
+
+● A CI da etapa 1 terminou. Vejo o resultado e depois limpo a decoração do
+  repositório no teste, que ficou mal montada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● CI da etapa 1 verde nos seis jobs. Agora corrijo a decoração no teste da
+  corrida.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Fotos" && awk '/^file static class
+      DecoracaoDoReposi…)
+  ⎿          public override DateTimeOffset GetUtcNow() => _agora;
+
+             public void Avancar(TimeSpan quanto) => _agora += quanto;
+     … +19 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Fotos\UploadTests.cs
+     (+10 -13)
+      273          // DELETE perde pelo xmin antes de tocar no bucket; na
+            retentativa, o upload já está
+      274          // confirmado, e a limpeza termina sem remover nada.
+      275          var relogio = new RelogioDeTeste();
+      276 -        var mundo = await MundoAsync(relogio, servicos => serv
+          -icos.Decorate(relogio));                                      
+      276 +        var mundo = await MundoAsync(relogio, ConfirmaDepoisDe
+          +Ler.Decorar);                                                 
+      277          await using var factory = mundo.Factory;
+      278          using var ana = await ComoAsync(factory, _ana);
+      279          await EnviadoAsync(ana);
+     ...
+      428      {
+      429          public static string? Conexao { get; set; }
+      430  
+      431 +        // Troca o repositório registrado pela infraestrutura 
+          +por este, por cima dele.                                      
+      432 +        public static void Decorar(IServiceCollection servicos
+          +)                                                             
+      433 +        {                                                     
+      434 +            var original = servicos.Single(descritor => descri
+          +tor.ServiceType == typeof(IUploadPendenteRepository));        
+      435 +            servicos.Remove(original);                        
+      436 +            servicos.AddScoped<IUploadPendenteRepository>(prov
+          +ider => new ConfirmaDepoisDeLer(                              
+      437 +                (IUploadPendenteRepository)ActivatorUtilities.
+          +CreateInstance(provider, original.ImplementationType!)));     
+      438 +        }                                                     
+      439 +                                                              
+      440          public void Adicionar(UploadPendente upload) => intern
+           o.Adicionar(upload);
+      441  
+      442          public async Task<UploadPendente?> BuscarAsync(Guid id
+           , CancellationToken cancellationToken)
+     ...
+      457          public void Remover(UploadPendente upload) => interno.
+           Remover(upload);
+      458      }
+      459  }
+      451 -                                                              
+      452 -file static class DecoracaoDoRepositorio                      
+      453 -{                                                             
+      454 -    // Troca o repositório de uploads pelo que confirma no mei
+          -o da limpeza.                                                 
+      455 -    public static void Decorate(this IServiceCollection servic
+          -os, TimeProvider _)                                           
+      456 -    {                                                         
+      457 -        servicos.RemoveAll<IUploadPendenteRepository>();      
+      458 -        servicos.AddScoped<IUploadPendenteRepository>(provider
+          - => new UploadTestsAcesso.ConfirmaDepoisDeLer(                
+      459 -            ActivatorUtilities.CreateInstance(provider, Upload
+          -TestsAcesso.RepositorioReal) as IUploadPendenteRepository     
+      460 -                ?? throw new InvalidOperationException("Reposi
+          -tório de uploads não montado.")));                            
+      461 -    }                                                         
+      462 -}                                                             
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Fotos/UploadTests.cs && sed -i
+      's|    private…)
+  ⎿      0 Erro(s)
+       total: 25
+       falhou: 0
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Fotos\UploadTests.cs
+     (+1 -1)
+      360      private static Task<HttpResponseMessage> PedirAsync(HttpCl
+           ient client, string finalidade, string tipo, long feed, long g
+           rade) =>
+      361          client.PostAsJsonAsync(_uploads, new { finalidade, tip
+           oDeConteudo = tipo, tamanhoDoFeed = feed, tamanhoDaGrade = gra
+           de }, Ct);
+      362  
+      363 -    private async Task<UploadResponse> EnviadoAsync(HttpClient
+          - client)                                                      
+      363 +    private static async Task<UploadResponse> EnviadoAsync(Htt
+          +pClient client)                                               
+      364      {
+      365          var resposta = await PedirAsync(client, "post", "image
+           /jpeg", _feed, _grade);
+      366          Assert.Equal(HttpStatusCode.Created, resposta.StatusCo
+           de);
+  ⎿  (timeout 10m)
+
+● Os 25 testes de upload já passam, incluindo o da corrida; agora regenero o
+  OpenAPI e o cliente e adiciono as mensagens dos três códigos novos no app.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client 2>&1 | tail -2; git diff --stat
+      packages; grep -n "limi…)
+  ⎿  ✨ openapi-typescript 7.13.0
+     🚀 openapi.json → src/schema.d.ts [70.8ms]
+      packages/api-client/openapi.json    | 150 +++++++++++++++++++++++++++
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+150 -0)
+      155          ]
+      156        }
+      157      },
+      158 +    "/api/v1/uploads": {                                      
+      159 +      "post": {                                               
+      160 +        "tags": [                                             
+      161 +          "Fotos"                                             
+      162 +        ],                                                    
+      163 +        "operationId": "PedirUpload",                         
+      164 +        "requestBody": {                                      
+      165 +          "content": {                                        
+      166 +            "application/json": {                             
+      167 +              "schema": {                                     
+      168 +                "$ref": "#/components/schemas/PedidoDeUploadRe
+          +quest"                                                        
+      169 +              }                                               
+      170 +            }                                                 
+      171 +          },                                                  
+      172 +          "required": true                                    
+      173 +        },                                                    
+      174 +        "responses": {                                        
+      175 +          "201": {                                            
+      176 +            "description": "Created",                         
+      177 +            "content": {                                      
+      178 +              "application/json": {                           
+      179 +                "schema": {                                   
+      180 +                  "$ref": "#/components/schemas/UploadResponse
+          +"                                                             
+      181 +                }                                             
+      182 +              }                                               
+      183 +            }                                                 
+      184 +          },                                                  
+      185 +          "429": {                                            
+      186 +            "description": "Too Many Requests",               
+      187 +            "content": {                                      
+      188 +              "application/problem+json": {                   
+      189 +                "schema": {                                   
+      190 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+      191 +                }                                             
+      192 +              }                                               
+      193 +            }                                                 
+      194 +          },                                                  
+     … 140 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+98 -0)
+       84          patch?: never;
+       85          trace?: never;
+       86      };
+       87 +    "/api/v1/uploads": {                                      
+       88 +        parameters: {                                         
+       89 +            query?: never;                                    
+       90 +            header?: never;                                   
+       91 +            path?: never;                                     
+       92 +            cookie?: never;                                   
+       93 +        };                                                    
+       94 +        get?: never;                                          
+       95 +        put?: never;                                          
+       96 +        post: operations["PedirUpload"];                      
+       97 +        delete?: never;                                       
+       98 +        options?: never;                                      
+       99 +        head?: never;                                         
+      100 +        patch?: never;                                        
+      101 +        trace?: never;                                        
+      102 +    };                                                        
+      103      "/api/v1/professor/turmas": {
+      104          parameters: {
+      105              query?: never;
+     ...
+      387          EntradaDeDemonstracaoRequest: {
+      388              chaveDoDispositivo: string;
+      389          };
+      390 +        EnvioResponse: {                                      
+      391 +            url: string;                                      
+      392 +            tipoDeConteudo: string;                           
+      393 +            /** Format: int64 */                              
+      394 +            tamanho: number;                                  
+      395 +        };                                                    
+      396          EuResponse: {
+      397              /** Format: uuid */
+      398              id: string;
+     ...
+      476              /** Format: date-time */
+      477              concedidaEm: string;
+      478          };
+      479 +        PedidoDeUploadRequest: {                              
+      480 +            finalidade: string;                               
+      481 +            tipoDeConteudo: string;                           
+     … 88 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/mobile/src/api/erros.ts && sed -n 36,45p $f && sed -i 's|^
+      "sem-conta-de-institui…)
+  ⎿    // Genéricos, pelo status (DomainExceptionHandler.cs)
+       "requisicao-invalida": "Confira os dados e tente de novo.",
+       "dados-invalidos": "Confira os dados e tente de novo.",
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.ts (+4 -0)
+      33      "Esse aluno já recebeu essa medalha o máximo de vezes no pe
+          ríodo.",
+      34    "medalha-nao-encontrada": "Essa medalha não existe mais.",
+      35    "sem-conta-de-instituicao": "Só a instituição pode fazer isso
+          .",
+      36 +  // Fotos (CodigosDaFoto.cs)                                  
+      37 +  "envio-nao-permitido": "Você não pode enviar foto aqui.",    
+      38 +  "tipo-de-foto-nao-aceito": "Não deu para usar essa foto. Esco
+         +lha outra.",                                                   
+      39 +  "tamanho-de-foto-invalido": "Essa foto ficou grande demais. E
+         +scolha outra.",                                                
+      40    // Genéricos, pelo status (DomainExceptionHandler.cs)
+      41    "requisicao-invalida": "Confira os dados e tente de novo.",
+      42    "dados-invalidos": "Confira os dados e tente de novo.",
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste fixa quantos arquivos Codigos*.cs existem, para a busca não passar
+  vazia em silêncio. Atualizo a contagem para 3 e incluo um código de foto na
+  amostra.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\api\erros.test.ts)
+  ⎿  Added 2 lines, removed 1 line
+      42    it("todo código que a API manda tem mensagem própria", () => 
+          {
+      43      const daApi = codigosDaApi();
+      44  
+      45 -    expect(arquivosDeCodigos()).toHaveLength(2);               
+      45 +    expect(arquivosDeCodigos()).toHaveLength(3);               
+      46      expect(daApi).toEqual(
+      47        expect.arrayContaining([
+      48          "registro-simultaneo",
+      49          "limite-atingido",
+      50 +        "tamanho-de-foto-invalido",                            
+      51          "dados-invalidos",
+      52        ]),
+      53      );
+  Ran 1 shell command (ctrl+o to expand)
+
+● O cliente está verde (317 testes, prettier, lint e typecheck). Agora a bateria
+  completa da API: formatação, a suíte inteira e a conferência do cliente
+  gerado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A suíte passa (634 de 634), mas o verificar do cliente saiu com 1. Vejo por
+  quê.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O verificar compara o arquivo gerado com o índice do git, mas os arquivos
+  novos ainda não estavam nele. Vou adicioná-los ao índice sem commitar e rodar
+  de novo para confirmar que regenerar não muda nada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 2 está pronta para a sua revisão. Os arquivos estão no índice, mas
+  nada foi commitado.
+
+  Etapa 1 fechada: commit 7c9f29f, CI verde nos seis jobs (api, mobile,
+  api-client, e2e, segurança, build):
+  https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42433404619
+
+  O que entrou no seu .env: COMPOSE_PROFILES=armazenamento-local,
+  MAXX_ARMAZENAMENTO_BUCKET=maxx-fotos, _ENDPOINT=http://armazenamento:7070,
+  _ENDPOINT_PUBLICO=http://localhost:9000,
+  _URL_DE_LEITURA=http://localhost:9000/maxx-fotos/, _REGIAO=auto, _PORT=9000,
+  _CHAVE_DE_ACESSO=maxx-local e _SEGREDO=troque-este-segredo. O resto do arquivo
+  ficou como estava, e o .env continua fora do git.
+
+  Etapa 2: pedido de upload, limite de taxa e limpeza pela fila
+
+  Como funciona
+  - POST /v1/uploads recebe {finalidade, tipoDeConteudo, tamanhoDoFeed, 
+    tamanhoDaGrade}. A finalidade é post ou fotoDePerfil. A resposta é 201 com o
+    id do upload, expiraEm (15 minutos) e uma URL de PUT para cada derivada,
+    com o tipo e o tamanho exatos presos na assinatura.
+  - Regras, no domínio (UploadPendente):
+    - só image/jpeg;
+    - feed de 1 byte a 1 MiB, grade de 1 byte a 200 KiB;
+    - post só de aluno ativo; foto de perfil de aluno (ex-aluno inclusive) e de
+      professor; a instituição não envia nada.
+  - Recusas:
+    - 403 envio-nao-permitido;
+    - 400 tipo-de-foto-nao-aceito e tamanho-de-foto-invalido;
+    - 400 dados-invalidos para finalidade desconhecida.
+  - Chaves: <ULID>/feed.jpg e <ULID>/grade.jpg. O ULID tem 80 bits de gerador
+    criptográfico e foi escrito à mão, sem dependência nova.
+  - Limite de taxa: UploadPorUsuario agora está aplicado: 30 por hora por
+    usuário, contando todo pedido, inclusive o recusado. O comentário de
+    "provisório" saiu do código.
+  - Limpeza: cada pedido já enfileira limpar-upload-abandonado para dali a 24
+    horas, na mesma transação do registro. Quando o trabalho roda, ele apaga a
+    linha primeiro e os objetos do bucket depois.
+  - Corrida com a confirmação: o xmin na linha decide. Se o upload for
+    confirmado no meio da limpeza, o DELETE perde antes de tocar no bucket, e a
+    retentativa encontra o upload confirmado e não remove nada.
+  - Migration UploadPendente: tabela upload_pendente, com os limites repetidos
+    em check constraints e chave estrangeira sem cascata para usuario.
+  - Cliente: OpenAPI e cliente regenerados; verificar sem diferença depois de
+    colocar os arquivos no índice.
+  - App: três mensagens novas em erros.ts. O teste que conta os arquivos
+    Codigos*.cs passou de 2 para 3, senão a CI do mobile quebraria.
+
+  Testes, todos passando
+  - Domínio, 41 testes:
+    - formato, unicidade, ordem e big-endian do ULID;
+    - tipo aceito e tipos recusados, inclusive com parâmetro (; charset);
+    - fronteiras de tamanho;
+    - matriz de quem pode enviar para cada finalidade;
+    - prazos de 15 minutos e de 24 horas.
+  - Integração, 25 testes, com Postgres e VersityGW reais:
+    - os PUTs reais das duas derivadas;
+    - o PUT da grade na URL do feed recusado pelo bucket;
+    - as recusas, com nada registrado;
+    - a matriz de papéis pela API, e 401 sem login;
+    - 30 pedidos aceitos, o 31º com 429 e Retry-After, e outro usuário sem ser
+      afetado;
+    - pedido recusado também contando no limite;
+    - limpeza só depois de 24 horas (às 23 horas nada sai), inclusive de upload
+      cujo PUT nunca chegou;
+    - upload confirmado intocado;
+    - limpeza que roda de novo sem efeito;
+    - a corrida com a confirmação, provocada por outra conexão entre a leitura e
+      o DELETE.
+  - Suíte inteira: 634 de 634. Formatação limpa e build sem aviso. No mobile:
+    317 testes, prettier, lint e typecheck.
+
+  Duas coisas para você saber
+  1. A purga da demonstração vai quebrar até a etapa 11. O SQL documentado no
+     decisoes/README.md vai falhar para um usuário de demonstração que tenha
+     upload, porque a chave estrangeira não tem cascata, como o resto. A linha
+     da purga entra na etapa 11, junto com as outras tabelas do passo, como está
+     no plano. Até lá, o documento está desatualizado.
+  2. Migration na sua base local: ela foi aplicada nos testes e vai ser aplicada
+     pela CI no e2e. A sua base local só recebe quando você rodar docker 
+     compose up --build, que também sobe o emulador com o .env novo.
+
+  Commit proposto: feat(api): adiciona pedido de upload assinado com limite de 
+  taxa e limpeza pela fila
+
+  Com a sua aprovação, eu commito, faço o push e acompanho a CI antes de seguir
+  para a etapa 3.
+
+✻ Worked for 12m 34s · done 22:26
