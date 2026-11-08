@@ -345,3 +345,748 @@
 ✻ Sautéed for 4m 32s · done 21:26
 
 ※ recap: O objetivo é o Passo 7 (posts, upload e feed), e o plano de 11 etapas está pronto, sem nenhum código escrito. Falta você revisar o plano e responder às decisões D1 a D14, para eu começar a etapa 1, que é o emulador S3 no compose. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_07_posts-sessao.txt
+
+> Plano do passo 7 aprovado, onze etapas, um PR da feat/passo-07-posts para a   
+  rodada/eng_07_posts. D1 a D14 aceitas pela sua recomendação, com estes        
+  registros: D1, MinIO na última tag comunitária só para desenvolvimento e      
+  teste, nunca produção, e a etapa 1 prova que ele recusa tipo e tamanho        
+  errados; D8, opção A, hash da semente com o id, com o aval explícito de que o 
+  trecho de recomendação não usa índice na ordenação nesta escala e o p95 fica  
+  para o passo 13; D7, remoção de post e comentário pela instituição já no      
+  app, pelo menu do post, gravando quem e quando; D6 e a regra do prêmio        
+  revogado vão para o produto.md. O R2 real eu crio quando chegar a hora, com   
+  os cinco itens da sua lista; até lá tudo roda no emulador. Começa pela etapa  
+  1 e para para a minha revisão no fim dela.                                    
+
+● Começo pela etapa 1. Primeiro a branch e o reconhecimento de como a
+  Infrastructure registra serviços, as options e os testes de integração.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Vou conferir as ferramentas locais (dotnet, Docker) e a disponibilidade dos
+  pacotes e da imagem do MinIO.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A imagem minio/minio saiu do Docker Hub e o espelho no quay.io pede
+  autenticação, então a premissa da D1 não se sustenta. Vou verificar quais
+  alternativas estão disponíveis antes de voltar a você.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Há várias imagens em jogo, mas o que decide é se o servidor recusa um PUT com
+  tipo ou tamanho diferente do assinado. Vou montar um teste descartável no
+  scratchpad com o mesmo AWSSDK.S3 que a API usará.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Os dois candidatos recusam o tipo e o tamanho errados, e o AWSSDK assina
+  content-length;content-type;host. Ainda faltam a leitura anônima no lugar da
+  CDN e o CORS no PUT feito pelo navegador.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os dois passam nos quatro critérios. Vou ver as tags disponíveis para fixar a
+  versão e depois limpar os contêineres do teste.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● User answered Claude's questions:
+  ⎿  · A D1 (MinIO) não se sustenta: o repositório minio/minio não existe mais 
+     no Docker Hub, e o espelho no quay.io pede login. Testei duas alternativas 
+     com o AWSSDK.S3 que a API vai usar, e as duas passaram nos quatro 
+     critérios: recusam PUT com tipo errado (403), recusam tamanho maior e menor
+     que o assinado (403), servem leitura anônima por política de bucket (200) 
+     e respondem ao preflight de CORS do navegador. Qual entra no compose e no 
+     Testcontainers, só para desenvolvimento e teste, nunca para produção? → 
+     VersityGW v1.10.0 (Recomendado)
+
+● VersityGW v1.10.0, então. Antes de escrever, vou ver os testes de arquitetura,
+  os appsettings e as tags fixáveis da imagem do AWS CLI para a inicialização
+  do bucket.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Agora o código. Primeiro os pacotes e o contrato na Application.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|  <ItemGroup>\n    <PackageVersion Include="EFCore|&|'
+      Directory.Packages.props…)
+  ⎿   Directory.Packages.props
+        | 2 ++
+      apps/api/src/Maxx.Infrastructure/Maxx.Infrastructure.csproj
+     … +31 lines (ctrl+o to expand)
+  ⎿  Updated Directory.Packages.props (+2 -0)
+       4      <CentralPackageTransitivePinningEnabled>true</CentralPackag
+          eTransitivePinningEnabled>
+       5    </PropertyGroup>
+       6    <ItemGroup>
+       7 +    <PackageVersion Include="AWSSDK.S3" Version="4.0.104.11" />
+       8      <PackageVersion Include="EFCore.NamingConventions" Version=
+          "10.0.1" />
+       9      <PackageVersion Include="Konscious.Security.Cryptography.Ar
+          gon2" Version="1.3.1" />
+      10      <PackageVersion Include="MailKit" Version="4.18.2" />
+     ...
+      20      <PackageVersion Include="Microsoft.Extensions.Hosting.Abstr
+          actions" Version="10.0.14" />
+      21      <PackageVersion Include="Npgsql.DependencyInjection" Versio
+          n="10.0.3" />
+      22      <PackageVersion Include="Npgsql.EntityFrameworkCore.Postgre
+          SQL" Version="10.0.3" />
+      23 +    <PackageVersion Include="Testcontainers" Version="4.16.0" /
+         +>                                                              
+      24      <PackageVersion Include="Testcontainers.PostgreSql" Version
+          ="4.16.0" />
+      25      <PackageVersion Include="xunit.v3" Version="4.0.2" />
+      26    </ItemGroup>
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Maxx.Infrastructure.csproj
+     (+1 -0)
+       6    </ItemGroup>
+       7  
+       8    <ItemGroup>
+       9 +    <PackageReference Include="AWSSDK.S3" />                   
+      10      <PackageReference Include="EFCore.NamingConventions" />
+      11      <PackageReference Include="Konscious.Security.Cryptography.
+          Argon2" />
+      12      <PackageReference Include="MailKit" />
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Maxx.Api.IntegrationT
+     ests.csproj (+1 -0)
+      11  
+      12    <ItemGroup>
+      13      <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing
+          " />
+      14 +    <PackageReference Include="Testcontainers" />              
+      15      <PackageReference Include="Testcontainers.PostgreSql" />
+      16      <PackageReference Include="xunit.v3" />
+      17    </ItemGroup>
+
+● Write(apps\api\src\Maxx.Application\Fotos\IArmazenamentoDeFotos.cs)
+  ⎿  Wrote 25 lines to
+     apps\api\src\Maxx.Application\Fotos\IArmazenamentoDeFotos.cs
+       1 namespace Maxx.Application.Fotos;
+       2 
+       3 // Um envio autorizado: a URL que o app usa no PUT direto ao buc
+         ket, com o tipo e o tamanho
+       4 // exatos presos na assinatura. Qualquer outro content-type ou C
+         ontent-Length é recusado
+       5 // pelo próprio bucket (ADR 0002).
+       6 public sealed record EnvioAssinado(string Chave, Uri Url, string
+          TipoDeConteudo, long Tamanho, DateTimeOffset ExpiraEm);
+       7 
+     … +18 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Fotos\ArmazenamentoOptions.cs)
+  ⎿  Wrote 51 lines to
+     apps\api\src\Maxx.Infrastructure\Fotos\ArmazenamentoOptions.cs
+      1 namespace Maxx.Infrastructure.Fotos;
+      2 
+      3 // O bucket das fotos (ADR 0002). Em produção, Cloudflare R2; no 
+        compose e nos testes, o
+      4 // VersityGW, compatível com S3. Chave e segredo só por variável 
+        de ambiente.
+      5 public sealed class ArmazenamentoOptions
+      6 {
+      7     public const string Section = "Armazenamento";
+      8 
+     … +43 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Fotos\ArmazenamentoS3.cs)  ⎿  Wrote 149 lines to
+     apps\api\src\Maxx.Infrastructure\Fotos\ArmazenamentoS3.cs
+       1 using System.Net;
+       2 using Amazon.Runtime;
+       3 using Amazon.S3;
+       4 using Amazon.S3.Model;
+       5 using Maxx.Application.Fotos;
+       6 using Microsoft.Extensions.Options;
+       7 
+       8 namespace Maxx.Infrastructure.Fotos;
+       9 
+      10 // O bucket pela API do S3, que o R2 e o emulador falam igual. D
+     … +140 lines (~6 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      python3 - <<'EOF' 2>/dev/null || echo "sem python"
+      EOF…)
+  ⎿  sem python
+     diff --git a/apps/api/src/Maxx.Infrastructure/DependencyInjection.cs b
+     /apps/api/src/Maxx.Infrastructure/DependencyInjection.cs
+     … +29 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+6 
+     -0)
+       4  using Maxx.Application.Autorizacao;
+       5  using Maxx.Application.Demonstracao;
+       6  using Maxx.Application.Fila;
+       7 +using Maxx.Application.Fotos;                                  
+       8  using Maxx.Application.Medalhas;
+       9  using Maxx.Application.Notificacoes;
+      10  using Maxx.Application.Premios;
+     ...
+      13  using Maxx.Infrastructure.Demonstracao;
+      14  using Maxx.Infrastructure.Email;
+      15  using Maxx.Infrastructure.Fila;
+      16 +using Maxx.Infrastructure.Fotos;                               
+      17  using Maxx.Infrastructure.Medalhas;
+      18  using Maxx.Infrastructure.Notificacoes;
+      19  using Maxx.Infrastructure.Persistence;
+     ...
+      56          services.AddScoped<INotificacaoRepository, NotificacaoR
+          epository>();
+      57          services.AddScoped<IConsultaDePremios, ConsultaDePremio
+          s>();
+      58  
+      59 +        // O bucket das fotos (ADR 0002). As opções vêm da bord
+         +a, que recusa subir sem elas                                   
+      60 +        // fora de desenvolvimento.                            
+      61 +        services.AddSingleton<IArmazenamentoDeFotos, Armazename
+         +ntoS3>();                                                      
+      62 +                                                               
+      63          // Fila no Postgres (ADR 0008): a API e o worker enfile
+          iram; só o worker consome.
+      64          services.AddOptions<FilaOptions>();
+      65          services.AddScoped<IFilaDeTrabalhos, FilaDeTrabalhos>()
+          ;
+
+● Agora a validação na borda, para a API e o worker.
+
+● Write(apps\api\src\Maxx.Api\Fotos\ArmazenamentoServiceCollectionExtensions.cs)
+  ⎿  Wrote 24 lines to apps\api\src\Maxx.Api\Fotos\ArmazenamentoServiceColl
+     ectionExtensions.cs
+       1 using Maxx.Infrastructure.Fotos;
+       2 
+       3 namespace Maxx.Api.Fotos;
+       4 
+       5 internal static class ArmazenamentoServiceCollectionExtensions
+       6 {
+       7     // Na API e no worker: a API assina e confere, o worker remo
+         ve o que ficou sem dono.
+       8     // exigir é falso só nos subcomandos e na geração do OpenAPI
+         , que não tocam no bucket.
+     … +16 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/src/Maxx.Api/Program.cs
+      sed -i 's|^using Maxx.Api.Erros;|&\nusing Maxx.Api.Fot…)
+  ⎿  --- a/apps/api/src/Maxx.Api/Program.cs
+     +++ b/apps/api/src/Maxx.Api/Program.cs
+     +using Maxx.Api.Fotos;
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+3 -0)
+      3  using Maxx.Api.Autenticacao;
+      4  using Maxx.Api.Demonstracao;
+      5  using Maxx.Api.Erros;
+      6 +using Maxx.Api.Fotos;                                           
+      7  using Maxx.Api.Health;
+      8  using Maxx.Api.LimiteDeTaxa;
+      9  using Maxx.Api.Medalhas;
+     ...
+      34          worker.Configuration.GetConnectionString("Maxx")
+      35              ?? throw new InvalidOperationException("ConnectionS
+          trings:Maxx não configurada."));
+      36      worker.AddEnvioDeEmail(exigirUrl: true);
+      37 +    worker.AddArmazenamentoDeFotos(exigir: true);              
+      38      worker.Services.AddWorker();
+      39      await worker.Build().RunAsync();
+      40      return 0;
+     ...
+      80  
+      81  var servindo = !isMigrate && !isSeed && !isAnulacao && !isOpenA
+          piGeneration;
+      82  builder.AddAutenticacao(exigirChave: servindo);
+      83 +builder.AddArmazenamentoDeFotos(exigir: servindo);             
+      84  var demonstracao = builder.AddDemonstracao(servindo: servindo, 
+          gerandoOpenApi: isOpenApiGeneration);
+      85  builder.Services.AddProxyConfiavel(builder.Configuration);
+      86  builder.Services.AddLimitesDeTaxa();
+  ⎿  (timeout 10m)
+
+● Compila sem aviso. Agora os testes. Antes, vejo como os existentes usam as
+  fixtures e o ambiente de produção.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Vou acrescentar uma configuração de armazenamento de teste ao MaxxApiFactory,
+  porque os testes que sobem em Production passam a exigir o bucket. Depois
+  escrevo a fixture do VersityGW e os testes.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && cat > /tmp/novo.txt <<'EOF'
+          // Fora de desen…)
+  ⎿  diff --git a/apps/api/tests/Maxx.Api.IntegrationTests/MaxxApiFactory.c
+     s b/apps/api/tests/Maxx.Api.IntegrationTests/MaxxApiFactory.cs
+     index 435e5d2..5c3d685 100644
+     … +24 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\AccessTo
+     kenTests.cs (+1 -1)
+      171          new(
+      172              MaxxApiFactory.UnreachableDatabase,
+      173              ambiente,
+      174 -            configuracao: new Dictionary<string, string> { ["J
+          -wt:Chave"] = chave, ["App:UrlPublica"] = "https://maxx.teste" 
+          -},                                                            
+      174 +            configuracao: new Dictionary<string, string>(MaxxA
+          +piFactory.ChaveDeTeste) { ["Jwt:Chave"] = chave },            
+      175              servicos: usuario is null ? null : EmMemoria(usuar
+           io));
+      176  
+      177      private static Action<IServiceCollection> EmMemoria(Usuari
+           o usuario) =>
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\MaxxApiFactory.cs (+8
+     -2)
+      22      public const string UnreachableDatabase =
+      23          "Host=127.0.0.1;Port=1;Database=maxx;Username=maxx;Pass
+          word=maxx;Timeout=2";
+      24  
+      25 -    // Fora de desenvolvimento a API não sobe sem chave de assi
+         -natura (gerada por execução)                                   
+      26 -    // nem sem a URL pública do app.                           
+      25 +    // Fora de desenvolvimento a API não sobe sem chave de assi
+         +natura (gerada por execução),                                  
+      26 +    // sem a URL pública do app nem sem o bucket das fotos. O b
+         +ucket daqui não existe: o                                      
+      27 +    // cliente do S3 nasce no primeiro uso, e os testes que só 
+         +sobem a API nunca o usam.                                      
+      28      public static IReadOnlyDictionary<string, string> ChaveDeTe
+          ste { get; } = new Dictionary<string, string>
+      29      {
+      30          ["Jwt:Chave"] = Convert.ToBase64String(System.Security.
+          Cryptography.RandomNumberGenerator.GetBytes(48)),
+      31          ["App:UrlPublica"] = "https://maxx.teste",
+      32 +        ["Armazenamento:Bucket"] = "maxx-fotos",               
+      33 +        ["Armazenamento:Endpoint"] = "https://armazenamento.inv
+         +alid",                                                         
+      34 +        ["Armazenamento:UrlDeLeitura"] = "https://fotos.maxx.te
+         +ste",                                                          
+      35 +        ["Armazenamento:ChaveDeAcesso"] = "teste",             
+      36 +        ["Armazenamento:Segredo"] = "teste",                   
+      37      };
+      38  
+      39      // Tudo o que a aplicação escreveu em log, de todos os níve
+          is, já formatado.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Fotos\ArmazenamentoFixture.cs)
+  ⎿  Wrote 66 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Fotos\ArmazenamentoFixture.cs
+       1 using Amazon.Runtime;
+       2 using Amazon.S3;
+       3 using Amazon.S3.Model;
+       4 using DotNet.Testcontainers.Builders;
+       5 using DotNet.Testcontainers.Containers;
+       6 
+       7 namespace Maxx.Api.IntegrationTests.Fotos;
+       8 
+       9 // O mesmo emulador do compose (VersityGW, compatível com S3), c
+         om um bucket de leitura
+     … +57 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Fotos\ArmazenamentoDeFotosTests
+       .cs)
+  ⎿  Wrote 171 lines to apps\api\tests\Maxx.Api.IntegrationTests\Fotos\Arma
+     zenamentoDeFotosTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Web;
+       4 using Maxx.Application.Fotos;
+       5 using Microsoft.Extensions.DependencyInjection;
+       6 
+       7 namespace Maxx.Api.IntegrationTests.Fotos;
+       8 
+       9 // O bucket de verdade (o emulador), pelo adaptador montado pela
+          API. O que se prova aqui é
+     … +162 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O VersityGW com região auto exige o location constraint na criação do bucket.
+  Isso só afeta a fixture, não o código da aplicação.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Fotos/ArmazenamentoFixture.cs
+      && sed -i 's|…)
+  ⎿    total: 11
+       falhou: 0
+       concluído com êxito: 11
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Fotos\ArmazenamentoFixture.cs
+     (+2 -1)
+      53          using var s3 = new AmazonS3Client(
+      54              new BasicAWSCredentials(_chaveDeAcesso, _segredo),
+      55              new AmazonS3Config { ServiceURL = Endpoint.ToString
+          (), AuthenticationRegion = Regiao, ForcePathStyle = true });
+      56 -        await s3.PutBucketAsync(Bucket);                       
+      56 +        // Com região fora da lista da AWS, como o "auto" do R2
+         +, a criação leva a região.                                     
+      57 +        await s3.PutBucketAsync(new PutBucketRequest { BucketNa
+         +me = Bucket, BucketRegionName = Regiao });                     
+      58          await s3.PutBucketPolicyAsync(new PutBucketPolicyReques
+          t { BucketName = Bucket, Policy = PoliticaDeLeituraPublica(Buck
+          et) });
+      59      }
+      60  
+  ⎿  (timeout 10m)
+
+● Os 11 testes já passam contra o VersityGW real, e vou colocar o emulador num
+  perfil do compose ativado só pelo .env.example, para que nunca suba na VPS. As
+  variáveis do bucket passam a ser obrigatórias, sem padrão que aponte em
+  silêncio para o emulador.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Fotos/ArmazenamentoFixture.cs
+      && sed -i 's|^…)
+  ⎿          using var s3 = new AmazonS3Client(
+                 new BasicAWSCredentials(_chaveDeAcesso, _segredo),
+                 new AmazonS3Config { ServiceURL = Endpoint.ToString(), Aut
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Fotos\ArmazenamentoFixture.cs
+     (+1 -0)
+      53          using var s3 = new AmazonS3Client(
+      54              new BasicAWSCredentials(_chaveDeAcesso, _segredo),
+      55              new AmazonS3Config { ServiceURL = Endpoint.ToString
+          (), AuthenticationRegion = Regiao, ForcePathStyle = true });
+      56 +                                                               
+      57          // Com região fora da lista da AWS, como o "auto" do R2
+          , a criação leva a região.
+      58          await s3.PutBucketAsync(new PutBucketRequest { BucketNa
+          me = Bucket, BucketRegionName = Regiao });
+      59          await s3.PutBucketPolicyAsync(new PutBucketPolicyReques
+          t { BucketName = Bucket, Policy = PoliticaDeLeituraPublica(Buck
+          et) });
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(docker-compose.yml)
+  ⎿  Added 2 lines, removed 1 line
+      1 -# Maxx: Postgres, migração, duas réplicas de API, worker, Caddy 
+        -e Mailpit.                                                      
+      1 +# Maxx: Postgres, migração, duas réplicas de API, worker, Caddy 
+        +e Mailpit, mais o emulador                                      
+      2 +# do bucket de fotos só na máquina local e na CI.               
+      3  # Uso local: cp .env.example .env && docker compose up --build
+      4  
+      5  name: maxx
+
+● Update(docker-compose.yml)
+  ⎿  Added 19 lines
+      16  x-api-env: &api-env
+      17    ConnectionStrings__Maxx: "Host=postgres;Port=5432;Database=${
+          POSTGRES_DB:?defina no .env};Username=${POSTGRES_USER:?defina n
+          o .env};Password=${POSTGRES_PASSWORD:?defina no .env};Gss Encry
+          ption Mode=Disable"
+      18  
+      19 +# O bucket das fotos (ADR 0002), para a API e o worker. Na máqu
+         +ina local e na CI, o                                           
+      20 +# emulador abaixo, com os valores do .env.example; na VPS, o Cl
+         +oudflare R2, com os do .env                                    
+      21 +# de lá. Sem padrão que aponte para o emulador: faltando um val
+         +or, nada sobe.                                                 
+      22 +x-armazenamento-env: &armazenamento-env                        
+      23 +  Armazenamento__Bucket: ${MAXX_ARMAZENAMENTO_BUCKET:?defina no
+         + .env}                                                         
+      24 +  Armazenamento__Endpoint: ${MAXX_ARMAZENAMENTO_ENDPOINT:?defin
+         +a no .env}                                                     
+      25 +  Armazenamento__EndpointPublico: ${MAXX_ARMAZENAMENTO_ENDPOINT
+         +_PUBLICO:-}                                                    
+      26 +  Armazenamento__UrlDeLeitura: ${MAXX_ARMAZENAMENTO_URL_DE_LEIT
+         +URA:?defina no .env}                                           
+      27 +  Armazenamento__Regiao: ${MAXX_ARMAZENAMENTO_REGIAO:-auto}    
+      28 +  Armazenamento__ChaveDeAcesso: ${MAXX_ARMAZENAMENTO_CHAVE_DE_A
+         +CESSO:?defina no .env}                                         
+      29 +  Armazenamento__Segredo: ${MAXX_ARMAZENAMENTO_SEGREDO:?defina 
+         +no .env}                                                       
+      30 +                                                               
+      31 +# Sobe o bucket local antes da API, quando o perfil do emulador
+         + está ligado. Na VPS o perfil                                  
+      32 +# fica desligado, e a dependência some (required: false).      
+      33 +x-depende-do-bucket-local: &depende-do-bucket-local            
+      34 +  armazenamento-init:                                          
+      35 +    condition: service_completed_successfully                  
+      36 +    required: false                                            
+      37 +                                                               
+      38  services:
+      39    postgres:
+      40      image: postgres:18-alpine
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docker-compose.yml
+      # api e worker: env do bucket e dependência do bucket local…)
+  ⎿  --- a/docker-compose.yml
+     +++ b/docker-compose.yml
+     -# Maxx: Postgres, migração, duas réplicas de API, worker, Caddy e Mai
+     … +27 lines (ctrl+o to expand)
+  ⎿  Updated docker-compose.yml (+62 -2)
+      80    api:
+      81      <<: *api-image
+      82      environment:
+      83 -      <<: *api-env                                             
+      83 +      <<: [*api-env, *armazenamento-env]                       
+      84        ASPNETCORE_ENVIRONMENT: Production
+      85        # HS256, a mesma nas duas réplicas. Sem ela a API não sob
+          e.
+      86        Jwt__Chave: ${MAXX_JWT_CHAVE:?defina no .env}
+     ...
+      92      deploy:
+      93        replicas: 2
+      94      depends_on:
+      95 +      <<: *depende-do-bucket-local                             
+      96        seeder:
+      97          condition: service_completed_successfully
+      98      restart: unless-stopped
+     ...
+      103      <<: *api-image
+      104      command: ["worker"]
+      105      environment:
+      105 -      <<: *api-env                                            
+      106 +      <<: [*api-env, *armazenamento-env]                      
+      107        DOTNET_ENVIRONMENT: Production
+      108        # O e-mail sai daqui, por um trabalho da fila. Sem a URL
+            o worker não sobe.
+      109        App__UrlPublica: ${MAXX_URL_PUBLICA:-http://localhost}
+     ...
+      115        Email__Smtp__Usuario: ${MAXX_SMTP_USUARIO:-}
+      116        Email__Smtp__Senha: ${MAXX_SMTP_SENHA:-}
+      117      depends_on:
+      118 +      <<: *depende-do-bucket-local                            
+      119        seeder:
+      120          condition: service_completed_successfully
+      121      restart: unless-stopped
+      122  
+      123 +  # Emulador do bucket de fotos, compatível com S3 (VersityGW)
+          +, no lugar do Cloudflare R2.                                  
+      124 +  # Só na máquina local e na CI, pelo perfil que o .env.exampl
+          +e liga (COMPOSE_PROFILES);                                    
+      125 +  # nunca em produção. Porta só nesta máquina: é por ela que o
+          + navegador envia e lê as                                      
+      126 +  # fotos, como faria no R2 e na CDN.                         
+      127 +  armazenamento:                                              
+      128 +    image: versity/versitygw:v1.10.0                          
+      129 +    profiles: [armazenamento-local]                           
+      130 +    command: ["posix", "/dados"]                              
+      131 +    environment:                                              
+     … 55 more lines (ctrl+o to expand)
+
+● Os serviços do emulador estão no compose. Falta o .env.example, depois subo a
+  pilha inteira localmente para conferir.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat >> .env.example <<'EOF'…)
+  ⎿  -rw-r--r-- 1 Guilherme Gimenes 197609 375 Nov  3 21:47 .env
+     9
+  ⎿  Updated .env.example (+18 -0)
+      29  # Lote da apresentação, gravado em cada aluno de demonstração (
+          chave da purga). Só vale
+      30  # com docker-compose.demo.yml; sem ele, a demonstração fica des
+          ligada.
+      31  MAXX_DEMO_LOTE=
+      32 +                                                               
+      33 +# Bucket das fotos (ADR 0002). Aqui, o emulador compatível com 
+         +S3 do compose (VersityGW),                                     
+      34 +# ligado pelo perfil abaixo; só máquina local e CI. Na VPS, o .
+         +env de lá não liga o perfil e                                  
+      35 +# aponta para o Cloudflare R2: endpoint https://<conta>.r2.clou
+         +dflarestorage.com, região                                      
+      36 +# auto, a chave de API do R2 restrita ao bucket e a URL de leit
+         +ura no domínio da CDN.                                         
+      37 +COMPOSE_PROFILES=armazenamento-local                           
+      38 +MAXX_ARMAZENAMENTO_BUCKET=maxx-fotos                           
+      39 +# Por onde a API alcança o bucket, na rede interna do compose. 
+      40 +MAXX_ARMAZENAMENTO_ENDPOINT=http://armazenamento:7070          
+      41 +# O que vai na URL assinada, e portanto o que o navegador alcan
+         +ça. Vazio, é o endpoint,                                       
+      42 +# como no R2.                                                  
+      43 +MAXX_ARMAZENAMENTO_ENDPOINT_PUBLICO=http://localhost:9000      
+      44 +MAXX_ARMAZENAMENTO_URL_DE_LEITURA=http://localhost:9000/maxx-fo
+         +tos/                                                           
+      45 +MAXX_ARMAZENAMENTO_REGIAO=auto                                 
+      46 +MAXX_ARMAZENAMENTO_PORT=9000                                   
+      47 +# Credencial do emulador local, que a API usa para falar com el
+         +e. Nunca a do R2.                                              
+      48 +MAXX_ARMAZENAMENTO_CHAVE_DE_ACESSO=maxx-local                  
+      49 +MAXX_ARMAZENAMENTO_SEGREDO=troque-este-segredo                 
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A sua pilha maxx está rodando. Para não mexer nela, vou testar só o emulador e
+  a inicialização do bucket num projeto separado, com outra sub-rede e outra
+  porta.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O bucket local está certo: leitura anônima liberada, listagem recusada e CORS
+  só para a origem do app. Agora subo a pilha completa no projeto isolado para
+  confirmar que API e worker iniciam com a nova configuração.
+
+  Ran 1 shell command (ctrl+o to expand)
+● A pilha completa já sobe com API, worker e bucket inicializados. Em seguida
+  vou testar os dois cenários parecidos com a VPS: perfil desligado e variável
+  do bucket ausente.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Com o perfil desligado, o emulador sai da pilha e a dependência fica opcional.
+  Agora rodo a bateria local da CI: formatação, suíte completa, cliente gerado
+  e pacotes vulneráveis.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A suíte passa (568 de 568) e o cliente gerado não mudou. A formatação acusou
+  duas constantes privadas sem o prefixo _ no teste. Corrijo.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=apps/api/tests/Maxx.Api.IntegrationTests/Fotos/ArmazenamentoDeFotosTests
+      .cs && sed -i -…)
+  ⎿  14:    private const string _jpeg = "image/jpeg";
+     15:    private const int _tamanho = 1000;
+     27:        var bytes = Bytes(_tamanho);
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Fotos\ArmazenamentoDe
+     FotosTests.cs (+20 -20)
+      11  // dela é o próprio bucket, não o app.
+      12  public sealed class ArmazenamentoDeFotosTests(ArmazenamentoFixt
+          ure armazenamento) : IClassFixture<ArmazenamentoFixture>, IAsyn
+          cDisposable
+      13  {
+      14 -    private const string Jpeg = "image/jpeg";                  
+      15 -    private const int Tamanho = 1000;                          
+      14 +    private const string _jpeg = "image/jpeg";                 
+      15 +    private const int _tamanho = 1000;                         
+      16  
+      17      private static readonly TimeSpan _validade = TimeSpan.FromM
+          inutes(15);
+      18  
+     ...
+      24      [Fact]
+      25      public async Task Envio_exato_e_aceito_existe_e_e_lido_sem_
+          login()
+      26      {
+      27 -        var bytes = Bytes(Tamanho);                            
+      28 -        var envio = Armazenamento().AssinarEnvio(Chave(), Jpeg,
+         - Tamanho, Expira());                                           
+      27 +        var bytes = Bytes(_tamanho);                           
+      28 +        var envio = Armazenamento().AssinarEnvio(Chave(), _jpeg
+         +, _tamanho, Expira());                                         
+      29  
+      30 -        var resposta = await PutAsync(envio.Url, Jpeg, bytes); 
+      30 +        var resposta = await PutAsync(envio.Url, _jpeg, bytes);
+      31  
+      32          Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+      33          Assert.True(await Armazenamento().ExisteAsync(envio.Cha
+          ve, Ct));
+     ...
+      43      [InlineData("text/html")]
+      44      public async Task Envio_com_outro_tipo_e_recusado_pelo_buck
+          et(string outroTipo)
+      45      {
+      46 -        var envio = Armazenamento().AssinarEnvio(Chave(), Jpeg,
+         - Tamanho, Expira());                                           
+      46 +        var envio = Armazenamento().AssinarEnvio(Chave(), _jpeg
+         +, _tamanho, Expira());                                         
+      47  
+      48 -        var resposta = await PutAsync(envio.Url, outroTipo, Byt
+         -es(Tamanho));                                                  
+      48 +        var resposta = await PutAsync(envio.Url, outroTipo, Byt
+         +es(_tamanho));                                                 
+      49  
+      50          Assert.Equal(HttpStatusCode.Forbidden, resposta.StatusC
+          ode);
+      51          Assert.False(await Armazenamento().ExisteAsync(envio.Ch
+          ave, Ct));
+      52      }
+      53  
+      54      [Theory]
+      55 -    [InlineData(Tamanho - 1)]                                  
+      56 -    [InlineData(Tamanho + 1)]                                  
+      57 -    [InlineData(Tamanho * 50)]                                 
+     … 60 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 1 está pronta para a sua revisão. Nada foi commitado nem enviado: o
+  commit, o push e a CI vêm depois da sua aprovação, e a etapa só fecha com a CI
+  verde.
+
+  A D1 mudou: o repositório minio/minio não existe mais no Docker Hub, e o
+  espelho no quay.io pede login. Você escolheu o VersityGW v1.10.0. Antes,
+  testei com o AWSSDK.S3 que ele recusa tipo errado, tamanho errado e assinatura
+  vencida, serve leitura anônima e responde ao CORS. Essa mudança entra no
+  decisoes/README.md na etapa 11.
+
+  O que a etapa entrega
+  - IArmazenamentoDeFotos (Maxx.Application/Fotos) faz quatro coisas:
+    - assina o PUT sem ir à rede;
+    - confere se o objeto existe, com HEAD;
+    - remove objetos em lote, aceitando chave que já não existe;
+    - monta a URL de leitura.
+  - ArmazenamentoS3 (Maxx.Infrastructure/Fotos) implementa isso com o AWSSDK.S3.
+    O tamanho fica preso porque o content-length entra nos cabeçalhos
+    assinados, junto com o content-type. O R2 não aceita POST com faixa de
+    tamanho, então esse é o caminho.
+  - Dois endereços: um para a API falar com o bucket pela rede interna e um
+    público, que vai na URL assinada. No R2 os dois são o mesmo.
+  - Sem configuração do bucket: fora de desenvolvimento, a API e o worker não
+    sobem. Em desenvolvimento a API sobe, e só o que usa o bucket falha.
+  - Compose: o serviço armazenamento (VersityGW) e o armazenamento-init (AWS CLI
+    2.38.0) ficam num perfil que só o .env.example liga, pelo COMPOSE_PROFILES.
+    Na VPS, o .env de lá não liga o perfil, e o emulador nem existe na pilha.
+    - O init cria o bucket com leitura anônima de objeto e CORS só para a origem
+      do app e para o Expo de desenvolvimento.
+    - As variáveis do bucket são obrigatórias, sem valor padrão que aponte para
+      o emulador.
+
+  Como verifiquei
+  - 11 testes de integração contra o VersityGW real, via Testcontainers, todos
+    passando:
+    - o PUT exato é aceito, o objeto existe e é lido sem login;
+    - outro tipo, tamanho menor, maior ou 50 vezes maior: o próprio bucket
+      responde 403 e o objeto não existe;
+    - assinatura vencida: 403;
+    - os cabeçalhos assinados incluem content-type e content-length;
+    - remover apaga o objeto e pode rodar de novo sem erro;
+    - em Production sem o bucket, a API não sobe;
+    - em Development sem o bucket, a API sobe e só o uso falha.
+  - Suíte inteira: 568 de 568. Formatação, build sem aviso, cliente gerado sem
+    diferença e nenhum pacote vulnerável.
+  - Pilha completa num projeto isolado (maxx-etapa1, outra sub-rede e outras
+    portas, sem tocar na sua):
+    - a API fica pronta e o worker sobe;
+    - o init é idempotente;
+    - a listagem anônima é recusada (403) e a origem estranha não passa no CORS;
+    - com o perfil desligado o emulador some da pilha, e sem a variável do
+      bucket o compose recusa subir.
+
+  Antes de você subir o compose de novo: o seu .env local não tem as variáveis
+  MAXX_ARMAZENAMENTO_* nem o COMPOSE_PROFILES. A pilha maxx que está rodando
+  continua de pé, mas o próximo docker compose up vai recusar até você copiar
+  esse bloco do .env.example. Não mexi no seu .env.
+
+  Commit proposto: feat(infra): adiciona bucket de fotos compatível com s3 e 
+  emulador local
+
+  Arquivos novos:
+  - apps/api/src/Maxx.Application/Fotos/IArmazenamentoDeFotos.cs
+  - apps/api/src/Maxx.Infrastructure/Fotos/ArmazenamentoOptions.cs
+  - apps/api/src/Maxx.Infrastructure/Fotos/ArmazenamentoS3.cs
+  - apps/api/src/Maxx.Api/Fotos/ArmazenamentoServiceCollectionExtensions.cs
+  - apps/api/tests/Maxx.Api.IntegrationTests/Fotos/ArmazenamentoFixture.cs
+  - apps/api/tests/Maxx.Api.IntegrationTests/Fotos/ArmazenamentoDeFotosTests.cs
+
+  Arquivos alterados:
+  - docker-compose.yml e .env.example
+  - Directory.Packages.props e os dois .csproj
+  - Program.cs e DependencyInjection.cs
+  - MaxxApiFactory.cs e AccessTokenTests.cs, que ganharam um bucket de teste
+    porque os testes em Production agora exigem a configuração
+
+  Quando você aprovar, eu commito, faço o push e trago o resultado da CI.
+
+✻ Crunched for 19m 35s · done 21:59
+
+※ recap: Passo 7 (posts, upload e feed): a etapa 1, bucket de fotos com o emulador VersityGW, está pronta e com tudo passando localmente, mas ainda sem commit. Falta a sua revisão; aprovando, eu commito, faço o push e trago o resultado da CI. (disable recaps in /config)
