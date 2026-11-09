@@ -26,7 +26,7 @@ async function main() {
   if (args['falha-subida']) {
     meta.falhaSubida = fs.readFileSync(args['falha-subida'], 'utf8');
     const arq = gravar({ saida: args.saida, meta, resultado: null });
-    console.log(`Gravado (produto não subiu): ${arq.md}`);
+    console.log(`Relatório provisório (produto não subiu), na pasta temporária: ${arq.md}`);
     return;
   }
 
@@ -45,7 +45,7 @@ async function main() {
   const arq = gravar({ saida: args.saida, meta, resultado });
   const { passou, falhou, ausente } = resultado.resumo;
   console.log(`Resumo: ${passou} passou, ${falhou} falhou, ${ausente} ausente.`);
-  console.log(`Gravado: ${arq.md}`);
+  console.log(`Relatório provisório, na pasta temporária: ${arq.md}`);
 }
 
 main().catch((e) => {

@@ -24,12 +24,13 @@ function Confere {
 function Get-PastasDaSuite { @(Get-ChildItem -LiteralPath (Get-PastaTemporaria) -Directory -Filter 'testes-ref-falso-*' -ErrorAction SilentlyContinue) }
 
 $base = Join-Path (Get-PastaTemporaria) ("ensaio-testes-ref-" + (Get-Date).ToString('yyyyMMdd-HHmmss'))
-$repo = New-RepoEnsaio -Exemplo (Join-Path $raizTcc 'avaliacoes\avaliador\exemplo') -Destino (Join-Path $base 'repo')
-$saida = Join-Path $base 'saida'
-$hash = (Invoke-Git -Dir $repo -Argumentos @('rev-parse', 'main') | Select-Object -First 1).Trim()
 $pastasAntes = @(Get-PastasDaSuite).Count
 
 try {
+    $repo = New-RepoEnsaio -Exemplo (Join-Path $raizTcc 'avaliacoes\avaliador\exemplo') -Destino (Join-Path $base 'repo')
+    $saida = Join-Path $base 'saida'
+    $hash = (Invoke-Git -Dir $repo -Argumentos @('rev-parse', 'main') | Select-Object -First 1).Trim()
+
     Write-Host 'Ensaio 1: execução normal'
     $antes = Get-EstadoOrigem -Repo $repo
     & powershell -NoProfile -ExecutionPolicy Bypass -File $rodar -Produto falso -Repo $repo -Ref main -Saida $saida
@@ -70,7 +71,7 @@ try {
 } finally {
     $env:TESTES_REF_FALSO_FALHAR = $null
     $env:TESTES_REF_FALSO_MEXER_NA_ORIGEM = $null
-    Remove-PastaSegura -Caminho $base
+    if (Test-Path -LiteralPath $base) { Remove-PastaSegura -Caminho $base }
 }
 
 if ($falhas) { Write-Host "Ensaio do rodar.ps1: $falhas falha(s)." -ForegroundColor Red; exit 1 }
