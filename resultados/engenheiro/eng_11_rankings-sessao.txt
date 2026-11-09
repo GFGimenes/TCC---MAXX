@@ -1,0 +1,224 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Ultra
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> Passo 11 do plano mestre: rankings. Estamos na rodada/eng_11_rankings, saída  
+  da main com os passos 1 a 10 mergeados. Antes de qualquer código, me traga o  
+  plano de etapas, com entrega e critério de aceite por etapa, como combinamos  
+  no CLAUDE.md. Vale tudo que está lá: decisão que não está nos docs não foi    
+  tomada, então pergunte antes de assumir. Uma regra que fixei no passo 3 e     
+  vale daqui em diante: cada etapa só é dada como pronta depois de a CI do push 
+  dela passar, e o resultado da CI entra no relatório da etapa. Lembro o que    
+  fecha o passo: tabela das quatro visões escrita pelo worker com coalescência, 
+  como no ADR 0005; desempate pelo instante da última concessão que compõe a    
+  pontuação atual; congelamento do ranking semestral trinta dias após o fim do  
+  semestre; entrada pelo toque na própria posição no perfil e pelos atalhos da  
+  Busca; filtro entre semestre atual e histórico, com topo e linha do próprio   
+  aluno em destaque; ex-aluno só no histórico; e, vindo dos passos 8 e 9, o     
+  recálculo do ranking enfileirado também pela aprovação de comprovação, pela   
+  contestação, pela decisão da instituição, pela remoção do post pela           
+  instituição e pela conquista concedida ou removida, com o prêmio de           
+  participação contando no semestre do início do evento (produto.md 4.9), a     
+  conquista no semestre da instância dela, e o congelamento reaproveitando a    
+  leitura do passo 9. O fluxo 05 é a referência. Eu reviso o plano e aí         
+  começamos a primeira etapa.                                                   
+
+  Ran 8 shell commands (ctrl+o to expand)
+
+● Ainda lendo os documentos e o código existente (fila, recálculo de raridade,
+  calendário, perfil e busca) para montar o plano do passo 11. Sigo.
+
+  Read 2 files, ran 8 shell commands (ctrl+o to expand)
+
+● Ainda na leitura: MarcarExAluno e TrocarDeCurso existem no domínio, mas
+  ninguém os chama ainda, pois a tela fica para o passo 12. Vou checar como as
+  conquistas de ano e de curso caem num semestre e depois olhar o perfil e a
+  busca no app.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Li o plano mestre, o produto.md (seções 2.2, 4.3, 4.6, 4.9, 5, 6.4, 6.5, 10),
+  os ADRs 0005, 0007 e 0008, o fluxo 05, as decisões dos passos 6 a 10, as
+  pranchetas de rankings e perfil, e o código do recálculo de raridade, do
+  Calendario e da InstanciaDePeriodo. Segue o plano. Antes dele, as perguntas:
+  algumas mudam o que a etapa 1 testa.
+
+  Perguntas (preciso das respostas antes da etapa 1)
+
+  1. Em que semestre pontuam as conquistas de ano e de curso. "Semestre da
+     instância" só responde para bimestre e semestre. O catálogo tem 4
+     conquistas de ano e 3 de curso. Proposta: a de ano pontua no segundo
+     semestre do ano, o mesmo que a regra 5 de regras-conquista.md usa para o
+     congelamento. A de curso pontua no semestre em que foi concedida, e no
+     recesso no semestre seguinte, como o evento.
+  2. O instante de desempate de cada fonte. Proposta: medalha pelo concedida_em.
+     Prêmio de participação pelo instante da aprovação (ou da concessão direta,
+     no passo 12), e o prêmio contestado e depois confirmado mantém esse
+     instante. Conquista pelo concedida_em. Se ainda empatar, o id do aluno
+     decide, para a posição não oscilar entre dois recálculos.
+  3. Aluno sem pontos aparece no ranking? Proposta: não. A tabela guarda só quem
+     tem pontos na visão, e o card do próprio aluno mostra "Sem posição ainda".
+     Isso combina com o ADR 0005, que diz que aluno novo não move o ranking. Se
+     ele tivesse linha, o cadastro também teria de pedir o recálculo.
+  4. Que posição e que pontos o perfil mostra. Hoje o perfil e Troféus mostram
+     os pontos de todos os semestres. A prancheta mostra os mesmos 15.020 pts e
+     #29 no perfil e no "Geral" do semestre. Proposta: o perfil mostra a posição
+     no histórico geral, que bate com os pontos que ele já mostra e existe
+     também para o ex-aluno. A alternativa é a posição do semestre, que zera os
+     pontos do perfil a cada virada de semestre e muda o que o passo 7 decidiu.
+     O toque abre o ranking no chip correspondente à posição mostrada.
+  5. O controle "Todos / Quem eu sigo" da prancheta. Ele não aparece no
+     produto.md. Proposta: entra, como entraram itens da prancheta no passo 10.
+     Ele filtra a mesma tabela sem mudar a posição global, e a leitura continua
+     um SELECT com índice, com junção em segue.
+  6. Quem vê o ranking por curso. Proposta: o aluno vê o curso atual dele, e o
+     ex-aluno vê só o histórico do último curso. Professor e instituição veem
+     Geral e Histórico, sem os chips de curso. Abrir o ranking de qualquer curso
+     fica fora deste passo.
+
+  Propostas (valem se você não mudar nada)
+
+  - A. Conflito entre a prancheta e o produto.md. A prancheta mostra um ex-aluno
+    no "Geral" do semestre. Sigo o produto.md (ex-aluno só no histórico), e o
+    rótulo "Ex-aluno" aparece nas visões de histórico.
+  - B. Semestre atual. É o último semestre que já começou, então no recesso
+    continua o 2/2026, com o rótulo "Semestre 2/2026". Quando o 2027/1 começa, a
+    visão passa para ele e começa do zero.
+  - C. Congelamento. O worker reescreve só as visões de semestres ainda não
+    congelados, reaproveitando InstanciaDePeriodo.DiasAteOCongelamento com a
+    mesma leitura do passo 9: no dia do fim mais 30, o semestre já está
+    congelado. As linhas do semestre congelado ficam como estavam. O histórico
+    nunca congela.
+  - D. Lista. Rolagem por cursor, de 20 em 20, a partir do #1. O card "Sua
+    posição" fica fixo no alto, e a linha do próprio aluno fica destacada (fundo
+    highlight, anel dourado) quando aparece na lista. A prancheta mostra
+    posições salteadas, o que tomo como ilustração.
+  - E. Trabalho e coalescência. Crio um trabalho recalcular-ranking separado do
+    recalcular-raridade, com a própria linha em recalculo e a mesma coalescência
+    de 10 s. Uma execução reescreve as quatro visões. Todo evento que muda
+    pontos enfileira os dois trabalhos. O aluno novo enfileira só a raridade,
+    como hoje.
+  - F. Ex-aluno e troca de curso. MarcarExAluno e TrocarDeCurso existem no
+    domínio, mas ninguém os chama ainda (a tela é do passo 12). Neste passo o
+    worker já respeita os dois. Registro como pendência do passo 12 que os dois
+    atos enfileirem o recálculo na mesma transação.
+  - G. p95. Não há decisão de cache neste passo, então não meço p95 aqui. A
+    leitura do ranking entra no cenário k6 do passo 13.
+
+  Plano de etapas
+
+  Branch feat/passo-11-rankings, saindo da rodada/eng_11_rankings. Um commit por
+  etapa. A etapa só fica pronta depois que a CI do push dela passar, e o
+  resultado da CI entra no relatório da etapa. Uma falha depois do push vira um
+  commit fix separado.
+
+  Etapa 1 · Domínio: pontuação por semestre, ordem e congelamento (feat(api))
+  - Entrega:
+    - Maxx.Domain/Ranking: o semestre em que cada fonte pontua (medalha pelo
+      semestre do bimestre, prêmio de participação por
+      Calendario.SemestreDoEvento, conquista conforme a pergunta 1).
+    - A ordem: pontos decrescentes, depois o instante de desempate crescente,
+      depois o id.
+    - Quando um semestre está congelado.
+    - Quem entra em cada visão: o ex-aluno fica fora das visões de semestre, e o
+      curso é sempre o atual.
+  - Aceite: xUnit sem banco, em TDD.
+    - Um teste por fonte.
+    - Evento no recesso conta no semestre seguinte, e sem semestre seguinte no
+      calendário o prêmio não pontua.
+    - Fronteiras do congelamento: fim mais 29 ainda aceita, fim mais 30 já está
+      congelado.
+    - Empate decidido pelo instante, e depois pelo id.
+    - Prêmio em averiguação, prêmio revogado, medalha anulada e conquista
+      removida não pontuam.
+    - Lint limpo e CI verde.
+
+  Etapa 2 · Tabela e worker (feat(api))
+  - Entrega:
+    - Migration da tabela posicao_no_ranking: visão (geral ou curso, semestre ou
+      histórico), semestre (nulo no histórico), curso (nulo no geral), aluno,
+      pontos, posição e ultima_concessao_em. Índice por visão e posição, e
+      índice por aluno.
+    - Handler recalcular-ranking com coalescência, que reescreve as visões não
+      congeladas em uma transação.
+    - O seed base garante um pedido pendente, como já faz com a raridade.
+  - Aceite: integração com Testcontainers.
+    - As quatro visões calculadas corretamente.
+    - Ex-aluno só no histórico.
+    - Troca de curso leva os pontos para o curso novo.
+    - Semestre congelado continua intacto depois de um evento novo.
+    - Uma rajada de pedidos vira uma execução só, e um pedido antes de 10 s fica
+      adiado.
+    - Dois workers simultâneos não calculam duas vezes.
+    - Migration aplicada e CI verde.
+
+  Etapa 3 · Todo evento que muda pontos enfileira o recálculo (feat(api))
+  - Entrega: o enfileiramento, na mesma transação, nos seguintes atos:
+    - concessão de medalha;
+    - anulação de medalha, inclusive pelo comando administrativo;
+    - aprovação de comprovação;
+    - contestação;
+    - decisão da instituição, confirmando ou revogando;
+    - remoção do post pela instituição, quando revoga;
+    - conquista concedida ou removida, nos handlers de reavaliação, de
+      fechamento e de recálculo da medalha.
+  - Aceite:
+    - Um teste de integração por evento, mostrando que o pedido nasce com a
+      escrita e some quando ela falha.
+    - Um teste ponta a ponta no worker: o prêmio aprovado move a posição no
+      semestre do evento, e não no semestre da aprovação.
+    - CI verde.
+
+  Etapa 4 · API de leitura e contrato (feat(api) e feat(client) no mesmo commit,
+  como nos passos anteriores)
+  - Entrega:
+    - GET /v1/rankings com escopo, período, seguidos e cursor. A resposta traz o
+      rótulo do semestre, a página do topo e a linha do próprio aluno (nula se
+      ele não tem posição).
+    - posicao no perfil, como acréscimo e nulável.
+    - OpenAPI regenerado e schema.d.ts sem diferença pendente.
+  - Aceite: integração cobrindo:
+    - leitura só da tabela, sem agregação;
+    - paginação;
+    - ex-aluno sem linha no semestre;
+    - filtro de seguidos com a posição global preservada;
+    - professor sem os chips de curso (pergunta 6);
+    - erro no formato único.
+
+    CI verde, com o job de diferença do cliente.
+
+  Etapa 5 · Cliente (feat(mobile))
+  - Entrega:
+    - Tela Rankings em claro e escuro: os quatro chips, "Semestre 2/2026", o
+      card "Sua posição" com "Ver prêmios", a lista com o destaque e o rótulo de
+      ex-aluno, e o segmentado "Todos / Quem eu sigo".
+    - Entrada por "pts · #29 ›" no perfil e pelos dois atalhos da Busca.
+    - Posição no perfil de outro aluno.
+    - Hooks TanStack escritos à mão e erros com mensagem amigável.
+  - Aceite:
+    - Jest com Testing Library: chips, destaque, card sem posição, ex-aluno,
+      paginação e as duas entradas.
+    - Sem emoji, sem sombra fora do segmentado no claro, sem texto em ouro no
+      claro.
+    - Lint limpo e CI verde.
+
+  Etapa 6 · e2e e documentação (docs(docs), como no passo 10)
+  - Entrega:
+    - Playwright no celular, claro e escuro: a professora concede uma medalha e
+      o aluno, pelo perfil, vê pontos e posição atualizados em segundos. Também
+      abre os atalhos da Busca e alterna entre semestre e histórico.
+    - A seção "Rankings (passo 11)" em decisoes/README.md e o fluxo 05
+      atualizado.
+    - Pendências no plano mestre: os itens da proposta F no passo 12, e a
+      leitura no k6 e a saúde do worker no passo 13.
+    - As respostas das perguntas 1 a 3 entram no produto.md, sem travessões.
+  - Aceite: e2e verde na CI, os docs revisados por você, e o PR do passo aberto
+    contra a rodada.
+
+  Fico no aguardo das respostas às perguntas 1 a 6 e do seu ajuste no plano.
+  Nenhum código até lá.
+
+✻ Sautéed for 3m 16s · done 8:01
+
+※ recap: O objetivo é o passo 11 (rankings), e o plano de seis etapas já está pronto para a sua revisão, sem nenhum código escrito. Agora preciso das suas respostas às perguntas 1 a 6 e dos ajustes no plano para começar a etapa 1. (disable recaps in /config)

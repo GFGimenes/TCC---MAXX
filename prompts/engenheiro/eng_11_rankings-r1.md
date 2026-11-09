@@ -1,0 +1,14 @@
+ID: eng_11_rankings-r1
+Trilha: engenheiro
+Tela: passo 11 (resposta 1 do autor: aprovação do plano e das perguntas)
+Data: 2026-11-09
+Origem: leitura do Cowork (Anthropic) do export da sessão; perguntas conferidas contra produto.md 5, 6.4 e 6.5, regras-conquista.md (regra 5) e o plano mestre; decisão do autor; redigida pelo Cowork, o autor revisou.
+
+Notas de registro:
+- Sessão aberta pelo autor às 07h58 (Brasília), com o PC operado à distância; o Cowork acompanhou a tela pelo app, sem digitar.
+- Plano do agente: seis etapas (domínio da pontuação por semestre, ordem e congelamento; tabela `posicao_no_ranking` e worker `recalcular-ranking` com coalescência; enfileiramento em todo evento que muda pontos; API de leitura e contrato; cliente; e2e e docs). Sete propostas A a G (ex-aluno só no histórico, seguindo o produto.md contra a prancheta; semestre atual é o último que já começou; congelamento só reescreve visões não congeladas, reaproveitando `InstanciaDePeriodo.DiasAteOCongelamento`; lista por cursor de 20 em 20 com card fixo; trabalho separado do de raridade com a mesma coalescência de 10 s; worker respeita ex-aluno e troca de curso, com o enfileiramento desses atos pendente para o passo 12; sem p95 neste passo).
+- Seis perguntas, todas pela recomendação: conquista de ano pontua no segundo semestre do ano e a de curso no semestre da concessão (recesso empurra para o seguinte); desempate por fonte com o id do aluno como último critério; aluno sem pontos fora da tabela, com "Sem posição ainda"; perfil mostra a posição do histórico geral, coerente com os pontos acumulados que já mostra; "Todos / Quem eu sigo" da prancheta entra, como itens da prancheta entraram no passo 10; aluno vê o curso atual, ex-aluno o histórico do último curso, professor e instituição só Geral e Histórico.
+- Sem ajuste do autor no plano.
+
+---
+Plano aprovado, seis etapas, um PR da feat/passo-11-rankings para a rodada/eng_11_rankings, CI verde por etapa. Propostas A a G pela sua proposta. As seis perguntas pela sua recomendação: 1, conquista de ano pontua no segundo semestre do ano, como a regra 5 do congelamento, e a de curso no semestre da concessão, com o recesso empurrando para o seguinte; registra as duas no produto.md. 2, desempate por fonte como você descreveu, com o id do aluno como último critério. 3, aluno sem pontos fica fora da tabela e o card mostra "Sem posição ainda". 4, o perfil mostra a posição do histórico geral, coerente com os pontos acumulados que já mostra, e o toque abre o ranking nesse chip. 5, o "Todos / Quem eu sigo" entra, filtrando a mesma tabela sem mudar a posição global. 6, aluno vê o curso atual, ex-aluno só o histórico do último curso, professor e instituição só Geral e Histórico. Cria a branch e começa a etapa 1; para para a minha revisão no fim dela, com a mensagem de commit antes de commitar.
