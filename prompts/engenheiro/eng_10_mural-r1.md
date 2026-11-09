@@ -1,0 +1,12 @@
+ID: eng_10_mural-r1
+Trilha: engenheiro
+Tela: passo 10 (resposta 1 do autor: plano de etapas, nove perguntas e D1 a D7)
+Data: 2026-11-09
+Origem: leitura do Cowork (Anthropic) do export da sessão; decisão do autor; redigida pelo Cowork, o autor revisou.
+
+Notas de registro:
+- Plano do agente: sete etapas (publicar aviso; ler o mural com ETag; notificações e novidades; tela do Mural; novo aviso do professor; sininho, notificações e bolinhas; docs e e2e). Sete decisões técnicas D1 a D7 (modelo com aviso, alvos e leitura; foto com finalidade `aviso`; escopo do professor no banco; distribuição das notificações por trabalho idempotente; `GET /v1/eu/novidades` consultado ao focar e a cada 60 s; textos no cliente com resumo da API; purga).
+- Nove perguntas, todas pela recomendação: título de 3 a 120 e texto de 1 a 2.000; não lido aberto com bolinha e negrito, lido recolhido, abrir registra a leitura e marca a notificação; visibilidade por vínculos (ex-aluno lê e não é notificado; professor vê faculdade e os próprios; instituição tudo) com destinatários fixados na publicação; aviso de curso para um ou mais cursos; marcador `trofeus_visto_em` separado do sininho; abrir o sininho marca tudo como lido e cada toque leva ao destino listado; tela de notificações e "+" do professor acrescentados à lista de superfícies em produto.md 10.1 e CLAUDE.md; sininho também no Mural; fora do escopo confirmado (sem edição nem remoção de aviso, tela da instituição no passo 12, p95 do ETag no passo 13, avisos no perfil do professor como acréscimo).
+
+---
+Plano aprovado, sete etapas, um PR da feat/passo-10-mural para a rodada/eng_10_mural, CI verde por etapa. D1 a D7 pela sua proposta. As nove perguntas pela sua recomendação: 1, título de 3 a 120 e texto de 1 a 2.000, registrados no produto.md 7. 2, sua leitura da prancheta confere: não lido aberto com bolinha e negrito, lido recolhido, abrir registra a leitura e marca a notificação do aviso, "Ler todos" marca tudo. 3, visibilidade e notificação como você descreveu, com o ex-aluno lendo sem ser notificado e os destinatários fixados na publicação. 4, um ou mais cursos na mesma publicação. 5, o marcador trofeus_visto_em separado do sininho. 6, abrir o sininho marca tudo como lido, com os destinos por tipo como listou. 7, a tela de notificações e o "+" do professor entram na lista de superfícies do produto.md e do CLAUDE.md. 8, sininho também no Mural. 9, confirmado o que fica fora. Cria a branch e começa a etapa 1; para para a minha revisão no fim dela, com a mensagem de commit antes de commitar.

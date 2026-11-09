@@ -1,0 +1,259 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Max
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> Passo 10 do plano mestre: mural e notificações. Estamos na                    
+  rodada/eng_10_mural, saída da main com os passos 1 a 9 mergeados. Antes de    
+  qualquer código, me traga o plano de etapas, com entrega e critério de aceite 
+  por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá: decisão que   
+  não está nos docs não foi tomada, então pergunte antes de assumir. Uma regra  
+  que fixei no passo 3 e vale daqui em diante: cada etapa só é dada como pronta 
+  depois de a CI do push dela passar, e o resultado da CI entra no relatório    
+  da etapa. Lembro o que fecha o passo: aviso nos três escopos, com o professor 
+  selecionando uma ou mais turmas suas; texto com imagem opcional, somente      
+  leitura; registro de leitura e bolinha dourada na aba Mural; sininho no       
+  cabeçalho do feed com as notificações de medalha, aprovação, reprovação,      
+  contestação, decisão e aviso novo, mais as de conquista obtida e de conquista 
+  removida, que o passo 9 já grava; e a bolinha de prêmio novo na aba Troféus.  
+  Eu reviso o plano e aí começamos a primeira etapa.                            
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Lendo os docs do passo 10. Próximo: o registro de decisões e o código de
+  notificação que já existe.
+
+  Read 1 file, ran 5 shell commands (ctrl+o to expand)
+
+● Já li o código de notificação do backend. Agora vou olhar o cliente (abas,
+  cabeçalho do feed, Troféus) e a prancheta do mural.
+
+  Read 2 files, ran 5 shell commands (ctrl+o to expand)
+
+● Plano de etapas do passo 10: mural e notificações
+
+  Branch: feat/passo-10-mural, saindo da rodada/eng_10_mural, com um PR de volta
+  para ela. Uma etapa vira um commit. Cada etapa só fica pronta com a CI do
+  push verde, e o resultado da CI entra no relatório dela.
+
+  O que já existe e o que falta
+
+  - Já existe: a tabela notificacao (usuário, tipo, referência, criada em, lida
+    em, uma linha por usuário, tipo e referência). Já são gravados os oito
+    tipos: medalhaRecebida, comprovacaoAprovada, comprovacaoReprovada,
+    contestacaoAberta, decisaoDeContestacao, premioRevogado, conquistaObtida e
+    conquistaRemovida. A BottomNav já desenha a bolinha (novidades.mural e
+    novidades.trofeus), mas ninguém liga isso ainda.
+  - Falta: o aviso inteiro, o tipo avisoNovo, a leitura do aviso, as rotas de
+    leitura das notificações, o sininho, a tela de notificações e os textos.
+  - A prancheta do mural mostra três coisas que o produto.md não fixa: o aviso
+    tem título além do texto; tem botão "Ler todos"; e o sininho aparece também
+    no cabeçalho do Mural. Os chips são "Todos, Faculdade, Curso, Professores",
+    e "Professores" é o rótulo do escopo turma.
+
+  Perguntas antes da etapa 1
+
+  Junto de cada uma vai a minha recomendação. Nenhuma está nos docs, então
+  nenhuma foi assumida.
+
+  1. Título do aviso. A prancheta tem título e corpo; o produto.md 7 diz só
+     "texto". Recomendo título de 3 a 120 caracteres e texto de 1 a 2.000, com
+     isso registrado no produto.md 7.
+  2. O cartão e o momento da leitura. Leio a prancheta assim: o aviso não lido
+     aparece aberto, com a bolinha e o título em negrito; o lido aparece
+     recolhido, com a seta. "Abrir" leva a /aviso/:id, com a imagem inteira, e é
+     abrir que registra a leitura. "Ler todos" marca todos de uma vez. Ler o
+     aviso também marca como lida a notificação avisoNovo dele. Confere?
+  3. Quem vê o mural e quem é notificado.
+     - Aluno: faculdade, o curso atual e as turmas em que tem matrícula.
+     - Ex-aluno: faculdade, o curso em que estava e as turmas antigas. Ele lê o
+       mural, mas não é notificado.
+     - Professor: avisos de faculdade, mais os que ele mesmo publicou.
+     - Instituição: tudo.
+
+     Os destinatários do avisoNovo são fixados no momento da publicação. O que
+     aparece no mural é calculado na leitura.
+  4. Aviso de curso. Recomendo que a instituição possa escolher um ou mais
+     cursos na mesma publicação, como o professor faz com as turmas.
+  5. "Prêmio novo" em Troféus. Recomendo um marcador trofeus_visto_em no
+     usuário. A bolinha acende quando surge, depois desse instante, uma medalha,
+     um prêmio aprovado ou uma conquista; abrir a aba atualiza o marcador. Isso
+     deixa a bolinha separada do sininho: abrir Troféus não marca notificação
+     nenhuma como lida.
+  6. Leitura das notificações. Como no Instagram: abrir a tela do sininho marca
+     todas como lidas, e quem estava não lido no momento aparece em negrito com
+     a bolinha. Tocar numa notificação leva:
+     - medalha e conquista → Troféus;
+     - aprovação, contestação e decisão → o post;
+     - reprovação e revogação → Troféus, seção Reivindicações;
+     - aviso → /aviso/:id.
+  7. Superfícies sem prancheta. A tela de notificações e o "Novo aviso" do
+     professor (um "+" no cabeçalho do Mural, só para professor) não estão na
+     lista do produto.md 10.1. Recomendo seguir a identidade visual e o
+     Instagram e acrescentar as duas à lista, no produto.md e no CLAUDE.md.
+  8. Sininho também no Mural. Recomendo seguir a prancheta.
+  9. Fora do escopo, para confirmar:
+     - Aviso sem edição e sem remoção na fase 1.
+     - A instituição publica pela API neste passo; a tela dela fica para o passo
+       12, como na D7 do passo 8.
+     - Existe decisão de cache (ETag nos avisos), mas o p95 dela fica para o k6
+       do passo 13, como o do perfil no passo 7.
+     - O perfil do professor mostra os avisos que ele publicou (produto.md 2.1),
+       que entra aqui, e só como acréscimo.
+
+  Decisões técnicas que proponho
+
+  - D1. Modelo.
+    - aviso: escopo, autor, título, texto, upload da foto e publicado em.
+    - aviso_turma e aviso_curso, um aviso para N alvos.
+    - leitura_de_aviso: aviso, usuário e lida em, com chave composta.
+    - Quem publicou e quando fica gravado no próprio aviso.
+  - D2. Foto. Nova finalidade aviso no POST /v1/uploads, com as mesmas derivadas
+    e o mesmo limite do post. Confirmada pelo HEAD na publicação.
+  - D3. Escopo do professor. Conferido no banco, contra vinculo_professor, no
+    semestre vigente. Turma fora do escopo responde 403 fora-do-escopo.
+  - D4. Distribuição das notificações. Trabalho notificar-aviso-novo,
+    enfileirado na transação da publicação. O worker faz um INSERT ... SELECT 
+    ... ON CONFLICT DO NOTHING com os destinatários, de modo idempotente, para
+    um aviso de faculdade não estourar os 60 s.
+  - D5. Novidades. Uma rota só, GET /v1/eu/novidades, devolve { sininho, mural, 
+    trofeus } como booleanos. O app consulta ao focar e a cada 60 s; não há push
+    na fase 1.
+  - D6. Textos das notificações. Ficam no cliente, por tipo. A API manda um
+    resumo mínimo para montar a frase: o nome do item, se a decisão confirmou ou
+    revogou, o título do aviso. Os textos vão para a revisão da etapa 6.
+  - D7. Purga. O SQL ganha DELETE FROM leitura_de_aviso antes de usuario. Avisos
+    não são do lote.
+
+  Etapas
+
+  Etapa 1: feat(api), publicar aviso
+
+  Entrega
+  - Domínio do Aviso, com as regras de escopo e de tamanho e testes unitários.
+  - Migration.
+  - POST /v1/avisos: o professor manda turmas; a instituição manda faculdade ou
+    cursos.
+  - Finalidade de upload aviso.
+  - Tipo avisoNovo e o trabalho notificar-aviso-novo.
+  - OpenAPI regenerado.
+
+  Critério de aceite
+  - Testes de domínio cobrindo título e texto, escopo misturado e lista de alvos
+    vazia.
+  - Testes de integração com Postgres:
+    - professor com turma alheia recebe 403;
+    - professor que tenta faculdade recebe 403;
+    - aluno recebe 403;
+    - a foto exige upload confirmado;
+    - aluno em duas turmas do mesmo aviso recebe uma notificação só;
+    - rodar o trabalho de novo não duplica nada;
+    - a instituição publica para faculdade e para curso.
+  - Migration aplicada; cliente sem diferença; CI verde.
+
+  Etapa 2: feat(api), ler o mural
+
+  Entrega
+  - GET /v1/mural?escopo=&cursor=: o mural combinado pelos vínculos, com lido,
+    ETag e 304.
+  - GET /v1/avisos/{id}.
+  - PUT /v1/avisos/{id}/leitura, idempotente, que marca também a notificação do
+    aviso.
+  - POST /v1/mural/leitura, o "Ler todos".
+  - Avisos publicados no perfil do professor.
+  - Purga atualizada.
+
+  Critério de aceite
+  - Integração:
+    - aluno de outro curso ou de outra turma não vê o aviso;
+    - aviso fora dos vínculos responde 404;
+    - ex-aluno lê o mural como definido na pergunta 3;
+    - ETag responde 304 e muda depois de uma leitura;
+    - "Ler todos" só alcança o que a pessoa vê;
+    - o cursor é estável.
+  - CI verde.
+
+  Etapa 3: feat(api), notificações e novidades
+
+  Entrega
+  - GET /v1/eu/notificacoes com cursor de 20 e resumo por tipo.
+  - POST /v1/eu/notificacoes/leitura.
+  - GET /v1/eu/novidades.
+  - Marcador de Troféus, conforme a resposta da pergunta 5.
+
+  Critério de aceite
+  - Integração para cada um dos nove tipos com o resumo certo, inclusive
+    conquista removida e prêmio revogado.
+  - Só o dono vê as próprias notificações.
+  - As três bolinhas acendem e apagam nos casos certos.
+  - CI verde.
+
+  Etapa 4: feat(mobile), tela do Mural
+
+  Entrega
+  - Aba Mural conforme a prancheta, em claro e escuro: chips, cartão aberto e
+    recolhido, "Ler todos" e /aviso/:id com a imagem.
+  - Estados vazio e de erro amigável.
+  - Hooks TanStack.
+
+  Critério de aceite
+  - Jest cobrindo:
+    - os filtros;
+    - a bolinha acompanhada de negrito (identidade-visual.md);
+    - "Abrir" registrando a leitura;
+    - "Ler todos";
+    - erro sem travar a tela.
+  - Lint limpo; CI verde.
+
+  Etapa 5: feat(mobile), novo aviso do professor
+
+  Entrega
+  - "+" no Mural, só para professor.
+  - /novo-aviso: as turmas vigentes dele em chips de seleção múltipla, título e
+    texto com contador, e foto opcional pelo mesmo envio do post.
+  - Recusas mostradas dentro da tela.
+
+  Critério de aceite
+  - Jest cobrindo:
+    - publicar exige ao menos uma turma, título e texto;
+    - a foto que falha não perde o texto digitado;
+    - o aluno não vê o "+".
+  - CI verde.
+
+  Etapa 6: feat(mobile), sininho, notificações e bolinhas
+
+  Entrega
+  - Sininho no cabeçalho do feed e do Mural, com bolinha.
+  - /notificacoes, com os textos dos nove tipos e o destino de cada toque.
+  - Bolinhas de Mural e Troféus ligadas ao GET /v1/eu/novidades.
+  - Cada novidade também no rótulo de acessibilidade.
+
+  Critério de aceite
+  - Jest com um texto por tipo, incluindo um teste que falha se surgir tipo novo
+    sem texto, como o de erros.ts.
+  - Abrir a lista apaga a bolinha do sininho.
+  - Abrir Troféus apaga a de Troféus.
+  - CI verde.
+
+  Etapa 7: docs(docs), decisões e e2e
+
+  Entrega
+  - e2e no celular, claro e escuro:
+    - a professora publica para duas turmas pela tela;
+    - o aluno vê a bolinha no Mural e no sininho, abre o aviso e as duas somem;
+    - uma medalha concedida pela API acende o sininho e Troféus, e o toque leva
+      a Troféus.
+  - Seção "Mural e notificações (passo 10)" no decisoes/README.md.
+  - SQL da purga atualizado.
+  - Regras novas no produto.md 7, 8 e 10.1, e no CLAUDE.md.
+  - Pendências no plano-mestre.md: a tela de aviso da instituição no passo 12 e
+    avisos no seed demo.
+
+  Critério de aceite
+  - e2e verde na CI.
+  - Docs sem travessão.
+  - Todas as caixas da definição de pronto marcadas.
+
+  Assim que você responder as perguntas, ajusto o plano e começo a etapa 1.
+
+✻ Churned for 2m 52s · done 23:18
