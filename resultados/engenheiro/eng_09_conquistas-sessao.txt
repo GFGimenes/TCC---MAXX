@@ -5494,3 +5494,1475 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt
   acompanho a CI e sigo para a etapa curta do post de conquista.
 
 ✻ Baked for 10m 24s · done 21:34
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+※ recap: Passo 9 (conquistas) está na etapa 6: a aba Troféus já mostra a conquista obtida e o progresso, com capturas no claro e no escuro. Falta sua revisão e decidir se entra o texto "matérias" antes do commit.
+
+> Etapa 6 aprovada, capturas conferidas. Sobre os três pontos: faz o "matérias" 
+  nesta etapa, com o campo opcional unidade no progresso da API e o texto "3    
+  de 4 matérias" no app, acréscimo aditivo como fizemos no passo 8; o critério  
+  fica na frase inteira do catálogo, sem campo novo; o 0% da raridade na        
+  captura está explicado. Com o cliente e a API verdes, commita com a mensagem  
+  proposta, push, acompanha a CI e segue para a etapa do post de conquista;     
+  para para a minha revisão no fim dela.                                        
+
+● Faço o "matérias": o campo opcional unidade no progresso da API, e o texto no
+  app.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && \
+      sed -i 's|^public sealed record ProgressoDaConquista(Periodo Periodo,
+      int…)
+  ⎿  Maxx.Application/Premios/ConsultaDePremios.cs:40:// EmMaterias: o alvo
+      é o das matérias do período (todasAsMatriculasDoPeriodo), e o app diz
+     Maxx.Application/Premios/ConsultaDePremios.cs:42:public sealed record
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Premios\PremiosEndpoints.cs (+5 -2)
+      64                          : null))],
+      65                  item.ExigeMateria,
+      66                  !soObtidos && item.Progresso is { } progresso
+      67 -                    ? new ProgressoResponse(ProfessorEndpoints.
+         -Nome(progresso.Periodo), progresso.Contagem, progresso.Alvo)   
+      67 +                    ? new ProgressoResponse(                   
+      68 +                        ProfessorEndpoints.Nome(progresso.Perio
+         +do), progresso.Contagem, progresso.Alvo, progresso.EmMaterias ?
+         + "materias" : null)                                            
+      69                      : null))]);
+      70  }
+      71  
+     ...
+       94  // O progresso ("2 de 3") da conquista na instância vigente do
+            período dela (passo 9), em
+       95  // "bimestre", "semestre", "ano" ou "curso". Só na rota do pró
+           prio aluno; o perfil público
+       96  // nunca o leva (produto.md 9.1).
+       96 -public sealed record ProgressoResponse(string Periodo, int Con
+          -tagem, int Alvo);                                             
+       97 +// Unidade: "materias" quando o alvo é o das matérias do perío
+          +do (regra de todas as matérias);                              
+       98 +// nula, quando é um número de prêmios. Acréscimo do passo 9. 
+       99 +public sealed record ProgressoResponse(string Periodo, int Con
+          +tagem, int Alvo, string? Unidade = null);                     
+      100  
+      101  // Percentual dos alunos que têm o item, com uma casa: "x% dos
+            alunos".
+      102  public sealed record RaridadeResponse(string Nivel, double Per
+           centual);
+  ⎿  Updated apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs (+3
+     -1)
+      37  // só na conquista que o aluno ainda não obteve nessa instância
+          , e só para o dono
+      38  // (produto.md 9.1). Nulo também no recesso, para bimestre e se
+          mestre, e quando o aluno não
+      39  // tem matrícula no período do alvo dinâmico.
+      40 -public sealed record ProgressoDaConquista(Periodo Periodo, int 
+         -Contagem, int Alvo);                                           
+      40 +// EmMaterias: o alvo é o das matérias do período (todasAsMatri
+         +culasDoPeriodo), e o app diz                                   
+      41 +// "1 de 2 matérias".                                          
+      42 +public sealed record ProgressoDaConquista(Periodo Periodo, int 
+         +Contagem, int Alvo, bool EmMaterias = false);                  
+      43  
+      44  public sealed record RaridadeAtual(Raridade Nivel, int AlunosCo
+          mItem, int AlunosElegiveis)
+      45  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+1 -1)
+      173                  : (0, alvoDoCatalogo.Fixo ?? await MateriasDoP
+           eriodoAsync(cadastroId, instancia.Semestres(calendario), cance
+           llationToken));
+      174              if (alvo > 0)
+      175              {
+      176 -                progressos[item.Codigo] = new ProgressoDaConqu
+          -ista(item.Periodo, contagem, alvo);                           
+      176 +                progressos[item.Codigo] = new ProgressoDaConqu
+          +ista(item.Periodo, contagem, alvo, alvoDoCatalogo.EhTodasAsMat
+          +riculasDoPeriodo);                                            
+      177              }
+      178          }
+      179  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Já tinha aplicado. Agora atualizo os testes de integração para o campo novo.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Conquistas/LeituraDeConquistasTests.cs
+      && sed…)
+  ⎿  33:        Assert.Equal(new ProgressoResponse("bimestre", 1, 2, "mater
+     ias"), itens["C03"].Progresso);
+     40:        Assert.Equal(new ProgressoResponse("semestre", 0, 2, "mater
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\LeituraDeC
+     onquistasTests.cs (+2 -2)
+      30  
+      31          // Contagem gravada pelo worker, na instância vigente d
+          e cada período.
+      32          Assert.Equal(new ProgressoResponse("bimestre", 2, 3), i
+          tens["C02"].Progresso);
+      33 -        Assert.Equal(new ProgressoResponse("bimestre", 1, 2), i
+         -tens["C03"].Progresso);                                        
+      33 +        Assert.Equal(new ProgressoResponse("bimestre", 1, 2, "m
+         +aterias"), itens["C03"].Progresso);                            
+      34          Assert.Equal(new ProgressoResponse("semestre", 5, 10), 
+          itens["C07"].Progresso);
+      35          Assert.Equal(new ProgressoResponse("ano", 5, 20), itens
+          ["C12"].Progresso);
+      36          Assert.Equal(new ProgressoResponse("curso", 5, 50), ite
+          ns["C16"].Progresso);
+      37  
+      38          // Nenhum fato ainda: zero, com o alvo do catálogo ou a
+          s matérias do período.
+      39          Assert.Equal(new ProgressoResponse("semestre", 0, 3), i
+          tens["C05"].Progresso);
+      40 -        Assert.Equal(new ProgressoResponse("semestre", 0, 2), i
+         -tens["C10"].Progresso);                                        
+      40 +        Assert.Equal(new ProgressoResponse("semestre", 0, 2, "m
+         +aterias"), itens["C10"].Progresso);                            
+      41  
+      42          // Medalha e prêmio de participação não têm progresso n
+          em instância.
+      43          Assert.Null(itens["M01"].Progresso);
+  ⎿  (timeout 10m)
+
+● Os 4 passam. Regenero o cliente e ajusto o texto no app.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client >/dev/null 2>&1; git diff
+      packages/api-client/src/schem…)
+  ⎿  +            unidade?: null | string;
+  ⎿  Updated packages\api-client\openapi.json (+6 -0)
+      4472            "alvo": {
+      4473              "type": "integer",
+      4474              "format": "int32"
+      4475 +          },                                                 
+      4476 +          "unidade": {                                       
+      4477 +            "type": [                                        
+      4478 +              "null",                                        
+      4479 +              "string"                                       
+      4480 +            ]                                                
+      4481            }
+      4482          }
+      4483        },
+  ⎿  Updated packages\api-client\src\schema.d.ts (+1 -0)
+      1189              contagem: number;
+      1190              /** Format: int32 */
+      1191              alvo: number;
+      1192 +            unidade?: null | string;                         
+      1193          };
+      1194          PublicarPostRequest: {
+      1195              legenda: null | string;
+  ⎿  (timeout 10m)
+
+● Update(apps\mobile\src\trofeus\montagem.ts)
+  ⎿  Added 5 lines, removed 3 lines
+      148    curso: "no curso",
+      149  };
+      150  
+      151 -// A linha de progresso da conquista que falta na instância vi
+          -gente: "2 de 3 neste bimestre".                               
+      152 -// A API só a manda para o dono, fora do recesso e quando há a
+          -lvo (passo 9).                                                
+      151 +// A linha de progresso da conquista que falta na instância vi
+          +gente: "2 de 3 neste bimestre",                               
+      152 +// ou "1 de 2 matérias neste bimestre" quando o alvo são as ma
+          +térias do período. A API só a                                 
+      153 +// manda para o dono, fora do recesso e quando há alvo (passo 
+          +9).                                                           
+      154  export function textoDoProgresso(item: ItemDoAluno): string | 
+           null {
+      155    const progresso = item.progresso;
+      156    if (!progresso) {
+      157      return null;
+      158    }
+      159  
+      160 +  const unidade = progresso.unidade === "materias" ? " matéria
+          +s" : "";                                                      
+      161    const onde = NA_INSTANCIA_VIGENTE[progresso.periodo] ?? "";
+      160 -  return `${formatarNumero(progresso.contagem)} de ${formatarN
+          -umero(progresso.alvo)} ${onde}`.trim();                       
+      162 +  return `${formatarNumero(progresso.contagem)} de ${formatarN
+          +umero(progresso.alvo)}${unidade} ${onde}`.trim();             
+      163  }
+      164  
+      165  // Conquista é regra automática (prancheta trofeus-*.png): o c
+           ritério, enquanto falta; obtida,
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/trofeus" &&
+      sed -i '241a\    expect(\n      textoDoProgresso(\n        item({…)
+  ⎿  Tests:       16 passed, 16 total
+     prettier 0
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+14 -0)
+      239      expect(comProgresso("semestre", 0, 10)).toBe("0 de 10 nest
+           e semestre");
+      240      expect(comProgresso("ano", 5, 20)).toBe("5 de 20 neste ano
+           ");
+      241      expect(comProgresso("curso", 48, 1000)).toBe("48 de 1.000 
+           no curso");
+      242 +    expect(                                                   
+      243 +      textoDoProgresso(                                       
+      244 +        item({                                                
+      245 +          codigo: "C03",                                      
+      246 +          tipo: "conquista",                                  
+      247 +          progresso: {                                        
+      248 +            periodo: "bimestre",                              
+      249 +            contagem: 3,                                      
+      250 +            alvo: 4,                                          
+      251 +            unidade: "materias",                              
+      252 +          },                                                  
+      253 +        }),                                                   
+      254 +      ),                                                      
+      255 +    ).toBe("3 de 4 matérias neste bimestre");                 
+      256      expect(textoDoProgresso(PREMIOS.itens[3]!)).toBeNull();
+      257    });
+      258  });
+  ⎿  (timeout 10m)
+
+● Cliente verde. Rodo a verificação da API: formatação, build Release e suíte
+  inteira, e depois o Jest completo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a suíte termina em segundo plano, leio o post para a próxima etapa.
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Ainda rodando. Sigo lendo como o post mostra o prêmio no feed e como o app
+  escolhe o prêmio a postar.
+
+  Read 2 files, ran 3 shell commands (ctrl+o to expand)
+
+● A suíte está demorando mais que nas outras rodadas (antes eram uns 3 minutos).
+  Espero até 5 minutos pelo fim.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os containers de teste continuam sendo criados (o último há 4 minutos), então
+  a suíte avança, só mais devagar, provavelmente disputando recursos com a pilha
+  do compose. Espero o fim.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Wait for background test run to finish" completed (exit
+code 0)
+
+● Background command "Full API checks and full Jest run" completed (exit code 0)
+
+● Três falhas na suíte da API. Vejo quais são e por quê.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O log filtrado não guardou as mensagens. Rodo de novo só as classes que
+  falharam, agora isoladas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As duas classes passam quando rodam isoladas; as falhas vinham da disputa com
+  a pilha do compose. Vou parar a pilha e rodar a suíte inteira de novo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Suíte limpa: 1028 testes, nenhuma falha. Commito a etapa 6, faço push e
+  acompanho a CI.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 6 rodando (commit 132a8dc). Começo a etapa do post de conquista
+  pela persistência e pelo handler de publicação.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● O post ganha conquista_id com as mesmas regras da medalha, e a leitura do post
+  e de Troféus passa a citá-la. Vou começar pelo domínio.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Domain/Social" && python3 --version 2>/dev/null; node -e "
+      const fs=require…)
+  ⎿  2:using Maxx.Domain.Conquistas;
+     31:        Conquista? conquista,
+     41:        ConquistaId = conquista?.Id;
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Social\Post.cs (+53 -11)
+      1  using Maxx.Domain.Academico;
+      2 +using Maxx.Domain.Conquistas;                                   
+      3  using Maxx.Domain.Fotos;
+      4  using Maxx.Domain.Identidade;
+      5  using Maxx.Domain.Premios;
+     ...
+      10  // rende um post. Só aluno ativo publica; o ex-aluno mantém os 
+          que já tinha. A foto são as
+      11  // duas derivadas de um upload confirmado na publicação (ADR 00
+          02 e 0003).
+      12  //
+      12 -// O prêmio é a medalha (passo 7) ou o prêmio de participação r
+         -eivindicado (passo 8); a                                       
+      13 -// conquista entra no passo 9. Nunca mais de um por post.      
+      13 +// O prêmio é a medalha (passo 7), o prêmio de participação rei
+         +vindicado (passo 8) ou a                                       
+      14 +// conquista (passo 9). Nunca mais de um por post.             
+      15  public sealed class Post
+      16  {
+      17      // Em caracteres, contando um emoji como um, como no nome d
+          e exibição.
+     ...
+      23      }
+      24  
+      25      private Post(
+      25 -        Guid autorId, string? legenda, UploadPendente? upload, 
+         -Medalha? medalha, PremioParticipacao? premio, DateTimeOffset ag
+         -ora)                                                           
+      26 +        Guid autorId,                                          
+      27 +        string? legenda,                                       
+      28 +        UploadPendente? upload,                                
+      29 +        Medalha? medalha,                                      
+      30 +        PremioParticipacao? premio,                            
+      31 +        Conquista? conquista,                                  
+      32 +        DateTimeOffset agora)                                  
+      33      {
+      34          Id = Guid.CreateVersion7();
+      35          AutorId = autorId;
+     ...
+      38          ChaveDaFotoDaGrade = upload?.ChaveDaGrade;
+      39          MedalhaId = medalha?.Id;
+      40          PremioParticipacaoId = premio?.Id;
+      41 +        ConquistaId = conquista?.Id;                           
+      42          CriadoEm = agora;
+      43      }
+      44  
+     ...
+      57      // O prêmio de participação do post de reivindicação (passo
+           8). Nunca junto da medalha.
+      58      public Guid? PremioParticipacaoId { get; private set; }
+      59  
+      60 +    // A conquista que o aluno postou (passo 9). Nunca junto de
+         + outro prêmio.                                                 
+     … 106 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Domain/Social" && sed -i '235,237c\    // recálculo (passo 9),
+      do mesmo jei…)
+  ⎿      // Medalha anulada (decisão do passo 7, produto.md 4.8), e conquis
+     ta removida pelo
+         // recálculo (passo 9), do mesmo jeito: o post perde o vínculo e f
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Social\Post.cs (+3 -3)
+      232      }
+      233  
+      234      // Medalha anulada (decisão do passo 7, produto.md 4.8), e
+            conquista removida pelo
+      235 -    // recálculo (passo 9), do mesmo jeito: o post perde o vín
+          -culo e fica                                                   
+      236 -    // como post comum. Sem foto nem legenda ele ficaria vazio
+          -, e post vazio não existe: quem                               
+      237 -    // chama o apaga em vez de desvincular.                   
+      235 +    // recálculo (passo 9), do mesmo jeito: o post perde o vín
+          +culo e fica como post comum. Sem                              
+      236 +    // foto nem legenda ele ficaria vazio, e post vazio não ex
+          +iste: quem chama o apaga em vez de                            
+      237 +    // desvincular.                                           
+      238      public bool FicariaVazioSemPremio => !TemFoto && !TemLegen
+           da;
+      239  
+      240      public void DesvincularPremio()
+
+● Agora a persistência: coluna, índice único, chave estrangeira e os dois checks
+  do post.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Infrastructure/Persistence/Configurations/PostConfiguration.cs &&
+      nod…)
+  ⎿  using Maxx.Domain.Identidade;
+     using Maxx.Domain.Premios;
+     using Maxx.Domain.Social;
+     … +42 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Po
+     stConfiguration.cs (+8 -2)
+      17          {
+      18              table.HasCheckConstraint(
+      19                  "ck_post_nao_vazio",
+      20 -                "legenda IS NOT NULL OR chave_da_foto_do_feed I
+         -S NOT NULL OR medalha_id IS NOT NULL OR premio_participacao_id 
+         -IS NOT NULL");                                                 
+      20 +                "legenda IS NOT NULL OR chave_da_foto_do_feed I
+         +S NOT NULL OR medalha_id IS NOT NULL OR premio_participacao_id 
+         +IS NOT NULL" +                                                 
+      21 +                " OR conquista_id IS NOT NULL");               
+      22              table.HasCheckConstraint(
+      22 -                "ck_post_um_premio", "medalha_id IS NULL OR pre
+         -mio_participacao_id IS NULL");                                 
+      23 +                "ck_post_um_premio", "num_nonnulls(medalha_id, 
+         +premio_participacao_id, conquista_id) <= 1");                  
+      24              table.HasCheckConstraint(
+      25                  "ck_post_foto_completa", "(chave_da_foto_do_fee
+          d IS NULL) = (chave_da_foto_da_grade IS NULL)");
+      26              table.HasCheckConstraint("ck_post_remocao", "(remov
+          ido_em IS NULL) = (removido_por_id IS NULL)");
+     ...
+      38              .HasDatabaseName("ix_post_premio_participacao_ativo
+          ")
+      39              .IsUnique()
+      40              .HasFilter("premio_participacao_id IS NOT NULL AND 
+          removido_em IS NULL");
+      41 +        builder.HasIndex(post => post.ConquistaId)             
+      42 +            .HasDatabaseName("ix_post_conquista_ativa")        
+      43 +            .IsUnique()                                        
+      44 +            .HasFilter("conquista_id IS NOT NULL AND removido_e
+         +m IS NULL");                                                   
+      45  
+      46          // Os posts de um autor, do mais novo ao mais antigo: o
+           perfil e o trecho de seguidos
+      47          // do feed (passo 7, etapas 5 e 6) andam por este índic
+          e.
+     ...
+      52          builder.HasOne<Usuario>().WithMany().HasForeignKey(post
+           => post.RemovidoPorId).OnDelete(DeleteBehavior.Restrict);
+      53          builder.HasOne<Medalha>().WithMany().HasForeignKey(post
+           => post.MedalhaId).OnDelete(DeleteBehavior.Restrict);
+      54          builder.HasOne<PremioParticipacao>().WithMany().HasFore
+          ignKey(post => post.PremioParticipacaoId).OnDelete(DeleteBehavi
+          or.Restrict);
+      55 +        builder.HasOne<Conquista>().WithMany().HasForeignKey(po
+         +st => post.ConquistaId).OnDelete(DeleteBehavior.Restrict);     
+      56  
+      57          // Duas remoções, ou remoção e anulação, ao mesmo tempo
+          : o xmin deixa só a primeira
+      58          // gravar.
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\UnitOfWork.cs (+1
+     -0)
+      15          ["ix_medalha_chave_ativa"] = Unicidade.MedalhaAtiva,
+      16          ["ix_post_medalha_ativa"] = Unicidade.PostPorPremio,
+      17          ["ix_post_premio_participacao_ativo"] = Unicidade.PostP
+          orPremio,
+      18 +        ["ix_post_conquista_ativa"] = Unicidade.PostPorPremio, 
+      19          ["ix_premio_participacao_chave_ativa"] = Unicidade.Prem
+          ioParticipacaoAtivo,
+      20          ["ix_contestacao_premio_participacao_id"] = Unicidade.C
+          ontestacaoPorPremio,
+      21          ["ix_conquista_instancia_ativa"] = Unicidade.ConquistaA
+          tiva,
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's/^using Maxx.Domain.Identidade;$/using Maxx.Domain.Conquistas;\nusi…)
+  ⎿          new(TipoDeRecusa.Conflito, CodigosDoPost.PremioJaPostado, $"Me
+     dalha {medalhaId} já tem post.");
+     … +24 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\CodigosDoPost.cs (+6 -0)
+      25  
+      26      public const string PremioAnulado = "premio-anulado";
+      27  
+      28 +    // A conquista que o recálculo removeu depois de uma anulaç
+         +ão (passo 9).                                                  
+      29 +    public const string ConquistaRemovida = "conquista-removida
+         +";                                                             
+      30 +                                                               
+      31 +    // Medalha e conquista no mesmo post: um prêmio por post (p
+         +roduto.md 6.1).                                                
+      32 +    public const string MaisDeUmPremio = "mais-de-um-premio";  
+      33 +                                                               
+      34      // A reivindicação de prêmio de participação sem foto: a fo
+          to é a comprovação.
+      35      public const string FotoObrigatoria = "foto-obrigatoria";
+      36  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Po
+     stConfiguration.cs (+1 -0)
+      1 +using Maxx.Domain.Conquistas;                                   
+      2  using Maxx.Domain.Identidade;
+      3  using Maxx.Domain.Premios;
+      4  using Maxx.Domain.Social;
+
+● Agora o handler de publicação e o repositório de posts.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && node -e "
+      const fs=require('fs');const f='Maxx.Application/Posts/Posts.cs';l…)
+  ⎿  ok
+  ⎿  Updated apps\api\src\Maxx.Application\Posts\Posts.cs (+31 -7)
+       1  using Maxx.Application.Autenticacao;
+       2 +using Maxx.Application.Conquistas;                             
+       3  using Maxx.Application.Fila;
+       4  using Maxx.Application.Fotos;
+       5  using Maxx.Application.Medalhas;
+       6  using Maxx.Application.Premios;
+       7  using Maxx.Application.PremiosParticipacao;
+       8  using Maxx.Domain.Catalogo;
+       9 +using Maxx.Domain.Conquistas;                                  
+      10  using Maxx.Domain.Fotos;
+      11  using Maxx.Domain.Premios;
+      12  using Maxx.Domain.Social;
+     ...
+      29      // Os posts do prêmio de participação, removidos ou não.
+      30      Task<IReadOnlyList<Post>> DoPremioParticipacaoAsync(Guid pr
+          emioId, CancellationToken cancellationToken);
+      31  
+      32 +    // Os posts da conquista, removidos ou não (passo 9).      
+      33 +    Task<IReadOnlyList<Post>> DaConquistaAsync(Guid conquistaId
+         +, CancellationToken cancellationToken);                        
+      34 +                                                               
+      35 +    // Se a conquista já rendeu um post que não foi removido.  
+      36 +    Task<bool> ConquistaTemPostAsync(Guid conquistaId, Cancella
+         +tionToken cancellationToken);                                  
+      37 +                                                               
+      38      void Apagar(Post post);
+      39  }
+      40  
+     ...
+       90      IUsuarioRepository usuarios,
+       91      IUploadPendenteRepository uploads,
+       92      IMedalhaRepository medalhas,
+       93 +    IConquistaRepository conquistas,                          
+       94      IPostRepository posts,
+       95      IArmazenamentoDeFotos armazenamento,
+       96      IUnitOfWork unitOfWork,
+       97      TimeProvider relogio)
+       98  {
+       99      public async Task<Post> PublicarAsync(
+       91 -        Guid autorId, string? legenda, Guid? uploadId, Guid? m
+          -edalhaId, CancellationToken cancellationToken)                
+      100 +        Guid autorId, string? legenda, Guid? uploadId, Guid? m
+          +edalhaId, CancellationToken cancellationToken) =>             
+      101 +        await PublicarAsync(autorId, legenda, uploadId, medalh
+          +aId, null, cancellationToken);                                
+      102 +                                                              
+      103 +    // O prêmio do post é a medalha ou a conquista (passo 9), 
+          +nunca os dois.                                                
+      104 +    public async Task<Post> PublicarAsync(                    
+     … 56 more lines (ctrl+o to expand)
+
+● Agora o repositório de conquistas ganha BuscarAsync, e o de posts ganha as
+  consultas e a projeção da conquista.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && node -e "
+      const fs=require('fs');…)
+  ⎿  1:using Maxx.Application.Posts;
+     2:using Maxx.Application.Premios;
+     3:using Maxx.Domain.Academico;
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Conquistas\Abstractions.cs (+3 
+     -0)
+      40  
+      41      void Adicionar(Conquista conquista);
+      42  
+      43 +    // A conquista pelo id, ativa ou removida, para quem a post
+         +a (passo 9).                                                   
+      44 +    Task<Conquista?> BuscarAsync(Guid id, CancellationToken can
+         +cellationToken);                                               
+      45 +                                                               
+      46      // O progresso ("2 de 3") da instância, que a tela de Trofé
+          us lê sem calcular (D5).
+      47      Task GravarProgressoAsync(
+      48          Guid alunoId,
+  ⎿  Updated
+     apps\api\src\Maxx.Infrastructure\Conquistas\ConquistaRepository.cs (+3
+     -0)
+      154  
+      155      public void Adicionar(Conquista conquista) => db.Add(conqu
+           ista);
+      156  
+      157 +    public Task<Conquista?> BuscarAsync(Guid id, CancellationT
+          +oken cancellationToken) =>                                    
+      158 +        db.Set<Conquista>().SingleOrDefaultAsync(conquista => 
+          +conquista.Id == id, cancellationToken);                       
+      159 +                                                              
+      160      public async Task GravarProgressoAsync(
+      161          Guid alunoId,
+      162          string itemCodigo,
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs (+58 
+     -2)
+      28      public async Task<IReadOnlyList<Post>> DoPremioParticipacao
+          Async(Guid premioId, CancellationToken cancellationToken) =>
+      29          await db.Set<Post>().Where(post => post.PremioParticipa
+          caoId == premioId).ToListAsync(cancellationToken);
+      30  
+      31 +    public async Task<IReadOnlyList<Post>> DaConquistaAsync(Gui
+         +d conquistaId, CancellationToken cancellationToken) =>         
+      32 +        await db.Set<Post>().Where(post => post.ConquistaId == 
+         +conquistaId).ToListAsync(cancellationToken);                   
+      33 +                                                               
+      34 +    public Task<bool> ConquistaTemPostAsync(Guid conquistaId, C
+         +ancellationToken cancellationToken) =>                         
+      35 +        db.Set<Post>().AnyAsync(post => post.ConquistaId == con
+         +quistaId && post.RemovidoEm == null, cancellationToken);       
+      36 +                                                               
+      37      public void Apagar(Post post) => db.Remove(post);
+      38  }
+      39  
+     ...
+      42      public async Task<PostLido?> PostAsync(Guid id, Guid leitor
+          Id, CancellationToken cancellationToken) =>
+      43          (await PostsAsync([id], leitorId, cancellationToken)).G
+          etValueOrDefault(id);
+      44  
+      39 -    // Duas consultas para a página inteira, não duas por post:
+         - os posts com autor e                                          
+      40 -    // contagens, depois as medalhas que eles citam.           
+      45 +    // Poucas consultas para a página inteira, não por post: os
+         + posts com autor e contagens,                                  
+      46 +    // depois os prêmios que eles citam, um tipo por consulta. 
+      47      public async Task<IReadOnlyDictionary<Guid, PostLido>> Post
+          sAsync(
+      48          IReadOnlyCollection<Guid> ids, Guid leitorId, Cancellat
+          ionToken cancellationToken)
+      49      {
+     ...
+      62                      post.ChaveDaFotoDaGrade,
+      63                      post.MedalhaId,
+      64                      post.PremioParticipacaoId,
+      65 +                    post.ConquistaId,                          
+      66                      post.CriadoEm,
+      67                      AutorId = autor.Id,
+      68                      autor.NomeDeExibicao,
+     ...
+      86              .Where(usuario => usuario.Id == leitorId)
+      87              .Select(usuario => (usuario.Papeis & Papeis.Institu
+          icao) != 0)
+      88              .SingleOrDefaultAsync(cancellationToken);
+      89 +        var conquistas = await ConquistasAsync(                
+      90 +            [.. linhas.Where(linha => linha.ConquistaId is not 
+         +null).Select(linha => linha.ConquistaId!.Value)], cancellationT
+         +oken);                                                         
+      91          var participacoes = await PremiosParticipacaoAsync(
+      92              [.. linhas.Where(linha => linha.PremioParticipacaoI
+          d is not null).Select(linha => linha.PremioParticipacaoId!.Valu
+          e)], cancellationToken);
+      93  
+     ...
+      101                  linha.ChaveDaFotoDaGrade,
+      102                  linha.MedalhaId is { } medalhaId
+      103                      ? medalhas.GetValueOrDefault(medalhaId)
+     … 56 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's/^using Maxx.Domain.Catalogo;$/using Maxx.Domain.Catalogo;\nusing M…)
+  ⎿  21:        posts.MapPost("/", PublicarAsync)
+     41:    private static async Task<Created<PostResponse>> PublicarAsync(
+     42:        PublicarPostRequest pedido,
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Posts\PostRepository.cs (+1 
+     -0)
+      2  using Maxx.Application.Premios;
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Catalogo;
+      5 +using Maxx.Domain.Conquistas;                                   
+      6  using Maxx.Domain.Identidade;
+      7  using Maxx.Domain.Premios;
+      8  using Maxx.Domain.Social;
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|
+          var post = await handler.PublicarAsync(UsuarioId(principal…)
+  ⎿  }
+
+     // Ao menos um dos três; quem decide é o domínio. O limite da legenda
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Posts\PostEndpoints.cs (+5 -2)
+      46          IArmazenamentoDeFotos armazenamento,
+      47          CancellationToken cancellationToken)
+      48      {
+      49 -        var post = await handler.PublicarAsync(UsuarioId(princi
+         -pal), pedido.Legenda, pedido.UploadId, pedido.MedalhaId, cancel
+         -lationToken);                                                  
+      49 +        var post = await handler.PublicarAsync(                
+      50 +            UsuarioId(principal), pedido.Legenda, pedido.Upload
+         +Id, pedido.MedalhaId, pedido.ConquistaId, cancellationToken);  
+      51          var lido = await consulta.PostAsync(post.Id, UsuarioId(
+          principal), cancellationToken)
+      52              ?? throw new InvalidOperationException($"O post {po
+          st.Id} acabou de ser gravado e não foi lido.");
+      53          return TypedResults.Created($"/api/v1/posts/{post.Id}",
+           PostResponse.De(lido, armazenamento));
+     ...
+      81  
+      82  // Ao menos um dos três; quem decide é o domínio. O limite da l
+          egenda é em caracteres,
+      83  // contando um emoji como um, e também do domínio: aqui só um t
+          eto bruto para o corpo.
+      83 -public sealed record PublicarPostRequest([property: StringLengt
+         -h(4000)] string? Legenda, Guid? UploadId, Guid? MedalhaId);    
+      84 +// ConquistaId entrou no passo 9, só como acréscimo: o prêmio é
+         + a medalha ou a conquista.                                     
+      85 +public sealed record PublicarPostRequest(                      
+      86 +    [property: StringLength(4000)] string? Legenda, Guid? Uploa
+         +dId, Guid? MedalhaId, Guid? ConquistaId = null);               
+      87  
+      88  public sealed record PostResponse(
+      89      Guid Id,
+● Agora o postId da conquista em Troféus e o vínculo do post quando o recálculo
+  remove a conquista.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && node -e "
+      const fs=require('fs');…)
+  ⎿  Updated apps\api\src\Maxx.Application\Conquistas\RecalcularConquistasD
+     aMedalhaHandler.cs (+26 -0)
+      1  using Maxx.Application.Fila;
+      2  using Maxx.Application.Medalhas;
+      3  using Maxx.Application.Notificacoes;
+      4 +using Maxx.Application.Posts;                                   
+      5  using Maxx.Domain.Conquistas;
+      6  using Maxx.Domain.Notificacoes;
+      7  
+     ...
+      27  public sealed class RecalcularConquistasDaMedalhaHandler(
+      28      IMedalhaRepository medalhas,
+      29      IConquistaRepository conquistas,
+      30 +    IPostRepository posts,                                     
+      31      INotificacaoRepository notificacoes,
+      32      IFilaDeTrabalhos fila,
+      33      IUnitOfWork unitOfWork,
+     ...
+       97              if (conquista.Recalcular(avaliacao, agora))
+       98              {
+       99                  notificacoes.Adicionar(Notificacao.ConquistaRe
+           movida(conquista, agora));
+      100 +                await DesvincularPostsAsync(conquista.Id, canc
+          +ellationToken);                                               
+      101                  removeu = true;
+      102              }
+      103          }
+     ...
+      111  
+      112          await unitOfWork.SalvarAsync(cancellationToken);
+      113      }
+      114 +                                                              
+      115 +    // O post da conquista removida perde o vínculo e fica com
+          +o post comum, como o da medalha                               
+      116 +    // anulada (produto.md 4.8); o que era só a conquista é ap
+          +agado, porque post vazio não                                  
+      117 +    // existe. O que a instituição já tinha removido fica como
+          + estava.                                                      
+      118 +    private async Task DesvincularPostsAsync(Guid conquistaId,
+          + CancellationToken cancellationToken)                         
+      119 +    {                                                         
+      120 +        foreach (var post in await posts.DaConquistaAsync(conq
+          +uistaId, cancellationToken))                                  
+      121 +        {                                                     
+      122 +            if (post.EstaRemovido)                            
+      123 +            {                                                 
+      124 +                continue;                                     
+      125 +            }                                                 
+      126 +                                                              
+      127 +            if (post.FicariaVazioSemPremio)                   
+      128 +            {                                                 
+      129 +                posts.Apagar(post);                           
+     … 8 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+14 -1)
+       84              .OrderByDescending(conquista => conquista.Concedid
+           aEm)
+       85              .ToListAsync(cancellationToken);
+       86  
+       87 +        // O post não removido que cada conquista rendeu (pass
+          +o 9): o app não oferece de novo.                              
+       88 +        var idsDasConquistas = conquistas.Select(conquista => 
+          +conquista.Id).ToList();                                       
+       89 +        var postsDasConquistas = await db.Set<Post>().AsNoTrac
+          +king()                                                        
+       90 +            .Where(post => post.ConquistaId != null && idsDasC
+          +onquistas.Contains(post.ConquistaId.Value) && post.RemovidoEm 
+          +== null)                                                      
+       91 +            .ToDictionaryAsync(post => post.ConquistaId!.Value
+          +, post => (Guid?)post.Id, cancellationToken);                 
+       92 +                                                              
+       93          var obtidos = medalhas
+       94              .Select(medalha => (medalha.ItemCodigo, Obtido: ne
+           w PremioObtido(
+       95                  medalha.Id, medalha.Tier, medalha.Pontos, meda
+           lha.Materia, medalha.Numero, medalha.ConcedidaEm, medalha.Post
+           Id)))
+       96              .Concat(participacoes.Select(premio => (premio.Ite
+           mCodigo, Obtido: new PremioObtido(
+       97                  premio.Id, premio.Tier, premio.Pontos, premio.
+           Materia, null, premio.AprovadoEm!.Value, premio.PostId))))
+       98              .Concat(conquistas.Select(conquista => (conquista.
+           ItemCodigo, Obtido: new PremioObtido(
+       93 -                conquista.Id, conquista.Tier, conquista.Pontos
+          -, null, null, conquista.ConcedidaEm, null, Obtida(conquista.In
+          -stancia, calendario)))))                                      
+       99 +                conquista.Id,                                 
+      100 +                conquista.Tier,                               
+      101 +                conquista.Pontos,                             
+      102 +                null,                                         
+      103 +                null,                                         
+      104 +                conquista.ConcedidaEm,                        
+      105 +                postsDasConquistas.GetValueOrDefault(conquista
+          +.Id),                                                         
+      106 +                Obtida(conquista.Instancia, calendario)))))   
+      107              .ToLookup(par => par.ItemCodigo, par => par.Obtido
+           );
+      108  
+      109          var raridades = await db.Set<RaridadeDoItemRow>().AsNo
+           Tracking()
+  ⎿  (timeout 6m 40s)
+
+● Compila limpo. Gero a migration.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      migrations add PostDeConquista -p src/Maxx.Infrastructure -s src/Maxx.…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+             protected override void Up(MigrationBuilder migrationBuilder)
+             {
+     … +42 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     09012401_PostDeConquista.cs (+88 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class PostDeConquista : Migration           
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.DropCheckConstraint(              
+      15 +                name: "ck_post_nao_vazio",                     
+      16 +                table: "post");                                
+      17 +                                                               
+      18 +            migrationBuilder.DropCheckConstraint(              
+      19 +                name: "ck_post_um_premio",                     
+      20 +                table: "post");                                
+      21 +                                                               
+      22 +            migrationBuilder.AddColumn<Guid>(                  
+      23 +                name: "conquista_id",                          
+      24 +                table: "post",                                 
+      25 +                type: "uuid",                                  
+      26 +                nullable: true);                               
+      27 +                                                               
+      28 +            migrationBuilder.CreateIndex(                      
+      29 +                name: "ix_post_conquista_ativa",               
+      30 +                table: "post",                                 
+      31 +                column: "conquista_id",                        
+      32 +                unique: true,                                  
+      33 +                filter: "conquista_id IS NOT NULL AND removido_
+         +em IS NULL");                                                  
+      34 +                                                               
+      35 +            migrationBuilder.AddCheckConstraint(               
+      36 +                name: "ck_post_nao_vazio",                     
+      37 +                table: "post",                                 
+      38 +                sql: "legenda IS NOT NULL OR chave_da_foto_do_f
+         +eed IS NOT NULL OR medalha_id IS NOT NULL OR premio_participaca
+         +o_id IS NOT NULL OR conquista_id IS NOT NULL");                
+      39 +                                                               
+      40 +            migrationBuilder.AddCheckConstraint(               
+     … 48 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+17 -2)
+      1375                          .HasColumnType("text")
+      1376                          .HasColumnName("chave_da_foto_do_feed
+            ");
+      1377  
+      1378 +                    b.Property<Guid?>("ConquistaId")         
+      1379 +                        .HasColumnType("uuid")               
+      1380 +                        .HasColumnName("conquista_id");      
+      1381 +                                                             
+      1382                      b.Property<DateTimeOffset>("CriadoEm")
+      1383                          .HasColumnType("timestamp with time z
+            one")
+      1384                          .HasColumnName("criado_em");
+     ...
+      1412                      b.HasKey("Id")
+      1413                          .HasName("pk_post");
+      1414  
+      1415 +                    b.HasIndex("ConquistaId")                
+      1416 +                        .IsUnique()                          
+      1417 +                        .HasDatabaseName("ix_post_conquista_a
+           +tiva")                                                       
+      1418 +                        .HasFilter("conquista_id IS NOT NULL 
+           +AND removido_em IS NULL");                                   
+      1419 +                                                             
+      1420                      b.HasIndex("MedalhaId")
+      1421                          .IsUnique()
+      1422                          .HasDatabaseName("ix_post_medalha_ati
+            va")
+     ...
+      1438                          {
+      1439                              t.HasCheckConstraint("ck_post_fot
+            o_completa", "(chave_da_foto_do_feed IS NULL) = (chave_da_fot
+            o_da_grade IS NULL)");
+      1440  
+      1432 -                            t.HasCheckConstraint("ck_post_nao
+           -_vazio", "legenda IS NOT NULL OR chave_da_foto_do_feed IS NOT
+           - NULL OR medalha_id IS NOT NULL OR premio_participacao_id IS 
+           -NOT NULL");                                                  
+      1441 +                            t.HasCheckConstraint("ck_post_nao
+           +_vazio", "legenda IS NOT NULL OR chave_da_foto_do_feed IS NOT
+           + NULL OR medalha_id IS NOT NULL OR premio_participacao_id IS 
+           +NOT NULL OR conquista_id IS NOT NULL");                      
+      1442  
+      1443                              t.HasCheckConstraint("ck_post_rem
+            ocao", "(removido_em IS NULL) = (removido_por_id IS NULL)");
+      1444  
+      1436 -                            t.HasCheckConstraint("ck_post_um_
+           -premio", "medalha_id IS NULL OR premio_participacao_id IS NUL
+           -L");                                                         
+      1445 +                            t.HasCheckConstraint("ck_post_um_
+           +premio", "num_nonnulls(medalha_id, premio_participacao_id, co
+           +nquista_id) <= 1");                                          
+      1446                          });
+      1447                  });
+      1448  
+     ...
+      2240                          .IsRequired()
+      2241                          .HasConstraintName("fk_post_usuario_a
+            utor_id");
+      2242  
+      2243 +                    b.HasOne("Maxx.Domain.Conquistas.Conquist
+           +a", null)                                                    
+      2244 +                        .WithMany()                          
+      2245 +                        .HasForeignKey("ConquistaId")        
+     … 6 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 6m 40s)
+
+  Read 1 file (ctrl+o to expand)
+
+● Migration como esperado. Na purga, a conquista agora precisa sair depois do
+  post que a cita; ajusto a ordem no README.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');const f='docs/decisoes/README.md';let
+      s=fs.readFileSync(…)
+  ⎿  12:DELETE FROM post WHERE autor_id IN (SELECT usuario_id FROM alvo);
+     13:DELETE FROM progresso_de_conquista WHERE aluno_id IN (SELECT usuari
+     o_id FROM alvo);
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+2 -2)
+      125  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario
+           _id FROM alvo);
+      126  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      127  DELETE FROM notificacao WHERE usuario_id IN (SELECT usuario_id
+            FROM alvo);
+      128 -DELETE FROM progresso_de_conquista WHERE aluno_id IN (SELECT u
+          -suario_id FROM alvo);                                         
+      129 -DELETE FROM conquista WHERE aluno_id IN (SELECT usuario_id FRO
+          -M alvo);                                                      
+      128  DELETE FROM curtida WHERE usuario_id IN (SELECT usuario_id FRO
+           M alvo);
+      129  DELETE FROM comentario WHERE autor_id IN (SELECT usuario_id FR
+           OM alvo);
+      130  DELETE FROM seguimento WHERE seguidor_id IN (SELECT usuario_id
+            FROM alvo) OR seguido_id IN (SELECT usuario_id FROM alvo);
+      131  DELETE FROM comprovacao WHERE aluno_id IN (SELECT usuario_id F
+           ROM alvo);
+      132  DELETE FROM post WHERE autor_id IN (SELECT usuario_id FROM alv
+           o);
+      133 +DELETE FROM progresso_de_conquista WHERE aluno_id IN (SELECT u
+          +suario_id FROM alvo);                                         
+      134 +DELETE FROM conquista WHERE aluno_id IN (SELECT usuario_id FRO
+          +M alvo);                                                      
+      135  DELETE FROM contestacao WHERE premio_participacao_id IN (SELEC
+           T id FROM premio_participacao WHERE aluno_id IN (SELECT usuari
+           o_id FROM alvo));
+      136  DELETE FROM premio_participacao WHERE aluno_id IN (SELECT usua
+           rio_id FROM alvo);
+      137  DELETE FROM evento WHERE criado_por_id IN (SELECT usuario_id F
+           ROM alvo);
+
+● Estendo o teste da purga: a conquista da Ana ganha um post, o que prova a nova
+  ordem.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Autenticacao" && node -e "
+      const fs=require('fs');co…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+11 -2)
+      451                  AnoLetivoId = Guid.CreateVersion7(),
+      452              };
+      453              var instancia = new InstanciaDePeriodo(Periodo.Cur
+           so, aluno.Id);
+      454 +            var conquista = Conquista.Conceder(c90, 1, aluno.I
+          +d, instancia, Avaliacao.De(1, 1, [fato]), DateTimeOffset.UtcNo
+          +w);                                                           
+      455 +                                                              
+      456 +            // A Ana posta a conquista: o post segura a conqui
+          +sta, e a purga o apaga antes dela.                            
+      457 +            object[] doPost = nome == "Ana Paula"             
+      458 +                ? [Post.Publicar(aluno, null, null, null, conq
+          +uista, DateTimeOffset.UtcNow).Post!]                          
+      459 +                : [];                                         
+      460              await SalvarAsync(
+      461                  factory,
+      456 -                Conquista.Conceder(c90, 1, aluno.Id, instancia
+          -, Avaliacao.De(1, 1, [fato]), DateTimeOffset.UtcNow),         
+      462 +                [                                             
+      463 +                conquista,                                    
+      464 +                .. doPost,                                    
+      465                  new ProgressoDeConquistaRow
+      466                  {
+      467                      AlunoId = aluno.Id,
+     ...
+      471                      Contagem = 1,
+      472                      Alvo = 1,
+      473                      AtualizadoEm = DateTimeOffset.UtcNow,
+      466 -                });                                           
+      474 +                },                                            
+      475 +                ]);                                           
+      476          }
+      477  
+      478          var readme = await File.ReadAllTextAsync(Path.Combine(
+           Repositorio.Raiz, "docs", "decisoes", "README.md"), Ct);
+  ⎿  (timeout 6m 40s)
+
+● Agora os testes de integração do post de conquista, via HTTP. Vejo a forma da
+  resposta do post.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\PostDeConquistaTests
+       .cs)
+  ⎿  Wrote 127 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas
+     \PostDeConquistaTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using Maxx.Api.Posts;
+       4 using Maxx.Api.Premios;
+       5 using Maxx.Domain.Conquistas;
+       6 using Maxx.Domain.Social;
+       7 
+       8 namespace Maxx.Api.IntegrationTests.Conquistas;
+       9 
+      10 // O post de conquista (passo 9): um prêmio rende um post (produ
+     … +118 lines (~6 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 24 passam (post de conquista e purga). Ajusto duas coisas de forma: um nome
+  de teste ficou com acento ("troféus"), contra a regra de identificadores sem
+  acento, e troco o nome _mundo.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Conquistas/PostDeConquistaTests.cs &&
+      sed -i '…)
+  ⎿  grep: -P supports only unibyte and UTF-8 locales
+      M apps/api/src/Maxx.Api/Posts/PostEndpoints.cs
+      M apps/api/src/Maxx.Application/Conquistas/Abstractions.cs
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\PostDeConq
+     uistaTests.cs (+7 -7)
+      30          client.PostAsJsonAsync(new Uri("/api/v1/posts", UriKind
+          .Relative), pedido, Ct);
+      31  
+      32      [Fact]
+      33 -    public async Task Aluno_posta_a_propria_conquista_e_troféus
+         -_passa_a_citar_o_post()                                        
+      33 +    public async Task Aluno_posta_a_propria_conquista_e_trofeus
+         +_passa_a_citar_o_post()                                        
+      34      {
+      35          var (mundo, _, c01) = await AnaComC01Async(postgres);
+      36 -        await using var _mundo = mundo;                        
+      36 +        await using var descartar = mundo;                     
+      37          using var ana = await mundo.ComoAsync(_ana);
+      38  
+      39          var resposta = await PublicarAsync(ana, new { legenda =
+           "Cinco no bimestre!", conquistaId = c01 });
+     ...
+      55      public async Task Uma_conquista_rende_um_post()
+      56      {
+      57          var (mundo, _, c01) = await AnaComC01Async(postgres);
+      58 -        await using var _mundo = mundo;                        
+      58 +        await using var descartar = mundo;                     
+      59          using var ana = await mundo.ComoAsync(_ana);
+      60          Assert.Equal(HttpStatusCode.Created, (await PublicarAsy
+          nc(ana, new { conquistaId = c01 })).StatusCode);
+      61  
+     ...
+      66      public async Task Conquista_de_outra_pessoa_nao_existe_para
+          _quem_posta()
+      67      {
+      68          var (mundo, _, c01) = await AnaComC01Async(postgres);
+      69 -        await using var _mundo = mundo;                        
+      69 +        await using var descartar = mundo;                     
+      70          using var bruno = await mundo.ComoAsync("bruno.lima@al.
+          unieduk.com.br");
+      71  
+      72          await AssertRecusaAsync(await PublicarAsync(bruno, new 
+          { conquistaId = c01 }), HttpStatusCode.NotFound, "premio-nao-en
+          contrado");
+     ...
+      78      public async Task Medalha_e_conquista_no_mesmo_post_sao_rec
+          usadas()
+      79      {
+      80          var (mundo, medalhas, c01) = await AnaComC01Async(postg
+          res);
+      81 -        await using var _mundo = mundo;                        
+      81 +        await using var descartar = mundo;                     
+      82          using var ana = await mundo.ComoAsync(_ana);
+      83  
+      84          await AssertRecusaAsync(
+     ...
+      89      public async Task Conquista_removida_desvincula_o_post_com_
+          legenda_e_nao_pode_mais_ser_postada()
+      90      {
+      91          var (mundo, medalhas, c01) = await AnaComC01Async(postg
+          res);
+      92 -        await using var _mundo = mundo;                        
+     … 12 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Background command "Watch CI for stage 6" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 6 ficou verde na primeira tentativa. Agora o cliente: o novo
+  post passa a oferecer a conquista obtida que ainda não rendeu post.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Implemento no cliente: as opções de prêmio passam a incluir a conquista, com o
+  glifo de taça e a instância.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O api.ts foi gravado; a tela não, por causa do escape do template no shell.
+  Faço as edições da tela com o editor.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 1 line, removed 1 line
+      73    const [preparando, setPreparando] = useState(false);
+      74    const [erroDaFoto, setErroDaFoto] = useState<string | null>(n
+          ull);
+      75    const [legenda, setLegenda] = useState("");
+      76 -  const [medalhaId, setMedalhaId] = useState<string | null>(nul
+         -l);                                                            
+      76 +  const [premioId, setPremioId] = useState<string | null>(null)
+         +;                                                              
+      77    const [escolha, setEscolha] = useState<Escolha>(ESCOLHA_VAZIA
+          );
+      78  
+      79    const participacao = (premios.data?.itens ?? []).filter(
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 3 lines, removed 1 line
+       92  
+       93    const tamanhoDaLegenda = caracteres(legenda);
+       94    const legendaLonga = tamanhoDaLegenda > LIMITE_DA_LEGENDA;
+       95 -  const vazio = legenda.trim() === "" && !derivadas && !medalh
+          -aId;                                                          
+       95 +  const premio =                                              
+       96 +    premios.opcoes.find((opcao) => opcao.id === premioId) ?? n
+          +ull;                                                          
+       97 +  const vazio = legenda.trim() === "" && !derivadas && !premio
+          +;                                                             
+       98    const ocupado = preparando || publicar.isPending || reivindi
+           car.isPending;
+       99    const envio = modo === "post" ? publicar : reivindicar;
+      100    const limparFalhas = () => {
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 1 line, removed 1 line
+      124    const enviar = () => {
+      125      if (modo === "post") {
+      126        publicar.mutate(
+      127 -        { legenda, derivadas, medalhaId },                    
+      127 +        { legenda, derivadas, premio },                       
+      128          { onSuccess: () => router.dismissTo("/") },
+      129        );
+      130      } else if (derivadas && evento && escolha.item) {
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 2 lines, removed 2 lines
+      298                <OpcaoDePremio
+      299                  key={premio.id}
+      300                  premio={premio}
+      301 -                marcado={medalhaId === premio.id}             
+      301 +                marcado={premioId === premio.id}              
+      302                  onPress={() => {
+      303                    limparFalhas();
+      304 -                  setMedalhaId((atual) =>                     
+      304 +                  setPremioId((atual) =>                      
+      305                      atual === premio.id ? null : premio.id,
+      306                    );
+      307                  }}
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)
+  ⎿  Added 1 line
+      344    const detalhe = [
+      345      premio.materia,
+      346      premio.bimestre ? `${premio.bimestre}º bimestre` : null,
+      347 +    premio.instancia,                                         
+      348    ]
+      349      .filter(Boolean)
+      350      .join(" · ");
+
+● Update(apps\mobile\src\posts\NovoPostScreen.tsx)  ⎿  Added 5 lines, removed 1 line
+      364          pressed && styles.pressionado,
+      365        ]}
+      366      >
+      367 -      <Medalhao tier={premio.tier} glifo="fita" size={40} />  
+      367 +      <Medalhao                                               
+      368 +        tier={premio.tier}                                    
+      369 +        glifo={premio.tipo === "conquista" ? "taca" : "fita"} 
+      370 +        size={40}                                             
+      371 +      />                                                      
+      372        <View style={styles.textoDoPremio}>
+      373          <Text style={[textStyles.secao, { color: colors.ink }]
+           }>
+      374            {premio.nome}
+
+● Regenero o cliente (o pedido de post ganhou conquistaId) e confiro os tipos.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client >/dev/null 2>&1; git diff
+      packages/api-client/src/schem…)
+  ⎿  +            /** Format: uuid */
+     +            conquistaId?: null | string;
+  ⎿  Updated apps\mobile\src\posts\NovoPostScreen.tsx (+1 -2)
+      92  
+      93    const tamanhoDaLegenda = caracteres(legenda);
+      94    const legendaLonga = tamanhoDaLegenda > LIMITE_DA_LEGENDA;
+      95 -  const premio =                                               
+      96 -    premios.opcoes.find((opcao) => opcao.id === premioId) ?? nu
+         -ll;                                                            
+      95 +  const premio = premios.opcoes.find((opcao) => opcao.id === pr
+         +emioId) ?? null;                                               
+      96    const vazio = legenda.trim() === "" && !derivadas && !premio;
+      97    const ocupado = preparando || publicar.isPending || reivindic
+          ar.isPending;
+      98    const envio = modo === "post" ? publicar : reivindicar;
+  ⎿  Updated apps\mobile\src\posts\api.ts (+7 -2)
+      32          .filter((obtido) => !obtido.postId)
+      33          .map((obtido) => ({
+      34            id: obtido.id,
+      35 -          tipo: item.tipo === "conquista" ? ("conquista" as con
+         -st) : ("medalha" as const),                                    
+      35 +          tipo:                                                
+      36 +            item.tipo === "conquista"                          
+      37 +              ? ("conquista" as const)                         
+      38 +              : ("medalha" as const),                          
+      39            nome: item.nome,
+      40            tier: obtido.tier as Tier,
+      41            pontos: obtido.pontos,
+      42            materia: obtido.materia ?? null,
+      43            bimestre: obtido.bimestre ?? null,
+      41 -          instancia: obtido.instancia ? rotuloDaInstancia(obtid
+         -o.instancia) : null,                                           
+      44 +          instancia: obtido.instancia                          
+      45 +            ? rotuloDaInstancia(obtido.instancia)              
+      46 +            : null,                                            
+      47            obtidoEm: obtido.obtidoEm,
+      48          })),
+      49      )
+  ⎿  Updated packages\api-client\openapi.json (+7 -0)
+      4510                "string"
+      4511              ],
+      4512              "format": "uuid"
+      4513 +          },                                                 
+      4514 +          "conquistaId": {                                   
+      4515 +            "type": [                                        
+      4516 +              "null",                                        
+      4517 +              "string"                                       
+      4518 +            ],                                               
+      4519 +            "format": "uuid"                                 
+      4520            }
+      4521          }
+      4522        },
+  ⎿  Updated packages\api-client\src\schema.d.ts (+2 -0)
+      1197              uploadId: null | string;
+      1198              /** Format: uuid */
+      1199              medalhaId: null | string;
+      1200 +            /** Format: uuid */                              
+      1201 +            conquistaId?: null | string;                     
+      1202          };
+      1203          RaridadeResponse: {
+      1204              nivel: string;
+  ⎿  (timeout 10m)
+
+● Tipos limpos. Faltam as mensagens dos dois códigos novos (o teste do cliente
+  exige mensagem para todo código) e conferir como o feed mostra o prêmio de
+  tipo conquista.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O feed já trata qualquer prêmio que não é medalha com o glifo de taça.
+  Acrescento as duas mensagens.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      's|^  "premio-ja-postado": "Esse prêmio já tem um post.",$|  "prem…)
+  ⎿  50:  "conquista-removida": "Essa conquista foi removida.",
+     51:  "mais-de-um-premio": "Escolha um prêmio só para o post.",
+         await act(async () => {
+     … +64 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.ts (+2 -0)
+      47    "premio-nao-encontrado": "Esse prêmio não está mais disponíve
+          l.",
+      48    "premio-anulado": "Esse prêmio foi anulado.",
+      49    "premio-ja-postado": "Esse prêmio já tem um post.",
+      50 +  "conquista-removida": "Essa conquista foi removida.",        
+      51 +  "mais-de-um-premio": "Escolha um prêmio só para o post.",    
+      52    "post-nao-encontrado": "Esse post não existe mais.",
+      53    "remocao-nao-permitida": "Você não pode apagar este post.",
+      54    "foto-obrigatoria": "Escolha uma foto: ela é a comprovação do
+           prêmio.",
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Acrescento uma conquista obtida sem post ao fixture e o teste que a publica.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/posts" && node
+      -e "
+      const fs=require('fs');const f='novoPost.test.tsx';let s=…)
+  ⎿  Tests:       17 passed, 17 total
+  ⎿  Updated apps\mobile\src\posts\novoPost.test.tsx (+52 -1)
+      50  };
+      51  
+      52  const MEDALHA_LIVRE = "0193a000-0000-7000-8000-0000000000d1";
+      53 +const CONQUISTA_LIVRE = "0193a000-0000-7000-8000-0000000000c1";
+      54  const MEDALHA_POSTADA = "0193a000-0000-7000-8000-0000000000d2";
+      55  const UPLOAD = "0193a000-0000-7000-8000-0000000000e1";
+      56  
+     ...
+       89          },
+       90        ],
+       91      },
+       92 +    {                                                         
+       93 +      codigo: "C01",                                          
+       94 +      tipo: "conquista",                                      
+       95 +      nome: "Cinco no bimestre",                              
+       96 +      criterio: "Receber cinco medalhas no mesmo bimestre.",  
+       97 +      tier: "bronze",                                         
+       98 +      pontos: 25,                                             
+       99 +      familia: null,                                          
+      100 +      ordemNaFamilia: null,                                   
+      101 +      raridade: null,                                         
+      102 +      obtidos: [                                              
+      103 +        {                                                     
+      104 +          id: CONQUISTA_LIVRE,                                
+      105 +          tier: "bronze",                                     
+      106 +          pontos: 25,                                         
+      107 +          materia: null,                                      
+      108 +          bimestre: null,                                     
+      109 +          obtidoEm: "2026-11-09T13:00:00Z",                   
+      110 +          postId: null,                                       
+      111 +          instancia: {                                        
+      112 +            periodo: "bimestre",                              
+      113 +            ano: 2026,                                        
+      114 +            semestre: 2,                                      
+      115 +            bimestre: 4,                                      
+      116 +          },                                                  
+      117 +        },                                                    
+      118 +      ],                                                      
+      119 +    },                                                        
+      120    ],
+      121  };
+     … 43 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Os testes de post e de mensagens passam. Rodo tudo: cliente completo e a suíte
+  da API.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa do post de conquista está pronta para a sua revisão. Ainda não
+  commitei; a CI desta etapa roda quando você aprovar e eu fizer o push.
+
+  CI da etapa 6
+
+  O commit 132a8dc (com o "matérias" incluído) ficou com os seis jobs verdes na
+  primeira tentativa.
+
+  Um aviso sobre a verificação local: a primeira rodada da suíte da API, feita
+  com a pilha do compose de pé por causa das capturas, teve 3 falhas por falta
+  de recurso. O teste do migrador, por exemplo, levou 1 min 24 s. Rodadas
+  isoladas passaram, e com a pilha parada a suíte inteira passou limpa antes do
+  commit.
+
+  O que foi feito
+
+  API:
+  - Migration PostDeConquista:
+    - post.conquista_id, com chave estrangeira para conquista;
+    - índice único ix_post_conquista_ativa (um post não removido por conquista);
+    - ck_post_um_premio agora aceita no máximo um entre medalha, prêmio de
+      participação e conquista;
+    - ck_post_nao_vazio passa a contar a conquista.
+  - POST /v1/posts aceita conquistaId (acréscimo). Valem as mesmas regras da
+    medalha, e entram dois códigos novos:
+
+  | Situação                                 | Resposta                      |
+  |------------------------------------------|-------------------------------|
+  | Conquista de outra pessoa ou inexistente | 404 premio-nao-encontrado     |
+  | Conquista já postada                     | 409 premio-ja-postado         |
+  | Conquista removida                       | 409 conquista-removida (novo) |
+  | Medalha e conquista no mesmo post        | 400 mais-de-um-premio (novo)  |
+
+  - Leitura: o post traz a conquista como prêmio, com tipo: "conquista", tier,
+    pontos e raridade. Em Troféus, a conquista obtida passa a trazer o postId,
+    como a medalha.
+  - Purga: o SQL do README agora apaga progresso_de_conquista e conquista depois
+    de post, porque o post segura a conquista. O teste da purga ganhou um post
+    de conquista da Ana.
+
+  Cliente:
+  - O novo post oferece, além das medalhas sem post, as conquistas obtidas sem
+    post, com o glifo de taça e a instância ("4º bimestre de 2026"). Publica com
+    medalhaId ou conquistaId, conforme o escolhido.
+  - Mensagens para os dois códigos novos em erros.ts.
+  - O cartão do feed já mostrava qualquer prêmio que não é medalha com taça,
+    então não precisou mudar.
+  - O contrato regenerado tem um acréscimo, conquistaId no pedido de post.
+
+  Uma decisão para o seu aval
+
+  Quando o recálculo remove uma conquista que tinha post, o post faz como o da
+  medalha anulada (produto.md 4.8): perde o vínculo e fica como post comum. O
+  que era só a conquista, sem foto nem legenda, é apagado. O post que a
+  instituição já tinha removido fica como estava.
+
+  Isso não estava escrito em lugar nenhum; apliquei a regra da medalha por
+  analogia. Se você concordar, registro em produto.md 4.9 na etapa de docs.
+
+  Verificação local
+
+  - Formatação e build Release limpos (0 avisos e 0 erros).
+  - Suíte da API: 1034 testes, nenhuma falha, os mesmos 6 da R2 ignorados.
+  - Cliente: Jest com 420 testes, lint, tipos e Prettier limpos.
+
+  Testes novos:
+  - Integração (6, via HTTP contra Postgres real):
+    - a aluna posta a própria conquista, o post traz o prêmio do tipo conquista,
+      e Troféus passa a citar o post;
+    - uma conquista rende um post;
+    - conquista de outra pessoa, ou inexistente, não existe para quem posta;
+    - medalha e conquista no mesmo post são recusadas;
+    - a conquista removida desvincula o post com legenda, e não pode mais ser
+      postada;
+    - a conquista removida apaga o post que era só ela.
+  - Jest: a conquista oferecida com a instância e publicada como conquistaId. Os
+    testes antigos de corpo do pedido passaram a esperar conquistaId: null.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona o post de conquista no feed e no novo post
+
+  É um commit só, levando API, cliente regenerado e app, como na etapa 5. Com o
+  seu ok, commito, faço push, acompanho a CI e sigo para a última etapa (docs e
+  e2e).
+
+✻ Worked for 55m 29s · done 22:39
+
+※ recap: Estamos no passo 9 (conquistas), e a etapa do post de conquista está pronta para a sua revisão, ainda sem commit. Falta você aprovar a mensagem de commit e a regra do post da conquista removida; então commito, acompanho a CI e sigo para a etapa de docs e e2e.
