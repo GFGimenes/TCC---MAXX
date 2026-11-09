@@ -557,3 +557,693 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_11_rankings-sessao.txt
 ✻ Churned for 5m 38s · done 8:25
 
 ※ recap: Estamos no passo 11 (rankings), com a etapa 1 (domínio do ranking) pronta e os testes locais passando. Falta você aprovar a mensagem de commit para eu commitar, dar push e trazer o resultado da CI. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_11_rankings-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_11_rankings-sessao.txt
+
+> Etapa 1 aprovada. O caso do prêmio de evento no recesso sem semestre seguinte 
+  fica como você fez: pontua no histórico e espera o calendário para entrar     
+  num semestre, coerente com o passo 9. O registro das respostas 1 a 3 no       
+  produto.md fica na etapa 6, como no plano. Commita com a mensagem proposta,   
+  push, acompanha a CI e, com ela verde, segue para a etapa 2; para para a      
+  minha revisão no fim dela, com a mensagem de commit antes de commitar.        
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Commit 9df9145 enviado e CI rodando. Enquanto isso, leio a infraestrutura que
+  a etapa 2 vai tocar (fila, migrations, seed, testes de raridade), sem escrever
+  código até a CI ficar verde.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Estou esperando a CI do commit 9df9145. A leitura para a etapa 2 já terminou,
+  e o cálculo vai seguir o recálculo de raridade:
+  - uma linha própria ranking na tabela recalculo;
+  - o mesmo esquema de coalescência;
+  - o calendário lido como no ConquistaRepository;
+  - o curso atual tirado do CadastroElegivel.
+
+  Quando a CI terminar, trago o resultado. Com ela verde, começo a etapa 2.
+
+✻ Cogitated for 50s · done 9:36
+
+● Background command "Wait for CI run and show job results" completed (exit code
+0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI do commit 9df9145 passou nos seis jobs (build, api, api-client, mobile,
+  e2e, segurança). Etapa 1 pronta. Começo a etapa 2.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Escrevendo a carga, a linha da tabela, a configuração e o handler.
+
+● Write(apps\api\src\Maxx.Application\Ranking\RecalcularRanking.cs)
+  ⎿  Wrote 11 lines to
+     apps\api\src\Maxx.Application\Ranking\RecalcularRanking.cs
+       1 using Maxx.Application.Fila;
+       2 
+       3 namespace Maxx.Application.Ranking;
+       4 
+       5 // O pedido de recálculo das quatro visões do ranking (ADR 0005)
+         . Enfileirado, na mesma
+       6 // transação, por todo evento que muda a pontuação de algum alun
+         o. Sem carga: o recálculo lê
+       7 // o estado de agora, e uma rajada de pedidos vira uma execução 
+         só.
+     … +4 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Ranking\PosicaoNoRankingRow.cs)
+  ⎿  Wrote 46 lines to
+     apps\api\src\Maxx.Infrastructure\Ranking\PosicaoNoRankingRow.cs
+       1 using Maxx.Domain.Ranking;
+       2 
+       3 namespace Maxx.Infrastructure.Ranking;
+       4 
+       5 // Uma linha de uma das quatro visões do ranking, escrita só pel
+         o worker (ADR 0005). A
+       6 // leitura nunca calcula nada: lê esta linha pelo índice da visã
+         o e da posição. O semestre só
+       7 // no período semestre; o curso só no escopo curso.
+       8 public sealed class PosicaoNoRankingRow
+     … +38 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\PosicaoNoRan
+       kingConfiguration.cs)
+  ⎿  Wrote 58 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\PosicaoNoRankingConfiguration.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Identidade;
+      3 using Maxx.Domain.Ranking;
+      4 using Maxx.Infrastructure.Ranking;
+      5 using Maxx.Infrastructure.Seed;
+      6 using Microsoft.EntityFrameworkCore;
+      7 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+      8 
+      9 namespace Maxx.Infrastructure.Persistence.Configurations;
+     … +49 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Ranking\RecalculoDoRanking.cs)
+  ⎿  Wrote 133 lines to
+     apps\api\src\Maxx.Infrastructure\Ranking\RecalculoDoRanking.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Application.Ranking;
+       3 using Maxx.Domain.Academico;
+       4 using Maxx.Domain.Conquistas;
+       5 using Maxx.Domain.Identidade;
+       6 using Maxx.Domain.Premios;
+       7 using Maxx.Domain.Ranking;
+       8 using Maxx.Infrastructure.Persistence;
+       9 using Maxx.Infrastructure.RaridadeDosItens;
+      10 using Microsoft.EntityFrameworkCore;
+     … +123 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\DependencyInjection.cs)
+  ⎿  Added 1 line
+      14  using Maxx.Application.Posts;
+      15  using Maxx.Application.Premios;
+      16  using Maxx.Application.PremiosParticipacao;
+      17 +using Maxx.Application.Ranking;                                
+      18  using Maxx.Application.Social;
+      19  using Maxx.Domain.Conquistas;
+      20  using Maxx.Infrastructure.Autenticacao;
+
+● Update(apps\api\src\Maxx.Infrastructure\DependencyInjection.cs)
+  ⎿  Added 1 line
+      33  using Maxx.Infrastructure.Posts;
+      34  using Maxx.Infrastructure.Premios;
+      35  using Maxx.Infrastructure.PremiosParticipacao;
+      36 +using Maxx.Infrastructure.Ranking;                             
+      37  using Maxx.Infrastructure.RaridadeDosItens;
+      38  using Maxx.Infrastructure.Seed;
+      39  using Maxx.Infrastructure.Social;
+
+● Update(apps\api\src\Maxx.Infrastructure\DependencyInjection.cs)
+  ⎿  Added 1 line
+      113          services.AddTrabalho<EmailDeRecuperacao, EmailDeRecupe
+           racaoHandler>();
+      114          services.AddTrabalho<NotificarMedalhaRecebida, Notific
+           arMedalhaRecebidaHandler>();
+      115          services.AddTrabalho<RecalcularRaridade, RecalculoDeRa
+           ridade>();
+      116 +        services.AddTrabalho<RecalcularRanking, RecalculoDoRan
+          +king>();                                                      
+      117          services.AddTrabalho<LimparUploadAbandonado, LimparUpl
+           oadAbandonadoHandler>();
+      118          services.AddTrabalho<RemoverFotos, RemoverFotosHandler
+           >();
+      119          services.AddTrabalho<NotificarComprovacaoAprovada, Not
+           ificarComprovacaoHandler>();
+
+● Agora o pedido do seed base. Ele sempre deixa um recálculo pendente, porque o
+  calendário pode ter ganho o semestre que faltava a um prêmio do recesso.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && cat >
+      /tmp/seed_patch.txt <<'EOF'
+      EOF…)
+  ⎿   .../src/Maxx.Infrastructure/DependencyInjection.cs |  3 +++
+      .../src/Maxx.Infrastructure/Seed/DatabaseSeeder.cs | 24 +++++++++++++
+     +++++++++
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs (+24 
+     -0)
+       1  using Maxx.Application.Conquistas;
+       2  using Maxx.Application.Fila;
+       3  using Maxx.Application.Medalhas;
+       4 +using Maxx.Application.Ranking;                                
+       5  using Maxx.Domain.Academico;
+       6  using Maxx.Domain.Identidade;
+       7  using Maxx.Infrastructure.Fila;
+       8  using Maxx.Infrastructure.Persistence;
+       9 +using Maxx.Infrastructure.Ranking;                             
+      10  using Maxx.Infrastructure.RaridadeDosItens;
+      11  using Microsoft.EntityFrameworkCore;
+      12  using Microsoft.Extensions.Logging;
+     ...
+      63          var (anosNovos, anosAtualizados) = await GravarCalendar
+          ioAsync(calendario, cancellationToken);
+      64          var termosNovos = await GravarTermosAsync(termos, cance
+          llationToken);
+      65          await PedirRaridadeAsync(itensNovos + itensAtualizados 
+          > 0, cancellationToken);
+      66 +        await PedirRankingAsync(anosNovos + anosAtualizados > 0
+         +, cancellationToken);                                          
+      67          await PedirVerificacaoDeFechamentosAsync(cancellationTo
+          ken);
+      68          await db.SaveChangesAsync(cancellationToken);
+      69  
+     ...
+       95          }
+       96      }
+       97  
+       98 +    // Calendário novo ou mudado, ou ranking ainda nunca calcu
+          +lado: um pedido de recálculo ao                               
+       99 +    // worker. O calendário muda o semestre em que uma parcela
+          + conta (o prêmio do recesso                                   
+      100 +    // espera o semestre seguinte existir) e quais semestres j
+          +á congelaram. Só um: com um                                   
+      101 +    // pedido pendente, rodar de novo não acrescenta nada, e o
+          + seed segue idempotente.                                      
+      102 +    private async Task PedirRankingAsync(bool calendarioMudou,
+          + CancellationToken cancellationToken)                         
+      103 +    {                                                         
+      104 +        var pendente = await db.Set<Trabalho>()               
+      105 +            .AnyAsync(trabalho => trabalho.Tipo == RecalcularR
+          +anking.Tipo && trabalho.Estado == EstadoDoTrabalho.Pendente, c
+          +ancellationToken);                                            
+      106 +        if (pendente)                                         
+      107 +        {                                                     
+      108 +            return;                                           
+      109 +        }                                                     
+      110 +                                                              
+      111 +        var nuncaCalculado = !await db.Set<RecalculoRow>()    
+      112 +            .AnyAsync(recalculo => recalculo.Nome == Recalculo
+          +DoRanking.Nome && recalculo.UltimaExecucaoEm != null, cancella
+          +tionToken);                                                   
+      113 +        if (calendarioMudou || nuncaCalculado)                
+      114 +        {                                                     
+      115 +            fila.Enfileirar(new RecalcularRanking());         
+     … 6 more lines (ctrl+o to expand)
+
+● Agora a migration.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      migrations add Ranking --project src/Maxx.Infrastructure --output-dir…)
+  ⎿  Build started...
+     Build succeeded.
+     Done. To undo this action, use 'ef migrations remove'
+     … +90 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     09124616_Ranking.cs (+90 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;          
+       4 +                                                               
+       5 +#nullable disable                                              
+       6 +                                                               
+       7 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       8 +{                                                              
+       9 +    /// <inheritdoc />                                         
+      10 +    public partial class Ranking : Migration                   
+      11 +    {                                                          
+      12 +        /// <inheritdoc />                                     
+      13 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      14 +        {                                                      
+      15 +            migrationBuilder.CreateTable(                      
+      16 +                name: "posicao_no_ranking",                    
+      17 +                columns: table => new                          
+      18 +                {                                              
+      19 +                    id = table.Column<long>(type: "bigint", nul
+         +lable: false)                                                  
+      20 +                        .Annotation("Npgsql:ValueGenerationStra
+         +tegy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),    
+      21 +                    escopo = table.Column<string>(type: "charac
+         +ter varying(10)", maxLength: 10, nullable: false),             
+      22 +                    periodo = table.Column<string>(type: "chara
+         +cter varying(10)", maxLength: 10, nullable: false),            
+      23 +                    semestre_letivo_id = table.Column<Guid>(typ
+         +e: "uuid", nullable: true),                                    
+      24 +                    curso_id = table.Column<Guid>(type: "uuid",
+         + nullable: true),                                              
+      25 +                    aluno_id = table.Column<Guid>(type: "uuid",
+         + nullable: false),                                             
+      26 +                    posicao = table.Column<int>(type: "integer"
+         +, nullable: false),                                            
+      27 +                    pontos = table.Column<int>(type: "integer",
+         + nullable: false),                                             
+      28 +                    ultima_concessao_em = table.Column<DateTime
+         +Offset>(type: "timestamp with time zone", nullable: false)     
+      29 +                },                                             
+      30 +                constraints: table =>                          
+      31 +                {                                              
+      32 +                    table.PrimaryKey("pk_posicao_no_ranking", x
+         + => x.id);                                                     
+      33 +                    table.CheckConstraint("ck_posicao_no_rankin
+         +g_curso", "(escopo = 'curso') = (curso_id IS NOT NULL)");      
+      34 +                    table.CheckConstraint("ck_posicao_no_rankin
+         +g_escopo", "escopo IN ('geral', 'curso')");                    
+      35 +                    table.CheckConstraint("ck_posicao_no_rankin
+         +g_periodo", "periodo IN ('semestre', 'historico')");           
+      36 +                    table.CheckConstraint("ck_posicao_no_rankin
+         +g_semestre", "(periodo = 'semestre') = (semestre_letivo_id IS N
+         +OT NULL)");                                                    
+      37 +                    table.CheckConstraint("ck_posicao_no_rankin
+         +g_valores", "posicao >= 1 AND pontos > 0");                    
+      38 +                    table.ForeignKey(                          
+      39 +                        name: "fk_posicao_no_ranking_curso_curs
+         +o_id",                                                         
+      40 +                        column: x => x.curso_id,               
+     … 50 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+● Migration gerada. Agora os testes de integração do worker. Reaproveito o
+  MundoDeConquistas, com um parâmetro opcional novo para a data de início do
+  evento.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Conquistas" && perl -0pi -e 's/    \/\/
+      Um prêmio de…)
+  ⎿   .../Maxx.Api.IntegrationTests/Conquistas/MundoDeConquistas.cs  | 10 +
+     ++++-----
+      1 file changed, 5 insertions(+), 5 deletions(-)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\MundoDeCon
+     quistas.cs (+5 -5)
+      156              .AnularAsync(medalha, "secretaria@unieduk.com.br",
+            Ct));
+      157      }
+      158  
+      159 -    // Um prêmio de participação aprovado agora, num evento di
+          -gitado que começou ontem, com o                               
+      160 -    // trabalho do fim da janela agendado como a aprovação age
+          -nda.                                                          
+      161 -    public async Task<PremioParticipacao> AprovadoAsync(Usuari
+          -o aluno, string item, string nomeDoEvento)                    
+      159 +    // Um prêmio de participação aprovado agora, num evento di
+          +gitado que começou ontem (ou em                               
+      160 +    // inicio), com o trabalho do fim da janela agendado como 
+          +a aprovação agenda.                                           
+      161 +    public async Task<PremioParticipacao> AprovadoAsync(Usuari
+          +o aluno, string item, string nomeDoEvento, DateOnly? inicio = 
+          +null)                                                         
+      162      {
+      163          var agora = Relogio.GetUtcNow();
+      164 -        var ontem = FusoHorario.DataLocal(agora).AddDays(-1); 
+      165 -        var evento = Evento.TextoLivre(nomeDoEvento, ontem, on
+          -tem, aluno);                                                  
+      164 +        var data = inicio ?? FusoHorario.DataLocal(agora).AddD
+          +ays(-1);                                                      
+      165 +        var evento = Evento.TextoLivre(nomeDoEvento, data, dat
+          +a, aluno);                                                    
+      166          var premio = PremioParticipacao.Reivindicar(ItemDePart
+           icipacao(item), 1, aluno, Cc, evento, null, null, agora).Premi
+           o!;
+      167          Assert.Null(premio.Aprovar(aluno, Secretaria, agora));
+      168  
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Escrevendo os testes de integração do recálculo.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Ranking\RecalculoDoRankingTests
+       .cs)
+  ⎿  Wrote 323 lines to apps\api\tests\Maxx.Api.IntegrationTests\Ranking\Re
+     calculoDoRankingTests.cs
+       1 using Maxx.Api.IntegrationTests.Conquistas;
+       2 using Maxx.Application.Ranking;
+       3 using Maxx.Domain.Academico;
+       4 using Maxx.Domain.Conquistas;
+       5 using Maxx.Domain.Identidade;
+       6 using Maxx.Domain.Premios;
+       7 using Maxx.Domain.Ranking;
+       8 using Maxx.Infrastructure.Fila;
+       9 using Maxx.Infrastructure.Persistence;
+      10 using Maxx.Infrastructure.Ranking;
+     … +313 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Ranking" && perl -0pi -e
+      's/Assert.Equal\(10, linhas…)
+  ⎿  60:        Assert.Equal(12, linhas.Count);
+     101:        var esperados = (await mundo.LinhasAsync<Medalha>()).Where
+     (medalha => medalha.AlunoId == mundo.Bruno.Id).Sum(medalha => medalha.
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Ranking\RecalculoDoRa
+     nkingTests.cs (+9 -6)
+      57              Visao(linhas, EscopoDoRanking.Curso, PeriodoDoRanki
+          ng.Historico, null, mundo.Cc.Id));
+      58  
+      59          // Aluno sem pontos não tem linha, e o semestre 2 ainda
+           não tem pontos de ninguém.
+      60 -        Assert.Equal(10, linhas.Count);                        
+      60 +        Assert.Equal(12, linhas.Count);                        
+      61          Assert.DoesNotContain(linhas, linha => linha.SemestreLe
+          tivoId == mundo.Ano.Semestres[1].Id);
+      62      }
+      63  
+     ...
+      85      {
+      86          await using var mundo = await MundoDeConquistas.CriarAs
+          ync(postgres);
+      87  
+      88 -        // Cinco medalhas fecham a C01 (25); a anulação de uma 
+         -delas a remove. O prêmio da Ana                                
+      89 -        // é contestado e vai a averiguação.                   
+      88 +        // As cinco medalhas do Bruno fecham a C01 (e o que mai
+         +s o catálogo der por elas). A                                  
+      89 +        // medalha da Ana é anulada, e o prêmio dela é contesta
+         +do e vai a averiguação.                                        
+      90          await mundo.CincoNoBimestreAsync(mundo.Bruno);
+      91          var anulada = await mundo.ConcederAsync(mundo.Ana, "M01
+          ");
+      92          var premio = await mundo.AprovadoAsync(mundo.Ana, "P01"
+          , "Palestra de abertura");
+     ...
+       96  
+       97          await RecalcularAsync(mundo);
+       98  
+       99 -        Assert.Single(await mundo.LinhasAsync<Conquista>(), co
+          -nquista => conquista.AlunoId == mundo.Bruno.Id && conquista.Es
+          -taAtiva);                                                     
+       99 +        var conquistas = (await mundo.LinhasAsync<Conquista>()
+          +).Where(conquista => conquista.EstaAtiva).ToList();           
+      100 +        Assert.Contains(conquistas, conquista => (conquista.Al
+          +unoId, conquista.ItemCodigo) == (mundo.Bruno.Id, "C01"));     
+      101 +        var esperados = (await mundo.LinhasAsync<Medalha>()).W
+          +here(medalha => medalha.AlunoId == mundo.Bruno.Id).Sum(medalha
+          + => medalha.Pontos)                                           
+      102 +            + conquistas.Where(conquista => conquista.AlunoId 
+          +== mundo.Bruno.Id).Sum(conquista => conquista.Pontos);        
+      103          var historico = (await mundo.LinhasAsync<PosicaoNoRank
+           ingRow>())
+      104              .Where(linha => linha.Escopo == EscopoDoRanking.Ge
+           ral && linha.Periodo == PeriodoDoRanking.Historico)
+      105              .ToList();
+      103 -        Assert.Equal([(mundo.Bruno.Id, 1, 30 + 30 + 25 + 25 + 
+          -25 + 25)], historico.Select(linha => (linha.AlunoId, linha.Pos
+          -icao, linha.Pontos)));                                        
+      106 +        Assert.Equal([(mundo.Bruno.Id, 1, esperados)], histori
+          +co.Select(linha => (linha.AlunoId, linha.Posicao, linha.Pontos
+          +)));                                                          
+      107      }
+      108  
+      109      [Fact]
+     ...
+      175  
+      176          var doBruno = (await mundo.LinhasAsync<PosicaoNoRankin
+           gRow>()).Where(linha => linha.AlunoId == mundo.Bruno.Id).ToLis
+           t();
+      177          Assert.Equal(
+      175 -            [(EscopoDoRanking.Curso, PeriodoDoRanking.Historic
+          -o), (EscopoDoRanking.Geral, PeriodoDoRanking.Historico)],     
+      178 +            [(EscopoDoRanking.Geral, PeriodoDoRanking.Historic
+          +o), (EscopoDoRanking.Curso, PeriodoDoRanking.Historico)],     
+      179              doBruno.Select(linha => (linha.Escopo, linha.Perio
+           do)).Order());
+     … 2 more lines (ctrl+o to expand)
+
+● Agora o teste do seed base.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs)
+  ⎿  Added 37 lines
+       68                  trabalho => trabalho.Tipo == VerificarFechamen
+           tos.Tipo && trabalho.Estado == EstadoDoTrabalho.Pendente, Ct))
+           ;
+       69      }
+       70  
+       71 +    // O ranking nunca calculado, ou o calendário mudado, pede
+          + um recálculo ao worker (passo                                
+       72 +    // 11): só um, e rodar de novo com o ranking já calculado 
+          +e o calendário igual não pede.                                
+       73      [Fact]
+       74 +    public async Task Seed_base_pede_o_ranking_nunca_calculado
+          +_ou_com_calendario_mudado_uma_vez_so()                        
+       75 +    {                                                         
+       76 +        await using var factory = await MigradoAsync(postgres,
+          + Dados);                                                      
+       77 +                                                              
+       78 +        await factory.SeedBaseAsync(Ct);                      
+       79 +        await factory.SeedBaseAsync(Ct);                      
+       80 +        Assert.Equal(1, await PedidosDeRankingAsync(factory));
+       81 +                                                              
+       82 +        await SimularRecalculoDoRankingAsync(factory);        
+       83 +        await factory.SeedBaseAsync(Ct);                      
+       84 +        Assert.Equal(0, await PedidosDeRankingAsync(factory));
+       85 +                                                              
+       86 +        AlterarCalendario(ano => ano["semestres"]![1]!["bimest
+          +res"]![1]!["fim"] = "2026-12-12");                            
+       87 +        await factory.SeedBaseAsync(Ct);                      
+       88 +        Assert.Equal(1, await PedidosDeRankingAsync(factory));
+       89 +    }                                                         
+       90 +                                                              
+       91 +    private static async Task<int> PedidosDeRankingAsync(MaxxA
+          +piFactory factory)                                            
+       92 +    {                                                         
+       93 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+       94 +        return await scope.ServiceProvider.GetRequiredService<
+          +MaxxDbContext>().Set<Trabalho>().CountAsync(                  
+       95 +            trabalho => trabalho.Tipo == RecalcularRanking.Tip
+          +o && trabalho.Estado == EstadoDoTrabalho.Pendente, Ct);       
+       96 +    }                                                         
+       97 +                                                              
+       98 +    // O que o worker deixa depois de recalcular: o pedido con
+          +sumido e a execução registrada.                               
+       99 +    private static async Task SimularRecalculoDoRankingAsync(M
+          +axxApiFactory factory)                                        
+      100 +    {                                                         
+      101 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      102 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      103 +        await db.Database.ExecuteSqlAsync($"DELETE FROM trabal
+          +ho WHERE tipo = {RecalcularRanking.Tipo}", Ct);               
+      104 +        await db.Database.ExecuteSqlAsync(                    
+      105 +            $"INSERT INTO recalculo (nome, ultima_execucao_em)
+          + VALUES ({RecalculoDoRanking.Nome}, now())", Ct);             
+      106 +    }                                                         
+      107 +                                                              
+      108 +    [Fact]                                                    
+      109      public async Task Rodar_de_novo_sem_mudar_os_arquivos_nao_
+           muda_nada()
+      110      {
+      111          await using var factory = await MigradoAsync(postgres)
+           ;
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i 's/^using
+      Maxx.Application.Conquistas;$/using Maxx.Application.Conquistas…)
+  ⎿  MSBUILD : error MSB1009: Arquivo de projeto não existe.
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs (+2 
+     -0)
+       1  using System.Text.Json.Nodes;
+       2  using Maxx.Application.Conquistas;
+       3 +using Maxx.Application.Ranking;                                
+       4  using Maxx.Domain.Academico;
+       5  using Maxx.Domain.Identidade;
+       6  using Maxx.Infrastructure.Fila;
+       7  using Maxx.Infrastructure.Persistence;
+       8 +using Maxx.Infrastructure.Ranking;                             
+       9  using Maxx.Infrastructure.Seed;
+      10  using Microsoft.EntityFrameworkCore;
+      11  using Microsoft.Extensions.DependencyInjection;
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && sed -i '/^using
+      Maxx.Infrastructure.Ranking;$/d;…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs (+3 
+     -3)
+       5  using Maxx.Domain.Identidade;
+       6  using Maxx.Infrastructure.Fila;
+       7  using Maxx.Infrastructure.Persistence;
+       8 -using Maxx.Infrastructure.Ranking;                             
+       8  using Maxx.Infrastructure.Seed;
+       9  using Microsoft.EntityFrameworkCore;
+      10  using Microsoft.Extensions.DependencyInjection;
+     ...
+       96              trabalho => trabalho.Tipo == RecalcularRanking.Tip
+           o && trabalho.Estado == EstadoDoTrabalho.Pendente, Ct);
+       97      }
+       98  
+      100 -    // O que o worker deixa depois de recalcular: o pedido con
+          -sumido e a execução registrada.                               
+       99 +    // O que o worker deixa depois de recalcular: o pedido con
+          +sumido e a execução registrada                                
+      100 +    // na linha "ranking" do recálculo.                       
+      101      private static async Task SimularRecalculoDoRankingAsync(M
+           axxApiFactory factory)
+      102      {
+      103          await using var scope = factory.Services.CreateAsyncSc
+           ope();
+      104          var db = scope.ServiceProvider.GetRequiredService<Maxx
+           DbContext>();
+      105          await db.Database.ExecuteSqlAsync($"DELETE FROM trabal
+           ho WHERE tipo = {RecalcularRanking.Tipo}", Ct);
+      106          await db.Database.ExecuteSqlAsync(
+      107 -            $"INSERT INTO recalculo (nome, ultima_execucao_em)
+          - VALUES ({RecalculoDoRanking.Nome}, now())", Ct);             
+      107 +            $"INSERT INTO recalculo (nome, ultima_execucao_em)
+          + VALUES ('ranking', now())", Ct);                             
+      108      }
+      109  
+      110      [Fact]
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 32 testes passaram: os 12 novos do recálculo e os do seed base. Rodo a
+  suíte de integração inteira em segundo plano, para pegar efeitos colaterais do
+  pedido novo do seed.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O formato está limpo. Espero a suíte inteira.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A suíte completa ainda está rodando. Assim que ela terminar, trago o relatório
+  da etapa 2 com a mensagem de commit.
+
+✻ Baked for 9m 37s · done 9:52
+
+※ recap: Estamos no passo 11, rankings, na etapa 2: tabela, worker e seed, com os 12 testes do recálculo passando. Próximo passo: esperar a suíte inteira terminar e trazer o relatório com a mensagem de commit para sua revisão. (disable recaps in /config)
+
+● Background command "Run full solution test suite" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A suíte inteira deu 2 falhas, e o filtro escondeu os nomes dos testes. Rodo de
+  novo guardando a saída completa.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Na segunda rodada, a integração passou com 569 testes, 0 falhas e 6 ignorados.
+  Vou rodar a solução inteira de novo, guardando a saída, para ver quais dos 2
+  testes que falharam na primeira rodada têm relação com esta etapa.
+  Ran 1 shell command (ctrl+o to expand)
+
+● A rodada diagnóstica está em andamento. Quando ela terminar, identifico as
+  falhas e trago o relatório da etapa 2.
+
+✻ Crunched for 6m 16s · done 10:04
+
+※ recap: Passo 11, rankings: a etapa 1 já está commitada com a CI verde, e a etapa 2 (tabela e worker) está pronta, ainda sem commit. Estou rodando de novo a suíte inteira para descobrir duas falhas que apareceram uma vez, antes de te trazer o relatório e a mensagem de commit.
+
+● Background command "Rerun full solution and capture failures" completed (exit
+code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Terminei a etapa 2 e parei para sua revisão. Ainda não há commit nem push,
+  então a CI desta etapa ainda não rodou.
+
+  O que foi feito:
+
+  - Maxx.Application/Ranking/RecalcularRanking.cs: o tipo de trabalho
+    recalcular-ranking, sem carga.
+  - Migration 20261109124616_Ranking, que cria a tabela posicao_no_ranking.
+    - Colunas: escopo, período, semestre, curso, aluno, posição, pontos e
+      ultima_concessao_em.
+    - Checagens no banco: o semestre só existe no período semestre, o curso só
+      no escopo curso, e a posição é pelo menos 1 com pontos positivos (aluno
+      sem pontos não tem linha).
+    - Dois índices únicos com NULLS NOT DISTINCT:
+      - visão mais posição, para a página do topo;
+      - aluno mais visão, para o perfil e o card.
+    - Chaves estrangeiras em cascata: aluno, semestre e curso. A linha é dado
+      derivado e sai junto com o aluno na purga da demonstração.
+  - Maxx.Infrastructure/Ranking/RecalculoDoRanking.cs: segue o mesmo modelo do
+    recálculo de raridade.
+    - Usa a própria linha ranking em recalculo, com FOR UPDATE.
+    - Os pedidos pendentes são apagados e viram uma execução só. Abaixo de 10 s
+      da última execução, deixa um pedido adiado.
+    - Lê as três fontes pelas portas do domínio da etapa 1 e reescreve o
+      histórico e os semestres abertos em uma transação. Os semestres congelados
+      não são tocados.
+    - O curso atual vem do CadastroElegivel.
+  - Seed base: pede o recálculo quando o calendário é novo ou mudou, ou quando o
+    ranking nunca foi calculado. Nunca deixa mais de um pedido pendente, e o
+    seed continua idempotente. O calendário entra na condição porque, quando
+    ganha o semestre seguinte, o prêmio do recesso passa a contar num semestre.
+  - MundoDeConquistas.AprovadoAsync: ganhou um inicio opcional para o evento,
+    sem mudar quem já o chamava.
+
+  Testes:
+  - 12 de integração novos, em Ranking/RecalculoDoRankingTests.cs:
+    - quatro visões com posição própria;
+    - desempate com o instante gravado;
+    - conquista pontua, enquanto a medalha anulada e o prêmio em averiguação
+      não;
+    - prêmio aprovado no semestre 2 conta no semestre 1 do evento;
+    - semestre congelado no dia do fim mais 30 fica intacto, e a aprovação entra
+      só no histórico;
+    - na véspera do congelamento, o semestre ainda é reescrito;
+    - ex-aluno só no histórico;
+    - troca de curso, feita por SQL até o passo 12;
+    - reescrita sem duplicar;
+    - rajada de pedidos vira uma execução só;
+    - pedido antes de 10 s fica adiado;
+    - dois workers ao mesmo tempo calculam uma vez só.
+  - 1 no SeedBaseTests: o seed pede uma vez, não pede de novo com o ranking já
+    calculado, e volta a pedir quando o calendário muda.
+
+  Verificação local:
+  - Integração rodada sozinha: 563 aprovados, 0 falhas e 6 ignorados (os 6 já
+    eram ignorados antes).
+  - Formato e build: limpos.
+  - Testes instáveis na solução inteira: rodei a solução inteira duas vezes. Na
+    primeira, 2 falhas que o meu filtro escondeu, então não sei quais foram. Na
+    segunda, guardei a saída: 1 falha, um tempo esgotado de conexão HTTP com o
+    contêiner de armazenamento no envio de foto de
+    ContestacoesTests.Revogado_sai_da_pontuacao... (MundoSocial.PutAsync). Esse
+    caminho não passa por nada desta etapa, e o teste passou na rodada só da
+    integração. Pela carga dos dois projetos de teste rodando juntos com muitos
+    contêineres, tomo como instabilidade do ambiente, mas não confirmei.
+  - A migration foi aplicada nos bancos dos testes. Ainda não a apliquei no
+    compose local; o migrator dela roda no e2e da CI.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona a tabela do ranking e o recálculo das quatro visões no 
+  worker
+
+  Aprovando, eu faço o commit, o push e trago o resultado da CI.
+
+✻ Baked for 24s · done 10:09
