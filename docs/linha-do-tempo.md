@@ -104,6 +104,14 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   de CI verde por etapa. Em repositório público os runners padrão não contam minutos.
   Alternativa descartada: manter privado com limite de gasto pago. Nada muda para o
   agente nem no código; o gitleaks já roda na CI e os segredos ficam fora do repositório.
+- Infraestrutura externa do passo 13 preparada pelo autor em 08/11/2026 (noite), fora das
+  sessões do agente, como insumo que a persona do engenheiro fornece: domínio
+  `maxx-unimax.com` (Cloudflare Registrar, DNS na Cloudflare), bucket R2 `maxx-fotos` com
+  domínio custom `fotos.maxx-unimax.com` e token de API restrito ao bucket, VPS Hetzner
+  CX23 (2 vCPU, 4 GB, Ubuntu 24.04, Helsinki) com acesso por chave SSH, registro A
+  `app.maxx-unimax.com` sem proxy. Credenciais entregues ao agente só pelo `.env` da VPS
+  ou pelo terminal, nunca no chat. Provedor SMTP ainda não escolhido (Mailpit provisório
+  se o passo 13 pedir antes).
 
 ## Dependências entre fases
 
