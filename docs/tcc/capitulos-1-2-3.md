@@ -97,9 +97,7 @@ Nenhum desses estudos isola o operador. Os de laboratório não têm pessoa; o d
 
 ## 3.1 Desenho
 
-O experimento constrói o mesmo aplicativo, o Maxx, em duas trilhas independentes, a partir da mesma ideia, com o mesmo agente de codificação, o mesmo modelo, a mesma versão, os mesmos revisores e a mesma validação. O que varia é quem pede e como pede: numa trilha, os prompts são escritos como um usuário sem formação técnica escreveria; na outra, como um engenheiro e arquiteto de software escreveria. Uma terceira condição, de prompt único, repete as duas personas com uma mensagem só e nenhuma intervenção humana depois dela, o que dá uma matriz de duas personas por duas condições e quatro produtos (Figura 1).
-
-![Figura 1. Fluxo dos prompts e das trilhas do experimento (docs/rascunhos/fluxo-prompts.png)](../rascunhos/fluxo-prompts.png)
+O experimento constrói o mesmo aplicativo, o Maxx, em duas trilhas independentes, a partir da mesma ideia, com o mesmo agente de codificação, o mesmo modelo, a mesma versão, os mesmos revisores e a mesma validação. O que varia é quem pede e como pede: numa trilha, os prompts são escritos como um usuário sem formação técnica escreveria; na outra, como um engenheiro e arquiteto de software escreveria. Uma terceira condição, de prompt único, repete as duas personas com uma mensagem só e nenhuma intervenção humana depois dela, o que dá uma matriz de duas personas por duas condições e quatro produtos.
 
 O desenho usa um único agente e um único conjunto de revisores porque a pergunta é sobre quem conduz, não sobre qual modelo. Uma versão anterior deste trabalho previa quatro famílias de modelos com personas próprias; ela foi abandonada porque multiplicava as variáveis sem responder à pergunta.
 
