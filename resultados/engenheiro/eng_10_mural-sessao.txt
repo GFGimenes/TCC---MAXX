@@ -257,3 +257,1010 @@
   Assim que você responder as perguntas, ajusto o plano e começo a etapa 1.
 
 ✻ Churned for 2m 52s · done 23:18
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Plano aprovado, sete etapas, um PR da feat/passo-10-mural para a              
+  rodada/eng_10_mural, CI verde por etapa. D1 a D7 pela sua proposta. As nove   
+  perguntas pela sua recomendação: 1, título de 3 a 120 e texto de 1 a 2.000,   
+  registrados no produto.md 7. 2, sua leitura da prancheta confere: não lido    
+  aberto com bolinha e negrito, lido recolhido, abrir registra a leitura e      
+  marca a notificação do aviso, "Ler todos" marca tudo. 3, visibilidade e       
+  notificação como você descreveu, com o ex-aluno lendo sem ser notificado e os 
+  destinatários fixados na publicação. 4, um ou mais cursos na mesma            
+  publicação. 5, o marcador trofeus_visto_em separado do sininho. 6, abrir o    
+  sininho marca tudo como lido, com os destinos por tipo como listou. 7, a tela 
+  de notificações e o "+" do professor entram na lista de superfícies do        
+  produto.md e do CLAUDE.md. 8, sininho também no Mural. 9, confirmado o que    
+  fica fora. Cria a branch e começa a etapa 1; para para a minha revisão no fim 
+  dela, com a mensagem de commit antes de commitar.                             
+
+● Começando: crio a branch e estudo os padrões que a etapa 1 vai seguir
+  (concessão de medalha, post com upload, fila e migrations).
+
+  Ran 8 shell commands (ctrl+o to expand)
+
+● Padrões de API, fila e upload entendidos. Agora vejo a persistência
+  (configurations, snapshot) e a infraestrutura de testes de integração.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Escrevendo o domínio do aviso (Maxx.Domain.Mural) e os testes unitários dele.
+
+● Write(apps\api\src\Maxx.Domain\Mural\Aviso.cs)
+  ⎿  Wrote 212 lines to apps\api\src\Maxx.Domain\Mural\Aviso.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Fotos;
+       3 using Maxx.Domain.Identidade;
+       4 
+       5 namespace Maxx.Domain.Mural;
+       6 
+       7 // O aviso do mural (produto.md 7): título, texto e uma foto opc
+         ional, somente leitura. Sem
+       8 // comentário, sem fixação, sem expiração, sem edição e sem remo
+         ção na fase 1. Três escopos:
+     … +204 lines (ctrl+o to expand)
+
+  Read 3 files, ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Fotos\UploadPendente.cs)
+  ⎿  Added 4 lines, removed 1 line
+      118      }
+      119  
+      120      // Post é só de aluno que não virou ex-aluno (produto.md 2
+           .2 e 6.1). Foto de perfil, de
+      121 -    // aluno e de professor (produto.md 2.3); a instituição nã
+          -o tem perfil social.                                          
+      121 +    // aluno e de professor (produto.md 2.3); a instituição nã
+          +o tem perfil social. Foto de                                  
+      122 +    // aviso, de quem publica aviso: professor e instituição (
+          +produto.md 7, passo 10).                                      
+      123      public static bool PodeEnviar(Usuario usuario, FinalidadeD
+           oUpload finalidade)
+      124      {
+      125          ArgumentNullException.ThrowIfNull(usuario);
+     ...
+      127          {
+      128              FinalidadeDoUpload.Post => usuario.Papeis == Papei
+           s.Aluno && !usuario.EhExAluno,
+      129              FinalidadeDoUpload.FotoDePerfil => usuario.Papeis.
+           HasFlag(Papeis.Aluno) || usuario.Papeis.HasFlag(Papeis.Profess
+           or),
+      130 +            FinalidadeDoUpload.Aviso => usuario.Papeis.HasFlag
+          +(Papeis.Professor) || usuario.Papeis.HasFlag(Papeis.Instituica
+          +o),                                                           
+      131              _ => false,
+      132          };
+      133      }
+     ...
+      137  {
+      138      Post,
+      139      FotoDePerfil,
+      140 +    Aviso,                                                    
+      141  }
+      142  
+      143  public enum RecusaDoUpload
+
+● Update(apps\api\src\Maxx.Domain\Notificacoes\Notificacao.cs)
+  ⎿  Added 4 lines
+      144      PremioRevogado,
+      145      ConquistaObtida,
+      146      ConquistaRemovida,
+      147 +                                                              
+      148 +    // Aviso novo no mural (passo 10). Gravada em lote pelo wo
+          +rker, uma por destinatário                                    
+      149 +    // fixado na publicação, sem passar por uma fábrica daqui:
+          + a referência é o aviso.                                      
+      150 +    AvisoNovo,                                                
+      151  }
+
+● Update(apps\api\src\Maxx.Domain\Mural\Aviso.cs)
+  ⎿  Added 2 lines, removed 2 lines
+      196  
+      197  public enum RecusaDoAviso
+      198  {
+      199 -    // O papel não publica nesse escopo: aluno, professor fora
+          - da turma, ou faculdade e                                     
+      200 -    // curso sem o papel de instituição.                      
+      199 +    // O papel não publica nesse escopo: aluno, turma sem o pa
+          +pel de professor, ou                                          
+      200 +    // faculdade e curso sem o papel de instituição.          
+      201      AutorNaoPublica,
+      202  
+      203      // Faculdade com alvo, ou curso e turma sem nenhum.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Fotos\UploadPendenteTests.cs)
+  ⎿  Added 7 lines
+      139          { "professora", FinalidadeDoUpload.FotoDePerfil, true 
+           },
+      140          { "professora e instituição", FinalidadeDoUpload.FotoD
+           ePerfil, true },
+      141          { "instituição", FinalidadeDoUpload.FotoDePerfil, fals
+           e },
+      142 +                                                              
+      143 +        // Foto de aviso: quem publica aviso, professor e inst
+          +ituição (produto.md 7).                                       
+      144 +        { "aluna", FinalidadeDoUpload.Aviso, false },         
+      145 +        { "ex-aluna", FinalidadeDoUpload.Aviso, false },      
+      146 +        { "professora", FinalidadeDoUpload.Aviso, true },     
+      147 +        { "professora e instituição", FinalidadeDoUpload.Aviso
+          +, true },                                                     
+      148 +        { "instituição", FinalidadeDoUpload.Aviso, true },    
+      149      };
+      150  
+      151      [Theory]
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Mural\AvisoTests.cs)
+  ⎿  Wrote 243 lines to
+     apps\api\tests\Maxx.Domain.Tests\Mural\AvisoTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Fotos;
+       3 using Maxx.Domain.Identidade;
+       4 using Maxx.Domain.Mural;
+       5 
+       6 namespace Maxx.Domain.Tests.Mural;
+       7 
+       8 public class AvisoTests
+       9 {
+      10     private const long _feed = 300 * 1024;
+     … +233 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Domínio verde (540 testes). Agora a camada de aplicação: handler de
+  publicação, códigos de recusa e o trabalho de notificação.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Mural\CodigosDoMural.cs)
+  ⎿  Wrote 34 lines to
+     apps\api\src\Maxx.Application\Mural\CodigosDoMural.cs
+      1 namespace Maxx.Application.Mural;
+      2 
+      3 // Os códigos de recusa do mural, como o cliente os recebe em Pro
+        blemDetails. Os que
+      4 // repetem o texto da medalha e do post (escopo, upload, foto) tê
+        m a mesma mensagem no app.
+      5 public static class CodigosDoMural
+      6 {
+      7     // O papel não publica nesse escopo: aluno, ou faculdade e cu
+        rso sem o papel de
+     … +27 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Mural\PublicarAviso.cs)
+  ⎿  Wrote 161 lines to
+     apps\api\src\Maxx.Application\Mural\PublicarAviso.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Application.Autorizacao;
+       3 using Maxx.Application.Fila;
+       4 using Maxx.Application.Fotos;
+       5 using Maxx.Domain.Fotos;
+       6 using Maxx.Domain.Mural;
+       7 
+       8 namespace Maxx.Application.Mural;
+       9 
+      10 public interface IAvisoRepository
+     … +151 lines (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Mural\AvisoRepository.cs)
+  ⎿  Wrote 54 lines to
+     apps\api\src\Maxx.Infrastructure\Mural\AvisoRepository.cs
+       1 using Maxx.Application.Mural;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Mural;
+       4 using Maxx.Infrastructure.Persistence;
+       5 using Maxx.Infrastructure.Seed;
+       6 using Microsoft.EntityFrameworkCore;
+       7 
+       8 namespace Maxx.Infrastructure.Mural;
+       9 
+      10 internal sealed class AvisoRepository(MaxxDbContext db) : IAviso
+     … +45 lines (~3 KB) (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Persistence\Configurations\AvisoConfigu
+       ration.cs)
+  ⎿  Wrote 73 lines to apps\api\src\Maxx.Infrastructure\Persistence\Configu
+     rations\AvisoConfiguration.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Identidade;
+       3 using Maxx.Domain.Mural;
+       4 using Maxx.Infrastructure.Seed;
+       5 using Microsoft.EntityFrameworkCore;
+       6 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+       7 
+       8 namespace Maxx.Infrastructure.Persistence.Configurations;
+       9 
+      10 // O aviso do mural (produto.md 7). As regras de forma do domíni
+     … +64 lines (~3 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Infraestrutura do aviso escrita (repositório, distribuição em lote em SQL,
+  configurações EF). Agora registro tudo no DI, crio o endpoint e gero a
+  migration.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && \
+      sed -i
+      's|^builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAluno…)
+  ⎿  Maxx.Api/Program.cs:109:builder.Services.AddScoped<Maxx.Application.Mu
+     ral.PublicarAvisoHandler>();
+     Maxx.Api/Program.cs:181:v1.MapAvisoEndpoints();
+     … +24 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+2 -0)
+      106  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.FilaDeComprovacoesHandler>();
+      107  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.ContestacaoHandler>();
+      108  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      109 +builder.Services.AddScoped<Maxx.Application.Mural.PublicarAvis
+          +oHandler>();                                                  
+      110  
+      111  var app = builder.Build();
+      112  
+     ...
+      178  v1.MapEventoEndpoints();
+      179  v1.MapComprovacaoEndpoints();
+      180  v1.MapContestacaoEndpoints();
+      181 +v1.MapAvisoEndpoints();                                       
+      182  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      183  if (demonstracao)
+      184  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+5 
+     -0)
+       8  using Maxx.Application.Fila;
+       9  using Maxx.Application.Fotos;
+      10  using Maxx.Application.Medalhas;
+      11 +using Maxx.Application.Mural;                                  
+      12  using Maxx.Application.Notificacoes;
+      13  using Maxx.Application.Perfil;
+      14  using Maxx.Application.Posts;
+     ...
+      25  using Maxx.Infrastructure.Fila;
+      26  using Maxx.Infrastructure.Fotos;
+      27  using Maxx.Infrastructure.Medalhas;
+      28 +using Maxx.Infrastructure.Mural;                               
+      29  using Maxx.Infrastructure.Notificacoes;
+      30  using Maxx.Infrastructure.Perfil;
+      31  using Maxx.Infrastructure.Persistence;
+     ...
+       94          services.AddScoped<IConsultaSocial, ConsultaSocial>();
+       95          services.AddScoped<IConsultaDoFeed, ConsultaDoFeed>();
+       96          services.AddScoped<IConsultaDePerfil, ConsultaDePerfil
+           >();
+       97 +        services.AddScoped<IAvisoRepository, AvisoRepository>(
+          +);                                                            
+       98 +        services.AddScoped<IDistribuicaoDeAviso, DistribuicaoD
+          +eAviso>();                                                    
+       99  
+      100          // Fila no Postgres (ADR 0008): a API e o worker enfil
+           eiram; só o worker consome.
+      101          services.AddOptions<FilaOptions>();
+     ...
+      122          services.AddTrabalho<VerificarFechamentos, Verificacao
+           DeFechamentos>();
+      123          services.AddTrabalho<FecharPeriodo, FecharPeriodoHandl
+           er>();
+      124          services.AddTrabalho<AvaliarFechamentoDoAluno, Avaliar
+           FechamentoDoAlunoHandler>();
+      125 +        services.AddTrabalho<NotificarAvisoNovo, NotificarAvis
+          +oNovoHandler>();                                              
+      126  
+      127          // Toda verificação registrada aqui entra no /ready.
+      128          services.AddHealthChecks()
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's|^using Maxx.Api.Medalhas;|&\nusing Maxx.Api.Mural;|' Maxx.Api/Prog…)
+  ⎿  98:    internal static string Nome<T>(T valor)
+     99-        where T : struct, Enum => JsonNamingPolicy.CamelCase.Conver
+     tName(valor.ToString());
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+       8  using Maxx.Api.Health;
+       9  using Maxx.Api.LimiteDeTaxa;
+      10  using Maxx.Api.Medalhas;
+      11 +using Maxx.Api.Mural;                                          
+      12  using Maxx.Api.OpenApi;
+      13  using Maxx.Api.Perfil;
+      14  using Maxx.Api.Posts;
+
+● Write(apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs)
+  ⎿  Wrote 106 lines to apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs
+      1 using System.ComponentModel.DataAnnotations;
+      2 using Maxx.Api.Medalhas;
+      3 using Maxx.Api.Posts;
+      4 using Maxx.Application;
+      5 using Maxx.Application.Fotos;
+      6 using Maxx.Application.Mural;
+      7 using Maxx.Domain.Mural;
+      8 using Microsoft.AspNetCore.Http.HttpResults;
+      9 using System.Security.Claims;
+     … +97 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Api\Fotos\UploadEndpoints.cs)
+  ⎿  Added 6 lines, removed 1 line
+      31          PedirUploadHandler handler,
+      32          CancellationToken cancellationToken)
+      33      {
+      34 -        var finalidade = pedido.Finalidade == PedidoDeUploadReq
+         -uest.FotoDePerfil ? FinalidadeDoUpload.FotoDePerfil : Finalidad
+         -eDoUpload.Post;                                                
+      34 +        var finalidade = pedido.Finalidade switch              
+      35 +        {                                                      
+      36 +            PedidoDeUploadRequest.FotoDePerfil => FinalidadeDoU
+         +pload.FotoDePerfil,                                            
+      37 +            PedidoDeUploadRequest.Aviso => FinalidadeDoUpload.A
+         +viso,                                                          
+      38 +            _ => FinalidadeDoUpload.Post,                      
+      39 +        };                                                     
+      40          var assinado = await handler.PedirAsync(
+      41              UsuarioId(principal), finalidade, pedido.TipoDeCont
+          eudo, pedido.TamanhoDoFeed, pedido.TamanhoDaGrade, cancellation
+          Token);
+      42          return TypedResults.Created((string?)null, UploadRespon
+          se.De(assinado));
+
+● Update(apps\api\src\Maxx.Api\Fotos\UploadEndpoints.cs)
+  ⎿  Added 6 lines, removed 3 lines
+      50  }
+      51  
+      52  // O tipo e os tamanhos exatos, em bytes, das duas derivadas qu
+          e o app já gerou: é o que vai
+      53 -// preso na assinatura. Os limites são do domínio (UploadPenden
+         -te); aqui só a forma.                                          
+      53 +// preso na assinatura. Os limites são do domínio (UploadPenden
+         +te); aqui só a forma. A                                        
+      54 +// finalidade "aviso" entrou no passo 10, só como acréscimo.   
+      55  public sealed record PedidoDeUploadRequest(
+      55 -    [property: Required, AllowedValues(PedidoDeUploadRequest.Po
+         -st, PedidoDeUploadRequest.FotoDePerfil)] string Finalidade,    
+      56 +    [property: Required, AllowedValues(PedidoDeUploadRequest.Po
+         +st, PedidoDeUploadRequest.FotoDePerfil, PedidoDeUploadRequest.A
+         +viso)]                                                         
+      57 +    string Finalidade,                                         
+      58      [property: Required, StringLength(100)] string TipoDeConteu
+          do,
+      59      long TamanhoDoFeed,
+      60      long TamanhoDaGrade)
+      61  {
+      62      public const string Post = "post";
+      63      public const string FotoDePerfil = "fotoDePerfil";
+      64 +    public const string Aviso = "aviso";                       
+      65  }
+      66  
+      64 -// Id para confirmar depois (no post ou na foto de perfil) e as
+         - duas URLs. O PUT de cada uma                                  
+      67 +// Id para confirmar depois (no post, na foto de perfil ou no a
+         +viso) e as duas URLs. O PUT de cada uma                        
+      68  // leva exatamente o content-type e o corpo do tamanho informad
+          os, antes de expiraEm.
+      69  public sealed record UploadResponse(Guid Id, DateTimeOffset Exp
+          iraEm, EnvioResponse Feed, EnvioResponse Grade)
+      70  {
+
+● Endpoint e finalidade de upload prontos. Compilando e gerando a migration.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet tool list
+      2>&1 | tail -5; dotnet ef migrations add Mural --project src/Ma…)
+  ⎿  ID do Pacote      Versão       Comandos       Manifesto
+
+     ----------------------------------------------------------------------
+     … +6 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     09023056_Mural.cs (+162 -0)
+        1 +using System;                                                 
+        2 +using Microsoft.EntityFrameworkCore.Migrations;               
+        3 +                                                              
+        4 +#nullable disable                                             
+        5 +                                                              
+        6 +namespace Maxx.Infrastructure.Persistence.Migrations          
+        7 +{                                                             
+        8 +    /// <inheritdoc />                                        
+        9 +    public partial class Mural : Migration                    
+       10 +    {                                                         
+       11 +        /// <inheritdoc />                                    
+       12 +        protected override void Up(MigrationBuilder migrationB
+          +uilder)                                                       
+       13 +        {                                                     
+       14 +            migrationBuilder.DropCheckConstraint(             
+       15 +                name: "ck_upload_pendente_finalidade",        
+       16 +                table: "upload_pendente");                    
+       17 +                                                              
+       18 +            migrationBuilder.DropCheckConstraint(             
+       19 +                name: "ck_notificacao_tipo",                  
+       20 +                table: "notificacao");                        
+       21 +                                                              
+       22 +            migrationBuilder.CreateTable(                     
+       23 +                name: "aviso",                                
+       24 +                columns: table => new                         
+       25 +                {                                             
+       26 +                    id = table.Column<Guid>(type: "uuid", null
+          +able: false),                                                 
+       27 +                    autor_id = table.Column<Guid>(type: "uuid"
+          +, nullable: false),                                           
+       28 +                    escopo = table.Column<string>(type: "text"
+          +, nullable: false),                                           
+       29 +                    titulo = table.Column<string>(type: "text"
+          +, nullable: false),                                           
+       30 +                    texto = table.Column<string>(type: "text",
+          + nullable: false),                                            
+       31 +                    chave_da_foto_do_feed = table.Column<strin
+          +g>(type: "text", nullable: true),                             
+       32 +                    chave_da_foto_da_grade = table.Column<stri
+          +ng>(type: "text", nullable: true),                            
+       33 +                    publicado_em = table.Column<DateTimeOffset
+          +>(type: "timestamp with time zone", nullable: false)          
+       34 +                },                                            
+       35 +                constraints: table =>                         
+       36 +                {                                             
+       37 +                    table.PrimaryKey("pk_aviso", x => x.id);  
+       38 +                    table.CheckConstraint("ck_aviso_escopo", "
+          +escopo IN ('faculdade', 'curso', 'turma')");                  
+       39 +                    table.CheckConstraint("ck_aviso_foto_compl
+          +eta", "(chave_da_foto_do_feed IS NULL) = (chave_da_foto_da_gra
+          +de IS NULL)");                                                
+       40 +                    table.CheckConstraint("ck_aviso_texto", "c
+          +har_length(texto) BETWEEN 1 AND 2000");                       
+     … 122 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Migration gerada corretamente. Agora os testes de integração; vejo como um
+  teste existente declara as fixtures de Postgres e bucket.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Mural\MundoDoMural.cs)
+  ⎿  Wrote 212 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Mural\MundoDoMural.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using Maxx.Api.Autenticacao;
+       5 using Maxx.Api.Fotos;
+       6 using Maxx.Api.IntegrationTests.Fotos;
+       7 using Maxx.Api.IntegrationTests.Social;
+       8 using Maxx.Domain.Academico;
+       9 using Maxx.Domain.Identidade;
+      10 using Maxx.Infrastructure.Autenticacao;
+     … +202 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Mural\PublicacaoDeAvisoTests.cs
+       )
+  ⎿  Wrote 356 lines to apps\api\tests\Maxx.Api.IntegrationTests\Mural\Publ
+     icacaoDeAvisoTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using System.Text.Json;
+       4 using Maxx.Api.IntegrationTests.Fotos;
+       5 using Maxx.Api.Mural;
+       6 using Maxx.Application.Mural;
+       7 using Maxx.Domain.Academico;
+       8 using Maxx.Domain.Fotos;
+       9 using Maxx.Domain.Identidade;
+      10 using Maxx.Domain.Mural;
+     … +346 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Mural" && f=PublicacaoDeAvisoTests.cs
+      && \
+      sed -i '/…)
+  ⎿  13:using Maxx.Infrastructure.Persistence;
+     42:        Assert.Equal(new[] { mundo.BancoDeDados, mundo.Algoritmos }
+     .Order(), publicado.TurmaIds.Order());
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Mural\PublicacaoDeAvi
+     soTests.cs (+5 -5)
+      10  using Maxx.Domain.Mural;
+      11  using Maxx.Domain.Notificacoes;
+      12  using Maxx.Infrastructure.Fila;
+      13 +using Maxx.Infrastructure.Persistence;                         
+      14  using Microsoft.Extensions.DependencyInjection;
+      15  using static Maxx.Api.IntegrationTests.Mural.MundoDoMural;
+      15 -using static Maxx.Api.IntegrationTests.Social.MundoSocial;     
+      16  
+      17  namespace Maxx.Api.IntegrationTests.Mural;
+      18  
+     ...
+      39          Assert.Equal($"/api/v1/avisos/{publicado.Id}", resposta
+          .Headers.Location?.OriginalString);
+      40          Assert.Equal(("turma", "Prova remarcada", "Passou para 
+          14/08."), (publicado.Escopo, publicado.Titulo, publicado.Texto)
+          );
+      41          Assert.Equal(mundo.Relogio.GetUtcNow(), publicado.Publi
+          cadoEm);
+      42 -        Assert.Equal([mundo.BancoDeDados, mundo.Algoritmos], pu
+         -blicado.TurmaIds.Order());                                     
+      42 +        Assert.Equal(new[] { mundo.BancoDeDados, mundo.Algoritm
+         +os }.Order(), publicado.TurmaIds.Order());                     
+      43          Assert.Empty(publicado.CursoIds);
+      44          Assert.Null(publicado.Foto);
+      45  
+     ...
+      47          var aviso = Assert.Single(await mundo.LinhasAsync<Aviso
+          >());
+      48          Assert.Equal((publicado.Id, mundo.Id(Renata), EscopoDoA
+          viso.Turma), (aviso.Id, aviso.AutorId, aviso.Escopo));
+      49          Assert.Equal(
+      50 -            [mundo.BancoDeDados, mundo.Algoritmos],            
+      50 +            new[] { mundo.BancoDeDados, mundo.Algoritmos }.Orde
+         +r(),                                                           
+      51              (await mundo.LinhasAsync<AvisoTurma>()).Where(alvo 
+          => alvo.AvisoId == aviso.Id).Select(alvo => alvo.TurmaId).Order
+          ());
+      52          Assert.Empty(await mundo.LinhasAsync<AvisoCurso>());
+      53  
+     ...
+      105  
+      106          Assert.Equal(HttpStatusCode.Created, resposta.StatusCo
+           de);
+      107          var dosDois = (await resposta.Content.ReadFromJsonAsyn
+           c<AvisoPublicadoResponse>(Ct))!;
+      108 -        Assert.Equal([mundo.CC, mundo.ADS].Order(), dosDois.Cu
+          -rsoIds.Order());                                              
+      108 +        Assert.Equal(new[] { mundo.CC, mundo.ADS }.Order(), do
+          +sDois.CursoIds.Order());                                      
+      109          await mundo.EsvaziarFilaAsync();
+      110  
+      111          var notificacoes = await mundo.LinhasAsync<Notificacao
+           >();
+     ...
+      308          using var ana = await mundo.ComoAsync(Ana);
+      309          var naoEnviada = await FotoDeAvisoAsync(renata, enviar
+           : false);
+      310          var doPaulo = await FotoDeAvisoAsync(paulo);
+      311 -        var dePost = await FotoEnviadaAsync(ana);             
+      311 +        var dePost = await Social.MundoSocial.FotoEnviadaAsync
+          +(ana);                                                        
+      312          object Pedido(Guid uploadId) => new { escopo = "turma"
+           , turmaIds = new[] { mundo.BancoDeDados }, titulo = "Prova", t
+           exto = "Amanhã.", uploadId };
+     … 2 more lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Mural\PublicacaoDeAvisoTests.c
+        s)
+  ⎿  Added 10 lines, removed 8 lines
+      127          // Depois da publicação e antes do trabalho: Bruno vir
+           a ex-aluno, e uma conta nova nasce.
+      128          // Bruno era aluno ativo na publicação e é notificado;
+            a conta nova, não.
+      129          mundo.Relogio.Avancar(TimeSpan.FromMinutes(1));
+      130 -        await AlterarAsync(mundo, async (servicos, agora) =>  
+      130 +        await using (var scope = mundo.Factory.Services.Create
+          +AsyncScope())                                                 
+      131          {
+      132 -            var usuarios = servicos.GetRequiredService<Maxx.In
+          -frastructure.Persistence.MaxxDbContext>().Set<Usuario>();     
+      133 -            (await usuarios.FindAsync([mundo.Id(Bruno)], Ct))!
+          -.MarcarExAluno(agora);                                        
+      134 -            var cc = await servicos.GetRequiredService<Maxx.In
+          -frastructure.Persistence.MaxxDbContext>().Set<Curso>().FindAsy
+          -nc([mundo.CC], Ct);                                           
+      135 -            var cadastro = CadastroElegivel.Aluno("20260109", 
+          -"fabio.nunes@al.unieduk.com.br", "Fábio Nunes", cc!, 1);      
+      136 -            servicos.GetRequiredService<Maxx.Infrastructure.Pe
+          -rsistence.MaxxDbContext>().AddRange(                          
+      137 -                cadastro, Usuario.CadastrarAluno(cadastro, cc!
+          -, "Fábio Nunes", "fabioNunes", "hash", agora));               
+      138 -        });                                                   
+      132 +            var db = scope.ServiceProvider.GetRequiredService<
+          +MaxxDbContext>();                                             
+      133 +            var agora = mundo.Relogio.GetUtcNow();            
+      134 +            (await db.Set<Usuario>().FindAsync([mundo.Id(Bruno
+          +)], Ct))!.MarcarExAluno(agora);                               
+      135 +            var cc = (await db.Set<Curso>().FindAsync([mundo.C
+          +C], Ct))!;                                                    
+      136 +            var cadastro = CadastroElegivel.Aluno("20260109", 
+          +"fabio.nunes@al.unieduk.com.br", "Fábio Nunes", cc, 1);       
+      137 +            db.AddRange(cadastro, Usuario.CadastrarAluno(cadas
+          +tro, cc, "Fábio Nunes", "fabioNunes", "hash", agora));        
+      138 +            await db.SaveChangesAsync(Ct);                    
+      139 +        }                                                     
+      140 +                                                              
+      141          await mundo.EsvaziarFilaAsync();
+      142          var primeira = (await mundo.LinhasAsync<Notificacao>()
+           ).Select(notificacao => notificacao.UsuarioId).Order().ToList(
+           );
+      143  
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Mural\PublicacaoDeAvisoTests.c
+        s)
+  ⎿  Removed 7 lines
+      348  
+      349      private static IOrderedEnumerable<Guid> Ordenados(MundoDoM
+           ural mundo, params string[] emails) =>
+      350          emails.Select(mundo.Id).Order();
+      351 -                                                              
+      352 -    private static async Task AlterarAsync(MundoDoMural mundo,
+          - Func<IServiceProvider, DateTimeOffset, Task> alterar)        
+      353 -    {                                                         
+      354 -        await using var scope = mundo.Factory.Services.CreateA
+          -syncScope();                                                  
+      355 -        await alterar(scope.ServiceProvider, mundo.Relogio.Get
+          -UtcNow());                                                    
+      356 -        await scope.ServiceProvider.GetRequiredService<Maxx.In
+          -frastructure.Persistence.MaxxDbContext>().SaveChangesAsync(Ct)
+          -;                                                             
+      357 -    }                                                         
+      351  }
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Mural\MundoDoMural.cs)
+  ⎿  Added 2 lines
+      35      public const string Paulo = "paulo@prof.unieduk.com.br";
+      36      public const string Marta = "marta@prof.unieduk.com.br";
+      37      public const string Coordenacao = "coordenacao@unieduk.com.
+          br";
+      38 +    public const long TamanhoDoFeed = MundoSocial.TamanhoDoFeed
+         +;                                                              
+      39 +    public const long TamanhoDaGrade = MundoSocial.TamanhoDaGra
+         +de;                                                            
+      40  
+      41      private readonly Dictionary<string, Guid> _ids;
+      42  
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Mural\MundoDoMural.cs)
+  ⎿  Added 3 lines
+      196          return await scope.ServiceProvider.GetRequiredService<
+           MaxxDbContext>().Set<T>().AsNoTracking().ToListAsync(Ct);
+      197      }
+      198  
+      199 +    public static Task AssertRecusaAsync(HttpResponseMessage r
+          +esponse, HttpStatusCode status, string codigo) =>             
+      200 +        MundoSocial.AssertRecusaAsync(response, status, codigo
+          +);                                                            
+      201 +                                                              
+      202      public ValueTask DisposeAsync() => Factory.DisposeAsync();
+      203  
+      204      private static async Task PutAsync(EnvioResponse envio, lo
+           ng tamanho)
+
+● Testes de integração escritos. Rodando só a classe nova primeiro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● 12 de 12 verdes na primeira rodada. Para não confiar só nisso, faço uma prova
+  reversa: tiro do SQL a condição "conta criada até a publicação" e confirmo que
+  o teste dos destinatários falha.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=src/Maxx.Infrastructure/Mural/AvisoRepository.cs && cp $f /tmp/aviso.bak
+      2>/de…)
+  ⎿  39:                  AND u.ex_aluno_desde IS NULL
+       Assert.Equal() Failure: Collections differ
+       Expected: OrderedIterator<Guid, Guid> [01a1be28-d865-7801-adb8-ef213
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Mural\AvisoRepository.cs (+2 
+     -2)
+  ⎿  (a git step in this command can move the working tree, so these may be
+     its changes, not edits) (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● The file is untracked, so git checkout couldn't restore it. I'll restore the
+  two conditions from the backup.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=src/Maxx.Infrastructure/Mural/AvisoRepository.cs && (cp /tmp/aviso.bak
+      $f 2>/d…)
+  ⎿  35:            JOIN usuario u ON u.id <> a.autor_id AND u.criado_em <=
+      a.publicado_em
+     39:                  AND (u.ex_aluno_desde IS NULL OR u.ex_aluno_desde
+      > a.publicado_em)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Mural\AvisoRepository.cs (+2 
+     -2)
+      32              INSERT INTO notificacao (id, usuario_id, tipo, refe
+          rencia_id, criada_em)
+      33              SELECT uuidv7(), u.id, {_avisoNovo}, a.id, {agora}
+      34              FROM aviso a
+      35 -            JOIN usuario u ON u.id <> a.autor_id               
+      35 +            JOIN usuario u ON u.id <> a.autor_id AND u.criado_e
+         +m <= a.publicado_em                                            
+      36              WHERE a.id = {avisoId}
+      37                AND (
+      38                  (u.papeis = {(int)Papeis.Aluno}
+      39 -                  AND u.ex_aluno_desde IS NULL                 
+      39 +                  AND (u.ex_aluno_desde IS NULL OR u.ex_aluno_d
+         +esde > a.publicado_em)                                         
+      40                    AND (
+      41                      a.escopo = {_faculdade}
+      42                      OR (a.escopo = {_curso} AND EXISTS (
+
+● Restaurado; a prova reversa confirmou que o teste pega a regra. Agora regenero
+  o OpenAPI e o cliente TypeScript.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/packages/api-client" && cat
+      package.json | grep -A8 '"scripts"'; npm run gerar 2>&1 | tail -8…)
+  ⎿    "scripts": {
+         "gerar": "npm run gerar:openapi && npm run gerar:tipos",
+         "gerar:openapi": "dotnet build ../../apps/api/src/Maxx.Api -p:Open
+     … +32 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+192 -0)
+      2170          ]
+      2171        }
+      2172      },
+      2173 +    "/api/v1/avisos": {                                      
+      2174 +      "post": {                                              
+      2175 +        "tags": [                                            
+      2176 +          "Mural"                                            
+      2177 +        ],                                                   
+      2178 +        "operationId": "PublicarAviso",                      
+      2179 +        "requestBody": {                                     
+      2180 +          "content": {                                       
+      2181 +            "application/json": {                            
+      2182 +              "schema": {                                    
+      2183 +                "$ref": "#/components/schemas/PublicarAvisoRe
+           +quest"                                                       
+      2184 +              }                                              
+      2185 +            }                                                
+      2186 +          },                                                 
+      2187 +          "required": true                                   
+      2188 +        },                                                   
+      2189 +        "responses": {                                       
+      2190 +          "201": {                                           
+      2191 +            "description": "Created",                        
+      2192 +            "content": {                                     
+      2193 +              "application/json": {                          
+      2194 +                "schema": {                                  
+      2195 +                  "$ref": "#/components/schemas/AvisoPublicad
+           +oResponse"                                                   
+      2196 +                }                                            
+      2197 +              }                                              
+      2198 +            }                                                
+      2199 +          },                                                 
+      2200 +          "400": {                                           
+      2201 +            "description": "Bad Request",                    
+      2202 +            "content": {                                     
+      2203 +              "application/problem+json": {                  
+      2204 +                "schema": {                                  
+      2205 +                  "$ref": "#/components/schemas/HttpValidatio
+           +nProblemDetails"                                             
+      2206 +                }                                            
+      2207 +              }                                              
+      2208 +            }                                                
+      2209 +          },                                                 
+     … 176 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+97 -0)
+      580          patch?: never;
+      581          trace?: never;
+      582      };
+      583 +    "/api/v1/avisos": {                                       
+      584 +        parameters: {                                         
+      585 +            query?: never;                                    
+      586 +            header?: never;                                   
+      587 +            path?: never;                                     
+      588 +            cookie?: never;                                   
+      589 +        };                                                    
+      590 +        get?: never;                                          
+      591 +        put?: never;                                          
+      592 +        post: operations["PublicarAviso"];                    
+      593 +        delete?: never;                                       
+      594 +        options?: never;                                      
+      595 +        head?: never;                                         
+      596 +        patch?: never;                                        
+      597 +        trace?: never;                                        
+      598 +    };                                                        
+      599      "/api/v1/auth/cadastro/sugestao": {
+      600          parameters: {
+      601              query?: never;
+     ...
+      812              semestre: null | number;
+      813              foto: null | string;
+      814          };
+      815 +        AvisoPublicadoResponse: {                             
+      816 +            /** Format: uuid */                               
+      817 +            id: string;                                       
+      818 +            escopo: string;                                   
+      819 +            titulo: string;                                   
+      820 +            texto: string;                                    
+      821 +            foto: null | components["schemas"]["FotoDoPostResp
+          +onse"];                                                       
+      822 +            /** Format: date-time */                          
+      823 +            publicadoEm: string;                              
+      824 +            turmaIds: string[];                               
+      825 +            cursoIds: string[];                               
+      826 +        };                                                    
+      827          CadastroRequest: {
+      828              ra: string;
+      829              email: string;
+     … 81 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Cliente regenerado. Como nasceu um arquivo de códigos novo, o teste do app que
+  exige mensagem para todo código precisa das mensagens do mural.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\mobile\src\api\erros.ts)
+  ⎿  Added 6 lines
+      86    // Perfil e busca (CodigosDoPerfil.cs)
+      87    "busca-sem-criterio": "Digite ao menos 2 letras ou escolha um
+           filtro.",
+      88    "foto-de-perfil-ambigua": "Escolha trocar ou remover a foto."
+          ,
+      89 +  // Mural (CodigosDoMural.cs); escopo, upload e foto repetem o
+         +s da medalha e do post.                                        
+      90 +  "aviso-nao-permitido": "Você não pode publicar aviso aqui.", 
+      91 +  "alvos-do-aviso-invalidos": "Escolha para quem vai o aviso.",
+      92 +  "curso-nao-encontrado": "Esse curso não existe mais.",       
+      93 +  "titulo-do-aviso-invalido": "O título precisa ter de 3 a 120 
+         +caracteres.",                                                  
+      94 +  "texto-do-aviso-invalido": "O texto precisa ter de 1 a 2.000 
+         +caracteres.",                                                  
+      95    // Paginação (CodigosDaPaginacao.cs)
+      96    "cursor-invalido": "Não deu para carregar mais. Puxe para atu
+          alizar.",
+      97    // Genéricos, pelo status (DomainExceptionHandler.cs)
+
+● Update(apps\mobile\src\api\erros.test.ts)
+  ⎿  Added 1 line, removed 1 line
+      42    it("todo código que a API manda tem mensagem própria", () => 
+          {
+      43      const daApi = codigosDaApi();
+      44  
+      45 -    expect(arquivosDeCodigos()).toHaveLength(8);               
+      45 +    expect(arquivosDeCodigos()).toHaveLength(9);               
+      46      expect(daApi).toEqual(
+      47        expect.arrayContaining([
+      48          "registro-simultaneo",
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Reproduzo localmente os passos da CI: formatação e build em Release da API, e
+  os passos do app e do cliente.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet format Maxx.sln 2>&1 | tail -3; dotnet format Maxx.sln
+      --verify-no-changes 2>&1 |…)
+  ⎿  exit 0
+     using System.ComponentModel.DataAnnotations;
+     using System.Security.Claims;
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs (+1 -1)
+      1  using System.ComponentModel.DataAnnotations;
+      2 +using System.Security.Claims;                                   
+      3  using Maxx.Api.Medalhas;
+      4  using Maxx.Api.Posts;
+      5  using Maxx.Application;
+     ...
+       7  using Maxx.Application.Mural;
+       8  using Maxx.Domain.Mural;
+       9  using Microsoft.AspNetCore.Http.HttpResults;
+       9 -using System.Security.Claims;                                  
+      10  
+      11  namespace Maxx.Api.Mural;
+      12  
+  ⎿  (timeout 10m)
+
+● Formatação limpa. Rodo em segundo plano o build em Release e a suíte inteira
+  da API (domínio, arquitetura e integração), e em paralelo confiro o app e o
+  cliente.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● App e cliente limpos (prettier, lint, typecheck, teste de mensagens). Enquanto
+  a suíte completa da API roda, vejo o formato de corpo dos commits anteriores
+  para a mensagem.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os commits anteriores têm só o assunto. Agora espero a suíte completa da API
+  terminar.
+
+● A suíte completa da API (build em Release, depois domínio, arquitetura e
+  integração) está rodando em segundo plano. O relatório da etapa 1 e a mensagem
+  de commit saem quando ela terminar.
+
+✻ Churned for 16m 20s · done 23:40
+
+※ recap: Estamos no passo 10 (mural e notificações), na etapa 1, a publicação de aviso, já escrita e com os checks locais verdes. A suíte completa da API ainda está rodando; quando ela terminar, mando o relatório com a mensagem de commit para a sua revisão. (disable recaps in /config)
+
+● Background command "Build Release and run full API test suite" completed (exit
+code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A etapa 1 (publicar aviso) está pronta para a sua revisão. Ainda não fiz
+  commit nem push, como você pediu; por isso a CI desta etapa ainda não rodou. O
+  resultado dela entra no relatório depois do push.
+
+  O que entrou
+
+  - Domínio (Maxx.Domain/Mural/Aviso.cs):
+    - O aviso tem título (3 a 120 caracteres), texto (1 a 2.000), foto opcional,
+      quem publicou e quando. Os tamanhos contam um emoji como um caractere,
+      como na legenda do post.
+    - Os alvos ficam em AvisoTurma e AvisoCurso, e um alvo repetido conta uma
+      vez.
+    - O domínio decide quem publica: a instituição para faculdade e curso, o
+      professor para turma. A conta de professor e instituição publica nos três.
+    - O upload ganhou a finalidade aviso, permitida a professor e instituição, e
+      a notificação ganhou o tipo avisoNovo.
+  - API:
+    - POST /v1/avisos recebe escopo, turmaIds ou cursoIds, titulo, texto e
+      uploadId.
+    - O escopo de turma do professor é conferido no banco, contra o semestre
+      vigente: uma turma de fora recusa o aviso inteiro com 403 fora-do-escopo.
+    - O papel é conferido antes do escopo, então um aluno que pede turma recebe
+      aviso-nao-permitido.
+    - Curso inexistente recebe 404, e a foto passa pela mesma conferência no
+      bucket do post.
+  - Notificação (D4): o trabalho notificar-aviso-novo entra na fila na mesma
+    transação da publicação. O worker grava as notificações de uma vez só, com
+    um INSERT ... SELECT ... ON CONFLICT DO NOTHING. Os destinatários são os do
+    instante da publicação: a conta precisa ter sido criada até ali, e quem
+    virou ex-aluno depois ainda é notificado.
+  - Migration 20261109023056_Mural: tabelas aviso, aviso_turma e aviso_curso,
+    com check constraints de tamanho e de foto completa, e índices para a
+    leitura da etapa 2. Também atualiza as constraints de finalidade do upload e
+    de tipo da notificação.
+  - Cliente: OpenAPI e cliente TypeScript regenerados.
+  - App: o teste do app exige mensagem amigável para todo código da API, e o
+    arquivo novo de códigos o quebraria. Por isso entraram em erros.ts as
+    mensagens dos cinco códigos novos do mural, e o teste passou a contar 9
+    arquivos de códigos. É o único toque no app nesta etapa.
+
+  Testes
+
+  - Domínio: 540 verdes, com AvisoTests e as permissões novas de upload.
+  - Integração, os 12 da classe nova:
+    - publicação para duas turmas;
+    - quem é notificado em cada escopo;
+    - destinatários fixados na publicação, e o trabalho rodado de novo não grava
+      nada;
+    - turma alheia e de outro semestre;
+    - permissão por papel;
+    - forma dos alvos e curso inexistente;
+    - limites de título e texto;
+    - foto enviada, não enviada, alheia e de post.
+  - Prova reversa: tirei do SQL a condição "conta criada até a publicação". O
+    teste dos destinatários falhou, e a condição foi restaurada.
+  - Como a CI roda, localmente:
+    - API: formatação limpa, build em Release com 0 avisos, e 1.086 testes entre
+      domínio, arquitetura e integração, todos verdes. Os 6 ignorados são
+      esperados (devem ser o VerificacaoDoR2Tests, que fica fora da CI).
+    - App e cliente: prettier, lint, typecheck e o teste de mensagens limpos.
+
+  Para você conferir
+
+  1. Professor é notificado no aviso de faculdade. A sua resposta 3 fixou a
+     visibilidade, mas não disse quem o aviso de faculdade notifica. Segui a
+     visibilidade: quem vê, recebe. A instituição não é notificada, e o autor
+     nunca é.
+  2. Os destinatários do aviso de curso são lidos pelo curso atual, no cadastro
+     elegível. O banco não guarda o histórico de curso, então quem trocar de
+     curso entre a publicação e o trabalho do worker é lido pelo curso novo. A
+     janela é de segundos. Vai como limite conhecido no README da etapa 7.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona a publicação de aviso com a notificação de aviso novo
+
+  Com o seu ok, faço o commit e o push da feat/passo-10-mural e acompanho a CI
+  até o fim. A etapa só fica pronta com a CI verde.
+
+✻ Brewed for 21s · done 23:44
