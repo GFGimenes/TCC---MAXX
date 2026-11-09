@@ -5475,3 +5475,1047 @@ code 0)
   proposta na mensagem anterior.
 
 ✻ Cooked for 10s · done 1:27
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Etapa 6 aprovada; capturas conferidas, só a diferença do espaço entre o "+" e 
+  o sininho, aceita. O tempo relativo igual ao do feed fica. O teste que lê o   
+  enum do C# e falha com tipo sem texto é o tipo de amarração que eu queria.    
+  Commita com a mensagem proposta, push, acompanha a CI e segue para a etapa 7, 
+  a última; para para a minha revisão no fim dela, com o relatório de           
+  fechamento do passo e o que ficou para os passos seguintes.                   
+
+  Pushed to feat/passo-10-mural, ran 1 shell command (ctrl+o to expand)
+
+● Commit b2bb781 enviado e CI em acompanhamento. A etapa 7 fecha o passo; começo
+  pelo e2e do mural e das notificações.
+
+● Write(e2e\tests\mural.spec.ts)
+  ⎿  Wrote 169 lines to e2e\tests\mural.spec.ts
+       1 import { expect, test, type APIRequestContext, type Page } from 
+         "@playwright/test";
+       2 
+       3 import { novaConta, sql, type Aluno } from "./apoio/contas";
+       4 import { matricular, novaProfessora, type Professora } from "./a
+         poio/medalhas";
+       5 import { comToken, token } from "./apoio/premios";
+       6 
+       7 // O passo 10 de ponta a ponta (produto.md 7 e 8): a professora 
+         publica pela tela um aviso
+     … +162 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && npx prettier --write tests/mural.spec.ts > /dev/null && npx tsc
+      --noEmit -p . 2>&1 |…)
+  ⎿    ok 2 [celular-claro] › tests\mural.spec.ts:72:5 › a professora publi
+     ca um aviso para duas turmas, e o aluno o lê pelo Mural e pelo sininho
+      @celular (19.2s)
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\mural.spec.ts (+58 -19)
+      1 -import { expect, test, type APIRequestContext, type Page } from 
+        -"@playwright/test";                                             
+      1 +import {                                                        
+      2 +  expect,                                                       
+      3 +  test,                                                         
+      4 +  type APIRequestContext,                                       
+      5 +  type Page,                                                    
+      6 +} from "@playwright/test";                                      
+      7  
+      8  import { novaConta, sql, type Aluno } from "./apoio/contas";
+      9  import { matricular, novaProfessora, type Professora } from "./a
+         poio/medalhas";
+     ...
+      49      (await request.post("/api/v1/mural/leitura", { headers })).
+          status(),
+      50    ).toBe(204);
+      51    expect(
+      47 -    (await request.post("/api/v1/eu/notificacoes/leitura", { he
+         -aders })).status(),                                            
+      52 +    (                                                          
+      53 +      await request.post("/api/v1/eu/notificacoes/leitura", { h
+         +eaders })                                                      
+      54 +    ).status(),                                                
+      55    ).toBe(204);
+      56    expect(
+      57      (await request.put("/api/v1/eu/trofeus/visto", { headers })
+          ).status(),
+     ...
+      86      await page.getByRole("tab", { name: /^Mural/ }).click();
+      87      await page.getByRole("button", { name: "Novo aviso" }).clic
+          k();
+      88      await page.getByRole("checkbox", { name: /^Banco de Dados/ 
+          }).click();
+      82 -    await page.getByRole("checkbox", { name: /^Algoritmos e Pro
+         -gramação/ }).click();                                          
+      89 +    await page                                                 
+      90 +      .getByRole("checkbox", { name: /^Algoritmos e Programação
+         +/ })                                                           
+      91 +      .click();                                                
+      92      await page.getByLabel("Título").fill(titulo);
+      84 -    await page.getByLabel("Texto").fill("A prova passou para 14
+         -/08, no mesmo horário.");                                      
+      93 +    await page                                                 
+      94 +      .getByLabel("Texto")                                     
+      95 +      .fill("A prova passou para 14/08, no mesmo horário.");   
+      96      await page.getByRole("button", { name: "Publicar aviso" }).
+          click();
+      97      await expect(page.getByRole("heading", { name: "Mural" })).
+          toBeVisible();
+      98      await expect(page.getByText(titulo).first()).toBeVisible();
+     ...
+      106      // O aluno: a bolinha do Mural e a do sininho acesas.
+      107      await entrar(page, aluno.email, aluno.senha);
+      108      await ateAcender(page, "Notificações, com novidade");
+       98 -    await expect(page.getByRole("tab", { name: "Mural, com nov
+          -idade" })).toBeVisible();                                     
+      109 +    await expect(                                             
+     … 91 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● O e2e novo passa nos dois temas, em paralelo (4 de 4). Rodo a suíte e2e
+  inteira em segundo plano, para ver se o sininho no cabeçalho do feed quebrou
+  algum teste antigo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a suíte roda, os docs. Leio os trechos do produto.md e do CLAUDE.md
+  que mudam.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\produto.md)
+  ⎿  Added 24 lines, removed 6 lines
+      511  
+      512  ## 7. Mural de avisos
+      513  
+      514 -Três escopos: faculdade, curso e turma. A instituição publica 
+          -para faculdade e para                                         
+      515 -curso; o professor publica para uma ou mais turmas suas, na me
+          -sma publicação. O aluno vê                                    
+      516 -o mural combinado, filtrado pelos vínculos dele.              
+      514 +Três escopos: faculdade, curso e turma. A instituição publica 
+          +para a faculdade ou para um                                   
+      515 +ou mais cursos; o professor publica para uma ou mais turmas su
+          +as do semestre vigente, na                                    
+      516 +mesma publicação. O aluno vê o mural combinado, filtrado pelos
+          + vínculos dele.                                               
+      517  
+      518 -Aviso é texto com uma imagem opcional, somente leitura: não te
+          -m comentário, não tem                                         
+      519 -fixação e não tem expiração na fase 1. Gera notificação. A lei
+          -tura é registrada, e é o                                      
+      520 -que apaga a bolinha dourada da aba Mural.                     
+      518 +Aviso é título (de 3 a 120 caracteres), texto (de 1 a 2.000) e
+          + uma imagem opcional,                                         
+      519 +somente leitura: não tem comentário, não tem fixação, não tem 
+          +expiração, não é editado e                                    
+      520 +não é removido na fase 1. Gera notificação. A leitura é regist
+          +rada, e é o que apaga a                                       
+      521 +bolinha dourada da aba Mural.                                 
+      522  
+      523 +Quem vê o quê (passo 10):                                     
+      524 +                                                              
+      525 +| Quem | Vê no mural |                                        
+      526 +|---|---|                                                     
+      527 +| Aluno | Os avisos da faculdade, do curso atual e das turmas 
+          +em que tem matrícula, de qualquer semestre |                  
+      528 +| Ex-aluno | Os mesmos vínculos: a faculdade, o curso em que e
+          +stava e as turmas antigas |                                   
+      529 +| Professor | Os avisos da faculdade e os que ele publicou |  
+      530 +| Instituição | Todos |                                       
+      531 +                                                              
+      532 +O aviso não lido aparece aberto, com a bolinha dourada; o lido
+          +, recolhido, só com o                                         
+      533 +título. Abrir o aviso inteiro registra a leitura e apaga també
+          +m a notificação dele; "Ler                                    
+      534 +todos" marca como lido todo o mural de quem pede.             
+      535 +                                                              
+      536 +A notificação de aviso novo vai para os destinatários do insta
+          +nte da publicação: o aluno                                    
+      537 +ativo alcançado pelo escopo e, no aviso da faculdade, o profes
+          +sor. O ex-aluno lê o mural,                                   
+      538 +mas não é notificado; a instituição e o autor também não.     
+      539 +                                                              
+      540  ---
+      541  
+      542  ## 8. Notificações
+
+● Update(docs\produto.md)
+  ⎿  Added 11 lines, removed 2 lines
+      541  
+      542  ## 8. Notificações
+      543  
+      544 -Registro no banco, mostrado no sininho do cabeçalho do feed, e
+          -m qualquer plataforma.                                        
+      545 -Push nativo é evolução de fase 2.                             
+      544 +Registro no banco, mostrado no sininho do cabeçalho do feed e 
+          +do Mural, em qualquer                                         
+      545 +plataforma. Push nativo é evolução de fase 2.                 
+      546  
+      547  Geram notificação: medalha recebida, comprovação aprovada ou r
+           eprovada, contestação
+      548  aberta, decisão de contestação, prêmio revogado sem contestaçã
+           o (pela remoção do post pela
+     ...
+      550  aviso novo. Bolinha dourada de novidade aparece nas abas Mural
+            (aviso não lido) e Troféus
+      551  (prêmio novo).
+      552  
+      553 +Abrir o sininho marca como lidas todas as notificações que ele
+          + mostrou. Tocar numa leva ao                                  
+      554 +que ela trata: medalha e conquista, a Troféus; aprovação, cont
+          +estação e decisão, ao post do                                 
+      555 +prêmio; reprovação e revogação, a Troféus, onde ficam as reivi
+          +ndicações com o motivo; aviso                                 
+      556 +novo, ao aviso.                                               
+      557 +                                                              
+      558 +Prêmio novo, para a bolinha de Troféus, é a medalha, o prêmio 
+          +de participação aprovado ou a                                 
+      559 +conquista obtida depois da última vez que o aluno abriu a aba.
+          + Abrir Troféus apaga a                                        
+      560 +bolinha sem ler o sininho, e abrir o sininho não apaga a bolin
+          +ha de Troféus.                                                
+      561 +                                                              
+      562  ---
+      563  
+      564  ## 9. Visibilidade e privacidade
+
+● Update(docs\produto.md)
+  ⎿  Added 2 lines
+      603  6. Lista de turmas e alunos do professor
+      604  7. Modal de concessão de medalha
+      605  8. Área web da instituição
+      606 +9. Tela de notificações, aberta pelo sininho                  
+      607 +10. Novo aviso do professor, pelo "+" do Mural                
+      608  
+      609  ### 10.2 Área web da instituição
+      610  
+
+● Update(CLAUDE.md)
+  ⎿  Added 1 line, removed 1 line
+      160  - Todo erro em tela vira mensagem amigável. O usuário nunca de
+           ve sentir que o app travou.
+      161  - Superfície sem prancheta desenhada segue a identidade visual
+           : entrada da demonstração,
+      162    aceite de termos, busca, editar perfil, perfil do professor,
+            turmas do professor, modal
+      163 -  de medalha, área web da instituição.                        
+      163 +  de medalha, área web da instituição, tela de notificações, n
+          +ovo aviso do professor.                                       
+      164  
+      165  ## Texto em docs
+      166  
+
+● Agora o registro de decisões: a seção do passo 10 e o limite do passo 9 que
+  este passo resolveu.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      534  | Limite | Onde é tratado |
+      535  |---|---|
+      536  | O ranking não é recalculado pela conquista concedida ou remo
+           vida: a tabela de ranking não existe ainda | Passo 11 |
+      537 -| O texto das notificações de conquista e a bolinha de Troféus
+          - | Passo 10 |                                                 
+      537 +| O texto das notificações de conquista e a bolinha de Troféus
+          + | Resolvido no passo 10: os textos estão em `notificacoes/tex
+          +tos.ts` do app, e a bolinha segue o marcador `trofeus_visto_em
+          +` |                                                           
+      538  | A regra customizada não é disparada por fato nem tem progres
+           so | Aceito: nenhuma conquista da fase 1 usa |
+      539  | O fato que fica contável depois do fechamento não se reprodu
+           z pelo fluxo com o catálogo da fase 1 (as de fechamento contam
+            medalha, concedida só no bimestre da data); o teste isola o m
+           ecanismo | Aceito |
+      540  | O post de conquista no feed não mostra a instância, só o nom
+           e, o tier e os pontos | Aceito |
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 72 lines
+      541  | Conquistas no seed de demonstração | Passo 12 |
+      542  | A suíte local da API disputa recurso com a pilha do compose 
+           de pé (o teste do migrador passa de 1 min); para a suíte local
+           , pilha parada | Ocorrência de ambiente |
+      543  
+      544 +## Mural e notificações (passo 10)                            
+      545 +                                                              
+      546 +O aviso nos três escopos, a leitura do mural, o sininho, a tel
+          +a de notificações e as                                        
+      547 +bolinhas das abas. As decisões D1 a D7 foram fechadas no plano
+          + do passo, com as nove                                        
+      548 +perguntas dele; as demais, nas etapas. As regras de produto qu
+          +e nasceram aqui estão em                                      
+      549 +`produto.md` 7 (título e texto, quem vê o quê, leitura, destin
+          +atários da notificação), 8                                    
+      550 +(sininho também no Mural, leitura ao abrir, destinos, prêmio n
+          +ovo) e 10.1 (tela de                                          
+      551 +notificações e novo aviso do professor).                      
+      552 +                                                              
+      553 +### Aviso e publicação                                        
+      554 +                                                              
+      555 +| Decisão | Detalhe |                                         
+      556 +|---|---|                                                     
+      557 +| Modelo (D1) | `aviso` (autor, escopo, título, texto, as duas
+          + chaves da foto, publicado em), com os alvos em `aviso_turma` 
+          +e `aviso_curso`, um aviso para N alvos. Quem publicou e quando
+          + ficam no próprio aviso. Título de 3 a 120 e texto de 1 a 2.00
+          +0 caracteres, contando um emoji como um, também por check no b
+          +anco (`char_length`) |                                        
+      558 +| Rota | `POST /v1/avisos` com `escopo` (`faculdade`, `curso`,
+          + `turma`) e `turmaIds` ou `cursoIds`. Lista do escopo errado o
+          +u alvo na faculdade: 400 `alvos-do-aviso-invalidos`. Códigos e
+          +m `CodigosDoMural.cs` |                                       
+      559 +| Papel e escopo (D3) | O domínio decide o papel: instituição 
+          +na faculdade e no curso, professor na turma, a conta que acumu
+          +la os dois nos três; aluno recebe 403 `aviso-nao-permitido`. O
+          + papel é conferido antes do escopo. A turma, no banco, contra 
+          +`vinculo_professor` e o semestre vigente: uma turma de fora re
+          +cusa o aviso inteiro (403 `fora-do-escopo`). Curso inexistente
+          +: 404 `curso-nao-encontrado` |                                
+      560 +| Foto (D2) | Finalidade `aviso` no `POST /v1/uploads`, de pro
+          +fessor e instituição, com as mesmas derivadas e o mesmo limite
+          + do post. Confirmada pelo HEAD das duas na publicação. Sem edi
+          +ção e sem remoção de aviso, a foto só sai pela limpeza do uplo
+          +ad abandonado |                                               
+      561 +| Distribuição (D4) | `notificar-aviso-novo`, enfileirado na t
+          +ransação da publicação. O worker grava todas as notificações n
+          +um `INSERT ... SELECT ... ON CONFLICT DO NOTHING` sobre o índi
+          +ce único da notificação: idempotente e sem passar dos 60 s num
+          + aviso da faculdade |                                         
+      562 +| Destinatários | Fixados no instante da publicação: conta cri
+          +ada até ele, e aluno ativo nele (quem virou ex-aluno depois ai
+          +nda recebe). Aluno pelo escopo (todos na faculdade, o curso at
+          +ual no curso, a matrícula na turma); professor só na faculdade
+          +. Nunca o autor nem a instituição; o ex-aluno não é notificado
+          +. Prova reversa: sem a condição da conta criada, o teste dos d
+          +estinatários falha |                                          
+      563 +                                                              
+      564 +### Leitura do mural                                          
+      565 +                                                              
+      566 +| Decisão | Detalhe |                                         
+      567 +|---|---|                                                     
+      568 +| Visibilidade | Uma regra só (`ConsultaDoMural.Visiveis`), pa
+          +ra a lista, o aviso aberto, a leitura e o "Ler todos": a insti
+          +tuição vê tudo; os outros, a faculdade, o que publicaram, o cu
+          +rso atual (do cadastro) e as turmas em que têm matrícula, de q
+          +ualquer semestre. O professor, sem curso nem matrícula, vê a f
+          +aculdade e os dele |                                          
+      569 +| Rotas | `GET /v1/mural?escopo=&cursor=`, 20 por página por c
+          +ursor `(publicado_em, id)`; `GET /v1/avisos/{id}`; `PUT /v1/av
+          +isos/{id}/leitura`; `POST /v1/mural/leitura` ("Ler todos"); `G
+          +ET /v1/perfis/{id}/avisos`, os do professor pela mesma regra, 
+          +404 `usuario-nao-encontrado` para perfil inexistente, como a g
+          +rade de posts. Aviso fora do mural responde 404 `aviso-nao-enc
+          +ontrado`, como o que não existe |                             
+      570 +| Resposta | O autor com `instituicao` (o app mostra "UniMax";
+          + a conta de professor e instituição, publicando para turma, ap
+          +arece pelo nome), as matérias das turmas ou as siglas dos curs
+          +os, a foto e `lido`, deste leitor |                           
+      571 +| Leitura | `leitura_de_aviso` (usuário, aviso, lida em), chav
+          +e `(usuario_id, aviso_id)`, sem cascata do usuário. Gravada co
+          +m `ON CONFLICT DO NOTHING`: ler de novo não muda o instante. N
+          +a mesma transação, a notificação de aviso novo daquele aviso f
+          +ica lida. Prova reversa: sem o filtro do mural, o "Ler todos" 
+          +marca avisos de fora e o teste falha |                        
+      572 +| ETag | No mural e no aviso aberto, fraca e do conteúdo, como
+          + no perfil (`Cache-Control: private, no-cache`); a leitura mud
+          +a a ETag. O p95 fica para o k6 do passo 13, como o do perfil |
+      573 +| Purga | O SQL apaga `leitura_de_aviso` do lote antes do usuá
+          +rio; o aviso não é do lote e fica |                           
+      574 +                                                              
+      575 +### Notificações e novidades                                  
+      576 +                                                              
+      577 +| Decisão | Detalhe |                                         
+      578 +|---|---|                                                     
+      579 +| Lista | `GET /v1/eu/notificacoes`, só as de quem pede, 20 po
+          +r página por cursor `(criada_em, id)`. Cada uma com tipo, refe
+          +rência, quando, se foi lida e o que a frase pede: o nome do it
+          +em, o motivo (reprovação e revogação), a decisão (`confirmada`
+          + ou `revogada`), o post do prêmio que ainda está no ar e o tít
+          +ulo do aviso. Uma consulta por tipo de referência, nunca uma p
+          +or linha |                                                    
+      580 +| Leitura | `POST /v1/eu/notificacoes/leitura` com `ate`, opci
+          +onal: marca as criadas até ele, e a que chegou depois de o sin
+          +inho abrir fica acesa. Sem corpo, todas as de agora. Acréscimo
+          + aprovado na etapa 3. Prova reversa: sem o limite, a notificaç
+          +ão nova é marcada e o teste falha |                           
+      581 +| Novidades (D5) | `GET /v1/eu/novidades` com três booleanos: 
+          +sininho (notificação não lida), mural (aviso do mural não lido
+          +) e troféus (só aluno: medalha ativa, prêmio de participação a
+          +provado e ainda válido ou definitivo, ou conquista não removid
+          +a, depois do marcador). Um aluno novo vê a bolinha do Mural ac
+          +esa pelos avisos antigos da faculdade; "Ler todos" a apaga |  
+      582 +| Marcador de Troféus | `usuario.trofeus_visto_em`, por `PUT /
+          +v1/eu/trofeus/visto`, que só anda para a frente (`Usuario.Marc
+          +arTrofeusVistos`). Separado do sininho: abrir um não lê o outr
+          +o. O prêmio de participação acende a bolinha pela aprovação; a
+          + contestação confirmada não acende de novo |                  
+      583 +| Texto | Do app, pelo tipo, em `notificacoes/textos.ts`, com 
+          +o destino de cada toque. Tipo que o app ainda não conhece vira
+          + "Você tem uma novidade.", sem destino. Um teste do app lê o e
+          +num `TipoDeNotificacao` do C# e falha se algum tipo ficar sem 
+          +texto |                                                       
+      584 +                                                              
+      585 +### Cliente                                                   
+      586 +                                                              
+      587 +| Decisão | Detalhe |                                         
+      588 +|---|---|                                                     
+      589 +| Aba Mural | Logo, sininho, "Mural" com "Ler todos", chips To
+          +dos, Faculdade, Curso e Professores (o escopo turma), e os car
+          +tões em `surface` com raio 16. O não lido vem aberto, com a bo
+          +linha, o título em negrito e "não lido" no rótulo de acessibil
+          +idade; o lido, recolhido, e tocar o abre ali mesmo, sem regist
+          +rar leitura. "Abrir" leva a `/aviso/:id` |                    
+      590 +| "Ler todos" | Segue a bolinha do Mural (`novidades.mural`), 
+          +que é do mural inteiro, e não a lista do chip; sem as novidade
+          +s, a lista |                                                  
+      591 +| Aviso aberto | Cabeçalho com voltar, rótulo, data dd/mm em S
+          +ão Paulo (UTC-3 fixo, sem depender do `Intl`), título, autor, 
+          +a foto quadrada e o texto. Abrir registra a leitura uma vez | 
+      592 +| Novo aviso | `/novo-aviso`, pelo "+" do Mural, só para quem 
+          +tem papel de professor: as turmas vigentes dele em chips de se
+          +leção múltipla, título e texto com contador e a foto opcional,
+          + com só "Remover foto" (tocar na foto troca). A conta de profe
+          +ssor e instituição publica só para turmas pelo app; faculdade 
+          +e curso ficam para a área web (passo 12). A foto já enviada é 
+          +reaproveitada se o aviso falhar, como no post |               
+      593 +| Sininho | No cabeçalho do feed, à direita do "+", e no do Mu
+          +ral, com a bolinha de halo como a das abas e "com novidade" no
+          + rótulo. A tela de notificações marca como lido até a mais nov
+          +a mostrada, e o que era novo segue em destaque enquanto ela es
+          +tá aberta. Tempo relativo como no feed |                      
+      594 +| Bolinhas | Das novidades, perguntadas ao voltar ao foco e a 
+          +cada 60 s; abrir Troféus, como aluno, chama o marcador |      
+      595 +| Ícones | `sino` (bell), `abrir` (chevron-down) e `lerTodos` 
+          +(check-check) do Lucide. `navegacao/EmBreve.tsx` saiu, sem mai
+          +s uso |                                                       
+      596 +                                                              
+      597 +### Testes de ponta a ponta                                   
+      598 +                                                              
+      599 +| Decisão | Detalhe |                                         
+      600 +|---|---|                                                     
+      601 +| Fluxos | Só no celular, claro e escuro, cada execução com a 
+          +sua professora e o seu aluno: a professora publica pela tela p
+          +ara duas turmas dela (a segunda vinculada no Postgres), o alun
+          +o vê as bolinhas do Mural e do sininho, abre o aviso, usa "Ler
+          + todos" e abre o sininho; uma medalha pela API acende o sininh
+          +o e Troféus, e o toque na notificação leva a Troféus |        
+      602 +| Isolamento | As turmas vigentes são as mesmas para todas as 
+          +execuções, e o aviso de uma chega ao aluno da outra. O aluno c
+          +omeça com tudo lido pela API, o aviso dele é conferido pelo tí
+          +tulo, e as bolinhas são apagadas por "Ler todos" e pelo sininh
+          +o, que leem tudo |                                            
+      603 +| Espera | A tela é recarregada até a bolinha aparecer, por at
+          +é 30 s: a notificação é gravada no worker |                   
+      604 +                                                              
+      605 +### Limites conhecidos                                        
+      606 +                                                              
+      607 +| Limite | Onde é tratado |                                   
+      608 +|---|---|                                                     
+      609 +| Os destinatários do aviso de curso são lidos pelo curso atua
+          +l: quem trocar de curso entre a publicação e o trabalho do wor
+          +ker (segundos) é lido pelo curso novo | Aceito |              
+      610 +| A tela de aviso de faculdade e de curso da instituição | Pas
+          +so 12, com a API pronta |                                     
+      611 +| Avisos no seed de demonstração | Passo 12 |                 
+      612 +| O p95 do mural com ETag e das novidades perguntadas a cada 6
+          +0 s por usuário | k6 do passo 13 |                            
+      613 +| Sem push: a bolinha só acende quando o app pergunta (foco ou
+          + 60 s) | Fase 2, push nativo |                                
+      614 +| A busca do e2e de capturas mostrou que a conquista pode ser 
+          +concedida pela reavaliação da primeira medalha quando as outra
+          +s já existem; a notificação de conquista obtida fica, então, e
+          +ntre as de medalha | Aceito: o avaliador conta os fatos do mom
+          +ento |                                                        
+      615 +                                                              
+      616  ## Processo e qualidade
+      617  
+      618  | Decisão | Detalhe |
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line, removed 1 line
+      611  | Avisos no seed de demonstração | Passo 12 |
+      612  | O p95 do mural com ETag e das novidades perguntadas a cada 6
+           0 s por usuário | k6 do passo 13 |
+      613  | Sem push: a bolinha só acende quando o app pergunta (foco ou
+            60 s) | Fase 2, push nativo |
+      614 -| A busca do e2e de capturas mostrou que a conquista pode ser 
+          -concedida pela reavaliação da primeira medalha quando as outra
+          -s já existem; a notificação de conquista obtida fica, então, e
+          -ntre as de medalha | Aceito: o avaliador conta os fatos do mom
+          -ento |                                                        
+      614 +| Medalhas concedidas em sequência rápida: a reavaliação da pr
+          +imeira roda com as outras já gravadas e pode conceder a conqui
+          +sta antes de as outras medalhas serem notificadas; no sininho,
+          + a conquista obtida aparece entre as medalhas | Aceito: o aval
+          +iador conta os fatos do momento |                             
+      615  
+      616  ## Processo e qualidade
+      617  
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 9 lines
+      244  - Do passo 9: o texto das notificações de conquista obtida e d
+           e conquista removida pelo
+      245    recálculo, já gravadas pelo worker.
+      246  - Bolinha de prêmio novo na aba Troféus.
+      247 +- Entrou também, aprovado no plano do passo: o título do aviso
+          + (a prancheta tem título e                                    
+      248 +  corpo), o "Ler todos" e o sininho no cabeçalho do Mural, que
+          + estão na prancheta; o perfil                                 
+      249 +  do professor com os avisos que publicou (`produto.md` 2.1); 
+          +a tela de notificações e o                                    
+      250 +  novo aviso do professor como superfícies sem prancheta.     
+      251  
+      252 +Ficam pendentes: a tela da instituição para publicar aviso de 
+          +faculdade e de curso, com a                                   
+      253 +API pronta, e os avisos no seed de demonstração (passo 12); o 
+          +p95 do mural com ETag e das                                   
+      254 +novidades perguntadas a cada 60 s (passo 13). Decisões do pass
+          +o em `decisoes/README.md`,                                    
+      255 +Mural e notificações (passo 10).                              
+      256 +                                                              
+      257  ### Passo 11. Rankings
+      258  
+      259  - Tabela das quatro visões escrita pelo worker, com coalescênc
+           ia.
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 4 lines
+      291    semeados (reavaliação e fechamento), e não gravadas à mão: é
+            o que mantém evidências e
+      292    progresso coerentes. A anulação pela área web enfileira o me
+           smo recálculo do comando
+      293    administrativo.
+      294 +- Do passo 10: a publicação de aviso de faculdade e de curso p
+          +ela área web usa                                              
+      295 +  `POST /v1/avisos`, que já recebe os dois escopos e um ou mai
+          +s cursos; a foto sobe pela                                    
+      296 +  finalidade `aviso` do upload. Os avisos do seed nascem pela 
+          +mesma publicação, para a                                      
+      297 +  notificação de aviso novo ir aos destinatários pelo worker, 
+          +e não gravados à mão.                                         
+      298  
+      299  ### Passo 13. Endurecimento e ensaio
+      300  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A frase sobre o seed de avisos no passo 12 virou uma decisão sem ter sido
+  decidida. Reescrevo como sugestão para o plano do passo 12, e acrescento o p95
+  do mural ao passo 13.
+
+● Update(docs\plano-mestre.md)  ⎿  Added 3 lines, removed 2 lines
+      293    administrativo.
+      294  - Do passo 10: a publicação de aviso de faculdade e de curso p
+           ela área web usa
+      295    `POST /v1/avisos`, que já recebe os dois escopos e um ou mai
+           s cursos; a foto sobe pela
+      296 -  finalidade `aviso` do upload. Os avisos do seed nascem pela 
+          -mesma publicação, para a                                      
+      297 -  notificação de aviso novo ir aos destinatários pelo worker, 
+          -e não gravados à mão.                                         
+      296 +  finalidade `aviso` do upload. Sugestão para o plano do passo
+          + 12, ainda não decidida: os                                   
+      297 +  avisos do seed nascerem pela mesma publicação, para a notifi
+          +cação de aviso novo ir aos                                    
+      298 +  destinatários pelo worker, como as conquistas do seed nascem
+          + do worker.                                                   
+      299  
+      300  ### Passo 13. Endurecimento e ensaio
+      301  
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 4 lines, removed 1 line
+      302  - k6 a 2.000 usuários virtuais, p95 medido em feed, perfil e r
+           anking. Micro-cache da
+      303    primeira página do feed só se o número pedir. Do passo 7: o 
+           p95 do trecho de
+      304    recomendação, que ordena sem índice; se o planejador escolhe
+            o índice do feed com volume
+      305 -  real (o teste dele desliga a varredura); e se a busca usa os
+          - índices de trigramas.                                        
+      305 +  real (o teste dele desliga a varredura); e se a busca usa os
+          + índices de trigramas. Do                                     
+      306 +  passo 10: o p95 do mural, com a ETag, e o das novidades, que
+          + cada aluno pergunta ao                                       
+      307 +  voltar ao foco e a cada 60 s (a 2.000 usuários, cerca de 33 
+          +pedidos por segundo só                                        
+      308 +  delas).                                                     
+      309  - CSP do build web liberando o domínio da CDN das fotos em `im
+           g-src` e o endpoint do R2 em
+      310    `connect-src`, para o PUT direto do navegador.
+      311  - R2 de verdade: rodar uma vez o `VerificacaoDoR2Tests`, que c
+           onfere tipo e tamanho presos
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run the full e2e suite locally" completed (exit code 0)
+
+  Listed 1 directory (ctrl+o to expand)
+
+● A suíte e2e deu 72 aprovados e 7 falhas: 4 da demonstração, que esperamos
+  porque a flag está desligada no compose local e a CI roda à parte, e 3 em
+  medalhas.spec e mural.spec (escuro), que vou rodar isoladas para entender o
+  erro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Isolado, passa. Rodo medalhas e mural juntos, em paralelo, para reproduzir.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Juntos e em paralelo, os 6 passam. As falhas só aparecem sob a carga da suíte
+  inteira, o que sugere tempo de espera pelo worker. Rodo a suíte inteira de
+  novo, guardando os erros completos.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch the CI run for etapa 6" completed (exit code 0)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● A CI da etapa 6 passou nos seis jobs e a etapa está pronta. A falha do e2e é
+  violação de modo estrito por causa de duas abas "Troféus" na tela; vou
+  corrigir o teste e ver onde o medalhas.spec parou.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● O clique na aba "Troféus" trava esperando o elemento estabilizar após o reload
+  em /trofeus, possivelmente por um laço de re-render do meu efeito. Vou contar
+  os pedidos dessa tela com uma sonda temporária.
+
+● Write(e2e\tests\sonda-trofeus.spec.ts)
+  ⎿  Wrote 29 lines to e2e\tests\sonda-trofeus.spec.ts
+       1 // TEMPORÁRIO: sonda de re-render na tela de Troféus. Não vai pa
+         ra o commit.
+       2 import { expect, test } from "@playwright/test";
+       3 
+       4 import { novaConta } from "./apoio/contas";
+       5 
+       6 test("sonda", { tag: "@celular" }, async ({ page, request }) => 
+         {
+       7   const aluno = await novaConta(request, "Sonda");
+       8   await page.goto("/login");
+     … +21 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Não há laço: é um pedido só de marcador, e a navegação fica parada. Há duas
+  abas "Troféus" na tela, o que também quebra meu teste; vou corrigi-lo para
+  checar só a ausência da novidade, apagar a sonda e rodar a suíte inteira de
+  novo.
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && rm tests/sonda-trofeus.spec.ts && sed -n 196,206p tests/mural.spec.ts)
+  ⎿        .click();
+
+         // Em Troféus, abrir a aba apaga a bolinha dela; o sininho já foi
+     … +9 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\tests\sonda-trofeus.spec.ts (+0 -29)
+       1 -// TEMPORÁRIO: sonda de re-render na tela de Troféus. Não vai p
+         -ara o commit.                                                  
+       2 -import { expect, test } from "@playwright/test";               
+       3 -                                                               
+       4 -import { novaConta } from "./apoio/contas";                    
+       5 -                                                               
+       6 -test("sonda", { tag: "@celular" }, async ({ page, request }) =>
+         - {                                                             
+       7 -  const aluno = await novaConta(request, "Sonda");             
+       8 -  await page.goto("/login");                                   
+       9 -  await page.getByLabel("RA ou e-mail").fill(aluno.email);     
+      10 -  await page.getByLabel("Senha", { exact: true }).fill(aluno.se
+         -nha);                                                          
+      11 -  await page.getByRole("button", { name: "Entrar", exact: true 
+         -}).click();                                                    
+      12 -  await expect(page.getByRole("tab", { name: /^Mural/ })).toBeV
+         -isible();                                                      
+      13 -                                                               
+      14 -  const pedidos: string[] = [];                                
+      15 -  page.on("request", (r) => pedidos.push(`${r.method()} ${new U
+         -RL(r.url()).pathname}`));                                      
+      16 -  await page.goto("/trofeus");                                 
+      17 -  await page.waitForTimeout(6000);                             
+      18 -  const contagem: Record<string, number> = {};                 
+      19 -  for (const p of pedidos) contagem[p] = (contagem[p] ?? 0) + 1
+         -;                                                              
+      20 -  console.log(JSON.stringify(contagem, null, 1));              
+      21 -  const caixas: string[] = [];                                 
+      22 -  for (let i = 0; i < 5; i++) {                                
+      23 -    const caixa = await page.getByRole("tablist").last().boundi
+         -ngBox();                                                       
+      24 -    caixas.push(JSON.stringify(caixa));                        
+      25 -    await page.waitForTimeout(300);                            
+      26 -  }                                                            
+      27 -  console.log(caixas.join("\n"));                              
+      28 -  console.log(await page.getByRole("tab", { name: "Troféus" }).
+         -count());                                                      
+      29 -});                                                            
+
+● Update(e2e\tests\mural.spec.ts)
+  ⎿  Added 5 lines, removed 3 lines
+      195        })
+      196        .click();
+      197  
+      198 -    // Em Troféus, abrir a aba apaga a bolinha dela; o sininho
+          - já foi lido ao abrir.                                        
+      198 +    // Em Troféus, abrir a aba apaga a bolinha dela; o sininho
+          + já foi lido ao abrir. A tela                                 
+      199 +    // tem outra aba chamada "Troféus" (a sublinhada, ao lado 
+          +de Medalhas): por isso a                                      
+      200 +    // conferência é a de que a aba com novidade sumiu.       
+      201      await expect(page).toHaveURL(/\/trofeus$/);
+      202      await expect(
+      201 -      page.getByRole("tab", { name: "Troféus", exact: true }),
+      202 -    ).toBeVisible();                                          
+      203 +      page.getByRole("tab", { name: "Troféus, com novidade" })
+          +,                                                             
+      204 +    ).toHaveCount(0);                                         
+      205      await page.getByRole("tab", { name: /^Home/ }).click();
+      206      await expect(
+      207        page.getByRole("button", { name: "Notificações", exact: 
+           true }),
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O medalhas.spec falha toda vez na suíte inteira, mas passa sozinho. Antes de
+  supor, olho o último quadro gravado da página do aluno no momento em que
+  travou.
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+● O último quadro, tirado antes do reload, mostra a página sem nada desenhado
+  até o tempo acabar, o que aponta para carga e não para a tela. Como o
+  medalhas.spec já estourava o limite de 30 s no passo 7 por causa dos docker 
+  exec, vou rodar a suíte inteira sem o mural.spec para confirmar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste falha mesmo sem o meu spec, então vou comparar com a CI para ver se a
+  falha já existia antes das etapas 4 a 6.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Na CI o medalhas.spec passou em todas as etapas, inclusive na 6; a falha está
+  no meu ambiente local, com a pilha no ar há horas e o banco cheio de dados de
+  rodadas antigas. Vou investigar por que o spec do aviso falhou silenciosamente
+  na segunda rodada.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● O login do aluno não terminou em 5 s sob carga; vou abrir uma página nova num
+  contexto separado, como faz o medalhas.spec, e dar ao login a mesma folga.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && f=tests/mural.spec.ts && sed -i '85,99s/\bpage\b/daProfessora/g' $f &&
+      sed -i '85s|^…)
+  ⎿  5:  type Browser,
+     29:    timeout: 15_000,
+     34:async function novaPagina(browser: Browser): Promise<Page> {
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\mural.spec.ts (+34 -13)
+      2    expect,
+      3    test,
+      4    type APIRequestContext,
+      5 +  type Browser,                                                 
+      6    type Page,
+      7  } from "@playwright/test";
+      8  
+     ...
+      21  // pelo título, e apaga as bolinhas pelo "Ler todos" e pelo sin
+          inho, que leem tudo.
+      22  
+      23  async function entrar(page: Page, identificador: string, senha:
+           string) {
+      23 -  await page.context().clearCookies();                         
+      24    await page.goto("/login");
+      25    await page.getByLabel("RA ou e-mail").fill(identificador);
+      26    await page.getByLabel("Senha", { exact: true }).fill(senha);
+      27    await page.getByRole("button", { name: "Entrar", exact: true 
+          }).click();
+      28 -  await expect(page.getByRole("tab", { name: /^Mural/ })).toBeV
+         -isible();                                                      
+      28 +  await expect(page.getByRole("tab", { name: /^Mural/ })).toBeV
+         +isible({                                                       
+      29 +    timeout: 15_000,                                           
+      30 +  });                                                          
+      31 +}                                                              
+      32 +                                                               
+      33 +// Outra pessoa no mesmo teste: um contexto próprio, com o tema
+         + e o tamanho do projeto.                                       
+      34 +async function novaPagina(browser: Browser): Promise<Page> {   
+      35 +  const { viewport, isMobile, hasTouch, colorScheme, baseURL } 
+         +=                                                              
+      36 +    test.info().project.use;                                   
+      37 +  const contexto = await browser.newContext({                  
+      38 +    viewport,                                                  
+      39 +    isMobile,                                                  
+      40 +    hasTouch,                                                  
+      41 +    colorScheme,                                               
+      42 +    baseURL,                                                   
+      43 +  });                                                          
+      44 +  return contexto.newPage();                                   
+      45  }
+      46  
+      47  // Uma segunda turma vigente da professora, de outra matéria de
+           CC.
+     ...
+      88  test(
+      89    "a professora publica um aviso para duas turmas, e o aluno o 
+          lê pelo Mural e pelo sininho",
+      90    { tag: "@celular" },
+      75 -  async ({ page, request }) => {                               
+     … 39 more lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && f=tests/mural.spec.ts && perl -0pi -e 's/(
+      \)\.toBe\(\[professora\.turmaId, outraT…)
+  ⎿  126:    await daProfessora.close();
+     All matched files use Prettier code style!
+       2 failed
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\mural.spec.ts (+1 -0)
+      123           JOIN aviso_turma at ON at.aviso_id = a.id WHERE a.tit
+           ulo = '${titulo}';`,
+      124        ),
+      125      ).toBe([professora.turmaId, outraTurma].sort().join(","));
+      126 +    await daProfessora.close();                               
+      127  
+      128      // O aluno: a bolinha do Mural e a do sininho acesas.
+      129      await entrar(page, aluno.email, aluno.senha);
+  ⎿  (timeout 10m)
+● Com a suíte inteira passando (73 aprovados), só as duas execuções do
+  medalhas.spec falham, e só localmente sob a carga total. Vou conferir o estado
+  do repositório agora.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Registro a falha local do medalhas.spec sob carga como ocorrência de ambiente
+  nos limites do passo, como o passo 9 fez com a suíte da API.
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line
+      611  | Avisos no seed de demonstração | Passo 12 |
+      612  | O p95 do mural com ETag e das novidades perguntadas a cada 6
+           0 s por usuário | k6 do passo 13 |
+      613  | Sem push: a bolinha só acende quando o app pergunta (foco ou
+            60 s) | Fase 2, push nativo |
+      614 +| Na suíte e2e inteira rodada localmente (Windows, pilha no ar
+          + há horas, banco com os dados de muitas rodadas), o e2e da med
+          +alha estoura os 30 s: a página do aluno não volta a desenhar d
+          +epois do recarregamento que segue a anulação. Sozinho, passa; 
+          +na CI, passou de primeira em todas as etapas do passo, entre 1
+          +2 e 16 s | Ocorrência de ambiente; acompanhar no passo 13 |   
+      615  | Medalhas concedidas em sequência rápida: a reavaliação da pr
+           imeira roda com as outras já gravadas e pode conceder a conqui
+           sta antes de as outras medalhas serem notificadas; no sininho,
+            a conquista obtida aparece entre as medalhas | Aceito: o aval
+           iador conta os fatos do momento |
+      616  
+      617  ## Processo e qualidade
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 7, a última, está pronta para a sua revisão. Junto vai o fechamento do
+  passo 10 e o que ficou para os seguintes. Não fiz commit nem push; a CI dela
+  roda depois do push.
+
+  A etapa 6 já fechou: o commit b2bb781 passou nos seis jobs da CI (run
+  42562164378
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42562164378)).
+
+  Há uma falha local que não aparece na CI. O e2e da medalha (medalhas.spec, do
+  passo 6) estoura os 30 s quando eu rodo a suíte e2e inteira aqui, mesmo sem o
+  meu spec novo. Sozinho, passa. Na CI, passou de primeira em todas as etapas
+  deste passo, entre 12 s e 16 s. O último quadro gravado mostra que a página do
+  aluno não volta a desenhar depois do recarregamento que segue a anulação, o
+  que aponta para o meu ambiente: Windows, a pilha no ar há horas e o banco
+  cheio de dados das rodadas de captura. Registrei como ocorrência de ambiente
+  nos limites do passo, para acompanhar no passo 13. A CI desta etapa vai
+  confirmar.
+
+  Etapa 7: o que entrou
+
+  e2e (e2e/tests/mural.spec.ts), só no celular, claro e escuro:
+  1. Aviso:
+     - A professora publica pela tela um aviso para duas turmas dela; a segunda
+       turma é vinculada no Postgres. O teste confere as duas linhas em
+       aviso_turma.
+     - O aluno vê as bolinhas do Mural e do sininho.
+     - No Mural, o aviso vem aberto como não lido; "Abrir" leva ao aviso
+       inteiro, e de volta ele vem recolhido.
+     - "Ler todos" apaga a bolinha do Mural.
+     - O sininho mostra "Aviso novo no Mural: …", e abrir apaga a bolinha dele.
+  2. Medalha: uma medalha concedida pela API acende o sininho e Troféus. O toque
+     na notificação leva a Troféus, e a bolinha de Troféus se apaga.
+
+  Sobre o isolamento:
+  - Turmas compartilhadas: as turmas vigentes são as mesmas em todas as
+    execuções, então o aluno começa com tudo lido pela API e o aviso dele é
+    conferido pelo título.
+  - Segundo usuário: a professora usa um contexto de navegador próprio, como no
+    medalhas.spec.
+
+  Localmente, o spec passa nos dois temas, sozinho e na suíte inteira.
+
+  Docs:
+  - produto.md:
+    - na seção 7: título e texto com os tamanhos, um ou mais cursos, a tabela de
+      quem vê o quê, a leitura, "Ler todos" e quem recebe a notificação de
+      aviso novo;
+    - na seção 8: sininho também no Mural, leitura ao abrir, os destinos do
+      toque e o que conta como prêmio novo;
+    - na seção 10.1: a tela de notificações e o novo aviso do professor.
+  - CLAUDE.md: as duas superfícies novas na lista sem prancheta.
+  - decisoes/README.md: seção "Mural e notificações (passo 10)", com aviso e
+    publicação, leitura do mural, notificações e novidades, cliente, e2e e
+    limites conhecidos. A pendência do passo 9 (texto das notificações de
+    conquista e bolinha de Troféus) ficou marcada como resolvida no passo 10. A
+    linha da purga já tinha entrado na etapa 2.
+  - plano-mestre.md: o que entrou além do plano no passo 10, as pendências, um
+    item "Do passo 10" no passo 12 e o p95 do mural e das novidades no passo 13.
+    A ideia de os avisos do seed nascerem pela mesma publicação ficou
+    registrada como sugestão para o plano do passo 12, ainda não decidida.
+  - Sem travessão nos docs.
+
+  Mensagem de commit proposta:
+  docs(docs): registra as decisões do passo 10 e adiciona o e2e do mural e das 
+  notificações
+
+  Fechamento do passo 10
+
+  ┌───────────────────────────────────┬───────────────┬────────────────────┐
+  │               Etapa               │    Commit     │         CI         │
+  ├───────────────────────────────────┼───────────────┼────────────────────┤
+  │ 1. Publicar aviso (API)           │ 76cd841       │ verde              │
+  │                                   │               │ (42552814299)      │
+  ├───────────────────────────────────┼───────────────┼────────────────────┤
+  │ 2. Ler o mural (API)              │ b0d7e6d       │ verde              │
+  │                                   │               │ (42555508742)      │
+  ├───────────────────────────────────┼───────────────┼────────────────────┤
+  │ 3. Notificações e novidades (API) │ e18a7f3       │ verde              │
+  │                                   │               │ (42557221985)      │
+  ├───────────────────────────────────┼───────────────┼────────────────────┤
+  │ 4. Aba Mural                      │ 42f5c5d       │ verde              │
+  │                                   │               │ (42558732475)      │
+  ├───────────────────────────────────┼───────────────┼────────────────────┤
+  │ 5. Novo aviso do professor        │ f430528       │ verde              │
+  │                                   │               │ (42559704052)      │
+  ├───────────────────────────────────┼───────────────┼────────────────────┤
+  │ 6. Sininho, notificações e        │ b2bb781       │ verde              │
+  │ bolinhas                          │               │ (42562164378)      │
+  ├───────────────────────────────────┼───────────────┼────────────────────┤
+  │ 7. e2e e docs                     │ proposta      │ depois do push     │
+  │                                   │ acima         │                    │
+  └───────────────────────────────────┴───────────────┴────────────────────┘
+
+  O que fecha o passo, como você listou:
+  - Aviso nos três escopos, e o professor seleciona uma ou mais turmas suas:
+    feito.
+  - Texto com imagem opcional, somente leitura, e com título: feito.
+  - Registro de leitura e bolinha dourada na aba Mural: feito.
+  - Sininho no cabeçalho do feed (e do Mural), com os nove tipos de notificação:
+    - medalha, aprovação, reprovação, contestação, decisão e aviso novo;
+    - conquista obtida e conquista removida;
+    - prêmio revogado pela remoção do post pela instituição.
+  - Bolinha de prêmio novo na aba Troféus: feito.
+
+  Definição de pronto:
+  - Testes:
+    - domínio e integração com Postgres real: 1.101 testes, 6 ignorados (devem
+      ser os do R2, fora da CI);
+    - Jest: 468;
+    - e2e: verde localmente para o spec novo; o medalhas.spec só falha
+      localmente, sob a carga da suíte inteira (descrito acima).
+  - Lint e formatação: limpos nos dois lados.
+  - Migrations: três (Mural, LeituraDeAviso, TrofeusVistos), aplicadas no
+    compose local pelo contêiner de migração e na CI.
+  - OpenAPI e cliente TypeScript: regenerados, sem diferença pendente.
+  - p95: há decisão de cache (ETag nos avisos), mas o p95 fica para o k6 do
+    passo 13, como combinado na pergunta 9.
+  - Revisão humana: feita por etapa; falta a desta.
+
+  O que ficou para os passos seguintes:
+  - Passo 12:
+    - a tela da instituição para publicar aviso de faculdade e de curso (a API
+      já está pronta, com um ou mais cursos e foto);
+    - avisos no seed de demonstração;
+    - a decisão sobre a sugestão de semear os avisos pela própria publicação.
+  - Passo 13:
+    - o p95 do mural com ETag e o das novidades (a 2.000 usuários perguntando a
+      cada 60 s, cerca de 33 pedidos por segundo);
+    - acompanhar a ocorrência local do e2e da medalha.
+  - Fase 2: push nativo; hoje a bolinha só acende quando o app pergunta.
+  - Limites aceitos:
+    - quem trocar de curso nos segundos entre a publicação do aviso e o trabalho
+      do worker é lido pelo curso novo;
+    - com medalhas concedidas em sequência rápida, a conquista obtida pode
+      aparecer no sininho entre as medalhas.
+
+  Com o seu ok, faço o commit e o push e acompanho a CI. Depois abro o PR da
+  feat/passo-10-mural para a rodada/eng_10_mural, sem rodapé de ferramenta, como
+  pede o CLAUDE.md.
+
+✻ Crunched for 19m 7s · done 1:49
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Etapa 7 aprovada, e com ela o passo. A falha local do medalhas.spec sob a     
+  carga da suíte inteira fica como ocorrência de ambiente registrada para o     
+  passo 13, como você fez; a CI desta etapa confirma. Commita com a mensagem    
+  proposta, push, acompanha a CI até o verde e aí abre o PR da                  
+  feat/passo-10-mural para a rodada/eng_10_mural, com a tabela de fechamento no 
+  corpo, sem rodapé de ferramenta. Me avisa quando o PR estiver aberto com a    
+  CI verde.                                                                     
+
+  Pushed to feat/passo-10-mural, ran 1 shell command (ctrl+o to expand)
+
+● CI verde nos seis jobs (run 42600588429). O medalhas.spec passou de primeira
+  nos dois temas, confirmando que a falha era local. Vejo o formato do PR do
+  passo 9 para seguir o mesmo.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O PR falhou: o GitHub não encontrou a rodada/eng_10_mural. Confiro se a branch
+  existe no remoto.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A rodada/eng_10_mural só existe localmente. Ela está no mesmo commit da main
+  (eda626c), como as rodadas anteriores que estão no remoto. Publico a branch,
+  sem mudar nada nela, e abro o PR.
+
+  Pushed to rodada/eng_10_mural, created PR #12, ran 2 shell commands (ctrl+o to expand)
+
+● O PR do passo 10 está aberto e com a CI verde: #12
+  (https://github.com/GFGimenes/maxx-engenheiro/pull/12), da feat/passo-10-mural
+  para a rodada/eng_10_mural. Os seis jobs passaram no PR.
+
+  - Commit da etapa 7: aeb73b4, com a CI verde nos seis jobs (run 42600588429
+    (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42600588429)). O
+    medalhas.spec passou de primeira nos dois temas, então a falha que eu via
+    aqui era mesmo do meu ambiente.
+  - Corpo do PR: segue o formato do PR do passo 9, com o que entra, a tabela de
+    fechamento das sete etapas com commit e CI, a verificação e o que fica para
+    depois. Não tem rodapé de ferramenta nem co-autoria; a única menção a
+    "CLAUDE" é ao arquivo CLAUDE.md, na lista dos docs.
+  - Branch da rodada: a rodada/eng_10_mural existia só localmente, e o GitHub
+    recusou o PR por isso. Publiquei a branch como estava, no mesmo commit da
+    main (eda626c), igual às rodadas anteriores que estão no remoto.
+
+  O compose local continua no ar, com os dados das rodadas de captura no banco.
+  Se quiser, eu derrubo a pilha.
+
+✻ Worked for 9m 2s · done 7:32
