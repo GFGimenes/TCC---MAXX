@@ -112,6 +112,14 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   `app.maxx-unimax.com` sem proxy. Credenciais entregues ao agente só pelo `.env` da VPS
   ou pelo terminal, nunca no chat. Provedor SMTP ainda não escolhido (Mailpit provisório
   se o passo 13 pedir antes).
+- Plano da conta Claude do autor mudado em 09/11/2026 (de "Claude Max" para "Claude
+  Ultra", como aparece no cabeçalho dos exports a partir da `leigo_pu`). Sem efeito no
+  modelo (`claude-opus-5-5`) nem no esforço (`medium`), confirmados no `.jsonl` de cada
+  sessão.
+- `leigo_pu` executada em 09/11/2026 às 00h12 (Brasília), 24 min, uma mensagem, sem
+  resposta; prompt chegou com acentos corrompidos por defeito do comando de cópia do
+  Cowork (declarado em `resultados/leigo/leigo_pu.md`); para o `eng_pu`, cópia com
+  `-Encoding UTF8`.
 
 ## Dependências entre fases
 

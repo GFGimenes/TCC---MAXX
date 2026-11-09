@@ -490,3 +490,10 @@ do runner sem código do agente envolvido; fix separado. PR #11, merge na `main`
 (`eda626c`). Registro em `resultados/engenheiro/eng_09_conquistas.md`. Próxima:
 `eng_10_mural`.
 
+09/11 (00h12): `leigo_pu` executada, em paralelo com o passo 10 do engenheiro. O agente
+encerrou sozinho em 24 minutos com um app web instalável commitado, cinco testes, acesso
+da banca por link, `DECISOES.md` e deploy deixado como roteiro. Defeito de transmissão do
+prompt (acentos corrompidos pelo comando de cópia que o Cowork deu ao autor), sem perda
+de conteúdo; execução mantida com a ressalva declarada. Registro em
+`resultados/leigo/leigo_pu.md`.
+

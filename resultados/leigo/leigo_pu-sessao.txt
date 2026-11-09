@@ -1,0 +1,767 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Ultra
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-leigo-pu
+
+
+> Oi chat, queria fazer um aplicativo que fosse tipo um instagram para a minha  
+  faculdade, a UniMax, mas sem stories, videos ou mensagens. O nome Ã© Maxx.    
+  SÃ³ aluno e professor da UniMax entra. Os alunos ganham prÃªmios pelas coisas 
+  que fazem, os professores dÃ£o medalhas, e tudo isso vira ponto pra um        
+  ranking geral e um por curso. Tem feed com as fotos e conquistas dos alunos,  
+  com curtir e comentar; perfil do aluno com foto, pontos, prÃªmios e as fotos  
+  dele; mural de avisos da faculdade e dos professores; tela de trofÃ©us e      
+  medalhas, tipo conquistas de jogo, com o que jÃ¡ ganhou e o que falta; e a    
+  tela de ranking. No dia do meu TCC a banca vai testar, entÃ£o precisa de um   
+  jeito fÃ¡cil deles entrarem sem cadastro na faculdade, do jeito que ficar     
+  melhor. No final me explica como eu faÃ§o pra abrir no celular e mandar o     
+  link pro pessoal.                                                             
+                                                                                
+  Essa Ã© a Ãºnica mensagem que vou mandar nesta sessÃ£o: depois dela nÃ£o      
+  respondo mais nada. FaÃ§a tudo o que conseguir sozinho, decidindo por conta   
+  prÃ³pria o que eu teria que decidir, e vÃ¡ atÃ© onde der. Quando parar, deixe 
+  o repositÃ³rio num estado que eu consiga abrir e testar, com as instruÃ§Ãµes  
+  de como rodar escritas nele e, commitado, um registro do que vocÃª decidiu    
+  sem me perguntar e do que ficou faltando.                                     
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Write(package.json)
+  ⎿  Added 14 lines, removed 8 lines
+       1  {
+       2 -  "name": "maxx-leigo-pu",                                     
+       2 +  "name": "maxx",                                              
+       3    "version": "1.0.0",
+       4 -  "description": "",                                           
+       5 -  "main": "index.js",                                          
+       4 +  "description": "Maxx — a rede social de conquistas da UniMax 
+         +(fotos, prêmios, medalhas e ranking).",                        
+       5 +  "type": "module",                                            
+       6 +  "main": "server/index.js",                                   
+       7 +  "private": true,                                             
+       8 +  "engines": {                                                 
+       9 +    "node": ">=20"                                             
+      10 +  },                                                           
+      11    "scripts": {
+       7 -    "test": "echo \"Error: no test specified\" && exit 1"      
+      12 +    "start": "node server/index.js",                           
+      13 +    "dev": "node --watch server/index.js",                     
+      14 +    "test": "node --test test/",                               
+      15 +    "reset": "node server/reset.js",                           
+      16 +    "icons": "node scripts/make-icons.js"                      
+      17    },
+       9 -  "keywords": [],                                              
+      10 -  "author": "",                                                
+      11 -  "license": "ISC",                                            
+      18    "dependencies": {
+      19      "@electric-sql/pglite": "^0.5.15",
+      14 -    "express": "^5.3.0",                                       
+      20 +    "express": "^5.1.0",                                       
+      21      "pg": "^8.23.1"
+      22    }
+      23  }
+
+● Write(server\db.js)
+  ⎿  Wrote 65 lines to server\db.js
+       1 // Camada de banco de dados.
+       2 // - Se a variável DATABASE_URL existir (ex.: banco gratuito no 
+         Neon), usa PostgreSQL de verdade.
+       3 // - Se não existir, usa o PGlite: um PostgreSQL embutido que sa
+         lva tudo na pasta ./data.
+       4 // Os dois falam o mesmo SQL, então o resto do código não precis
+         a saber qual está em uso.
+       5 import fs from 'node:fs';
+       6 import path from 'node:path';
+       7 import { fileURLToPath } from 'node:url';
+     … +58 lines (ctrl+o to expand)
+
+● Write(server\schema.sql)
+  ⎿  Wrote 102 lines to server\schema.sql
+       1 -- Estrutura do banco do Maxx. Pode rodar várias vezes sem probl
+         ema (IF NOT EXISTS).
+       2 
+       3 CREATE TABLE IF NOT EXISTS courses (
+       4   id SERIAL PRIMARY KEY,
+       5   name TEXT UNIQUE NOT NULL,
+       6   short TEXT NOT NULL
+       7 );
+       8 
+       9 CREATE TABLE IF NOT EXISTS images (
+     … +93 lines (ctrl+o to expand)
+
+● Base do banco pronta; agora escrevendo as regras de pontos, troféus e
+  medalhas.
+
+● Write(server\config.js)
+  ⎿  Wrote 33 lines to server\config.js
+       1 // Configurações que podem ser trocadas por variáveis de ambient
+         e (no Render: aba "Environment").
+       2 const list = (v, def) => (v ?? def).split(',').map((s) => s.trim
+         ().toLowerCase()).filter(Boolean);
+       3 
+       4 export const config = {
+       5   port: Number(process.env.PORT) || 3000,
+       6   // Domínios de e-mail aceitos no cadastro. Só quem tem e-mail 
+         da UniMax consegue criar conta.
+       7   emailDomains: list(process.env.EMAIL_DOMAINS, 'unimax.edu.br,a
+     … +27 lines (~1 KB) (ctrl+o to expand)
+
+● Write(server\rules.js)
+  ⎿  Wrote 44 lines to server\rules.js
+       1 // Regras do jogo: medalhas (dadas por professores), troféus (au
+         tomáticos) e pontos.
+       2 // Para mudar pontos, nomes ou criar novos troféus, é só editar 
+         este arquivo.
+       3 
+       4 export const POINTS = {
+       5   post: 10, // por foto publicada
+       6   postsPerDay: 3, // só as 3 primeiras fotos do dia valem pontos
+          (evita spam)
+       7   likeReceived: 2, // por curtida recebida de outra pessoa
+     … +37 lines (ctrl+o to expand)
+
+● Write(server\services.js)
+  ⎿  Wrote 224 lines to server\services.js
+       1 // Regras de negócio: publicar, curtir, comentar, dar medalha, t
+         roféus, pontos e ranking.
+       2 import { q, one } from './db.js';
+       3 import { POINTS, MEDAL_BY_CODE, TROPHIES, TROPHY_BY_CODE } from 
+         './rules.js';
+       4 import { startOfTodayBR, startOfMonthBR } from './config.js';
+       5 
+       6 export class HttpError extends Error {
+       7   constructor(status, message) {
+       8     super(message);
+     … +216 lines (ctrl+o to expand)
+
+● Write(server\auth.js)
+  ⎿  Wrote 88 lines to server\auth.js
+       1 // Login, senha e sessão (cookie).
+       2 import crypto from 'node:crypto';
+       3 import { q, one } from './db.js';
+       4 import { HttpError } from './services.js';
+       5 
+       6 const COOKIE = 'maxx_session';
+       7 
+       8 export function hashPassword(password) {
+       9   const salt = crypto.randomBytes(16).toString('hex');
+      10   const hash = crypto.scryptSync(String(password), salt, 64).toS
+     … +79 lines (~3 KB) (ctrl+o to expand)
+
+● Write(server\index.js)
+  ⎿  Wrote 438 lines to server\index.js
+       1 // Servidor do Maxx: entrega o app (pasta public) e a API (/api/
+         ...).
+       2 import express from 'express';
+       3 import path from 'node:path';
+       4 import { fileURLToPath } from 'node:url';
+       5 import { initDb, q, one, dbKind } from './db.js';
+       6 import { config } from './config.js';
+       7 import { MEDAL_TYPES, MEDAL_BY_CODE, TROPHIES, TROPHY_BY_CODE, P
+         OINT_RULES, POINTS } from './rules.js';
+       8 import {
+     … +430 lines (ctrl+o to expand)
+
+● Write(server\seed.js)
+  ⎿  Wrote 194 lines to server\seed.js
+       1 // Dados de exemplo: cursos, alunos, professores, fotos, medalha
+         s e avisos.
+       2 // Só roda quando o banco está vazio (primeira vez que o app sob
+         e).
+       3 import { q, one } from './db.js';
+       4 import { config } from './config.js';
+       5 import { hashPassword } from './auth.js';
+       6 import { saveImage, createPost, toggleLike, addComment, giveMeda
+         l } from './services.js';
+       7 
+     … +187 lines (ctrl+o to expand)
+
+● Update(server\seed.js)
+  ⎿  Removed 2 lines
+      187    await q(`UPDATE medals m SET created_at = p.created_at FROM 
+           posts p WHERE p.kind = 'medalha' AND p.ref_id = m.id`);
+      188    await q(`UPDATE notices SET created_at = now() - ((SELECT ma
+           x(id) FROM notices) - id) * interval '1 day' - interval '2 hou
+           rs'`);
+      189  
+      190 -  // Reaproveita createPost só para garantir que a função exis
+          -te no bundle de seed (sem efeito).                            
+      191 -  void createPost;                                            
+      190    console.log(`Dados de exemplo criados: ${students.length} al
+           unos, ${profs.length} professores, ${PHOTOS.length} fotos.`);
+      191    return true;
+      192  }
+
+● Update(server\seed.js)
+  ⎿  Added 1 line, removed 1 line
+      3  import { q, one } from './db.js';
+      4  import { config } from './config.js';
+      5  import { hashPassword } from './auth.js';
+      6 -import { saveImage, createPost, toggleLike, addComment, giveMeda
+        -l } from './services.js';                                       
+      6 +import { saveImage, toggleLike, addComment, giveMedal, checkTrop
+        +hies } from './services.js';                                    
+      7  
+      8  const COURSES = [
+      9    ['Engenharia de Software', 'Eng. Software'],
+
+● Update(server\seed.js)
+  ⎿  Added 1 line, removed 1 line
+      146        [students[si].id, imgId, caption],
+      147      );
+      148      await q("INSERT INTO points (user_id, amount, kind, ref) V
+           ALUES ($1, 10, 'post', $2)", [students[si].id, `post:${post.id
+           }`]);
+      149 -    postIds.push(post.id);                                    
+      149 +    await checkTrophies(students[si].id);                     
+      150    }
+      151  
+      152    // Medalhas (geram posts de conquista e pontos)
+
+● Update(server\seed.js)
+  ⎿  Removed 1 line
+      137    }
+      138  
+      139    // Fotos
+      140 -  const postIds = [];                                         
+      140    for (let i = 0; i < PHOTOS.length; i++) {
+      141      const [si, title, emoji, c1, c2, caption] = PHOTOS[i];
+      142      const imgId = await saveImage('image/svg+xml', Buffer.from
+           (photoSvg(title, emoji, c1, c2, i + 3)), students[si].id);
+
+● Write(server\reset.js)
+  ⎿  Wrote 8 lines to server\reset.js
+      1 // Apaga TODOS os dados e deixa o banco vazio. Na próxima vez que
+         o app subir,
+      2 // os dados de exemplo são criados de novo. Uso: npm run reset
+      3 import { initDb, q, closeDb, dbKind } from './db.js';
+      4 
+      5 await initDb();
+      6 await q(`DROP TABLE IF EXISTS notices, points, user_trophies, med
+        als, comments, likes, posts, sessions, users, images, courses CAS
+        CADE`);
+      7 console.log(`Banco (${dbKind()}) zerado. Rode "npm start" para re
+     … +2 lines (ctrl+o to expand)
+
+● Servidor e dados de exemplo escritos; testando a API rapidamente antes de
+  fazer as telas.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo-pu" &&
+      mkdir -p public && echo '<!doctype html><p>ok' > public/index.html &&
+      (DATA_DIR=memory PORT…)
+  ⎿  Banco vazio: criando dados de exemplo...
+     Dados de exemplo criados: 12 alunos, 3 professores, 18 fotos.
+     … +42 lines (ctrl+o to expand)
+  ⎿  Created public\index.html (+1 -0)
+      1 +<!doctype html><p>ok                                            
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(server\index.js)
+  ⎿  Added 1 line, removed 1 line
+      208      const limit = Math.min(int(req.query.limit) || 12, 60);
+      209      const rows = await q(
+      210        `${FEED_SELECT}
+      211 -       WHERE ($2::int IS NULL OR p.id < $2)                   
+      211 +       WHERE ($2::int IS NULL OR (p.created_at, p.id) < (SELEC
+          +T created_at, id FROM posts WHERE id = $2))                   
+      212           AND ($3::int IS NULL OR u.course_id = $3)
+      213           AND ($4::int IS NULL OR p.user_id = $4)
+      214           AND ($5::text IS NULL OR p.kind = $5)
+
+● Update(server\index.js)  ⎿  Added 1 line, removed 1 line
+      212           AND ($3::int IS NULL OR u.course_id = $3)
+      213           AND ($4::int IS NULL OR p.user_id = $4)
+      214           AND ($5::text IS NULL OR p.kind = $5)
+      215 -       ORDER BY p.id DESC LIMIT ${limit}`,                    
+      215 +       ORDER BY p.created_at DESC, p.id DESC LIMIT ${limit}`, 
+      216        [req.user.id, before, courseId, userId, kind],
+      217      );
+      218      res.json({ posts: rows.map(decoratePost), more: rows.lengt
+           h === limit });
+
+● Update(server\seed.js)
+  ⎿  Added 2 lines
+      183  
+      184    // Espalha as datas para o feed parecer de verdade (posts ma
+           is antigos = mais horas atrás).
+      185    await q(`UPDATE posts SET created_at = now() - ((SELECT max(
+           id) FROM posts) - id) * interval '5 hours' - interval '20 minu
+           tes'`);
+      186 +  await q(`UPDATE posts SET created_at = now() - (id % 19) * i
+          +nterval '4 hours' - interval '50 minutes' WHERE kind = 'trofeu
+          +'`);                                                          
+      187 +  await q(`UPDATE user_trophies t SET unlocked_at = p.created_
+          +at FROM posts p WHERE p.kind = 'trofeu' AND p.user_id = t.user
+          +_id AND p.ref_code = t.code`);                                
+      188    await q(`UPDATE medals m SET created_at = p.created_at FROM 
+           posts p WHERE p.kind = 'medalha' AND p.ref_id = m.id`);
+      189    await q(`UPDATE notices SET created_at = now() - ((SELECT ma
+           x(id) FROM notices) - id) * interval '1 day' - interval '2 hou
+           rs'`);
+      190  
+
+● Backend funcionando (ranking, medalhas, troféus e acesso da banca testados).
+  Agora o visual do app.
+
+● Write(public\styles.css)
+  ⎿  Wrote 270 lines to public\styles.css
+       1 :root {
+       2   --bg: #f6f5fb;
+       3   --card: #ffffff;
+       4   --text: #17142b;
+       5   --muted: #6b6785;
+       6   --line: #e7e4f2;
+       7   --soft: #efecfb;
+       8   --brand: #5b3df5;
+       9   --brand-2: #c03cf0;
+      10   --accent: #ff9f1c;
+     … +260 lines (ctrl+o to expand)
+
+● Write(public\index.html)
+  ⎿  Added 25 lines, removed 1 line
+       1 -<!doctype html><p>ok                                           
+       1 +<!doctype html>                                                
+       2 +<html lang="pt-BR">                                            
+       3 +<head>                                                         
+       4 +  <meta charset="utf-8">                                       
+       5 +  <meta name="viewport" content="width=device-width, initial-sc
+         +ale=1, viewport-fit=cover">                                    
+       6 +  <title>Maxx · UniMax</title>                                 
+       7 +  <meta name="description" content="Maxx: a rede de conquistas 
+         +da UniMax. Fotos, prêmios, medalhas e ranking.">               
+       8 +  <meta name="theme-color" content="#5b3df5">                  
+       9 +  <meta name="apple-mobile-web-app-capable" content="yes">     
+      10 +  <meta name="mobile-web-app-capable" content="yes">           
+      11 +  <meta name="apple-mobile-web-app-title" content="Maxx">      
+      12 +  <meta name="apple-mobile-web-app-status-bar-style" content="d
+         +efault">                                                       
+      13 +  <link rel="manifest" href="/manifest.webmanifest">           
+      14 +  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+      15 +  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.pn
+         +g">                                                            
+      16 +  <link rel="stylesheet" href="/styles.css">                   
+      17 +</head>                                                        
+      18 +<body>                                                         
+      19 +  <div id="app" class="app no-nav">                            
+      20 +    <div class="spinner"></div>                                
+      21 +  </div>                                                       
+      22 +  <noscript>O Maxx precisa de JavaScript ligado para funcionar.
+         +</noscript>                                                    
+      23 +  <script type="module" src="/app.js"></script>                
+      24 +</body>                                                        
+      25 +</html>                                                        
+
+● Write(public\app.js)
+  ⎿  Wrote 1031 lines to public\app.js
+       1 // Maxx — app do navegador (sem frameworks, sem etapa de build).
+       2 // Cada tela é uma função que monta o HTML e liga os eventos.
+       3 
+       4 const state = {
+       5   me: null,
+       6   config: null,
+       7   bancaCode: '',
+       8   feedScope: 'all',
+       9   rank: { scope: 'geral', period: 'all', course: null },
+      10   achvTab: 'trofeus',
+     … +1021 lines (ctrl+o to expand)
+
+● Update(public\app.js)
+  ⎿  Added 2 lines, removed 2 lines
+      565    if (!isAluno()) return go('/medalha');
+      566    const view = layout({ title: 'Nova publicação', back: true, 
+           tab: 'novo' }, `
+      567      <form id="np" class="stack">
+      568 -      <label class="picker" id="picker">                      
+      569 -        <input type="file" accept="image/*" hidden id="file"> 
+      568 +      <input type="file" accept="image/*" hidden id="file">   
+      569 +      <label class="picker" id="picker" for="file">           
+      570          <div class="ph"><div class="big">📸</div><b>Toque para
+            escolher uma foto</b><div class="small">Da galeria ou da câme
+           ra</div></div>
+      571        </label>
+      572        <label class="field"><span>Legenda</span><textarea class
+           ="input" name="caption" maxlength="1000" placeholder="Conte o 
+           que aconteceu… (opcional)"></textarea></label>
+
+● Update(public\app.js)
+  ⎿  Added 2 lines, removed 3 lines
+      578    file.addEventListener('change', async () => {
+      579      try {
+      580        dataUrl = await resizeImage(file.files[0]);
+      581 -      $('#picker', view).innerHTML = `<img src="${dataUrl}" al
+          -t="Prévia"><input type="file" accept="image/*" hidden id="file
+          -2">`;                                                         
+      582 -      const f2 = $('#file2', view);                           
+      583 -      f2.addEventListener('change', () => { file.files = f2.fi
+          -les; file.dispatchEvent(new Event('change')); });             
+      581 +      $('#picker', view).innerHTML = `<img src="${dataUrl}" al
+          +t="Prévia da foto">`;                                         
+      582      } catch (err) { toast(err.message); }
+      583 +    file.value = '';                                          
+      584    });
+      585    onSubmit($('#np', view), async (d) => {
+      586      if (!dataUrl) throw new Error('Escolha uma foto primeiro.'
+           );
+
+● Write(public\manifest.webmanifest)
+  ⎿  Wrote 17 lines to public\manifest.webmanifest
+       1 {
+       2   "name": "Maxx · UniMax",
+       3   "short_name": "Maxx",
+       4   "description": "A rede de conquistas da UniMax: fotos, prêmios
+         , medalhas e ranking.",
+       5   "lang": "pt-BR",
+       6   "start_url": "/",
+       7   "scope": "/",
+       8   "display": "standalone",
+       9   "orientation": "portrait",
+     … +8 lines (ctrl+o to expand)
+
+● Write(public\sw.js)
+  ⎿  Wrote 32 lines to public\sw.js
+       1 // Service worker simples: permite "instalar" o Maxx na tela ini
+         cial
+       2 // e abre o app mesmo com internet ruim (usa a última versão sal
+         va).
+       3 const CACHE = 'maxx-v1';
+       4 const SHELL = ['/', '/styles.css', '/app.js', '/manifest.webmani
+         fest', '/icons/icon.svg', '/icons/icon-192.png'];
+       5 
+       6 self.addEventListener('install', (e) => {
+       7   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).th
+     … +26 lines (ctrl+o to expand)
+
+● Write(scripts\make-icons.js)
+  ⎿  Wrote 110 lines to scripts\make-icons.js
+      1 // Gera os ícones do app (PNG e SVG) sem precisar de nenhum progr
+        ama de imagem.
+      2 // Uso: npm run icons
+      3 import fs from 'node:fs';
+      4 import path from 'node:path';
+      5 import zlib from 'node:zlib';
+      6 import { fileURLToPath } from 'node:url';
+      7 
+      8 const out = path.join(path.dirname(fileURLToPath(import.meta.url)
+        ), '..', 'public', 'icons');
+     … +102 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+  ⎿  Blocked by auto mode
+     │ Auto mode: [Interfere With Workloads]
+
+● Telas escritas; gerando ícones e parando só o servidor de teste que eu mesmo
+  abri.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Write(test\api.test.js)
+  ⎿  Wrote 145 lines to test\api.test.js
+       1 // Teste automático do fluxo principal. Uso: npm test
+       2 // Sobe o servidor com um banco em memória (não mexe nos seus da
+         dos).
+       3 import { test, before, after } from 'node:test';
+       4 import assert from 'node:assert/strict';
+       5 
+       6 process.env.DATABASE_URL = '';
+       7 delete process.env.DATABASE_URL;
+       8 
+       9 const { createApp } = await import('../server/index.js');
+     … +136 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-leigo-pu" && sed
+      -i 's#"test": "node --test test/"#"test": "node --test
+      \\"test/*.test.js\\""#' package.…)
+  ⎿      "test": "node --test \"test/*.test.js\"",
+       duration_ms: 258.194
+       type: 'test'
+     … +30 lines (ctrl+o to expand)
+  ⎿  Updated package.json (+1 -1)
+      11    "scripts": {
+      12      "start": "node server/index.js",
+      13      "dev": "node --watch server/index.js",
+      14 -    "test": "node --test test/",                               
+      14 +    "test": "node --test \"test/*.test.js\"",                  
+      15      "reset": "node server/reset.js",
+      16      "icons": "node scripts/make-icons.js"
+      17    },
+  ⎿  (timeout 3m)
+
+● Os 5 testes automáticos passam. Agora vou abrir o app num navegador de verdade
+  (tamanho de celular) para conferir as telas.
+
+  Made 1 scratchpad edit +72, read 8 files, ran 3 shell commands (ctrl+o to expand)
+
+● Update(public\app.js)
+  ⎿  Added 3 lines, removed 1 line
+      59  }
+      60  
+      61  function initials(name) {
+      62 -  const parts = String(name || '?').replace(/^(Profa?\.|Prof\.)
+         -\s*/i, '').split(/\s+/).filter(Boolean);                       
+      62 +  const parts = String(name || '?').replace(/^(Profa?\.|Prof\.)
+         +\s*/i, '').split(/\s+/)                                        
+      63 +    .map((w) => w.replace(/[^\p{L}\p{N}]/gu, '')).filter(Boolea
+         +n);                                                            
+      64 +  if (!parts.length) return '?';                               
+      65    return ((parts[0]?.[0] || '?') + (parts.length > 1 ? parts[pa
+          rts.length - 1][0] : '')).toUpperCase();
+      66  }
+      67  
+
+● Update(server\seed.js)
+  ⎿  Added 1 line, removed 1 line
+      183  
+      184    // Espalha as datas para o feed parecer de verdade (posts ma
+           is antigos = mais horas atrás).
+      185    await q(`UPDATE posts SET created_at = now() - ((SELECT max(
+           id) FROM posts) - id) * interval '5 hours' - interval '20 minu
+           tes'`);
+      186 -  await q(`UPDATE posts SET created_at = now() - (id % 19) * i
+          -nterval '4 hours' - interval '50 minutes' WHERE kind = 'trofeu
+          -'`);                                                          
+      186 +  await q(`UPDATE posts SET created_at = now() - (id % 19) * i
+          +nterval '5 hours' - interval '3 hours 10 minutes' WHERE kind =
+          + 'trofeu'`);                                                  
+      187    await q(`UPDATE user_trophies t SET unlocked_at = p.created_
+           at FROM posts p WHERE p.kind = 'trofeu' AND p.user_id = t.user
+           _id AND p.ref_code = t.code`);
+      188    await q(`UPDATE medals m SET created_at = p.created_at FROM 
+           posts p WHERE p.kind = 'medalha' AND p.ref_id = m.id`);
+      189    await q(`UPDATE notices SET created_at = now() - ((SELECT ma
+           x(id) FROM notices) - id) * interval '1 day' - interval '2 hou
+           rs'`);
+
+● Update(server\seed.js)
+  ⎿  Added 12 lines
+      173      }
+      174    }
+      175  
+      176 +  // Algumas curtidas nos troféus que surgiram durante a semea
+          +dura (para não ficarem zerados).                              
+      177 +  const trophyPosts = await q("SELECT id, user_id FROM posts W
+          +HERE kind = 'trofeu' AND id > $1 ORDER BY id", [allPosts[allPo
+          +sts.length - 1].id]);                                         
+      178 +  for (let ti = 0; ti < trophyPosts.length; ti++) {           
+      179 +    const p = trophyPosts[ti];                                
+      180 +    for (let k = 0; k < 2 + (ti % 4); k++) {                  
+      181 +      const liker = everyone[(ti * 3 + k * 5 + 1) % everyone.l
+          +ength];                                                       
+      182 +      if (liker.id === p.user_id) continue;                   
+      183 +      const existing = await one('SELECT 1 FROM likes WHERE po
+          +st_id = $1 AND user_id = $2', [p.id, liker.id]);              
+      184 +      if (!existing) await toggleLike(liker, p.id);           
+      185 +    }                                                         
+      186 +  }                                                           
+      187 +                                                              
+      188    // Avisos
+      189    for (const [pi, title, body, ci, pinned] of NOTICES) {
+      190      const author = pi === null ? admin : profs[pi];
+
+● As telas funcionam no celular simulado; corrigi detalhes (iniciais do avatar,
+  ordem do feed) e vou conferir o modo claro.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Run app server for visual checks" failed with exit code
+127
+
+  Read 4 files, ran 1 shell command (ctrl+o to expand)
+● Update(server\seed.js)
+  ⎿  Added 6 lines, removed 1 line
+      194    }
+      195  
+      196    // Espalha as datas para o feed parecer de verdade (posts ma
+           is antigos = mais horas atrás).
+      197 -  await q(`UPDATE posts SET created_at = now() - ((SELECT max(
+          -id) FROM posts) - id) * interval '5 hours' - interval '20 minu
+          -tes'`);                                                       
+      197 +  // Fotos e medalhas se intercalam (embaralhamento fixo); a m
+          +ais nova é sempre uma foto.                                   
+      198 +  await q(`UPDATE posts p SET created_at = now() - (r.rn - 1) 
+          +* interval '4 hours' - interval '20 minutes'                  
+      199 +             FROM (SELECT id, row_number() OVER (ORDER BY (kin
+          +d = 'foto' AND id = (SELECT max(id) FROM posts WHERE kind = 'f
+          +oto')) DESC,                                                  
+      200 +                                                         (id *
+          + 37) % 101) AS rn                                             
+      201 +                     FROM posts WHERE kind <> 'trofeu') r     
+      202 +            WHERE r.id = p.id`);                              
+      203    await q(`UPDATE posts SET created_at = now() - (id % 19) * i
+           nterval '5 hours' - interval '3 hours 10 minutes' WHERE kind =
+            'trofeu'`);
+      204    await q(`UPDATE user_trophies t SET unlocked_at = p.created_
+           at FROM posts p WHERE p.kind = 'trofeu' AND p.user_id = t.user
+           _id AND p.ref_code = t.code`);
+      205    await q(`UPDATE medals m SET created_at = p.created_at FROM 
+           posts p WHERE p.kind = 'medalha' AND p.ref_id = m.id`);
+
+● Update(public\styles.css)
+  ⎿  Added 1 line
+       96    background: var(--soft); color: var(--text); min-height: 46p
+           x; transition: transform .08s ease, opacity .2s;
+       97  }
+       98  .btn:active { transform: scale(.98); }
+       99 +.btn svg { width: 20px; height: 20px; flex: none; }           
+      100  .btn[disabled] { opacity: .55; pointer-events: none; }
+      101  .btn.primary { background: var(--grad); color: #fff; box-shado
+           w: 0 6px 18px rgba(91, 61, 245, .28); }
+      102  .btn.outline { background: transparent; border: 1.5px solid va
+           r(--line); }
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Restart app server for visual checks" failed with exit
+code 127
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Feed agora abre com foto e intercala conquistas. Falta a documentação (README
+  em português, guia de publicação e registro de decisões) e o commit.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(.gitignore)
+  ⎿  Wrote 5 lines to .gitignore
+      1 node_modules/
+      2 data/
+      3 .env
+      4 *.log
+      5 .DS_Store
+
+● Write(render.yaml)
+  ⎿  Wrote 25 lines to render.yaml
+       1 # Configuração para publicar o Maxx no Render (render.com) com 1
+          clique ("Blueprint").
+       2 # Passo a passo no README, seção "Link permanente".
+       3 services:
+       4   - type: web
+       5     name: maxx
+       6     runtime: node
+       7     plan: free
+       8     buildCommand: npm ci
+       9     startCommand: npm start
+     … +16 lines (ctrl+o to expand)
+
+● Background command "Restart app server for visual checks" failed with exit
+code 127
+
+● Write(README.md)
+  ⎿  Wrote 165 lines to README.md
+       1 # Maxx — a rede de conquistas da UniMax 🏆
+       2 
+       3 O Maxx é um "Instagram da faculdade" sem stories, vídeos nem men
+         sagens. Só entra aluno e professor da UniMax.
+       4 
+       5 - **Feed**: fotos dos alunos e as conquistas deles (medalhas e t
+         roféus), com curtir (inclusive com dois toques na foto) e coment
+         ar.
+       6 - **Perfil**: foto, bio, curso, pontos, posição no ranking, prêm
+         ios e as fotos do aluno.
+     … +159 lines (ctrl+o to expand)
+
+● Write(DECISOES.md)
+  ⎿  Wrote 68 lines to DECISOES.md
+      1 # Decisões tomadas sem te perguntar (e o que ficou faltando)
+      2 
+      3 Você pediu para eu decidir sozinho o que precisasse. Aqui está ca
+        da decisão e o motivo, para você poder explicar na banca ou mudar
+         depois.
+      4 
+      5 ## Decisões
+      6 
+      7 ### Tipo de aplicativo
+      8 - **Fiz um app web instalável (PWA), não um app de loja.** Ele ab
+     … +61 lines (~8 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Dados persistem entre reinícios, o reset funciona e os testes passam.
+  Commitando.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Fiz o Maxx e deixei tudo commitado na main. Os 5 testes automáticos passam.
+  Também abri as telas num navegador simulando um celular, no modo claro e no
+  escuro, sem nenhum erro. Ainda não testei num celular de verdade nem publiquei
+  na internet.
+
+  Como rodar no seu computador
+  npm install
+  npm start
+  Depois abra http://localhost:3000. O app já vem com dados de exemplo (alunos,
+  professores, fotos, medalhas e avisos), então não abre vazio.
+
+  - Para testar como aluna: ana.souza@aluno.unimax.edu.br, senha maxx123
+  - Para testar como professora: helena.duarte@unimax.edu.br, senha maxx123
+
+  O que tem no app
+  - Feed: fotos e conquistas dos alunos, com curtir (inclusive com dois toques
+    na foto) e comentar.
+  - Perfil: foto, pontos, posição no ranking, prêmios e as fotos do aluno.
+  - Avisos: mural da faculdade e dos professores. O aviso pode ir para todos ou
+    só para um curso.
+  - Conquistas: 13 troféus no estilo videogame, com barra mostrando quanto
+    falta, e 7 tipos de medalha.
+  - Ranking: geral e por curso, de sempre ou só do mês.
+
+  Acesso da banca
+  - Você manda para a banca o link https://seu-link/?banca=banca2026.
+  - A pessoa digita só o nome e escolhe testar como Aluno ou Professor. Cada
+    avaliador ganha a própria conta, com um selo "Banca".
+  - Assim um avaliador pode dar uma medalha para outro ao vivo e todo mundo vê
+    os pontos subindo no ranking.
+  - Sugiro colocar esse link num QR code no slide.
+
+  Como abrir no celular e mandar o link
+  1. Para testar em casa: com o celular no mesmo Wi-Fi do computador, abra
+     http://IP-DO-PC:3000. O IP aparece rodando ipconfig no terminal.
+  2. Link rápido para mandar para qualquer pessoa: rode cloudflared tunnel --url
+     http://localhost:3000. Ele gera um link https://...trycloudflare.com. Só
+     funciona enquanto o seu PC estiver ligado.
+  3. Link permanente (o melhor para o dia do TCC): usa três serviços gratuitos,
+     GitHub, Neon e Render. O passo a passo está no README e o arquivo de
+     configuração do Render já está pronto.
+     - Essa parte você precisa fazer, porque não tenho acesso às suas contas.
+     - No plano grátis, o app "dorme" depois de 15 minutos sem uso. Abra o link
+       uns 5 minutos antes da banca.
+
+  No celular, dá para "instalar" o app na tela inicial. No Android é pelo menu
+  do Chrome, em "Instalar app". No iPhone é pelo Safari, em Compartilhar →
+  "Adicionar à Tela de Início". Isso só funciona com link https://, ou seja, nas
+  opções 2 e 3.
+
+  Decisões que tomei sozinho (todas explicadas no DECISOES.md)
+  - Fiz um app que abre pelo navegador, não um app de loja. Assim ele funciona
+    em qualquer celular e você não depende da aprovação da Play Store ou da App
+    Store.
+  - Só entra quem tem e-mail da UniMax. Por padrão aceito @unimax.edu.br e
+    @aluno.unimax.edu.br, mas não sei o domínio real da faculdade, então é só
+    trocar na configuração.
+  - Professor precisa de um código no cadastro. Sem isso, um aluno podia se
+    cadastrar como professor e se dar medalhas.
+  - Só alunos publicam fotos. Professores curtem, comentam, dão medalhas e
+    publicam avisos.
+  - Regras de pontos:
+    - foto publicada: +10, mas só as 3 primeiras do dia contam;
+    - curtida recebida: +2;
+    - medalha: de +20 a +100, conforme o tipo;
+    - troféu: de +15 a +200.
+  - Os cursos de exemplo são inventados. Troque pelos reais em server/seed.js
+    antes de publicar.
+
+  O que ficou faltando (lista completa no DECISOES.md)
+  - Confirmação de e-mail: hoje o app só confere se o e-mail termina em
+    @unimax.edu.br, mas não manda um e-mail para provar que a pessoa é dona
+    dele.
+  - "Esqueci minha senha": ainda não existe.
+  - Notificações e denúncia de posts: ainda não existem.
+  - Painel para a secretaria gerenciar cursos e contas: ainda não existe.
+  - Termos de uso e privacidade (LGPD): necessários antes de usar com alunos de
+    verdade.
+
+  O README também explica como mudar as configurações e as regras de pontos,
+  medalhas e troféus.
+
+✻ Baked for 24m 12s · done 0:36
