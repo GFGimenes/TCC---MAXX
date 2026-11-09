@@ -3779,3 +3779,573 @@ code 0)
   Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 5.
 
 ✻ Churned for 3m 8s · done 0:50
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Etapa 4 aprovada; capturas conferidas contra a prancheta, só as diferenças    
+  que você declarou. O "Ler todos" seguindo a bolinha do Mural na etapa 6 está  
+  certo. Commita com a mensagem proposta, push, acompanha a CI e segue para a   
+  etapa 5; no fim dela, para para a minha revisão com capturas do novo aviso do 
+  professor (chips de turma, título, texto e foto), no claro e no escuro.       
+
+  Pushed to feat/passo-10-mural, ran 1 shell command (ctrl+o to expand)
+
+● Commit 42f5c5d enviado e CI em acompanhamento. Na etapa 5, começo pela tela de
+  novo post, que já tem a foto, o envio e o contador que o novo aviso vai
+  reaproveitar.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Vou reaproveitar o fluxo de foto do post. Primeiro a finalidade aviso no envio
+  e o hook de publicação.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i
+      's|^export type Finalidade = "post" \| "fotoDePerfil";|export type…)
+  ⎿  7:export type Finalidade = "post" | "fotoDePerfil" | "aviso";
+     import type { components } from "@maxx/api-client";
+     import {
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\fotos\envio.ts (+1 -1)
+       4  import { FalhaDaApi } from "../api/FalhaDaApi";
+       5  import { TIPO_DA_FOTO, type Derivadas, type FotoEscolhida } fro
+          m "./derivadas";
+       6  
+       7 -export type Finalidade = "post" | "fotoDePerfil";              
+       7 +export type Finalidade = "post" | "fotoDePerfil" | "aviso";    
+       8  
+       9  // A galeria do aparelho, ou o seletor de arquivo na web. Sem e
+          ditor: o recorte é o quadrado
+      10  // central (decisão D2). Nulo quando a pessoa desiste.
+  ⎿  Updated apps\mobile\src\mural\api.ts (+56 -0)
+       6    useQueryClient,
+       7  } from "@tanstack/react-query";
+       8  
+       9 +import { useRef } from "react";                                
+      10 +                                                               
+      11  import { useApiClient } from "../api/ApiClientProvider";
+      12  import { FalhaDaApi } from "../api/FalhaDaApi";
+      13 +import type { Derivadas } from "../fotos/derivadas";           
+      14 +import { enviarFoto } from "../fotos/envio";                   
+      15  
+      16  export type Aviso = components["schemas"]["AvisoResponse"];
+      17  export type EscopoDoAviso = "faculdade" | "curso" | "turma";
+     ...
+      105      onSuccess: depois,
+      106    });
+      107  }
+      108 +                                                              
+      109 +export interface NovoAviso {                                  
+      110 +  turmaIds: string[];                                         
+      111 +  titulo: string;                                             
+      112 +  texto: string;                                              
+      113 +  derivadas: Derivadas | null;                                
+      114 +}                                                             
+      115 +                                                              
+      116 +// Os códigos que dizem que a foto enviada não serve mais: a p
+          +róxima tentativa sobe de novo.                                
+      117 +const FOTO_PERDIDA = new Set([                                
+      118 +  "upload-nao-encontrado",                                    
+      119 +  "upload-ja-usado",                                          
+      120 +  "foto-nao-enviada",                                         
+      121 +]);                                                           
+      122 +                                                              
+      123 +// Publicar o aviso do professor para as turmas dele (produto.
+          +md 7): sobe a foto, se houver,                                
+      124 +// e cria o aviso com o id do upload. Se o aviso falhar por ou
+          +tro motivo, a foto já enviada                                 
+      125 +// é reaproveitada na próxima tentativa, como no novo post, se
+          +m gastar o limite de upload.                                  
+      126 +export function usePublicarAviso() {                          
+      127 +  const client = useApiClient();                              
+      128 +  const queryClient = useQueryClient();                       
+      129 +  const enviado = useRef<{ derivadas: Derivadas; uploadId: str
+          +ing } | null>(                                                
+      130 +    null,                                                     
+      131 +  );                                                          
+      132 +                                                              
+     … 27 more lines (ctrl+o to expand)
+
+● Update(apps\mobile\src\mural\api.ts)
+  ⎿  Removed 1 line
+       5    useQuery,
+       6    useQueryClient,
+       7  } from "@tanstack/react-query";
+       8 -                                                               
+       8  import { useRef } from "react";
+       9  
+      10  import { useApiClient } from "../api/ApiClientProvider";
+
+● Agora a tela do novo aviso.
+
+● Write(apps\mobile\src\mural\NovoAvisoScreen.tsx)
+  ⎿  Wrote 284 lines to apps\mobile\src\mural\NovoAvisoScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   Image,
+       6   Pressable,
+       7   StyleSheet,
+       8   Text,
+       9   View,
+      10 } from "react-native";
+     … +274 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && printf
+      'import { NovoAvisoScreen } from "../../mural/NovoAvisoScreen";\n\…)
+  ⎿  import { NovoPostScreen } from "../../posts/NovoPostScreen";
+
+     export default NovoPostScreen;
+  ⎿  Created apps\mobile\src\app\(app)\novo-aviso.tsx (+3 -0)
+      1 +import { NovoAvisoScreen } from "../../mural/NovoAvisoScreen";  
+      2 +                                                                
+      3 +export default NovoAvisoScreen;                                 
+
+● Agora o "+" do professor no topo do Mural.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\mural\MuralScreen.tsx)
+  ⎿  Added 11 lines
+      67      <View>
+      68        <View style={styles.topo}>
+      69          <Logo largura={110} />
+      70 +        {ehProfessor && (                                      
+      71 +          <Pressable                                           
+      72 +            role="button"                                      
+      73 +            accessibilityLabel="Novo aviso"                    
+      74 +            hitSlop={8}                                        
+      75 +            onPress={() => router.push("/novo-aviso")}         
+      76 +            style={styles.botao}                               
+      77 +          >                                                    
+      78 +            <Icon name="novo" color={colors.ink} size={tamanhos
+         +.iconeNav} />                                                  
+      79 +          </Pressable>                                         
+      80 +        )}                                                     
+      81        </View>
+      82        <View style={styles.linhaDoTitulo}>
+      83          <Text role="heading" style={[textStyles.titulo, { color
+          : colors.ink }]}>
+
+● Update(apps\mobile\src\mural\MuralScreen.tsx)
+  ⎿  Added 2 lines
+      46    const { colors } = useTheme();
+      47    const insets = useSafeAreaInsets();
+      48    const router = useRouter();
+      49 +  const eu = useEu();                                          
+      50 +  const ehProfessor = eu.data?.papeis.includes("professor") ?? 
+         +false;                                                         
+      51    const [escopo, setEscopo] = useState<EscopoDoAviso | null>(nu
+          ll);
+      52    const mural = useMural(escopo);
+      53    const lerTodos = useLerTodos();
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/mural" &&
+      f=MuralScreen.tsx && sed -i 's|^import { falhaParaTela } from "../a…)
+  ⎿    turma: "Nenhum aviso dos professores.",
+     };
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\MuralScreen.tsx (+10 -1)
+      13  import { useSafeAreaInsets } from "react-native-safe-area-conte
+          xt";
+      14  
+      15  import { falhaParaTela } from "../api/FalhaDaApi";
+      16 +import { useEu } from "../api/useEu";                          
+      17  import { FilterChip } from "../components/FilterChip";
+      18  import { Icon } from "../components/Icon";
+      19  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+     ...
+      41  };
+      42  
+      43  // A aba Mural (produto.md 7 e prancheta mural-*.png): o mural 
+          combinado da faculdade, do
+      43 -// curso e das turmas, do mais novo ao mais antigo, somente lei
+         -tura. O sininho do cabeçalho                                   
+      44 +// curso e das turmas, do mais novo ao mais antigo, somente lei
+         +tura. O "+" do professor abre                                  
+      45 +// o novo aviso para as turmas dele. O sininho do cabeçalho    
+      46  // chega com as notificações, na etapa 6 do passo 10.
+      47  export function MuralScreen() {
+      48    const { colors } = useTheme();
+     ...
+      242      paddingHorizontal: espacamento.margemLateral,
+      243      paddingTop: 4,
+      244    },
+      245 +  botao: {                                                    
+      246 +    width: tamanhos.alvoDeToque,                              
+      247 +    height: tamanhos.alvoDeToque,                             
+      248 +    alignItems: "center",                                     
+      249 +    justifyContent: "center",                                 
+      250 +    marginRight: -10,                                         
+      251 +  },                                                          
+      252    toqueLerTodos: {
+      253      minHeight: tamanhos.alvoDeToque,
+      254      justifyContent: "center",
+  ⎿  Updated apps\mobile\src\mural\NovoAvisoScreen.tsx (+19 -7)
+      116  
+      117        <View style={styles.coluna}>
+      118          <View style={styles.secao}>
+      119 -          <Text role="heading" style={[textStyles.secao, { col
+          -or: colors.ink }]}>                                           
+      119 +          <Text                                               
+      120 +            role="heading"                                    
+      121 +            style={[textStyles.secao, { color: colors.ink }]} 
+      122 +          >                                                   
+      123              Para quais turmas
+      124            </Text>
+      125            <Text style={[textStyles.legenda, { color: colors.in
+           k2 }]}>
+     ...
+      164              }}
+      165              placeholder="Prova remarcada para 14/08"
+      166              error={
+      164 -              tituloLongo                                     
+      165 -                ? "O título passou de 120 caracteres."        
+      166 -                : undefined                                   
+      167 +              tituloLongo ? "O título passou de 120 caracteres
+          +." : undefined                                                
+      168              }
+      169            />
+      170            <Text
+      170 -            style={[textStyles.legenda, styles.contador, { col
+          -or: colors.ink3 }]}                                           
+      171 +            style={[                                          
+      172 +              textStyles.legenda,                             
+      173 +              styles.contador,                                
+      174 +              { color: colors.ink3 },                         
+      175 +            ]}                                                
+      176            >
+      177              {`${tamanhoDoTitulo}/${TITULO_MAXIMO}`}
+      178            </Text>
+     ...
+      193              }
+      194            />
+      195            <Text
+      191 -            style={[textStyles.legenda, styles.contador, { col
+          -or: colors.ink3 }]}                                           
+      196 +            style={[                                          
+      197 +              textStyles.legenda,                             
+      198 +              styles.contador,                                
+      199 +              { color: colors.ink3 },                         
+      200 +            ]}                                                
+      201            >
+     … 13 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Um comentário ficou quebrado em duas linhas; ajusto.
+
+● Update(apps\mobile\src\mural\MuralScreen.tsx)
+  ⎿  Added 2 lines, removed 2 lines
+      42  
+      43  // A aba Mural (produto.md 7 e prancheta mural-*.png): o mural 
+          combinado da faculdade, do
+      44  // curso e das turmas, do mais novo ao mais antigo, somente lei
+          tura. O "+" do professor abre
+      45 -// o novo aviso para as turmas dele. O sininho do cabeçalho    
+      46 -// chega com as notificações, na etapa 6 do passo 10.          
+      45 +// o novo aviso para as turmas dele. O sininho do cabeçalho che
+         +ga com as notificações, na                                     
+      46 +// etapa 6 do passo 10.                                        
+      47  export function MuralScreen() {
+      48    const { colors } = useTheme();
+      49    const insets = useSafeAreaInsets();
+
+● Agora os testes do novo aviso. Vejo como o teste do novo post simula a
+  galeria, as derivadas e o PUT no bucket.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Tenho o que preciso para os testes do novo aviso.
+
+● Write(apps\mobile\src\mural\novoAviso.test.tsx)
+  ⎿  Wrote 294 lines to apps\mobile\src\mural\novoAviso.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 import { launchImageLibraryAsync } from "expo-image-picker";
+       3 
+       4 import { json, renderComApi } from "../test/renderComApi";
+       5 import { MuralScreen } from "./MuralScreen";
+       6 import { NovoAvisoScreen } from "./NovoAvisoScreen";
+       7 
+       8 const mockRoteador = {
+       9   push: jest.fn(),
+     … +285 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx prettier
+      --write src/mural > /dev/null && npx jest src/mural/novoAviso 2>…)
+  ⎿  Tests:       7 failed, 1 passed, 8 total
+       ● novo aviso › publicar exige ao menos uma turma, título de 3 caract
+     eres e texto
+     … +47 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\novoAviso.test.tsx (+15 -5)
+      56  const aluna = { ...professora, papeis: ["aluno"], arroba: "@ana
+          Souza-CC" };
+      57  
+      58  const TURMAS = [
+      59 -  { id: BD, materia: "Banco de Dados", curso: "CC", semestre: "
+         -2026/2", alunos: 30 },                                         
+      60 -  { id: ALG, materia: "Algoritmos", curso: "CC", semestre: "202
+         -6/2", alunos: 28 },                                            
+      59 +  {                                                            
+      60 +    id: BD,                                                    
+      61 +    materia: "Banco de Dados",                                 
+      62 +    curso: "CC",                                               
+      63 +    semestre: "2026/2",                                        
+      64 +    alunos: 30,                                                
+      65 +  },                                                           
+      66 +  {                                                            
+      67 +    id: ALG,                                                   
+      68 +    materia: "Algoritmos",                                     
+      69 +    curso: "CC",                                               
+      70 +    semestre: "2026/2",                                        
+      71 +    alunos: 28,                                                
+      72 +  },                                                           
+      73  ];
+      74  
+      75  const ASSINADO = {
+     ...
+      200      await escrever("Título", "a".repeat(121));
+      201      await escrever("Texto", "a".repeat(2001));
+      202  
+      191 -    expect(                                                   
+      192 -      screen.getByText("O título passou de 120 caracteres."), 
+      193 -    ).toBeTruthy();                                           
+      203 +    expect(screen.getByText("O título passou de 120 caracteres
+          +.")).toBeTruthy();                                            
+      204      expect(
+      205        screen.getByText("O texto passou de 2.000 caracteres."),
+      206      ).toBeTruthy();
+  ⎿  (timeout 5m)
+
+● A tela parece não renderizar nada, nem o caso do aluno. Vejo a árvore desse
+  caso.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Passa sozinho, então de novo é contaminação entre testes. Rodo cada teste
+  isolado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Todos passam isolados. O suspeito é o primeiro teste, o único que chama
+  screen.unmount() e renderiza de novo. Divido em dois testes, sem o unmount.
+
+  Ran 1 shell command (ctrl+o to expand)
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/mural" && perl
+      -0pi -e 's/  it\("o \+ do Mural aparece só para o professor",…)
+  ⎿  Tests:       22 passed, 22 total
+  ⎿  Updated apps\mobile\src\mural\novoAviso.test.tsx (+3 -2)
+      161  ) => (mock.mock.calls[chamada]?.[0] as Request).clone().json()
+           ;
+      162  
+      163  describe("novo aviso", () => {
+      164 -  it("o + do Mural aparece só para o professor", async () => {
+      164 +  it("o + do Mural abre o novo aviso para o professor", async 
+          +() => {                                                       
+      165      await renderComApi(<MuralScreen />, api);
+      166      await apertar("Novo aviso");
+      167      expect(mockRoteador.push).toHaveBeenCalledWith("/novo-avis
+           o");
+      168 +  });                                                         
+      169  
+      169 -    screen.unmount();                                         
+      170 +  it("o aluno não vê o + do Mural", async () => {             
+      171      quemSou = aluna;
+      172      await renderComApi(<MuralScreen />, api);
+      173      await screen.findByText("Nenhum aviso ainda.");
+  ⎿  (timeout 5m)
+
+● Os 22 testes do mural passam. Agora a suíte inteira do app, lint, typecheck e
+  prettier.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo verde no app (444 testes). Para as capturas, refaço a imagem do Caddy com
+  o build web novo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch the CI run for etapa 4" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI da etapa 4 passou nos seis jobs (run 42558732475, 42f5c5d). Agora escrevo
+  o spec temporário das capturas do novo aviso, com a professora em duas turmas
+  vigentes.
+
+● Write(e2e\tests\capturas-novo-aviso.spec.ts)
+  ⎿  Wrote 56 lines to e2e\tests\capturas-novo-aviso.spec.ts
+       1 // TEMPORÁRIO: capturas da etapa 5 do passo 10 para a revisão do
+          autor. Não vai para o commit.
+       2 import path from "node:path";
+       3 
+       4 import { expect, test, type Page } from "@playwright/test";
+       5 
+       6 import { sql } from "./apoio/contas";
+       7 import { novaProfessora } from "./apoio/medalhas";
+       8 import { fotoDeTeste } from "./apoio/premios";
+       9 
+     … +47 lines (ctrl+o to expand)
+
+  Read 3 files, ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      e2e/tests/capturas-novo-aviso.spec.ts && git status --short)
+  ⎿   M apps/mobile/src/fotos/envio.ts
+      M apps/mobile/src/mural/MuralScreen.tsx
+      M apps/mobile/src/mural/api.ts
+     … +3 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\tests\capturas-novo-aviso.spec.ts (+0 -56)
+       1 -// TEMPORÁRIO: capturas da etapa 5 do passo 10 para a revisão d
+         -o autor. Não vai para o commit.                                
+       2 -import path from "node:path";                                  
+       3 -                                                               
+       4 -import { expect, test, type Page } from "@playwright/test";    
+       5 -                                                               
+       6 -import { sql } from "./apoio/contas";                          
+       7 -import { novaProfessora } from "./apoio/medalhas";             
+       8 -import { fotoDeTeste } from "./apoio/premios";                 
+       9 -                                                               
+      10 -const SAIDA = process.env.MAXX_CAPTURAS!;                      
+      11 -                                                               
+      12 -async function entrar(page: Page, identificador: string, senha:
+         - string) {                                                     
+      13 -  await page.goto("/login");                                   
+      14 -  await page.getByLabel("RA ou e-mail").fill(identificador);   
+      15 -  await page.getByLabel("Senha", { exact: true }).fill(senha); 
+      16 -  await page.getByRole("button", { name: "Entrar", exact: true 
+         -}).click();                                                    
+      17 -  await expect(page.getByRole("tab", { name: /Mural/ })).toBeVi
+         -sible();                                                       
+      18 -}                                                              
+      19 -                                                               
+      20 -test("capturas do novo aviso", { tag: "@celular" }, async ({ pa
+         -ge, request }, info) => {                                      
+      21 -  test.setTimeout(120_000);                                    
+      22 -  const tema = info.project.name.includes("escuro") ? "escuro" 
+         -: "claro";                                                     
+      23 -  const professora = await novaProfessora(request);            
+      24 -                                                               
+      25 -  // Uma segunda turma vigente de CC, para os chips mostrarem m
+         -ais de uma.                                                    
+      26 -  sql(                                                         
+      27 -    `INSERT INTO vinculo_professor (id, professor_id, turma_id)
+      28 -     SELECT gen_random_uuid(), c.id, t.id                      
+      29 -     FROM cadastro_elegivel c, turma t JOIN materia m ON m.id =
+         - t.materia_id                                                  
+      30 -     WHERE c.email = '${professora.email}' AND m.nome = 'Algori
+         -tmos e Programação'                                            
+      31 -       AND t.semestre_letivo_id = (SELECT semestre_letivo_id FR
+         -OM turma WHERE id = '${professora.turmaId}');`,                
+      32 -  );                                                           
+      33 -                                                               
+      34 -  const foto = path.join(SAIDA, `aviso-foto-${tema}.jpg`);     
+      35 -  await fotoDeTeste(page, foto, 1080, "#4a90d9");              
+      36 -                                                               
+      37 -  await entrar(page, professora.email, professora.senha);      
+      38 -  await page.goto("/mural");                                   
+      39 -  await page.getByRole("button", { name: "Novo aviso" }).click(
+         -);                                                             
+      40 -  await expect(page.getByRole("heading", { name: "Novo aviso" }
+         -)).toBeVisible();                                              
+     … 16 more lines (ctrl+o to expand)
+
+● A etapa 5 (novo aviso do professor) está pronta para a sua revisão, com as
+  capturas. Não fiz commit nem push; a CI dela roda depois do push.
+
+  A etapa 4 já fechou: o commit 42f5c5d passou nos seis jobs da CI (run
+  42558732475
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42558732475)).
+
+  O que entrou
+
+  - "+" no topo do Mural, só para quem tem papel de professor. Usa o mesmo ícone
+    do novo post no feed e abre /novo-aviso.
+  - Tela do novo aviso (src/mural/NovoAvisoScreen.tsx). Não tem prancheta, então
+    segue a identidade visual e o novo post:
+    - Turmas: "Para quais turmas", com as turmas vigentes do professor em chips
+      de seleção múltipla ("Banco de Dados · CC"), que quebram linha quando não
+      cabem. Professor sem turma no semestre vê "Você não tem turma neste
+      semestre."
+    - Título: contador 38/120 e aviso acima de 120 caracteres.
+    - Texto: contador 72/2.000 e aviso acima de 2.000 caracteres. Os contadores
+      contam como a API: um emoji vale um caractere.
+    - Foto opcional: o mesmo quadrado do novo post para escolher, mais o botão
+      "Remover foto".
+  - "Publicar aviso" só fica ativo com ao menos uma turma, título de 3 a 120
+    caracteres e texto de 1 a 2.000.
+    - Envio: a foto sobe pela finalidade aviso e as duas derivadas vão direto ao
+      bucket, como no post.
+    - Recusa: a mensagem da API aparece na própria tela, sem perder o que foi
+      digitado, e a foto já enviada é reaproveitada na nova tentativa, sem
+      gastar o limite de upload.
+    - Sucesso: volta ao Mural e relê a lista.
+  - Aluno que abrir o link /novo-aviso vê "Só professor publica aviso aqui."
+
+  Testes
+
+  - Jest, 9 novos:
+    - o "+" abre o novo aviso para o professor;
+    - o aluno não vê o "+";
+    - as regras que ativam "Publicar aviso";
+    - título e texto longos, com aviso e contador;
+    - publicar para duas turmas sem foto;
+    - desmarcar uma turma a tira do aviso;
+    - com foto, as derivadas sobem com finalidade aviso e os dois envios vão ao
+      bucket;
+    - recusa fora-do-escopo na tela, sem perder o texto, e a nova tentativa
+      reaproveita a foto;
+    - aluno não publica.
+  - Como a CI roda, localmente: prettier, lint e typecheck limpos, e a suíte
+    inteira do app passou (444 testes).
+
+  Capturas
+
+  Tiradas em 390 x 844 contra o compose local com o build web novo. A professora
+  de teste ganhou uma segunda turma vigente (Algoritmos e Programação) para os
+  chips mostrarem mais de uma. O spec das capturas era temporário e já foi
+  apagado.
+
+  - Formulário preenchido, com chips, título, texto e contadores, claro:
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b416bcd21c8\scratchp
+    ad\capturas\novo-aviso-claro.png
+  - O mesmo, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilhe
+    rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b41
+    6bcd21c8\scratchpad\capturas\novo-aviso-escuro.png
+  - Com a foto escolhida, "Remover foto" e "Publicar aviso", claro:
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b416bcd21c8\scratchp
+    ad\capturas\novo-aviso-foto-claro.png
+  - O mesmo, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilhe
+    rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b41
+    6bcd21c8\scratchpad\capturas\novo-aviso-foto-escuro.png
+
+  A tela segue o que já existe no app: o chip ativo em marinho no claro e em
+  ouro no escuro, os campos do passo 4 com a borda de foco, a foto quadrada com
+  raio 12 como no novo post, e o botão primário só na ação principal.
+
+  Para você conferir
+
+  1. A conta que é professora e instituição vê o "+" e publica só para as turmas
+     dela. Aviso de faculdade e de curso fica para a área web da instituição,
+     no passo 12.
+  2. "Remover foto" aparece sozinho. No novo post há também "Trocar foto"; aqui,
+     tocar na foto já troca. Se preferir os dois botões lado a lado, como no
+     post, é uma mudança pequena.
+
+  Mensagem de commit proposta
+
+  feat(mobile): adiciona o novo aviso do professor para as turmas dele
+
+  Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 6.
+
+✻ Cooked for 8m 57s · done 1:01
