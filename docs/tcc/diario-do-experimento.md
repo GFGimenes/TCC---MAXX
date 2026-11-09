@@ -476,3 +476,9 @@ de pontos de exposição (e-mail colado no chat, cartão pedido a um leigo, soft
 instalado e conta de nuvem operada pelo agente, senha em texto puro) está no registro
 da rodada e entra na discussão. Registros em `resultados/leigo/`.
 
+08/11 (noite): `leigo_pu` antecipado para hoje, em paralelo com o passo 9 do engenheiro,
+com o `eng_pu` depois do prazo; segunda alteração de momento e ordem declarada no
+pré-registro, prompts inalterados. Motivo: o `leigo_pu` não depende de você e não disputa
+as portas do engenheiro (o leigo iterativo usou Node na 3000); o `eng_pu` precisa da
+máquina livre.
+

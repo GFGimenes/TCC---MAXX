@@ -55,6 +55,14 @@ PowerShell, `claude-opus-5-5`, esforço `medium`, auto mode, `DISABLE_AUTOUPDATE
 
 ## 5. Momento e ordem
 
+Segunda alteração declarada em 08/11/2026 (noite), antes de qualquer execução: o
+`leigo_pu` roda primeiro, ainda durante a trilha do engenheiro (em paralelo com o passo
+9, como as rodadas iterativas do leigo rodaram com os passos 8 e 9, sem conflito), e o
+`eng_pu` fica para depois do prazo das trilhas, porque precisa da máquina sem a pilha do
+engenheiro. Os dois deixam de ser no mesmo dia; a comparabilidade entre eles passa a
+depender da confirmação de modelo, esforço e versão do CLI no `.jsonl` de cada um. Os
+prompts não mudam.
+
 Alteração declarada em 08/11/2026 (tarde), antes de qualquer execução: por limite de
 prazo das trilhas iterativas, as execuções de prompt único passam para depois do fim
 da trilha do engenheiro, mantidas no mesmo dia entre si e com a mesma ordem. Os prompts
