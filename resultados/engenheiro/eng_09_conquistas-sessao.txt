@@ -2955,3 +2955,1013 @@ code 0)
 ✻ Brewed for 12m 39s · done 20:11
 
 ※ recap: Estamos no passo 9 (conquistas): as etapas 1 e 2 estão commitadas, e a 3 (recálculo na anulação) está pronta, sem commit. Preciso que você aprove o fix do tempo limite do Jest, que deixa a CI do mobile vermelha, e revise a etapa 3. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+> Fix aprovado com o limite global de 15 s, em commit separado, com a linha do  
+  risco junto; commita, push e acompanha a CI; só com ela verde a etapa 2       
+  fecha. Etapa 3 aprovada, com a decisão aceita: a anulação nunca concede, e    
+  mudança de catálogo não remove conquista. Depois do fix verde, commita a      
+  etapa 3 com a mensagem proposta, push, acompanha a CI e segue para a etapa 4; 
+  para para a minha revisão no fim dela.                                        
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      grep -n '"preset": "jest-expo"' apps/mobile/package.json && sed -i
+      's|^\(\s*\)"preset": "…)
+  ⎿  52:    "preset": "jest-expo",
+       "jest": {
+         "preset": "jest-expo",
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\package.json (+1 -0)
+      50    "private": true,
+      51    "jest": {
+      52      "preset": "jest-expo",
+      53 +    "testTimeout": 15000,                                      
+      54      "moduleNameMapper": {
+      55        "^@react-native-async-storage/async-storage$": "@react-na
+          tive-async-storage/async-storage/jest/async-storage-mock"
+      56      }
+
+● Agora reescrevo a linha do risco para dizer o que foi feito.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's#^| Timeout do Jest no runner da CI | .*$#| Timeout do Jest no
+      runner da CI | No…)
+  ⎿  | Timeout do Jest no runner da CI | No passo 9, o job `mobile` falhou
+     em pushes que só mexiam na API: o primeiro teste de um arquivo (`cadas
+     tro`, `comprovacoes`, `feed`) passou dos 5 s do Jest no runner, pelo c
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+1 -1)
+      320  | Resposta perdida no meio de um refresh | Se a rede cai ou a 
+           página recarrega com o refresh em voo, o cliente fica com o to
+           ken antigo, a próxima renovação conta como reuso e a pessoa vo
+           lta ao login. A decisão atual não tem janela de tolerância. Ac
+           ompanhar no passo 13 |
+      321  | Limite de taxa no e2e | Os fluxos com conta rodam só no celu
+           lar, cada teste com a própria conta, e o teste do limite só no
+            `celular-claro`. Mais testes de login podem esbarrar nos 30 p
+           or minuto por IP. No fechamento do passo 8, uma rodada local d
+           a suíte inteira (69 testes, em paralelo) teve uma falha no tes
+           te do limite do login, que passou nas outras; o limite é por r
+           éplica, e há duas atrás do Caddy |
+      322  | Nativo sem teste em aparelho | Secure store, sessão e telas 
+           de autenticação só passam pelo Jest até o Maestro do passo 13.
+            No nativo, o link de senha nova abre no navegador |
+      323 -| Timeout do Jest no runner da CI | No passo 9, o job `mobile`
+          - falhou em dois pushes seguidos que só mexiam na API: o primei
+          -ro teste de um arquivo (`cadastro`, `comprovacoes`, `feed`) pa
+          -ssou dos 5 s do Jest no runner, e a segunda tentativa do job p
+          -assou sem mudança. É lentidão da máquina, não do código, mas u
+          -ma falha assim esconde uma falha de verdade. Acompanhar no pas
+          -so 13: medir o tempo do primeiro teste de cada arquivo e decid
+          -ir entre aquecer o transform ou subir o tempo limite desses te
+          -stes |                                                        
+      323 +| Timeout do Jest no runner da CI | No passo 9, o job `mobile`
+          + falhou em pushes que só mexiam na API: o primeiro teste de um
+          + arquivo (`cadastro`, `comprovacoes`, `feed`) passou dos 5 s d
+          +o Jest no runner, pelo custo de carregar o arquivo (localmente
+          +, 725 ms). No push da etapa 2, três tentativas seguidas falhar
+          +am no mesmo teste. O tempo limite dos testes do cliente subiu 
+          +para 15 s (`testTimeout` no `package.json` do app). Acompanhar
+          + no passo 13: se o primeiro teste de algum arquivo chegar pert
+          +o disso, aquecer o transform em vez de subir de novo o limite 
+          +|                                                             
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os docs já não passavam pelo Prettier antes e a CI não os confere; o
+  package.json do app passa. Commito só o fix e a linha do risco, deixando a
+  etapa 3 fora do stage.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI do fix toda verde na primeira tentativa, então a etapa 2 fecha. Commito a
+  etapa 3.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 3 segue rodando em segundo plano, e o fix febe605 já está todo
+  verde. Vou começar a etapa 4, o fechamento de período, e antes olhar como o
+  seed base garante o pedido de raridade para seguir o mesmo padrão.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Para a etapa 4: a instância ganha a data de congelamento e a lista das que já
+  encerraram. O resto (a tabela de fechamentos, os trabalhos e a reavaliação até
+  o congelamento) vem por cima disso.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Conquistas\InstanciaDePeriodo.cs)
+  ⎿  Added 4 lines
+       9  // por instância, e a contagem nunca atravessa a instância.
+      10  public sealed record InstanciaDePeriodo
+      11  {
+      12 +    // O ranking do semestre congela 30 dias depois do fim do s
+         +emestre (produto.md 5), e é                                    
+      13 +    // até ali que a conquista de fechamento é reavaliada (regr
+         +as-conquista.md 5).                                            
+      14 +    public const int DiasAteOCongelamento = 30;                
+      15 +                                                               
+      16      public InstanciaDePeriodo(Periodo tipo, Guid referencia)
+      17      {
+      18          if (tipo == Periodo.Evento)
+
+● Update(apps\api\src\Maxx.Domain\Conquistas\InstanciaDePeriodo.cs)
+  ⎿  Added 36 lines
+      33  
+      34      public Guid Referencia { get; }
+      35  
+      36 +    // As instâncias que já encerraram em hoje (America/Sao_Pau
+         +lo): a instância fecha à                                       
+      37 +    // meia-noite do dia seguinte ao fim. Bimestres, depois sem
+         +estres, depois anos. O período                                 
+      38 +    // curso nunca fecha.                                      
+      39 +    public static IReadOnlyList<InstanciaDePeriodo> EncerradasA
+         +te(Calendario calendario, DateOnly hoje)                       
+      40 +    {                                                          
+      41 +        ArgumentNullException.ThrowIfNull(calendario);         
+      42 +                                                               
+      43 +        return                                                 
+      44 +        [                                                      
+      45 +            .. calendario.Anos.SelectMany(ano => ano.Bimestres)
+      46 +                .Where(bimestre => bimestre.Fim < hoje)        
+      47 +                .Select(bimestre => new InstanciaDePeriodo(Peri
+         +odo.Bimestre, bimestre.Id)),                                   
+      48 +            .. calendario.Anos.SelectMany(ano => ano.Semestres)
+      49 +                .Where(semestre => semestre.Fim < hoje)        
+      50 +                .Select(semestre => new InstanciaDePeriodo(Peri
+         +odo.Semestre, semestre.Id)),                                   
+      51 +            .. calendario.Anos                                 
+      52 +                .Where(ano => ano.Fim < hoje)                  
+      53 +                .Select(ano => new InstanciaDePeriodo(Periodo.A
+         +no, ano.Id)),                                                  
+      54 +        ];                                                     
+      55 +    }                                                          
+      56 +                                                               
+      57 +    // O dia em que a instância congela: 30 dias depois do fim 
+         +do último semestre que ela                                     
+      58 +    // cobre (o do bimestre, o próprio semestre, o segundo do a
+         +no). Daquele dia em diante, um                                 
+      59 +    // fato que chega já não reavalia a conquista de fechamento
+         +. Nulo no período curso.                                       
+      60 +    public DateOnly? Congelamento(Calendario calendario)       
+      61 +    {                                                          
+      62 +        var semestres = Semestres(calendario);                 
+      63 +        return semestres.Count == 0 ? null : semestres.Max(seme
+         +stre => semestre.Fim).AddDays(DiasAteOCongelamento);           
+      64 +    }                                                          
+      65 +                                                               
+      66 +    // Fechada e ainda antes do congelamento: o fato que chega 
+         +agora ainda concede a                                          
+      67 +    // conquista de fechamento (D8 do passo 9). Quem sabe se a 
+         +instância já fechou é o                                        
+      68 +    // registro do fechamento, não a data: o fechamento é um at
+         +o do worker.                                                   
+      69 +    public bool AceitaReavaliacaoDeFechamento(Calendario calend
+         +ario, DateOnly hoje) =>                                        
+      70 +        Congelamento(calendario) is { } congelamento && hoje < 
+         +congelamento;                                                  
+      71 +                                                               
+      72      // O último dia da instância, em America/Sao_Paulo. Nulo no
+           período curso, que não tem
+      73      // fronteira de data, e na referência que o calendário não 
+          conhece.
+      74      public DateOnly? Fim(Calendario calendario)
+
+● Agora extraio para um serviço o "avaliar, gravar progresso e, se puder,
+  conceder", que vai servir à reavaliação por fato e ao fechamento.
+
+● Write(apps\api\src\Maxx.Application\Conquistas\AvaliacaoDeConquistas.cs)
+  ⎿  Wrote 53 lines to
+     apps\api\src\Maxx.Application\Conquistas\AvaliacaoDeConquistas.cs
+       1 using Maxx.Application.Notificacoes;
+       2 using Maxx.Domain.Academico;
+       3 using Maxx.Domain.Conquistas;
+       4 using Maxx.Domain.Notificacoes;
+       5 
+       6 namespace Maxx.Application.Conquistas;
+       7 
+       8 // Avalia uma conquista numa instância, grava o progresso e, se 
+         quem chama permite, concede
+       9 // com as evidências e a notificação. A mesma rotina serve ao fa
+     … +45 lines (~2 KB) (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs)
+  ⎿  Added 15 lines, removed 28 lines
+       1  using Maxx.Application.Fila;
+       2  using Maxx.Application.Medalhas;
+       3 -using Maxx.Application.Notificacoes;                           
+       3 +using Maxx.Domain.Academico;                                   
+       4  using Maxx.Domain.Catalogo;
+       5  using Maxx.Domain.Conquistas;
+       6 -using Maxx.Domain.Notificacoes;                                
+       6  
+       7  namespace Maxx.Application.Conquistas;
+       8  
+       9  // No worker, quando um fato fica contável (regras-conquista.md
+           5): avalia as conquistas que
+      11 -// esse fato pode mexer, na instância de período dele. Grava o 
+         -progresso de todas, inclusive                                  
+      12 -// as de fechamento, e concede as de gatilho por fato que alcan
+         -çaram o alvo, com as evidências                                
+      13 -// e a notificação. A de fechamento espera o fechamento do perí
+         -odo.                                                           
+      10 +// esse fato pode mexer, na instância de período dele. Grava o 
+         +progresso de todas e concede as                                
+      11 +// de gatilho por fato que alcançaram o alvo, com as evidências
+         + e a notificação.                                              
+      12  //
+      13 +// A de fechamento espera o fechamento do período; com a instân
+         +cia já fechada, o fato que                                     
+      14 +// chega antes do congelamento a concede (D8 do passo 9). É o q
+         +ue cobre o prêmio que fica                                     
+      15 +// definitivo já na virada: a conquista pontua no período a que
+         + se refere.                                                    
+      16 +//                                                             
+      17  // Idempotente: rodar de novo regrava o mesmo progresso e não c
+          oncede o que já foi concedido.
+      18  // Fato que deixou de ser contável antes do trabalho (medalha a
+          nulada, conta purgada) não
+      19  // muda nada aqui.
+      20  public sealed class ReavaliarConquistasHandler(
+      21      IConquistaRepository conquistas,
+      20 -    INotificacaoRepository notificacoes,                       
+      22 +    AvaliacaoDeConquistas avaliacao,                           
+      23      IFilaDeTrabalhos fila,
+      24      IUnitOfWork unitOfWork,
+      23 -    AvaliadorDeConquista avaliador,                            
+      24 -    ContextoDasConquistas contextos,                           
+      25      TimeProvider relogio) : ITrabalhoHandler<ReavaliarConquista
+          s>
+      26  {
+      27      public async Task ExecutarAsync(ReavaliarConquistas carga, 
+          CancellationToken cancellationToken)
+     ...
+      44  
+      45          var ativas = await conquistas.AtivasAsync(aluno.Id, can
+          cellationToken);
+      46          var agora = relogio.GetUtcNow();
+      47 +        var hoje = FusoHorario.DataLocal(agora);               
+      48          var concedeu = false;
+      49  
+      49 -        foreach (var (item, versao) in await conquistas.Catalog
+         -oAsync(cancellationToken))                                     
+      50 +        foreach (var conquista in await conquistas.CatalogoAsyn
+         +c(cancellationToken))                                          
+      51          {
+      52 +            var item = conquista.Item;                         
+      53              if (!AvaliadorDeConquista.Conta(item.Regra, fato) |
+          | fato.InstanciaEm(item.Periodo, aluno.Id) is not { } instancia
+          )
+      54              {
+      55                  continue;
+      56              }
+      57  
+      56 -            var contexto = await contextos.MontarAsync(item, in
+         -stancia, aluno, calendario, agora, cancellationToken);         
+      57 -            var avaliacao = avaliador.Avaliar(item, instancia, 
+         -fatos, contexto);                                              
+      58 -            if (!avaliacao.Aplicavel)                          
+      59 -            {                                                  
+      60 -                continue;                                      
+      61 -            }                                                  
+      62 -                                                               
+      63 -            await conquistas.GravarProgressoAsync(aluno.Id, ite
+         -m.Codigo, instancia, avaliacao, agora, cancellationToken);     
+      64 -                                                               
+      65 -            var jaTem = ativas.Any(conquista => conquista.ItemC
+         -odigo == item.Codigo && conquista.Instancia == instancia);     
+      66 -            if (item.Gatilho != Gatilho.PorFato || !avaliacao.S
+         -atisfeita || jaTem)                                            
+      67 -            {                                                  
+      68 -                continue;                                      
+      69 -            }                                                  
+      70 -                                                               
+      71 -            var conquista = Conquista.Conceder(item, versao, al
+         -uno.Id, instancia, avaliacao, agora);                          
+      72 -            conquistas.Adicionar(conquista);                   
+      73 -            notificacoes.Adicionar(Notificacao.ConquistaObtida(
+         -conquista, agora));                                            
+      74 -            concedeu = true;                                   
+      58 +            var podeConceder = item.Gatilho == Gatilho.PorFato 
+      59 +                || (instancia.AceitaReavaliacaoDeFechamento(cal
+         +endario, hoje) && await conquistas.FechadaAsync(instancia, canc
+         +ellationToken));                                               
+      60 +            concedeu |= await avaliacao.AvaliarAsync(          
+      61 +                conquista, instancia, aluno, calendario, fatos,
+         + ativas, podeConceder, agora, cancellationToken);              
+      62          }
+      63  
+      64          // Conquista concedida muda o numerador da raridade (AD
+          R 0005). O ranking entra no
+
+● Agora os dois trabalhos do fechamento na aplicação: abrir o fechamento de uma
+  instância, e avaliar um aluno nela.
+
+● Write(apps\api\src\Maxx.Application\Conquistas\FechamentoDePeriodo.cs)
+  ⎿  Wrote 99 lines to
+     apps\api\src\Maxx.Application\Conquistas\FechamentoDePeriodo.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Application.Medalhas;
+       3 using Maxx.Domain.Catalogo;
+       4 using Maxx.Domain.Conquistas;
+       5 
+       6 namespace Maxx.Application.Conquistas;
+       7 
+       8 // A verificação recorrente do worker (D7 do passo 9): fecha as 
+         instâncias encerradas que
+       9 // ainda não foram fechadas. Se reenfileira; o seed base garante
+     … +91 lines (~4 KB) (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Application\Conquistas\Abstractions.cs)
+  ⎿  Added 6 lines
+      29      Task<IReadOnlySet<Guid>> MateriasDoPeriodoAsync(
+      30          Guid alunoId, IReadOnlyList<SemestreLetivo> semestres, 
+          CancellationToken cancellationToken);
+      31  
+      32 +    // Os usuários alunos, ex-alunos inclusive, matriculados nu
+         +ma turma desses semestres.                                     
+      33 +    Task<IReadOnlyList<Guid>> AlunosDoPeriodoAsync(IReadOnlyLis
+         +t<SemestreLetivo> semestres, CancellationToken cancellationToke
+         +n);                                                            
+      34 +                                                               
+      35 +    // Se o worker já registrou o fechamento da instância (D7 d
+         +o passo 9).                                                    
+      36 +    Task<bool> FechadaAsync(InstanciaDePeriodo instancia, Cance
+         +llationToken cancellationToken);                               
+      37 +                                                               
+      38      // As conquistas não removidas do aluno, com as evidências.
+      39      Task<IReadOnlyList<Conquista>> AtivasAsync(Guid alunoId, Ca
+          ncellationToken cancellationToken);
+      40  
+
+● Update(apps\api\src\Maxx.Infrastructure\Conquistas\ConquistaRepository.cs)
+  ⎿  Added 25 lines
+      121          return materias.ToHashSet();
+      122      }
+      123  
+      124 +    public async Task<IReadOnlyList<Guid>> AlunosDoPeriodoAsyn
+          +c(                                                            
+      125 +        IReadOnlyList<SemestreLetivo> semestres, CancellationT
+          +oken cancellationToken)                                       
+      126 +    {                                                         
+      127 +        var ids = semestres.Select(semestre => semestre.Id).To
+          +List();                                                       
+      128 +        return await (                                        
+      129 +                from usuario in db.Set<Usuario>()             
+      130 +                join matricula in db.Set<Matricula>() on usuar
+          +io.CadastroElegivelId equals matricula.AlunoId                
+      131 +                join turma in db.Set<Turma>() on matricula.Tur
+          +maId equals turma.Id                                          
+      132 +                where usuario.Papeis == Papeis.Aluno && ids.Co
+          +ntains(turma.SemestreLetivoId)                                
+      133 +                select usuario.Id)                            
+      134 +            .Distinct()                                       
+      135 +            .OrderBy(id => id)                                
+      136 +            .ToListAsync(cancellationToken);                  
+      137 +    }                                                         
+      138 +                                                              
+      139 +    public async Task<bool> FechadaAsync(InstanciaDePeriodo in
+          +stancia, CancellationToken cancellationToken)                 
+      140 +    {                                                         
+      141 +        ArgumentNullException.ThrowIfNull(instancia);         
+      142 +                                                              
+      143 +        var tipo = NomeJson.De(instancia.Tipo);               
+      144 +        return await db.Set<FechamentoDePeriodoRow>().AnyAsync
+          +(                                                             
+      145 +            fechamento => fechamento.TipoDePeriodo == tipo && 
+          +fechamento.ReferenciaDoPeriodo == instancia.Referencia,       
+      146 +            cancellationToken);                               
+      147 +    }                                                         
+      148 +                                                              
+      149      public async Task<IReadOnlyList<Conquista>> AtivasAsync(Gu
+           id alunoId, CancellationToken cancellationToken) =>
+      150          await db.Set<Conquista>()
+      151              .Include(conquista => conquista.Evidencias)
+
+● Write(apps\api\src\Maxx.Infrastructure\Conquistas\VerificacaoDeFechamentos.cs)
+  ⎿  Wrote 83 lines to apps\api\src\Maxx.Infrastructure\Conquistas\Verifica
+     caoDeFechamentos.cs
+      1 using Maxx.Application.Conquistas;
+      2 using Maxx.Application.Fila;
+      3 using Maxx.Domain.Academico;
+      4 using Maxx.Domain.Conquistas;
+      5 using Maxx.Infrastructure.Fila;
+      6 using Maxx.Infrastructure.Persistence;
+      7 using Maxx.Infrastructure.Seed;
+      8 using Microsoft.EntityFrameworkCore;
+      9 using Microsoft.Extensions.Logging;
+     … +74 lines (ctrl+o to expand)
+
+● Agora o mapeamento da tabela de fechamentos, o registro dos trabalhos e o
+  pedido no seed base.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && cat >>
+      Persistence/Configurations/ConquistaConfiguration…)
+  ⎿  77:        services.AddScoped<AvaliacaoDeConquistas>();
+     118:        services.AddTrabalho<VerificarFechamentos, VerificacaoDeFe
+     chamentos>();
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+4 
+     -0)
+      74          services.AddScoped<IConsultaDeContestacoes, ConsultaDeC
+          ontestacoes>();
+      75          services.AddScoped<IConquistaRepository, ConquistaRepos
+          itory>();
+      76          services.AddScoped<ContextoDasConquistas>();
+      77 +        services.AddScoped<AvaliacaoDeConquistas>();           
+      78  
+      79          // O avaliador único das conquistas (ADR 0004), com as 
+          regras customizadas registradas.
+      80          // Nenhuma conquista da fase 1 usa o escape, e nenhuma 
+          está registrada.
+     ...
+      115          services.AddTrabalho<NotificarPremioRevogado, Notifica
+           rContestacaoHandler>();
+      116          services.AddTrabalho<ReavaliarConquistas, ReavaliarCon
+           quistasHandler>();
+      117          services.AddTrabalho<RecalcularConquistasDaMedalha, Re
+           calcularConquistasDaMedalhaHandler>();
+      118 +        services.AddTrabalho<VerificarFechamentos, Verificacao
+          +DeFechamentos>();                                             
+      119 +        services.AddTrabalho<FecharPeriodo, FecharPeriodoHandl
+          +er>();                                                        
+      120 +        services.AddTrabalho<AvaliarFechamentoDoAluno, Avaliar
+          +FechamentoDoAlunoHandler>();                                  
+      121  
+      122          // Toda verificação registrada aqui entra no /ready.
+      123          services.AddHealthChecks()
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Co
+     nquistaConfiguration.cs (+12 -0)
+       99          builder.HasOne<ItemCatalogoRow>().WithMany().HasForeig
+           nKey(linha => linha.ItemCodigo).OnDelete(DeleteBehavior.Cascad
+           e);
+      100      }
+      101  }
+      102 +                                                              
+      103 +// As instâncias de período que o worker já fechou (D7 do pass
+          +o 9): é este registro, e não a                                
+      104 +// data, que diz se uma instância está fechada. Uma linha por 
+          +instância.                                                    
+      105 +internal sealed class FechamentoDePeriodoConfiguration : IEnti
+          +tyTypeConfiguration<FechamentoDePeriodoRow>                   
+      106 +{                                                             
+      107 +    public void Configure(EntityTypeBuilder<FechamentoDePeriod
+          +oRow> builder)                                                
+      108 +    {                                                         
+      109 +        builder.ToTable("fechamento_de_periodo", table =>     
+      110 +            table.HasCheckConstraint("ck_fechamento_de_periodo
+          +_tipo_de_periodo", "tipo_de_periodo IN ('bimestre', 'semestre'
+          +, 'ano')"));                                                  
+      111 +        builder.HasKey(linha => new { linha.TipoDePeriodo, lin
+          +ha.ReferenciaDoPeriodo });                                    
+      112 +    }                                                         
+      113 +}                                                             
+
+● Agora o seed base: um pedido de verificação, só se não houver um pendente.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure" && sed -i 's|^        await
+      PedirRaridadeAsync(itensNovos +…)
+  ⎿  1:using Maxx.Application.Fila;
+     2:using Maxx.Application.Medalhas;
+     100:            .AnyAsync(trabalho => trabalho.Tipo == VerificarFecham
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs (+14 
+     -0)
+      60          var (anosNovos, anosAtualizados) = await GravarCalendar
+          ioAsync(calendario, cancellationToken);
+      61          var termosNovos = await GravarTermosAsync(termos, cance
+          llationToken);
+      62          await PedirRaridadeAsync(itensNovos + itensAtualizados 
+          > 0, cancellationToken);
+      63 +        await PedirVerificacaoDeFechamentosAsync(cancellationTo
+         +ken);                                                          
+      64          await db.SaveChangesAsync(cancellationToken);
+      65  
+      66          await transacao.CommitAsync(cancellationToken);
+     ...
+       91          }
+       92      }
+       93  
+       94 +    // A verificação de fechamentos se reenfileira sozinha (D7
+          + do passo 9): o seed só a põe                                 
+       95 +    // na fila quando não há uma pendente, no primeiro seed ou
+          + se a corrente se perdeu num                                  
+       96 +    // trabalho falho. Rodar de novo não acrescenta outra.    
+       97 +    private async Task PedirVerificacaoDeFechamentosAsync(Canc
+          +ellationToken cancellationToken)                              
+       98 +    {                                                         
+       99 +        var pendente = await db.Set<Trabalho>()               
+      100 +            .AnyAsync(trabalho => trabalho.Tipo == VerificarFe
+          +chamentos.Tipo && trabalho.Estado == EstadoDoTrabalho.Pendente
+          +, cancellationToken);                                         
+      101 +        if (!pendente)                                        
+      102 +        {                                                     
+      103 +            fila.Enfileirar(new VerificarFechamentos());      
+      104 +        }                                                     
+      105 +    }                                                         
+      106 +                                                              
+      107      // Base e demo usam a mesma chave: um espera o outro.
+      108      private async Task<Microsoft.EntityFrameworkCore.Storage.I
+           DbContextTransaction> AbrirComLockAsync(
+      109          CancellationToken cancellationToken)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '1i using Maxx.Application.Conquistas;'
+      apps/api/src/Maxx.Infrastructure/Seed/Data…)  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\src\Maxx.Infrastructure\Conquistas\VerificacaoDeFechamentos.cs(5,1):
+      error IDE0005: O uso da diretiva é desnecessário. (https://learn.micr
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Seed\DatabaseSeeder.cs (+1 
+     -0)
+      1 +using Maxx.Application.Conquistas;                              
+      2  using Maxx.Application.Fila;
+      3  using Maxx.Application.Medalhas;
+      4  using Maxx.Domain.Academico;
+  ⎿  (timeout 6m 40s)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '5{/^using Maxx.Infrastructure.Fila;$/d}'
+      apps/api/src/Maxx.Infrastructure/Conquis…)
+  ⎿  Done. To undo this action, use 'ef migrations remove'
+             protected override void Up(MigrationBuilder migrationBuilder)
+             {
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Conquistas\VerificacaoDeFecha
+     mentos.cs (+0 -1)
+      2  using Maxx.Application.Fila;
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Conquistas;
+      5 -using Maxx.Infrastructure.Fila;                                 
+      5  using Maxx.Infrastructure.Persistence;
+      6  using Maxx.Infrastructure.Seed;
+      7  using Microsoft.EntityFrameworkCore;
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     08235006_FechamentoDePeriodo.cs (+36 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class FechamentoDePeriodo : Migration       
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "fechamento_de_periodo",                 
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    tipo_de_periodo = table.Column<string>(type
+         +: "text", nullable: false),                                    
+      19 +                    referencia_do_periodo = table.Column<Guid>(
+         +type: "uuid", nullable: false),                                
+      20 +                    fechado_em = table.Column<DateTimeOffset>(t
+         +ype: "timestamp with time zone", nullable: false)              
+      21 +                },                                             
+      22 +                constraints: table =>                          
+      23 +                {                                              
+      24 +                    table.PrimaryKey("pk_fechamento_de_periodo"
+         +, x => new { x.tipo_de_periodo, x.referencia_do_periodo });    
+      25 +                    table.CheckConstraint("ck_fechamento_de_per
+         +iodo_tipo_de_periodo", "tipo_de_periodo IN ('bimestre', 'semest
+         +re', 'ano')");                                                 
+      26 +                });                                            
+      27 +        }                                                      
+      28 +                                                               
+      29 +        /// <inheritdoc />                                     
+      30 +        protected override void Down(MigrationBuilder migration
+         +Builder)                                                       
+      31 +        {                                                      
+      32 +            migrationBuilder.DropTable(                        
+      33 +                name: "fechamento_de_periodo");                
+      34 +        }                                                      
+      35 +    }                                                          
+      36 +}                                                              
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+23 -0)
+      1463                          });
+      1464                  });
+      1465  
+      1466 +            modelBuilder.Entity("Maxx.Infrastructure.Conquist
+           +as.FechamentoDePeriodoRow", b =>                             
+      1467 +                {                                            
+      1468 +                    b.Property<string>("TipoDePeriodo")      
+      1469 +                        .HasColumnType("text")               
+      1470 +                        .HasColumnName("tipo_de_periodo");   
+      1471 +                                                             
+      1472 +                    b.Property<Guid>("ReferenciaDoPeriodo")  
+      1473 +                        .HasColumnType("uuid")               
+      1474 +                        .HasColumnName("referencia_do_periodo
+           +");                                                          
+      1475 +                                                             
+      1476 +                    b.Property<DateTimeOffset>("FechadoEm")  
+      1477 +                        .HasColumnType("timestamp with time z
+           +one")                                                        
+      1478 +                        .HasColumnName("fechado_em");        
+      1479 +                                                             
+      1480 +                    b.HasKey("TipoDePeriodo", "ReferenciaDoPe
+           +riodo")                                                      
+      1481 +                        .HasName("pk_fechamento_de_periodo");
+      1482 +                                                             
+      1483 +                    b.ToTable("fechamento_de_periodo", null, 
+           +t =>                                                         
+      1484 +                        {                                    
+      1485 +                            t.HasCheckConstraint("ck_fechamen
+           +to_de_periodo_tipo_de_periodo", "tipo_de_periodo IN ('bimestr
+           +e', 'semestre', 'ano')");                                    
+      1486 +                        });                                  
+      1487 +                });                                          
+      1488 +                                                             
+      1489              modelBuilder.Entity("Maxx.Infrastructure.Conquist
+            as.ProgressoDeConquistaRow", b =>
+      1490                  {
+      1491                      b.Property<Guid>("AlunoId")
+  ⎿  … 1 more file changed
+  ⎿  (timeout 6m 40s)
+
+● Migration gerada: só a tabela fechamento_de_periodo. Agora os testes de
+  integração do fechamento. Antes, dois ajudantes no mundo de teste.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Conquistas" && cat > /tmp/ajud.cs
+      <<'EOF'
+          // Gra…)
+  ⎿  1:using Maxx.Application.Conquistas;
+     2:using Maxx.Application.Fila;
+     3:using Maxx.Application.Medalhas;
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\MundoDeCon
+     quistas.cs (+25 -0)
+       1 +using Maxx.Application.Conquistas;                             
+       2  using Maxx.Application.Fila;
+       3  using Maxx.Application.Medalhas;
+       4  using Maxx.Application.PremiosParticipacao;
+       5  using Maxx.Domain.Academico;
+       6  using Maxx.Domain.Catalogo;
+       7 +using Maxx.Domain.Conquistas;                                  
+       8  using Maxx.Domain.Identidade;
+       9  using Maxx.Domain.Premios;
+      10 +using Maxx.Infrastructure.Conquistas;                          
+      11  using Maxx.Infrastructure.Fila;
+      12  using Maxx.Infrastructure.Persistence;
+      13  using Maxx.Infrastructure.Seed;
+     ...
+      190          return await scope.ServiceProvider.GetRequiredService<
+           MaxxDbContext>().Set<T>().AsNoTracking().ToListAsync(Ct);
+      191      }
+      192  
+      193 +    // Grava o fechamento da instância como a verificação grav
+          +a, sem enfileirar nada: isola a                               
+      194 +    // reavaliação por fato do fechamento em si.              
+      195 +    public async Task RegistrarFechamentoAsync(InstanciaDePeri
+          +odo instancia)                                                
+      196 +    {                                                         
+      197 +        await using var scope = Factory.Services.CreateAsyncSc
+          +ope();                                                        
+      198 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      199 +        db.Add(new FechamentoDePeriodoRow                     
+      200 +        {                                                     
+      201 +            TipoDePeriodo = NomeJson.De(instancia.Tipo),      
+      202 +            ReferenciaDoPeriodo = instancia.Referencia,       
+      203 +            FechadoEm = Relogio.GetUtcNow(),                  
+      204 +        });                                                   
+      205 +        await db.SaveChangesAsync(Ct);                        
+      206 +    }                                                         
+      207 +                                                              
+      208 +    // Uma verificação de fechamentos agora, e o que ela abrir
+          +, até a fila esvaziar.                                        
+      209 +    public async Task VerificarFechamentosAsync()             
+      210 +    {                                                         
+      211 +        await EnfileirarAsync(new VerificarFechamentos());    
+      212 +        await EsvaziarAsync();                                
+      213 +    }                                                         
+      214 +                                                              
+      215      public ValueTask DisposeAsync() => Factory.DisposeAsync();
+      216  }
+     … 1 more lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\FechamentoDePeriodoT
+       ests.cs)
+  ⎿  Wrote 170 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas
+     \FechamentoDePeriodoTests.cs
+       1 using Maxx.Application.Conquistas;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Conquistas;
+       4 using Maxx.Domain.Notificacoes;
+       5 using Maxx.Infrastructure.Conquistas;
+       6 using Maxx.Infrastructure.Fila;
+       7 
+       8 namespace Maxx.Api.IntegrationTests.Conquistas;
+       9 
+      10 // O gatilho de fechamento de período contra o Postgres real (re
+     … +161 lines (~8 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Conquistas/MundoDeConquistas.cs && sed
+      -i 's|…)
+  ⎿  com falha Maxx.Api.IntegrationTests.Conquistas.FechamentoDePeriodoTest
+     s.Uma_materia_sem_presenca_integral_nao_concede_a_C03_e_o_progresso_fi
+     ca (1s 189ms)
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\MundoDeCon
+     quistas.cs (+1 -1)
+      198          var db = scope.ServiceProvider.GetRequiredService<Maxx
+           DbContext>();
+      199          db.Add(new FechamentoDePeriodoRow
+      200          {
+      201 -            TipoDePeriodo = NomeJson.De(instancia.Tipo),      
+      201 +            TipoDePeriodo = instancia.Tipo.ToString().ToLowerI
+          +nvariant(),                                                   
+      202              ReferenciaDoPeriodo = instancia.Referencia,
+      203              FechadoEm = Relogio.GetUtcNow(),
+      204          });
+  ⎿  (timeout 10m)
+
+● Era o filtro do teste: o Bruno também é avaliado no fechamento e ganha a linha
+  de progresso dele (0 de 1). Filtro pela Ana também.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Conquistas/FechamentoDePeriodoTests.cs
+      && sed…)
+  ⎿    total: 12
+       falhou: 0
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Fechamento
+     DePeriodoTests.cs (+7 -1)
+      78          Assert.Empty(await mundo.LinhasAsync<Conquista>());
+      79          var c03 = Assert.Single(
+      80              await mundo.LinhasAsync<ProgressoDeConquistaRow>(),
+      81 -            linha => linha.ItemCodigo == "C03" && linha.Referen
+         -ciaDoPeriodo == mundo.BimestreDeHoje.Id);                      
+      81 +            linha => linha.AlunoId == mundo.Ana.Id && linha.Ite
+         +mCodigo == "C03" && linha.ReferenciaDoPeriodo == mundo.Bimestre
+         +DeHoje.Id);                                                    
+      82 +                                                               
+      83 +        // O Bruno também está matriculado no período, sem nenh
+         +uma presença integral: 0 de 1.                                 
+      84 +        var doBruno = Assert.Single(                           
+      85 +            await mundo.LinhasAsync<ProgressoDeConquistaRow>(),
+      86 +            linha => linha.AlunoId == mundo.Bruno.Id && linha.I
+         +temCodigo == "C03" && linha.ReferenciaDoPeriodo == mundo.Bimest
+         +reDeHoje.Id);                                                  
+      87 +        Assert.Equal((0, 1), (doBruno.Contagem, doBruno.Alvo));
+      88          Assert.Equal((1, 2), (c03.Contagem, c03.Alvo));
+      89      }
+      90  
+  ⎿  (timeout 10m)
+
+● Os 12 testes do fechamento passam. Faltam os testes de domínio de encerramento
+  e congelamento.
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Conquistas\InstanciaENotificacaoTests.
+        cs)
+  ⎿  Added 40 lines
+      39          Assert.Empty(InstanciaDoCurso.Semestres(_fatos.Calendar
+          io));
+      40      }
+      41  
+      42 +    [Fact]                                                     
+      43 +    public void Instancia_encerra_a_meia_noite_do_dia_seguinte_
+         +ao_fim()                                                       
+      44 +    {                                                          
+      45 +        // 03/04 é o último dia do bimestre 1: nele, ainda aber
+         +to; em 04/04, encerrado.                                       
+      46 +        Assert.Empty(InstanciaDePeriodo.EncerradasAte(_fatos.Ca
+         +lendario, Data(4, 3)));                                        
+      47 +        Assert.Equal([_fatos.InstanciaDoBimestre(1)], Instancia
+         +DePeriodo.EncerradasAte(_fatos.Calendario, Data(4, 4)));       
+      48 +    }                                                          
+      49 +                                                               
+      50 +    [Fact]                                                     
+      51 +    public void Encerradas_trazem_bimestres_semestres_e_o_ano()
+      52 +    {                                                          
+      53 +        var noRecessoDeJulho = InstanciaDePeriodo.EncerradasAte
+         +(_fatos.Calendario, Data(7, 10));                              
+      54 +        var depoisDoAno = InstanciaDePeriodo.EncerradasAte(_fat
+         +os.Calendario, Data(12, 6));                                   
+      55 +                                                               
+      56 +        Assert.Equal([_fatos.InstanciaDoBimestre(1), _fatos.Ins
+         +tanciaDoBimestre(2), _fatos.InstanciaDoSemestre(1)], noRecessoD
+         +eJulho);                                                       
+      57 +        Assert.Equal(7, depoisDoAno.Count);                    
+      58 +        Assert.Contains(_fatos.InstanciaDoAno, depoisDoAno);   
+      59 +        Assert.DoesNotContain(depoisDoAno, instancia => instanc
+         +ia.Tipo == Periodo.Curso);                                     
+      60 +    }                                                          
+      61 +                                                               
+      62 +    [Fact]                                                     
+      63 +    public void Congelamento_e_30_dias_depois_do_fim_do_ultimo_
+         +semestre_coberto()                                             
+      64 +    {                                                          
+      65 +        Assert.Equal(Data(7, 27), _fatos.InstanciaDoBimestre(1)
+         +.Congelamento(_fatos.Calendario));                             
+      66 +        Assert.Equal(Data(7, 27), _fatos.InstanciaDoSemestre(1)
+         +.Congelamento(_fatos.Calendario));                             
+      67 +        Assert.Equal(new DateOnly(2027, 1, 4), _fatos.Instancia
+         +DoBimestre(3).Congelamento(_fatos.Calendario));                
+      68 +        Assert.Equal(new DateOnly(2027, 1, 4), _fatos.Instancia
+         +DoAno.Congelamento(_fatos.Calendario));                        
+      69 +        Assert.Null(InstanciaDoCurso.Congelamento(_fatos.Calend
+         +ario));                                                        
+      70 +    }                                                          
+      71 +                                                               
+      72 +    [Fact]                                                     
+      73 +    public void Reavaliacao_de_fechamento_vale_ate_a_vespera_do
+         +_congelamento()                                                
+      74 +    {                                                          
+      75 +        var bimestre2 = _fatos.InstanciaDoBimestre(2);         
+      76 +                                                               
+      77 +        Assert.True(bimestre2.AceitaReavaliacaoDeFechamento(_fa
+         +tos.Calendario, Data(7, 26)));                                 
+      78 +        Assert.False(bimestre2.AceitaReavaliacaoDeFechamento(_f
+         +atos.Calendario, Data(7, 27)));                                
+      79 +        Assert.False(InstanciaDoCurso.AceitaReavaliacaoDeFecham
+         +ento(_fatos.Calendario, Data(7, 1)));                          
+      80 +    }                                                          
+      81 +                                                               
+      82      private Conquista Concedida()
+      83      {
+      84          var instancia = _fatos.InstanciaDoBimestre(4);
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI for stage 3" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 3 ficou verde na primeira tentativa, com mobile incluído. Falta
+  um teste para o pedido de verificação no seed base; vejo como o teste do
+  pedido de raridade é feito.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs)
+  ⎿  Added 18 lines
+      48              ano.Bimestres.Select(bimestre => (bimestre.Numero, 
+          bimestre.Inicio, bimestre.Fim)));
+      49      }
+      50  
+      51 +    // A verificação de fechamentos se reenfileira sozinha (D7 
+         +do passo 9): o seed só garante                                 
+      52 +    // que exista uma, sem acumular a cada execução.           
+      53      [Fact]
+      54 +    public async Task Seed_base_deixa_uma_verificacao_de_fecham
+         +entos_na_fila_e_rodar_de_novo_nao_acrescenta()                 
+      55 +    {                                                          
+      56 +        await using var factory = await MigradoAsync(postgres);
+      57 +                                                               
+      58 +        await factory.SeedBaseAsync(Ct);                       
+      59 +        await factory.SeedBaseAsync(Ct);                       
+      60 +                                                               
+      61 +        await using var scope = factory.Services.CreateAsyncSco
+         +pe();                                                          
+      62 +        var db = scope.ServiceProvider.GetRequiredService<MaxxD
+         +bContext>();                                                   
+      63 +        Assert.Equal(                                          
+      64 +            1,                                                 
+      65 +            await db.Set<Trabalho>().CountAsync(               
+      66 +                trabalho => trabalho.Tipo == VerificarFechament
+         +os.Tipo && trabalho.Estado == EstadoDoTrabalho.Pendente, Ct)); 
+      67 +    }                                                          
+      68 +                                                               
+      69 +    [Fact]                                                     
+      70      public async Task Rodar_de_novo_sem_mudar_os_arquivos_nao_m
+          uda_nada()
+      71      {
+      72          await using var factory = await MigradoAsync(postgres);
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && sed -i 's/^using
+      System.Text.Json.Nodes;$/using…)
+  ⎿    total: 19
+       falhou: 0
+     format exit 0
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedBaseTests.cs (+2 
+     -0)
+      1  using System.Text.Json.Nodes;
+      2 +using Maxx.Application.Conquistas;                              
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Identidade;
+      5 +using Maxx.Infrastructure.Fila;                                 
+      6  using Maxx.Infrastructure.Persistence;
+      7  using Maxx.Infrastructure.Seed;
+      8  using Microsoft.EntityFrameworkCore;
+  ⎿  (timeout 10m)
+
+● A etapa 4 está pronta para a sua revisão. Ainda não commitei; a CI desta etapa
+  roda quando você aprovar e eu fizer o push.
+
+  CI das etapas anteriores
+
+  - Fix do Jest (febe605): os seis jobs verdes na primeira tentativa. Com isso a
+    etapa 2 fechou.
+  - Etapa 3 (92489e6): os seis jobs verdes na primeira tentativa, mobile
+    incluído.
+
+  O que foi feito na etapa 4
+
+  Fechamento (D7):
+  - Migration FechamentoDePeriodo: cria a tabela fechamento_de_periodo, com uma
+    linha por instância fechada. É esse registro, e não a data, que diz se a
+    instância está fechada.
+  - verificar-fechamentos:
+    - fecha cada instância encerrada (meia-noite de São Paulo do dia seguinte ao
+      fim) que ainda não tem registro;
+    - grava o registro e enfileira fechar-periodo na mesma transação;
+    - deixa a próxima verificação para daqui a uma hora e apaga as outras
+      pendentes, para a corrente nunca se multiplicar;
+    - tem uma trava própria, para duas verificações nunca rodarem juntas.
+  - fechar-periodo: abre um avaliar-fechamento-do-aluno por aluno com matrícula
+    no período, ex-alunos inclusive. Um trabalho por aluno em vez de tudo numa
+    transação: com a base inteira, um só passaria do limite de 60 s, e um aluno
+    que falha não segura os outros.
+  - avaliar-fechamento-do-aluno: usa a mesma trava por aluno. Avalia as
+    conquistas de fechamento daquele tipo de período, grava o progresso e
+    concede as satisfeitas.
+  - Seed base: põe uma verificação na fila só se não houver uma pendente. Na
+    primeira execução, a verificação fecha o que ficou para trás (no calendário
+    real, os bimestres 1 a 3 e o semestre 2026/1).
+
+  Reavaliação até o congelamento (D8): a reavaliação por fato agora concede uma
+  conquista de fechamento quando a instância já está fechada e hoje ainda é
+  antes do congelamento. O congelamento cai 30 dias depois do fim do último
+  semestre que a instância cobre: o do bimestre, o próprio semestre, ou o
+  semestre 2, no caso do ano.
+
+  Refatoração: "avaliar, gravar progresso e, se puder, conceder" virou o serviço
+  AvaliacaoDeConquistas, usado pela reavaliação por fato e pelo fechamento.
+
+  Duas decisões para o seu aval
+
+  1. Leitura de "congela 30 dias depois": no dia fim + 30 já está congelado. A
+     reavaliação vale até a véspera, e o teste cobre os dois lados da fronteira
+     (54 dias concede, 55 não). O passo 11 herda a mesma constante,
+     InstanciaDePeriodo.DiasAteOCongelamento.
+  2. A tipagem do período na carga: fechar-periodo e avaliar-fechamento-do-aluno
+     levam o tipo de período como enum, que vai como número no JSON. Isso só
+     quebraria se alguém reordenasse o enum Periodo com trabalho pendente na
+     fila.
+
+  Um limite dos testes
+
+  O caso "fato que fica contável depois do fechamento" não se reproduz pelo
+  fluxo real com o catálogo da fase 1. Todas as conquistas de fechamento contam
+  medalha, e medalha só se concede no bimestre da data. Na prática ele acontece
+  quando o trabalho de reavaliação de uma medalha do último dia chega depois do
+  fechamento. O teste isola o mecanismo: grava o registro de fechamento à mão e
+  reenfileira a reavaliação.
+
+  Verificação local
+
+  - Formatação limpa, build Release com 0 avisos e 0 erros.
+  - Suíte completa (antes do teste do seed): 1022 testes, nenhuma falha, os
+    mesmos 6 da R2 ignorados. Depois rodei o SeedBaseTests com o teste novo: 19
+    de 19.
+
+  Testes novos:
+  - Fechamento (13, contra Postgres real):
+    - a verificação fecha cada instância uma vez e deixa só uma próxima
+      verificação;
+    - a primeira verificação fecha os 4 bimestres, os 2 semestres e o ano que
+      ficaram para trás;
+    - a C03 é concedida no fechamento com presença nas duas matérias;
+    - com uma matéria faltando, nada é concedido, e o progresso fica em 1 de 2
+      (o Bruno, matriculado no período, fica com 0 de 1);
+    - C10 no fechamento do semestre e C15 no do ano;
+    - fechar o mesmo período duas vezes não concede de novo;
+    - o primeiro fechamento concede mesmo depois do congelamento;
+    - fato numa instância já fechada concede com 26 e 54 dias, e não com 55 e
+      60;
+    - instância encerrada pela data, mas sem registro de fechamento, não
+      concede.
+  - Seed base: dois seeds deixam exatamente uma verificação pendente.
+  - Domínio: encerramento à meia-noite do dia seguinte, a lista das encerradas,
+    as datas de congelamento e a véspera do congelamento.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona o fechamento de período e a reavaliação até o congelamento
+
+  Com o seu ok, commito, faço push, acompanho a CI e sigo para a etapa 5 (a
+  leitura de Troféus com o progresso e o perfil).
+
+✻ Baked for 19m 29s · done 20:58
