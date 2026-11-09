@@ -7287,3 +7287,141 @@ code 0)
 ✻ Worked for 3h 1m 53s · done 15:43
 
 ※ recap: Passo 12, etapas 1 a 6 sem tela: 1 a 4 têm CI verde, a 5 aguarda a volta do GitHub Actions (fora do ar) e a 6 está pronta, ainda sem commit. Quando a CI da 5 passar, faço o push da 6 e paro antes da 7. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt 
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_12_instituicao-sessao.txt
+
+※ recap: Passo 12: as etapas 1 a 4 estão com a CI verde, a 5 aguarda a volta do GitHub Actions (fora do ar) e a 6 está pronta no disco. Quando a CI da 5 passar, faço o commit e o push da 6 e paro antes da 7. (disable recaps in /config)
+
+● Background command "Wait for Actions recovery, rerun and watch CI" completed
+(exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● O Actions voltou e a CI da etapa 5 rodou de novo; o job api ainda aparecia sem
+  resultado. Confiro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Etapa 5 verde nos seis jobs (terceira tentativa, depois do outage). Commit e
+  push da etapa 6.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa 6 (commit f588e1e) está enviada e a CI dela está rodando. Assim que
+  terminar, trago o resultado e os relatórios das etapas 1 a 6, e paro antes da
+  etapa 7.
+
+✻ Sautéed for 1m 41s · done 15:59
+
+※ recap: No passo 12 (área web da instituição), as etapas 1 a 5 estão com a CI verde, e a etapa 6 (posts com foto do seed) foi enviada e ainda roda na CI. Quando ela passar, trago os relatórios das seis etapas e paro antes da 7.
+
+● Background command "Watch CI for etapa 6" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As etapas 1 a 6 estão prontas, cada uma com o próprio commit e push, e a CI de
+  cada uma passou nos seis jobs (api, mobile, api-client, e2e, segurança,
+  build). Parei antes da etapa 7, a primeira com tela.
+
+  Relatório por etapa
+
+  Etapa 1, 52a6a7d: ficha do aluno e atos sobre a conta. CI verde na primeira
+  execução.
+  - Novas rotas em /v1/instituicao/alunos: busca (nome sem acento, arroba,
+    e-mail ou RA, com conta ou sem), ficha com as medalhas ativas, correção de
+    e-mail, marcar ex-aluno e troca de curso.
+  - Marcar ex-aluno e trocar de curso pedem o recálculo do ranking e da raridade
+    na mesma transação.
+  - A correção de e-mail invalida as recuperações de senha abertas e mantém as
+    sessões.
+  - O registro de quem fez e quando (P5) ficou assim: coluna
+    ex_aluno_marcado_por_id na conta e tabelas correcao_de_email e
+    troca_de_curso.
+  - Prova reversa: sem o pedido de recálculo, os dois testes de ex-aluno falham.
+
+  Etapa 2, 7a2c8b3: concessão direta e anulação pela área. CI verde na primeira
+  execução.
+  - A concessão direta nasce válida, sem comprovação, com a janela de 15 dias.
+  - Na mesma transação vão a notificação premioConcedido, os recálculos e o fim
+    da janela agendado. O instante da concessão é o do desempate no ranking
+    (testado).
+  - POST /v1/posts ganhou premioParticipacaoId, como acréscimo. Prêmio que não
+    está valendo responde premio-indisponivel.
+  - A anulação pela área usa o mesmo ato do comando administrativo.
+  - Prova reversa feita: sem o recálculo, dois testes falham.
+
+  Etapa 3, 2346f59: purga por lote. CI verde na primeira execução.
+  - O SQL da purga virou código, numa transação só, com as tabelas que entraram
+    depois.
+  - As fotos do lote (posts, foto de perfil, uploads pendentes) vão para a fila
+    de remoção do bucket na mesma transação.
+  - A rota funciona com a flag da demonstração desligada e exige o nome do lote
+    digitado de novo. Cada purga fica registrada.
+  - Um teste prova que uma falha no meio desfaz tudo e não manda nenhuma foto
+    para remoção.
+
+  Etapa 4, 36b38de: estrutura do mundo. CI verde na primeira execução.
+  - 150 alunos (120 ativos e 30 ex-alunos), dois professores e seis matérias por
+    curso, turmas em 2026/1 e 2026/2, 22 eventos passados e futuros.
+  - Todos os alunos do arquivo nascem com conta, sem senha, com data de criação
+    retroativa. Os e-mails estão em al.unieduk.invalid.
+  - O seed acha o aluno pelo RA, e um e-mail ou curso corrigido pela instituição
+    vence o arquivo.
+
+  Etapa 5, 6bdfebf: atividade do mundo. CI verde só na terceira tentativa, por
+  causa da queda do GitHub Actions explicada abaixo.
+  - 1.156 medalhas, 280 prêmios, a contestação aberta e 9 avisos. As quatro
+    raridades aparecem com dono.
+  - O seed não grava nenhuma conquista; o worker concedeu seis tipos diferentes,
+    com evidências.
+  - A fila esvaziou em 66 s localmente (1.482 trabalhos).
+  - Agora o e2e espera a fila do worker esvaziar antes do primeiro teste. Na CI
+    ela já estava vazia ao começar.
+
+  Etapa 6, f588e1e: posts com foto. CI verde na primeira execução.
+  - 33 fotos em data/demo/fotos/, com CREDITOS.md.
+  - Cerca de 50 posts com foto: reivindicações aprovadas, posts de medalha e
+    posts livres. Também as duas comprovações pendentes, seguimentos, curtidas e
+    comentários.
+  - O seeder do compose passou a ter o bucket.
+
+  O que você precisa saber
+
+  - Queda do GitHub Actions: a CI da etapa 5 falhou duas vezes sem criar os jobs
+    api, api-client, e2e e segurança, porque o Actions esteve fora do ar por
+    volta das 15h. Não houve falha de código nem commit de correção; repeti a CI
+    quando voltou, e ela passou.
+  - Mudei a ordem de uma entrega: as duas comprovações pendentes saíram da etapa
+    5 para a 6. Comprovação é um post com foto, e as fotos só entram na 6.
+  - P7, licenças: quase nada no Wikimedia Commons é domínio público ou CC0. Das
+    33 fotos, 3 estão em domínio público ou CC0; as outras 30 são CC BY ou CC
+    BY-SA, todas licenças livres que exigem crédito, coberto pelo CREDITOS.md.
+    Revisei cada foto e descartei retratos, rostos visíveis, nudez e marcas. As
+    fotos somam cerca de 10 MB no repositório. Se quiser só domínio público e
+    CC0, troco por fotos suas.
+  - Seu banco local precisa ser recriado. O seed demo agora falha num banco
+    antigo, porque os 20 alunos de antes mudaram de e-mail (P8). O seed também
+    passou a exigir o bucket.
+  - A atividade nasce uma vez só, na primeira vez em que os alunos do arquivo
+    ganham conta. Um aluno acrescentado depois ganha a conta, sem fatos
+    inventados para ele.
+  - As medalhas semeadas não geram notificação de medalha recebida, porque
+    ninguém entra nessas contas. As conquistas e os avisos notificam
+    normalmente.
+  - Nenhuma conquista de fechamento apareceu (as de "todas as matérias"). A
+    distribuição semeada não fecha esse critério para ninguém.
+  - Corrigi um teste frágil já existente. O teste do sininho começou a falhar
+    porque, no mundo de teste, as contas nasciam no relógio real e o aviso no
+    relógio de teste. Com a migração mais lenta, a conta da aluna passava a
+    "nascer depois" do aviso e não era notificada. Agora o mundo de teste cria
+    as contas no próprio relógio.
+
+  A próxima é a etapa 7: a entrada da área em /instituicao (com o perfil da
+  conta só de instituição), as filas de comprovações e de contestações e
+  "Contestar prêmio" no menu do post para a instituição. Fico no aguardo para
+  começar.
+
+✻ Sautéed for 37s · done 16:06
