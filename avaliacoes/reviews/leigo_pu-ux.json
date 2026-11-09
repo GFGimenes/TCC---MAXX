@@ -1,0 +1,191 @@
+{
+    "produto":  "leigo_pu",
+    "eixo":  "ux",
+    "secao":  "1. Experiência do usuário",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T00:57:52-03:00",
+    "fim":  "2026-11-09T00:59:34-03:00",
+    "duracao_s":  102,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo-pu",
+    "ref":  "main",
+    "hash_avaliado":  "ce76942b7aa1ebb3a016df705972fc32483cf98f",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "6f8babf1-6967-4538-a32d-65a6d58b0669",
+    "tokens":  {
+                   "entrada":  10,
+                   "saida":  10265,
+                   "cache_criacao":  66717,
+                   "cache_leitura":  151989
+               },
+    "custo_usd":  0.7694738000000001,
+    "turnos":  12,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "83a133aa22adde037acefca1a2567580a0ddf4e5e1e78903ccf52a4d561a5aae",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  11,
+    "nota":  4,
+    "justificativa":  "As seis telas (login/cadastro, feed, perfil, mural \u0027Avisos\u0027, troféus \u0027Conquistas\u0027, ranking) existem e se encadeiam por um layout único com barra superior e navegação inferior. Os estados são tratados de forma consistente: indicador de carregamento em toda tela, erros em português (sem conexão, 401 que leva ao login, tela de nova tentativa no carregamento inicial), estados vazios com texto próprio, botão travado com \u0027Aguarde…\u0027 no envio, curtida otimista com reversão e confirmação antes de ações destrutivas. A coerência visual vem de uma folha de estilo única com modo escuro automático. Não chega a 5 por divergências de detalhe nas partes que existem: navegação inferior diferente da especificação (sem Busca, Mural fora do centro, Perfil só pelo avatar), login e cadastro em telas separadas e não em abas, ícone de megafone em vez de jornal, aba extra \u0027Pontos\u0027, e erros mascarados como estado vazio (medalhas dadas e fotos do perfil). As regras ausentes foram marcadas sem reduzir a nota.",
+    "evidencias":  [
+                       {
+                           "local":  "public/app.js:156-170",
+                           "descricao":  "onSubmit trava o botão com \u0027Aguarde…\u0027, mostra o erro em aviso flutuante e restaura o botão; usado em todos os formulários."
+                       },
+                       {
+                           "local":  "public/app.js:30-50",
+                           "descricao":  "Wrapper da API: mensagem de sem conexão, 401 leva ao login, mensagem genérica de reserva."
+                       },
+                       {
+                           "local":  "public/app.js:1019-1026",
+                           "descricao":  "Falha no carregamento inicial mostra tela com botão \u0027Tentar de novo\u0027."
+                       },
+                       {
+                           "local":  "public/app.js:278-322",
+                           "descricao":  "Curtida otimista com reversão em caso de erro e curtida por dois toques na foto."
+                       },
+                       {
+                           "local":  "public/app.js:326",
+                           "descricao":  "Confirmação antes de apagar post (também em :557, :708, :835 para comentário, aviso e medalha)."
+                       },
+                       {
+                           "local":  "public/app.js:507",
+                           "descricao":  "Estado vazio do feed; equivalentes em comentários (:545), avisos (:705), ranking (:746) e medalhas (:812, :864)."
+                       },
+                       {
+                           "local":  "public/app.js:190-216",
+                           "descricao":  "Navegação inferior Feed/Avisos/+/Ranking/Conquistas, diferente da especificação (Home, Busca, Mural central, Troféus, Perfil)."
+                       },
+                       {
+                           "local":  "public/app.js:339-367",
+                           "descricao":  "Login só por e-mail e senha, sem abas Entrar/Cadastrar e sem \u0027esqueci minha senha\u0027."
+                       },
+                       {
+                           "local":  "public/app.js:231-276",
+                           "descricao":  "Card de post com autor, curso, tempo, mídia, curtir, comentar e legenda; sem compartilhar."
+                       },
+                       {
+                           "local":  "public/app.js:875-931",
+                           "descricao":  "Perfil com pontos e posição geral e no curso levando ao ranking filtrado; sem seguidores e sem último troféu em destaque."
+                       },
+                       {
+                           "local":  "public/app.js:664-715",
+                           "descricao":  "Mural em lista simples; sem categorias, sem colapso, sem marcador de não lido."
+                       },
+                       {
+                           "local":  "server/index.js:360-374",
+                           "descricao":  "Aluno vê só avisos gerais e do próprio curso."
+                       },
+                       {
+                           "local":  "public/app.js:718-766",
+                           "descricao":  "Ranking Geral/Por curso × Sempre/Este mês com pódio e barra da posição do usuário."
+                       },
+                       {
+                           "local":  "public/app.js:780-840",
+                           "descricao":  "Conquistas com abas Troféus/Medalhas/Pontos; troféus bloqueados com cadeado e progresso; sem filtro \u0027mostrar não obtidos\u0027."
+                       },
+                       {
+                           "local":  "server/rules.js:22-36",
+                           "descricao":  "Troféus só com tiers bronze, prata e ouro; sem Diamante; medalhas sem tier."
+                       },
+                       {
+                           "local":  "public/app.js:842-845",
+                           "descricao":  "Erro ao carregar medalhas dadas aparece em aviso, mas a tela mostra \u0027Você ainda não deu nenhuma medalha\u0027."
+                       },
+                       {
+                           "local":  "public/app.js:890",
+                           "descricao":  "Erro ao buscar fotos do perfil é engolido e exibido como \u0027Nenhuma foto ainda\u0027."
+                       },
+                       {
+                           "local":  "public/app.js:576",
+                           "descricao":  "Limite de 3 fotos por dia fixo no texto, enquanto a regra vive em server/rules.js:6."
+                       },
+                       {
+                           "local":  "public/app.js:842-872",
+                           "descricao":  "Para professor, a aba \u0027Conquistas\u0027 abre tela intitulada \u0027Medalhas\u0027; rótulo e título não batem."
+                       },
+                       {
+                           "local":  "public/styles.css:21",
+                           "descricao":  "Modo escuro automático via prefers-color-scheme, sem alternância manual."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Login por RA e RA no cadastro",
+                            "Esqueci minha senha",
+                            "Abas Entrar/Cadastrar na mesma tela",
+                            "Alternância manual de tema claro/escuro",
+                            "Vínculo de conta via portal da instituição (domínio @unimax.com.br)",
+                            "Ex-aluno que mantém acesso e posição mas não pontua",
+                            "Sino de notificações no header do feed",
+                            "Aba Busca na navegação",
+                            "Compartilhar post",
+                            "Selo de conquista associado ao post de foto",
+                            "Mural como botão central com ícone de jornal; Perfil na navegação inferior",
+                            "Seguidores/seguindo e \u0027followed by\u0027 no perfil",
+                            "Último troféu em destaque no perfil",
+                            "Categorias Faculdade/Curso/Professores no mural",
+                            "Comportamento de colapso e semi-colapso e abertura quase em tela cheia do aviso",
+                            "Marcador amarelo de não lido e botão \u0027ler todos\u0027",
+                            "Registro de leitura de avisos (quem leu e quando)",
+                            "Tier Diamante e faixas de pontos por tier (1-30, 31-70, 71-100, 101-150)",
+                            "Tier em medalhas",
+                            "Nível de encontrabilidade",
+                            "Filtro \u0027mostrar não obtidos\u0027",
+                            "Trilha de progressão da mesma conquista para tier superior",
+                            "Prova por foto, denúncia e revogação de prêmio marcado errado",
+                            "Cadastro de troféus e medalhas pelo corpo da faculdade",
+                            "Professor só dá medalha a alunos que leciona ou orienta",
+                            "Visão de ranking \u0027do curso global\u0027 distinta de \u0027por curso\u0027"
+                        ],
+    "decisoes_do_agente":  [
+                               "Acesso da banca: login de visitante só com nome, papel Aluno ou Professor, selo \u0027Banca\u0027, 7 dias, código no link e cartão de boas-vindas com dicas",
+                               "App instalável no celular (PWA) com manifesto, service worker e ícones",
+                               "Navegação inferior própria com botão central \u0027+\u0027 (publicar foto) para aluno ou \u0027Dar medalha\u0027 para professor; Perfil pelo avatar no topo; sair no perfil",
+                               "Curtida por dois toques na foto com animação de coração",
+                               "Filtro do feed \u0027Toda a UniMax\u0027 / \u0027Meu curso\u0027 e rolagem infinita com \u0027Carregar mais\u0027",
+                               "Medalhas e troféus viram posts próprios no feed, que podem ser curtidos e comentados",
+                               "Janela de celebração \u0027Troféu desbloqueado!\u0027",
+                               "Redução da foto no próprio celular antes do envio, com prévia, e pontos no botão de publicar",
+                               "Fluxo de dar medalha em 3 passos com busca de aluno e motivo obrigatório; aluno pré-selecionado vindo do perfil",
+                               "Aba \u0027Pontos\u0027 explicando as regras e tela de \u0027Medalhas\u0027 própria para professores",
+                               "Ranking com pódio dos 3 primeiros, barra \u0027Você #posição\u0027 e período \u0027Este mês\u0027 no lugar de all-time",
+                               "Aviso direcionado a todos ou a um curso; fixar no topo e selo \u0027Oficial\u0027 só para a conta admin",
+                               "Modo escuro automático pelo sistema e identidade visual em gradiente roxo → laranja",
+                               "Tela de edição de perfil com dica do troféu \u0027Cartão de visitas\u0027",
+                               "Mensagens e tempo relativo em português amigável"
+                           ],
+    "nao_verificado":  [
+                           "Renderização real das telas, layout em celular, contraste e aparência no modo escuro",
+                           "Funcionamento dos fluxos de ponta a ponta em execução",
+                           "Tempos reais de carregamento e comportamento do indicador e do aviso flutuante",
+                           "Curtida por dois toques e rolagem infinita em aparelho de toque",
+                           "Instalação PWA e comportamento do service worker sem conexão",
+                           "Conteúdo visual dos dados de exemplo",
+                           "Acessibilidade com leitor de tela além da presença de atributos aria",
+                           "Deploy público e URL acessível"
+                       ]
+}

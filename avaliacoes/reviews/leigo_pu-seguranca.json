@@ -1,0 +1,225 @@
+{
+    "produto":  "leigo_pu",
+    "eixo":  "seguranca",
+    "secao":  "2. Segurança",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T00:59:35-03:00",
+    "fim":  "2026-11-09T01:02:32-03:00",
+    "duracao_s":  177,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo-pu",
+    "ref":  "main",
+    "hash_avaliado":  "ce76942b7aa1ebb3a016df705972fc32483cf98f",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "45dadad1-b28b-4cc5-89c8-4a4b9255fee4",
+    "tokens":  {
+                   "entrada":  20,
+                   "saida":  17476,
+                   "cache_criacao":  72973,
+                   "cache_leitura":  430863
+               },
+    "custo_usd":  1.0195566,
+    "turnos":  25,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "999e5177972376ca749317a0c19409094cd6b3705ef1263228331283a2d3d7d5",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  24,
+    "nota":  2,
+    "justificativa":  "Base técnica sólida (scrypt, sessão no servidor com cookie httpOnly/SameSite e expiração, SQL parametrizado, escape consistente no frontend, checagem de papel e de dono, tipo e tamanho de imagem restritos, limite de tentativas no login e no cadastro). Mas o papel de professor, que altera pontos de terceiros, fica ao alcance de qualquer pessoa: o \u0027acesso da banca\u0027 cria contas de professor só com o código fixo \u0027banca2026\u0027, commitado no render.yaml e no README e ligado por padrão; e o deploy cria por padrão professores de exemplo com a senha pública \u0027maxx123\u0027. Com isso qualquer pessoa dá medalhas de até 100 pontos a qualquer aluno, sem vínculo de turma. Somam-se cadastro sem confirmação de e-mail (contas falsas e personificação), fotos públicas sem login por ID sequencial, upload sem cota e TLS do banco sem verificação. Não há injeção nem XSS, por isso não é 1, mas o controle de acesso é frágil (critério 2).",
+    "evidencias":  [
+                       {
+                           "local":  "server/config.js:9",
+                           "descricao":  "PROFESSOR_CODE com valor padrão fixo \u0027PROFESSOR-UNIMAX\u0027."
+                       },
+                       {
+                           "local":  "server/config.js:13",
+                           "descricao":  "BANCA_CODE padrão \u0027banca2026\u0027; acesso da banca ligado por padrão (linha 11)."
+                       },
+                       {
+                           "local":  "server/config.js:15",
+                           "descricao":  "ADMIN_PASSWORD padrão \u0027admin-unimax\u0027."
+                       },
+                       {
+                           "local":  "server/config.js:17",
+                           "descricao":  "DEMO_PASSWORD padrão \u0027maxx123\u0027 e SEED_DEMO ligado por padrão (linha 19)."
+                       },
+                       {
+                           "local":  "render.yaml:24",
+                           "descricao":  "BANCA_CODE commitado com valor fixo banca2026; DEMO_PASSWORD e SEED_DEMO não são configurados no deploy."
+                       },
+                       {
+                           "local":  "README.md:36",
+                           "descricao":  "Tabela de contas de teste com senhas (maxx123, admin-unimax) e códigos de professor e da banca publicados (linhas 45-46)."
+                       },
+                       {
+                           "local":  "server/index.js:146",
+                           "descricao":  "POST /api/auth/banca cria conta de visitante sem e-mail e sem senha, com role \u0027professor\u0027 à escolha (linha 153)."
+                       },
+                       {
+                           "local":  "server/services.js:165",
+                           "descricao":  "giveMedal confere só o papel e o limite de 30 por dia; nenhum vínculo professor-aluno."
+                       },
+                       {
+                           "local":  "server/index.js:94",
+                           "descricao":  "GET /api/img/:id sem requireUser; fotos e avatares públicos por ID sequencial, Cache-Control público."
+                       },
+                       {
+                           "local":  "server/index.js:110",
+                           "descricao":  "Cadastro valida só o sufixo do domínio do e-mail; sem confirmação de posse."
+                       },
+                       {
+                           "local":  "server/index.js:221",
+                           "descricao":  "POST /api/posts sem limite de quantidade; body JSON de até 8 MB (linha 70); imagens guardadas no banco."
+                       },
+                       {
+                           "local":  "server/index.js:376",
+                           "descricao":  "Qualquer professor (inclusive visitante) publica aviso para todos os cursos; course_id não validado."
+                       },
+                       {
+                           "local":  "server/index.js:208",
+                           "descricao":  "limit negativo vira LIMIT negativo no SQL (linha 215) e gera erro 500."
+                       },
+                       {
+                           "local":  "server/db.js:20",
+                           "descricao":  "ssl { rejectUnauthorized: false } na conexão com o Postgres remoto."
+                       },
+                       {
+                           "local":  "server/auth.js:8",
+                           "descricao":  "Positivo: scrypt com salt e comparação timingSafeEqual."
+                       },
+                       {
+                           "local":  "server/auth.js:22",
+                           "descricao":  "Positivo: sessão com token de 32 bytes, cookie httpOnly, SameSite=Lax, secure atrás de proxy, expiração conferida em loadUser (linha 60)."
+                       },
+                       {
+                           "local":  "public/app.js:15",
+                           "descricao":  "Positivo: função esc() aplicada de forma consistente nos innerHTML com dados do usuário."
+                       },
+                       {
+                           "local":  "server/services.js:105",
+                           "descricao":  "Positivo: checagem de dono para apagar post, comentário (156), medalha (191) e aviso (index.js:392)."
+                       },
+                       {
+                           "local":  "server/services.js:14",
+                           "descricao":  "Positivo: tipos de imagem permitidos (jpeg/png/webp) e máximo de 4 MB; servido com nosniff (index.js:72)."
+                       },
+                       {
+                           "local":  "server/auth.js:50",
+                           "descricao":  "Positivo: PUBLIC_USER_FIELDS não inclui e-mail; e-mail de terceiros não é exposto."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Login por RA (RA não existe no modelo de dados)",
+                            "Cadastro e vínculo via portal da instituição (SSO)",
+                            "Esqueci minha senha",
+                            "Professor só dá medalha a alunos que leciona ou orienta",
+                            "Denúncia e revogação de prêmio marcado errado",
+                            "Prova por foto para prêmios",
+                            "Ex-aluno mantém acesso mas não pontua",
+                            "Cadastro de troféus e medalhas pelo corpo da faculdade",
+                            "Log de leitura de avisos (quem leu e quando)"
+                        ],
+    "decisoes_do_agente":  [
+                               "Criar \u0027acesso da banca\u0027 com conta de visitante sem e-mail e senha, papel à escolha (inclusive professor), protegido por código fixo banca2026 e ligado por padrão",
+                               "Exigir código de professor no cadastro (PROFESSOR_CODE, padrão PROFESSOR-UNIMAX)",
+                               "Criar papel admin (Secretaria) com moderação e senha padrão admin-unimax",
+                               "Deixar dados de exemplo com contas reais de login e senha comum maxx123, ligados por padrão também no deploy",
+                               "Hash scrypt e sessão no servidor (tabela sessions) em cookie httpOnly/SameSite=Lax, válida por 30 dias (7 para visitantes)",
+                               "Limite de tentativas em memória por IP: 20 cadastros e 30 logins a cada 10 minutos",
+                               "Restringir imagens a JPEG/PNG/WEBP de até 4 MB, guardadas como BYTEA no banco",
+                               "Limite de 30 medalhas por dia por professor e motivo obrigatório",
+                               "Só alunos publicam fotos; curtir a própria foto não pontua; descurtir retira os pontos",
+                               "Avisos filtrados por curso para alunos; só o admin fixa avisos",
+                               "Cabeçalhos nosniff, Referrer-Policy same-origin, x-powered-by desligado, trust proxy 1 e CSP para SVG",
+                               "TLS com o Postgres sem verificar o certificado (rejectUnauthorized false)",
+                               "Imagens servidas sem autenticação e com cache público imutável",
+                               "Visitantes da banca entram no ranking"
+                           ],
+    "nao_verificado":  [
+                           "Nenhuma falha foi executada; os passos de reprodução vêm da leitura do código",
+                           "Suíte npm test (test/api.test.js) não rodada",
+                           "Variáveis de ambiente do deploy real (SEED_DEMO, DEMO_PASSWORD, BANCA_ENABLED, ADMIN_PASSWORD, PROFESSOR_CODE) e se o deploy existe",
+                           "Se o Render aceita deixar vazias as variáveis sync:false do Blueprint",
+                           "Comportamento real do Express 5 ao passar do limite de 8 MB e do PGlite/Postgres com LIMIT negativo",
+                           "Se o repositório no GitHub é público, o que exporia códigos e senhas padrão",
+                           "Ausência total de XSS confirmada só por busca e amostragem dos innerHTML, sem teste no navegador",
+                           "Vulnerabilidades conhecidas das dependências (npm audit)"
+                       ],
+    "falhas":  [
+                   {
+                       "titulo":  "Qualquer pessoa obtém papel de professor pelo acesso da banca e altera pontos de qualquer aluno",
+                       "reproducao":  "1) POST /api/auth/banca com {\"name\":\"X\",\"role\":\"professor\",\"code\":\"banca2026\"}; guardar o cookie maxx_session. 2) GET /api/users?role=aluno para obter o id da vítima. 3) POST /api/medals com {\"student_id\":\u003cid\u003e,\"type\":\"excelencia\",\"reason\":\"x\"}: +100 pts; repetir até 30 por dia por conta e criar novas contas (30 a cada 10 min por IP). Variante: role \u0027aluno\u0027 para criar contas que curtem a foto alvo (+2 pts cada).",
+                       "local":  "server/index.js:146"
+                   },
+                   {
+                       "titulo":  "Contas de professor e admin de exemplo com senha pública no deploy",
+                       "reproducao":  "1) Fazer o deploy pelo render.yaml como o README orienta (SEED_DEMO e DEMO_PASSWORD não configurados). 2) POST /api/auth/login com {\"email\":\"helena.duarte@unimax.edu.br\",\"password\":\"maxx123\"}. 3) POST /api/medals a qualquer aluno ou POST /api/notices. Com ADMIN_PASSWORD vazio, ou nas opções A/B do README, login com secretaria@unimax.edu.br / admin-unimax dá admin (apagar qualquer post ou comentário, fixar avisos).",
+                       "local":  "server/config.js:17"
+                   },
+                   {
+                       "titulo":  "Código de professor com valor padrão público",
+                       "reproducao":  "Sem PROFESSOR_CODE definido: POST /api/auth/register com {\"name\":\"Fulano\",\"email\":\"x@unimax.edu.br\",\"password\":\"123456\",\"role\":\"professor\",\"professorCode\":\"PROFESSOR-UNIMAX\"} cria um professor permanente que dá medalhas.",
+                       "local":  "server/config.js:9"
+                   },
+                   {
+                       "titulo":  "Cadastro sem confirmação de e-mail permite personificação e contas falsas",
+                       "reproducao":  "POST /api/auth/register com o e-mail de um aluno real que ainda não tem conta (ex.: nome.real@aluno.unimax.edu.br), senha qualquer de 6 caracteres e course_id válido: a conta é criada e a sessão abre sem prova de posse. Repetir com e-mails inventados (20 a cada 10 min por IP) para inflar curtidas.",
+                       "local":  "server/index.js:110"
+                   },
+                   {
+                       "titulo":  "Fotos e avatares acessíveis sem login por enumeração de ID",
+                       "reproducao":  "Sem cookie, fazer GET /api/img/1, /api/img/2, ... em sequência: todas as imagens de posts e avatares são devolvidas, com Cache-Control público de 1 ano.",
+                       "local":  "server/index.js:94"
+                   },
+                   {
+                       "titulo":  "Upload sem cota permite esgotar o armazenamento do banco",
+                       "reproducao":  "Com qualquer conta de aluno (inclusive visitante da banca), repetir em loop POST /api/posts com {\"image\":\"data:image/png;base64,\u003c~4MB\u003e\"}. Não há limite de quantidade; cada request grava ~4 MB em images.data; ~130 requests esgotam os 0,5 GB do Neon grátis.",
+                       "local":  "server/services.js:83"
+                   },
+                   {
+                       "titulo":  "Professor dá medalha a qualquer aluno, sem vínculo de turma",
+                       "reproducao":  "Logar como ricardo.lima@unimax.edu.br / maxx123 (Direito) e fazer POST /api/medals para um aluno de Medicina (ex.: mariana.oliveira): a medalha é aceita e os pontos são creditados.",
+                       "local":  "server/services.js:165"
+                   },
+                   {
+                       "titulo":  "Visitante-professor publica avisos para todos os cursos",
+                       "reproducao":  "Com a sessão de professor obtida pela banca, POST /api/notices com {\"title\":\"Aviso oficial\",\"body\":\"...\",\"course_id\":\"\"}: o aviso aparece no mural de todos os alunos.",
+                       "local":  "server/index.js:376"
+                   },
+                   {
+                       "titulo":  "Parâmetros não tratados geram erro 500",
+                       "reproducao":  "GET /api/feed?limit=-5 (gera LIMIT -5) ou POST /api/notices com course_id 999999 (violação de FK): resposta 500 \u0027Erro interno\u0027.",
+                       "local":  "server/index.js:208"
+                   },
+                   {
+                       "titulo":  "Conexão TLS com o banco sem verificação de certificado",
+                       "reproducao":  "Com DATABASE_URL apontando para um host não local, o cliente pg é criado com ssl.rejectUnauthorized=false e aceita qualquer certificado; quem estiver no meio da rede pode interceptar credenciais e dados.",
+                       "local":  "server/db.js:20"
+                   }
+               ]
+}

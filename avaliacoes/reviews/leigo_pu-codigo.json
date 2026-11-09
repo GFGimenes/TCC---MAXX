@@ -1,0 +1,161 @@
+{
+    "produto":  "leigo_pu",
+    "eixo":  "codigo",
+    "secao":  "5. Código",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T01:05:37-03:00",
+    "fim":  "2026-11-09T01:07:22-03:00",
+    "duracao_s":  105,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo-pu",
+    "ref":  "main",
+    "hash_avaliado":  "ce76942b7aa1ebb3a016df705972fc32483cf98f",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "dd87a1ed-8b4a-4556-916b-c0075a24ce55",
+    "tokens":  {
+                   "entrada":  12,
+                   "saida":  10689,
+                   "cache_criacao":  51795,
+                   "cache_leitura":  164547
+               },
+    "custo_usd":  0.6610974,
+    "turnos":  17,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "8b70aeeb5b063fca5a35f3ebec181bf4cfa04b244c1a6cb6d7cb189d2719e080",
+    "encaixe":  {
+                    "presente":  false,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  "Sem testes de referência (C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\avaliacoes\\reviews\\leigo_pu-testes-referencia.md). O eixo Código segue sem eles."
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  16,
+    "nota":  3,
+    "justificativa":  "Não há resultado da suíte de testes de referência para este produto; a nota se apoia só na leitura dos arquivos. O código é limpo, legível e sem sinais de alucinação. As regras estão concentradas em dados declarativos (server/rules.js), a lógica de negócio está em services.js com HttpError único, há um adaptador de banco Postgres/PGlite, SQL parametrizado, extrato de pontos que permite estorno correto e troféus protegidos contra concessão duplicada com ON CONFLICT. Não chega a 4 porque os testes próprios são escassos (5 cenários de integração dependentes do seed e da ordem, sem teste de unidade de limiar de troféu, teto diário ou ordem do ranking com empate), porque entradas inválidas são tratadas de forma desigual (course_id inexistente em avisos e student_id ausente em medalha caem em 500), porque não há transações em operações de várias escritas, porque não há CI e porque o frontend é um único arquivo de mais de 1000 linhas. Não cai para 2 porque os testes que existem verificam regra de negócio com valores exatos e a duplicação é pequena. As faixas de tier da especificação não estão implementadas (pontos fixos por troféu); a regra foi marcada como ausente, mas os rótulos usados contradizem as faixas (ouro 120/150/200, prata 75/80).",
+    "evidencias":  [
+                       {
+                           "local":  "server/rules.js:4-44",
+                           "descricao":  "Regras de pontos, medalhas e troféus concentradas em dados declarativos; mudar uma regra mexe num lugar só."
+                       },
+                       {
+                           "local":  "server/rules.js:25,27,28,32,34",
+                           "descricao":  "Valores fora das faixas da especificação: lente_de_ouro ouro 120, popular prata 80, celebridade ouro 150, colecionador prata 75, lenda ouro 200; não há Diamante."
+                       },
+                       {
+                           "local":  "server/services.js:62-80",
+                           "descricao":  "checkTrophies genérico orientado por stat/target, com ON CONFLICT DO NOTHING RETURNING contra concessão duplicada."
+                       },
+                       {
+                           "local":  "server/services.js:91-96",
+                           "descricao":  "Teto de 3 posts pontuados por dia lê e depois escreve sem transação (corrida possível); apagar o post (linha 106) reabre a cota do dia."
+                       },
+                       {
+                           "local":  "server/services.js:165-186",
+                           "descricao":  "giveMedal faz várias escritas sem transação; Number(student_id) ausente vira NaN, segue para o SQL e provavelmente gera 500 em vez de 400."
+                       },
+                       {
+                           "local":  "server/services.js:188-197",
+                           "descricao":  "revokeMedal estorna pontos da medalha e das curtidas do post gerado em vários comandos sem transação."
+                       },
+                       {
+                           "local":  "server/services.js:200-213",
+                           "descricao":  "Ranking ordenado corretamente (points DESC, name ASC); sem tratamento de posição compartilhada em empate."
+                       },
+                       {
+                           "local":  "server/services.js:215-222",
+                           "descricao":  "positions() carrega o ranking inteiro em memória a cada visita de perfil."
+                       },
+                       {
+                           "local":  "server/index.js:376-387",
+                           "descricao":  "POST /api/notices aceita course_id sem verificar existência; id inexistente quebra a FK e vira 500 genérico."
+                       },
+                       {
+                           "local":  "server/index.js:124,157,186",
+                           "descricao":  "Mesma checagem de curso existente repetida em três rotas (duplicação pequena)."
+                       },
+                       {
+                           "local":  "server/index.js:20-24",
+                           "descricao":  "Helpers int/clean normalizam a entrada com limite de tamanho de forma consistente."
+                       },
+                       {
+                           "local":  "server/index.js:415-422",
+                           "descricao":  "Handler de erro centralizado, sem vazar detalhes no 500."
+                       },
+                       {
+                           "local":  "server/db.js:12-44",
+                           "descricao":  "Adaptador de banco com a mesma interface para Postgres e PGlite, padrão usado onde ajuda."
+                       },
+                       {
+                           "local":  "test/api.test.js:75-132",
+                           "descricao":  "Teste de integração verifica soma exata de pontos (162), estorno (60) e as permissões principais (403)."
+                       },
+                       {
+                           "local":  "test/api.test.js",
+                           "descricao":  "Só 5 cenários; sem testes de unidade, sem fronteira de limiar de troféu, sem ordem do ranking com empate; dependem do seed e da ordem de execução."
+                       },
+                       {
+                           "local":  "raiz do repositório",
+                           "descricao":  "Sem .github/workflows ou outra configuração de CI; sem lint configurado."
+                       },
+                       {
+                           "local":  "public/app.js:1-1013+",
+                           "descricao":  "Frontend inteiro (telas, roteador, helpers) num único arquivo de mais de 1000 linhas."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Tier que determina a pontuação por faixa (Bronze 1-30, Prata 31-70, Ouro 71-100, Diamante 101-150); pontos fixos por troféu e sem Diamante",
+                            "Tier para medalhas",
+                            "Progressão da mesma conquista para o tier acima",
+                            "Nível de encontrabilidade dos prêmios",
+                            "Professor só dá medalha a alunos que leciona ou orienta",
+                            "Ex-aluno mantém posição no ranking mas não pontua mais",
+                            "Login por RA",
+                            "Rankings all-time por curso e curso global (existem geral e por curso, com filtro sempre/este mês)",
+                            "Cadastro de troféus e medalhas pelo corpo da faculdade pela interface",
+                            "Troféus por assiduidade, techdays e feiras",
+                            "Prova por foto, denúncia e revogação de troféu",
+                            "Log de leitura dos avisos e marcação de não lido"
+                        ],
+    "decisoes_do_agente":  [
+                               "Modelar pontos como extrato de lançamentos (tabela points com ref) e calcular o ranking como soma, permitindo estorno",
+                               "Concentrar todas as regras de pontos, medalhas e troféus em dados declarativos em server/rules.js",
+                               "Criar adaptador de banco com a mesma interface para PGlite (local e testes em memória) e Postgres (DATABASE_URL)",
+                               "Usar classe HttpError com handler de erro centralizado no Express 5",
+                               "Escrever testes de integração HTTP com node:test, sem biblioteca externa, com banco em memória",
+                               "Limitar a pontuação a 3 posts por dia e as medalhas a 30 por professor por dia",
+                               "Não pontuar curtida na própria foto e retirar os pontos ao descurtir",
+                               "Troféus e medalhas geram posts automáticos no feed",
+                               "Não retirar troféu quando o aluno apaga fotos depois",
+                               "Desempatar o ranking pelo nome",
+                               "JavaScript puro no frontend, sem framework nem build, num único app.js",
+                               "Guardar imagens como BYTEA no banco, com validação de MIME e limite de 4 MB",
+                               "Criar o endpoint /api/auth/banca, que gera contas de visitante"
+                           ],
+    "nao_verificado":  [
+                           "Se npm test passa (os 5 testes não foram executados)",
+                           "Se o servidor sobe e se as dependências instalam sem erro",
+                           "Como pg e PGlite tratam NaN como parâmetro inteiro em giveMedal (inferido erro 500, não confirmado)",
+                           "Corrida no teto diário de posts e estado parcial sem transação, que só aparecem com concorrência real",
+                           "Comportamento das telas no navegador (public/app.js)",
+                           "Testes de referência de fronteira, entradas inválidas e ordem do ranking: não há resultado disponível para este produto"
+                       ]
+}

@@ -1,0 +1,181 @@
+{
+    "produto":  "leigo_pu",
+    "eixo":  "arquitetura",
+    "secao":  "6. Projeto e arquitetura",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T01:07:22-03:00",
+    "fim":  "2026-11-09T01:09:36-03:00",
+    "duracao_s":  134,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo-pu",
+    "ref":  "main",
+    "hash_avaliado":  "ce76942b7aa1ebb3a016df705972fc32483cf98f",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "8eb58f88-645a-48ea-83fc-48e0cb8aec3c",
+    "tokens":  {
+                   "entrada":  16,
+                   "saida":  12832,
+                   "cache_criacao":  60163,
+                   "cache_leitura":  281770
+               },
+    "custo_usd":  0.794362,
+    "turnos":  22,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "f38dc3a441e5c41e81ab909a0934371908f5780243ec5d6e9986f9f706862af0",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  21,
+    "nota":  4,
+    "justificativa":  "Backend em camadas coerentes com a stack (config.js, db.js como adaptador PGlite/PostgreSQL, auth.js, rules.js como catálogo de regras, services.js com a lógica de negócio, index.js com as rotas), pontos em extrato (tabela points) que dá o ranking \u0027sempre\u0027 e \u0027do mês\u0027 e o estorno sem total para manter, regras de pontuação quase todas em rules.js, roteador por tabela no front e decisões justificadas em DECISOES.md. Fica no limite do 4 e longe do 5 porque: index.js faz SQL direto e tem regra de negócio (cadastro, visibilidade e fixação de avisos, montagem de perfil e conquistas, consulta do feed), então a camada de serviços cobre só metade do domínio; há acoplamentos evitáveis (auth.js importa HttpError de services.js; MEDALS_PER_DAY e limites de imagem fora de rules.js; \u0027+10 pts\u0027 fixo no front); o modelo de dados não representa tiers, períodos nem o vínculo professor-aluno (catálogo só no código, tier como rótulo sem relação com os pontos, TEXT sem chave estrangeira); a escala é de TCC (ranking recalculado inteiro por consulta, positions() recalcula tudo a cada perfil, fotos em BYTEA, limite de tentativas em memória); o front é um arquivo único de cerca de 1.030 linhas. O pitch está coberto, com lacunas listadas como ausentes.",
+    "evidencias":  [
+                       {
+                           "local":  "server/rules.js:1-44",
+                           "descricao":  "Catálogo central de pontos, medalhas e troféus; as regras de pontuação ficam localizadas aqui."
+                       },
+                       {
+                           "local":  "server/rules.js:22-36",
+                           "descricao":  "Tier é só rótulo (bronze, prata, ouro; sem diamante) e não determina os pontos: \u0027popular\u0027 é Prata e vale 80, \u0027lenda\u0027 é Ouro e vale 200."
+                       },
+                       {
+                           "local":  "server/rules.js:42-43",
+                           "descricao":  "Textos \u0027de +20 a +100\u0027 e \u0027de +15 a +200\u0027 escritos à mão, sem sair do catálogo."
+                       },
+                       {
+                           "local":  "server/schema.sql:82-92",
+                           "descricao":  "Tabela points em extrato; o ranking é a soma e o mensal sai de created_at."
+                       },
+                       {
+                           "local":  "server/schema.sql:65-80",
+                           "descricao":  "medals.type e user_trophies.code em TEXT sem chave estrangeira; o catálogo não está no banco."
+                       },
+                       {
+                           "local":  "server/schema.sql:17-29",
+                           "descricao":  "users sem RA, período, estado de ex-aluno ou relação de turma; papéis num CHECK com aluno, professor e admin."
+                       },
+                       {
+                           "local":  "server/db.js:12-44",
+                           "descricao":  "Adaptador único para PGlite e PostgreSQL com o mesmo SQL."
+                       },
+                       {
+                           "local":  "server/services.js:162-186",
+                           "descricao":  "MEDALS_PER_DAY fora de rules.js; qualquer professor ou o admin dá medalha a qualquer aluno."
+                       },
+                       {
+                           "local":  "server/services.js:200-222",
+                           "descricao":  "Ranking agregado na hora; positions() recalcula o ranking inteiro para achar uma posição."
+                       },
+                       {
+                           "local":  "server/index.js:104-135",
+                           "descricao":  "Regra de cadastro (domínio do e-mail, código de professor) na camada de rotas."
+                       },
+                       {
+                           "local":  "server/index.js:360-387",
+                           "descricao":  "Regras do mural (visibilidade por curso, só o admin fixa) com SQL direto na rota."
+                       },
+                       {
+                           "local":  "server/index.js:42-55",
+                           "descricao":  "Consulta do feed (FEED_SELECT) definida na camada de rotas, fora de services.js."
+                       },
+                       {
+                           "local":  "server/auth.js:4",
+                           "descricao":  "auth.js depende de services.js só para usar HttpError."
+                       },
+                       {
+                           "local":  "server/auth.js:73-88",
+                           "descricao":  "Limite de tentativas num Map em memória; não vale com várias instâncias."
+                       },
+                       {
+                           "local":  "public/app.js:474",
+                           "descricao":  "\u0027+10 pts\u0027 fixo no texto, duplicando POINTS.post, que já vem em /api/config (server/index.js:90)."
+                       },
+                       {
+                           "local":  "public/app.js:976-1011",
+                           "descricao":  "Roteador por tabela de rotas; incluir tela nova não exige retrabalho."
+                       },
+                       {
+                           "local":  "public/app.js:208-214",
+                           "descricao":  "Navegação de baixo com Feed, Avisos, +, Ranking e Conquistas; sem Busca, e o Perfil fica no avatar do topo."
+                       },
+                       {
+                           "local":  "DECISOES.md:7-68",
+                           "descricao":  "Decisões justificadas, incluindo o limite de escala reconhecido no item 12."
+                       },
+                       {
+                           "local":  "test/api.test.js:44-134",
+                           "descricao":  "Só 5 testes de API ponta a ponta."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Login por RA; o cadastro não guarda RA",
+                            "Esqueci minha senha",
+                            "Ex-aluno que mantém acesso e posição no ranking, mas não pontua mais",
+                            "Tier Diamante",
+                            "Tier determinando a pontuação (Bronze 1-30, Prata 31-70, Ouro 71-100, Diamante 101-150)",
+                            "Tier em medalhas",
+                            "Progressão da mesma conquista para o tier de cima, com a trilha de progressão na tela",
+                            "Professor dar medalha só a aluno que leciona ou orienta",
+                            "Cadastro de troféus e medalhas pelo corpo da faculdade",
+                            "Troféus por assiduidade, techdays e feiras, e prêmios concedidos por seminários e provas",
+                            "Prova por foto, denúncia e revogação de prêmio marcado errado",
+                            "Categorias Faculdade, Curso e Professores no mural, com filtro",
+                            "Colapso e semi-colapso dos avisos, marcador de não lido e \u0027ler todos\u0027",
+                            "Log de leitura dos avisos",
+                            "Notificações (sino)",
+                            "Seguidores, seguindo e \u0027followed by\u0027",
+                            "\u0027Último troféu\u0027 em destaque no perfil",
+                            "Compartilhar post",
+                            "Selo de conquista associado a um post de foto",
+                            "Busca geral na navegação",
+                            "Filtro \u0027mostrar não obtidos\u0027"
+                        ],
+    "decisoes_do_agente":  [
+                               "PWA em JavaScript puro, sem framework nem etapa de build, servida pelo Express",
+                               "Monólito Express com o código em camadas: config, db, auth, services, rules e rotas",
+                               "Adaptador de banco duplo: PGlite local e PostgreSQL/Neon quando há DATABASE_URL",
+                               "Fotos em BYTEA no banco, reduzidas no navegador para 1080 px",
+                               "Pontos guardados como extrato, com ranking recalculado a cada consulta",
+                               "Ranking mensal pelo horário de Brasília (UTC-3 fixo), interpretando geral e all-time como \u0027este mês\u0027 e \u0027sempre\u0027",
+                               "Catálogo de 7 medalhas e 13 troféus automáticos por estatística no código, não no banco",
+                               "Conquistas viram posts do feed (kind igual a medalha ou troféu)",
+                               "Só alunos publicam fotos e aparecem no ranking",
+                               "Papel admin (secretaria) com moderação e fixação de avisos",
+                               "Contas de visitante para a banca (is_guest), com código no link e sessão de 7 dias",
+                               "Código de professor exigido no cadastro de professor",
+                               "Limites diários fixos: 3 fotos pontuam por dia e cada professor dá até 30 medalhas por dia",
+                               "Retirar medalha estorna os pontos dela e das curtidas no post; troféu ganho nunca se perde",
+                               "Sessão em tabela no banco e limite de tentativas em memória",
+                               "Roteamento no navegador por hash",
+                               "render.yaml para deploy no Render e alternativa pelo Cloudflare Tunnel"
+                           ],
+    "nao_verificado":  [
+                           "Se o app sobe e se npm test passa",
+                           "Se o mesmo SQL funciona no PostgreSQL do Neon (o agente diz que não testou)",
+                           "Como o ranking recalculado por consulta e as fotos em BYTEA se comportam com muitos usuários",
+                           "Como as telas aparecem no navegador e se a navegação funciona de ponta a ponta",
+                           "Se o deploy pelo render.yaml funciona"
+                       ]
+}

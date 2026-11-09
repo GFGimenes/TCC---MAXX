@@ -1,0 +1,180 @@
+{
+    "produto":  "leigo_pu",
+    "eixo":  "infra",
+    "secao":  "3. Infraestrutura",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T01:02:32-03:00",
+    "fim":  "2026-11-09T01:04:15-03:00",
+    "duracao_s":  103,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo-pu",
+    "ref":  "main",
+    "hash_avaliado":  "ce76942b7aa1ebb3a016df705972fc32483cf98f",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "878270ce-fc29-41d4-816c-a671db8999e7",
+    "tokens":  {
+                   "entrada":  14,
+                   "saida":  10787,
+                   "cache_criacao":  47164,
+                   "cache_leitura":  202589
+               },
+    "custo_usd":  0.6336257999999999,
+    "turnos":  23,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "798a385c0e94dd15e8d467fae97ef17b3b4b72fa634b12ae76d13f066b86344b",
+    "encaixe":  {
+                    "presente":  false,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  "Sem relatório de carga em C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\avaliacoes\\carga para \u0027leigo_pu-*\u0027. O eixo Infraestrutura segue sem ele."
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  22,
+    "nota":  2,
+    "justificativa":  "Produto bem preparado para rodar fora da máquina do autor: dependências declaradas com lockfile, execução local com npm install/npm start e banco embutido (PGlite), README passo a passo, configuração por variáveis de ambiente centralizada em server/config.js, Blueprint render.yaml com health check e banco gerenciado separado (Neon) via DATABASE_URL, sessões no banco. O critério que define o 3 é \u0027deploy funcionando numa URL\u0027, mas o agente declara que não publicou nem testou o deploy (DECISOES.md:59) e o repositório não tem remoto nem URL registrada; por isso vale a descrição do 2 (\u0027sem deploy\u0027). É um 2 alto, que pode subir para 3 se o avaliador confirmar uma URL publicada. Não há nada do nível 4 além das variáveis de ambiente e do banco separado: sem contêiner, sem CI, sem backup, sem migrações; sem DATABASE_URL o app cai para disco efêmero sem aviso; os dados de exemplo e os fallbacks de senha (maxx123, admin-unimax) vão para produção por padrão; fotos em BYTEA servidas pela API; ranking sem cache recalculado a cada visita de perfil; limite de tentativas em memória; observabilidade limitada a console.error. Não há relatório de teste de carga; a nota foi dada sem ele.",
+    "evidencias":  [
+                       {
+                           "local":  "render.yaml:3-25",
+                           "descricao":  "Blueprint do Render (plano grátis, npm ci, npm start, healthCheckPath /api/health, NODE_VERSION 22); DATABASE_URL/ADMIN_PASSWORD/PROFESSOR_CODE com sync:false; BANCA_CODE fixo no arquivo (banca2026)."
+                       },
+                       {
+                           "local":  "DECISOES.md:59",
+                           "descricao":  "Agente declara que não publicou o app e não testou o deploy no Render/Neon, só localmente."
+                       },
+                       {
+                           "local":  ".git/config:1-7",
+                           "descricao":  "Nenhum remoto configurado; não há prova de que o código foi publicado."
+                       },
+                       {
+                           "local":  "server/config.js:4-20",
+                           "descricao":  "Configuração toda por variável de ambiente, mas com fallbacks fixos no código para código de professor, código da banca, senha do admin e senha das contas de exemplo."
+                       },
+                       {
+                           "local":  "server/db.js:14-40",
+                           "descricao":  "PostgreSQL com pool max 5 e SSL rejectUnauthorized:false quando há DATABASE_URL; sem ela, PGlite no disco local data/pglite, sem aviso nem bloqueio em produção."
+                       },
+                       {
+                           "local":  "server/db.js:41-42",
+                           "descricao":  "Schema aplicado a cada boot com IF NOT EXISTS; sem ferramenta de migração nem versionamento do schema."
+                       },
+                       {
+                           "local":  "README.md:91-93",
+                           "descricao":  "Avisa que o app dorme no plano grátis e que, sem Neon, os dados se perdem quando o Render reiniciar."
+                       },
+                       {
+                           "local":  "server/index.js:65",
+                           "descricao":  "seedIfEmpty roda por padrão (SEED_DEMO=true); render.yaml não desliga, então a produção nasce com as contas de exemplo e as senhas publicadas no README.md:36-43."
+                       },
+                       {
+                           "local":  "server/seed.js:117-121",
+                           "descricao":  "Contas de exemplo e conta da secretaria criadas com as senhas da config (fallbacks maxx123 e admin-unimax)."
+                       },
+                       {
+                           "local":  "server/schema.sql:9-15",
+                           "descricao":  "Fotos guardadas no banco (tabela images, coluna BYTEA), sem armazenamento de objetos."
+                       },
+                       {
+                           "local":  "server/index.js:94-101",
+                           "descricao":  "Imagens servidas pela própria API (/api/img/:id) com Cache-Control immutable; sem CDN."
+                       },
+                       {
+                           "local":  "server/index.js:70",
+                           "descricao":  "Upload em base64 dentro do JSON, com limite de 8mb, processado na memória do processo."
+                       },
+                       {
+                           "local":  "server/auth.js:22-65",
+                           "descricao":  "Sessões na tabela sessions (API sem estado de sessão); não há limpeza das sessões expiradas."
+                       },
+                       {
+                           "local":  "server/auth.js:72-88",
+                           "descricao":  "Limite de tentativas num Map em memória: zera ao reiniciar e não é compartilhado entre instâncias."
+                       },
+                       {
+                           "local":  "server/services.js:200-222",
+                           "descricao":  "Ranking soma toda a tabela points, sem LIMIT nem cache; positions() recalcula o ranking inteiro a cada GET /api/users/:id."
+                       },
+                       {
+                           "local":  "server/index.js:79",
+                           "descricao":  "Health check responde ok e o tipo de banco, mas não testa a conexão com o banco."
+                       },
+                       {
+                           "local":  "server/index.js:417",
+                           "descricao":  "Observabilidade limitada a console.error em erros 500; sem log de requisições nem métricas."
+                       },
+                       {
+                           "local":  "server/reset.js:6",
+                           "descricao":  "npm run reset apaga todas as tabelas no banco configurado, inclusive o de produção se DATABASE_URL estiver definida; sem confirmação nem backup antes."
+                       },
+                       {
+                           "local":  "test/api.test.js:6-16",
+                           "descricao":  "Testes rodam só com PGlite em memória; o caminho PostgreSQL de verdade (pg) não tem cobertura."
+                       },
+                       {
+                           "local":  "package.json:8-22",
+                           "descricao":  "engines node \u003e=20, scripts start/dev/test/reset, três dependências declaradas, package-lock.json presente."
+                       },
+                       {
+                           "local":  "public/sw.js:17-31",
+                           "descricao":  "Service worker busca primeiro na rede e não guarda /api/ em cache."
+                       },
+                       {
+                           "local":  "README.md:19-93",
+                           "descricao":  "Instruções de execução local e dos três caminhos de publicação (rede local, Cloudflare Tunnel, Render+Neon)."
+                       },
+                       {
+                           "local":  "raiz do repositório",
+                           "descricao":  "Não há Dockerfile, docker-compose, workflow de CI (.github/), .env.example nem política ou script de backup."
+                       }
+                   ],
+    "regras_ausentes":  [
+
+                        ],
+    "decisoes_do_agente":  [
+                               "Hospedar no Render, plano grátis, com Blueprint render.yaml e auto-deploy a cada push",
+                               "Usar Neon como PostgreSQL gerenciado em produção e PGlite embutido no computador local, com o mesmo SQL",
+                               "Guardar as fotos no próprio banco (BYTEA) em vez de armazenamento de objetos, com redução para 1080 px no cliente",
+                               "Oferecer o Cloudflare Tunnel como alternativa de link temporário a partir do PC",
+                               "Criar os dados de exemplo automaticamente quando o banco está vazio, ligado por padrão, inclusive em produção",
+                               "Colocar fallbacks fixos no código para senhas e códigos (admin, demo, professor, banca)",
+                               "Fixar BANCA_CODE=banca2026 em texto no render.yaml",
+                               "Guardar as sessões no banco, com cookie httpOnly",
+                               "Limitar tentativas de login e cadastro em memória, por IP",
+                               "Usar pool de conexões com max 5 e SSL sem verificar o certificado",
+                               "Criar o health check em /api/health",
+                               "Configurar trust proxy para funcionar atrás do Render ou do Cloudflare",
+                               "Aplicar o schema a cada boot com IF NOT EXISTS em vez de usar migrações",
+                               "Criar o script npm run reset, que apaga todas as tabelas",
+                               "Fazer o app como PWA com service worker que busca primeiro na rede",
+                               "Usar fuso fixo UTC-3 no cálculo do ranking mensal",
+                               "Assumir a escala de um TCC (centenas de usuários) e documentar o limite"
+                           ],
+    "nao_verificado":  [
+                           "Se o Blueprint do Render sobe de fato com npm ci/npm start em Node 22",
+                           "Se existe alguma URL publicada e funcionando (nenhuma registrada no repositório)",
+                           "Se a conexão com o Neon (pg, SSL) e o schema funcionam num PostgreSQL de verdade; os testes só cobrem o PGlite em memória",
+                           "Se npm install e npm start funcionam em máquina limpa, incluindo a compatibilidade do PGlite 0.5.x com Node 20 e 22",
+                           "Se a suíte npm test passa",
+                           "Como a API se comporta sob carga; não há relatório de teste de carga",
+                           "Se o Render aceita deixar DATABASE_URL vazio (sync:false) na criação do Blueprint",
+                           "Quanto o banco cresce com fotos em BYTEA em relação ao limite de 0,5 GB do Neon grátis"
+                       ]
+}
