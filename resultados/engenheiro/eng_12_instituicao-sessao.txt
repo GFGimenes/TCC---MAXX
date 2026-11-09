@@ -9149,3 +9149,826 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt
   9.
 
 ✻ Cogitated for 28m 30s · done 16:52
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt 
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_12_instituicao-sessao.txt
+
+> Etapa 8 aprovada, capturas conferidas. Os dois acréscimos na API ficam como   
+  você fez. Commita com a mensagem proposta, push, acompanha a CI e segue para  
+  a etapa 9; no fim dela, para para a minha revisão com as capturas do novo     
+  aviso da instituição (escopo, chips de cursos, foto) e da tela da purga       
+  (lista de lotes e confirmação), em claro e escuro, com a mensagem de commit   
+  antes de commitar.                                                            
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 8 rodando. Começo a etapa 9 lendo o novo aviso do professor, que a
+  instituição vai reaproveitar.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Vou tornar o formulário de aviso um componente compartilhado entre professor e
+  instituição, e depois conferir o corpo aceito por POST /v1/avisos.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -n
+      8,20p components/SegmentedControl.tsx; perl -0pi -e '
+      s/export int…)
+  ⎿  interface SegmentedControlProps<T extends string> {
+       // Nome do grupo para o leitor de tela.
+       label: string;
+     … +24 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\api.ts (+11 -4)
+      105    });
+      106  }
+      107  
+      108 +// Para quem: as turmas do professor, ou a faculdade ou os cur
+          +sos, da instituição (passo 12).                               
+      109 +export type AlvoDoAviso =                                     
+      110 +  | { escopo: "turma"; turmaIds: string[] }                   
+      111 +  | { escopo: "faculdade" }                                   
+      112 +  | { escopo: "curso"; cursoIds: string[] };                  
+      113 +                                                              
+      114  export interface NovoAviso {
+      109 -  turmaIds: string[];                                         
+      115 +  alvo: AlvoDoAviso;                                          
+      116    titulo: string;
+      117    texto: string;
+      118    derivadas: Derivadas | null;
+     ...
+      125    "foto-nao-enviada",
+      126  ]);
+      127  
+      122 -// Publicar o aviso do professor para as turmas dele (produto.
+          -md 7): sobe a foto, se houver,                                
+      128 +// Publicar o aviso (produto.md 7): do professor para as turma
+          +s dele, ou da instituição para a                              
+      129 +// faculdade ou para um ou mais cursos. Sobe a foto, se houver
+          +,                                                             
+      130  // e cria o aviso com o id do upload. Se o aviso falhar por ou
+           tro motivo, a foto já enviada
+      131  // é reaproveitada na próxima tentativa, como no novo post, se
+           m gastar o limite de upload.
+      132  export function usePublicarAviso() {
+     ...
+      137    );
+      138  
+      139    return useMutation({
+      133 -    mutationFn: async ({ turmaIds, titulo, texto, derivadas }:
+          - NovoAviso) => {                                              
+      140 +    mutationFn: async ({ alvo, titulo, texto, derivadas }: Nov
+          +oAviso) => {                                                  
+      141        let uploadId: string | null = null;
+      142        if (derivadas) {
+      143          uploadId =
+     ...
+      148        }
+      149  
+      150        const { data, error } = await client.POST("/api/v1/aviso
+           s", {
+      144 -        body: { escopo: "turma", turmaIds, titulo, texto, uplo
+          -adId },                                                       
+      151 +        body: { ...alvo, titulo, texto, uploadId },           
+      152        });
+      153        if (!data) {
+      154          const falha = FalhaDaApi.doCorpo(error);
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e 's/\/\/ faculdade ou para um ou mais cursos\. Sobe a foto, s…)
+  ⎿    "upload-ja-usado",
+       "foto-nao-enviada",
+     ]);
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\api.ts (+2 -2)
+      126  ]);
+      127  
+      128  // Publicar o aviso (produto.md 7): do professor para as turma
+           s dele, ou da instituição para a
+      129 -// faculdade ou para um ou mais cursos. Sobe a foto, se houver
+          -,                                                             
+      130 -// e cria o aviso com o id do upload. Se o aviso falhar por ou
+          -tro motivo, a foto já enviada                                 
+      129 +// faculdade ou para um ou mais cursos. Sobe a foto, se houver
+          +, e cria o aviso com o id do                                  
+      130 +// upload. Se o aviso falhar por outro motivo, a foto já envia
+          +da                                                            
+      131  // é reaproveitada na próxima tentativa, como no novo post, se
+           m gastar o limite de upload.
+      132  export function usePublicarAviso() {
+      133    const client = useApiClient();
+
+● Agora o formulário compartilhado e o novo aviso do professor usando-o.
+
+● Write(apps\mobile\src\mural\FormularioDoAviso.tsx)
+  ⎿  Wrote 217 lines to apps\mobile\src\mural\FormularioDoAviso.tsx
+      1 import { useState, type ReactNode } from "react";
+      2 import {
+      3   ActivityIndicator,
+      4   Image,
+      5   Pressable,
+      6   StyleSheet,
+      7   Text,
+      8   View,
+      9 } from "react-native";
+     … +208 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\mural\NovoAvisoScreen.tsx)
+  ⎿  Added 60 lines, removed 242 lines
+        1  import { useRouter } from "expo-router";
+        2  import { useState } from "react";
+        3 -import {                                                      
+        4 -  ActivityIndicator,                                          
+        5 -  Image,                                                      
+        6 -  Pressable,                                                  
+        7 -  StyleSheet,                                                 
+        8 -  Text,                                                       
+        9 -  View,                                                       
+       10 -} from "react-native";                                        
+        3 +import { ActivityIndicator, StyleSheet, Text, View } from "rea
+          +ct-native";                                                   
+        4  
+        5  import { falhaParaTela } from "../api/FalhaDaApi";
+        6  import { useEu } from "../api/useEu";
+       14 -import { AvisoDeErro } from "../autenticacao/AvisoDeErro";    
+       15 -import { Button } from "../components/Button";                
+        7  import { Cabecalho } from "../components/Cabecalho";
+        8  import { FilterChip } from "../components/FilterChip";
+       18 -import { Icon } from "../components/Icon";                    
+        9  import { Screen } from "../components/Screen";
+       10  import { EmptyState, ErrorState } from "../components/StateMes
+           sage";
+       21 -import { TextField } from "../components/TextField";          
+       22 -import {                                                      
+       23 -  FotoGrandeDemais,                                           
+       24 -  gerarDerivadas,                                             
+       25 -  type Derivadas,                                             
+       26 -} from "../fotos/derivadas";                                  
+       27 -import { escolherFoto } from "../fotos/envio";                
+       11  import { useTurmasDoProfessor } from "../professor/api";
+       12  import { textStyles } from "../theme/fonts";
+       13  import { useTheme } from "../theme/ThemeProvider";
+       31 -import { raios } from "../theme/tokens";                      
+       32 -import { usePublicarAviso } from "./api";                     
+       14 +import { FormularioDoAviso } from "./FormularioDoAviso";      
+       15  
+       34 -// Os limites do aviso (produto.md 7), como a API conta: um em
+          -oji vale um caractere.                                        
+       35 -export const TITULO_MINIMO = 3;                               
+       36 -export const TITULO_MAXIMO = 120;                             
+       37 -export const TEXTO_MAXIMO = 2000;                             
+       16 +export {                                                      
+       17 +  TEXTO_MAXIMO,                                               
+       18 +  TITULO_MAXIMO,                                              
+       19 +  TITULO_MINIMO,                                              
+       20 +} from "./FormularioDoAviso";                                 
+       21  
+       39 -const caracteres = (texto: string) => Array.from(texto.trim())
+          -.length;                                                      
+       40 -                                                              
+       22  // Novo aviso do professor (produto.md 7), pelo "+" do Mural. 
+           Sem prancheta: segue a
+       23  // identidade visual e o novo post. O professor escolhe uma ou
+            mais turmas suas do semestre
+       43 -// vigente, escreve título e texto e, se quiser, uma foto, que
+          - sobe como a do post. A                                       
+       44 -// recusa da API aparece aqui mesmo, sem perder o que foi digi
+          -tado.                                                         
+       24 +// vigente, escreve título e texto e, se quiser, uma foto, que
+          + sobe como a do post. O aviso                                 
+       25 +// da faculdade e dos cursos sai pela área da instituição (pas
+          +so 12).                                                       
+       26  export function NovoAvisoScreen() {
+       27    const { colors } = useTheme();
+       28    const router = useRouter();
+       29    const eu = useEu();
+       30    const ehProfessor = eu.data?.papeis.includes("professor") ??
+            false;
+       31    const turmas = useTurmasDoProfessor(ehProfessor);
+       51 -  const publicar = usePublicarAviso();                        
+       52 -                                                              
+       32    const [escolhidas, setEscolhidas] = useState<string[]>([]);
+       54 -  const [titulo, setTitulo] = useState("");                   
+       55 -  const [texto, setTexto] = useState("");                     
+       56 -  const [derivadas, setDerivadas] = useState<Derivadas | null>
+          -(null);                                                       
+       57 -  const [preparando, setPreparando] = useState(false);        
+       58 -  const [erroDaFoto, setErroDaFoto] = useState<string | null>(
+          -null);                                                        
+       33  
+       60 -  const tamanhoDoTitulo = caracteres(titulo);                 
+       61 -  const tamanhoDoTexto = caracteres(texto);                   
+       62 -  const tituloLongo = tamanhoDoTitulo > TITULO_MAXIMO;        
+       63 -  const textoLongo = tamanhoDoTexto > TEXTO_MAXIMO;           
+       64 -  const ocupado = preparando || publicar.isPending;           
+       65 -  const completo =                                            
+       66 -    escolhidas.length > 0 &&                                  
+       67 -    tamanhoDoTitulo >= TITULO_MINIMO &&                       
+       68 -    !tituloLongo &&                                           
+       69 -    tamanhoDoTexto >= 1 &&                                    
+       70 -    !textoLongo;                                              
+       71 -                                                              
+       72 -  const alternar = (turmaId: string) => {                     
+       73 -    publicar.reset();                                         
+       74 -    setEscolhidas((atuais) =>                                 
+       75 -      atuais.includes(turmaId)                                
+       76 -        ? atuais.filter((id) => id !== turmaId)               
+       77 -        : [...atuais, turmaId],                               
+       78 -    );                                                        
+       79 -  };                                                          
+       80 -                                                              
+       81 -  const trocarFoto = async () => {                            
+       82 -    setErroDaFoto(null);                                      
+       83 -    publicar.reset();                                         
+       84 -    try {                                                     
+       85 -      const foto = await escolherFoto();                      
+       86 -      if (!foto) return;                                      
+       87 -      setPreparando(true);                                    
+       88 -      setDerivadas(await gerarDerivadas(foto));               
+       89 -    } catch (erro) {                                          
+       90 -      setErroDaFoto(                                          
+       91 -        erro instanceof FotoGrandeDemais                      
+       92 -          ? erro.message                                      
+       93 -          : "Não deu para abrir essa foto. Escolha outra.",   
+       94 -      );                                                      
+       95 -    } finally {                                               
+       96 -      setPreparando(false);                                   
+       97 -    }                                                         
+       98 -  };                                                          
+       99 -                                                              
+       34    if (eu.isSuccess && !ehProfessor) {
+       35      return (
+       36        <Screen>
+     ...
+       47    return (
+       48      <Screen scroll>
+       49        <Cabecalho titulo="Novo aviso" voltarPara="/mural" />
+      116 -                                                              
+      117 -      <View style={styles.coluna}>                            
+      118 -        <View style={styles.secao}>                           
+      119 -          <Text                                               
+      120 -            role="heading"                                    
+      121 -            style={[textStyles.secao, { color: colors.ink }]} 
+      122 -          >                                                   
+      123 -            Para quais turmas                                 
+      124 -          </Text>                                             
+      125 -          <Text style={[textStyles.legenda, { color: colors.in
+          -k2 }]}>                                                       
+      126 -            Escolha uma ou mais turmas suas deste semestre.   
+      127 -          </Text>                                             
+      128 -          {turmas.isPending && ehProfessor && (               
+      129 -            <ActivityIndicator style={styles.espera} color={co
+          -lors.ink2} />                                                 
+      130 -          )}                                                  
+      131 -          {turmas.isError && (                                
+      132 -            <ErrorState                                       
+      133 -              message={falhaParaTela(turmas.error).mensagem}  
+      134 -              onRetry={() => void turmas.refetch()}           
+      135 -            />                                                
+      136 -          )}                                                  
+      137 -          {turmas.isSuccess && turmas.data.length === 0 && (  
+      138 -            <Text style={[textStyles.legenda, { color: colors.
+          -ink3 }]}>                                                     
+      139 -              Você não tem turma neste semestre.              
+       50 +      <FormularioDoAviso                                      
+       51 +        alvo={                                                
+       52 +          escolhidas.length > 0                               
+       53 +            ? { escopo: "turma", turmaIds: escolhidas }       
+       54 +            : null                                            
+       55 +        }                                                     
+       56 +        placeholderDoTexto="Escreva o aviso para a turma."    
+       57 +        onPublicado={() => router.dismissTo("/mural")}        
+       58 +        paraQuem={(ocupado, mudou) => (                       
+       59 +          <View style={styles.secao}>                         
+       60 +            <Text                                             
+       61 +              role="heading"                                  
+       62 +              style={[textStyles.secao, { color: colors.ink }]
+          +}                                                             
+       63 +            >                                                 
+       64 +              Para quais turmas                               
+       65              </Text>
+      141 -          )}                                                  
+      142 -          {turmas.isSuccess && turmas.data.length > 0 && (    
+      143 -            <View style={styles.chips}>                       
+      144 -              {turmas.data.map((turma) => (                   
+      145 -                <FilterChip                                   
+      146 -                  key={turma.id}                              
+      147 -                  label={`${turma.materia} · ${turma.curso}`} 
+      148 -                  selected={escolhidas.includes(turma.id)}    
+      149 -                  disabled={ocupado}                          
+      150 -                  onPress={() => alternar(turma.id)}          
+      151 -                />                                            
+      152 -              ))}                                             
+      153 -            </View>                                           
+      154 -          )}                                                  
+      155 -        </View>                                               
+      156 -                                                              
+      157 -        <View style={styles.campo}>                           
+      158 -          <TextField                                          
+      159 -            label="Título"                                    
+      160 -            value={titulo}                                    
+      161 -            onChangeText={(novo) => {                         
+      162 -              publicar.reset();                               
+      163 -              setTitulo(novo);                                
+      164 -            }}                                                
+      165 -            placeholder="Prova remarcada para 14/08"          
+      166 -            error={                                           
+      167 -              tituloLongo ? "O título passou de 120 caracteres
+          -." : undefined                                                
+      168 -            }                                                 
+      169 -          />                                                  
+      170 -          <Text                                               
+      171 -            style={[                                          
+      172 -              textStyles.legenda,                             
+      173 -              styles.contador,                                
+      174 -              { color: colors.ink3 },                         
+      175 -            ]}                                                
+      176 -          >                                                   
+      177 -            {`${tamanhoDoTitulo}/${TITULO_MAXIMO}`}           
+      178 -          </Text>                                             
+      179 -        </View>                                               
+      180 -                                                              
+      181 -        <View style={styles.campo}>                           
+      182 -          <TextField                                          
+      183 -            label="Texto"                                     
+      184 -            multiline                                         
+      185 -            value={texto}                                     
+      186 -            onChangeText={(novo) => {                         
+      187 -              publicar.reset();                               
+      188 -              setTexto(novo);                                 
+      189 -            }}                                                
+      190 -            placeholder="Escreva o aviso para a turma."       
+      191 -            error={                                           
+      192 -              textoLongo ? "O texto passou de 2.000 caracteres
+          -." : undefined                                                
+      193 -            }                                                 
+      194 -          />                                                  
+      195 -          <Text                                               
+      196 -            style={[                                          
+      197 -              textStyles.legenda,                             
+      198 -              styles.contador,                                
+      199 -              { color: colors.ink3 },                         
+      200 -            ]}                                                
+      201 -          >                                                   
+      202 -            {`${tamanhoDoTexto.toLocaleString("pt-BR")}/2.000`
+          -}                                                             
+      203 -          </Text>                                             
+      204 -        </View>                                               
+      205 -                                                              
+      206 -        <View style={styles.secao}>                           
+      207 -          <Text                                               
+      208 -            role="heading"                                    
+      209 -            style={[textStyles.secao, { color: colors.ink }]} 
+      210 -          >                                                   
+      211 -            Foto                                              
+      212 -          </Text>                                             
+      213 -          <Text style={[textStyles.legenda, { color: colors.in
+          -k2 }]}>                                                       
+      214 -            Opcional.                                         
+      215 -          </Text>                                             
+      216 -          <Pressable                                          
+      217 -            role="button"                                     
+      218 -            accessibilityLabel={derivadas ? "Trocar foto" : "E
+          -scolher foto"}                                                
+      219 -            disabled={ocupado}                                
+      220 -            onPress={() => void trocarFoto()}                 
+      221 -            style={({ pressed }) => [                         
+      222 -              styles.foto,                                    
+      223 -              { backgroundColor: colors.surface, borderColor: 
+          -colors.line },                                                
+      224 -              pressed && styles.pressionado,                  
+      225 -            ]}                                                
+      226 -          >                                                   
+      227 -            {derivadas ? (                                    
+      228 -              <Image                                          
+      229 -                testID="previa-da-foto"                       
+      230 -                source={{ uri: derivadas.feed.uri }}          
+      231 -                style={styles.imagem}                         
+      232 -                accessibilityIgnoresInvertColors              
+       66 +            <Text style={[textStyles.legenda, { color: colors.
+          +ink2 }]}>                                                     
+       67 +              Escolha uma ou mais turmas suas deste semestre. 
+       68 +            </Text>                                           
+       69 +            {turmas.isPending && ehProfessor && (             
+       70 +              <ActivityIndicator style={styles.espera} color={
+          +colors.ink2} />                                               
+       71 +            )}                                                
+       72 +            {turmas.isError && (                              
+       73 +              <ErrorState                                     
+       74 +                message={falhaParaTela(turmas.error).mensagem}
+       75 +                onRetry={() => void turmas.refetch()}         
+       76                />
+      234 -            ) : preparando ? (                                
+      235 -              <ActivityIndicator color={colors.ink2} />       
+      236 -            ) : (                                             
+      237 -              <View style={styles.convite}>                   
+      238 -                <Icon name="imagem" color={colors.ink2} size={
+          -32} />                                                        
+      239 -                <Text style={[textStyles.corpo, { color: color
+          -s.ink2 }]}>                                                   
+      240 -                  Escolher foto                               
+      241 -                </Text>                                       
+       77 +            )}                                                
+       78 +            {turmas.isSuccess && turmas.data.length === 0 && (
+       79 +              <Text style={[textStyles.legenda, { color: color
+          +s.ink3 }]}>                                                   
+       80 +                Você não tem turma neste semestre.            
+       81 +              </Text>                                         
+       82 +            )}                                                
+       83 +            {turmas.isSuccess && turmas.data.length > 0 && (  
+       84 +              <View style={styles.chips}>                     
+       85 +                {turmas.data.map((turma) => (                 
+       86 +                  <FilterChip                                 
+       87 +                    key={turma.id}                            
+       88 +                    label={`${turma.materia} · ${turma.curso}`
+          +}                                                             
+       89 +                    selected={escolhidas.includes(turma.id)}  
+       90 +                    disabled={ocupado}                        
+       91 +                    onPress={() => {                          
+       92 +                      mudou();                                
+       93 +                      setEscolhidas((atuais) =>               
+       94 +                        atuais.includes(turma.id)             
+       95 +                          ? atuais.filter((id) => id !== turma
+          +.id)                                                          
+       96 +                          : [...atuais, turma.id],            
+       97 +                      );                                      
+       98 +                    }}                                        
+       99 +                  />                                          
+      100 +                ))}                                           
+      101                </View>
+      102              )}
+      244 -          </Pressable>                                        
+      245 -          {derivadas && (                                     
+      246 -            <Button                                           
+      247 -              label="Remover foto"                            
+      248 -              variant="secondary"                             
+      249 -              disabled={ocupado}                              
+      250 -              onPress={() => {                                
+      251 -                publicar.reset();                             
+      252 -                setDerivadas(null);                           
+      253 -              }}                                              
+      254 -            />                                                
+      255 -          )}                                                  
+      256 -          {erroDaFoto && <AvisoDeErro mensagem={erroDaFoto} />
+          -}                                                             
+      257 -        </View>                                               
+      258 -                                                              
+      259 -        {publicar.isError && (                                
+      260 -          <AvisoDeErro mensagem={falhaParaTela(publicar.error)
+          -.mensagem} />                                                 
+      103 +          </View>                                             
+      104          )}
+      262 -        <Button                                               
+      263 -          label={publicar.isPending ? "Publicando..." : "Publi
+          -car aviso"}                                                   
+      264 -          disabled={!completo || ocupado}                     
+      265 -          onPress={() =>                                      
+      266 -            publicar.mutate(                                  
+      267 -              { turmaIds: escolhidas, titulo, texto, derivadas
+          - },                                                           
+      268 -              { onSuccess: () => router.dismissTo("/mural") },
+      269 -            )                                                 
+      270 -          }                                                   
+      271 -        />                                                    
+      272 -      </View>                                                 
+      105 +      />                                                      
+      106      </Screen>
+      107    );
+      108  }
+      109  
+      110  const styles = StyleSheet.create({
+      278 -  coluna: { gap: 24 },                                        
+      111    secao: { gap: 8 },
+      112    chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+      281 -  campo: { gap: 4 },                                          
+      282 -  contador: { alignSelf: "flex-end" },                        
+      113    espera: { marginTop: 8 },
+      284 -  foto: {                                                     
+      285 -    width: "100%",                                            
+      286 -    aspectRatio: 1,                                           
+      287 -    borderRadius: raios.cardMenor,                            
+      288 -    borderWidth: 1,                                           
+      289 -    overflow: "hidden",                                       
+      290 -    alignItems: "center",                                     
+      291 -    justifyContent: "center",                                 
+      292 -  },                                                          
+      293 -  imagem: { width: "100%", height: "100%" },                  
+      294 -  convite: { alignItems: "center", gap: 8 },                  
+      295 -  pressionado: { opacity: 0.85 },                             
+      114  });
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os testes do novo aviso do professor continuam verdes após a refatoração.
+  Agora o novo aviso da instituição e a tela da purga.
+
+● Write(apps\mobile\src\instituicao\NovoAvisoDaInstituicaoScreen.tsx)
+  ⎿  Wrote 131 lines to
+     apps\mobile\src\instituicao\NovoAvisoDaInstituicaoScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   ScrollView,
+       6   StyleSheet,
+       7   Text,
+       8   View,
+       9 } from "react-native";
+      10 import { useSafeAreaInsets } from "react-native-safe-area-contex
+     … +122 lines (~4 KB) (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && sed -i '/
+                        accessibilityLabel={curso.nome}/d' instituic…)
+  ⎿  ok
+  ⎿  Updated apps\mobile\src\instituicao\NovoAvisoDaInstituicaoScreen.tsx
+     (+0 -1)
+      102                    <FilterChip
+      103                      key={curso.id}
+      104                      label={curso.sigla}
+      105 -                    accessibilityLabel={curso.nome}           
+      105                      selected={escolhidos.includes(curso.id)}
+      106                      disabled={ocupado}
+      107                      onPress={() => {
+  ⎿  Updated apps\mobile\src\instituicao\api.ts (+54 -0)
+      2  import {
+      3    useInfiniteQuery,
+      4    useMutation,
+      5 +  useQuery,                                                     
+      6    useQueryClient,
+      7  } from "@tanstack/react-query";
+      8  
+     ...
+       86      onSettled: atualizar,
+       87    });
+       88  }
+       89 +                                                              
+       90 +export type LoteDaDemonstracao =                              
+       91 +  components["schemas"]["LoteDaDemonstracaoResponse"];        
+       92 +                                                              
+       93 +// Os lotes de demonstração no banco, do mais recente ao mais 
+          +antigo, com o vigente marcado.                                
+       94 +export function useLotes() {                                  
+       95 +  const client = useApiClient();                              
+       96 +                                                              
+       97 +  return useQuery({                                           
+       98 +    queryKey: ["instituicao", "lotes"],                       
+       99 +    queryFn: async () => {                                    
+      100 +      const { data, error } = await client.GET(               
+      101 +        "/api/v1/instituicao/demonstracao/lotes",             
+      102 +      );                                                      
+      103 +      if (!data) {                                            
+      104 +        throw FalhaDaApi.doCorpo(error);                      
+      105 +      }                                                       
+      106 +      return data;                                            
+      107 +    },                                                        
+      108 +  });                                                         
+      109 +}                                                             
+      110 +                                                              
+      111 +// A purga de um lote, com o nome dele digitado de novo (P6 do
+          + passo 12). Purgado, o lote sai                               
+      112 +// da lista; ranking, raridade e o feed mudam pelo worker.    
+      113 +export function usePurgar() {                                 
+      114 +  const client = useApiClient();                              
+      115 +  const queryClient = useQueryClient();                       
+      116 +                                                              
+      117 +  return useMutation({                                        
+      118 +    mutationFn: async ({                                      
+     … 23 more lines (ctrl+o to expand)
+
+● Agora a tela da purga.
+
+● Write(apps\mobile\src\instituicao\PurgaScreen.tsx)
+  ⎿  Wrote 178 lines to apps\mobile\src\instituicao\PurgaScreen.tsx
+      1 import { useState } from "react";
+      2 import {
+      3   ActivityIndicator,
+      4   ScrollView,
+      5   StyleSheet,
+      6   Text,
+      7   View,
+      8 } from "react-native";
+      9 import { useSafeAreaInsets } from "react-native-safe-area-context
+        ";
+     … +169 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && printf
+      'import { NovoAvisoDaInstituicaoScreen } from "../../../instituica…)
+  ⎿  Created apps\mobile\src\app\(app)\instituicao\novo-aviso.tsx (+3 -0)
+      1 +import { NovoAvisoDaInstituicaoScreen } from "../../../instituic
+        +ao/NovoAvisoDaInstituicaoScreen";                               
+      2 +                                                                
+      3 +export default NovoAvisoDaInstituicaoScreen;                    
+  ⎿  Created apps\mobile\src\app\(app)\instituicao\purga.tsx (+3 -0)
+      1 +import { PurgaScreen } from "../../../instituicao/PurgaScreen"; 
+      2 +                                                                
+      3 +export default PurgaScreen;                                     
+  ⎿  Updated apps\mobile\src\instituicao\AreaDaInstituicaoScreen.tsx (+13 
+     -2)
+      14    destino: Href;
+      15  }
+      16  
+      17 -// O que a área da instituição oferece (produto.md 10.2). Aviso
+         -s e a purga chegam na etapa 9                                  
+      18 -// do passo 12.                                                
+      17 +// O que a área da instituição oferece (produto.md 10.2).      
+      18  const ENTRADAS: Entrada[] = [
+      19    {
+      20      titulo: "Alunos",
+     ...
+      34      icone: "taca",
+      35      destino: "/instituicao/contestacoes",
+      36    },
+      37 +  {                                                            
+      38 +    titulo: "Novo aviso",                                      
+      39 +    descricao: "Para a faculdade ou para um ou mais cursos.",  
+      40 +    icone: "newspaper",                                        
+      41 +    destino: "/instituicao/novo-aviso",                        
+      42 +  },                                                           
+      43 +  {                                                            
+      44 +    titulo: "Purgar demonstração",                             
+      45 +    descricao: "Tirar do banco os dados de um lote da demonstra
+         +ção.",                                                         
+      46 +    icone: "fechar",                                           
+      47 +    destino: "/instituicao/purga",                             
+      48 +  },                                                           
+      49  ];
+      50  
+      51  // A entrada da área da instituição, só no navegador (P1 do pas
+          so 12): uma lista simples,
+  ⎿  Updated apps\mobile\src\instituicao\PurgaScreen.tsx (+10 -3)
+      63        {purgar.isSuccess && (
+      64          <View
+      65            testID="purga-concluida"
+      66 -          style={[styles.aviso, { backgroundColor: colors.surfa
+         -ce, borderColor: colors.line }]}                               
+      66 +          style={[                                             
+      67 +            styles.aviso,                                      
+      68 +            { backgroundColor: colors.surface, borderColor: col
+         +ors.line },                                                    
+      69 +          ]}                                                   
+      70          >
+      71            <Text style={[textStyles.corpo, { color: colors.ink }
+          ]}>
+      72              {`Lote ${purgar.data.lote} purgado: ${purgar.data.a
+          lunos} ${purgar.data.alunos === 1 ? "aluno" : "alunos"} e ${pur
+          gar.data.fotos} ${purgar.data.fotos === 1 ? "foto" : "fotos"} a
+           remover do bucket.`}
+     ...
+       94              style={[styles.lote, { borderColor: colors.line }]
+           }
+       95            >
+       96              <View style={styles.titulo}>
+       94 -              <Text style={[textStyles.secao, styles.nome, { c
+          -olor: colors.ink }]}>                                         
+       97 +              <Text                                           
+       98 +                style={[textStyles.secao, styles.nome, { color
+          +: colors.ink }]}                                              
+       99 +              >                                               
+      100                  {lote.lote}
+      101                </Text>
+      102                {lote.vigente && (
+       98 -                <View style={[styles.marca, { backgroundColor:
+          - colors.highlight }]}>                                        
+      103 +                <View                                         
+      104 +                  style={[styles.marca, { backgroundColor: col
+          +ors.highlight }]}                                             
+      105 +                >                                             
+      106                    <Text style={[styles.textoDaMarca, { color: 
+           colors.ink }]}>
+      107                      Vigente
+      108                    </Text>
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\mobile\src\instituicao\avisoEPurga.test.tsx)  ⎿  Wrote 214 lines to apps\mobile\src\instituicao\avisoEPurga.test.tsx
+       1 import { act, fireEvent, screen, within } from "@testing-library
+         /react-native";
+       2 import { Platform } from "react-native";
+       3 
+       4 import { json, renderComApi } from "../test/renderComApi";
+       5 import { NovoAvisoDaInstituicaoScreen } from "./NovoAvisoDaInsti
+         tuicaoScreen";
+       6 import { PurgaScreen } from "./PurgaScreen";
+       7 
+       8 const mockRoteador = {
+     … +206 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx prettier
+      --write src/instituicao >/dev/null && npx jest src/instituicao/a…)
+  ⎿  Tests:       6 passed, 6 total
+  ⎿  Updated apps\mobile\src\instituicao\avisoEPurga.test.tsx (+4 -1)
+      181        name: "Purgar lote",
+      182      });
+      183      await act(async () => {
+      184 -      fireEvent.changeText(within(folha).getByLabelText("Nome 
+          -do lote"), "ensai");                                          
+      184 +      fireEvent.changeText(                                   
+      185 +        within(folha).getByLabelText("Nome do lote"),         
+      186 +        "ensai",                                              
+      187 +      );                                                      
+      188      });
+      189      expect(confirmar).toBeDisabled();
+      190      await act(async () => {
+  ⎿  (timeout 6m 40s)
+
+● 6 de 6. Rodo a suíte inteira do app e confiro a CI da etapa 8.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● App verde (520 testes). Para a captura da purga preciso de lotes de
+  demonstração no banco: subo a pilha com a demonstração ligada e registro
+  alunos em dois lotes. Vejo o corpo do registro.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Lotes criados: ensaio-1 (2 alunos) e banca-1 (3, vigente). Faço as capturas do
+  novo aviso (escopo, cursos, foto) e da purga (lista e confirmação), sem
+  publicar nem purgar.
+
+  Read 2 files, ran 4 shell commands (ctrl+o to expand)
+
+● Capturas da etapa 9 revisadas. Aguardo a CI da etapa 8 terminar antes do
+  relatório.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI etapa 8" completed (exit code 0)
+
+● A etapa 9 está pronta e testada, sem commit; parei para a sua revisão. A etapa
+  8 foi commitada como 6eca0ec e a CI dela passou nos seis jobs.
+
+  Novo aviso da instituição (/instituicao/novo-aviso)
+  - Em "Para quem", um controle segmentado escolhe entre Faculdade (o padrão) e
+    Cursos.
+  - Em Cursos, chips dos quatro cursos para marcar um ou mais. "Publicar aviso"
+    só libera com pelo menos um curso escolhido.
+  - Título e texto com contador e foto opcional, como no aviso do professor.
+    Publicado, volta ao Mural.
+  - A recusa da API aparece sem apagar o que foi digitado.
+  - Para não duplicar código, o formulário (título, texto, foto e publicar)
+    virou um componente compartilhado com o novo aviso do professor. O envio
+    passou a aceitar faculdade, cursos ou turmas. Os 22 testes do mural e do
+    novo aviso do professor continuam passando.
+
+  Purga (/instituicao/purga)
+  - Um texto curto explica o que sai do banco e avisa que não dá para desfazer.
+  - Os lotes vêm do mais recente ao mais antigo, cada um com o número de alunos
+    e o período; o lote vigente tem a marca "Vigente".
+  - "Purgar" abre a folha de confirmação, e "Purgar lote" só libera com o nome
+    do lote digitado igual.
+  - Depois de purgar, a tela mostra quantos alunos saíram e quantas fotos foram
+    mandadas para fora do bucket.
+
+  A área ganhou as entradas "Novo aviso" e "Purgar demonstração". A etapa 9 não
+  mexeu na API.
+
+  Verificação
+  - 6 testes novos de Jest; a suíte do app passou inteira (520 testes, 49
+    arquivos).
+  - Lint, tipos e Prettier limpos.
+
+  Capturas, em C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gi
+  menes-Documents-Repos-tcc-maxx-engenheiro\38159b62-809d-48b4-b879-988b5a3ce98a
+  \scratchpad\capturas9\, cada uma com -claro.png e -escuro.png:
+  - area: a área com as cinco entradas.
+  - aviso-faculdade: o escopo Faculdade, com título e texto preenchidos.
+  - aviso-cursos: o escopo Cursos, com CC e IA marcados.
+  - aviso-foto: a prévia da foto e o "Publicar aviso".
+  - purga-lotes: os lotes banca-1 (vigente) e ensaio-1.
+  - purga-confirmacao: a folha com o nome do lote digitado.
+
+  folha-claro.png e folha-escuro.png juntam as seis telas de cada tema.
+
+  O que mexi no ambiente local
+  - Para ter lotes na tela da purga, a pilha local está rodando com a
+    demonstração ligada (docker-compose.demo.yml). Registrei 2 alunos de
+    demonstração no lote ensaio-1 e 3 no banca-1, que é o vigente.
+  - Não publiquei aviso nem purguei lote; os lotes continuam no banco para
+    quando você quiser testar a purga pela tela.
+
+  Mensagem de commit proposta
+  feat(mobile): adiciona o novo aviso da instituição e a purga da demonstração 
+  na área web
+
+  Aviso para a faculdade ou para um ou mais cursos, com título, texto e foto 
+  opcional, pelo
+  mesmo formulário do aviso do professor, agora compartilhado. Purga por lote 
+  com a lista dos
+  lotes, o vigente marcado e a confirmação pelo nome do lote digitado, com o 
+  resultado de
+  quantos alunos e fotos saíram.
+
+  Com o seu ok (ou ajustes), faço o commit, o push e espero a CI antes da etapa
+  10 (e2e e docs).
+
+✻ Cogitated for 10m 32s · done 17:03
