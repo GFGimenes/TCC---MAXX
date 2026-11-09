@@ -1247,3 +1247,1341 @@ code 0)
   Aprovando, eu faço o commit, o push e trago o resultado da CI.
 
 ✻ Baked for 24s · done 10:09
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_11_rankings-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_11_rankings-sessao.txt
+
+> Etapa 2 aprovada. A falha do tempo esgotado com o contêiner de armazenamento  
+  na solução inteira fica registrada como ocorrência de ambiente, como você     
+  fez; o caminho não é desta etapa e passou sozinho. Commita com a mensagem     
+  proposta, push e acompanha a CI. Mudança de cadência daqui em diante, por     
+  prazo: com a CI da etapa 2 verde, emenda as etapas 3 e 4 sem parar para mim,  
+  cada uma com o próprio commit, o próprio push e a própria CI verde antes de   
+  seguir, fix separado se a CI falhar, e o relatório de cada etapa no fim. Para 
+  só se aparecer pergunta de produto que não está nos docs, se uma CI ficar     
+  vermelha depois do fix, ou antes da etapa 5, que tem tela e eu preciso        
+  conferir as capturas. Me traz então os relatórios das etapas 2, 3 e 4 juntos, 
+  com os commits e as CIs.                                                      
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Commit 8851bd8 enviado, e a CI 42623440086 está rodando. Enquanto ela roda,
+  faço o levantamento para a etapa 3: os pontos que hoje enfileiram a raridade.
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● Vou unificar "a pontuação mudou" em um ponto único que enfileira raridade e
+  ranking, trocando-o nos 11 lugares afetados; cadastro, demonstração e seed
+  seguem pedindo só a raridade.
+
+● Write(apps\api\src\Maxx.Application\Ranking\PontuacaoMudou.cs)
+  ⎿  Wrote 20 lines to
+     apps\api\src\Maxx.Application\Ranking\PontuacaoMudou.cs
+       1 using Maxx.Application.Fila;
+       2 using Maxx.Application.Medalhas;
+       3 
+       4 namespace Maxx.Application.Ranking;
+       5 
+       6 public static class PontuacaoMudou
+       7 {
+       8     // Todo evento que muda a pontuação de algum aluno pede, na 
+         mesma transação, o recálculo
+       9     // do ranking e o da raridade (ADR 0005): concessão e anulaç
+     … +12 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && for f in Conquistas/RecalcularConquistasDaMedalhaHandler.cs…)
+  ⎿  ./Autenticacao/Cadastro/CadastroHandler.cs:61:        fila.Enfileirar(
+     new RecalcularRaridade());
+     ./Conquistas/FechamentoDePeriodo.cs:106:            fila.PedirRecalcul
+     … +44 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\FechamentoDePeriodo.cs (+2 
+     -1)
+      1  using System.Text.Json.Serialization;
+      2  using Maxx.Application.Fila;
+      3 +using Maxx.Application.Ranking;                                 
+      4  using Maxx.Application.Medalhas;
+      5  using Maxx.Domain.Catalogo;
+      6  using Maxx.Domain.Conquistas;
+     ...
+      103  
+      104          if (concedeu)
+      105          {
+      105 -            fila.Enfileirar(new RecalcularRaridade());        
+      106 +            fila.PedirRecalculos();                           
+      107          }
+      108  
+      109          await unitOfWork.SalvarAsync(cancellationToken);
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs
+     (+2 -1)
+      1  using Maxx.Application.Fila;
+      2 +using Maxx.Application.Ranking;                                 
+      3  using Maxx.Application.Medalhas;
+      4  using Maxx.Domain.Academico;
+      5  using Maxx.Domain.Catalogo;
+     ...
+      66          // passo 11.
+      67          if (concedeu)
+      68          {
+      68 -            fila.Enfileirar(new RecalcularRaridade());         
+      69 +            fila.PedirRecalculos();                            
+      70          }
+      71  
+      72          await unitOfWork.SalvarAsync(cancellationToken);
+  ⎿  Updated apps\api\src\Maxx.Application\Conquistas\RecalcularConquistasD
+     aMedalhaHandler.cs (+2 -1)
+      1  using Maxx.Application.Fila;
+      2 +using Maxx.Application.Ranking;                                 
+      3  using Maxx.Application.Medalhas;
+      4  using Maxx.Application.Notificacoes;
+      5  using Maxx.Application.Posts;
+     ...
+      107          // passo 11.
+      108          if (removeu)
+      109          {
+      109 -            fila.Enfileirar(new RecalcularRaridade());        
+      110 +            fila.PedirRecalculos();                           
+      111          }
+      112  
+      113          await unitOfWork.SalvarAsync(cancellationToken);
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\AnularMedalhaHandler.cs
+     (+2 -1)
+      1  using Maxx.Application.Autenticacao;
+      2 +using Maxx.Application.Ranking;                                 
+      3  using Maxx.Application.Conquistas;
+      4  using Maxx.Application.Fila;
+      5  using Maxx.Application.Posts;
+     ...
+      76          }
+      77  
+      78          fila.Enfileirar(new RecalcularConquistasDaMedalha(medal
+          ha.Id));
+      78 -        fila.Enfileirar(new RecalcularRaridade());             
+      79 +        fila.PedirRecalculos();                                
+      80          await unitOfWork.SalvarAsync(cancellationToken);
+      81          return true;
+      82      }
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs (+2 
+     -1)
+      1  using Maxx.Application.Autenticacao;
+      2 +using Maxx.Application.Ranking;                                 
+      3  using Maxx.Application.Autorizacao;
+      4  using Maxx.Application.Conquistas;
+      5  using Maxx.Application.Fila;
+     ...
+      84          medalhas.Adicionar(medalha);
+      85          fila.Enfileirar(new NotificarMedalhaRecebida(medalha.Id
+          ));
+      86          fila.Enfileirar(ReavaliarConquistas.PelaMedalha(medalha
+          .AlunoId, medalha.Id));
+      86 -        fila.Enfileirar(new RecalcularRaridade());             
+      87 +        fila.PedirRecalculos();                                
+      88          await unitOfWork.SalvarAsync(cancellationToken);
+      89          return medalha;
+      90      }
+  ⎿  … 2 more files changed
+
+● Atualizo os comentários que diziam "o ranking entra no passo 11", e os que só
+  falavam de raridade.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && perl -0pi -e 's|// Conquista concedida muda o numerador da…)
+  ⎿          foreach (var conquista in doFechamento)
+             {
+                 concedeu |= await avaliacao.AvaliarAsync(
+     … +16 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs
+     (+1 -2)
+      62                  conquista, instancia, aluno, calendario, fatos,
+           ativas, podeConceder, agora, cancellationToken);
+      63          }
+      64  
+      65 -        // Conquista concedida muda o numerador da raridade (AD
+         -R 0005). O ranking entra no                                    
+      66 -        // passo 11.                                           
+      65 +        // Conquista concedida muda a pontuação e o numerador d
+         +a raridade (ADR 0005).                                         
+      66          if (concedeu)
+      67          {
+      68              fila.PedirRecalculos();
+  ⎿  Updated apps\api\src\Maxx.Application\Conquistas\RecalcularConquistasD
+     aMedalhaHandler.cs (+1 -2)
+      103              }
+      104          }
+      105  
+      106 -        // Conquista removida muda o numerador da raridade (AD
+          -R 0005). O ranking entra no                                   
+      107 -        // passo 11.                                          
+      106 +        // Conquista removida muda a pontuação e o numerador d
+          +a raridade (ADR 0005).                                        
+      107          if (removeu)
+      108          {
+      109              fila.PedirRecalculos();
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Application"
+      && perl -0pi -e 's|// compunha e o de raridade, na mesma trans…)
+  ⎿   .../Maxx.Application/Conquistas/FechamentoDePeriodo.cs    |  3 ++-
+      .../Conquistas/ReavaliarConquistasHandler.cs              |  6 +++---
+      .../Conquistas/RecalcularConquistasDaMedalhaHandler.cs    |  6 +++---
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\AnularMedalhaHandler.cs
+     (+1 -1)
+      10  // Anulação de medalha pela instituição (produto.md 4.8): ato a
+          dministrativo, sem motivo
+      11  // público e sem averiguação. Na fase 1, por comando administra
+          tivo, até a área web do
+      12  // passo 12. Grava quem anulou e quando e enfileira o recálculo
+           das conquistas que a medalha
+      13 -// compunha e o de raridade, na mesma transação; o ranking cheg
+         -a no passo 11. O post da                                       
+      13 +// compunha e os de ranking e raridade, na mesma transação. O p
+         +ost da                                                         
+      14  // medalha perde o vínculo e fica como post comum; o que era só
+           a medalha é apagado, porque
+      15  // post vazio não existe (decisão do passo 7).
+      16  public sealed class AnularMedalhaHandler(
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs (+2 
+     -2)
+       9  
+      10  // Concessão de medalha pelo professor (fluxos/03-concessao-de-
+          medalha.md): escopo de turma
+      11  // no banco, aluno com conta matriculado na turma, item do catá
+          logo, limite por período e
+      12 -// chave de deduplicação. A medalha, quem concedeu e quando, a 
+         -notificação e o recálculo de                                   
+      13 -// raridade gravam juntos.                                     
+      12 +// chave de deduplicação. A medalha, quem concedeu e quando, a 
+         +notificação e os recálculos de                                 
+      13 +// ranking e raridade gravam juntos.                           
+      14  public sealed class ConcederMedalhaHandler(
+      15      IEscopoDeTurma escopo,
+      16      IUsuarioRepository usuarios,
+  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\ContestacaoH
+     andler.cs (+2 -2)
+      15  
+      16  // Contestação e decisão da instituição (fluxos/04-contestacao.
+          md). Contestam o professor da
+      17  // turma, conferido no banco, ou a instituição; decide sempre a
+           instituição. Cada ato grava
+      18 -// quem e quando, e enfileira na mesma transação a notificação 
+         -e o recálculo de raridade,                                     
+      19 -// porque todos mudam o que pontua.                            
+      18 +// quem e quando, e enfileira na mesma transação a notificação 
+         +e os recálculos de ranking e                                   
+      19 +// raridade, porque todos mudam o que pontua.                  
+      20  public sealed class ContestacaoHandler(
+      21      IUsuarioRepository usuarios,
+      22      IEscopoDeTurma escopo,
+  ⎿  Updated apps\api\src\Maxx.Application\PremiosParticipacao\DecidirCompr
+     ovacaoHandler.cs (+2 -2)
+      26      IUnitOfWork unitOfWork,
+      27      TimeProvider relogio)
+      28  {
+      29 -    // Aprovado, o prêmio pontua na hora: o recálculo de rarida
+         -de e a notificação vão para a                                  
+      30 -    // fila, e o fim da janela de contestação fica agendado.   
+      29 +    // Aprovado, o prêmio pontua na hora: os recálculos de rank
+         +ing e raridade e a notificação                                 
+      30 +    // vão para a fila, e o fim da janela de contestação fica a
+         +gendado.                                                       
+      31      public async Task AprovarAsync(Guid quemId, Guid comprovaca
+          oId, CancellationToken cancellationToken)
+      32      {
+      33          var (quem, premio, aluno) = await CarregarAsync(quemId,
+           comprovacaoId, cancellationToken);
+
+● Agora os testes da etapa 3. Começo pelo que os mundos de prêmios já oferecem.
+
+  Ran 7 shell commands (ctrl+o to expand)
+
+● Estou escrevendo os testes da etapa 3 enquanto a CI da etapa 2 roda: um por
+  evento, mais as recusas que não podem pedir o recálculo.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Ranking\PedidosDasMedalhasEConq
+       uistasTests.cs)
+  ⎿  Wrote 126 lines to apps\api\tests\Maxx.Api.IntegrationTests\Ranking\Pe
+     didosDasMedalhasEConquistasTests.cs
+       1 using Maxx.Api.IntegrationTests.Conquistas;
+       2 using Maxx.Application;
+       3 using Maxx.Application.Conquistas;
+       4 using Maxx.Application.Fila;
+       5 using Maxx.Application.Ranking;
+       6 using Maxx.Domain.Catalogo;
+       7 using Maxx.Domain.Ranking;
+       8 using Maxx.Infrastructure.Fila;
+       9 using Maxx.Infrastructure.Persistence;
+      10 using Maxx.Infrastructure.Ranking;
+     … +116 lines (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Ranking\PedidosDosPremiosTests.
+       cs)
+  ⎿  Wrote 173 lines to apps\api\tests\Maxx.Api.IntegrationTests\Ranking\Pe
+     didosDosPremiosTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using Maxx.Api.IntegrationTests.Fotos;
+       4 using Maxx.Api.IntegrationTests.PremiosParticipacao;
+       5 using Maxx.Application.Ranking;
+       6 using Maxx.Domain.Academico;
+       7 using Maxx.Domain.Ranking;
+       8 using Maxx.Infrastructure.Fila;
+       9 using Maxx.Infrastructure.Persistence;
+      10 using Maxx.Infrastructure.Ranking;
+     … +163 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '/^using Maxx.Application.Medalhas;$/d'
+      apps/api/src/Maxx.Application/Conquistas/F…)
+  ⎿   .../PremiosParticipacao/ContestacaoHandler.cs             | 15 ++++++
+     ++-------
+      .../PremiosParticipacao/DecidirComprovacaoHandler.cs      |  7 ++++--
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\FechamentoDePeriodo.cs (+0 
+     -1)
+      1  using System.Text.Json.Serialization;
+      2  using Maxx.Application.Fila;
+      3  using Maxx.Application.Ranking;
+      4 -using Maxx.Application.Medalhas;                                
+      4  using Maxx.Domain.Catalogo;
+      5  using Maxx.Domain.Conquistas;
+      6  
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\ReavaliarConquistasHandler.cs
+     (+0 -1)
+      1  using Maxx.Application.Fila;
+      2  using Maxx.Application.Ranking;
+      3 -using Maxx.Application.Medalhas;                                
+      3  using Maxx.Domain.Academico;
+      4  using Maxx.Domain.Catalogo;
+      5  using Maxx.Domain.Conquistas;
+  ⎿  Updated apps\api\src\Maxx.Application\Conquistas\RecalcularConquistasD
+     aMedalhaHandler.cs (+1 -1)
+      1  using Maxx.Application.Fila;
+      2 -using Maxx.Application.Ranking;                                 
+      2  using Maxx.Application.Medalhas;
+      3  using Maxx.Application.Notificacoes;
+      4  using Maxx.Application.Posts;
+      5 +using Maxx.Application.Ranking;                                 
+      6  using Maxx.Domain.Conquistas;
+      7  using Maxx.Domain.Notificacoes;
+      8  
+  ⎿  Updated apps\api\src\Maxx.Application\Medalhas\AnularMedalhaHandler.cs
+     (+1 -1)
+      1  using Maxx.Application.Autenticacao;
+      2 -using Maxx.Application.Ranking;                                 
+      2  using Maxx.Application.Conquistas;
+      3  using Maxx.Application.Fila;
+      4  using Maxx.Application.Posts;
+      5 +using Maxx.Application.Ranking;                                 
+      6  using Maxx.Domain.Academico;
+      7  
+      8  namespace Maxx.Application.Medalhas;
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Medalhas\ConcederMedalhaHandler.cs (+1 
+     -1)
+      1  using Maxx.Application.Autenticacao;
+      2 -using Maxx.Application.Ranking;                                 
+      2  using Maxx.Application.Autorizacao;
+      3  using Maxx.Application.Conquistas;
+      4  using Maxx.Application.Fila;
+      5 +using Maxx.Application.Ranking;                                 
+      6  using Maxx.Domain.Premios;
+      7  
+      8  namespace Maxx.Application.Medalhas;
+  ⎿  … 2 more files changed
+  ⎿  (timeout 10m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Oito das 188 falhas de teste persistem: os testes antigos ainda esperam a
+  lista de trabalhos sem recalcular-ranking, meus testes novos chamam handlers
+  fora de transação e um teste da etapa 2 cai na coalescência. Vou corrigir
+  essas três causas agora.
+
+  Ran 1 shell command (ctrl+o to expand)
+● Background command "Wait for stage 2 CI" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI da etapa 2 (run 42623440086) passou nos seis jobs. Sigo com as correções
+  da etapa 3.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && \
+      perl -0pi -e 's/\[NotificarMedalhaRecebida.Tip…)
+  ⎿  99:        Assert.Empty(await LinhasAsync<Trabalho>(factory));
+     126:        Assert.Empty(await LinhasAsync<Trabalho>(factory));
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Reavaliaca
+     oDeConquistasTests.cs (+6 -1)
+       4  using Maxx.Application.Perfil;
+       5  using Maxx.Application.Premios;
+       6  using Maxx.Application.PremiosParticipacao;
+       7 +using Maxx.Application.Ranking;                                
+       8  using Maxx.Domain.Catalogo;
+       9  using Maxx.Domain.Conquistas;
+      10  using Maxx.Domain.Notificacoes;
+     ...
+      251      // O que sobra na fila é só o recálculo de raridade adiado
+            pela coalescência de 10 s (ADR
+      252      // 0005), nunca um trabalho que falhou e voltou com recuo.
+      253      private static void AssertNenhumTrabalhoFalhou(List<Trabal
+           ho> trabalhos) =>
+      253 -        Assert.All(trabalhos, trabalho => Assert.Equal((Recalc
+          -ularRaridade.Tipo, 0), (trabalho.Tipo, trabalho.Tentativas)));
+      254 +        Assert.All(trabalhos, trabalho =>                     
+      255 +        {                                                     
+      256 +            Assert.Contains(trabalho.Tipo, new[] { RecalcularR
+          +aridade.Tipo, RecalcularRanking.Tipo });                      
+      257 +            Assert.Equal(0, trabalho.Tentativas);             
+      258 +        });                                                   
+      259  
+      260      private static (int, int, string, Guid) Linha(ProgressoDeC
+           onquistaRow linha) =>
+      261          (linha.Contagem, linha.Alvo, linha.TipoDePeriodo, linh
+           a.ReferenciaDoPeriodo);
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\ConcessaoDeM
+     edalhaTests.cs (+2 -1)
+       6  using Maxx.Api.Medalhas;
+       7  using Maxx.Application.Conquistas;
+       8  using Maxx.Application.Medalhas;
+       9 +using Maxx.Application.Ranking;                                
+      10  using Maxx.Domain.Academico;
+      11  using Maxx.Domain.Catalogo;
+      12  using Maxx.Domain.Identidade;
+     ...
+      106  
+      107          var trabalhos = await db.Set<Trabalho>().OrderBy(traba
+           lho => trabalho.Id).ToListAsync(Ct);
+      108          Assert.Equal(
+      108 -            [NotificarMedalhaRecebida.Tipo, ReavaliarConquista
+          -s.Tipo, RecalcularRaridade.Tipo], trabalhos.Select(trabalho =>
+          - trabalho.Tipo));                                             
+      109 +            [NotificarMedalhaRecebida.Tipo, ReavaliarConquista
+          +s.Tipo, RecalcularRanking.Tipo, RecalcularRaridade.Tipo], trab
+          +alhos.Select(trabalho => trabalho.Tipo));                     
+      110          using var carga = JsonDocument.Parse(trabalhos[0].Carg
+           a);
+      111          Assert.Equal(medalha.Id, carga.RootElement.GetProperty
+           ("medalhaId").GetGuid());
+      112          using var reavaliacao = JsonDocument.Parse(trabalhos[1
+           ].Carga);
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Medalhas\TrabalhosDaM
+     edalhaTests.cs (+1 -1)
+      114  
+      115          // Não recalculou: deixou um pedido só, para quando os
+            dez segundos fecharem.
+      116          Assert.Single(factory.Log.Linhas, linha => linha.Conta
+           ins(_recalculada, StringComparison.Ordinal));
+      117 -        var adiado = Assert.Single(await LinhasAsync<Trabalho>
+          -(factory));                                                   
+      117 +        var adiado = Assert.Single(await LinhasAsync<Trabalho>
+          +(factory), trabalho => trabalho.Tipo == RecalcularRaridade.Tip
+          +o);                                                           
+      118          Assert.Equal((RecalcularRaridade.Tipo, primeira + Time
+           Span.FromSeconds(10)), (adiado.Tipo, adiado.DisponivelEm));
+      119          Assert.Equal(1, (await LinhasAsync<RaridadeDoItemRow>(
+           factory)).Single(linha => linha.ItemCodigo == "M01").AlunosCom
+           Item);
+      120  
+
+● Agora os meus testes: o helper com transação, os semestres carregados com os
+  bimestres, e o avanço de 10 s no teste de conquista.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Ranking" && \
+      perl -0pi -e 's|    // Roda um trabalh…)
+  ⎿  99:        mundo.Relogio.Avancar(TimeSpan.FromSeconds(10));
+     176:        mundo.Relogio.Avancar(TimeSpan.FromSeconds(10));
+     197:        mundo.Relogio.Avancar(TimeSpan.FromSeconds(10));
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Ranking\PedidosDasMed
+     alhasEConquistasTests.cs (+6 -1)
+      116              .ExecuteSqlAsync($"DELETE FROM trabalho WHERE tipo
+            = {RecalcularRanking.Tipo}", Ct);
+      117      }
+      118  
+      119 -    // Roda um trabalho direto no handler, numa transação próp
+          -ria, como o worker faria.                                     
+      119 +    // Roda um trabalho direto no handler, numa transação próp
+          +ria, como o worker faria: a                                   
+      120 +    // trava de conquistas do aluno só existe dentro de uma.  
+      121      private static async Task ExecutarAsync<TCarga>(MundoDeCon
+           quistas mundo, TCarga carga)
+      122          where TCarga : ICargaDeTrabalho
+      123      {
+      124          await using var scope = mundo.Factory.Services.CreateA
+           syncScope();
+      125 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      126 +        await using var transacao = await db.Database.BeginTra
+          +nsactionAsync(Ct);                                            
+      127          await scope.ServiceProvider.GetRequiredService<ITrabal
+           hoHandler<TCarga>>().ExecutarAsync(carga, Ct);
+      128 +        await db.SaveChangesAsync(Ct);                        
+      129 +        await transacao.CommitAsync(Ct);                      
+      130      }
+      131  }
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Ranking\PedidosDosPre
+     miosTests.cs (+11 -2)
+      132          await mundo.Social.EsvaziarFilaAsync();
+      133  
+      134          // A semana acadêmica começou há 10 dias: conta no sem
+           estre que contém essa data.
+      135 -        var semestres = await mundo.Social.LinhasAsync<Semestr
+          -eLetivo>();                                                   
+      136 -        var doEvento = semestres.Single(semestre => semestre.C
+          -ontem(mundo.Hoje.AddDays(-10)));                              
+      135 +        var doEvento = await SemestreQueContemAsync(mundo, mun
+          +do.Hoje.AddDays(-10));                                        
+      136          var daAna = (await mundo.Social.LinhasAsync<PosicaoNoR
+           ankingRow>())
+      137              .Where(linha => linha.AlunoId == mundo.Social.Id(A
+           na))
+      138              .ToList();
+     ...
+      158          client.PostAsJsonAsync(
+      159              new Uri($"/api/v1/premios-participacao/{premio}/co
+           ntestacao", UriKind.Relative), new { motivo = "Revi a foto." }
+           , Ct);
+      160  
+      161 +    private static async Task<SemestreLetivo> SemestreQueConte
+          +mAsync(MundoDePremios mundo, DateOnly data)                   
+      162 +    {                                                         
+      163 +        await using var scope = mundo.Social.Factory.Services.
+          +CreateAsyncScope();                                           
+      164 +        var semestres = await scope.ServiceProvider.GetRequire
+          +dService<MaxxDbContext>().Set<SemestreLetivo>()               
+      165 +            .Include(semestre => semestre.Bimestres)          
+      166 +            .AsNoTracking()                                   
+      167 +            .ToListAsync(Ct);                                 
+      168 +        return semestres.Single(semestre => semestre.Contem(da
+          +ta));                                                         
+      169 +    }                                                         
+      170 +                                                              
+      171      private static async Task<int> PedidosAsync(MundoDePremios
+            mundo) =>
+      172          (await mundo.Social.LinhasAsync<Trabalho>()).Count(tra
+           balho => trabalho.Tipo == RecalcularRanking.Tipo);
+      173  
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Ranking\RecalculoDoRa
+     nkingTests.cs (+3 -0)
+       94          await mundo.AnularAsync(anulada);
+       95          await ContestarAsync(mundo, premio.Id);
+       96  
+       97 +        // A concessão já pediu o recálculo e o worker o rodou
+          + no esvaziar: passada a janela de                             
+       98 +        // 10 s, o pedido de agora calcula em vez de ficar adi
+          +ado.                                                          
+       99 +        mundo.Relogio.Avancar(TimeSpan.FromSeconds(10));      
+      100          await RecalcularAsync(mundo);
+      101  
+      102          var conquistas = (await mundo.LinhasAsync<Conquista>()
+           ).Where(conquista => conquista.EstaAtiva).ToList();
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A reavaliação conta todas as medalhas que já estão no banco, então a quarta já
+  via as cinco. Ajusto o teste: quatro medalhas primeiro, depois a quinta.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Ranking" && perl -0pi -e 's|        var
+      medalhas = a…)
+  ⎿    total: 6
+       falhou: 0
+       concluído com êxito: 6
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Ranking\PedidosDasMed
+     alhasEConquistasTests.cs (+10 -4)
+      49      public async Task Conquista_concedida_por_fato_pede_o_recal
+          culo_e_sem_conceder_nao()
+      50      {
+      51          await using var mundo = await MundoDeConquistas.CriarAs
+          ync(postgres);
+      52 -        var medalhas = await mundo.CincoNoBimestreAsync(mundo.A
+         -na);                                                           
+      53 -        await LimparPedidosAsync(mundo);                       
+      52 +        // Quatro medalhas não fecham nada; a quinta fecha a C0
+         +1.                                                             
+      53 +        List<Guid> medalhas = [];                              
+      54 +        foreach (var item in new[] { "M01", "M01", "M02", "M02"
+         + })                                                            
+      55 +        {                                                      
+      56 +            medalhas.Add(await mundo.ConcederAsync(mundo.Ana, i
+         +tem));                                                         
+      57 +        }                                                      
+      58  
+      55 -        // A quarta medalha sozinha não fecha nada; a quinta fe
+         -cha a C01.                                                     
+      59 +        await LimparPedidosAsync(mundo);                       
+      60          await ExecutarAsync(mundo, ReavaliarConquistas.PelaMeda
+          lha(mundo.Ana.Id, medalhas[3]));
+      61          Assert.Equal(0, await PedidosAsync(mundo));
+      62          Assert.Empty(await mundo.LinhasAsync<Domain.Conquistas.
+          Conquista>());
+      63  
+      60 -        await ExecutarAsync(mundo, ReavaliarConquistas.PelaMeda
+         -lha(mundo.Ana.Id, medalhas[4]));                               
+      64 +        var quinta = await mundo.ConcederAsync(mundo.Ana, "M03"
+         +);                                                             
+      65 +        await LimparPedidosAsync(mundo);                       
+      66 +        await ExecutarAsync(mundo, ReavaliarConquistas.PelaMeda
+         +lha(mundo.Ana.Id, quinta));                                    
+      67          Assert.NotEmpty(await mundo.LinhasAsync<Domain.Conquist
+          as.Conquista>());
+      68          Assert.Equal(1, await PedidosAsync(mundo));
+      69      }
+  ⎿  (timeout 10m)
+
+● Rodo a integração inteira antes do commit da etapa 3.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Commit a53b88d enviado, e a CI 42625707876 está rodando. Enquanto isso,
+  levanto o padrão de leitura da API (perfil, paginação por cursor) para a etapa
+  4.
+
+  Read 1 file, ran 5 shell commands (ctrl+o to expand)
+
+● Sigo o padrão do mural: valores permitidos em texto na query. Escrevendo a
+  leitura do ranking na aplicação.
+
+● Write(apps\api\src\Maxx.Application\Ranking\LeituraDoRanking.cs)
+  ⎿  Wrote 167 lines to
+     apps\api\src\Maxx.Application\Ranking\LeituraDoRanking.cs
+      1 using System.Buffers.Text;
+      2 using System.Globalization;
+      3 using System.Text;
+      4 using Maxx.Application.Autenticacao;
+      5 using Maxx.Application.Paginacao;
+      6 using Maxx.Domain.Academico;
+      7 using Maxx.Domain.Ranking;
+      8 
+      9 namespace Maxx.Application.Ranking;
+     … +158 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora a consulta na infraestrutura.
+
+● Write(apps\api\src\Maxx.Infrastructure\Ranking\ConsultaDoRanking.cs)
+  ⎿  Wrote 119 lines to
+     apps\api\src\Maxx.Infrastructure\Ranking\ConsultaDoRanking.cs
+      1 using Maxx.Application.Ranking;
+      2 using Maxx.Domain.Academico;
+      3 using Maxx.Domain.Identidade;
+      4 using Maxx.Domain.Ranking;
+      5 using Maxx.Domain.Social;
+      6 using Maxx.Infrastructure.Persistence;
+      7 using Microsoft.EntityFrameworkCore;
+      8 
+      9 namespace Maxx.Infrastructure.Ranking;
+     … +110 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Ranking\ConsultaDoRanking.cs)
+  ⎿  Added 12 lines, removed 5 lines
+      69          return (await LerAsync(DaVisao(visao).Where(linha => li
+          nha.AlunoId == alunoId), cancellationToken)).SingleOrDefault();
+      70      }
+      71  
+      72 -    private IQueryable<PosicaoNoRankingRow> DaVisao(VisaoDoRank
+         -ing visao) => db.Set<PosicaoNoRankingRow>()                    
+      73 -        .Where(linha => linha.Escopo == visao.Escopo           
+      74 -            && linha.Periodo == visao.Periodo                  
+      75 -            && linha.SemestreLetivoId == visao.SemestreLetivoId
+      76 -            && linha.CursoId == visao.CursoId);                
+      72 +    // O nulo vira IS NULL literal, e o valor, igualdade simple
+         +s: a comparação com parâmetro                                  
+      73 +    // nulável viraria um OR que o índice da visão não atende. 
+      74 +    private IQueryable<PosicaoNoRankingRow> DaVisao(VisaoDoRank
+         +ing visao)                                                     
+      75 +    {                                                          
+      76 +        var linhas = db.Set<PosicaoNoRankingRow>().Where(linha 
+         +=> linha.Escopo == visao.Escopo && linha.Periodo == visao.Perio
+         +do);                                                           
+      77 +        linhas = visao.SemestreLetivoId is { } semestre        
+      78 +            ? linhas.Where(linha => linha.SemestreLetivoId == s
+         +emestre)                                                       
+      79 +            : linhas.Where(linha => linha.SemestreLetivoId == n
+         +ull);                                                          
+      80 +        return visao.CursoId is { } curso                      
+      81 +            ? linhas.Where(linha => linha.CursoId == curso)    
+      82 +            : linhas.Where(linha => linha.CursoId == null);    
+      83 +    }                                                          
+      84  
+      85      private async Task<List<LinhaLida>> LerAsync(IQueryable<Pos
+          icaoNoRankingRow> linhas, CancellationToken cancellationToken)
+      86      {
+
+● Agora o perfil ganha a posição do histórico geral, e o endpoint do ranking.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && \
+      perl -0pi -e 's/    string\? ChaveDaFotoDaGrade,\n    ProfessorDoPerfil\?
+      Prof…)
+  ⎿  src/Maxx.Infrastructure/Perfil/ConsultaDePerfil.cs:56:
+         Posicao = db.Set<PosicaoNoRankingRow>()
+     src/Maxx.Infrastructure/Perfil/ConsultaDePerfil.cs:60:
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Perfil\Perfil.cs (+2 -1)
+      48      bool EuSigo,
+      49      string? ChaveDaFotoDoFeed,
+      50      string? ChaveDaFotoDaGrade,
+      51 -    ProfessorDoPerfil? Professor);                             
+      51 +    ProfessorDoPerfil? Professor,                              
+      52 +    int? Posicao = null);                                      
+      53  
+      54  // O que o perfil do professor mostra além do nome (produto.md 
+          2.1): as turmas do semestre e
+      55  // as medalhas que ele concedeu. Os avisos chegam no passo 10.
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+     (+12 -1)
+       8  using Maxx.Domain.Conquistas;
+       9  using Maxx.Domain.Identidade;
+      10  using Maxx.Domain.Premios;
+      11 +using Maxx.Domain.Ranking;                                     
+      12  using Maxx.Domain.Social;
+      13  using Maxx.Infrastructure.Persistence;
+      14 +using Maxx.Infrastructure.Ranking;                             
+      15  using Microsoft.EntityFrameworkCore;
+      16  
+      17  namespace Maxx.Infrastructure.Perfil;
+     ...
+      51                          + db.Set<Conquista>().Where(conquista =
+          > conquista.AlunoId == usuario.Id && conquista.RemovidaEm == nu
+          ll)
+      52                              .Sum(conquista => conquista.Pontos)
+          ,
+      53                      MedalhasConcedidas = db.Set<Medalha>().Coun
+          t(medalha => medalha.ConcedidaPorId == usuario.Id && medalha.An
+          uladaEm == null),
+      54 +                    // A posição do perfil é a do histórico ger
+         +al (pergunta 4 do passo 11): bate com os                       
+      55 +                    // pontos acumulados e existe também para o
+         + ex-aluno.                                                     
+      56 +                    Posicao = db.Set<PosicaoNoRankingRow>()    
+      57 +                        .Where(posicao => posicao.AlunoId == us
+         +uario.Id                                                       
+      58 +                            && posicao.Escopo == EscopoDoRankin
+         +g.Geral                                                        
+      59 +                            && posicao.Periodo == PeriodoDoRank
+         +ing.Historico)                                                 
+      60 +                        .Select(posicao => (int?)posicao.Posica
+         +o)                                                             
+      61 +                        .FirstOrDefault(),                     
+      62                  })
+      63              .AsNoTracking()
+      64              .SingleOrDefaultAsync(cancellationToken);
+     ...
+      85              linha.EuSigo,
+      86              linha.ChaveDaFotoDoFeed,
+      87              linha.ChaveDaFotoDaGrade,
+      78 -            ehAluno ? null : new ProfessorDoPerfil(await profes
+         -sores.TurmasVigentesAsync(linha.Id, cancellationToken), linha.M
+         -edalhasConcedidas));                                           
+      88 +            ehAluno ? null : new ProfessorDoPerfil(await profes
+         +sores.TurmasVigentesAsync(linha.Id, cancellationToken), linha.M
+         +edalhasConcedidas),                                            
+      89 +            ehAluno ? linha.Posicao : null);                   
+      90      }
+      91  
+      92      public async Task<Pagina<Guid>> PostsAsync(Guid autorId, Po
+          sicaoNoTempo? depoisDe, int limite, CancellationToken cancellat
+          ionToken)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i 's/
+      int? Posicao = null);/    int? Posicao);/' src/Maxx.Application/Pe…)
+  ⎿  211:    int? Posicao)
+     235:        perfil.Posicao);
+             using var ana = await mundo.ComoAsync(Ana);
+     … +30 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs (+7 -4)
+      189          new(TipoDeRecusa.NaoEncontrado, CodigosSociais.Usuario
+           NaoEncontrado, $"Usuário {usuarioId} sem perfil.");
+      190  }
+      191  
+      192 -// Papel em minúsculas ("aluno" ou "professor"). RA só no próp
+          -rio perfil do aluno; pontos só                                
+      193 -// de aluno (a soma das medalhas ativas); a posição no ranking
+          - chega no passo 11.                                           
+      192 +// Papel em minúsculas ("aluno" ou "professor"). RA só no próp
+          +rio perfil do aluno; pontos e                                 
+      193 +// posição só de aluno: os pontos acumulados e a posição no hi
+          +stórico geral, nula enquanto o                                
+      194 +// aluno não tem pontos ou o worker ainda não o pôs na tabela 
+          +(passo 11).                                                   
+      195  public sealed record PerfilResponse(
+      196      Guid Id,
+      197      string NomeDeExibicao,
+     ...
+      207      int Seguindo,
+      208      bool EuSigo,
+      209      FotoDoPostResponse? Foto,
+      209 -    ProfessorDoPerfilResponse? Professor)                     
+      210 +    ProfessorDoPerfilResponse? Professor,                     
+      211 +    int? Posicao)                                             
+      212  {
+      213      public static PerfilResponse De(PerfilLido perfil, IArmaze
+           namentoDeFotos armazenamento) => new(
+      214          perfil.Id,
+     ...
+      231              ? new ProfessorDoPerfilResponse(
+      232                  [.. professor.Turmas.Select(turma => new Turma
+           DoPerfilResponse(turma.Materia, turma.Curso, turma.Semestre))]
+           ,
+      233                  professor.MedalhasConcedidas)
+      232 -            : null);                                          
+      234 +            : null,                                           
+      235 +        perfil.Posicao);                                      
+      236  }
+      237  
+      238  public sealed record TurmaDoPerfilResponse(string Materia, str
+           ing Curso, string Semestre);
+  ⎿  Updated apps\api\src\Maxx.Application\Perfil\Perfil.cs (+1 -1)
+      49      string? ChaveDaFotoDoFeed,
+      50      string? ChaveDaFotoDaGrade,
+      51      ProfessorDoPerfil? Professor,
+      52 -    int? Posicao = null);                                      
+      52 +    int? Posicao);                                             
+      53  
+      54  // O que o perfil do professor mostra além do nome (produto.md 
+          2.1): as turmas do semestre e
+      55  // as medalhas que ele concedeu. Os avisos chegam no passo 10.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i
+      's/"20260101", 30, 1, 1, false, null, null),/"20260101", 30, 1, 1,
+      false,…)
+  ⎿              .ProducesProblem(StatusCodes.Status404NotFound);
+
+             return v1;
+     … +37 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs
+     (+1 -1)
+      37  
+      38          Assert.Equal(
+      39              new PerfilResponse(
+      40 -                mundo.Id(Ana), "Ana Souza", "@anaSouza-CC", "al
+         -uno", "CC", "Ciência da Computação", 3, false, "20260101", 30, 
+         -1, 1, false, null, null),                                      
+      40 +                mundo.Id(Ana), "Ana Souza", "@anaSouza-CC", "al
+         +uno", "CC", "Ciência da Computação", 3, false, "20260101", 30, 
+         +1, 1, false, null, null, null),                                
+      41              perfil);
+      42      }
+      43  
+
+● Write(apps\api\src\Maxx.Api\Ranking\RankingEndpoints.cs)
+  ⎿  Wrote 118 lines to apps\api\src\Maxx.Api\Ranking\RankingEndpoints.cs
+      1 using System.ComponentModel.DataAnnotations;
+      2 using System.Security.Claims;
+      3 using Maxx.Api.Posts;
+      4 using Maxx.Application.Fotos;
+      5 using Maxx.Application.Ranking;
+      6 using Maxx.Domain.Ranking;
+      7 using Microsoft.AspNetCore.Http.HttpResults;
+      8 
+      9 namespace Maxx.Api.Ranking;
+     … +109 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && \
+      sed -i
+      's/^v1.MapNotificacaoEndpoints();$/v1.MapNotificacaoEndpoints();\nv1.Ma…)
+  ⎿  16:using Maxx.Api.Premios;
+     17:using Maxx.Api.PremiosParticipacao;
+     18:using Maxx.Api.Social;
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+2 -0)
+      108  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.FilaDeComprovacoesHandler>();
+      109  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.ContestacaoHandler>();
+      110  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      111 +builder.Services.AddScoped<Maxx.Application.Ranking.LeituraDoR
+          +ankingHandler>();                                             
+      112  builder.Services.AddScoped<Maxx.Application.Mural.PublicarAvis
+           oHandler>();
+      113  builder.Services.AddScoped<Maxx.Application.Mural.MuralHandler
+           >();
+      114  builder.Services.AddScoped<Maxx.Application.Notificacoes.Notif
+           icacoesHandler>();
+     ...
+      185  v1.MapContestacaoEndpoints();
+      186  v1.MapAvisoEndpoints();
+      187  v1.MapNotificacaoEndpoints();
+      188 +v1.MapRankingEndpoints();                                     
+      189  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      190  if (demonstracao)
+      191  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -0)
+       97          services.AddScoped<IConsultaSocial, ConsultaSocial>();
+       98          services.AddScoped<IConsultaDoFeed, ConsultaDoFeed>();
+       99          services.AddScoped<IConsultaDePerfil, ConsultaDePerfil
+           >();
+      100 +        services.AddScoped<IConsultaDoRanking, ConsultaDoRanki
+          +ng>();                                                        
+      101          services.AddScoped<IAvisoRepository, AvisoRepository>(
+           );
+      102          services.AddScoped<IDistribuicaoDeAviso, DistribuicaoD
+           eAviso>();
+      103          services.AddScoped<IConsultaDoMural, ConsultaDoMural>(
+           );
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^using Maxx.Api.PremiosParticipacao;$/using
+      Maxx.Api.PremiosParticipacao;\nusin…)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      15  using Maxx.Api.Posts;
+      16  using Maxx.Api.Premios;
+      17  using Maxx.Api.PremiosParticipacao;
+      18 +using Maxx.Api.Ranking;                                        
+      19  using Maxx.Api.Social;
+      20  using Maxx.Infrastructure;
+      21  using Maxx.Infrastructure.Fila;
+  ⎿  (timeout 5m)
+● A API de leitura da etapa 4 compila: GET /v1/rankings e a posição do histórico
+  geral no perfil. A CI da etapa 3 ainda está rodando. Agora regenero o OpenAPI
+  e o cliente TypeScript.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/packages/api-client" && npm
+      run gerar 2>&1 | tail -4; git diff --stat -- . ; git diff -- src/…)
+  ⎿  > openapi-typescript openapi.json -o src/schema.d.ts
+
+     ✨ openapi-typescript 7.13.0
+     … +64 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+213 -1)
+      739          ]
+      740        }
+      741      },
+      742 +    "/api/v1/rankings": {                                     
+      743 +      "get": {                                                
+      744 +        "tags": [                                             
+      745 +          "Ranking"                                           
+      746 +        ],                                                    
+      747 +        "operationId": "GetRanking",                          
+      748 +        "parameters": [                                       
+      749 +          {                                                   
+      750 +            "name": "escopo",                                 
+      751 +            "in": "query",                                    
+      752 +            "required": true,                                 
+      753 +            "schema": {                                       
+      754 +              "type": "string"                                
+      755 +            }                                                 
+      756 +          },                                                  
+      757 +          {                                                   
+      758 +            "name": "periodo",                                
+      759 +            "in": "query",                                    
+      760 +            "required": true,                                 
+      761 +            "schema": {                                       
+      762 +              "type": "string"                                
+      763 +            }                                                 
+      764 +          },                                                  
+      765 +          {                                                   
+      766 +            "name": "seguidos",                               
+      767 +            "in": "query",                                    
+      768 +            "schema": {                                       
+      769 +              "type": "boolean"                               
+      770 +            }                                                 
+      771 +          },                                                  
+      772 +          {                                                   
+      773 +            "name": "cursor",                                 
+      774 +            "in": "query",                                    
+      775 +            "schema": {                                       
+      776 +              "type": "string"                                
+      777 +            }                                                 
+      778 +          }                                                   
+     … 210 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+87 -0)
+      244          patch?: never;
+      245          trace?: never;
+      246      };
+      247 +    "/api/v1/rankings": {                                     
+      248 +        parameters: {                                         
+      249 +            query?: never;                                    
+      250 +            header?: never;                                   
+      251 +            path?: never;                                     
+      252 +            cookie?: never;                                   
+      253 +        };                                                    
+      254 +        get: operations["GetRanking"];                        
+      255 +        put?: never;                                          
+      256 +        post?: never;                                         
+      257 +        delete?: never;                                       
+      258 +        options?: never;                                      
+      259 +        head?: never;                                         
+      260 +        patch?: never;                                        
+      261 +        trace?: never;                                        
+      262 +    };                                                        
+      263      "/api/v1/professor/turmas": {
+      264          parameters: {
+      265              query?: never;
+     ...
+      1247              /** Format: date-time */
+      1248              ate: null | string;
+      1249          };
+      1250 +        LinhaDoRankingResponse: {                            
+      1251 +            /** Format: uuid */                              
+      1252 +            alunoId: string;                                 
+      1253 +            /** Format: int32 */                             
+      1254 +            posicao: number;                                 
+      1255 +            /** Format: int32 */                             
+      1256 +            pontos: number;                                  
+      1257 +            nomeDeExibicao: string;                          
+      1258 +            arroba: string;                                  
+      1259 +            curso: null | string;                            
+      1260 +            nomeDoCurso: null | string;                      
+      1261 +            /** Format: int32 */                             
+      1262 +            semestre: null | number;                         
+      1263 +            exAluno: boolean;                                
+      1264 +            foto: null | string;                             
+     … 77 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● O contrato ganhou só acréscimos (rota GET /v1/rankings, RankingResponse,
+  LinhaDoRankingResponse e posicao no perfil), e agora escrevo os testes de
+  integração da leitura, inserindo as linhas direto no banco para provar que ela
+  não calcula nada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Ranking\LeituraDoRankingTests.c
+       s)
+  ⎿  Wrote 272 lines to apps\api\tests\Maxx.Api.IntegrationTests\Ranking\Le
+     ituraDoRankingTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using System.Text.Json;
+       4 using Maxx.Api.IntegrationTests.Conquistas;
+       5 using Maxx.Api.Perfil;
+       6 using Maxx.Api.Ranking;
+       7 using Maxx.Domain.Academico;
+       8 using Maxx.Domain.Identidade;
+       9 using Maxx.Domain.Ranking;
+      10 using Maxx.Domain.Social;
+     … +262 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Ranking" && sed -i
+      's/mundo.Ana.EmailDoCadastro()/_a…)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Ranking\LeituraDoRank
+     ingTests.cs (+12 -10)
+      22  // pergunta 6 do passo 11; a posição do perfil, a pergunta 4.
+      23  public sealed class LeituraDoRankingTests(PostgresFixture postg
+          res) : IClassFixture<PostgresFixture>
+      24  {
+      25 +    private const string _ana = "ana.souza@al.unieduk.com.br"; 
+      26 +    private const string _bruno = "bruno.lima@al.unieduk.com.br
+         +";                                                             
+      27      private const string _professora = "marta@prof.unieduk.com.
+          br";
+      28  
+      29      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+     ...
+      32      public async Task Aluno_le_o_topo_e_a_propria_linha_do_seme
+          stre_atual()
+      33      {
+      34          await using var mundo = await MundoDeConquistas.CriarAs
+          ync(postgres);
+      33 -        using var ana = await mundo.ComoAsync(mundo.Ana.EmailDo
+         -Cadastro());                                                   
+      35 +        using var ana = await mundo.ComoAsync(_ana);           
+      36          await PosicoesAsync(mundo, Geral(mundo.Semestre1.Id), (
+          mundo.Bruno, 120), (mundo.Ana, 60));
+      37  
+      38          var ranking = await RankingAsync(ana, "geral", "semestr
+          e");
+     ...
+      47      public async Task Topo_vem_por_cursor_de_vinte_em_vinte_sem
+          _repetir_nem_pular()
+      48      {
+      49          await using var mundo = await MundoDeConquistas.CriarAs
+          ync(postgres);
+      48 -        using var ana = await mundo.ComoAsync(mundo.Ana.EmailDo
+         -Cadastro());                                                   
+      50 +        using var ana = await mundo.ComoAsync(_ana);           
+      51          var outros = await AlunosAsync(mundo, 23);
+      52          await PosicoesAsync(
+      53              mundo,
+     ...
+      67      public async Task Quem_eu_sigo_filtra_a_mesma_visao_com_a_p
+          osicao_de_todos_e_a_minha_linha()
+      68      {
+      69          await using var mundo = await MundoDeConquistas.CriarAs
+          ync(postgres);
+      68 -        using var ana = await mundo.ComoAsync(mundo.Ana.EmailDo
+         -Cadastro());                                                   
+      70 +        using var ana = await mundo.ComoAsync(_ana);           
+      71          var outros = await AlunosAsync(mundo, 2);
+      70 -        await SalvarAsync(mundo.Factory, Seguimento.Seguir(mund
+         -o.Ana.Id, outros[1].Id, mundo.Relogio.GetUtcNow()).Seguimento!)
+         -;                                                              
+      72 +        await SalvarAsync(mundo.Factory, Seguimento.Seguir(mund
+         +o.Ana, outros[1], professorDoSeguido: false, mundo.Relogio.GetU
+         +tcNow())!);                                                    
+      73          await PosicoesAsync(mundo, Historico(), (outros[0], 300
+          ), (outros[1], 200), (mundo.Ana, 100), (mundo.Bruno, 50));
+      74  
+      75          var ranking = await RankingAsync(ana, "geral", "histori
+          co", seguidos: true);
+     ...
+      81      public async Task Ranking_do_curso_e_o_do_curso_atual_do_al
+          uno()
+      82      {
+      83          await using var mundo = await MundoDeConquistas.CriarAs
+          ync(postgres);
+      82 -        using var ana = await mundo.ComoAsync(mundo.Ana.EmailDo
+         -Cadastro());                                                   
+      84 +        using var ana = await mundo.ComoAsync(_ana);           
+     … 43 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Um parâmetro obrigatório ausente gera 500 em vez de 400, porque o string não
+  anulável falha no vínculo antes da validação. Vou trocar para string? com
+  [Required].
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/        \[Required, AllowedValues(Geral, Curso)\] string
+      escopo,/        [Requi…)
+  ⎿  🚀 openapi.json → src/schema.d.ts [144.9ms]
+     2134:    GetRanking: {
+     2135-        parameters: {
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Ranking\RankingEndpoints.cs (+2 -2)
+      34  
+      35      // seguidos: "Quem eu sigo", a mesma visão filtrada, com a 
+          posição de todos.
+      36      private static async Task<Ok<RankingResponse>> RankingAsync
+          (
+      37 -        [Required, AllowedValues(Geral, Curso)] string escopo, 
+      38 -        [Required, AllowedValues(Semestre, Historico)] string p
+         -eriodo,                                                        
+      37 +        [Required, AllowedValues(Geral, Curso)] string? escopo,
+      38 +        [Required, AllowedValues(Semestre, Historico)] string? 
+         +periodo,                                                       
+      39          bool? seguidos,
+      40          string? cursor,
+      41          ClaimsPrincipal principal,
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A validação nativa não barra o null em parâmetro de query anulável, e a falta
+  de escopo virou 200. Passo a recusar explicitamente, no formato único de erro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Api\Ranking\RankingEndpoints.cs)
+  ⎿  Added 7 lines
+      43          IArmazenamentoDeFotos armazenamento,
+      44          CancellationToken cancellationToken)
+      45      {
+      46 +        // Os valores errados a validação recusa; a ausência, n
+         +ão, porque o parâmetro anulável é                              
+      47 +        // o que deixa a falta virar 400 em vez de erro de vínc
+         +ulo.                                                           
+      48 +        if (escopo is null || periodo is null)                 
+      49 +        {                                                      
+      50 +            throw new RecusaException(TipoDeRecusa.Invalido, Co
+         +digosDoRanking.VisaoIncompleta, "Ranking sem escopo ou período.
+         +");                                                            
+      51 +        }                                                      
+      52 +                                                               
+      53          var ranking = await handler.LerAsync(
+      54              PostEndpoints.UsuarioId(principal),
+      55              escopo == Curso ? EscopoDoRanking.Curso : EscopoDoR
+          anking.Geral,
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^using Maxx.Api.Posts;$/using Maxx.Api.Posts;\nusing
+      Maxx.Application;/' apps/a…)
+  ⎿  🚀 openapi.json → src/schema.d.ts [252.4ms]
+       total: 42
+       falhou: 0
+  ⎿  Updated apps\api\src\Maxx.Api\Ranking\RankingEndpoints.cs (+1 -0)
+      1  using System.ComponentModel.DataAnnotations;
+      2  using System.Security.Claims;
+      3  using Maxx.Api.Posts;
+      4 +using Maxx.Application;                                         
+      5  using Maxx.Application.Fotos;
+      6  using Maxx.Application.Ranking;
+      7  using Maxx.Domain.Ranking;
+  ⎿  Updated apps\api\src\Maxx.Application\Ranking\LeituraDoRanking.cs (+3 
+     -0)
+      60  
+      61  public static class CodigosDoRanking
+      62  {
+      63 +    // Escopo ou período ausente no pedido.                    
+      64 +    public const string VisaoIncompleta = "visao-incompleta";  
+      65 +                                                               
+      66      // Professor e instituição não têm curso: veem só o geral.
+      67      public const string RankingDeCursoSoParaAluno = "ranking-de
+          -curso-so-para-aluno";
+      68  
+  ⎿  (timeout 10m)
+
+● Background command "Wait for stage 3 CI" completed (exit code 0)
+
+● A CI da etapa 3 passou em todos os jobs, com 42 de 42 testes de leitura
+  verdes. Vou conferir o app antes do commit da etapa 4, de olho no campo
+  obrigatório do perfil e nos mocks do Jest.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O app compila sem erro. Rodo o formato e a integração inteira antes do commit
+  da etapa 4.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Commit 1681071 da etapa 4 enviado, e a CI 42627851115 está rodando. Quando ela
+  terminar, trago os três relatórios juntos e paro antes da etapa 5, como
+  combinado.
+
+✻ Cogitated for 30m 32s · done 10:42
+
+※ recap: Estamos fazendo o passo 11 (rankings): as etapas 2 e 3 já estão commitadas com a CI verde, e a etapa 4 foi enviada como commit 1681071. Falta a CI dela terminar para eu trazer os três relatórios juntos e parar antes da etapa 5.
+
+● Background command "Wait for stage 4 CI" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● As etapas 2, 3 e 4 estão prontas, cada uma com o próprio commit e a CI verde
+  nos seis jobs (build, api, api-client, mobile, e2e, segurança). Nenhuma
+  precisou de commit fix nem levantou pergunta de produto. Parei antes da etapa
+  5.
+
+  ┌─────────────────┬───────────────────────────────────────┬───────────────┐
+  │      Etapa      │                Commit                 │      CI       │
+  ├─────────────────┼───────────────────────────────────────┼───────────────┤
+  │ 2 · Tabela e    │ 8851bd8 feat(api): adiciona a tabela  │ 42623440086   │
+  │ worker          │ do ranking e o recálculo das quatro   │ verde         │
+  │                 │ visões no worker                      │               │
+  ├─────────────────┼───────────────────────────────────────┼───────────────┤
+  │ 3 · Eventos     │ a53b88d feat(api): enfileira o        │ 42625707876   │
+  │ pedem o         │ recálculo do ranking em todo evento   │ verde         │
+  │ recálculo       │ que muda a pontuação                  │               │
+  ├─────────────────┼───────────────────────────────────────┼───────────────┤
+  │ 4 · Leitura e   │ 1681071 feat(api): adiciona a leitura │ 42627851115   │
+  │ contrato        │  do ranking nas quatro visões e a     │ verde         │
+  │                 │ posição no perfil                     │               │
+  └─────────────────┴───────────────────────────────────────┴───────────────┘
+
+  Etapa 2 · Tabela e worker
+
+  É o que você revisou antes do commit, sem mudança.
+  - Tabela: migration Ranking cria a posicao_no_ranking.
+    - Checagens: o semestre só existe no período semestre, o curso só no escopo
+      curso, e os pontos são positivos.
+    - Índices únicos por visão e posição e por aluno e visão.
+    - Chaves estrangeiras em cascata.
+  - Worker: recalcular-ranking com a própria linha em recalculo e coalescência
+    de 10 s. Reescreve o histórico e os semestres não congelados.
+  - Seed base: pede o recálculo quando o calendário muda ou o ranking nunca foi
+    calculado.
+  - Testes: 12 de integração e 1 no seed.
+  - Ocorrência de ambiente: a falha de tempo esgotado com o contêiner de
+    armazenamento, numa rodada da solução inteira, ficou registrada como você
+    pediu.
+
+  Etapa 3 · Todo evento que muda pontos pede o recálculo
+
+  - Ponto único: fila.PedirRecalculos() (Application/Ranking/PontuacaoMudou.cs)
+    enfileira ranking e raridade juntos, na transação da escrita.
+  - Onde substituiu o pedido antigo de raridade (11 lugares):
+    - concessão e anulação de medalha (o comando administrativo usa o mesmo
+      handler);
+    - aprovação de comprovação;
+    - contestação;
+    - confirmação e revogação;
+    - remoção do post pela instituição, quando o prêmio estava válido ou em
+      averiguação;
+    - conquista concedida, por fato ou no fechamento, e conquista removida pelo
+      recálculo da anulação.
+  - O que continua pedindo só a raridade: cadastro, demonstração e seed, porque
+    não mudam pontos.
+  - Testes novos (16):
+    - um por evento;
+    - os que não podem pedir: reprovação, remoção do post pendente, concessão
+      recusada por limite, segunda aprovação e segunda contestação;
+    - dois de ponta a ponta pelo worker, sem pedido manual: a medalha move o
+      ranking, e o prêmio aprovado entra no semestre do início do evento.
+  - Testes antigos ajustados (3 arquivos): listavam os trabalhos esperados e
+    agora veem também o recalcular-ranking.
+  - Teste da etapa 2 ajustado: como a concessão já pede o recálculo, ele
+    precisou avançar 10 s para não cair na coalescência.
+  - Local: integração com 578 aprovados e 0 falhas.
+
+  Etapa 4 · Leitura e contrato
+
+  - Rota GET /v1/rankings: recebe escopo (geral ou curso), periodo (semestre ou
+    historico), seguidos e cursor, de 20 em 20.
+    - A resposta traz o semestre ("2026/2") e o curso da visão.
+    - eu é a linha do próprio aluno; vem nula para quem não é aluno e para o
+      aluno sem pontos, o caso do "Sem posição ainda".
+    - Cada linha traz nome, arroba, curso, semestre do aluno, ex-aluno e foto.
+  - Quem vê o quê (pergunta 6):
+    - O escopo curso para professor e instituição responde 403
+      ranking-de-curso-so-para-aluno.
+    - O curso no semestre para ex-aluno responde 403 ex-aluno-so-no-historico.
+    - Sem escopo ou sem período, responde 400 visao-incompleta.
+  - Perfil: ganhou posicao (pergunta 4), a do histórico geral, nula sem pontos.
+    Vale também no perfil de outro aluno.
+  - Contrato: OpenAPI e schema.d.ts regenerados, só com acréscimos. O typecheck
+    do app passou.
+  - Testes novos (16), com as linhas gravadas direto na tabela, o que prova que 
+    a leitura não calcula nada:
+    - topo e linha própria;
+    - cursor sem repetir nem pular;
+    - "Quem eu sigo";
+    - curso atual;
+    - aluno sem pontos;
+    - professor;
+    - ex-aluno;
+    - visão inválida e cursor inválido;
+    - posição no perfil;
+    - um EXPLAIN que confirma o uso do índice
+      ix_posicao_no_ranking_visao_posicao.
+  - Local: integração com 592 aprovados e 0 falhas.
+
+  Decisões de detalhe que tomei sem perguntar
+
+  Nenhuma muda regra de produto, mas quero que você saiba:
+  1. "Quem eu sigo" inclui a linha do próprio aluno, além de quem ele segue,
+     para o destaque aparecer na lista filtrada.
+  2. Sem ETag no ranking. Seria uma decisão de cache, que pede medir o p95; a
+     leitura entra no k6 do passo 13.
+  3. Parâmetros de query em texto. escopo e periodo aparecem como string no
+     contrato, com os valores permitidos, igual ao mural. O cliente vai tipar os
+     dois valores à mão no hook.
+  4. Validação nativa. Ela recusa valor errado, mas deixa passar parâmetro
+     ausente; por isso a ausência é checada no endpoint, com o código
+     visao-incompleta.
+
+  A etapa 5 tem tela, então espero você para começar.
+
+✻ Cogitated for 26s · done 10:50
