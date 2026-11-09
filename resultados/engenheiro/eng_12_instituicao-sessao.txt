@@ -7425,3 +7425,687 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt
   começar.
 
 ✻ Sautéed for 37s · done 16:06
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt 
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_12_instituicao-sessao.txt
+
+> Etapas 1 a 6 aprovadas. As fotos em CC BY e CC BY-SA com o CREDITOS.md        
+  servem; mantém. As comprovações pendentes na etapa 6, o banco local recriado  
+  quando precisar das capturas, as medalhas semeadas sem notificação e o seed   
+  sem conquista de fechamento ficam como você fez e declarou. Segue para a      
+  etapa 7 com as capturas em claro e escuro da entrada em /instituicao, do      
+  perfil da conta só de instituição, das duas filas e do "Contestar prêmio" no  
+  menu do post; para para a minha revisão no fim dela, com a mensagem de commit 
+  antes de commitar.                                                            
+
+● Começo a etapa 7 lendo as telas que ela reaproveita: comprovações, menu de
+  contestação, menu do perfil e o perfil.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Leio o teste de comprovações do app para seguir o mesmo arranjo nos testes
+  novos.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Escrevo os ganchos da fila de contestações.
+
+● Write(apps\mobile\src\instituicao\api.ts)
+  ⎿  Wrote 87 lines to apps\mobile\src\instituicao\api.ts
+      1 import type { components } from "@maxx/api-client";
+      2 import {
+      3   useInfiniteQuery,
+      4   useMutation,
+      5   useQueryClient,
+      6 } from "@tanstack/react-query";
+      7 
+      8 import { useApiClient } from "../api/ApiClientProvider";
+      9 import { FalhaDaApi } from "../api/FalhaDaApi";
+     … +78 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\instituicao\CartaoDeContestacao.tsx)
+  ⎿  Wrote 206 lines to apps\mobile\src\instituicao\CartaoDeContestacao.tsx
+       1 import { useState } from "react";
+       2 import { Image, StyleSheet, Text, View } from "react-native";
+       3 
+       4 import { falhaParaTela } from "../api/FalhaDaApi";
+       5 import { AvisoDeErro } from "../autenticacao/AvisoDeErro";
+       6 import { FolhaDeMotivo } from "../comprovacoes/FolhaDeMotivo";
+       7 import { Avatar } from "../components/Avatar";
+       8 import { Button } from "../components/Button";
+       9 import { descreverAutor, tempoDesde } from "../feed/textos";
+      10 import { Medalhao } from "../premios/Medalhao";
+     … +196 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\instituicao\TelaDaArea.tsx)  ⎿  Wrote 81 lines to apps\mobile\src\instituicao\TelaDaArea.tsx
+       1 import type { Href } from "expo-router";
+       2 import type { ReactNode } from "react";
+       3 import { ActivityIndicator, Platform, StyleSheet, View } from "r
+         eact-native";
+       4 import { useSafeAreaInsets } from "react-native-safe-area-contex
+         t";
+       5 
+       6 import { useEu } from "../api/useEu";
+       7 import { Cabecalho } from "../components/Cabecalho";
+       8 import { EmptyState } from "../components/StateMessage";
+     … +73 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\instituicao\AreaDaInstituicaoScreen.tsx)
+  ⎿  Wrote 84 lines to
+     apps\mobile\src\instituicao\AreaDaInstituicaoScreen.tsx
+       1 import { useRouter, type Href } from "expo-router";
+       2 import { Pressable, StyleSheet, Text, View } from "react-native"
+         ;
+       3 
+       4 import { Icon, type IconName } from "../components/Icon";
+       5 import { textStyles } from "../theme/fonts";
+       6 import { useTheme } from "../theme/ThemeProvider";
+       7 import { espacamento, tamanhos } from "../theme/tokens";
+       8 import { TelaDaArea } from "./TelaDaArea";
+       9 
+     … +75 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os ícones existem. Agora a tela de contestações e as rotas.
+
+● Write(apps\mobile\src\instituicao\ContestacoesScreen.tsx)
+  ⎿  Wrote 82 lines to apps\mobile\src\instituicao\ContestacoesScreen.tsx
+       1 import { ActivityIndicator, FlatList, StyleSheet, View } from "r
+         eact-native";
+       2 import { useSafeAreaInsets } from "react-native-safe-area-contex
+         t";
+       3 
+       4 import { falhaParaTela } from "../api/FalhaDaApi";
+       5 import { EmptyState, ErrorState } from "../components/StateMessa
+         ge";
+       6 import { useTheme } from "../theme/ThemeProvider";
+       7 import { espacamento } from "../theme/tokens";
+     … +75 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/instituicao"
+      && perl -0pi -e 's/  const \{ instituicao \} = useEhDaInstituica…)
+  ⎿    );
+     }
+     … +6 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\src\app\(app)\instituicao\contestacoes.tsx (+3 -0)
+      1 +import { ContestacoesScreen } from "../../../instituicao/Contest
+        +acoesScreen";                                                   
+      2 +                                                                
+      3 +export default ContestacoesScreen;                              
+  ⎿  Created apps\mobile\src\app\(app)\instituicao\index.tsx (+3 -0)
+      1 +import { AreaDaInstituicaoScreen } from "../../../instituicao/Ar
+        +eaDaInstituicaoScreen";                                         
+      2 +                                                                
+      3 +export default AreaDaInstituicaoScreen;                         
+  ⎿  Updated apps\mobile\src\instituicao\ContestacoesScreen.tsx (+4 -9)
+       7  import { espacamento } from "../theme/tokens";
+       8  import { useFilaDeContestacoes } from "./api";
+       9  import { CartaoDeContestacao } from "./CartaoDeContestacao";
+      10 -import { TelaDaArea, naWeb, useEhDaInstituicao } from "./TelaDa
+         -Area";                                                         
+      10 +import { TelaDaArea } from "./TelaDaArea";                     
+      11  
+      12  // A fila de contestações da instituição (produto.md 4.7): os p
+          rêmios em averiguação, das
+      13  // contestações mais antigas para as mais novas, com a marca de
+           7 dias e sem decisão
+     ...
+      23  function Fila() {
+      24    const { colors } = useTheme();
+      25    const insets = useSafeAreaInsets();
+      26 -  const { instituicao } = useEhDaInstituicao();                
+      27 -  const fila = useFilaDeContestacoesSeDaArea(instituicao && naW
+         -eb());                                                         
+      26 +  // Só monta quando a área aparece: nos outros casos o TelaDaA
+         +rea mostra a explicação, e a                                   
+      27 +  // fila nem é pedida.                                        
+      28 +  const fila = useFilaDeContestacoes();                        
+      29    const contestacoes =
+      30      fila.data?.pages.flatMap((pagina) => pagina.itens) ?? [];
+      31  
+     ...
+      70    );
+      71  }
+      72  
+      72 -// Só pede a fila quando a tela vai mostrá-la: o TelaDaArea já 
+         -trocou o conteúdo pela                                         
+      73 -// explicação nos outros casos, e este componente nem monta.   
+      74 -function useFilaDeContestacoesSeDaArea(_mostra: boolean) {     
+      75 -  return useFilaDeContestacoes();                              
+      76 -}                                                              
+      77 -                                                               
+      73  const styles = StyleSheet.create({
+      74    fill: { flex: 1 },
+      75    espera: { marginTop: 32 },
+
+● Agora o menu do perfil, o perfil da conta só de instituição, a fila de
+  comprovações e o menu do post.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e '
+      s/import \{ Modal, Pressable, StyleSheet, View \} from "re…)
+  ⎿    instituicao?: boolean;
+       onFechar: () => void;
+     }
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\perfil\MenuDoPerfil.tsx (+16 -2)
+      1  import { useRouter } from "expo-router";
+      2 -import { Modal, Pressable, StyleSheet, View } from "react-native
+        -";                                                              
+      2 +import { Modal, Platform, Pressable, StyleSheet, View } from "re
+        +act-native";                                                    
+      3  import { useSafeAreaInsets } from "react-native-safe-area-contex
+         t";
+      4  
+      5  import { Button } from "../components/Button";
+     ...
+      11  interface MenuDoPerfilProps {
+      12    aberto: boolean;
+      13    professor: boolean;
+      14 +  // A área da instituição abre só no navegador (P1 do passo 12
+         +).                                                             
+      15 +  instituicao?: boolean;                                       
+      16    onFechar: () => void;
+      17  }
+      18  
+      19  // O menu do próprio perfil (o "≡" da prancheta): o lugar defin
+          itivo do tema (decisoes,
+      20  // Design system: o controle saiu da tela de status para cá no 
+          passo 7), as turmas do
+      19 -// professor, as comprovações dos alunos dele (passo 8, D8) e a
+         - saída. Folha que sobe de                                      
+      21 +// professor, as comprovações dos alunos dele (passo 8, D8), a 
+         +área da instituição no                                         
+      22 +// navegador (passo 12) e a saída. Folha que sobe de           
+      23  // baixo, como as do Instagram.
+      24  export function MenuDoPerfil({
+      25    aberto,
+      26    professor,
+      27 +  instituicao = false,                                         
+      28    onFechar,
+      29  }: MenuDoPerfilProps) {
+      30    const { colors } = useTheme();
+     ...
+      59            ]}
+      60          >
+      61            <ThemePreferenceControl />
+      62 +          {instituicao && Platform.OS === "web" && (           
+      63 +            <Button                                            
+      64 +              label="Área da instituição"                      
+      65 +              variant="secondary"                              
+      66 +              onPress={() => {                                 
+      67 +                onFechar();                                    
+      68 +                router.push("/instituicao");                   
+      69 +              }}                                               
+      70 +            />                                                 
+      71 +          )}                                                   
+     … 3 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e '
+      s/      professor=\{eu.data\?.papeis.includes\("professor"…)
+  ⎿  123:            <ContaDaInstituicao
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+9 -0)
+       99      <MenuDoPerfil
+      100        aberto={menuAberto}
+      101        professor={eu.data?.papeis.includes("professor") ?? fals
+           e}
+      102 +      instituicao={eu.data?.papeis.includes("instituicao") ?? 
+          +false}                                                        
+      103        onFechar={() => setMenuAberto(false)}
+      104      />
+      105    );
+     ...
+      116          <View style={styles.margem}>
+      117            {perfil.isPending ? (
+      118              <ActivityIndicator style={styles.espera} color={co
+           lors.ink2} />
+      119 +          ) : falhaParaTela(perfil.error).codigo ===          
+      120 +              "usuario-nao-encontrado" &&                     
+      121 +            proprio &&                                        
+      122 +            eu.data?.papeis.includes("instituicao") ? (       
+      123 +            <ContaDaInstituicao                               
+      124 +              nome={eu.data.nomeDeExibicao}                   
+      125 +              arroba={eu.data.arroba}                         
+      126 +            />                                                
+      127            ) : falhaParaTela(perfil.error).codigo ===
+      128              "usuario-nao-encontrado" ? (
+      129              <EmptyState icon="user" title="Esse perfil não exi
+           ste." />
+
+● Agora o componente da conta só de instituição no perfil.
+
+● Write(apps\mobile\src\perfil\ContaDaInstituicao.tsx)
+  ⎿  Wrote 56 lines to apps\mobile\src\perfil\ContaDaInstituicao.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { Platform, StyleSheet, Text, View } from "react-native";
+       3 
+       4 import { Avatar } from "../components/Avatar";
+       5 import { Button } from "../components/Button";
+       6 import { textStyles } from "../theme/fonts";
+       7 import { useTheme } from "../theme/ThemeProvider";
+       8 
+       9 // A aba Perfil da conta só de instituição (P1 do passo 12). A i
+         nstituição não tem perfil
+     … +47 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e 's/^(import \{ MenuDoPerfil \} from ".\/MenuDoPerfil";\n)/im…)
+  ⎿  2
+  ⎿  Updated apps\mobile\src\comprovacoes\ComprovacoesScreen.tsx (+10 -3)
+      30      eu.data?.papeis.some(
+      31        (papel) => papel === "professor" || papel === "instituica
+          o",
+      32      ) ?? false;
+      33 +  const instituicao = eu.data?.papeis.includes("instituicao") ?
+         +? false;                                                       
+      34 +  // A instituição chega pela área dela (passo 12); o professor
+         +, pelo menu do perfil.                                         
+      35 +  const voltarPara = instituicao ? "/instituicao" : "/perfil"; 
+      36    const [eventoId, setEventoId] = useState<string | null>(null)
+          ;
+      37    const eventos = useEventosDaFila();
+      38    const fila = useFilaDeComprovacoes(eventoId);
+     ...
+      53            ? "Nada pendente neste evento."
+      54            : "Nenhuma comprovação pendente."
+      55        }
+      53 -      message="As reivindicações dos seus alunos aparecem aqui,
+         - das mais antigas para as mais novas."                         
+      56 +      message={                                                
+      57 +        instituicao                                            
+      58 +          ? "As reivindicações dos alunos aparecem aqui, das ma
+         +is antigas para as mais novas."                                
+      59 +          : "As reivindicações dos seus alunos aparecem aqui, d
+         +as mais antigas para as mais novas."                           
+      60 +      }                                                        
+      61      />
+      62    );
+      63  
+     ...
+      70          ]}
+      71        >
+      72          <View style={styles.margem}>
+      66 -          <Cabecalho titulo="Comprovações" voltarPara="/perfil"
+         - />                                                            
+      73 +          <Cabecalho titulo="Comprovações" voltarPara={voltarPa
+         +ra} />                                                         
+      74          </View>
+      75          <EmptyState
+      76            icon="inbox"
+     ...
+      89        ]}
+      90      >
+      91        <View style={[styles.margem, styles.topo]}>
+      85 -        <Cabecalho titulo="Comprovações" voltarPara="/perfil" /
+         ->                                                              
+      92 +        <Cabecalho titulo="Comprovações" voltarPara={voltarPara
+         +} />                                                           
+      93          {(eventos.data?.length ?? 0) > 0 && (
+      94            <ScrollView
+      95              horizontal
+  ⎿  Updated apps\mobile\src\perfil\PerfilScreen.tsx (+1 -0)
+      36    type Perfil,
+      37  } from "./api";
+      38  import { CelulaDaGrade } from "./CelulaDaGrade";
+      39 +import { ContaDaInstituicao } from "./ContaDaInstituicao";     
+      40  import { MenuDoPerfil } from "./MenuDoPerfil";
+      41  
+      42  type Aba = "posts" | "trofeus" | "medalhas";
+
+● Agora o "Contestar prêmio" no menu do post para a instituição.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && perl -0pi
+      -e '
+      s/  \/\/ O professor contesta prêmio de participação válid…)
+  ⎿  Updated apps\mobile\src\comprovacoes\MenuDeContestacao.tsx (+5 -2)
+      14    premioId: string;
+      15    nomeDoAluno: string;
+      16    aberto: boolean;
+      17 +  // Direto na folha de motivo: a instituição já escolheu conte
+         +star no menu do post.                                          
+      18 +  direto?: boolean;                                            
+      19    onFechar: () => void;
+      20  }
+      21  
+     ...
+      27    premioId,
+      28    nomeDoAluno,
+      29    aberto,
+      30 +  direto = false,                                              
+      31    onFechar,
+      32  }: MenuDeContestacaoProps) {
+      33    const { colors } = useTheme();
+     ...
+      44    return (
+      45      <>
+      46        <Modal
+      44 -        visible={aberto && !escrevendo}                        
+      47 +        visible={aberto && !escrevendo && !direto}             
+      48          transparent
+      49          animationType="slide"
+      50          onRequestClose={fechar}
+     ...
+      82          </View>
+      83        </Modal>
+      84        <FolhaDeMotivo
+      82 -        aberta={aberto && escrevendo}                          
+      85 +        aberta={aberto && (escrevendo || direto)}              
+      86          titulo="Contestar prêmio"
+      87          explicacao={`A instituição decide. ${nomeDoAluno} vê qu
+          e o prêmio está em averiguação.`}
+      88          confirmar="Contestar"
+  ⎿  Updated apps\mobile\src\feed\CartaoDePost.tsx (+25 -5)
+       85        : leitor?.papeis.includes("instituicao")
+       86          ? "remover"
+       87          : null;
+       88 -  // O professor contesta prêmio de participação válido (produ
+          -to.md 4.7). O escopo de turma e                               
+       89 -  // a janela de 15 dias, a API confere.                      
+       90 -  const contesta =                                            
+       91 -    !acao &&                                                  
+       92 -    !!leitor?.papeis.includes("professor") &&                 
+       88 +  // O professor contesta prêmio de participação válido (produ
+          +to.md 4.7), e a instituição                                   
+       89 +  // também, no mesmo menu em que remove o post (passo 12). O 
+          +escopo de turma e a janela de 15                              
+       90 +  // dias, a API confere.                                     
+       91 +  const contestavel =                                         
+       92      post.premio?.tipo === "premioParticipacao" &&
+       93      post.premio.estado === "valido";
+       94 +  const contesta =                                            
+       95 +    !acao && !!leitor?.papeis.includes("professor") && contest
+          +avel;                                                         
+       96 +  const instituicaoContesta = acao === "remover" && contestave
+          +l;                                                            
+       97 +  const [contestando, setContestando] = useState(false);      
+       98    // A instituição não curte nem comenta (produto.md 2.1).
+       99    const interage =
+      100      !!leitor &&
+     ...
+      285            setMenuAberto(false);
+      286            onRemovido?.();
+      287          }}
+      288 +        onContestar={                                         
+      289 +          instituicaoContesta                                 
+      290 +            ? () => {                                         
+      291 +                setMenuAberto(false);                         
+      292 +                setContestando(true);                         
+      293 +              }                                               
+      294 +            : undefined                                       
+      295 +        }                                                     
+      296        />
+      297 +      {instituicaoContesta && post.premio && (                
+      298 +        <MenuDeContestacao                                    
+      299 +          premioId={post.premio.id}                           
+      300 +          nomeDoAluno={post.autor.nomeDeExibicao}             
+      301 +          aberto={contestando}                                
+      302 +          direto                                              
+      303 +          onFechar={() => setContestando(false)}              
+     … 5 more lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\feed\MenuDoPost.tsx (+10 -0)
+      36    aberto: boolean;
+      37    onFechar: () => void;
+      38    onRemovido: () => void;
+      39 +  // Só a instituição, sobre prêmio de participação válido (pas
+         +so 12): abre a folha de motivo.                                
+      40 +  onContestar?: () => void;                                    
+      41  }
+      42  
+      43  // Folha que sobe de baixo, como as do Instagram, com a confirm
+          ação na própria folha.
+     ...
+      47    aberto,
+      48    onFechar,
+      49    onRemovido,
+      50 +  onContestar,                                                 
+      51  }: MenuDoPostProps) {
+      52    const { colors } = useTheme();
+      53    const insets = useSafeAreaInsets();
+     ...
+      125              </>
+      126            ) : (
+      127              <>
+      128 +              {onContestar && (                               
+      129 +                <Button                                       
+      130 +                  label="Contestar prêmio"                    
+      131 +                  variant="secondary"                         
+      132 +                  onPress={onContestar}                       
+      133 +                />                                            
+      134 +              )}                                              
+      135                <Button
+      136                  label={textos.botao}
+      137                  variant="secondary"
+  ⎿  Updated apps\mobile\src\instituicao\AreaDaInstituicaoScreen.tsx (+5 
+     -1)
+      53                pressed && styles.pressionado,
+      54              ]}
+      55            >
+      56 -            <Icon name={entrada.icone} color={colors.ink} size=
+         -{tamanhos.iconeNav} />                                         
+      56 +            <Icon                                              
+      57 +              name={entrada.icone}                             
+      58 +              color={colors.ink}                               
+      59 +              size={tamanhos.iconeNav}                         
+      60 +            />                                                 
+      61              <View style={styles.texto}>
+      62                <Text style={[textStyles.secao, { color: colors.i
+          nk }]}>
+      63                  {entrada.titulo}
+  ⎿  Updated apps\mobile\src\instituicao\ContestacoesScreen.tsx (+1 -2)
+      26    // Só monta quando a área aparece: nos outros casos o TelaDaA
+          rea mostra a explicação, e a
+      27    // fila nem é pedida.
+      28    const fila = useFilaDeContestacoes();
+      29 -  const contestacoes =                                         
+      30 -    fila.data?.pages.flatMap((pagina) => pagina.itens) ?? [];  
+      29 +  const contestacoes = fila.data?.pages.flatMap((pagina) => pag
+         +ina.itens) ?? [];                                              
+      30  
+      31    const vazio = fila.isPending ? (
+      32      <ActivityIndicator style={styles.espera} color={colors.ink2
+          } />
+  ⎿  … 2 more files changed
+  ⎿  (timeout 5m)
+
+● Typecheck e lint limpos. Escrevo os testes de Jest da etapa 7.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\mobile\src\instituicao\instituicao.test.tsx)
+  ⎿  Wrote 356 lines to apps\mobile\src\instituicao\instituicao.test.tsx
+       1 import { act, fireEvent, screen, within } from "@testing-library
+         /react-native";
+       2 import { Platform } from "react-native";
+       3 
+       4 import type { Post } from "../feed/api";
+       5 import { CartaoDePost } from "../feed/CartaoDePost";
+       6 import { MenuDoPerfil } from "../perfil/MenuDoPerfil";
+       7 import { PerfilScreen } from "../perfil/PerfilScreen";
+       8 import { json, renderComApi } from "../test/renderComApi";
+       9 import { AreaDaInstituicaoScreen } from "./AreaDaInstituicaoScre
+     … +348 lines (~11 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && grep -n
+      "contestacao-ja-decidida" src/api/erros.ts; npx prettier --write src/…)
+  ⎿  77:  "contestacao-ja-decidida": "Essa contestação já foi decidida.",
+     Tests:       13 passed, 13 total
+  ⎿  Updated apps\mobile\src\instituicao\instituicao.test.tsx (+28 -12)
+      160  
+      161    it("o menu do perfil da instituição leva à área, só no naveg
+           ador", async () => {
+      162      await renderComApi(
+      163 -      <MenuDoPerfil aberto professor={false} instituicao onFec
+          -har={jest.fn()} />,                                           
+      163 +      <MenuDoPerfil                                           
+      164 +        aberto                                                
+      165 +        professor={false}                                     
+      166 +        instituicao                                           
+      167 +        onFechar={jest.fn()}                                  
+      168 +      />,                                                     
+      169        api,
+      170      );
+      171  
+     ...
+      176    it("no aparelho, o menu do perfil não tem a área", async () 
+           => {
+      177      jest.replaceProperty(Platform, "OS", "android");
+      178      await renderComApi(
+      174 -      <MenuDoPerfil aberto professor={false} instituicao onFec
+          -har={jest.fn()} />,                                           
+      179 +      <MenuDoPerfil                                           
+      180 +        aberto                                                
+      181 +        professor={false}                                     
+      182 +        instituicao                                           
+      183 +        onFechar={jest.fn()}                                  
+      184 +      />,                                                     
+      185        api,
+      186      );
+      187  
+      178 -    expect(await screen.findByRole("button", { name: "Sair" })
+          -).toBeOnTheScreen();                                          
+      179 -    expect(screen.queryByRole("button", { name: "Área da insti
+          -tuição" })).toBeNull();                                       
+      188 +    expect(                                                   
+      189 +      await screen.findByRole("button", { name: "Sair" }),    
+      190 +    ).toBeOnTheScreen();                                      
+      191 +    expect(                                                   
+      192 +      screen.queryByRole("button", { name: "Área da instituiçã
+          +o" }),                                                        
+      193 +    ).toBeNull();                                             
+      194    });
+      195  
+      196    it("a aba Perfil da conta só de instituição mostra a conta e
+            a entrada da área", async () => {
+     ...
+      217      ).toBeOnTheScreen();
+      218      expect(within(lucas).getByTestId("marca-mais-de-7-dias")).
+           toBeOnTheScreen();
+      219      expect(
+     … 38 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+● 13 de 13. Rodo a suíte inteira do app, lint e tipos.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Suíte do app verde (503 testes), lint, tipos e Prettier limpos. Agora as
+  capturas: recrio o banco local (como você autorizou), subo a pilha com o build
+  web novo e rodo o seed demo.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O seed demo roda no contêiner com o bucket (52 posts com foto). Espero a fila
+  do worker e defino a senha da coordenação pela recuperação, como o primeiro
+  acesso de verdade.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Senha definida. Procuro um post com prêmio válido para a captura do menu.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Hoje os prêmios válidos são concessões diretas, sem post ainda. Para a
+  captura, vou fazer um dos alunos postar o próprio prêmio, redefinindo a senha
+  dele pela recuperação, que no ambiente local cai no Mailpit.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Post do prêmio válido criado. Vejo como o e2e faz o login pela tela e escrevo
+  o script de capturas.
+
+  Ran 2 shell commands (ctrl+o to expand)
+● Capturas feitas. Reviso cada uma antes de mostrar.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Parei para a sua revisão no fim da etapa 7. As telas estão prontas e testadas
+  e as 14 capturas (sete telas, claro e escuro) estão no scratchpad; nada foi
+  commitado.
+
+  O que entrou
+  - Rotas /instituicao e /instituicao/contestacoes: só funcionam no navegador e
+    para quem tem o papel de instituição. No aparelho, a tela diz "A área da
+    instituição abre no navegador."; para outros papéis, "Esta área é da
+    instituição.". Ficam na moldura de celular, como as outras telas (P1).
+  - Entrada da área: uma lista com Comprovações e Contestações. Alunos, aviso e
+    purga entram nas etapas 8 e 9.
+  - Aba Perfil da conta só de instituição: no lugar de "Esse perfil não
+    existe.", mostra o nome, o arroba, uma frase curta e o botão "Área da
+    instituição".
+  - Menu do perfil: "Área da instituição", só no navegador.
+  - Fila de comprovações: é a tela que já existia. Para a instituição, o voltar
+    leva à área e o texto do estado vazio fala "dos alunos" em vez de "dos seus
+    alunos".
+  - Fila de contestações: cartão com o aluno e a foto, ou "Concedido direto pela
+    instituição, sem comprovação." quando não há foto. Mostra o prêmio, o
+    evento, o motivo, quem contestou e a marca de 7 dias. "Confirmar" decide na
+    hora, como o "Aprovar" das comprovações; "Revogar" abre a folha de motivo.
+  - Menu do post da instituição: quando o prêmio de participação está válido,
+    aparece "Contestar prêmio" acima de "Remover post", e ele vai direto para a
+    folha de motivo.
+
+  Verificação
+  - 13 testes novos de Jest; a suíte do app passou inteira (503 testes, 47
+    arquivos).
+  - Lint, tipos e Prettier limpos.
+  - Sem mudança na API nesta etapa.
+
+  Capturas, em C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gi
+  menes-Documents-Repos-tcc-maxx-engenheiro\38159b62-809d-48b4-b879-988b5a3ce98a
+  \scratchpad\capturas\, cada uma com -claro.png e -escuro.png:
+  - perfil-instituicao: a aba Perfil da conta só de instituição.
+  - menu-do-perfil: o menu com "Área da instituição".
+  - area: a entrada da área.
+  - comprovacoes: a fila de comprovações.
+  - contestacoes: a fila de contestações.
+  - menu-do-post: o menu do post com "Contestar prêmio".
+  - contestar-motivo: a folha de motivo.
+
+  As folhas folha-claro.png e folha-escuro.png juntam as sete telas de cada tema
+  numa imagem só.
+
+  O que mexi no ambiente local para tirar as capturas
+  - Recriei o banco local e rodei o seed demo; a fila do worker esvaziou em 16
+    s.
+  - Defini a senha da coordenação pela recuperação, lendo o link no Mailpit.
+  - Fiz a aluna fernanda.medeiros (do seed) postar o prêmio concedido a ela,
+    para haver um post com prêmio válido. Isso também exercitou o post de prêmio
+    concedido da etapa 2.
+  - A senha das duas contas no ambiente local é senha-de-captura-12.
+
+  Dois detalhes que você pode querer mudar
+  1. No cartão de comprovação, a instituição vê as seis matérias do aluno na
+     linha "em comum". É a regra que a API já tinha desde o passo 8 (para a
+     instituição, todas as matérias do aluno contam como em comum), e a linha
+     fica longa. Posso encurtar para a instituição, se quiser.
+  2. A foto de cada post do seed é sorteada entre as do curso do aluno, então às
+     vezes não combina com o evento (uma placa de circuito no "congresso
+     regional", por exemplo).
+
+  Mensagem de commit proposta
+  feat(mobile): adiciona a entrada da área da instituição, a fila de 
+  contestações e o contestar da instituição
+
+  Área da instituição em /instituicao, só no navegador e para quem tem o papel, 
+  com a entrada
+  pelo menu do perfil e pela aba Perfil da conta só de instituição, que mostra a
+  conta no
+  lugar do perfil social. Fila de contestações com confirmar e revogar pela 
+  folha de motivo,
+  e a fila de comprovações com o voltar da área. No menu do post, a instituição 
+  contesta o
+  prêmio de participação válido, direto na folha de motivo.
+
+  Com o seu ok (ou ajustes), faço o commit, o push e espero a CI.
+
+✻ Cogitated for 12m 14s · done 16:20
