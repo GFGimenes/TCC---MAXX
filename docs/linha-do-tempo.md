@@ -130,6 +130,9 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   etapa, CI verde por etapa, fix separado e relatório por etapa mantidos; muda só a
   frequência do checkpoint do autor. Declarada no registro da rodada e no diário; escrita
   no prompt de abertura dos passos 12 e 13.
+- 09/11 18h07: fim da `eng_12_instituicao` (PR #14, `main` em `076549b`), dez etapas sem fix; queda do GitHub Actions no meio da tarde e primeira compactação de contexto da trilha.
+- 09/11 tarde: infraestrutura do passo 13 preparada pelo autor (VPS, DNS, R2, SMTP); repositórios tornados públicos; avaliação da trilha do engenheiro disparada com a `main` do passo 12, Infraestrutura a reavaliar depois do 13.
+- 09/11 18h16: abertura da `eng_13_endurecimento`; `r1` com deploy antecipado e cortes por prazo.
 
 ## Dependências entre fases
 

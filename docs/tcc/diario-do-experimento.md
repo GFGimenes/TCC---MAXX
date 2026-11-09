@@ -519,3 +519,28 @@ agente commitou a etapa 6 antes da revisão e declarou. PR #13, merge na `main`
 (`e43a83a`). Registro em `resultados/engenheiro/eng_11_rankings.md`. Próxima:
 `eng_12_instituicao`, com a mesma cadência escrita no prompt de abertura.
 
+09/11 (18h07): `eng_12_instituicao` fechada em 5 h 39 min de ponta a ponta, sem
+intervalo acima de 15 min. Dez etapas, dez commits, nenhum fix: etapas 1 a 6 emendadas
+pela cadência por grupo, paradas com capturas antes das etapas 7, 8, 9 e 10. Queda do
+GitHub Actions (~15h12 a ~15h55): a CI da etapa 5 falhou duas vezes sem criar jobs e
+passou na terceira, sem código envolvido; o agente esperou. Primeira compactação
+automática de contexto da trilha do engenheiro, na etapa 9, sem perda observada. PR #14,
+merge na `main` (`076549b`). Registro em `resultados/engenheiro/eng_12_instituicao.md`.
+
+09/11 (tarde): fora das sessões, o autor preparou a infraestrutura do passo 13 (VPS
+Hetzner com Docker, DNS `app.maxx-unimax.com`, bucket R2 com domínio de leitura, SMTP do
+Brevo com domínio autenticado) e guardou os valores fora do repositório; o agente só
+recebe nomes de variáveis. Repositórios `maxx-leigo` e `maxx-engenheiro` tornados
+públicos. Por prazo, a avaliação da trilha do engenheiro pelos agentes revisores foi
+disparada com a `main` em `076549b` (fim do passo 12); a dimensão Infraestrutura será
+reavaliada contra a `main` final depois do passo 13, e o formulário cego do autor é
+preenchido antes da leitura das reviews, como na trilha do leigo. As duas condições de
+prompt único ficam fora do escopo do dia.
+
+09/11 (18h16): `eng_13_endurecimento` aberta. O agente trouxe um plano de 11 etapas com
+o deploy na sétima e dez perguntas; a `r1` sobe o deploy para a segunda etapa e corta,
+por prazo, o papel de banco com menos privilégio, a carga a 2.000 usuários em servidor
+separado e o bucket de backup próprio, todos registrados como pendência fora da fase 1.
+E-mails de professor e instituição do seed passam para `@maxx-unimax.com`, com o Email
+Routing da Cloudflare configurado pelo autor. Paradas combinadas: antes do deploy (lista
+de variáveis para o `.env`, escrito pelo autor) e no ensaio remoto.
