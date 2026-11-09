@@ -1,6 +1,6 @@
 # Notas consolidadas
 
-Gerado por `avaliacoes/avaliador/consolidar.ps1` em 2026-11-08 22:35. Fontes:
+Gerado por `avaliacoes/avaliador/consolidar.ps1` em 2026-11-08 23:28. Fontes:
 `avaliacoes/reviews/<produto>-<eixo>.json` (revisor) e `avaliacoes/autor/<produto>.md`
 (autor). As hipóteses usam a nota do autor, a nota validada por humano do pré-registro
 (§2). "pendente": ainda sem dado. Divergência: nota do autor menos a do revisor, com
@@ -215,18 +215,17 @@ contagem do autor, como a lista do revisor de decisões
 - [documentacao] Registrar decisões técnicas apenas em comentários no código, sem registro de decisões
 - [documentacao] Pôr cabeçalhos explicativos nos scripts de deploy e de dados de exemplo
 - [documentacao] Documentar a liberação de professor pelo painel de Administração e pelo domínio @prof.unieduk.com.br
-- [codigo] Usar node:sqlite (DatabaseSync) embutido e experimental, sem ORM, suprimindo o ExperimentalWarning nos scripts
-- [codigo] Renderizar HTML no servidor com motor próprio de templates (tagged template) e escape automático
-- [codigo] Calcular os pontos sempre na hora a partir dos dados brutos, sem total gravado no banco
-- [codigo] Definir as conquistas como tabela de dados em src/regras.js (conta, meta, bonus)
-- [codigo] Inventar a tabela de pontos: post 10, curtida recebida 2, comentário 3 uma vez por post, sem contar curtida no próprio post
-- [codigo] Desempatar o ranking por nome e fazer empatados dividirem a posição
-- [codigo] Migrar o esquema à mão com PRAGMA user_version e checagem de coluna
-- [codigo] Centralizar os erros na classe ErroUsuario e num middleware de erro
-- [codigo] Escrever um único teste de integração HTTP com node:test em banco temporário, sem testes unitários
-- [codigo] Hash de senha com scrypt e token de sessão guardado como hash SHA-256
-- [codigo] Criar o módulo de acesso da banca com contas de teste ligadas por variável de ambiente
-- [codigo] Montar o feed numa só consulta UNION ALL com carregamento em lote via json_each
+- [codigo] Pontos calculados sempre a partir dos dados, sem saldo gravado
+- [codigo] Conquistas automáticas por meta com bônus fixos (regras.js:12-20) e tabela de registro para o feed
+- [codigo] Comentário pontua uma vez por post alheio; curtir ou comentar o próprio post não pontua
+- [codigo] Empate no ranking na mesma posição, ordenado pelo nome
+- [codigo] Mini-engine de templates própria com escape automático em vez de biblioteca
+- [codigo] node:sqlite (DatabaseSync) sem ORM, SQL escrito à mão
+- [codigo] Migrações ad hoc com PRAGMA user_version e ALTER TABLE condicional
+- [codigo] Suíte própria de integração ponta a ponta com node:test e fetch sobre banco temporário, sem testes de unidade
+- [codigo] Truncar textos longos sem avisar e ignorar comentário vazio em vez de recusar
+- [codigo] Feed paginado misturando posts, medalhas e conquistas numa consulta UNION
+- [codigo] Módulo de acesso da banca com limite de tentativas por IP em memória
 - [arquitetura] Monólito Express com HTML gerado no servidor, template próprio (html.js) e SQLite nativo do Node
 - [arquitetura] Pontos calculados a partir dos fatos, sem saldo guardado
 - [arquitetura] Sistema próprio de pontos por ação social (post +10, curtida recebida +2, comentário +3) no lugar da pontuação por tier dos prêmios
