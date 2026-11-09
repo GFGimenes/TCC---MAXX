@@ -9,9 +9,12 @@
     decisões). As hipóteses usam a nota do autor (nota validada por humano, pré-registro
     §2) e as contagens de decisões do autor. O que ainda não tem dado fica "pendente".
 
-    Enquanto o formulário do autor de um produto não tiver as seis notas, nada do revisor
-    desse produto aparece (nota, regras ausentes, decisões listadas): o autor pontua sem
-    ver o revisor. Não preenche a planilha .xlsx. Não escreve nota no terminal.
+    Em leigo e engenheiro, enquanto o formulário do autor não tiver as seis notas, nada do
+    revisor desse produto aparece (nota, regras ausentes, decisões listadas): o autor
+    pontua sem ver o revisor. Em leigo_pu e eng_pu (pré-registro, §7, alteração de
+    09/11/2026), a nota do autor é a "Nota validada" do formulário, o revisor nunca fica
+    oculto e a divergência sai "n/a (validada)". Não preenche a planilha .xlsx. Não
+    escreve nota no terminal.
 
 .PARAMETER PastaReviews
     Padrão: avaliacoes/reviews.
@@ -44,11 +47,15 @@ New-Item -ItemType Directory -Force -Path $PastaSaida | Out-Null
 
 $PEND = 'pendente'
 $OCULTO = 'oculta (formulário do autor incompleto)'
+$NA_VALIDADA = 'n/a (validada)'
 
 # Coleta.
-$forms = @{}; $revs = @{}; $notasAutor = @{}; $conjDec = @{}
+$forms = @{}; $revs = @{}; $notasAutor = @{}; $conjDec = @{}; $visivel = @{}
 foreach ($p in $script:Produtos.Keys) {
-    $forms[$p] = Read-FormularioAutor -Caminho (Join-Path $PastaAutor "$p.md")
+    # leigo_pu e eng_pu: a nota do autor é a nota validada (pré-registro, §7).
+    $forms[$p] = Read-FormularioAutor -Caminho (Join-Path $PastaAutor "$p.md") -Validada:(Test-ProdutoValidado $p)
+    # O revisor só fica oculto nos produtos de nota cega, enquanto o formulário está incompleto.
+    $visivel[$p] = $forms[$p].completo -or (Test-ProdutoValidado $p)
     $notasAutor[$p] = @{}
     foreach ($e in $script:Secoes.Keys) { $notasAutor[$p][$e] = $forms[$p].notas[$e] }
     $revs[$p] = @{}
@@ -61,7 +68,7 @@ foreach ($p in $script:Produtos.Keys) {
 # Nota do revisor como texto: número, status ("a conferir", "falhou"), pendente ou oculta.
 function Get-TextoRevisor {
     param([string]$Produto, [string]$Eixo)
-    if (-not $forms[$Produto].completo) { return $OCULTO }
+    if (-not $visivel[$Produto]) { return $OCULTO }
     $r = $revs[$Produto][$Eixo]
     if (-not $r.existe) { return $PEND }
     if ($r.status -ne 'ok') { return $r.status }
@@ -80,6 +87,12 @@ function Get-NotaRevisorNumero {
     if ($t -is [int]) { return $t }
     return $null
 }
+# Nos produtos de nota validada não há nota cega, e portanto não há divergência a medir.
+function Get-TextoDivergencia {
+    param([string]$Produto, [string]$Eixo)
+    if (Test-ProdutoValidado $Produto) { return $NA_VALIDADA }
+    return (Format-Divergencia -Autor $notasAutor[$Produto][$Eixo] -Revisor (Get-NotaRevisorNumero -Produto $Produto -Eixo $Eixo))
+}
 
 # CSV.
 $linhasCsv = @()
@@ -87,15 +100,15 @@ foreach ($p in $script:Produtos.Keys) {
     foreach ($e in $script:Secoes.Keys) {
         $r = $revs[$p][$e]
         $regras = @()
-        if ($forms[$p].completo) { $regras += @($r.regras | ForEach-Object { "[revisor] $_" }) }
+        if ($visivel[$p]) { $regras += @($r.regras | ForEach-Object { "[revisor] $_" }) }
         $regras += @($forms[$p].regras[$e] | ForEach-Object { "[autor] $_" })
-        $decisoes = if ($forms[$p].completo) { ($r.decisoes -join ' | ') } else { $OCULTO }
+        $decisoes = if ($visivel[$p]) { ($r.decisoes -join ' | ') } else { $OCULTO }
         $linhasCsv += [pscustomobject][ordered]@{
             produto           = $p
             eixo              = $e
             nota_revisor      = Get-TextoRevisor -Produto $p -Eixo $e
             nota_autor        = Get-TextoAutor -Produto $p -Eixo $e
-            divergencia       = Format-Divergencia -Autor $notasAutor[$p][$e] -Revisor (Get-NotaRevisorNumero -Produto $p -Eixo $e)
+            divergencia       = Get-TextoDivergencia -Produto $p -Eixo $e
             regras_ausentes   = ($regras -join ' | ')
             decisoes_listadas = $decisoes
         }
@@ -123,7 +136,10 @@ $md.Add('`avaliacoes/reviews/<produto>-<eixo>.json` (revisor) e `avaliacoes/auto
 $md.Add('(autor). As hipóteses usam a nota do autor, a nota validada por humano do pré-registro')
 $md.Add('(§2). "pendente": ainda sem dado. Divergência: nota do autor menos a do revisor, com')
 $md.Add('sinal; asterisco quando o módulo é 2 ou mais. Enquanto o formulário do autor de um')
-$md.Add('produto não tem as seis notas, nada do revisor desse produto aparece.')
+$md.Add('produto de nota cega (leigo, engenheiro) não tem as seis notas, nada do revisor desse')
+$md.Add('produto aparece. Em leigo_pu e eng_pu (pré-registro, §7, alteração de 09/11/2026), a')
+$md.Add('nota do autor é a nota do revisor confirmada ou ajustada depois de ler o review: o')
+$md.Add('revisor nunca fica oculto e a divergência é "n/a (validada)".')
 
 $md.Add('')
 $md.Add('## Notas por produto')
@@ -131,15 +147,16 @@ foreach ($p in $script:Produtos.Keys) {
     $md.Add('')
     $md.Add("### $p ($($script:Produtos[$p]))")
     $md.Add('')
+    if (Test-ProdutoValidado $p) { $md.Add('Nota validada: a coluna Autor é a nota do revisor confirmada ou ajustada pelo autor.'); $md.Add('') }
     if (-not $forms[$p].existe) { $md.Add('Formulário do autor ainda não existe.'); $md.Add('') }
     elseif (@($forms[$p].problemas).Count) { $md.Add("Problemas no formulário do autor: $($forms[$p].problemas -join '; ').") ; $md.Add('') }
     $md.Add('| Eixo | Revisor | Autor | Divergência |')
     $md.Add('|---|---|---|---|')
     foreach ($e in $script:Secoes.Keys) {
-        $md.Add("| $($script:Secoes[$e]) | $(Cel (Get-TextoRevisor -Produto $p -Eixo $e)) | $(Cel (Get-TextoAutor -Produto $p -Eixo $e)) | $(Format-Divergencia -Autor $notasAutor[$p][$e] -Revisor (Get-NotaRevisorNumero -Produto $p -Eixo $e)) |")
+        $md.Add("| $($script:Secoes[$e]) | $(Cel (Get-TextoRevisor -Produto $p -Eixo $e)) | $(Cel (Get-TextoAutor -Produto $p -Eixo $e)) | $(Get-TextoDivergencia -Produto $p -Eixo $e) |")
     }
-    $revTot6 = if ($forms[$p].completo) { Soma $p @($script:Secoes.Keys) $notaR } else { $OCULTO }
-    $revTot5 = if ($forms[$p].completo) { Soma $p $script:EixosHipoteses $notaR } else { $OCULTO }
+    $revTot6 = if ($visivel[$p]) { Soma $p @($script:Secoes.Keys) $notaR } else { $OCULTO }
+    $revTot5 = if ($visivel[$p]) { Soma $p $script:EixosHipoteses $notaR } else { $OCULTO }
     $md.Add("| Total dos seis eixos | $revTot6 | $(Soma $p @($script:Secoes.Keys) $notaA) | |")
     $md.Add("| Total dos cinco eixos de H1 e H2 | $revTot5 | $(Soma $p $script:EixosHipoteses $notaA) | |")
     if (@($forms[$p].explicacoes).Count) {
@@ -148,10 +165,16 @@ foreach ($p in $script:Produtos.Keys) {
         $md.Add('')
         foreach ($x in $forms[$p].explicacoes) { $md.Add("- $x") }
     }
+    if (@($forms[$p].ajustes).Count) {
+        $md.Add('')
+        $md.Add('Ajustes do autor à nota do revisor:')
+        $md.Add('')
+        foreach ($x in $forms[$p].ajustes) { $md.Add("- $x") }
+    }
 }
 
 $md.Add('')
-$md.Add('## Matriz (nota do autor)')
+$md.Add('## Matriz (nota do autor; em leigo_pu e eng_pu, a nota validada)')
 $md.Add('')
 $md.Add('| Eixo | ' + (($script:Produtos.Keys) -join ' | ') + ' |')
 $md.Add('|---|---|---|---|---|')
@@ -216,7 +239,7 @@ foreach ($p in $script:Produtos.Keys) {
     $ins = 'sem revisor de decisões'
     $c = $conjDec[$p]
     if ($c) {
-        if (-not $forms[$p].completo) { $ins = $OCULTO }
+        if (-not $visivel[$p]) { $ins = $OCULTO }
         else {
             $ins = "$($c.totais.decisoes) decisões ($($c.totais.duvidosas) duvidosas), $($c.totais.perguntas) perguntas ($($c.totais.perguntas_respondidas) respondidas)"
             if ($c.status -ne 'ok') { $ins += ', INCOMPLETO (export a conferir)' }
@@ -254,7 +277,7 @@ foreach ($p in $script:Produtos.Keys) {
     $md.Add('')
     $md.Add("### $p")
     $md.Add('')
-    if (-not $forms[$p].completo) { $md.Add("- $OCULTO"); continue }
+    if (-not $visivel[$p]) { $md.Add("- $OCULTO"); continue }
     $algum = $false
     foreach ($e in $script:Secoes.Keys) {
         foreach ($d in $revs[$p][$e].decisoes) { $md.Add("- [$e] $d"); $algum = $true }
