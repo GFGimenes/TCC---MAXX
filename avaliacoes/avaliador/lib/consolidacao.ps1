@@ -13,14 +13,19 @@ $script:Produtos = [ordered]@{
 $script:EixosHipoteses = @('seguranca', 'infra', 'documentacao', 'codigo', 'arquitetura')
 
 # Formulário do autor (gerado por New-FormularioAutor). Uma nota só vale se a linha
-# "Nota (1 a 5):" tiver um inteiro de 1 a 5 e nada mais.
+# "Nota (1 a 5):" tiver um inteiro de 1 a 5 e nada mais. Com -Validada (leigo_pu, eng_pu),
+# a nota do autor é a da linha "Nota validada (1 a 5):", com a mesma regra, e "Nota (1 a
+# 5):" é ignorada; "Nota do revisor:", "Validada (sim ou não):" e "Motivo do ajuste:" são
+# lidos para conferência e para a lista de ajustes.
 function Read-FormularioAutor {
-    param([Parameter(Mandatory)][string]$Caminho)
+    param([Parameter(Mandatory)][string]$Caminho, [switch]$Validada)
     $r = [ordered]@{
-        existe = $false; notas = [ordered]@{}; invalidas = [ordered]@{}; regras = [ordered]@{}
+        existe = $false; validada = [bool]$Validada; notas = [ordered]@{}; invalidas = [ordered]@{}; regras = [ordered]@{}
+        nota_revisor_form = [ordered]@{}; validou = [ordered]@{}; motivos = [ordered]@{}; ajustes = @()
         decisoes_total = $null; perguntas_total = $null; explicacoes = @(); completo = $false; problemas = @()
     }
-    foreach ($e in $script:Secoes.Keys) { $r.notas[$e] = $null; $r.regras[$e] = @() }
+    foreach ($e in $script:Secoes.Keys) { $r.notas[$e] = $null; $r.regras[$e] = @(); $r.nota_revisor_form[$e] = ''; $r.validou[$e] = ''; $r.motivos[$e] = '' }
+    $rotuloNota = if ($Validada) { '^Nota validada \(1 a 5\):\s*(.*?)\s*$' } else { '^Nota \(1 a 5\):\s*(.*?)\s*$' }
     if (-not (Test-Path -LiteralPath $Caminho)) { return [pscustomobject]$r }
     $r.existe = $true
     $porTitulo = @{}
@@ -47,17 +52,42 @@ function Read-FormularioAutor {
             if ($secao -eq '#depois' -and $linha -match '^-\s+(\S.*)$') { $r.explicacoes += $Matches[1].Trim() }
             continue
         }
-        if ($linha -match '^Nota \(1 a 5\):\s*(.*?)\s*$') {
+        if ($linha -match $rotuloNota) {
             $v = $Matches[1]
             if ($v -match '^[1-5]$') { $r.notas[$secao] = [int]$v }
             elseif ($v) { $r.invalidas[$secao] = $v; $r.problemas += "nota de $secao inválida: '$v'" }
             continue
+        }
+        if ($Validada) {
+            if ($linha -match '^Nota do revisor:\s*(.*?)\s*$') { $r.nota_revisor_form[$secao] = $Matches[1]; continue }
+            if ($linha -match '^Validada \(sim ou não\):\s*(.*?)\s*$') { $r.validou[$secao] = $Matches[1].ToLowerInvariant(); continue }
+            if ($linha -match '^Motivo do ajuste:\s*(.*?)\s*$') { $r.motivos[$secao] = $Matches[1]; continue }
         }
         if ($linha -match '^Regras ausentes:') { $modo = 'regras'; continue }
         if ($linha -match '^Observações objetivas:') { $modo = 'obs'; continue }
         if ($modo -eq 'regras' -and $linha -match '^-\s+(\S.*)$') { $r.regras[$secao] += $Matches[1].Trim() }
     }
     $r.completo = (@($script:Secoes.Keys | Where-Object { $null -eq $r.notas[$_] }).Count -eq 0)
+    if ($Validada) {
+        # Conferência de coerência, eixo a eixo, só onde há nota validada. Não invalida a
+        # nota: vira problema no notas.md, para o autor corrigir.
+        foreach ($e in $script:Secoes.Keys) {
+            $nv = $r.notas[$e]
+            if ($nv -isnot [int]) { continue }
+            $rev = $r.nota_revisor_form[$e]; $val = $r.validou[$e]; $mot = $r.motivos[$e]
+            $revInt = $null; if ($rev -match '^[1-5]$') { $revInt = [int]$rev }
+            if ($val -notin @('sim', 'não', 'nao')) { $r.problemas += "$($e): ""Validada"" deve ser sim ou não (está '$val')" }
+            elseif ($val -eq 'sim' -and $null -ne $revInt -and $nv -ne $revInt) { $r.problemas += "$($e): validada sim, mas a nota validada ($nv) difere da do revisor ($revInt)" }
+            elseif ($val -eq 'sim' -and $null -eq $revInt) { $r.problemas += "$($e): validada sim, mas a nota do revisor não é um número ('$rev')" }
+            $ajustou = ($val -in @('não', 'nao')) -or ($null -ne $revInt -and $nv -ne $revInt)
+            if ($ajustou -and -not $mot) { $r.problemas += "$($e): nota ajustada sem motivo do ajuste" }
+            if ($ajustou) {
+                $txtRev = if ($rev) { $rev } else { 'sem nota' }
+                $txtMot = if ($mot) { $mot } else { 'sem motivo' }
+                $r.ajustes += "$($script:Secoes[$e]): revisor $txtRev, validada $nv. Motivo: $txtMot"
+            }
+        }
+    }
     return [pscustomobject]$r
 }
 

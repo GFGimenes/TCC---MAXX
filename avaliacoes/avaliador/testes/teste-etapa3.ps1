@@ -1,6 +1,7 @@
 ﻿# Teste da etapa 3 sem gastar sessão: modo -SemClaude com os seis eixos, avisos dos
-# encaixes, registro da execução, formulário do autor (criado uma vez, nunca sobrescrito)
-# e nota fora do terminal e do registro.
+# encaixes, registro da execução, formulário do autor (criado uma vez, nunca sobrescrito),
+# nota fora do terminal e do registro nos produtos de nota cega e, nos de nota validada
+# (leigo_pu, eng_pu), formulário com a nota do revisor e nota visível.
 # Uso: powershell -ExecutionPolicy Bypass -File testes\teste-etapa3.ps1
 
 $ErrorActionPreference = 'Stop'
@@ -107,6 +108,70 @@ try {
     Confere 'registro com sessão, tokens, duração e custo do eixo' ($linhaEixo -and $linhaEixo.Contains('00000000-0000-0000-0000-000000000000') -and $linhaEixo.Contains('1 / 1 / 0 / 0'))
     Confere 'registro com a coluna de modelo e esforço confirmados (sem transcrição: modelo do init, esforço "-")' ($rf.Contains('| Modelo e esforço confirmados (transcrição) |') -and $linhaEixo.Contains("| $script:ModeloFixado, - |"))
     Confere 'registro sem coluna de nota, sem a nota e sem a justificativa do revisor' (-not ($rf -match '(?i)\| *nota') -and -not ($rf -match '(?i)\bnota\s*:?\s*3\b') -and -not ($rf -match '\|\s*texto\s*\|'))
+
+    Write-Host '5. Dois modos: produto de nota cega (leigo) e de nota validada (leigo_pu), falsos'
+    Confere 'nota validada só em leigo_pu e eng_pu' ((Test-ProdutoValidado leigo_pu) -and (Test-ProdutoValidado eng_pu) -and -not (Test-ProdutoValidado leigo) -and -not (Test-ProdutoValidado engenheiro) -and -not (Test-ProdutoValidado ensaio))
+    $autorFalso = Join-Path $tmp 'autor'
+    $formCego = Join-Path $autorFalso 'leigo.md'
+    $formVal = Join-Path $autorFalso 'leigo_pu.md'
+    $null = New-FormularioAutor -Caminho $formCego -Produto leigo -Hash $hash -Ref main -Validada:(Test-ProdutoValidado leigo)
+    $null = New-FormularioAutor -Caminho $formVal -Produto leigo_pu -Hash $hash -Ref main -Validada:(Test-ProdutoValidado leigo_pu)
+    $fc = Read-TextoArquivo $formCego
+    $fv = Read-TextoArquivo $formVal
+    Confere 'cego: "Nota (1 a 5):" nos seis eixos, sem as linhas da nota validada' (([regex]::Matches($fc, '(?m)^Nota \(1 a 5\): $')).Count -eq 6 -and -not ($fc -match '(?m)^(Nota do revisor|Validada|Nota validada|Motivo do ajuste)'))
+    Confere 'cego: seção "Depois de abrir os reviews" e instrução de preencher antes' ($fc.Contains('## Depois de abrir os reviews') -and $fc.Contains('ANTES de abrir os reviews'))
+    $blocoVal = "Nota do revisor: `nValidada (sim ou não): `nNota validada (1 a 5): `nMotivo do ajuste: `n"
+    Confere 'validada: as quatro linhas por eixo, logo abaixo do título, nos seis eixos' (@($script:Secoes.Values | Where-Object { $fv.Contains("## $_`n`n$blocoVal") }).Count -eq 6)
+    Confere 'validada: sem "Nota (1 a 5):"' (-not ($fv -match '(?m)^Nota \(1 a 5\):'))
+    Confere 'validada: sem a seção "Depois de abrir os reviews"' (-not $fv.Contains('Depois de abrir os reviews'))
+    Confere 'validada: cabeçalho manda ler o review antes de preencher e cita a §7' ($fv.Contains('LEIA O REVIEW ANTES') -and $fv.Contains('§7') -and -not $fv.Contains('ANTES de abrir os reviews'))
+    Confere 'validada: decisões e perguntas iguais às do formulário cego' ($fv.Substring($fv.IndexOf('## Decisões sem perguntar')).TrimEnd() -eq $fc.Substring($fc.IndexOf('## Decisões sem perguntar'), $fc.IndexOf('## Depois de abrir os reviews') - $fc.IndexOf('## Decisões sem perguntar')).TrimEnd())
+    Confere 'validada: observações e regras ausentes nos seis eixos' (([regex]::Matches($fv, '(?m)^Observações objetivas:')).Count -eq 6 -and ([regex]::Matches($fv, '(?m)^Regras ausentes:')).Count -eq 6)
+
+    $revFalsos = Join-Path $tmp 'reviews'
+    New-Item -ItemType Directory -Force -Path $revFalsos | Out-Null
+    $jsonRev = { param($e, $st, $n) ConvertTo-JsonArquivo -Objeto ([ordered]@{ produto = 'leigo_pu'; eixo = $e; status = $st; nota = $n }) -Caminho (Join-Path $revFalsos "leigo_pu-$e.json") }
+    & $jsonRev ux ok 4
+    & $jsonRev seguranca 'a conferir' 2
+    & $jsonRev infra falhou $null
+    $av = @(Set-NotasRevisorFormulario -Caminho $formVal -PastaReviews $revFalsos -Produto leigo_pu)
+    $fv = Read-TextoArquivo $formVal
+    $notaRev = { param($e) if ($fv -match "(?m)## $([regex]::Escape($script:Secoes[$e]))\n\nNota do revisor: (.*)$") { $Matches[1] } else { '?' } }
+    Confere 'nota do revisor preenchida do .json: ux 4, seguranca "a conferir (nota 2)", infra "falhou", sem review "pendente"' ((& $notaRev ux) -eq '4' -and (& $notaRev seguranca) -eq 'a conferir (nota 2)' -and (& $notaRev infra) -eq 'falhou' -and (& $notaRev documentacao) -eq 'pendente' -and $av.Count -eq 0)
+    $fv = $fv.Replace("## $($script:Secoes['ux'])`n`nNota do revisor: 4`nValidada (sim ou não): `nNota validada (1 a 5): `n", "## $($script:Secoes['ux'])`n`nNota do revisor: 4`nValidada (sim ou não): sim`nNota validada (1 a 5): 4`n").Replace('Total: ', 'Total: 7 MARCA-DO-AUTOR')
+    Write-TextoArquivo -Texto ($fv -replace "`n", "`r`n") -Caminho $formVal
+    & $jsonRev ux ok 5
+    & $jsonRev seguranca ok 2
+    & $jsonRev documentacao ok 3
+    $av = @(Set-NotasRevisorFormulario -Caminho $formVal -PastaReviews $revFalsos -Produto leigo_pu)
+    $fvBruto = Read-TextoArquivo $formVal
+    $fv = $fvBruto -replace "`r`n", "`n"
+    Confere 'segunda passada: nota já escrita (ux 4) não muda, e sai um aviso com a nota nova' ((& $notaRev ux) -eq '4' -and $av.Count -eq 1 -and $av[0] -like '*ux*4*5*')
+    Confere 'segunda passada: status vira nota (seguranca 2), pendente vira nota (documentacao 3)' ((& $notaRev seguranca) -eq '2' -and (& $notaRev documentacao) -eq '3' -and (& $notaRev infra) -eq 'falhou')
+    Confere 'o que o autor escreveu continua, com o fim de linha CRLF' ($fv.Contains("Validada (sim ou não): sim`nNota validada (1 a 5): 4") -and $fv.Contains('Total: 7 MARCA-DO-AUTOR') -and ([regex]::Matches($fvBruto, "(?<!`r)`n")).Count -eq 0)
+    $antes = [System.IO.File]::GetLastWriteTimeUtc($formVal)
+    $av = @(Set-NotasRevisorFormulario -Caminho $formVal -PastaReviews $revFalsos -Produto leigo_pu)
+    Confere 'terceira passada sem novidade não regrava o arquivo' ([System.IO.File]::GetLastWriteTimeUtc($formVal) -eq $antes -and $av.Count -eq 1)
+
+    $env:CLAUDE_FALSO_MODO = 'valido'
+    $terminalVal = & {
+        Invoke-RevisorEixo -Eixo documentacao -Produto leigo_pu -Repo $origem -Ref main -Hash $hash -Checkout $co.Caminho `
+            -PastaExecucao $exec -PastaSaida $saidaFalsa -RaizTcc $raizTcc -PastaAvaliador $avaliador -VersaoCli falso -TempoLimiteMin 2 `
+            -OcultarNota:(-not (Test-ProdutoValidado leigo_pu))
+    } 6>&1 3>&1
+    Remove-Item Env:\CLAUDE_FALSO_MODO
+    $revVal = @($terminalVal | Where-Object { $_.PSObject.Properties['nota'] })[0]
+    $textoVal = (@($terminalVal | Where-Object { $_ -is [System.Management.Automation.InformationRecord] }) | ForEach-Object { "$_" }) -join "`n"
+    Confere 'validada: o terminal mostra a nota do eixo' ($textoVal -match '\[documentacao\] [^\n]*nota 3')
+    $regVal = Join-Path $saidaFalsa 'leigo_pu-registro.md'
+    Add-RegistroExecucao -Caminho $regVal -Produto leigo_pu -Modo 'avaliação' -Repo $origem -Ref main -Hash $hash -Inicio (Get-Date) -Fim (Get-Date) `
+        -VersaoCli falso -TempoLimiteMin 2 -EstadoOrigem ('0' * 64) -OrigemInalterada $true -CheckoutInalterado $true -Hashes @{} -Resultados @($revVal) -MostrarNota:(Test-ProdutoValidado leigo_pu)
+    $rv = Read-TextoArquivo $regVal
+    $linhaVal = ($rv -split "`n" | Where-Object { $_ -like '| documentacao |*' })
+    Confere 'validada: registro com a coluna "Nota do revisor" e a nota 3 na linha do eixo' ($rv.Contains('| Eixo | Tentativa | Status | Nota do revisor | Sessão |') -and $linhaVal -like '| documentacao | *| 3 | 00000000-*')
+    Confere 'validada: cabeçalho do registro explica que não há nota cega' ($rv.Contains('não há nota cega'))
+    Confere 'validada: cabeçalho e separador da tabela com o mesmo número de colunas' ((($rv -split "`n" | Where-Object { $_ -like '| Eixo |*' }).Split('|').Count) -eq (($rv -split "`n" | Where-Object { $_ -like '|---|*' }).Split('|').Count) -and ($linhaVal.Split('|').Count) -eq (($rv -split "`n" | Where-Object { $_ -like '|---|*' }).Split('|').Count))
+    Confere 'sem travessão nos formulários e no registro validado' (-not $fv.Contains($travessao) -and -not $fc.Contains($travessao) -and -not $rv.Contains($travessao))
     Remove-PastaSegura -Caminho $tmp
 } finally {
     if ($null -ne $formAntes) { Write-TextoArquivo -Texto $formAntes -Caminho $form }

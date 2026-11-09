@@ -10,8 +10,11 @@
     acrescenta a execução em avaliacoes/reviews/<produto>-registro.md e cria, se ainda não
     existir, o formulário em branco do autor em avaliacoes/autor/<produto>.md.
 
-    Nas avaliações reais a nota dos revisores não aparece no terminal nem no registro: o
-    autor pontua antes de ver.
+    Nas avaliações reais de leigo e engenheiro a nota dos revisores não aparece no terminal
+    nem no registro: o autor pontua antes de ver. Em leigo_pu e eng_pu não há nota cega
+    (pré-registro, §7, alteração de 09/11/2026): a nota aparece no terminal e no registro,
+    e o formulário do autor traz, por eixo, a nota do revisor (preenchida a partir do .json)
+    para o autor validar ou ajustar depois de ler o review.
 
 .PARAMETER Produto
     leigo, engenheiro, leigo_pu ou eng_pu.
@@ -95,6 +98,7 @@ if ($Ensaio) {
     if (-not $SemClaude -and @($Eixos).Count -ne 1) { throw 'O ensaio com sessão roda um eixo só.' }
     $nomeProduto = 'ensaio'
     $pastaSaida = Join-Path $pastaAvaliador 'ensaio\saida'
+    $pastaReviews = $pastaSaida
     $formulario = Join-Path $pastaSaida 'autor\ensaio.md'
 } else {
     if (-not $Produto -or -not $Repo -or -not $Ref) {
@@ -106,6 +110,7 @@ if ($Ensaio) {
     }
     $nomeProduto = $Produto
     $pastaSaida = Join-Path $raizTcc 'avaliacoes\reviews'
+    $pastaReviews = $pastaSaida
     $formulario = Join-Path $raizTcc "avaliacoes\autor\$Produto.md"
     $Repo = (Get-Item -LiteralPath $Repo).FullName
 }
@@ -123,6 +128,8 @@ $Export = @($Export | Where-Object { $_ } | ForEach-Object {
 $ids = @($Export | ForEach-Object { Get-IdExport -Caminho $_ })
 if (@($ids | Select-Object -Unique).Count -ne $ids.Count) { throw "Dois exports com o mesmo identificador: $($ids -join ', ')" }
 if ($SemClaude) { $pastaSaida = Join-Path $pastaSaida 'sem-claude' }
+# leigo_pu e eng_pu: nota validada, sem nota cega. O ensaio segue o modo de sempre.
+$validada = (-not $Ensaio) -and (Test-ProdutoValidado $nomeProduto)
 # Só depois de validados os parâmetros: o repositório de ensaio nasce numa pasta temporária.
 if ($Ensaio) {
     $Repo = New-RepoEnsaio -Exemplo (Join-Path $pastaAvaliador 'exemplo') -Destino (Join-Path $temporaria "ensaio-origem-$carimbo")
@@ -179,7 +186,7 @@ foreach ($eixo in $Eixos) {
         $r = Invoke-RevisorEixo -Eixo $eixo -Produto $nomeProduto -Repo $Repo -Ref $Ref -Hash $hash `
             -Checkout $checkout.Caminho -PastaExecucao $pastaExecucao -PastaSaida $pastaSaida -RaizTcc $raizTcc `
             -PastaAvaliador $pastaAvaliador -VersaoCli $versaoCli -TempoLimiteMin $TempoLimiteMin `
-            -SemClaude:$SemClaude -OcultarNota:(-not $Ensaio)
+            -SemClaude:$SemClaude -OcultarNota:(-not $Ensaio -and -not $validada)
         if ($r.encaixe.aviso) { $avisos += "[$eixo] $($r.encaixe.aviso)" }
         $resultados += $r
     } catch {
@@ -214,11 +221,18 @@ if (-not $SomenteCheckout) {
     Add-RegistroExecucao -Caminho $caminhoRegistro -Produto $nomeProduto -Modo $modo -Repo $Repo -Ref $Ref -Hash $hash `
         -Inicio $inicioExecucao -Fim (Get-Date) -VersaoCli $versaoCli -TempoLimiteMin $TempoLimiteMin `
         -EstadoOrigem $estadoAntes.Hash -OrigemInalterada $origemInalterada -CheckoutInalterado (-not $statusCheckout) `
-        -Hashes $hashes -Resultados $resultados -Avisos $avisos
+        -Hashes $hashes -Resultados $resultados -Avisos $avisos -MostrarNota:$validada
     Write-Host "Registro: $caminhoRegistro"
 
-    $formularioCriado = New-FormularioAutor -Caminho $formulario -Produto $nomeProduto -Hash $hash -Ref $Ref
-    if ($formularioCriado) { Write-Host "Formulário do autor criado em branco: $formulario" }
+    $formularioCriado = New-FormularioAutor -Caminho $formulario -Produto $nomeProduto -Hash $hash -Ref $Ref -Validada:$validada
+    if ($validada) {
+        # Notas do revisor a partir dos reviews de verdade (no -SemClaude também: o formulário é o real).
+        $avisosForm = @(Set-NotasRevisorFormulario -Caminho $formulario -PastaReviews $pastaReviews -Produto $nomeProduto)
+        foreach ($a in $avisosForm) { Write-Warning $a }
+        $avisos += $avisosForm
+        if ($formularioCriado) { Write-Host "Formulário do autor criado, com as notas do revisor: $formulario" }
+        else { Write-Host "Formulário do autor já existia; só as notas do revisor ainda sem número foram preenchidas: $formulario" }
+    } elseif ($formularioCriado) { Write-Host "Formulário do autor criado em branco: $formulario" }
     else { Write-Host "Formulário do autor já existia e não foi tocado: $formulario" }
 }
 
@@ -228,12 +242,13 @@ foreach ($r in $resultados) {
     $nomeLinha = $r.eixo
     if ($r.PSObject.Properties['rotulo'] -and $r.rotulo) { $nomeLinha = $r.rotulo }
     $linha = "  {0,-13} {1,-11}" -f $nomeLinha, $r.status
-    if ($Ensaio -and $r.PSObject.Properties['nota'] -and $null -ne $r.nota) { $linha += " nota $($r.nota)" }
+    if (($Ensaio -or $validada) -and $r.PSObject.Properties['nota'] -and $null -ne $r.nota) { $linha += " nota $($r.nota)" }
     Write-Host $linha
 }
 foreach ($a in $avisos) { Write-Host "  Aviso: $a" }
 if (-not $Ensaio -and -not $SemClaude -and @($resultados).Count) {
-    Write-Host '  Notas omitidas: preencha o formulário do autor antes de abrir os reviews.'
+    if ($validada) { Write-Host '  Prompt único, sem nota cega: leia cada review e valide ou ajuste a nota no formulário do autor.' }
+    else { Write-Host '  Notas omitidas: preencha o formulário do autor antes de abrir os reviews.' }
 }
 Write-Host "Saída em $pastaSaida"
 
@@ -257,6 +272,7 @@ return [pscustomobject]@{
     registro          = $caminhoRegistro
     formulario        = $formulario
     formulario_criado = $formularioCriado
+    nota_validada     = $validada
     checkout_alterado = [bool]$statusCheckout
     avisos            = $avisos
     resultados        = @($resultados | ForEach-Object {
