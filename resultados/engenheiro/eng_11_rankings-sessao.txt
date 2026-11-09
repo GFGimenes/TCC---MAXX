@@ -222,3 +222,338 @@
 ✻ Sautéed for 3m 16s · done 8:01
 
 ※ recap: O objetivo é o passo 11 (rankings), e o plano de seis etapas já está pronto para a sua revisão, sem nenhum código escrito. Agora preciso das suas respostas às perguntas 1 a 6 e dos ajustes no plano para começar a etapa 1. (disable recaps in /config)
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_11_rankings-sessao.txt    
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_11_rankings-sessao.txt
+
+> Plano aprovado, seis etapas, um PR da feat/passo-11-rankings para a           
+  rodada/eng_11_rankings, CI verde por etapa. Propostas A a G pela sua          
+  proposta. As seis perguntas pela sua recomendação: 1, conquista de ano pontua 
+  no segundo semestre do ano, como a regra 5 do congelamento, e a de curso no   
+  semestre da concessão, com o recesso empurrando para o seguinte; registra as  
+  duas no produto.md. 2, desempate por fonte como você descreveu, com o id do   
+  aluno como último critério. 3, aluno sem pontos fica fora da tabela e o card  
+  mostra "Sem posição ainda". 4, o perfil mostra a posição do histórico geral,  
+  coerente com os pontos acumulados que já mostra, e o toque abre o ranking     
+  nesse chip. 5, o "Todos / Quem eu sigo" entra, filtrando a mesma tabela sem   
+  mudar a posição global. 6, aluno vê o curso atual, ex-aluno só o histórico do 
+  último curso, professor e instituição só Geral e Histórico. Cria a branch e   
+  começa a etapa 1; para para a minha revisão no fim dela, com a mensagem de    
+  commit antes de commitar.                                                     
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Branch criada. Escrevendo o domínio do ranking: as parcelas que pontuam, o
+  semestre de cada uma, a ordem e o congelamento.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Ranking\ParcelaDoRanking.cs)
+  ⎿  Wrote 99 lines to apps\api\src\Maxx.Domain\Ranking\ParcelaDoRanking.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Conquistas;
+       4 using Maxx.Domain.Premios;
+       5 
+       6 namespace Maxx.Domain.Ranking;
+       7 
+       8 // Um prêmio que pontua, já reduzido ao que o ranking lê (produt
+         o.md 5): de quem é, quantos
+       9 // pontos vale (congelados na concessão, ADR 0007), em que semes
+     … +91 lines (~4 KB) (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Domain\Ranking\Classificacao.cs)
+  ⎿  Wrote 96 lines to apps\api\src\Maxx.Domain\Ranking\Classificacao.cs
+      1 namespace Maxx.Domain.Ranking;
+      2 
+      3 // As quatro visões do ranking (produto.md 5): escopo geral ou po
+        r curso, período semestre
+      4 // letivo ou histórico.
+      5 public enum EscopoDoRanking
+      6 {
+      7     Geral,
+      8     Curso,
+      9 }
+     … +87 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Ranking\Classificacao.cs)
+  ⎿  Added 1 line, removed 1 line
+      74              .Where(soma => soma.Pontos > 0)
+      75              .ToList();
+      76  
+      77 -        var linhas = Ordenar(somas, new VisaoDoRanking(EscopoDo
+         -Ranking.Geral, periodo, semestreLetivoId, null));              
+      77 +        List<LinhaDoRanking> linhas = [.. Ordenar(somas, new Vi
+         +saoDoRanking(EscopoDoRanking.Geral, periodo, semestreLetivoId, 
+         +null));                                                        
+      78          foreach (var doCurso in somas.GroupBy(soma => soma.Alun
+          o.CursoId))
+      79          {
+      80              linhas.AddRange(Ordenar(doCurso, new VisaoDoRanking
+          (EscopoDoRanking.Curso, periodo, semestreLetivoId, doCurso.Key)
+          ));
+
+● Update(apps\api\src\Maxx.Domain\Ranking\Classificacao.cs)
+  ⎿  Added 1 line, removed 1 line
+      74              .Where(soma => soma.Pontos > 0)
+      75              .ToList();
+      76  
+      77 -        List<LinhaDoRanking> linhas = [.. Ordenar(somas, new Vi
+         -saoDoRanking(EscopoDoRanking.Geral, periodo, semestreLetivoId, 
+         -null));                                                        
+      77 +        List<LinhaDoRanking> linhas = [.. Ordenar(somas, new Vi
+         +saoDoRanking(EscopoDoRanking.Geral, periodo, semestreLetivoId, 
+         +null))];                                                       
+      78          foreach (var doCurso in somas.GroupBy(soma => soma.Alun
+          o.CursoId))
+      79          {
+      80              linhas.AddRange(Ordenar(doCurso, new VisaoDoRanking
+          (EscopoDoRanking.Curso, periodo, semestreLetivoId, doCurso.Key)
+          ));
+
+● Update(apps\api\src\Maxx.Domain\Ranking\Classificacao.cs)
+  ⎿  Removed 4 lines
+      88          .ThenBy(soma => soma.UltimaConcessaoEm)
+      89          .ThenBy(soma => soma.Aluno.Id)
+      90          .Select((soma, indice) => new LinhaDoRanking(visao, som
+          a.Aluno.Id, indice + 1, soma.Pontos, soma.UltimaConcessaoEm));
+      91 -                                                               
+      92 -    private static List<LinhaDoRanking> Ordenar(List<Soma> soma
+         -s, VisaoDoRanking visao) =>                                    
+      93 -        [.. Ordenar(somas.AsEnumerable(), visao)];             
+      94 -                                                               
+      91      private sealed record Soma(AlunoDoRanking Aluno, int Pontos
+          , DateTimeOffset UltimaConcessaoEm);
+      92  }
+
+● Agora o calendário do ranking: semestre atual e congelamento.
+
+● Write(apps\api\src\Maxx.Domain\Ranking\SemestresDoRanking.cs)
+  ⎿  Wrote 46 lines to
+     apps\api\src\Maxx.Domain\Ranking\SemestresDoRanking.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Catalogo;
+       3 using Maxx.Domain.Conquistas;
+       4 
+       5 namespace Maxx.Domain.Ranking;
+       6 
+       7 // Quais semestres letivos o ranking mostra e reescreve (produto
+         .md 5; ADR 0005).
+       8 public static class SemestresDoRanking
+       9 {
+     … +37 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevendo os testes do domínio.
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Ranking\ParcelaDoRankingTests.cs)
+  ⎿  Wrote 236 lines to
+     apps\api\tests\Maxx.Domain.Tests\Ranking\ParcelaDoRankingTests.cs
+      1 using Maxx.Domain.Academico;
+      2 using Maxx.Domain.Catalogo;
+      3 using Maxx.Domain.Conquistas;
+      4 using Maxx.Domain.Identidade;
+      5 using Maxx.Domain.Premios;
+      6 using Maxx.Domain.Ranking;
+      7 using Maxx.Domain.Tests.Catalogo;
+      8 using Maxx.Domain.Tests.Conquistas;
+      9 using static Maxx.Domain.Tests.Academico.Calendario2026;
+     … +227 lines (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Ranking\ParcelaDoRankingTests.cs)
+  ⎿  Added 4 lines, removed 3 lines
+      122      {
+      123          var (premio, evento) = Aprovado(Data(12, 15), _noReces
+           so);
+      124  
+      125 +        var calendario = ComOAnoSeguinte();                   
+      126 +                                                              
+      127          var semSeguinte = ParcelaDoRanking.DoPremio(premio, ev
+           ento, _fatos.Calendario);
+      126 -        var comSeguinte = ParcelaDoRanking.DoPremio(premio, ev
+          -ento, ComOAnoSeguinte());                                     
+      128 +        var comSeguinte = ParcelaDoRanking.DoPremio(premio, ev
+          +ento, calendario);                                            
+      129  
+      130          Assert.NotNull(semSeguinte);
+      131          Assert.Null(semSeguinte.SemestreLetivoId);
+      130 -        Assert.Equal(ComOAnoSeguinte().Anos[1].Semestres[0].Co
+          -digo, "2027/1");                                              
+      131 -        Assert.Equal(_fatos.Ano.Semestres.Concat(comSeguinte!.
+          -SemestreLetivoId is { } id ? [] : []).Count(), 2);            
+      132 +        Assert.Equal(calendario.Anos[1].Semestres[0].Id, comSe
+          +guinte!.SemestreLetivoId);                                    
+      133      }
+      134  
+      135      [Fact]
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Ranking\ClassificacaoTests.cs)
+  ⎿  Wrote 177 lines to
+     apps\api\tests\Maxx.Domain.Tests\Ranking\ClassificacaoTests.cs
+      1 using Maxx.Domain.Ranking;
+      2 
+      3 namespace Maxx.Domain.Tests.Ranking;
+      4 
+      5 // As quatro visões a partir das parcelas (produto.md 5): soma, o
+        rdem, desempate, ex-aluno só
+      6 // no histórico, curso atual, aluno sem pontos fora da tabela.
+      7 public class ClassificacaoTests
+      8 {
+      9     private static readonly DateTimeOffset _inicio = new(2026, 8,
+     … +169 lines (~7 KB) (ctrl+o to expand)
+● Write(apps\api\tests\Maxx.Domain.Tests\Ranking\SemestresDoRankingTests.cs)
+  ⎿  Wrote 70 lines to
+     apps\api\tests\Maxx.Domain.Tests\Ranking\SemestresDoRankingTests.cs
+       1 using Maxx.Domain.Academico;
+       2 using Maxx.Domain.Ranking;
+       3 using Maxx.Domain.Tests.Academico;
+       4 
+       5 namespace Maxx.Domain.Tests.Ranking;
+       6 
+       7 // Que semestre a tela chama de atual e quando o ranking do seme
+         stre congela (produto.md 5):
+       8 // 30 dias depois do fim, com a mesma leitura da conquista de fe
+         chamento (passo 9).
+     … +62 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Domain.Tests/Ranking" && sed -i 's/Parcela(ana, 50,
+      semestre: null) with…)
+  ⎿  Executando testes de C:\Users\Guilherme Gimenes\Documents\Repos\tcc\ma
+     xx-engenheiro\apps\api\tests\Maxx.Domain.Tests\bin\Debug\net10.0\Maxx.
+     Domain.Tests.dll (net10.0|x64)
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Domain.Tests\Ranking\ClassificacaoTests.cs
+     (+1 -1)
+       94          {
+       95              Parcela(ana, 30, semestre: _semestre1),
+       96              Parcela(ana, 40, semestre: _semestre2),
+       97 -            Parcela(ana, 50, semestre: null) with { SemestreLe
+          -tivoId = null },                                              
+       97 +            Parcela(ana, 50) with { SemestreLetivoId = null },
+       98          };
+       99  
+      100          var doSemestre = Da(Classificacao.Semestre(_semestre2,
+            [ana], parcelas), EscopoDoRanking.Geral).Single();
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Ranking\ParcelaDoRankingTests.cs (+4 
+     -4)
+      71          return (premio, evento);
+      72      }
+      73  
+      74 -    private Conquista ConquistaDe(Periodo periodo, InstanciaDeP
+         -eriodo instancia, DateTimeOffset concedidaEm)                  
+      74 +    private Conquista ConquistaDe(Periodo periodo, InstanciaDeP
+         +eriodo instancia, DateTimeOffset concedidaEm, int bimestreDasMe
+         +dalhas = 4)                                                    
+      75      {
+      76          var item = CatalogoDeTeste.C02 with { Periodo = periodo
+           };
+      77 -        var medalhas = _fatos.Medalhas("M01", 4, 3).ToList();  
+      77 +        var medalhas = _fatos.Medalhas("M01", bimestreDasMedalh
+         +as, 3).ToList();                                               
+      78          return Conquista.Conceder(item, 1, Fatos.Aluno, instanc
+          ia, _avaliador.Avaliar(item, instancia, medalhas, Fatos.Context
+          o()), concedidaEm);
+      79      }
+      80  
+     ...
+      183      [InlineData(4, 2)]
+      184      public void Conquista_de_bimestre_conta_no_semestre_do_bim
+           estre(int bimestre, int semestre)
+      185      {
+      186 -        var conquista = ConquistaDe(Periodo.Bimestre, _fatos.I
+          -nstanciaDoBimestre(bimestre), _agora);                        
+      186 +        var conquista = ConquistaDe(Periodo.Bimestre, _fatos.I
+          +nstanciaDoBimestre(bimestre), _agora, bimestre);              
+      187  
+      188          Assert.Equal(_fatos.Semestre(semestre).Id, ParcelaDoRa
+           nking.DaConquista(conquista, _fatos.Calendario)!.SemestreLetiv
+           oId);
+      189      }
+     ...
+      191      [Fact]
+      192      public void Conquista_de_semestre_conta_no_proprio_semestr
+           e_mesmo_concedida_depois()
+      193      {
+      194 -        var conquista = ConquistaDe(Periodo.Semestre, _fatos.I
+          -nstanciaDoSemestre(1), _agora);                               
+      194 +        var conquista = ConquistaDe(Periodo.Semestre, _fatos.I
+          +nstanciaDoSemestre(1), _agora, bimestreDasMedalhas: 2);       
+      195  
+      196          var parcela = ParcelaDoRanking.DaConquista(conquista, 
+           _fatos.Calendario);
+      197  
+  ⎿  (timeout 5m)
+
+● Os 40 testes do ranking passam. Agora rodo a suíte inteira do domínio e o
+  lint, como a CI faz.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Terminei a etapa 1 e parei para sua revisão. Ainda não há commit nem push,
+  então a CI desta etapa ainda não rodou: o resultado dela entra no relatório
+  depois que você aprovar e eu fizer o push.
+
+  O que foi feito (namespace Maxx.Domain.Ranking, sem tocar em código
+  existente):
+
+  - ParcelaDoRanking.cs: reduz cada prêmio que pontua a aluno, pontos, semestre
+    e instante da concessão. O que não pontua devolve nulo: medalha anulada,
+    prêmio de participação reivindicado, reprovado, em averiguação ou revogado,
+    e conquista removida.
+    - A medalha conta no semestre da concessão.
+    - O prêmio de participação conta no semestre de Calendario.SemestreDoEvento,
+      com o instante da aprovação. Esse instante não muda quando o prêmio fica
+      definitivo nem quando a contestação é confirmada.
+    - A conquista conta no semestre da instância. A de ano conta no segundo
+      semestre do ano, e a de curso no semestre da concessão, com o recesso
+      empurrando para o seguinte.
+    - Uma consequência para você conferir: um prêmio de evento no recesso, sem o
+      semestre seguinte no calendário, já pontua no histórico, mas em nenhum
+      semestre até o calendário ganhar esse semestre. Na conquista, nesse mesmo
+      caso, o prêmio ainda não vira fato.
+  - Classificacao.cs: monta as visões a partir das parcelas.
+    - Soma os pontos e ordena por pontos, depois pelo instante mais antigo,
+      depois pelo id do aluno.
+    - Aluno sem pontos fica sem linha.
+    - Ex-aluno só aparece no histórico.
+    - O escopo curso usa o curso atual do aluno.
+  - SemestresDoRanking.cs:
+    - Atual: o último semestre que já começou (proposta B).
+    - Congelado: reaproveita InstanciaDePeriodo.Congelamento, que soma
+      DiasAteOCongelamento ao fim do semestre.
+    - Abertos: os semestres não congelados, inclusive o que ainda não começou.
+
+  Testes: são 40 testes novos em tests/Maxx.Domain.Tests/Ranking/, um por fonte
+  e um por regra, mais as fronteiras:
+  - 03/01/2027 ainda aceita e 04/01/2027 já está congelado (fim de 2026/2
+    mais 30);
+  - recesso com e sem semestre seguinte;
+  - 31/01 ainda é 2026/2 e 01/02 já é 2027/1.
+
+  Verificação local:
+  - dotnet test no domínio: 581 de 581 aprovados.
+  - dotnet format Maxx.sln --verify-no-changes: limpo.
+  - dotnet build -c Release: 0 avisos e 0 erros.
+
+  O registro das respostas 1 a 3 no produto.md ficou para a etapa 6, como no
+  plano aprovado. Se preferir que a regra entre no produto.md junto com o código
+  que a implementa, incluo neste mesmo commit.
+
+  Mensagem de commit proposta:
+
+  feat(api): adiciona o domínio do ranking com parcelas, classificação e 
+  congelamento
+
+  Aprovando, eu faço o commit, o push da feat/passo-11-rankings e trago o
+  resultado da CI antes de dar a etapa como pronta.
+
+✻ Churned for 5m 38s · done 8:25
+
+※ recap: Estamos no passo 11 (rankings), com a etapa 1 (domínio do ranking) pronta e os testes locais passando. Falta você aprovar a mensagem de commit para eu commitar, dar push e trazer o resultado da CI. (disable recaps in /config)
