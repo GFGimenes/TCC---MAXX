@@ -3965,3 +3965,959 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt
   leitura de Troféus com o progresso e o perfil).
 
 ✻ Baked for 19m 29s · done 20:58
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+> Etapa 4 aprovada com um ajuste antes do commit: a carga dos trabalhos de      
+  fechamento leva o tipo de período como texto (o nome do enum), não como       
+  número; é barato agora e elimina a dependência da ordem do enum com trabalho  
+  pendente na fila. A leitura do congelamento (fim mais 30 já congelado,        
+  reavaliação até a véspera) fica, e o passo 11 herda a constante. O limite do  
+  teste do fato depois do fechamento está bem declarado. Com a suíte verde,     
+  commita com a mensagem proposta, push, acompanha a CI e segue para a etapa 5; 
+  para para a minha revisão no fim dela.                                        
+
+● Faço o ajuste: o tipo de período na carga passa a ir pelo nome. Uso o
+  conversor de enum como texto no próprio campo, o que mantém o tipo forte no
+  código.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Application/Conquistas" && sed -i 's|^public sealed record
+      FecharPeriodo(Pe…)
+  ⎿  using System.Text.Json.Serialization;
+     using Maxx.Application.Fila;
+     using Maxx.Application.Medalhas;
+     … +36 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\FechamentoDePeriodo.cs (+11 
+     -2)
+      1 +using System.Text.Json.Serialization;                           
+      2  using Maxx.Application.Fila;
+      3  using Maxx.Application.Medalhas;
+      4  using Maxx.Domain.Catalogo;
+     ...
+      13      public static string Tipo => "verificar-fechamentos";
+      14  }
+      15  
+      16 +// O tipo de período vai na carga pelo nome do enum ("Bimestre"
+         +), não pelo número: reordenar                                  
+      17 +// o enum com trabalho pendente na fila não muda o que o trabal
+         +ho quer dizer.                                                 
+      18 +//                                                             
+      19  // Uma instância encerrada que a verificação acabou de registra
+          r como fechada: abre um
+      20  // trabalho por aluno matriculado no período.
+      17 -public sealed record FecharPeriodo(Periodo TipoDePeriodo, Guid 
+         -ReferenciaDoPeriodo) : ICargaDeTrabalho                        
+      21 +public sealed record FecharPeriodo(                            
+      22 +    [property: JsonConverter(typeof(JsonStringEnumConverter<Per
+         +iodo>))] Periodo TipoDePeriodo,                                
+      23 +    Guid ReferenciaDoPeriodo) : ICargaDeTrabalho               
+      24  {
+      25      public static string Tipo => "fechar-periodo";
+      26  
+     ...
+      28  }
+      29  
+      30  // As conquistas de fechamento daquele período, para um aluno.
+      25 -public sealed record AvaliarFechamentoDoAluno(Periodo TipoDePer
+         -iodo, Guid ReferenciaDoPeriodo, Guid AlunoId) : ICargaDeTrabalh
+         -o                                                              
+      31 +public sealed record AvaliarFechamentoDoAluno(                 
+      32 +    [property: JsonConverter(typeof(JsonStringEnumConverter<Per
+         +iodo>))] Periodo TipoDePeriodo,                                
+      33 +    Guid ReferenciaDoPeriodo,                                  
+      34 +    Guid AlunoId) : ICargaDeTrabalho                           
+      35  {
+      36      public static string Tipo => "avaliar-fechamento-do-aluno";
+      37  
+
+● A propriedade calculada Instancia também iria para o JSON, e com o tipo como
+  número dentro. Marco com JsonIgnore para a carga ter só os dois campos.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Application/Conquistas" && sed -i 's|^    public
+      InstanciaDePeriodo Instanc…)
+  ⎿  2
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Conquistas\FechamentoDePeriodo.cs (+2 
+     -0)
+      24  {
+      25      public static string Tipo => "fechar-periodo";
+      26  
+      27 +    [JsonIgnore]                                               
+      28      public InstanciaDePeriodo Instancia => new(TipoDePeriodo, R
+          eferenciaDoPeriodo);
+      29  }
+      30  
+     ...
+      36  {
+      37      public static string Tipo => "avaliar-fechamento-do-aluno";
+      38  
+      39 +    [JsonIgnore]                                               
+      40      public InstanciaDePeriodo Instancia => new(TipoDePeriodo, R
+          eferenciaDoPeriodo);
+      41  }
+      42  
+
+● Agora o teste que confere a carga gravada na fila, com o tipo pelo nome.
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\FechamentoDePeriodo
+        Tests.cs)
+  ⎿  Added 22 lines
+      32          Assert.Equal((VerificarFechamentos.Tipo, mundo.Relogio.
+          GetUtcNow() + TimeSpan.FromHours(1)), (proxima.Tipo, proxima.Di
+          sponivelEm));
+      33      }
+      34  
+      35 +    // O tipo de período vai na carga pelo nome, não pela posiç
+         +ão no enum: reordenar o enum                                   
+      36 +    // com trabalho pendente não muda o que o trabalho quer diz
+         +er.                                                            
+      37      [Fact]
+      38 +    public async Task Carga_do_fechamento_leva_o_tipo_de_period
+         +o_pelo_nome()                                                  
+      39 +    {                                                          
+      40 +        await using var mundo = await MundoDeConquistas.CriarAs
+         +ync(postgres);                                                 
+      41 +        await mundo.EnfileirarAsync(new VerificarFechamentos())
+         +;                                                              
+      42 +                                                               
+      43 +        var consumidor = mundo.Factory.Services.GetRequiredServ
+         +ice<ConsumidorDeTrabalhos>();                                  
+      44 +        Assert.True(await consumidor.ProcessarProximoAsync(Test
+         +Context.Current.CancellationToken));                           
+      45 +        var fechar = Assert.Single(await mundo.LinhasAsync<Trab
+         +alho>(), trabalho => trabalho.Tipo == FecharPeriodo.Tipo);     
+      46 +        var bimestre1 = mundo.Ano.Bimestres.Single(bimestre => 
+         +bimestre.Numero == 1).Id;                                      
+      47 +        Assert.Equal($$"""{"tipoDePeriodo":"Bimestre","referenc
+         +iaDoPeriodo":"{{bimestre1}}"}""", fechar.Carga);               
+      48 +                                                               
+      49 +        await mundo.EsvaziarAsync();                           
+      50 +        var avaliar = new AvaliarFechamentoDoAluno(Periodo.Ano,
+         + mundo.Ano.Id, mundo.Ana.Id);                                  
+      51 +        await mundo.EnfileirarAsync(avaliar);                  
+      52 +        var pendente = Assert.Single(await mundo.LinhasAsync<Tr
+         +abalho>(), trabalho => trabalho.Tipo == AvaliarFechamentoDoAlun
+         +o.Tipo);                                                       
+      53 +        Assert.Contains("\"tipoDePeriodo\":\"Ano\"", pendente.C
+         +arga, StringComparison.Ordinal);                               
+      54 +        Assert.Equal(avaliar, JsonSerializer.Deserialize<Avalia
+         +rFechamentoDoAluno>(pendente.Carga, JsonSerializerOptions.Web))
+         +;                                                              
+      55 +    }                                                          
+      56 +                                                               
+      57 +    [Fact]                                                     
+      58      public async Task Primeira_verificacao_fecha_bimestres_seme
+          stres_e_o_ano_que_ficaram_para_tras()
+      59      {
+      60          await using var mundo = await MundoDeConquistas.CriarAs
+          ync(postgres);
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Conquistas/FechamentoDePeriodoTests.cs
+      && sed…)
+  ⎿  com falha Maxx.Api.IntegrationTests.Conquistas.FechamentoDePeriodoTest
+     s.Carga_do_fechamento_leva_o_tipo_de_periodo_pelo_nome (825ms)
+       Assert.Equal() Failure: Strings differ
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Fechamento
+     DePeriodoTests.cs (+2 -0)
+       1 +using System.Text.Json;                                        
+       2  using Maxx.Application.Conquistas;
+       3  using Maxx.Domain.Catalogo;
+       4  using Maxx.Domain.Conquistas;
+       5  using Maxx.Domain.Notificacoes;
+       6  using Maxx.Infrastructure.Conquistas;
+       7  using Maxx.Infrastructure.Fila;
+       8 +using Microsoft.Extensions.DependencyInjection;                
+       9  
+      10  namespace Maxx.Api.IntegrationTests.Conquistas;
+      11  
+  ⎿  (timeout 10m)
+
+● O jsonb do Postgres normaliza os espaços. Comparo pelo conteúdo, conferindo
+  que são exatamente os dois campos.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Conquistas/FechamentoDePeriodoTests.cs
+      && sed…)
+  ⎿  51:            [("tipoDePeriodo", "Bimestre"), ("referenciaDoPeriodo",
+      bimestre1.ToString())],
+     59:        Assert.Equal("Ano", cargaPendente.RootElement.GetProperty("
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\Fechamento
+     DePeriodoTests.cs (+6 -2)
+      46          Assert.True(await consumidor.ProcessarProximoAsync(Test
+          Context.Current.CancellationToken));
+      47          var fechar = Assert.Single(await mundo.LinhasAsync<Trab
+          alho>(), trabalho => trabalho.Tipo == FecharPeriodo.Tipo);
+      48          var bimestre1 = mundo.Ano.Bimestres.Single(bimestre => 
+          bimestre.Numero == 1).Id;
+      49 -        Assert.Equal($$"""{"tipoDePeriodo":"Bimestre","referenc
+         -iaDoPeriodo":"{{bimestre1}}"}""", fechar.Carga);               
+      49 +        using var carga = JsonDocument.Parse(fechar.Carga);    
+      50 +        Assert.Equal(                                          
+      51 +            [("tipoDePeriodo", "Bimestre"), ("referenciaDoPerio
+         +do", bimestre1.ToString())],                                   
+      52 +            carga.RootElement.EnumerateObject().Select(campo =>
+         + (campo.Name, campo.Value.GetString())));                      
+      53  
+      54          await mundo.EsvaziarAsync();
+      55          var avaliar = new AvaliarFechamentoDoAluno(Periodo.Ano,
+           mundo.Ano.Id, mundo.Ana.Id);
+      56          await mundo.EnfileirarAsync(avaliar);
+      57          var pendente = Assert.Single(await mundo.LinhasAsync<Tr
+          abalho>(), trabalho => trabalho.Tipo == AvaliarFechamentoDoAlun
+          o.Tipo);
+      55 -        Assert.Contains("\"tipoDePeriodo\":\"Ano\"", pendente.C
+         -arga, StringComparison.Ordinal);                               
+      58 +        using var cargaPendente = JsonDocument.Parse(pendente.C
+         +arga);                                                         
+      59 +        Assert.Equal("Ano", cargaPendente.RootElement.GetProper
+         +ty("tipoDePeriodo").GetString());                              
+      60          Assert.Equal(avaliar, JsonSerializer.Deserialize<Avalia
+          rFechamentoDoAluno>(pendente.Carga, JsonSerializerOptions.Web))
+          ;
+      61      }
+      62  
+  ⎿  (timeout 10m)
+
+● Os 13 passam. Rodo a verificação completa antes do commit.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● CI da etapa 4 rodando (commit bc72a23). Começo a etapa 5, a leitura: Troféus
+  com conquista obtida e progresso, e o perfil. Leio os contratos atuais.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Começo pelos contratos da aplicação: a instância da conquista obtida e o
+  progresso, ambos opcionais.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Application/Premios/ConsultaDePremios.cs && sed -i 's|^    bool
+      Exige…)
+  ⎿      IReadOnlyList<PremioObtido> Obtidos,
+         bool ExigeMateria = false,
+         ProgressoDaConquista? Progresso = null);
+     … +29 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Premios\ConsultaDePremios.cs
+     (+22 -2)
+      30      int? OrdemNaFamilia,
+      31      RaridadeAtual? Raridade,
+      32      IReadOnlyList<PremioObtido> Obtidos,
+      33 -    bool ExigeMateria = false);                                
+      33 +    bool ExigeMateria = false,                                 
+      34 +    ProgressoDaConquista? Progresso = null);                   
+      35 +                                                               
+      36 +// O progresso ("2 de 3") de uma conquista na instância vigente
+         + do período dela (passo 9):                                    
+      37 +// só na conquista que o aluno ainda não obteve nessa instância
+         +, e só para o dono                                             
+      38 +// (produto.md 9.1). Nulo também no recesso, para bimestre e se
+         +mestre, e quando o aluno não                                   
+      39 +// tem matrícula no período do alvo dinâmico.                  
+      40 +public sealed record ProgressoDaConquista(Periodo Periodo, int 
+         +Contagem, int Alvo);                                           
+      41  
+      42  public sealed record RaridadeAtual(Raridade Nivel, int AlunosCo
+          mItem, int AlunosElegiveis)
+      43  {
+     ...
+      47  
+      48  // Tier e pontos do momento da concessão (ADR 0007), que podem 
+          diferir do catálogo de hoje.
+      49  // PostId: o post não removido que o prêmio rendeu, se houver (
+          um prêmio rende um post).
+      43 -public sealed record PremioObtido(Guid Id, Tier Tier, int Ponto
+         -s, string? Materia, int? Bimestre, DateTimeOffset ObtidoEm, Gui
+         -d? PostId);                                                    
+      50 +// Instancia: só na conquista, a instância do período em que fo
+         +i obtida (passo 9).                                            
+      51 +public sealed record PremioObtido(                             
+      52 +    Guid Id,                                                   
+      53 +    Tier Tier,                                                 
+      54 +    int Pontos,                                                
+      55 +    string? Materia,                                           
+      56 +    int? Bimestre,                                             
+      57 +    DateTimeOffset ObtidoEm,                                   
+      58 +    Guid? PostId,                                              
+      59 +    InstanciaObtida? Instancia = null);                        
+      60 +                                                               
+      61 +// A instância de uma conquista obtida, em números para o app e
+         +screver: o bimestre (1 a 4) e                                  
+      62 +// o ano; o semestre (1 ou 2) e o ano; o ano; ou nada, no perío
+         +do curso.                                                      
+      63 +public sealed record InstanciaObtida(Periodo Periodo, int? Ano,
+         + int? Semestre, int? Bimestre);                                
+
+● Agora a consulta na infraestrutura: as conquistas obtidas com a instância, e o
+  progresso da instância vigente.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs)
+  ⎿  Added 16 lines, removed 7 lines
+       71                  })
+       72              .ToListAsync(cancellationToken);
+       73  
+       74 +        // A conquista não removida pontua e conta como obtida
+          + (produto.md 4.9: tudo soma), com a                           
+       75 +        // instância do período em que foi obtida; repetível, 
+          +aparece uma vez por instância.                                
+       76 +        var calendario = new Calendario(await db.Set<AnoLetivo
+          +>().AsNoTracking()                                            
+       77 +            .Include(ano => ano.Semestres)                    
+       78 +            .ThenInclude(semestre => semestre.Bimestres)      
+       79 +            .ToListAsync(cancellationToken));                 
+       80 +        var conquistas = await db.Set<Conquista>().AsNoTrackin
+          +g()                                                           
+       81 +            .Where(conquista => conquista.AlunoId == alunoId &
+          +& conquista.RemovidaEm == null)                               
+       82 +            .OrderByDescending(conquista => conquista.Concedid
+          +aEm)                                                          
+       83 +            .ToListAsync(cancellationToken);                  
+       84 +                                                              
+       85          var obtidos = medalhas
+       86              .Select(medalha => (medalha.ItemCodigo, Obtido: ne
+           w PremioObtido(
+       87                  medalha.Id, medalha.Tier, medalha.Pontos, meda
+           lha.Materia, medalha.Numero, medalha.ConcedidaEm, medalha.Post
+           Id)))
+       88              .Concat(participacoes.Select(premio => (premio.Ite
+           mCodigo, Obtido: new PremioObtido(
+       89                  premio.Id, premio.Tier, premio.Pontos, premio.
+           Materia, null, premio.AprovadoEm!.Value, premio.PostId))))
+       90 +            .Concat(conquistas.Select(conquista => (conquista.
+          +ItemCodigo, Obtido: new PremioObtido(                         
+       91 +                conquista.Id, conquista.Tier, conquista.Pontos
+          +, null, null, conquista.ConcedidaEm, null, Obtida(conquista.In
+          +stancia, calendario)))))                                      
+       92              .ToLookup(par => par.ItemCodigo, par => par.Obtido
+           );
+       93  
+       81 -        // A conquista não removida pontua (produto.md 4.9: tu
+          -do soma). O que ela mostra como                               
+       82 -        // obtido na tela chega com a leitura de Troféus (pass
+          -o 9, etapa 5).                                                
+       83 -        var pontosDeConquistas = await db.Set<Conquista>()    
+       84 -            .Where(conquista => conquista.AlunoId == alunoId &
+          -& conquista.RemovidaEm == null)                               
+       85 -            .SumAsync(conquista => conquista.Pontos, cancellat
+          -ionToken);                                                    
+       86 -                                                              
+       94          var raridades = await db.Set<RaridadeDoItemRow>().AsNo
+           Tracking()
+       95              .ToDictionaryAsync(linha => linha.ItemCodigo, canc
+           ellationToken);
+       96          var itens = await db.Set<ItemCatalogoRow>().AsNoTracki
+           ng().OrderBy(item => item.Codigo).ToListAsync(cancellationToke
+           n);
+       97          var familias = await db.Set<FamiliaRow>().AsNoTracking
+           ().OrderBy(familia => familia.Codigo).ToListAsync(cancellation
+           Token);
+       98 +        var progressos = await ProgressosAsync(               
+       99 +            alunoId, aluno.CadastroId, itens.Where(item => ite
+          +m.Tipo == _tipoConquista), conquistas, calendario, cancellatio
+          +nToken);                                                      
+      100  
+      101          return new PremiosDoAluno(
+       93 -            medalhas.Sum(medalha => medalha.Pontos) + particip
+          -acoes.Sum(premio => premio.Pontos) + pontosDeConquistas,      
+      102 +            medalhas.Sum(medalha => medalha.Pontos) + particip
+          +acoes.Sum(premio => premio.Pontos) + conquistas.Sum(conquista 
+          +=> conquista.Pontos),                                         
+      103              [.. familias.Select(familia => new FamiliaDoCatalo
+           go(familia.Codigo, familia.Nome, familia.Descricao, familia.Pa
+           ssos))],
+      104              [.. itens
+      105                  .Where(item => item.RestricaoCurso is null
+
+● Update(apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs)
+  ⎿  Added 106 lines, removed 1 line
+      118                          ? new RaridadeAtual(Ler<Raridade>(rari
+           dade.Raridade), raridade.AlunosComItem, raridade.AlunosElegive
+           is)
+      119                          : null,
+      120                      [.. obtidos[item.Codigo]],
+      121 -                    item.Tipo == _tipoPremioParticipacao && (i
+          -tem.ChaveDeDeduplicacao ?? []).Contains(_materia)))]);        
+      121 +                    item.Tipo == _tipoPremioParticipacao && (i
+          +tem.ChaveDeDeduplicacao ?? []).Contains(_materia),            
+      122 +                    progressos.GetValueOrDefault(item.Codigo))
+          +)]);                                                          
+      123      }
+      124  
+      125 +    // O progresso das conquistas na instância vigente de cada
+          + período (D5 do passo 9): o                                   
+      126 +    // worker grava a contagem; a leitura só lê. Sem linha gra
+          +vada, nenhum fato chegou ainda:                               
+      127 +    // zero, e o alvo do catálogo ou o número de matérias do p
+          +eríodo. Fora fica a conquista já                              
+      128 +    // obtida na instância vigente, a que não tem instância vi
+          +gente (bimestre e semestre no                                 
+      129 +    // recesso), a fora da vigência e a de alvo zero (sem matr
+          +ícula no período).                                            
+      130 +    private async Task<Dictionary<string, ProgressoDaConquista
+          +>> ProgressosAsync(                                           
+      131 +        Guid alunoId,                                         
+      132 +        Guid cadastroId,                                      
+      133 +        IEnumerable<ItemCatalogoRow> conquistasDoCatalogo,    
+      134 +        IReadOnlyList<Conquista> obtidas,                     
+      135 +        Calendario calendario,                                
+      136 +        CancellationToken cancellationToken)                  
+      137 +    {                                                         
+      138 +        var agora = relogio.GetUtcNow();                      
+      139 +        var hoje = FusoHorario.DataLocal(agora);              
+      140 +        var bimestre = calendario.BimestreEm(agora);          
+      141 +        var semestre = calendario.SemestreEm(agora);          
+      142 +        var ano = calendario.Anos.FirstOrDefault(candidato => 
+          +candidato.Inicio <= hoje && hoje <= candidato.Fim);           
+      143 +        InstanciaDePeriodo? Vigente(Periodo periodo) => period
+          +o switch                                                      
+      144 +        {                                                     
+      145 +            Periodo.Bimestre when bimestre is not null => new(
+          +periodo, bimestre.Id),                                        
+      146 +            Periodo.Semestre when semestre is not null => new(
+          +periodo, semestre.Id),                                        
+      147 +            Periodo.Ano when ano is not null => new(periodo, a
+          +no.Id),                                                       
+      148 +            Periodo.Curso => new(periodo, alunoId),           
+      149 +            _ => null,                                        
+      150 +        };                                                    
+      151 +                                                              
+      152 +        var gravados = (await db.Set<ProgressoDeConquistaRow>(
+          +).AsNoTracking()                                              
+      153 +                .Where(linha => linha.AlunoId == alunoId)     
+      154 +                .ToListAsync(cancellationToken))              
+      155 +            .ToDictionary(linha => (linha.ItemCodigo, linha.Ti
+          +poDePeriodo, linha.ReferenciaDoPeriodo));                     
+      156 +                                                              
+      157 +        var progressos = new Dictionary<string, ProgressoDaCon
+          +quista>(StringComparer.Ordinal);                              
+      158 +        foreach (var item in conquistasDoCatalogo.Select(Catal
+          +ogoRowMapper.ParaConquista))                                  
+      159 +        {                                                     
+      160 +            if (Vigente(item.Periodo) is not { } instancia    
+      161 +                || obtidas.Any(obtida => obtida.ItemCodigo == 
+          +item.Codigo && obtida.Instancia == instancia)                 
+      162 +                || item.Vigencia is { Inicio: { } inicio } && 
+          +hoje < inicio                                                 
+      163 +                || item.Vigencia is { Fim: { } fim } && hoje >
+          + fim                                                          
+      164 +                || item.Regra.Alvo is not { } alvoDoCatalogo) 
+      165 +            {                                                 
+      166 +                continue;                                     
+      167 +            }                                                 
+      168 +                                                              
+      169 +            var (contagem, alvo) = gravados.TryGetValue((item.
+          +Codigo, NomeJson.De(instancia.Tipo), instancia.Referencia), ou
+          +t var linha)                                                  
+      170 +                ? (linha.Contagem, linha.Alvo)                
+      171 +                : (0, alvoDoCatalogo.Fixo ?? await MateriasDoP
+          +eriodoAsync(cadastroId, instancia.Semestres(calendario), cance
+          +llationToken));                                               
+      172 +            if (alvo > 0)                                     
+      173 +            {                                                 
+      174 +                progressos[item.Codigo] = new ProgressoDaConqu
+          +ista(item.Periodo, contagem, alvo);                           
+      175 +            }                                                 
+      176 +        }                                                     
+      177 +                                                              
+      178 +        return progressos;                                    
+      179 +    }                                                         
+      180 +                                                              
+      181 +    private async Task<int> MateriasDoPeriodoAsync(           
+      182 +        Guid cadastroId, IReadOnlyList<SemestreLetivo> semestr
+          +es, CancellationToken cancellationToken)                      
+      183 +    {                                                         
+      184 +        var ids = semestres.Select(semestre => semestre.Id).To
+          +List();                                                       
+      185 +        return await (                                        
+      186 +                from matricula in db.Set<Matricula>()         
+      187 +                join turma in db.Set<Turma>() on matricula.Tur
+          +maId equals turma.Id                                          
+      188 +                where matricula.AlunoId == cadastroId && ids.C
+          +ontains(turma.SemestreLetivoId)                               
+      189 +                select turma.MateriaId)                       
+      190 +            .Distinct()                                       
+      191 +            .CountAsync(cancellationToken);                   
+      192 +    }                                                         
+      193 +                                                              
+      194 +    // A instância em números, para o app escrever ("3º bimest
+          +re de 2026", "2026/2", "2026").                               
+      195 +    private static InstanciaObtida Obtida(InstanciaDePeriodo i
+          +nstancia, Calendario calendario)                              
+      196 +    {                                                         
+      197 +        var referencia = instancia.Referencia;                
+      198 +        switch (instancia.Tipo)                               
+      199 +        {                                                     
+      200 +            case Periodo.Bimestre:                            
+      201 +                foreach (var semestre in calendario.Anos.Selec
+          +tMany(ano => ano.Semestres))                                  
+      202 +                {                                             
+      203 +                    if (semestre.Bimestres.FirstOrDefault(bime
+          +stre => bimestre.Id == referencia) is { } bimestre)           
+      204 +                    {                                         
+      205 +                        return new(Periodo.Bimestre, semestre.
+          +Ano, semestre.Numero, bimestre.Numero);                       
+      206 +                    }                                         
+      207 +                }                                             
+      208 +                                                              
+      209 +                break;                                        
+      210 +            case Periodo.Semestre:                            
+      211 +                if (calendario.Anos.SelectMany(ano => ano.Seme
+          +stres).FirstOrDefault(semestre => semestre.Id == referencia) i
+          +s { } doSemestre)                                             
+      212 +                {                                             
+      213 +                    return new(Periodo.Semestre, doSemestre.An
+          +o, doSemestre.Numero, null);                                  
+      214 +                }                                             
+      215 +                                                              
+      216 +                break;                                        
+      217 +            case Periodo.Ano:                                 
+      218 +                if (calendario.Anos.FirstOrDefault(ano => ano.
+          +Id == referencia) is { } doAno)                               
+      219 +                {                                             
+      220 +                    return new(Periodo.Ano, doAno.Ano, null, n
+          +ull);                                                         
+      221 +                }                                             
+      222 +                                                              
+      223 +                break;                                        
+      224 +        }                                                     
+      225 +                                                              
+      226 +        return new(instancia.Tipo, null, null, null);         
+      227 +    }                                                         
+      228 +                                                              
+      229      private static T Ler<T>(string texto)
+      230          where T : struct, Enum =>
+      231          NomeJson.TentarLer<T>(texto, out var valor) ? valor : 
+           throw new InvalidOperationException($"{typeof(T).Name} desconh
+           ecido: {texto}.");
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/src/Maxx.Infrastructure/Premios" && sed -i 's|^                select
+      new { curso.Si…)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Premios\ConsultaDePremios.cs
+     (+4 -2)
+       5  using Maxx.Domain.Identidade;
+       6  using Maxx.Domain.Premios;
+       7  using Maxx.Domain.Social;
+       8 +using Maxx.Infrastructure.Conquistas;                          
+       9  using Maxx.Infrastructure.Persistence;
+      10  using Maxx.Infrastructure.RaridadeDosItens;
+      11  using Maxx.Infrastructure.Seed;
+     ...
+      13  
+      14  namespace Maxx.Infrastructure.Premios;
+      15  
+      15 -internal sealed class ConsultaDePremios(MaxxDbContext db) : ICo
+         -nsultaDePremios                                                
+      16 +internal sealed class ConsultaDePremios(MaxxDbContext db, TimeP
+         +rovider relogio) : IConsultaDePremios                          
+      17  {
+      18      // A reivindicação que deduplica por matéria (P17) pede a m
+          atéria no app.
+      19      private static readonly string _tipoPremioParticipacao = No
+          meJson.De(TipoDeItem.PremioParticipacao);
+      20      private static readonly string _materia = NomeJson.De(Campo
+          DeDeduplicacao.Materia);
+      21 +    private static readonly string _tipoConquista = NomeJson.De
+         +(TipoDeItem.Conquista);                                        
+      22  
+      23      public async Task<PremiosDoAluno?> DoAlunoAsync(Guid alunoI
+          d, CancellationToken cancellationToken)
+      24      {
+     ...
+      27                  join cadastro in db.Set<CadastroElegivel>() on 
+          usuario.CadastroElegivelId equals cadastro.Id
+      28                  join curso in db.Set<Curso>() on cadastro.Curso
+          Id equals curso.Id
+      29                  where usuario.Id == alunoId && usuario.Papeis =
+          = Papeis.Aluno
+      28 -                select new { curso.Sigla })                    
+      30 +                select new { curso.Sigla, CadastroId = cadastro
+         +.Id })                                                         
+      31              .SingleOrDefaultAsync(cancellationToken);
+      32          if (aluno is null)
+      33          {
+  ⎿  (timeout 6m 40s)
+
+● Compila. Agora o contrato HTTP: os dois campos novos, só como acréscimo, e o
+  progresso nunca vai para o perfil público.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Api/Premios/PremiosEndpoints.cs && \
+      sed -i 's|^                    o…)
+  ⎿  62:                    obtido.Instancia is { } instancia
+     63:                        ? new InstanciaResponse(ProfessorEndpoints.
+     Nome(instancia.Periodo), instancia.Ano, instancia.Semestre, instancia.
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Premios\PremiosEndpoints.cs (+29 -4)
+      58                      obtido.Materia,
+      59                      obtido.Bimestre,
+      60                      obtido.ObtidoEm,
+      61 -                    obtido.PostId))],                          
+      62 -                item.ExigeMateria))]);                         
+      61 +                    obtido.PostId,                             
+      62 +                    obtido.Instancia is { } instancia          
+      63 +                        ? new InstanciaResponse(ProfessorEndpoi
+         +nts.Nome(instancia.Periodo), instancia.Ano, instancia.Semestre,
+         + instancia.Bimestre)                                           
+      64 +                        : null))],                             
+      65 +                item.ExigeMateria,                             
+      66 +                !soObtidos && item.Progresso is { } progresso  
+      67 +                    ? new ProgressoResponse(ProfessorEndpoints.
+         +Nome(progresso.Periodo), progresso.Contagem, progresso.Alvo)   
+      68 +                    : null))]);                                
+      69  }
+      70  
+      71  public sealed record PremiosDoAlunoResponse(int Pontos, IReadOn
+          lyList<FamiliaResponse> Familias, IReadOnlyList<ItemDoAlunoResp
+          onse> Itens);
+     ...
+       87      int? OrdemNaFamilia,
+       88      RaridadeResponse? Raridade,
+       89      IReadOnlyList<PremioObtidoResponse> Obtidos,
+       84 -    bool ExigeMateria);                                       
+       90 +    bool ExigeMateria,                                        
+       91 +    ProgressoResponse? Progresso = null);                     
+       92 +                                                              
+       93 +// O progresso ("2 de 3") da conquista na instância vigente do
+          + período dela (passo 9), em                                   
+       94 +// "bimestre", "semestre", "ano" ou "curso". Só na rota do pró
+          +prio aluno; o perfil público                                  
+       95 +// nunca o leva (produto.md 9.1).                             
+       96 +public sealed record ProgressoResponse(string Periodo, int Con
+          +tagem, int Alvo);                                             
+       97  
+       98  // Percentual dos alunos que têm o item, com uma casa: "x% dos
+            alunos".
+       99  public sealed record RaridadeResponse(string Nivel, double Per
+           centual);
+      100  
+      101  // PostId entrou no passo 7: o post que o prêmio rendeu, para 
+           o app não oferecer de novo.
+       90 -public sealed record PremioObtidoResponse(Guid Id, string Tier
+          -, int Pontos, string? Materia, int? Bimestre, DateTimeOffset O
+          -btidoEm, Guid? PostId);                                       
+      102 +// Instancia entrou no passo 9: só na conquista, o período em 
+          +que ela foi obtida.                                           
+      103 +public sealed record PremioObtidoResponse(                    
+      104 +    Guid Id,                                                  
+      105 +    string Tier,                                              
+      106 +    int Pontos,                                               
+      107 +    string? Materia,                                          
+      108 +    int? Bimestre,                                            
+     … 7 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+● Compila. Regenero o OpenAPI e o cliente TypeScript.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npm run gerar -w @maxx/api-client 2>&1 | tail -3; git diff --stat
+      packages/; git diff pac…)
+  ⎿  ✨ openapi-typescript 7.13.0
+     🚀 openapi.json → src/schema.d.ts [197.6ms]
+      packages/api-client/openapi.json    | 76 ++++++++++++++++++++++++++++
+     … +52 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+76 -0)
+      3677            }
+      3678          }
+      3679        },
+      3680 +      "InstanciaResponse": {                                 
+      3681 +        "required": [                                        
+      3682 +          "periodo",                                         
+      3683 +          "ano",                                             
+      3684 +          "semestre",                                        
+      3685 +          "bimestre"                                         
+      3686 +        ],                                                   
+      3687 +        "type": "object",                                    
+      3688 +        "properties": {                                      
+      3689 +          "periodo": {                                       
+      3690 +            "type": "string"                                 
+      3691 +          },                                                 
+      3692 +          "ano": {                                           
+      3693 +            "type": [                                        
+      3694 +              "null",                                        
+      3695 +              "integer"                                      
+      3696 +            ],                                               
+      3697 +            "format": "int32"                                
+      3698 +          },                                                 
+      3699 +          "semestre": {                                      
+      3700 +            "type": [                                        
+      3701 +              "null",                                        
+      3702 +              "integer"                                      
+      3703 +            ],                                               
+      3704 +            "format": "int32"                                
+      3705 +          },                                                 
+      3706 +          "bimestre": {                                      
+      3707 +            "type": [                                        
+      3708 +              "null",                                        
+      3709 +              "integer"                                      
+      3710 +            ],                                               
+      3711 +            "format": "int32"                                
+      3712 +          }                                                  
+      3713 +        }                                                    
+      3714 +      },                                                     
+      3715        "ItemDeMedalhaResponse": {
+      3716          "required": [
+     … 60 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+18 -0)
+       998              ra: string;
+       999              email: string;
+      1000          };
+      1001 +        InstanciaResponse: {                                 
+      1002 +            periodo: string;                                 
+      1003 +            /** Format: int32 */                             
+      1004 +            ano: null | number;                              
+      1005 +            /** Format: int32 */                             
+      1006 +            semestre: null | number;                         
+      1007 +            /** Format: int32 */                             
+      1008 +            bimestre: null | number;                         
+      1009 +        };                                                   
+      1010          ItemDeMedalhaResponse: {
+      1011              codigo: string;
+      1012              nome: string;
+     ...
+      1033              raridade: null | components["schemas"]["RaridadeR
+            esponse"];
+      1034              obtidos: components["schemas"]["PremioObtidoRespo
+            nse"][];
+      1035              exigeMateria: boolean;
+      1036 +            progresso?: null | components["schemas"]["Progres
+           +soResponse"];                                                
+      1037          };
+      1038          LoginRequest: {
+      1039              identificador: string;
+     ...
+      1162              obtidoEm: string;
+      1163              /** Format: uuid */
+      1164              postId: null | string;
+      1165 +            instancia?: null | components["schemas"]["Instanc
+           +iaResponse"];                                                
+      1166          };
+      1167          PremiosDoAlunoResponse: {
+      1168              /** Format: int32 */
+     ...
+      1183              /** Format: int32 */
+      1184              medalhasConcedidas: number;
+      1185          };
+      1186 +        ProgressoResponse: {                                 
+      1187 +            periodo: string;                                 
+      1188 +            /** Format: int32 */                             
+      1189 +            contagem: number;                                
+      1190 +            /** Format: int32 */                             
+      1191 +            alvo: number;                                    
+      1192 +        };                                                   
+      1193          PublicarPostRequest: {
+     … 2 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● O diff do contrato é só acréscimo: dois campos opcionais e dois tipos novos.
+  Agora os testes de integração; vejo como o PremiosDoAlunoTests autentica nas
+  chamadas HTTP.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Para os testes HTTP, os alunos do mundo de teste precisam de senha de verdade.
+  Acrescento o hash Argon2id, calculado uma vez, e um login.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Conquistas" && \
+      sed -i 's|^    private static reado…)
+  ⎿  using System.Net;
+     using System.Net.Http.Headers;
+     using System.Net.Http.Json;
+     … +19 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\MundoDeCon
+     quistas.cs (+25 -2)
+      1 +using System.Net;                                               
+      2 +using System.Net.Http.Headers;                                  
+      3 +using System.Net.Http.Json;                                     
+      4 +using Maxx.Api.Autenticacao;                                    
+      5  using Maxx.Application.Conquistas;
+      6  using Maxx.Application.Fila;
+      7  using Maxx.Application.Medalhas;
+     ...
+      11  using Maxx.Domain.Conquistas;
+      12  using Maxx.Domain.Identidade;
+      13  using Maxx.Domain.Premios;
+      14 +using Maxx.Infrastructure.Autenticacao;                        
+      15  using Maxx.Infrastructure.Conquistas;
+      16  using Maxx.Infrastructure.Fila;
+      17  using Maxx.Infrastructure.Persistence;
+     ...
+      29  // Renata; a Secretaria é a instituição.
+      30  internal sealed class MundoDeConquistas : IAsyncDisposable
+      31  {
+      32 +    public const string Senha = "senha-boa-123";               
+      33 +                                                               
+      34      private static readonly Catalogo _catalogo = CatalogoReader
+          .Ler(Repositorio.DiretorioDoCatalogo).Catalogo!;
+      35  
+      36 +    // Argon2id de verdade, calculado uma vez: os testes HTTP e
+         +ntram como a Ana e o Bruno.                                    
+      37 +    private static readonly Lazy<string> _hash = new(() => new 
+         +Argon2idSenhaHasher().Hash(Senha));                            
+      38 +                                                               
+      39      private MundoDeConquistas(MaxxApiFactory factory, RelogioDe
+          Teste relogio)
+      40      {
+      41          Factory = factory;
+     ...
+       98          var bruno = CadastroElegivel.Aluno("20260102", "bruno.
+           lima@al.unieduk.com.br", "Bruno Lima", mundo.Cc, 3);
+       99          mundo.Renata = Usuario.CriarPeloSeed(renata, "renataA"
+           , agora);
+      100          mundo.Secretaria = Usuario.CriarPeloSeed(secretaria, "
+           secretaria", agora);
+       91 -        mundo.Ana = Usuario.CadastrarAluno(ana, mundo.Cc, "Ana
+          -", "anaSouza", "hash", agora);                                
+       92 -        mundo.Bruno = Usuario.CadastrarAluno(bruno, mundo.Cc, 
+          -"Bruno", "brunoLima", "hash", agora);                         
+      101 +        mundo.Ana = Usuario.CadastrarAluno(ana, mundo.Cc, "Ana
+          +", "anaSouza", _hash.Value, agora);                           
+      102 +        mundo.Bruno = Usuario.CadastrarAluno(bruno, mundo.Cc, 
+          +"Bruno", "brunoLima", _hash.Value, agora);                    
+      103  
+      104          await SalvarAsync(
+      105              factory,
+     ...
+      222          await EsvaziarAsync();
+      223      }
+      224  
+     … 16 more lines (ctrl+o to expand)
+
+● Agora os testes da leitura.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Conquistas\LeituraDeConquistasT
+       ests.cs)
+  ⎿  Wrote 107 lines to apps\api\tests\Maxx.Api.IntegrationTests\Conquistas
+     \LeituraDeConquistasTests.cs
+       1 using System.Net.Http.Json;
+       2 using Maxx.Api.Premios;
+       3 using Maxx.Application.Premios;
+       4 using Microsoft.Extensions.DependencyInjection;
+       5 
+       6 namespace Maxx.Api.IntegrationTests.Conquistas;
+       7 
+       8 // A leitura das conquistas (passo 9, etapa 5): em Troféus, a ob
+         tida com a instância em que foi
+       9 // obtida e o progresso ("2 de 3") das que faltam na instância v
+     … +99 lines (~5 KB) (ctrl+o to expand)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 4 passam. Verificação completa: formatação, build Release, suíte inteira,
+  cliente gerado igual ao OpenAPI e os tipos do app.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI for stage 4" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 5 está pronta para a sua revisão. Ainda não commitei; a CI desta etapa
+  roda quando você aprovar e eu fizer o push.
+
+  CI da etapa 4
+
+  O commit bc72a23, já com o ajuste do tipo de período como texto na carga,
+  ficou com os seis jobs verdes na primeira tentativa.
+
+  O que foi feito na etapa 5
+
+  GET /v1/eu/premios, com dois campos opcionais a mais, só acréscimo:
+  - obtidos[].instancia: só na conquista. Diz em que instância ela foi obtida,
+    como {periodo, ano, semestre, bimestre}.
+  - itens[].progresso: só na conquista, como {periodo, contagem, alvo}. Mostra a
+    instância vigente do período dela:
+    - a contagem vem da linha que o worker gravou;
+    - sem linha (nenhum fato chegou ainda), sai zero, com o alvo do catálogo ou
+      o número de matérias do período.
+  - Conquista obtida: passa a aparecer em Troféus. Uma conquista repetível
+    aparece uma vez por instância, e os pontos continuam somando.
+  - Perfil público (/perfis/{id}/premios): mostra a conquista obtida, com a
+    instância, e nunca o progresso.
+  - Contrato: o OpenAPI e o schema.d.ts foram regenerados; o diff são dois
+    campos opcionais e dois tipos novos.
+
+  Decisões para o seu aval
+
+  1. A instância vai em números, não como rótulo pronto. O plano dizia "rótulo
+     da instância". Mudei para números porque texto para o usuário mora no
+     cliente, que vai escrever "3º bimestre de 2026", "2026/2" e "2026" na
+     etapa 6.
+  2. Leitura de "sem linha no recesso": bimestre e semestre não têm progresso no
+     recesso. O ano continua com o dele, porque o recesso de julho fica dentro
+     do ano letivo; o curso tem sempre.
+  3. Sem progresso também quando:
+     - o alvo dá zero (aluno sem matrícula no período do alvo dinâmico);
+     - o item está fora da vigência hoje;
+     - a regra é customizada.
+  4. Uma contagem na leitura: sem linha de progresso, o alvo dinâmico sai de uma
+     contagem de matrículas feita na hora. É uma contagem simples, não uma
+     avaliação; o avaliador continua só no worker.
+  5. postId da conquista sai nulo por enquanto. Ele passa a vir na etapa do post
+     de conquista.
+
+  Verificação local
+
+  - Formatação limpa, build Release com 0 avisos e 0 erros.
+  - Suíte completa: 1028 testes, nenhuma falha, os mesmos 6 da R2 ignorados.
+  - Prettier em packages limpo e typecheck do app limpo.
+  - O npm run verificar do api-client sai com 1 aqui só porque ele roda gerar e
+    compara com o que está commitado, e os arquivos regenerados ainda não foram
+    commitados. Depois do commit ele passa a comparar com o novo, e a CI
+    confere.
+
+  Testes de integração novos (4):
+  - Troféus via HTTP: a C01 obtida com instância bimestre/ano/1/2 e sem
+    progresso, e o progresso em várias conquistas:
+
+  | Conquista      | Período  | Progresso |
+  |----------------|----------|-----------|
+  | C02            | bimestre | 2 de 3    |
+  | C03            | bimestre | 1 de 2    |
+  | C07            | semestre | 5 de 10   |
+  | C12            | ano      | 5 de 20   |
+  | C16            | curso    | 5 de 50   |
+  | C05 (sem fato) | semestre | 0 de 3    |
+  | C10 (sem fato) | semestre | 0 de 2    |
+    Medalha e prêmio de participação não têm progresso nem instância.
+  - Perfil público via HTTP: a C01 aparece com a instância, nenhum item tem
+    progresso, e o que falta não aparece.
+  - No recesso: sem progresso de bimestre e de semestre; o do ano e o do curso
+    continuam.
+  - No bimestre seguinte, num semestre sem matrícula:
+    - C01 e C02 começam do zero (0 de 5 e 0 de 3);
+    - as quatro de alvo dinâmico ficam sem progresso.
+
+  Para os testes HTTP, a Ana e o Bruno do mundo de teste ganharam senha com
+  Argon2id de verdade, calculada uma vez.
+
+  Mensagem de commit proposta
+
+  feat(api): expõe a conquista obtida e o progresso na leitura de troféus
+
+  O commit leva o openapi.json e o schema.d.ts regenerados. A rigor isso toca o
+  escopo client; prefiro um commit só, porque a etapa é uma. Com o seu ok,
+  commito, faço push, acompanho a CI e sigo para a etapa 6 (tela de Troféus).
+
+✻ Cooked for 18m 29s · done 21:21
