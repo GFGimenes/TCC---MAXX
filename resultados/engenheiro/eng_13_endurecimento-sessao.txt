@@ -1,0 +1,348 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Ultra
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
+
+
+> Passo 13 do plano mestre: endurecimento, deploy e ensaio, o último. Estamos   
+  na rodada/eng_13_endurecimento, saída da main com os passos 1 a 12 mergeados. 
+  Antes de qualquer código, me traga o plano de etapas, com entrega e critério  
+  de aceite por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá:     
+  decisão que não está nos docs não foi tomada, então pergunte antes de         
+  assumir. Regras que valem desde os passos anteriores: cada etapa só é dada    
+  como pronta depois de a CI do push dela passar, com o resultado no relatório; 
+  etapas sem tela e sem pergunta de produto você emenda, cada uma com o         
+  próprio commit, push e CI verde, fix separado se a CI falhar, relatório de    
+  cada etapa no fim, parando antes de etapa com tela, em qualquer pergunta de   
+  produto que não está nos docs e se uma CI ficar vermelha depois do fix. Duas  
+  regras de processo novas para este passo: comando que leva mais de um ou dois 
+  minutos (suíte inteira, k6, build de imagem, backup e restauração,            
+  varredura) roda em segundo plano, e enquanto roda você adianta trabalho       
+  independente da mesma etapa; nenhuma etapa é dada como pronta antes de você   
+  ler o resultado do que ficou rodando. E suíte inteira só antes do push: para  
+  confirmar um ajuste, roda só o teste que o cobre.                             
+                                                                                
+  Lembro o que fecha o passo. Deploy de produção na VPS: Compose com o Caddy na 
+  frente, HTTPS automático em app.maxx-unimax.com, duas réplicas da API,        
+  worker, migrator, Postgres, imagens da API e do Caddy publicadas no GHCR pela 
+  CI a cada merge na main e puxadas na VPS com docker compose pull; seed base   
+  e seed de demonstração rodando na VPS com as fotos no R2; revisão do          
+  privilégio de CREATE EXTENSION do usuário do banco. k6 a 2.000 usuários       
+  virtuais contra a VPS, com p95 medido em feed, perfil, ranking, mural e       
+  novidades, cobrindo as pendências dos passos 7, 10 e 11 (trecho de            
+  recomendação, planejador escolhendo o índice do feed com volume real, índices 
+  de trigramas da busca, mural com ETag, novidades a cada 60 s, ranking e       
+  posição no perfil e no feed), e micro-cache da primeira página do feed só se  
+  o número pedir. CSP do build web liberando o domínio da CDN das fotos em      
+  img-src e o endpoint do R2 em connect-src; HSTS e cabeçalhos de segurança;    
+  varredura de dependências e de segredos na CI; o VerificacaoDoR2Tests rodado  
+  uma vez contra o R2 de verdade. Verificação de saúde do worker e alerta de    
+  fila parada e de trabalho falho, pelo ADR 0005; tempo de drenagem da fila     
+  depois do seed medido na VPS. Backup: pg_dump noturno para o bucket e dump    
+  manual antes de migration, com restauração testada uma vez. SMTP de produção  
+  no lugar do Mailpit, com o primeiro acesso das contas de professor e          
+  instituição do seed pela recuperação de senha. Lista de domínios de e-mail    
+  aceitos do produto.md 2.4 como configuração, conferida no cadastro e na       
+  correção de e-mail, com o domínio reservado do seed previsto. Ensaio da       
+  demonstração remota, entrando na VPS de fora, por conexões diferentes, com a  
+  demonstração ligada, e a purga de ensaio pela tela da instituição antes da    
+  purga real. Avaliação da troca do Node 22 pelo Node 24 LTS e revisão dos      
+  achados do npm audit abaixo do corte, registrados nos passos 1 e 5. Um corte  
+  declarado: APK e fumaça com Maestro saem da fase 1 por prazo; registra como   
+  pendência fora da fase no plano mestre, e o PUT da foto no Android continua   
+  coberto só pelo Jest, como está nos limites.                                  
+                                                                                
+  O que já está pronto do meu lado, para você não refazer nem perguntar: VPS    
+  Hetzner CX23 em 2.29.147.114, Ubuntu 24.04, Docker Engine 29 e Compose v5     
+  instalados, ufw com 22, 80 e 443, pasta /opt/maxx criada; acesso por ssh -i   
+  "C:\Users\Guilherme Gimenes\.ssh\maxx" root@2.29.147.114, que você pode usar  
+  para instalar, subir, puxar imagens, rodar migrations e ler logs; a chave só  
+  existe nesse caminho e nunca entra no chat. DNS na Cloudflare: registro A de  
+  app.maxx-unimax.com para o IP da VPS, sem proxy. R2: bucket maxx-fotos com o  
+  domínio público fotos.maxx-unimax.com ativo e CORS liberando                  
+  https://app.maxx-unimax.com para GET, PUT e HEAD; o endpoint é o da conta no  
+  r2.cloudflarestorage.com e o token de acesso é restrito ao bucket. SMTP:      
+  Brevo, servidor smtp-relay.brevo.com, porta 587, StartTls, com o domínio      
+  maxx-unimax.com autenticado e o remetente nao-responda@maxx-unimax.com        
+  verificado. O arquivo /opt/maxx/.env eu mesmo escrevo na VPS: quando chegar a 
+  hora, me dá a lista dos nomes das variáveis que o compose de produção         
+  precisa (os valores eu já tenho: senha do Postgres, chave JWT, URL pública,   
+  SMTP, lote da demonstração, R2 sem o perfil do emulador) e me avisa; nenhum   
+  valor passa por aqui, e você confere só que elas existem. Eu reviso o plano e 
+  aí começamos a primeira etapa.                                                
+
+● Vou ler os docs e o estado do repositório antes de montar o plano.
+
+  Read 5 files, ran 5 shell commands (ctrl+o to expand)
+
+● Li o plano mestre, os ADRs, o índice de decisões, o compose, o Caddyfile e a
+  CI. Falta conferir alguns pontos (e-mails do seed e do e2e, worker) para
+  fechar as perguntas.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Passo 13: plano de etapas
+
+  Li o plano mestre, os oito ADRs, o índice de decisões (com os limites
+  conhecidos dos passos 7, 10, 11 e 12), o produto.md 2.4, 2.5 e 11, o compose,
+  o Caddyfile, os Dockerfiles e a CI. Antes de começar há dez perguntas, todas
+  no fim. Seis delas mudam alguma etapa.
+
+  O que já existe e não refaço: a CI já roda gitleaks no histórico inteiro,
+  NuGet vulnerável e npm audit com corte alto ou crítico. Nesse ponto o passo só
+  acrescenta a varredura das imagens (etapa 5, se você aprovar a pergunta 9).
+
+  Branch única chore/passo-13-endurecimento, saindo da rodada. Cada etapa fecha
+  com commit, push e CI verde.
+
+  Etapas
+
+  1. Domínios de e-mail aceitos (api, client)
+  - Entrega:
+    - A lista vira configuração da API, Cadastro:DominiosAceitos, e a API não
+      sobe sem ela fora de desenvolvimento e teste.
+    - A regra fica no domínio: comparação exata do domínio, sem diferenciar
+      maiúsculas.
+    - Vale no POST /v1/auth/cadastro e na correção de e-mail pela instituição,
+      com o código dominio-nao-aceito.
+    - O al.unieduk.invalid do seed entra na lista. O @maxx.test dos testes entra
+      só na configuração de teste.
+    - O app ganha a mensagem do código novo no cadastro e na folha de correção.
+      Os textos estão na pergunta 2.
+  - Aceite:
+    - Testes de domínio cobrindo dentro da lista, fora dela, maiúsculas e
+      subdomínio.
+    - Integração nas duas rotas, com prova reversa: sem a checagem, o teste
+      falha.
+    - Teste no Jest para as duas mensagens.
+    - OpenAPI sem diferença no cliente.
+    - CI verde.
+
+  2. Cabeçalhos de segurança e CSP (infra)
+  - Entrega:
+    - Um snippet do Caddy com CSP e os demais cabeçalhos:
+      - default-src 'self'
+      - img-src com self, blob:, data: e o domínio da CDN
+      - connect-src com self e o endpoint do R2
+      - object-src 'none', base-uri 'self' e frame-ancestors 'none'
+      - X-Content-Type-Options, Referrer-Policy e Permissions-Policy
+    - Os dois domínios vêm de variáveis de ambiente que já existem
+      (MAXX_ARMAZENAMENTO_URL_DE_LEITURA e o endpoint), então nada da conta fica
+      no repositório.
+    - O HSTS só vale no bloco HTTPS. No localhost ele ficaria preso no
+      navegador.
+    - A CSP vale também no compose local e na CI. Assim o e2e inteiro roda sob
+      ela e quebra se ela barrar algo.
+  - Aceite:
+    - e2e verde com a CSP ligada (risco que eu vejo: o react-native-web injeta
+      estilo e pode pedir style-src 'unsafe-inline'; se pedir, registro o
+      motivo).
+    - Um teste do e2e confere os cabeçalhos da resposta.
+    - CI verde.
+
+  3. Saúde do worker (api)
+  - Entrega:
+    - A cada volta do laço, o worker grava um batimento numa tabela de uma
+      linha, com migration.
+    - Rota nova GET /health/worker, anônima como o /health, que só devolve
+      booleanos e idades, sem dado pessoal. Ela responde 503 em três casos:
+      - batimento com mais de 2 minutos;
+      - trabalho disponível esperando há mais de 5 minutos, que é a fila parada;
+      - algum trabalho que ficou falho nas últimas 24 horas.
+    - Os limites ficam em SaudeDoWorkerOptions.
+    - Quem dispara o alerta depende da pergunta 4.
+  - Aceite:
+    - Integração para cada um dos três casos, mais o caso saudável.
+    - Prova reversa: sem o batimento, o teste de worker parado falha.
+    - CI verde.
+
+  4. Node 24 e npm audit (chore)
+  - Entrega:
+    - Confiro se o Expo 58 suporta Node 24. Se suportar, troco o .nvmrc, o
+      engines e o node:22-alpine do Dockerfile do Caddy.
+    - Reviso um por um os 33 achados do passo 5 e os 3 do minimatch. Corrijo o
+      que sair sem --force e sem quebrar nada. O que sobrar fica registrado com
+      o motivo.
+  - Aceite:
+    - Suíte inteira verde localmente antes do push.
+    - CI verde nos seis jobs.
+    - Relatório com antes e depois do npm audit.
+
+  5. Compose de produção e imagens no GHCR (infra, ci)
+  - Entrega:
+    - Um docker-compose.producao.yml independente do compose local:
+      - imagens ghcr.io/gfgimenes/maxx-api e maxx-caddy pela tag
+        MAXX_IMAGEM_TAG;
+      - sem build, sem Mailpit e sem emulador;
+      - Caddy com 80 e 443, site app.maxx-unimax.com e volumes de data e config,
+        para o certificado não ser pedido de novo a cada subida (o Let's
+        Encrypt limita a emissão);
+      - SMTP e R2 obrigatórios (:?).
+    - Ele funciona com o docker-compose.demo.yml por cima e nunca menciona a
+      flag da demonstração.
+    - Um job publicar publica as imagens depois dos seis jobs, no push da main,
+      com as tags latest e sha-<curto>. A pergunta 5 trata da publicação antes
+      da main.
+    - Um .env.producao.example só com os nomes das variáveis.
+  - Aceite:
+    - docker compose config do compose de produção (com e sem a camada da demo)
+      valida na CI com valores falsos.
+    - O job publica de verdade uma vez.
+    - CI verde.
+
+  6. Usuário do banco (infra, só se você aprovar a pergunta 6)
+  - Entrega:
+    - O migrator continua como dono, e por isso continua criando unaccent e
+      pg_trgm.
+    - API, worker e seeder passam a usar o papel maxx_app, só com permissão de
+      ler e escrever dados, por privilégios padrão.
+  - Aceite:
+    - e2e verde com os dois papéis.
+    - Teste mostrando que o maxx_app não consegue CREATE EXTENSION nem DDL.
+    - CI verde.
+
+  7. Primeiro deploy na VPS (operação, mais o roteiro em docs/operacao.md)
+  - Para aqui e eu te passo a lista final das variáveis. Você escreve o
+    /opt/maxx/.env, e eu confiro só que cada nome existe, sem imprimir valor
+    nenhum.
+  - Entrega:
+    - pull, migrator e seed base.
+    - seed demo com as fotos no R2, medindo o tempo de drenagem da fila.
+    - Certificado HTTPS emitido; cabeçalhos e CSP conferidos de fora.
+    - VerificacaoDoR2Tests rodado uma vez contra o R2 de verdade, num contêiner
+      do SDK na própria VPS, lendo o .env de lá para nenhum segredo sair dela.
+    - Primeiro acesso das contas de professor e instituição pela recuperação de
+      senha, pelo Brevo (depende da pergunta 1).
+    - Revisão do privilégio de CREATE EXTENSION registrada.
+  - Aceite:
+    - https://app.maxx-unimax.com abre de fora, com nota de cabeçalhos
+      conferida.
+    - Login, post com foto e medalha mexendo o ranking.
+    - /health/worker em 200.
+    - O teste do R2 passa.
+    - Um e-mail de recuperação chega.
+
+  8. Backup (infra)
+  - Entrega:
+    - infra/backup/: pg_dump -Fc enviado ao bucket de backup (pergunta 3).
+    - Um timer do systemd no host, às 03:00 de São Paulo.
+    - Um infra/deploy.sh que faz o dump antes do migrator. Assim o "dump manual
+      antes de migration" não depende de memória.
+  - Aceite:
+    - Um backup noturno aparece no bucket.
+    - Restauração testada uma vez num Postgres descartável na VPS, com contagem
+      de linhas igual à de origem.
+    - CI verde.
+
+  9. Carga com k6 (test)
+  - Entrega: carga/ versionado, cenário de leitura a 2.000 usuários virtuais:
+    - feed: primeira página e as seguintes, incluindo o trecho de recomendação;
+    - perfil e ranking, nas quatro visões, com a posição;
+    - mural com If-None-Match;
+    - novidades a cada 60 s;
+    - busca.
+  - Enquanto o k6 roda em segundo plano, faço o EXPLAIN (ANALYZE) do feed e da
+    busca na VPS, com o volume carregado.
+  - O micro-cache da primeira página do feed só entra se o p95 pedir.
+  - Aceite:
+    - p95 por rota, contra o alvo de 300 ms do ADR 0005.
+    - Planos registrados mostrando o índice do feed e os de trigramas.
+    - Se algum número estourar, eu paro e trago o diagnóstico antes de mexer.
+
+  10. Ensaio da demonstração remota (humano)
+  - Para aqui. Entrego o roteiro. Você e quem mais puder entram de conexões
+    diferentes (4G, outra rede), com a demonstração ligada.
+  - Enquanto isso, eu acompanho logs, /health/worker e tempos, e você mede o
+    bundle no primeiro acesso por um celular de verdade.
+  - Depois, a purga de ensaio pela tela da instituição.
+  - Aceite:
+    - Acesso confirmado de cada conexão.
+    - A purga remove o lote do banco e as fotos do R2, conferido no bucket.
+    - Lote real da avaliação configurado.
+
+  11. Registro do passo (docs)
+  - Entrega:
+    - Decisões do passo 13 no índice.
+    - No plano mestre, o corte do APK e do Maestro como pendência fora da fase
+      1, com o PUT da foto no Android coberto só pelo Jest.
+    - Ajuste da linha "Prioridade" do índice, que hoje fala em "APK gerado".
+    - Fechamento dos riscos que estavam em acompanhamento: refresh perdido,
+      tempo do Jest e e2e da medalha.
+    - produto.md 2.4 apontando a configuração da API.
+  - Aceite: revisão sua, CI verde e PR do passo.
+
+  Paradas certas: as etapas 7 e 10, e qualquer número do k6 acima do alvo. A
+  etapa 1 mexe em texto de tela, mas os textos já vão aprovados aqui; se você
+  aprovar, eu emendo direto.
+
+  Perguntas
+
+  1. E-mails dos professores e da instituição no seed. São 9 endereços
+     inventados em domínios reais (coordenacao@unieduk.com.br,
+     renata.albuquerque@prof.unieduk.com.br e outros). O primeiro acesso pela
+     recuperação mandaria e-mail para caixas da UniEduk que não são suas, e o
+     coordenacao@ pode existir. Proposta: trocar para endereços em
+     maxx-unimax.com, com o Email Routing da Cloudflare entregando tudo na sua
+     caixa. Esse domínio entraria na lista aceita. Ou você prefere outro
+     caminho?
+  2. Textos do código dominio-nao-aceito. No cadastro: "Use o e-mail da
+     faculdade." Na correção pela instituição: "Esse domínio de e-mail não é
+     aceito." Aprova? E o produto.md 2.4 diz que a lista é "configuração do
+     seed"; posso passar para "configuração da API"?
+  3. Bucket de backup separado. O fotos.maxx-unimax.com serve o bucket inteiro,
+     então um dump guardado no maxx-fotos ficaria legível por quem acertar a
+     chave. Proposta: bucket maxx-backup sem domínio público, com token próprio
+     e retenção de 14 dias por regra de ciclo de vida do R2. Você cria?
+  4. Para onde vai o alerta. Recomendo um monitor externo gratuito (UptimeRobot,
+     por exemplo) checando /api/health/worker a cada 5 minutos e mandando
+     e-mail para você. Ele também avisa se a VPS inteira cair. A alternativa é
+     um cron no host mandando e-mail pelo Brevo, o que põe a credencial SMTP em
+     mais um lugar.
+  5. Imagens antes da main. A rodada só chega à main no fim, mas deploy, k6 e
+     ensaio acontecem durante o passo. Proposta: o job publicar também roda por
+     workflow_dispatch na branch, só com a tag sha-<curto>; o latest sai só da
+     main. E o pacote no GHCR fica público (as imagens não têm segredo) ou
+     privado (aí você põe um token read:packages na VPS)?
+  6. Papel maxx_app com menos privilégio (etapa 6): entra no passo, ou o usuário
+     dono fica, só com a revisão registrada?
+  7. Contas e volume do k6. Os alunos do seed não têm senha, e o login limita 30
+     por minuto por IP. Proposta: seed carga, que cria cerca de 3.050 alunos
+     como lote de demonstração carga-k6. Somados aos 150 do seed, dão os 3.200
+     do ADR 0005. Cada um teria a chave de dispositivo gravada num arquivo local
+     para o k6 (essa entrada não tem limite de taxa), pontos pela mesma fábrica
+     do seed demo e posts só de legenda. Depois a purga pela tela da
+     instituição remove o lote, o que também testa a purga em escala. Exige a
+     demonstração ligada durante a carga. Topa? Ou "volume real" quer dizer
+     outra coisa para você?
+  8. De onde roda o k6. 2.000 usuários a partir do meu Windows medem também a
+     sua conexão, e rodar na própria VPS rouba CPU da API. Recomendo uma CX
+     temporária da Hetzner no mesmo datacenter, criada por você e apagada depois
+     (centavos). Pode ser?
+  9. Varredura das imagens. Proponho Trivy nas imagens da API e do Caddy, no job
+     build, com o mesmo corte alto ou crítico. Entra?
+  10. Node 24. Se o Expo 58 suportar e a CI ficar verde, eu já troco, ou só
+      trago a avaliação para você decidir?
+
+  Variáveis do .env da VPS (prévia)
+
+  A lista final sai na etapa 7. Só nomes:
+
+  - Postgres: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, mais
+    MAXX_DB_APP_SENHA se a pergunta 6 entrar
+  - Imagem: MAXX_IMAGEM_TAG
+  - API: MAXX_JWT_CHAVE, MAXX_URL_PUBLICA
+  - E-mail: MAXX_EMAIL_REMETENTE, MAXX_SMTP_HOST, MAXX_SMTP_PORTA,
+    MAXX_SMTP_SEGURANCA, MAXX_SMTP_USUARIO, MAXX_SMTP_SENHA
+  - Demonstração: MAXX_DEMO_LOTE
+  - R2: MAXX_ARMAZENAMENTO_BUCKET, MAXX_ARMAZENAMENTO_ENDPOINT,
+    MAXX_ARMAZENAMENTO_URL_DE_LEITURA, MAXX_ARMAZENAMENTO_REGIAO,
+    MAXX_ARMAZENAMENTO_CHAVE_DE_ACESSO, MAXX_ARMAZENAMENTO_SEGREDO
+  - Backup: MAXX_BACKUP_BUCKET, MAXX_BACKUP_CHAVE_DE_ACESSO, MAXX_BACKUP_SEGREDO
+
+  Duas variáveis ficam de fora de propósito: COMPOSE_PROFILES e
+  MAXX_ARMAZENAMENTO_ENDPOINT_PUBLICO.
+
+  Fico no aguardo da sua revisão e das respostas para começar a etapa 1.
+
+✻ Cooked for 3m 52s · done 18:16
+
+※ recap: Estamos no passo 13 (endurecimento, deploy e ensaio), e o plano de 11 etapas já está escrito, ainda sem nenhum código. Falta você revisar o plano e responder às 10 perguntas do fim para eu começar a etapa 1, os domínios de e-mail aceitos. (disable recaps in /config)
