@@ -9972,3 +9972,923 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt
   10 (e2e e docs).
 
 ✻ Cogitated for 10m 32s · done 17:03
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt 
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_12_instituicao-sessao.txt
+
+> Etapa 9 aprovada, capturas conferidas. O formulário compartilhado com o aviso 
+  do professor fica. Commita com a mensagem proposta, push, acompanha a CI e    
+  segue para a etapa 10, a última: e2e e docs, com o PR do passo depois. Para   
+  no fim dela para a minha revisão, com o relatório de fechamento do passo, a   
+  mensagem de commit antes de commitar e o que ficou para o passo 13.           
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 9 rodando. Começo a etapa 10 pelos apoios do e2e que já existem
+  (instituição própria por teste, alunos, reivindicação).
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 9 em andamento. Vejo como os e2e existentes concedem medalha pela
+  API e lidam com tempo limite, para escrever o e2e da área.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Escrevo o e2e da área da instituição.
+
+● Write(e2e\tests\instituicao.spec.ts)
+  ⎿  Wrote 351 lines to e2e\tests\instituicao.spec.ts
+       1 import { readFileSync } from "node:fs";
+       2 import path from "node:path";
+       3 import { randomInt } from "node:crypto";
+       4 
+       5 import {
+       6   expect,
+       7   test,
+       8   type APIRequestContext,
+       9   type Page,
+      10 } from "@playwright/test";
+     … +341 lines (ctrl+o to expand)
+
+● e2e escrito. Rodo localmente contra a pilha de pé (que já tem o build das
+  etapas 7 a 9), no celular claro.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && npx prettier --write tests/instituicao.spec.ts >/dev/null && npx tsc
+      --noEmit -p . 2>…)
+  ⎿      Error: ENOENT: no such file or directory, open 'C:\Users\Guilherme
+      Gimenes\Documents\Repos\tcc\maxx-engenheiro\e2e\test-results\institui
+     cao-a-purga-tira-d-27425-o-e-as-fotos-dele-do-bucket-celular-claro\fee
+     … +26 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\instituicao.spec.ts (+54 -16)
+      100      const revogado = await novaConta(request, "Aluno Revogado"
+           );
+      101      const pendente = await novaConta(request, "Aluna da Fila")
+           ;
+      102      const n = marca();
+      103 -    const daFila = await reivindicar(page, request, pendente, 
+          -`Palestra da fila ${n}`);                                     
+      104 -    const aConfirmar = await reivindicar(page, request, confir
+          -mado, `Palestra confirmada ${n}`);                            
+      105 -    const aRevogar = await reivindicar(page, request, revogado
+          -, `Palestra revogada ${n}`);                                  
+      103 +    const daFila = await reivindicar(                         
+      104 +      page,                                                   
+      105 +      request,                                                
+      106 +      pendente,                                               
+      107 +      `Palestra da fila ${n}`,                                
+      108 +    );                                                        
+      109 +    const aConfirmar = await reivindicar(                     
+      110 +      page,                                                   
+      111 +      request,                                                
+      112 +      confirmado,                                             
+      113 +      `Palestra confirmada ${n}`,                             
+      114 +    );                                                        
+      115 +    const aRevogar = await reivindicar(                       
+      116 +      page,                                                   
+      117 +      request,                                                
+      118 +      revogado,                                               
+      119 +      `Palestra revogada ${n}`,                               
+      120 +    );                                                        
+      121  
+      122      // Os dois que vão a contestação: aprovados e contestados 
+           pela API da instituição.
+      123      const contestacoes: Record<string, string> = {};
+     ...
+      147      await entrarComoInstituicao(page, instituicao);
+      148      await page.getByRole("tab", { name: "Perfil" }).click();
+      149      await page.getByRole("button", { name: "Área da instituiçã
+           o" }).click();
+      135 -    await expect(page.getByRole("button", { name: "Contestaçõe
+          -s" })).toBeVisible();                                         
+      150 +    await expect(                                             
+      151 +      page.getByRole("button", { name: "Contestações" }),     
+      152 +    ).toBeVisible();                                          
+      153  
+      154      // A fila de comprovações, filtrada pelo evento deste test
+           e.
+      155      await page.getByRole("button", { name: "Comprovações" }).c
+           lick();
+     ...
+      160        .getByRole("button", { name: "Aprovar a comprovação de A
+           luna da Fila" })
+      161        .click();
+      162      await expect(
+     … 101 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && grep -n "outputPath\|outputDir" tests/premios.spec.ts | head -3; perl
+      -0pi -e 's/  co…)
+  ⎿  94:    const foto = info.outputPath("semana.jpg");
+     138:    const primeira = info.outputPath("primeira.jpg");
+     139:    const segunda = info.outputPath("segunda.jpg");
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\instituicao.spec.ts (+4 -6)
+      53    aluno: Aluno,
+      54    evento: string,
+      55  ): Promise<{ premioId: string; postId: string }> {
+      56 -  const pasta = test.info().outputDir;                         
+      57 -  const feed = path.join(pasta, "feed.jpg");                   
+      58 -  const grade = path.join(pasta, "grade.jpg");                 
+      56 +  const feed = test.info().outputPath("feed.jpg");             
+      57 +  const grade = test.info().outputPath("grade.jpg");           
+      58    await fotoDeTeste(page, feed, 1080, "#2b6cb0");
+      59    await fotoDeTeste(page, grade, 320, "#2b6cb0");
+      60    const acesso = await token(request, aluno.email, aluno.senha)
+          ;
+     ...
+      325      // desligada nesta passada), com um post de foto enviada d
+           e verdade ao bucket. A foto sobe
+      326      // por outra conta, porque o aluno de demonstração não tem
+            senha; o post aponta para ela.
+      327      const doador = await novaConta(request, "Quem Envia");
+      329 -    const pasta = test.info().outputDir;                      
+      330 -    const feed = path.join(pasta, "feed.jpg");                
+      331 -    const grade = path.join(pasta, "grade.jpg");              
+      328 +    const feed = test.info().outputPath("feed.jpg");          
+      329 +    const grade = test.info().outputPath("grade.jpg");        
+      330      await fotoDeTeste(page, feed, 1080, "#805ad5");
+      331      await fotoDeTeste(page, grade, 320, "#805ad5");
+      332      const uploadId = await fotoEnviada(
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A ficha mostrou "Nenhuma medalha ativa." para um aluno que acabou de receber
+  medalha. Investigo direto no banco e na API.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O find pela nome de exibição achou o "Aluno da Ficha" de uma execução
+  anterior, matriculado na mesma turma, e a medalha foi para ele. Torno o nome
+  único por execução.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && perl -0pi -e 's/    const aluno = await novaConta\(request, "Aluno da
+      Ficha"\);/    \…)
+  ⎿      Error: expect(locator).toBeVisible() failed
+         Error: strict mode violation: getByText('Nenhuma medalha ativa.')
+     resolved to 2 elements:
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\instituicao.spec.ts (+4 -2)
+      199      test.setTimeout(120_000);
+      200      const instituicao = await novaInstituicao(request);
+      201      const professora = await novaProfessora(request);
+      202 -    const aluno = await novaConta(request, "Aluno da Ficha"); 
+      202 +    // Nome único: a turma vigente é compartilhada com as outr
+          +as execuções.                                                 
+      203 +    const nome = `Aluno da Ficha ${marca()}`;                 
+      204 +    const aluno = await novaConta(request, nome);             
+      205      matricular(aluno, professora.turmaId);
+      206  
+      207      // Uma medalha pela API da professora.
+     ...
+      218      ).json();
+      219      const alunoId = alunos.find(
+      220        (candidato: { nomeDeExibicao: string }) =>
+      219 -        candidato.nomeDeExibicao === "Aluno da Ficha",        
+      221 +        candidato.nomeDeExibicao === nome,                    
+      222      ).id;
+      223      expect(
+      224        (
+  ⎿  (timeout 10m)
+
+● Background command "Watch CI etapa 9" completed (exit code 0)
+
+● Bash(cat "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen
+      es-Documents-Repos-tcc-maxx-engenheiro/38159b62-809d-48b4-b879-988b5a3ce98
+      a/tasks/bpbz0…)
+  ⎿  rc=0
+     segurança: success
+     api-client: success
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\instituicao.spec.ts (+1 -1)
+      261        .click();
+      262      folha = page.getByTestId("folha-de-ato");
+      263      await folha.getByRole("button", { name: "Anular" }).click(
+           );
+      264 -    await expect(page.getByText("Nenhuma medalha ativa.")).toB
+          -eVisible();                                                   
+      264 +    await expect(page.getByTestId(/^medalha-/)).toHaveCount(0)
+          +;                                                             
+      265  
+      266      // Marcar ex-aluno, por último: depois dele não há concess
+           ão nem troca.
+      267      await page.getByRole("button", { name: "Marcar ex-aluno" }
+           ).click();
+  ⎿  (timeout 10m)
+● Etapa 9 com CI verde nos seis jobs. O e2e achou um defeito real: "Voltar à
+  ficha" usava replace, empilhando uma segunda ficha sobre a primeira. Troco por
+  voltar à ficha que já está embaixo.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● UI toda funcionando; só o formato do booleano no SQL. Ajusto e rodo de novo.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && sed -i 's/    expect(estado).toBe(`${novoEmail}|t|1|1`);/
+      expect(estado).toBe(`${n…)
+  ⎿    8 passed (1.1m)
+     [warn] test-results/.last-run.json
+     [warn] Code style issues found in the above file. Run Prettier with --
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\instituicao.spec.ts (+1 -1)
+      279         FROM usuario u JOIN cadastro_elegivel c ON c.id = u.cad
+           astro_elegivel_id
+      280         WHERE c.ra = '${aluno.ra}';`,
+      281      );
+      282 -    expect(estado).toBe(`${novoEmail}|t|1|1`);                
+      282 +    expect(estado).toBe(`${novoEmail}|true|1|1`);             
+      283    },
+      284  );
+      285  
+  ⎿  (timeout 10m)
+
+● e2e verde nos dois temas (8 de 8). (O aviso do Prettier é de test-results/,
+  artefato fora do git.) Agora os docs: decisões do passo, plano mestre e as
+  regras de produto que nasceram aqui.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo a seção de decisões do passo 12.
+
+  Made 1 scratchpad edit +96 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      F="C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-
+      Documents-Repos…)
+  ⎿  693:## Área web da instituição (passo 12)
+     147:Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefixos r
+     eservados, os aceites do
+     … +25 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+95 -0)
+      690  | O topo do ranking local mostra as contas deixadas pelas roda
+           das de e2e | Aceito: a purga do lote e o seed completo são do 
+           passo 12 |
+      691  | Numa rodada local da solução inteira (domínio e integração j
+           untos), um teste de contestação estourou o tempo da conexão co
+           m o contêiner de armazenamento; sozinho e na CI, passou | Ocor
+           rência de ambiente; acompanhar no passo 13 |
+      692  
+      693 +## Área web da instituição (passo 12)                         
+      694 +                                                              
+      695 +As filas, os atos da instituição sobre o aluno, a concessão di
+          +reta, a anulação, o aviso da                                  
+      696 +faculdade e do curso, a purga por lote e o seed completo do mu
+          +ndo de demonstração. As nove                                  
+      697 +perguntas (P1 a P9) foram fechadas no plano do passo; as demai
+          +s, nas etapas. As regras de                                   
+      698 +produto que nasceram aqui estão em `produto.md` 2.2 (ex-aluno 
+          +sem volta), 2.3 (correção de                                  
+      699 +e-mail), 4.7 (concessão direta e o post dela), 8 (prêmio conce
+          +dido), 10.2 (a área) e 11 (o                                  
+      700 +mundo do seed e a purga).                                     
+      701 +                                                              
+      702 +### Atos sobre o aluno                                        
+      703 +                                                              
+      704 +| Decisão | Detalhe |                                         
+      705 +|---|---|                                                     
+      706 +| Rotas | `/v1/instituicao/alunos`: busca (`?busca=`), ficha (
+          +`/{cadastroId}`), `PUT .../email`, `POST .../ex-aluno`, `PUT .
+          +../curso`, sob a policy de instituição. O papel é conferido de
+          + novo no banco em todo ato, como na decisão de contestação |  
+      707 +| Busca | Linhas de aluno da base, com conta ou sem, por trech
+          +o do nome completo ou do nome de exibição (sem acento nem maiú
+          +sculas), do prefixo do arroba ou do e-mail, ou pelo RA inteiro
+          +; 20 por nome. Sem índice próprio: só a instituição usa. Menos
+          + de 2 caracteres: 400 `busca-sem-criterio` |                  
+      708 +| Ficha | A linha da base, a conta quando há (arroba, ex-aluno
+          + desde, foto) e as medalhas ativas, da mais nova para a mais a
+          +ntiga, com matéria, bimestre e quem concedeu |                
+      709 +| Correção de e-mail (P3) | Na linha da base, com conta ou sem
+          +: o caso principal é o aluno que não consegue se cadastrar. Só
+          + a forma e a unicidade (`email-invalido`, `email-em-uso`, tamb
+          +ém na corrida pelo índice). O mesmo e-mail escrito igual não m
+          +uda nada; trocar só maiúsculas é correção. Com conta, invalida
+          + os pedidos de recuperação abertos (o link pode ter ido para o
+          + endereço errado) e mantém as sessões |                       
+      710 +| Ex-aluno (P4) | Sem volta na fase 1. Pede conta (`aluno-sem-
+          +conta`). Na mesma transação, `fila.PedirRecalculos()`: o worke
+          +r já tirava o ex-aluno das visões do semestre (passo 11, propo
+          +sta F). Prova reversa: sem o pedido, os dois testes do ex-alun
+          +o falham |                                                    
+      711 +| Troca de curso (P4) | Curso e semestre novos (`mesmo-curso`,
+          + `semestre-invalido`, `curso-nao-encontrado`); ex-aluno não tr
+          +oca. Muda o curso do cadastro elegível, de onde o worker lê, e
+          + o sufixo da conta, quando há. As matrículas antigas ficam. Pe
+          +de os recálculos na mesma transação |                         
+      712 +| Registro (P5) | Quem marcou o ex-aluno na própria conta (`ex
+          +_aluno_marcado_por_id`, junto do instante por constraint); `co
+          +rrecao_de_email` (com o e-mail anterior) e `troca_de_curso` (a
+          +ntes e depois) em tabelas próprias, em cascata com a linha da 
+          +base. A migration preenche as marcações antigas, que só existi
+          +am nos testes, com a própria conta |                          
+      713 +| Códigos | `CodigosDaInstituicao.cs`: `aluno-nao-encontrado`,
+          + `aluno-sem-conta`, `email-invalido`, `email-em-uso`, `mesmo-c
+          +urso`, `semestre-invalido`, `confirmacao-invalida`, `lote-nao-
+          +encontrado` |                                                 
+      714 +                                                              
+      715 +### Concessão direta e anulação                               
+      716 +                                                              
+      717 +| Decisão | Detalhe |                                         
+      718 +|---|---|                                                     
+      719 +| Concessão (P2) | `POST /v1/instituicao/alunos/{cadastroId}/p
+          +remios-participacao` com o item, o evento semeado ou digitado 
+          +e a matéria no P17. `PremioParticipacao.ConcederPelaInstituica
+          +o`: as mesmas regras da reivindicação (evento já começado e de
+          +pois do fim do último semestre encerrado, curso, vigência, ded
+          +uplicação); o evento digitado é da instituição. Nasce válido, 
+          +aprovado pela instituição, sem comprovação, com a janela de 15
+          + dias e contestável |                                         
+      720 +| Na mesma transação | A notificação `premioConcedido` (tipo n
+          +ovo, que leva a Troféus), `fila.PedirRecalculos()` e o `tornar
+          +-premio-definitivo` adiado para o fim da janela. O instante da
+          + concessão é o da aprovação, que é o do desempate no ranking (
+          +testado) |                                                    
+      721 +| Listas para a concessão | `GET .../premios-participacao` (os
+          + prêmios de participação da tela de Troféus do aluno, com o cr
+          +itério e se pedem a matéria), `GET .../eventos?item=` e `GET .
+          +../materias`, os mesmos do aluno. A primeira entrou na etapa 8
+          +, como acréscimo |                                            
+      722 +| Post do prêmio concedido (P2) | O aluno decide se posta: `PO
+          +ST /v1/posts` aceita `premioParticipacaoId` (acréscimo). Só o 
+          +prêmio que pontua (válido ou definitivo); o outro responde `pr
+          +emio-indisponivel`. Um post por prêmio, pelo índice |         
+      723 +| Anulação | `POST /v1/instituicao/medalhas/{id}/anulacao`: o 
+          +mesmo ato e o mesmo recálculo do comando administrativo, que c
+          +ontinua existindo. Anular de novo responde igual, sem pedido n
+          +ovo |                                                         
+      724 +| Cursos | `GET /v1/cursos` ganhou o `id` (acréscimo), que a t
+          +roca de curso pede |                                          
+      725 +                                                              
+      726 +### Purga da demonstração                                     
+      727 +                                                              
+      728 +| Decisão | Detalhe |                                         
+      729 +|---|---|                                                     
+     … 61 more lines (ctrl+o to expand)
+
+● Atualizo as pendências antigas que o passo 12 resolveu, no mesmo formato dos
+  passos anteriores ("Resolvido no passo N").
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      perl -0pi -e '
+      s/Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`\./Rodado com `psql
+      -…)
+  ⎿  ok
+  ⎿  Updated docs\decisoes\README.md (+10 -10)
+      144  COMMIT;
+      145  ```
+      146  
+      147 -Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1`. Os prefix
+          -os reservados, os aceites do                                  
+      147 +Rodado com `psql -v lote=<lote> -v ON_ERROR_STOP=1` até o pass
+          +o 11. Desde o passo 12, a purga é pela área web da instituição
+          +, numa transação só e com as tabelas que chegaram depois (seçã
+          +o Área web da instituição, Purga da demonstração); o SQL fica 
+          +aqui como referência. Os prefixos reservados, os aceites do   
+      148  termo e os refresh saem em cascata com o usuário e a família, 
+           e as evidências, com a
+      149  conquista. Curtidas e comentários de outras pessoas nos posts 
+           do lote saem em cascata com o
+      150  post. A lista cresce com os passos que gravam dados do aluno (
+           prêmios, pontos): cada um
+      151  acrescenta aqui a tabela dele, antes de `usuario`. As fotos no
+            bucket não saem por este SQL,
+      152 -que só alcança o banco: saem na purga pela área web da institu
+          -ição, no passo 12.                                            
+      152 +que só alcança o banco: saem na purga pela área web da institu
+          +ição, desde o passo 12.                                       
+      153  
+      154  ## Cliente
+      155  
+     ...
+      253  | Outras recusas | 404 `aluno-fora-da-turma` e `item-nao-encon
+           trado`; 409 `ex-aluno`, `item-fora-de-vigencia`, `item-de-outr
+           o-curso` e `limite-atingido`. Códigos em `CodigosDaMedalha.cs`
+            |
+      254  | Gravação | A medalha, quem concedeu e quando, e os trabalhos
+            `notificar-medalha-recebida` e `recalcular-raridade`, numa tr
+           ansação só |
+      255  | Auditoria | Colunas na própria `medalha`: quem concedeu e qu
+           ando, quem anulou e quando, sempre juntos por constraint. Sem 
+           tabela genérica de auditoria |
+      256 -| Anulação | Por comando administrativo até a área web do pass
+          -o 12: `Maxx.Api anular-medalha <id> --instituicao <e-mail>`, n
+          -o compose `docker compose run --rm seeder anular-medalha <id> 
+          ---instituicao <e-mail>`. Recusa e-mail sem papel de instituiçã
+          -o; conta de professor e instituição anula. Sai com 0 (anulada 
+          -ou já estava), 1 (recusa) ou 2 (uso errado) |                 
+      256 +| Anulação | Por comando administrativo e, desde o passo 12, t
+          +ambém pela área web (`POST /v1/instituicao/medalhas/{id}/anula
+          +cao`). O comando: `Maxx.Api anular-medalha <id> --instituicao 
+          +<e-mail>`, no compose `docker compose run --rm seeder anular-m
+          +edalha <id> --instituicao <e-mail>`. Recusa e-mail sem papel d
+          +e instituição; conta de professor e instituição anula. Sai com
+          + 0 (anulada ou já estava), 1 (recusa) ou 2 (uso errado) |     
+      257  | Anulação e vaga | A anulada sai do índice de vagas e libera 
+           a ocorrência para nova concessão. Anular de novo não muda nada
+            |
+      258  | Anulação simultânea | `xmin` na medalha: só a primeira grava
+           , e a segunda responde "já estava anulada" |
+      259  | Purga | A purga da demonstração apaga `notificacao` e `medal
+           ha` do lote antes do usuário |
+     ...
+      382  | O PUT de Blob no Android e no iOS só passa pelo Jest | Maest
+           ro do passo 13 |
+      383  | HEIC não abre no Chrome: quem escolher um vê "Não deu para a
+           brir essa foto. Escolha outra." | Aceito |
+      384  | A conferência do `content-length` assinado foi provada no em
+           ulador, não no R2 | `VerificacaoDoR2Tests`, quando a conta exi
+           stir |
+      385 -| As fotos do lote de demonstração não saem pelo SQL da purga 
+          -(D14) | Purga pela área web, passo 12 |                       
+      385 +| As fotos do lote de demonstração não saem pelo SQL da purga 
+          +(D14) | Resolvido no passo 12: a purga pela área web manda as 
+          +fotos do lote para a remoção do bucket na mesma transação |   
+      386  
+      387  ## Prêmios de participação (passo 8)
+      388  
+     ...
+      466  |---|---|
+      467  | O ranking não é recalculado pela aprovação, contestação, dec
+           isão e remoção: a tabela de ranking não existe ainda | Resolvi
+           do no passo 11: os quatro enfileiram o recálculo na mesma tran
+           sação |
+      468  | Prêmio definitivo não reavalia conquistas | Resolvido no pas
+           so 9: o fim da janela e a confirmação da contestação enfileira
+           m a reavaliação |
+      469 -| A conta de instituição não tem telas para a fila de contesta
+          -ções nem para a concessão direta | Passo 12 |                 
+      469 +| A conta de instituição não tem telas para a fila de contesta
+          +ções nem para a concessão direta | Resolvido no passo 12: a ár
+          +ea web da instituição |                                       
+      470  | A remoção pela instituição que corre contra outro ato sobre 
+           o mesmo prêmio responde 404, como a corrida de duas remoções |
+            Aceito |
+      471  | P17 com data no recesso não acha matéria | Aceito |
+      472  | O e2e depende do evento semeado da semana acadêmica de CC no
+            semestre vigente | Risco "Semestre vigente na avaliação" do p
+           lano mestre |
+     ...
+      538  | A regra customizada não é disparada por fato nem tem progres
+           so | Aceito: nenhuma conquista da fase 1 usa |
+      539  | O fato que fica contável depois do fechamento não se reprodu
+           z pelo fluxo com o catálogo da fase 1 (as de fechamento contam
+            medalha, concedida só no bimestre da data); o teste isola o m
+           ecanismo | Aceito |
+     … 28 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      perl -0pi -e '
+      s/finalidade `aviso` do upload\. Sugestão para o plano do passo 12,
+      ainda…)
+  ⎿  321:Ficam pendentes: a lista de domínios de e-mail aceitos, o primeiro
+      acesso das contas de
+  ⎿  Updated docs\plano-mestre.md (+23 -3)
+      302    administrativo.
+      303  - Do passo 10: a publicação de aviso de faculdade e de curso p
+           ela área web usa
+      304    `POST /v1/avisos`, que já recebe os dois escopos e um ou mai
+           s cursos; a foto sobe pela
+      305 -  finalidade `aviso` do upload. Sugestão para o plano do passo
+          - 12, ainda não decidida: os                                   
+      306 -  avisos do seed nascerem pela mesma publicação, para a notifi
+          -cação de aviso novo ir aos                                    
+      305 +  finalidade `aviso` do upload. Decidido no plano do passo 12:
+          + os avisos do seed nascem pela                                
+      306 +  fábrica do domínio, com datas passadas, e a notificação de a
+          +viso novo vai aos                                             
+      307    destinatários pelo worker, como as conquistas do seed nascem
+            do worker.
+      308  - Do passo 11: marcar ex-aluno e trocar de curso enfileiram `f
+           ila.PedirRecalculos()` na
+      309    mesma transação do ato. O worker já tira o ex-aluno das visõ
+           es de semestre e leva os
+      310    pontos para o curso novo (`Usuario.MarcarExAluno`, `Usuario.
+           TrocarDeCurso` e o curso do
+      311    cadastro elegível); falta só o pedido. A concessão direta da
+            instituição também pede o
+      312    recálculo, e o instante dela é o do desempate.
+      313 +- Entrou também, aprovado no plano do passo: trocar de curso p
+          +ela área web, com curso e                                     
+      314 +  semestre novos e as matrículas antigas mantidas; o registro 
+          +de quem fez e quando nos                                      
+      315 +  quatro atos sem regra de auditoria (correção de e-mail, ex-a
+          +luno, troca de curso, purga);                                 
+      316 +  a notificação `premioConcedido` e o post do prêmio concedido
+          + pelo aluno; o contestar da                                   
+      317 +  instituição no menu do post. Nas etapas: a lista dos prêmios
+          + que a instituição pode                                       
+      318 +  conceder e o id do curso em `GET /v1/cursos` (etapa 8), e a 
+          +espera da fila do worker                                      
+      319 +  antes do e2e (etapa 5).                                     
+      320 +                                                              
+      321 +Ficam pendentes: a lista de domínios de e-mail aceitos, o prim
+          +eiro acesso das contas de                                     
+      322 +professor e instituição do seed pelo SMTP da VPS e o R2 no `se
+          +ed demo` da VPS (passo 13).                                   
+      323 +Decisões do passo em `decisoes/README.md`, Área web da institu
+          +ição (passo 12).                                              
+      324  
+      325  ### Passo 13. Endurecimento e ensaio
+      326  
+     ...
+      349  - Ensaio da demonstração remota: não há apresentação presencia
+           l, a avaliação é remota,
+      350    antes de 05/12, e cada avaliador entra pela própria conexão.
+            O ensaio entra na VPS de
+      351    fora, por conexões diferentes, com a demonstração ligada.
+      341 -- Purga de ensaio testada, para a purga real, ao fim da avalia
+          -ção, ser rotina.                                              
+      352 +- Purga de ensaio testada, para a purga real, ao fim da avalia
+          +ção, ser rotina. Desde o                                      
+      353 +  passo 12, pela tela da área web (`/instituicao/purga`), que 
+          +também tira as fotos do lote do                               
+      354 +  bucket.                                                     
+      355 +- Do passo 12: a lista de domínios de e-mail aceitos (`produto
+          +.md` 2.4) como configuração,                                  
+      356 +  conferida no cadastro e na correção de e-mail pela instituiç
+          +ão; o seed já usa o domínio                                   
+      357 +  reservado `al.unieduk.invalid` nos alunos do mundo. O proved
+          +or de e-mail da VPS também                                    
+      358 +  decide o primeiro acesso das contas de professor e instituiç
+          +ão do seed, que têm e-mail de                                 
+      359 +  domínio real. O `seed demo` na VPS precisa das variáveis do 
+          +R2, porque sobe as fotos dos                                  
+      360 +  posts do mundo; e o tempo de esvaziar a fila depois dele (ce
+          +rca de 1.500 trabalhos, 66 s                                  
+     … 4 more lines (ctrl+o to expand)
+
+● Agora as regras de produto que nasceram no passo, em produto.md.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      perl -0pi -e '
+      s/(marcação e permanece no ranking histórico\. Nesse mesmo instante o
+      arro…)
+  ⎿  587:que ela trata: medalha, conquista e prêmio concedido, a Troféus; a
+     provação, contestação e decisão, ao post do
+  ⎿  Updated docs\produto.md (+18 -4)
+      59  seguindo, lendo o mural, curtindo e comentando, e mantém os pos
+          ts que já tinha. Não
+      60  posta, não recebe prêmio e não pontua. Sai do ranking do semest
+          re no instante da
+      61  marcação e permanece no ranking histórico. Nesse mesmo instante
+           o arroba troca o sufixo
+      62 -para `-EX`.                                                    
+      62 +para `-EX`. Na fase 1 a marcação não volta atrás, e o ex-aluno 
+         +não troca de curso.                                            
+      63 +                                                               
+      64 +A troca de curso também é ato da instituição, com o curso e o s
+         +emestre do aluno no curso                                      
+      65 +novo; as matrículas antigas ficam, e o aluno leva os pontos par
+         +a o ranking do curso novo                                      
+      66 +(seção 5).                                                     
+      67  
+      68  ### 2.3 Identidade do usuário
+      69  
+     ...
+      75  | **Nome de exibição** | Texto livre, editável, não precisa ser
+           único |
+      76  | **Foto de perfil** | Opcional, de aluno e de professor; segue
+           as mesmas regras de assinatura e de derivadas da foto de post.
+           Sem foto, o avatar são as iniciais |
+      77  
+      78 +A correção de e-mail pela instituição vale para a linha da base
+         + com conta ou sem: o caso                                      
+      79 +principal é o aluno que não consegue se cadastrar porque o e-ma
+         +il da base está errado. Ela                                    
+      80 +confere só a forma e a unicidade, invalida os links de recupera
+         +ção de senha já enviados,                                      
+      81 +que podem ter ido para o endereço errado, e mantém as sessões a
+         +bertas. Quem corrigiu, quem                                    
+      82 +marcou o ex-aluno, quem trocou o curso e quem purgou a demonstr
+         +ação ficam registrados, com                                    
+      83 +o instante.                                                    
+      84 +                                                               
+      85  #### 2.3.1 Formação e unicidade do arroba
+      86  
+      87  - **A unicidade é do prefixo**, a parte antes do hífen, sem dif
+          erenciar maiúsculas. O
+     ...
+      349  - A fila de comprovações e de contestações é ordenada por mais
+            antigo e marca o que
+      350    passou de 7 dias. Não há decisão automática por decurso de p
+           razo.
+      351  - A instituição pode conceder prêmio de participação direto, j
+           á aprovado e sem
+      341 -  comprovação. Nunca concede medalha.                         
+      352 +  comprovação. Nunca concede medalha. O concedido nasce válido
+          +, com a janela de 15 dias, e                                  
+      353 +  é contestável como qualquer aprovado; valem as regras de eve
+          +nto da reivindicação, e o                                     
+      354 +  evento digitado é da instituição. O aluno é notificado e dec
+          +ide se posta o prêmio.                                        
+      355  
+      356  Quando um prêmio é reprovado ou revogado, o post perde o víncu
+           lo com o prêmio e
+      357  permanece como post comum; o aluno apaga se quiser. Se o post 
+           era só o prêmio, sem foto e
+     ...
+      578  
+      579  Geram notificação: medalha recebida, comprovação aprovada ou r
+           eprovada, contestação
+      580  aberta, decisão de contestação, prêmio revogado sem contestaçã
+           o (pela remoção do post pela
+      568 -instituição, seção 4.7), conquista obtida, conquista removida 
+          -pelo recálculo (seção 4.9),                                   
+      581 +instituição, seção 4.7), prêmio de participação concedido dire
+          +to pela instituição, conquista                                
+     … 10 more lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      perl -0pi -e '
+      s/Só no navegador, pequena e funcional: fila de comprovações e fila de
+      con…)
+  ⎿  ok
+     docs/produto.md:0
+     docs/plano-mestre.md:0
+     docs/decisoes/README.md:0
+  ⎿  Updated docs\produto.md (+12 -3)
+      643  
+      644  Só no navegador, pequena e funcional: fila de comprovações e f
+           ila de contestações
+      645  (aprovar, reprovar, confirmar, revogar), conceder prêmio de pa
+           rticipação, publicar
+      646 -aviso, corrigir e-mail de aluno, marcar ex-aluno, anular medal
+          -ha, purgar dados de                                           
+      647 -demonstração.                                                 
+      646 +aviso, corrigir e-mail de aluno, marcar ex-aluno, trocar de cu
+          +rso, anular medalha, purgar                                   
+      647 +dados de demonstração. Fica no mesmo app, em `/instituicao`, d
+          +entro da moldura de celular;                                  
+      648 +no aparelho, a tela diz que a área abre no navegador. A entrad
+          +a é o menu do perfil e, na                                    
+      649 +conta só de instituição, a aba Perfil, que mostra a conta no l
+          +ugar do perfil social. A                                      
+      650 +instituição também contesta pelo menu do post, onde remove o p
+          +ost impróprio.                                                
+      651  
+      652  Catálogo, cursos, turmas, matérias e calendário entram por see
+           d. Não há tela de cadastro
+      653  desses dados na fase 1.
+     ...
+      674    avaliação.
+      675  - Na fase 1 existe só o mundo do seed: nenhuma conta real.
+      676  - O seed traz os professores dos quatro cursos de demonstração
+            e a conta de instituição
+      674 -  usada para conceder durante a avaliação.                    
+      677 +  usada para conceder durante a avaliação. Traz também o mundo
+          + inteiro: 150 alunos                                          
+      678 +  fictícios com conta, sem senha e com e-mail num domínio rese
+          +rvado, que nunca recebe nada                                  
+      679 +  (120 ativos e 30 ex-alunos), com medalhas, prêmios, posts co
+          +m foto, avisos, seguimentos,                                  
+      680 +  duas comprovações pendentes e uma contestação aberta; as con
+          +quistas desse mundo nascem do                                 
+      681 +  sistema, a partir dos fatos.                                
+      682 +- A purga é pela área web da instituição, por lote, também do 
+          +lote vigente, sempre com o                                    
+      683 +  nome do lote digitado de novo: sai do banco tudo do lote, e 
+          +as fotos dele saem do bucket.                                 
+      684  
+      685  Como isso se traduz no sistema:
+      686  
+  ⎿  Referenced file ..\..\..\..\..\GUILHE~1\AppData\Local\Temp\claude\C--Users-
+     Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\38159b62-809d-48b4-b8
+     79-988b5a3ce98a\scratchpad\decisoes12.md
+  ⎿  Referenced file e2e\tests\instituicao.spec.ts
+  ⎿  Read apps\mobile\src\instituicao\avisoEPurga.test.tsx (218 lines)
+  ⎿  Read apps\mobile\src\instituicao\PurgaScreen.tsx (186 lines)
+  ⎿  Read apps\mobile\src\instituicao\api.ts (142 lines)
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Os erros vêm da demonstração ligada na pilha local (o botão "Entrar na
+  demonstração" aparece). Vou subir a pilha como na CI, sem a demonstração, e
+  rodar de novo.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Passam isolados. Vou ver o erro quando rodam junto com a suíte toda, para
+  saber se o spec novo interfere.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● O teste de medalha leva 20 s sozinho e passa de 30 s com o spec novo em
+  paralelo, então vou dar a medalhas e rankings o mesmo prazo de 90 s dos outros
+  testes de vários papéis.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && perl -0pi -e 's/(  async \(\{ page, request \}\) => \{\n)(    const
+      professora = awai…)
+  ⎿  Checking formatting...
+     All matched files use Prettier code style!
+       x  52 [celular-escuro] › tests\conquistas.spec.ts:70:5 › cinco medal
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\medalhas.spec.ts (+3 -0)
+      43    "a professora concede, o aluno vê em Troféus e a anulação tir
+          a a medalha",
+      44    { tag: "@celular" },
+      45    async ({ browser, request }) => {
+      46 +    // Dois papéis e dois comandos no contêiner: sozinho leva u
+         +ns 20 s, e com a suíte em                                      
+      47 +    // paralelo passava dos 30 s.                              
+      48 +    test.setTimeout(90_000);                                   
+      49      const professora = await novaProfessora(request);
+      50      const n = Date.now().toString().slice(-6);
+      51      const nome = `Aluno ${n}`;
+  ⎿  Updated e2e\tests\rankings.spec.ts (+3 -0)
+      53    "a medalha move a posição em segundos, e o ranking abre pelo 
+          perfil e pela Busca",
+      54    { tag: "@celular" },
+      55    async ({ page, request }) => {
+      56 +    // Professora, aluno e o worker no caminho, com a suíte em 
+         +paralelo: o prazo dos casos de                                 
+      57 +    // vários papéis.                                          
+      58 +    test.setTimeout(90_000);                                   
+      59      const professora = await novaProfessora(request);
+      60      const nome = `Aluno ${Date.now().toString().slice(-6)}`;
+      61      const aluno = await novaConta(request, nome);
+  ⎿  (timeout 10m)
+
+● Mesmo caso no teste de conquistas, que também tem vários papéis e o worker no
+  caminho. Vou dar o mesmo prazo a ele.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && perl -0pi -e 's/(  async \(\{ page, request \}\) => \{\n)(    const
+      professora = awai…)
+  ⎿  Checking formatting...
+     All matched files use Prettier code style!
+       85 passed (3.1m)
+       85 passed (3.0m)
+  ⎿  Updated e2e\tests\conquistas.spec.ts (+3 -0)
+      71    "cinco medalhas no bimestre fecham a conquista, que aparece e
+          m Troféus e vira post",
+      72    { tag: "@celular" },
+      73    async ({ page, request }) => {
+      74 +    // Cinco concessões e o worker fechando a conquista, com a 
+         +suíte em paralelo: o prazo dos                                 
+      75 +    // casos de vários papéis.                                 
+      76 +    test.setTimeout(90_000);                                   
+      77      const professora = await novaProfessora(request);
+      78      const nome = `Aluno ${Date.now().toString().slice(-6)}`;
+      79      const aluno = await novaConta(request, nome);
+  ⎿  (timeout 10m)
+
+● Two runs in a row are green. Now the demo part, with the stack as in the
+  presentation.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo verde. Vou registrar o prazo novo na seção de testes das decisões.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      perl -0pi -e 's/(sobe por outra conta, já que o aluno de demonstração não
+      tem senha \|\n)…)
+  ⎿  [warn] Code style issues found in the above file. Run Prettier with --
+     write to fix.
+      .../instituicao/alunos/ConcederPremioScreen.tsx    |   7 +-
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+1 -0)
+      771  | Fluxos | Só no celular, claro e escuro, cada execução com a 
+           sua instituição: entrada pela aba Perfil, aprovação pela fila 
+           filtrada pelo evento do teste, confirmar e revogar contestaçõe
+           s; pela ficha, corrigir e-mail, conceder com evento digitado, 
+           anular e marcar ex-aluno; aviso de curso visto pelo aluno; pur
+           ga de um lote criado pela execução, com a foto sumindo do emul
+           ador |
+      772  | Espera da fila | O setup global espera não haver trabalho pe
+           ndente já disponível antes do primeiro teste: o seed deixa cer
+           ca de 1.500 trabalhos (66 s locais) |
+      773  | Isolamento | Nomes únicos por execução, porque a turma vigen
+           te é compartilhada. O lote da purga nasce direto no banco com 
+           a flag desligada; a foto sobe por outra conta, já que o aluno 
+           de demonstração não tem senha |
+      774 +| Prazo dos casos de vários papéis | Com o spec da instituição
+          + em paralelo e o mundo de 150 alunos no worker, os casos de me
+          +dalha, conquista e ranking passavam dos 30 s (sozinho, o de me
+          +dalha leva uns 20 s). Ganharam os 90 s que mural e prêmios já 
+          +tinham |                                                      
+      775  
+      776  ### Limites conhecidos
+      777  
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa 10 está pronta e parei antes do commit. As verificações locais
+  passaram: Prettier, lint e tipos do mobile e do e2e, Jest (49 suítes, 520
+  testes), e2e sem a demonstração (85 testes, verde em duas rodadas seguidas) e
+  e2e com a demonstração (4 testes).
+
+  O que a etapa 10 traz
+
+  - e2e/tests/instituicao.spec.ts: quatro casos, nos temas claro e escuro:
+    - entrada pela aba Perfil, aprovação na fila de comprovações e as
+      contestações confirmadas e revogadas;
+    - pela ficha: corrigir e-mail, conceder com evento digitado, anular uma
+      medalha e marcar ex-aluno;
+    - um aviso de curso que o aluno recebe;
+    - purga de um lote, com a foto saindo do bucket.
+  - Correção em ConcederPremioScreen: "Voltar à ficha" passou a voltar na pilha
+    em vez de abrir a ficha de novo. Antes, a ficha ficava duplicada.
+  - Prazo de 90 s nos testes de medalhas, conquistas e rankings. Com o spec novo
+    rodando em paralelo e o mundo de 150 alunos no worker, esses três passavam
+    dos 30 s. O de medalha leva uns 20 s sozinho. Mural e prêmios já usavam
+    esses 90 s. Registrei isso nas decisões.
+  - Documentação:
+    - docs/produto.md: ex-aluno sem volta, troca de curso, correção de e-mail
+      (invalida os links de recuperação e mantém as sessões), registro de quem
+      fez e quando, concessão direta com a janela de 15 dias, notificação de
+      prêmio concedido, área web em /instituicao, mundo de demonstração e purga
+      pela tela.
+    - docs/decisoes/README.md: seção nova "Área web da instituição (passo 12)" e
+      as pendências antigas marcadas como resolvidas.
+    - docs/plano-mestre.md: o que entrou no passo e o que vai para o passo 13.
+
+  Fechamento do passo 12
+
+  ┌─────────────────────┬──────────────────┬────────────────────────────────┐
+  │        Etapa        │      Commit      │               CI               │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 1. Atos sobre o     │ 52a6a7d          │ verde                          │
+  │ aluno               │                  │                                │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 2. Concessão direta │ 7a2c8b3          │ verde                          │
+  │  e anulação         │                  │                                │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 3. Purga por lote   │ 2346f59          │ verde                          │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 4. Estrutura do     │ 36b38de          │ verde                          │
+  │ mundo               │                  │                                │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 5. Atividade        │ 6bdfebf          │ verde (rodada de novo pela     │
+  │                     │                  │ queda do GitHub Actions)       │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 6. Fotos e social   │ f588e1e          │ verde                          │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 7. Entrada da área  │ 6dd1e82          │ verde                          │
+  │ e filas             │                  │                                │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 8. Busca e ficha    │ 6eca0ec          │ verde                          │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 9. Aviso e purga    │ b641a1d          │ verde                          │
+  ├─────────────────────┼──────────────────┼────────────────────────────────┤
+  │ 10. e2e e docs      │ aguardando sua   │ ainda não rodou                │
+  │                     │ revisão          │                                │
+  └─────────────────────┴──────────────────┴────────────────────────────────┘
+
+  Nenhuma etapa precisou de commit de correção.
+
+  O que fica para o passo 13
+
+  - Lista de domínios de e-mail aceitos (produto.md 2.4), como configuração,
+    conferida no cadastro e na correção de e-mail. Hoje a correção só confere a
+    forma.
+  - Primeiro acesso de professores e instituição do seed: o e-mail deles é de
+    domínio real, então dependem do SMTP da VPS.
+  - seed demo na VPS: precisa das variáveis do R2 para subir as fotos.
+  - Tempo de esvaziar a fila depois do seed: cerca de 1.500 trabalhos, 66 s aqui
+    na máquina. Entra na medição da VPS.
+  - Purga de ensaio antes da real, agora pela tela /instituicao/purga.
+
+  Limites que ficaram aceitos (estão nas decisões):
+  - um banco local anterior ao passo 12 precisa ter o volume recriado;
+  - nenhuma conquista de fechamento aparece com os dados do seed;
+  - a foto sorteada de um post pode não combinar com o evento;
+  - se o seed falhar depois de subir as fotos, ficam objetos sem dono no bucket.
+
+  Mensagem de commit proposta
+
+  test(mobile): cobre a área da instituição de ponta a ponta e registra as 
+  decisões do passo 12
+
+  - e2e da instituição: filas de comprovações e contestações, atos pela ficha, 
+  aviso de
+    curso e purga de lote com a foto saindo do bucket, no claro e no escuro
+  - "Voltar à ficha" volta na pilha em vez de abrir outra ficha
+  - medalhas, conquistas e rankings ganham o prazo de 90 s dos casos de vários 
+  papéis
+  - produto.md, decisões e plano mestre com as regras e o que fica para o passo 
+  13
+
+  Não tem rodapé de co-autoria, como o CLAUDE.md pede. Usei o tipo test com
+  escopo mobile porque não existe escopo e2e e o e2e roda contra o build web do
+  mobile.
+
+  Com sua aprovação: commit, push, acompanho a CI e abro o PR de
+  feat/passo-12-instituicao para rodada/eng_12_instituicao. A pilha local ficou
+  com a demonstração ligada (lote banca-1), como estava antes.
+
+✻ Baked for 44m 21s · done 17:49
+
+※ recap: Fechando o passo 12, a área web da instituição: a etapa 10 (e2e e docs) está pronta, com testes verdes e ainda sem commit. Falta você aprovar a mensagem proposta; depois faço commit, push, acompanho a CI e abro o PR para `rodada/eng_12_instituicao`.
