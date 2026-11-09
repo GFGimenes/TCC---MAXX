@@ -92,7 +92,7 @@ O ambiente é o mesmo nas duas trilhas e foi conferido no início de cada sessã
 
 Dois instrumentos independentes do agente validam cada produto: uma suíte de testes de referência de caixa preta, por HTTP, com um adaptador por produto, que cobre as fronteiras da regra de pontos que o produto tiver, entradas inválidas e a ordenação do ranking, marcando "ausente" o que o produto não tem; e um teste de carga com k6, que faz parte do último passo da trilha do engenheiro. [A PREENCHER: resultados no engenheiro.]
 
-A rubrica é aplicada uma vez por produto, sobre o estado final do repositório, em duas camadas independentes. A primeira são seis sessões não interativas do mesmo agente, uma por eixo, sobre um checkout limpo e só de leitura, sem acesso ao review dos outros eixos; um ensaio com um `CLAUDE.md` isca provou que o arquivo do produto é lido como artefato e não como instrução. Cada review traz nota, justificativa, evidências com arquivo e linha, falhas reproduzíveis, regras ausentes e decisões do agente. A segunda camada é o autor, que preenche um formulário com as seis notas antes de abrir qualquer review, commita o formulário e só então lê os reviews; onde a divergência é de dois pontos ou mais, escreve uma linha explicando, sem alterar a nota cega. Completam a avaliação a contagem, pelo autor, das decisões que o agente tomou sem perguntar, por tipo e por forma (declarada ou silenciosa); um inventário de cobertura com quinze itens da ideia, igual para os quatro produtos, em que cada item é marcado como funcionando, parcial, quebrado, simulado ou ausente; as alegações sem lastro, o que o agente diz que está pronto e o inventário mostra que não está; e as medidas de custo extraídas das transcrições.
+A rubrica, reproduzida na íntegra no Apêndice A, é aplicada uma vez por produto, sobre o estado final do repositório, em duas camadas independentes, e as duas pontuam o mesmo objeto: o que existe no commit avaliado, com cada observação apontando para um arquivo, e não o processo que o produziu, que entra na análise pelos registros de rodada e pelas contagens descritas adiante. A primeira são seis sessões não interativas do mesmo agente, uma por eixo, sobre um checkout limpo e só de leitura, sem acesso ao review dos outros eixos; um ensaio com um `CLAUDE.md` isca provou que o arquivo do produto é lido como artefato e não como instrução. Cada review traz nota, justificativa, evidências com arquivo e linha, falhas reproduzíveis, regras ausentes e decisões do agente. A segunda camada é o autor, que preenche um formulário com as seis notas antes de abrir qualquer review, commita o formulário e só então lê os reviews; onde a divergência é de dois pontos ou mais, escreve uma linha explicando, sem alterar a nota cega. Completam a avaliação a contagem, pelo autor, das decisões que o agente tomou sem perguntar, por tipo e por forma (declarada ou silenciosa); um inventário de cobertura com quinze itens da ideia, igual para os dois produtos, em que cada item é marcado como funcionando, parcial, quebrado, simulado ou ausente; as alegações sem lastro, o que o agente diz que está pronto e o inventário mostra que não está; e as medidas de custo extraídas das transcrições. Uma regra da ideia que o produto não implementa não reduz a nota do eixo: o eixo é pontuado sobre o que existe, e a ausência vai para o inventário. Por isso a qualidade de um produto se lê em dois números juntos, a nota do que foi construído e a cobertura do que foi pedido, e um produto pode ter nota alta em experiência do usuário e cinco regras ausentes ao mesmo tempo, sem contradição.
 
 # 4 Resultados
 
@@ -290,3 +290,103 @@ WIZ. Exposed Moltbook database reveals millions of API keys. 2 fev. 2026. Dispon
 ZHAO, Wayne Xin et al. A survey of large language models. arXiv, 2023. Disponível em: https://arxiv.org/abs/2303.18223. Acesso em: 9 nov. 2026.
 
 ZHENG, Lianmin et al. Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. In: ADVANCES IN NEURAL INFORMATION PROCESSING SYSTEMS, 36., 2023. Disponível em: https://arxiv.org/abs/2306.05685. Acesso em: 9 nov. 2026.
+
+# Apêndice A: Rubrica de avaliação
+
+Rubrica única, aplicada aos dois produtos pelos mesmos revisores (mesmo modelo, mesma versão, mesmo prompt por eixo) e pelo autor. Escala de 1 (crítico) a 5 (excelente) por eixo, total possível 30. Uma regra da ideia que o produto não implementa é marcada como ausente, não como errada: a nota do eixo é calculada sobre o que existe, e a ausência vai para o inventário de cobertura. Em todos os eixos o revisor lista, além da nota, as decisões que o agente tomou sem o prompt pedir; elas não entram na nota.
+
+## A.1 Experiência do usuário
+
+Usabilidade, navegação, clareza dos fluxos, estados de erro e de carregamento, coerência visual. Referência funcional para as duas trilhas: a especificação das seis telas; os mockups do engenheiro são referência adicional só na trilha dele.
+
+**Quadro A.1. Critérios do eixo Experiência do usuário**
+
+| Nota | Critério |
+|---|---|
+| 1 | Fluxos principais não funcionam ou não correspondem às telas pedidas (login sem RA, feed sem curtir ou comentar, ranking inexistente). |
+| 2 | Fluxos existem, mas com passos desnecessários, navegação confusa ou estados de erro e carregamento não tratados. |
+| 3 | As seis telas são utilizáveis de ponta a ponta; divergências de detalhe e inconsistências visuais entre telas. |
+| 4 | Navegação clara, estados tratados, consistência visual; fiel à especificação (e, no engenheiro, aos mockups). |
+| 5 | Idem ao 4, e resolve o que a especificação não diz de forma sensata e consistente; um membro da banca usa sem explicação. |
+
+Fonte: elaborado pelo autor (2026).
+
+## A.2 Segurança
+
+Brechas, falhas, bugs exploráveis, exposição de dados sensíveis (RA, e-mail, fotos, notas e pontos), autenticação e autorização.
+
+**Quadro A.2. Critérios do eixo Segurança**
+
+| Nota | Critério |
+|---|---|
+| 1 | Segredos no código; sem validação de entrada; vulnerabilidade óbvia e explorável (injeção, dado de outro aluno alterável via requisição). |
+| 2 | Validação incompleta; controle de acesso frágil (aluno chama rota de professor; RA de terceiro visível). |
+| 3 | Validações básicas e autenticação funcionais, mas faltam casos de borda (quem pode dar medalha a quem, upload sem limite, sessão sem expiração). |
+| 4 | Validação de entrada e autorização por papel e escopo consistentes; dados sensíveis protegidos; poucos pontos a reforçar. |
+| 5 | Idem ao 4, com menor privilégio aplicado, segredos fora do código, proteção de upload e de sessão, e nenhuma falha reproduzível encontrada pelo revisor. |
+
+Fonte: elaborado pelo autor (2026).
+
+## A.3 Infraestrutura
+
+Deploy, preparação da estrutura para rodar fora da máquina do autor, suporte a muitos usuários, redundância, observabilidade mínima.
+
+**Quadro A.3. Critérios do eixo Infraestrutura**
+
+| Nota | Critério |
+|---|---|
+| 1 | Não sobe fora da máquina onde foi gerado; sem instrução de execução; dependências não declaradas. |
+| 2 | Sobe localmente com instruções, mas sem deploy ou com deploy manual e frágil; configuração misturada com código. |
+| 3 | Deploy funcionando numa URL, configuração por ambiente, mas sem pensar em carga, falha ou recuperação. |
+| 4 | Deploy reproduzível (contêineres ou equivalente), configuração por variável de ambiente, banco separado da aplicação, backup previsto. |
+| 5 | Idem ao 4, com estrutura que aguenta crescimento (API sem estado, fotos fora da API, fila para o que pode esperar), redundância onde importa e teste de carga executado. |
+
+Fonte: elaborado pelo autor (2026).
+
+## A.4 Documentação
+
+Planos, documentos de produto e de arquitetura, padrões declarados, registro de decisões; o que uma pessoa nova precisaria ler para continuar o projeto.
+
+**Quadro A.4. Critérios do eixo Documentação**
+
+| Nota | Critério |
+|---|---|
+| 1 | Nenhum documento além do código; não há como saber o que o produto deveria fazer. |
+| 2 | README genérico ou gerado sem revisão; sem registro de decisões nem de regras de produto. |
+| 3 | Regras de produto e instruções de execução documentadas; arquitetura só implícita no código. |
+| 4 | Produto, arquitetura, convenções e decisões documentados e coerentes com o código; uma pessoa nova consegue continuar. |
+| 5 | Idem ao 4, com decisões registradas com alternativas e consequências (ADR ou equivalente), plano de evolução e documentação mantida em dia com o que foi construído. |
+
+Fonte: elaborado pelo autor (2026).
+
+## A.5 Código
+
+Código limpo, sem duplicação, testado, com padrões de projeto onde cabem, legível e fácil de manter. Critério objetivo: rodar a suíte de testes de referência (fronteiras 30/31, 70/71, 100/101 e 150/151 da pontuação por tier; entradas inválidas; ordenação do ranking) antes de pontuar.
+
+**Quadro A.5. Critérios do eixo Código**
+
+| Nota | Critério |
+|---|---|
+| 1 | Não compila ou não roda; lógica claramente errada (faixas de tier erradas, ranking fora de ordem); sinais de alucinação (API ou import inexistente). |
+| 2 | Roda, mas falha nos testes de referência de fronteira; duplicação extensa; sem testes próprios. |
+| 3 | Passa nos testes de fronteira; não trata entradas inválidas; testes próprios escassos; nomes e organização aceitáveis. |
+| 4 | Passa em fronteira e entradas inválidas; testes cobrindo a lógica de negócio; sem duplicação relevante; convenções consistentes. |
+| 5 | Idem ao 4, com padrões de projeto usados onde ajudam (e não onde não ajudam), código que se lê sem comentário e suíte que roda na CI. |
+
+Fonte: elaborado pelo autor (2026).
+
+## A.6 Projeto e arquitetura
+
+Estrutura do projeto e das páginas, separação de responsabilidades, escalabilidade, manutenibilidade e fidelidade à ideia: o quanto do que foi construído corresponde ao pitch e às regras que a persona pediu. A stack é decisão da trilha e é registrada como resultado, não pontuada; o que se pontua é a coerência com ela.
+
+**Quadro A.6. Critérios do eixo Projeto e arquitetura**
+
+| Nota | Critério |
+|---|---|
+| 1 | Sem separação de camadas; estrutura que não permite localizar onde uma regra vive; produto distante do pitch. |
+| 2 | Estrutura confusa, responsabilidades misturadas (regra de negócio na tela), decisões incoerentes com a própria stack escolhida. |
+| 3 | Separação básica (interface, API, dados); acoplamentos evitáveis; alterar uma regra exige mexer em vários lugares; produto cobre o pitch com lacunas. |
+| 4 | Camadas bem definidas, regras de produto localizadas num lugar só, estrutura preparada para novas telas sem retrabalho; produto fiel ao pitch e às regras pedidas. |
+| 5 | Idem ao 4, com decisões justificadas, escalabilidade pensada para o campus inteiro e modelo de dados que representa as regras do produto (tiers, períodos, papéis) sem gambiarra. |
+
+Fonte: elaborado pelo autor (2026).
