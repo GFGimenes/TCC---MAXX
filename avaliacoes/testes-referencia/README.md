@@ -60,6 +60,14 @@ adaptadores/falso/           produto falso em memória, para testar a suíte sem
 testes/                      testes da própria suíte
 ```
 
+Estado dos adaptadores:
+
+| Produto | Adaptador | Estado |
+|---|---|---|
+| `leigo` | `adaptadores/leigo` | Implementado; resultado em `avaliacoes/reviews/leigo-testes-referencia.md` |
+| `engenheiro` | `adaptadores/engenheiro` | Desenhado, não implementado (`README.md` da pasta, com as decisões pendentes) |
+| `leigo_pu`, `eng_pu` | o da trilha, com `-Adaptador`, se a stack coincidir | A conferir quando os produtos existirem; `regra.js` sempre do produto avaliado |
+
 ## Isolamento
 
 - O repositório do produto é só lido. O `rodar.ps1` fotografa o estado da origem

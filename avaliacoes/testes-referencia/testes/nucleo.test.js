@@ -84,6 +84,22 @@ test('erro da suíte aborta em vez de virar falha', async () => {
   await assert.rejects(executar({ adaptador: a, regra, filtro: (c) => c.id === 'F1-publicar' }), (e) => e instanceof ErroSuite && /F1-publicar/.test(e.message));
 });
 
+test('esqueleto do engenheiro tem a interface inteira, e cada verbo avisa que não está implementado', async () => {
+  const falso = criar({});
+  const verbos = Object.keys(falso).filter((k) => typeof falso[k] === 'function');
+  const esqueleto = require('../adaptadores/engenheiro/adaptador').criar();
+  assert.deepEqual(Object.keys(esqueleto).filter((k) => typeof esqueleto[k] === 'function').sort(), verbos.sort());
+  assert.ok(Array.isArray(esqueleto.historico));
+  for (const v of verbos) await assert.rejects(esqueleto[v](), /não implementado/);
+  assert.equal(fs.existsSync(path.join(__dirname, '../adaptadores/engenheiro/subir.ps1')), false, 'sem subir.ps1 o rodar.ps1 recusa o esqueleto');
+});
+
+test('adaptador do leigo tem os verbos que as capacidades dele exigem', () => {
+  const leigo = require('../adaptadores/leigo/adaptador').criar({ base: 'http://127.0.0.1:1', regra: require('../adaptadores/leigo/regra') });
+  const exigidos = ['capacidades', 'criarAluno', 'criarProfessor', 'publicar', 'curtir', 'descurtir', 'comentar', 'apagarPost', 'editarPerfil', 'concederPremio', 'pontos', 'posicao', 'ranking', 'pedidoInvalido', 'bruto'];
+  for (const v of exigidos) assert.equal(typeof leigo[v], 'function', v);
+});
+
 test('relatório grava .md e .json com uma linha por caso', async () => {
   const r = await executar({ adaptador: criar({ defeitos: ['tier-30-prata'] }), regra });
   r.regra = regra;
