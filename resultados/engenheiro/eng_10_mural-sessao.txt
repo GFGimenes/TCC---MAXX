@@ -2945,3 +2945,837 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
   Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 4.
 
 ✻ Churned for 27m 59s · done 0:33
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Etapa 3 aprovada, com os quatro pontos aceitos: o ate na leitura do sininho é 
+  acréscimo correto; a bolinha do Mural acesa para aluno novo fica, "Ler        
+  todos" é a saída e o aluno vê os avisos antigos da faculdade; prêmio de       
+  participação acende Troféus só na aprovação; a terceira migration está dentro 
+  da regra. Commita com a mensagem proposta, push, acompanha a CI e segue para  
+  a etapa 4; no fim dela, para para a minha revisão com capturas da aba Mural   
+  (não lido aberto e lido recolhido), do aviso aberto com imagem e do estado    
+  vazio, no claro e no escuro, conferidas contra a prancheta do mural.          
+
+  Pushed to feat/passo-10-mural, ran 1 shell command (ctrl+o to expand)
+
+● Commit e18a7f3 enviado e CI em acompanhamento. Começo a etapa 4 pela prancheta
+  escura do mural e pelo código do app que a tela vai reaproveitar.
+
+  Read 2 files, ran 5 shell commands (ctrl+o to expand)
+
+● Acrescento dois ícones do Lucide que a prancheta do mural usa: o duplo check
+  do "Ler todos" e a seta para baixo do cartão recolhido.
+
+● Update(apps\mobile\src\components\Icon.tsx)
+  ⎿  Added 7 lines
+      119    // chevron-right e x do Lucide.
+      120    voltar: [{ d: "m15 18-6-6 6-6", modo: "aberto" }],
+      121    avancar: [{ d: "m9 18 6-6-6-6", modo: "aberto" }],
+      122 +  // chevron-down do Lucide: o cartão recolhido do mural, que 
+          +abre ao toque.                                                
+      123 +  abrir: [{ d: "m6 9 6 6 6-6", modo: "aberto" }],             
+      124 +  // check-check do Lucide: o "Ler todos" do mural.           
+      125 +  lerTodos: [                                                 
+      126 +    { d: "M18 6 7 17l-5-5", modo: "aberto" },                 
+      127 +    { d: "m22 10-7.5 7.5L13 16", modo: "aberto" },            
+      128 +  ],                                                          
+      129    fechar: [
+      130      { d: "M18 6 6 18", modo: "aberto" },
+      131      { d: "m6 6 12 12", modo: "aberto" },
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Vou gerar as capturas do compose local com Playwright, em 390 x 844 e nos dois
+  temas, depois de conferir o botão, o título de Troféus e os helpers de data.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo os hooks do mural.
+
+● Write(apps\mobile\src\mural\api.ts)
+  ⎿  Wrote 103 lines to apps\mobile\src\mural\api.ts
+       1 import type { components } from "@maxx/api-client";
+       2 import {
+       3   useInfiniteQuery,
+       4   useMutation,
+       5   useQuery,
+       6   useQueryClient,
+       7 } from "@tanstack/react-query";
+       8 
+       9 import { useApiClient } from "../api/ApiClientProvider";
+      10 import { FalhaDaApi } from "../api/FalhaDaApi";
+     … +93 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora os textos do mural e o cartão do aviso, aberto ou recolhido.
+
+● Write(apps\mobile\src\mural\textos.ts)
+  ⎿  Wrote 37 lines to apps\mobile\src\mural\textos.ts
+       1 // O que o mural escreve a partir do aviso (prancheta mural-*.pn
+         g).
+       2 
+       3 // A data do aviso como na prancheta, "24/07", no fuso de São Pa
+         ulo (decisoes/README.md,
+       4 // Tempo). São Paulo está em UTC-3 o ano todo desde 2019: a cont
+         a fixa evita depender do
+       5 // suporte a fuso horário do Intl em cada plataforma.
+       6 export function dataDoAviso(instante: string): string {
+       7   const local = new Date(new Date(instante).getTime() - 3 * 3600
+     … +31 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\mural\CartaoDeAviso.tsx)
+  ⎿  Wrote 169 lines to apps\mobile\src\mural\CartaoDeAviso.tsx
+      1 import { useState } from "react";
+      2 import { Pressable, StyleSheet, Text, View } from "react-native";
+      3 
+      4 import { Icon } from "../components/Icon";
+      5 import { fontFamily, textStyles } from "../theme/fonts";
+      6 import { useTheme } from "../theme/ThemeProvider";
+      7 import { interacao, raios, tamanhos } from "../theme/tokens";
+      8 import type { Aviso } from "./api";
+      9 import { autorDoAviso, dataDoAviso, rotuloDoEscopo } from "./text
+        os";
+     … +160 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Pesos disponíveis. Agora a tela do Mural.
+
+● Write(apps\mobile\src\mural\MuralScreen.tsx)  ⎿  Wrote 258 lines to apps\mobile\src\mural\MuralScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   FlatList,
+       6   Pressable,
+       7   RefreshControl,
+       8   ScrollView,
+       9   StyleSheet,
+      10   Text,
+     … +248 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\mural\AvisoScreen.tsx)
+  ⎿  Wrote 148 lines to apps\mobile\src\mural\AvisoScreen.tsx
+       1 import { Image } from "expo-image";
+       2 import { useLocalSearchParams, useRouter } from "expo-router";
+       3 import { useEffect } from "react";
+       4 import {
+       5   ActivityIndicator,
+       6   ScrollView,
+       7   StyleSheet,
+       8   Text,
+       9   View,
+      10 } from "react-native";
+     … +138 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && grep -rn
+      "from \"expo-image\"\|<Image" feed/CartaoDePost.tsx | head -3; p…)
+  ⎿  192:        <Image
+  ⎿  Updated apps\mobile\src\app\(app)\(abas)\mural.tsx (+2 -2)
+      1 -import { MuralEmBreve } from "../../../navegacao/EmBreve";      
+      1 +import { MuralScreen } from "../../../mural/MuralScreen";       
+      2  
+      3 -export default MuralEmBreve;                                    
+      3 +export default MuralScreen;                                     
+  ⎿  Created apps\mobile\src\app\(app)\aviso\[id].tsx (+3 -0)
+      1 +import { AvisoScreen } from "../../../mural/AvisoScreen";       
+      2 +                                                                
+      3 +export default AvisoScreen;                                     
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O app usa o Image do React Native, não o expo-image; troco. E o EmBreve ficou
+  sem uso (era só do Mural); confiro antes de apagar.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && grep -rn
+      "EmBreve" src e2e ../../e2e 2>/dev/null | grep -v "src/navegacao/EmB…)
+  ⎿  import { useLocalSearchParams, useRouter } from "expo-router";
+     import { useEffect } from "react";
+     import {
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\AvisoScreen.tsx (+3 -2)
+      1 -import { Image } from "expo-image";                             
+      1  import { useLocalSearchParams, useRouter } from "expo-router";
+      2  import { useEffect } from "react";
+      3  import {
+      4    ActivityIndicator,
+      5 +  Image,                                                        
+      6    ScrollView,
+      7    StyleSheet,
+      8    Text,
+     ...
+      108                testID="foto-do-aviso"
+      109                source={{ uri: aviso.data.foto.feed }}
+      110                accessibilityLabel={`Imagem do aviso ${aviso.dat
+           a.titulo}`}
+      111 -              contentFit="cover"                              
+      111 +              accessibilityIgnoresInvertColors                
+      112 +              resizeMode="cover"                              
+      113                style={[styles.foto, { backgroundColor: colors.s
+           urface }]}
+      114              />
+      115            )}
+
+● O EmBreve não tem mais uso em lugar nenhum; apago o arquivo e atualizo o
+  comentário da navegação que o citava.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && git rm -q
+      src/navegacao/EmBreve.tsx && sed -n 22,26p src/navegacao/LayoutDasA…)
+  ⎿  // As cinco abas, na ordem do design: Home, Busca, Mural, Troféus, Per
+     fil (produto.md 10).
+     // Desde o passo 6, com Troféus de verdade; Busca, Mural e Perfil cheg
+     … +3 lines (ctrl+o to expand)
+  ⎿  Deleted apps\mobile\src\navegacao\EmBreve.tsx (+0 -36)
+       1 -import { StyleSheet, View } from "react-native";               
+       2 -                                                               
+       3 -import { type IconName } from "../components/Icon";            
+       4 -import { Screen } from "../components/Screen";                 
+       5 -import { EmptyState } from "../components/StateMessage";       
+       6 -                                                               
+       7 -// A aba que ainda não chegou: diz o que vem, em vez de uma tel
+         -a vazia que pareça travada.                                    
+       8 -export function EmBreve({                                      
+       9 -  icone,                                                       
+      10 -  titulo,                                                      
+      11 -  mensagem,                                                    
+      12 -}: {                                                           
+      13 -  icone: IconName;                                             
+      14 -  titulo: string;                                              
+      15 -  mensagem: string;                                            
+      16 -}) {                                                           
+      17 -  return (                                                     
+      18 -    <Screen aboveNav>                                          
+      19 -      <View style={styles.centro}>                             
+      20 -        <EmptyState icon={icone} title={titulo} message={mensag
+         -em} />                                                         
+      21 -      </View>                                                  
+      22 -    </Screen>                                                  
+      23 -  );                                                           
+      24 -}                                                              
+      25 -                                                               
+      26 -export const MuralEmBreve = () => (                            
+      27 -  <EmBreve                                                     
+      28 -    icone="newspaper"                                          
+      29 -    titulo="Mural em breve."                                   
+      30 -    mensagem="Os avisos da faculdade, do curso e das turmas vão
+         - aparecer aqui."                                               
+      31 -  />                                                           
+      32 -);                                                             
+      33 -                                                               
+      34 -const styles = StyleSheet.create({                             
+      35 -  centro: { flex: 1, justifyContent: "center" },               
+      36 -});                                                            
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i
+      '23s|.*|// Troféus desde o passo 6, Busca e Perfil desde o passo 7, Mu…)
+  ⎿  // Troféus desde o passo 6, Busca e Perfil desde o passo 7, Mural desd
+     e o passo 10.
+     // A bolinha de novidade chega com o sininho, na etapa 6 do passo 10.
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\navegacao\LayoutDasAbas.tsx (+2 -2)
+      20    return encontrada?.[0] ?? "home";
+      21  }
+      22  
+      23 -// As cinco abas, na ordem do design: Home, Busca, Mural, Trofé
+         -us, Perfil (produto.md 10).                                    
+      24 -// Desde o passo 6, com Troféus de verdade; Busca, Mural e Perf
+         -il chegam nos passos 7 e 10.                                   
+      23 +// Troféus desde o passo 6, Busca e Perfil desde o passo 7, Mur
+         +al desde o passo 10.                                           
+      24 +// A bolinha de novidade chega com o sininho, na etapa 6 do pas
+         +so 10.                                                         
+      25  // A bolinha de novidade chega com o sininho, no passo 10.
+      26  export function LayoutDasAbas() {
+      27    const { colors } = useTheme();
+  ⎿  (timeout 5m)
+
+  Read 1 file (ctrl+o to expand)
+
+● The sed overwrote the wrong lines (it dropped the header line and duplicated
+  the dot note). I'll fix it with an exact edit.
+
+● Update(apps\mobile\src\navegacao\LayoutDasAbas.tsx)
+  ⎿  Added 1 line, removed 1 line
+      20    return encontrada?.[0] ?? "home";
+      21  }
+      22  
+      23 +// As cinco abas, na ordem do design: Home, Busca, Mural, Trofé
+         +us, Perfil (produto.md 10).                                    
+      24  // Troféus desde o passo 6, Busca e Perfil desde o passo 7, Mur
+          al desde o passo 10.
+      25  // A bolinha de novidade chega com o sininho, na etapa 6 do pas
+          so 10.
+      25 -// A bolinha de novidade chega com o sininho, no passo 10.     
+      26  export function LayoutDasAbas() {
+      27    const { colors } = useTheme();
+      28    const router = useRouter();
+
+● Typecheck e lint limpos. Agora os testes do app para o mural e o aviso aberto.
+
+● Write(apps\mobile\src\mural\mural.test.tsx)
+  ⎿  Wrote 274 lines to apps\mobile\src\mural\mural.test.tsx
+       1 import { act, fireEvent, screen } from "@testing-library/react-n
+         ative";
+       2 
+       3 import { caminhos, json, renderComApi } from "../test/renderComA
+         pi";
+       4 import { AvisoScreen } from "./AvisoScreen";
+       5 import { MuralScreen } from "./MuralScreen";
+       6 import { autorDoAviso, dataDoAviso, rotuloDoEscopo } from "./tex
+         tos";
+       7 
+     … +267 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Dez falhas: a API nem foi chamada. Provavelmente os testes de tela precisam de
+  uma sessão aberta antes; vejo como o teste do feed faz.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste do feed espera com findBy: a resposta chega depois do primeiro render.
+  Ajusto os testes para esperar o primeiro elemento.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/mural" &&
+      f=mural.test.tsx && \
+      sed -i 's|    expect(screen.getByRole("headin…)
+  ⎿  11
+       ● aba Mural › o não lido vem aberto com bolinha e o lido vem recolhi
+     do
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\mural.test.tsx (+13 -5)
+      100    it("o não lido vem aberto com bolinha e o lido vem recolhido
+           ", async () => {
+      101      await renderComApi(<MuralScreen />, api);
+      102  
+      103 +    expect(await screen.findByTestId("bolinha-nao-lido")).toBe
+          +Truthy();                                                     
+      104      expect(screen.getByRole("heading", { name: "Mural" })).toB
+           eTruthy();
+      105      // O não lido: bolinha, rótulo, data, título com "não lido
+           ", texto, autor e Abrir.
+      106      expect(screen.getByTestId("bolinha-nao-lido")).toBeTruthy(
+           );
+     ...
+      132  
+      133    it("Abrir leva ao aviso inteiro", async () => {
+      134      await renderComApi(<MuralScreen />, api);
+      135 +    await screen.findByTestId("aviso-a1");                    
+      136  
+      137      fireEvent.press(
+      138        screen.getByRole("link", {
+     ...
+      145  
+      146    it("os chips pedem o escopo, e Professores é o das turmas", 
+           async () => {
+      147      await renderComApi(<MuralScreen />, api);
+      148 +    await screen.findByTestId("aviso-a1");                    
+      149  
+      150      for (const [rotulo, escopo] of [
+      151        ["Faculdade", "faculdade"],
+     ...
+      166  
+      167    it("Ler todos marca o mural e relê", async () => {
+      168      await renderComApi(<MuralScreen />, api);
+      169 +    await screen.findByTestId("aviso-a1");                    
+      170      const antes = mural.mock.calls.length;
+      171  
+      172      fireEvent.press(screen.getByRole("button", { name: "Ler to
+           dos os avisos" }));
+     ...
+      183        json(200, { itens: [aviso("a1", { lido: true })], proxim
+           o: null }),
+      184      );
+      185      await renderComApi(<MuralScreen />, api);
+      186 +    await screen.findByText("Matrícula do 2º semestre até 30/0
+          +7");                                                          
+      187  
+      188      expect(
+      189        screen.getByRole("button", { name: "Ler todos os avisos"
+            }),
+     ...
+      196      );
+      197      await renderComApi(<MuralScreen />, api);
+      198  
+      194 -    expect(screen.getByText("Nenhum aviso ainda.")).toBeTruthy
+          -();                                                           
+      199 +    expect(await screen.findByText("Nenhum aviso ainda.")).toB
+          +eTruthy();                                                    
+     … 44 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora as falhas são dos seletores do teste: "Faculdade" aparece no chip e no
+  rótulo. Vejo a primeira linha de cada falha.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Várias falhas são "não achou" logo depois de um mockImplementation. Depuro um
+  caso isolado para ver o que a tela recebeu.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Sozinho, o teste passa: o problema é um teste anterior que falha e contamina
+  os seguintes. Corrijo os seletores reais e vejo o motivo exato das falhas dos
+  chips e do "Ler todos".
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As duas são de tempo: um só act vazio não basta para o pedido e a resposta.
+  Troco por waitFor.
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/mural" &&
+      f=mural.test.tsx && perl -0pi -e '
+      s/import \{ act, fireEvent, scre…)
+  ⎿  5:  waitFor,
+     6:  within,
+     114:    expect(within(cartao).getByText("Faculdade")).toBeTruthy();
+     … +38 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\mural.test.tsx (+20 -9)
+       1 -import { act, fireEvent, screen } from "@testing-library/react-
+         -native";                                                       
+       1 +import {                                                       
+       2 +  act,                                                         
+       3 +  fireEvent,                                                   
+       4 +  screen,                                                      
+       5 +  waitFor,                                                     
+       6 +  within,                                                      
+       7 +} from "@testing-library/react-native";                        
+       8  
+       9  import { caminhos, json, renderComApi } from "../test/renderCom
+          Api";
+      10  import { AvisoScreen } from "./AvisoScreen";
+     ...
+      110      expect(screen.getByRole("heading", { name: "Mural" })).toB
+           eTruthy();
+      111      // O não lido: bolinha, rótulo, data, título com "não lido
+           ", texto, autor e Abrir.
+      112      expect(screen.getByTestId("bolinha-nao-lido")).toBeTruthy(
+           );
+      107 -    expect(screen.getByText("Faculdade")).toBeTruthy();       
+      108 -    expect(screen.getByText("24/07")).toBeTruthy();           
+      113 +    const cartao = screen.getByTestId("aviso-a1");            
+      114 +    expect(within(cartao).getByText("Faculdade")).toBeTruthy()
+          +;                                                             
+      115 +    expect(within(cartao).getByText("24/07")).toBeTruthy();   
+      116      expect(
+      117        screen.getByRole("heading", {
+      118          name: "Matrícula do 2º semestre até 30/07, não lido",
+     ...
+      160        ["Professores", "turma"],
+      161      ] as const) {
+      162        fireEvent.press(screen.getByRole("radio", { name: rotulo
+            }));
+      156 -      await act(async () => {});                              
+      157 -      expect(new URL(mural.mock.calls.at(-1)![0].url).search).
+          -toBe(                                                         
+      158 -        `?escopo=${escopo}`,                                  
+      163 +      await waitFor(() =>                                     
+      164 +        expect(new URL(mural.mock.calls.at(-1)![0].url).search
+          +).toBe(                                                       
+      165 +          `?escopo=${escopo}`,                                
+      166 +        ),                                                    
+      167        );
+      168      }
+      169  
+      170      fireEvent.press(screen.getByRole("radio", { name: "Todos" 
+           }));
+      163 -    await act(async () => {});                                
+      164 -    expect(new URL(mural.mock.calls.at(-1)![0].url).search).to
+          -Be("");                                                       
+      171 +    await waitFor(() =>                                       
+      172 +      expect(new URL(mural.mock.calls.at(-1)![0].url).search).
+          +toBe(""),                                                     
+     … 14 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Background command "Watch the CI run for etapa 3" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+● CI da etapa 3 verde nos seis jobs (run 42557221985, e18a7f3). A etapa 3 está
+  pronta.
+
+  Restam 5 falhas nos testes do app. Rodo só o bloco do aviso aberto para
+  separar contaminação de erro real.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os testes do aviso aberto passam sozinhos: é contaminação vinda dos testes do
+  mural. Olho a árvore completa no caso do cartão recolhido.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Depois do toque o cartão continua recolhido: o toque não foi processado. No
+  teste do feed, os toques vão dentro de act assíncrono (o helper apertar); faço
+  o mesmo aqui.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/mural" &&
+      f=mural.test.tsx && perl -0pi -e 's/fireEvent\.press\(/await aperta…)
+  ⎿  45:async function apertar(elemento: Parameters<typeof fireEvent.press>
+     [0]) {
+     138:    await apertar(
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\AvisoScreen.tsx (+4 -6)
+      82            <View style={styles.topo}>
+      83              <Text
+      84                numberOfLines={1}
+      85 -              style={[                                         
+      86 -                textStyles.rotulo,                             
+      87 -                styles.rotulo,                                 
+      88 -                { color: colors.ink2 },                        
+      89 -              ]}                                               
+      85 +              style={[textStyles.rotulo, styles.rotulo, { color
+         +: colors.ink2 }]}                                              
+      86              >
+      87                {rotuloDoEscopo(aviso.data)}
+      88              </Text>
+     ...
+       96            >
+       97              {aviso.data.titulo}
+       98            </Text>
+      103 -          <Text style={[textStyles.corpo, styles.autor, { colo
+          -r: colors.ink2 }]}>                                           
+       99 +          <Text                                               
+      100 +            style={[textStyles.corpo, styles.autor, { color: c
+          +olors.ink2 }]}                                                
+      101 +          >                                                   
+      102              {autorDoAviso(aviso.data.autor)}
+      103            </Text>
+      104            {aviso.data.foto && (
+  ⎿  Updated apps\mobile\src\mural\MuralScreen.tsx (+5 -1)
+      108        {lerTodos.isError && (
+      109          <Text
+      110            role="alert"
+      111 -          style={[textStyles.legenda, styles.erroLerTodos, { c
+          -olor: colors.ink }]}                                          
+      111 +          style={[                                            
+      112 +            textStyles.legenda,                               
+      113 +            styles.erroLerTodos,                              
+      114 +            { color: colors.ink },                            
+      115 +          ]}                                                  
+      116          >
+      117            {falhaParaTela(lerTodos.error).mensagem}
+      118          </Text>
+  ⎿  Updated apps\mobile\src\mural\mural.test.tsx (+36 -19)
+      32      texto: "Renove sua matrícula pelo Portal do Aluno até 30/07
+          .",
+      33      foto: null,
+      34      publicadoEm: "2026-07-24T15:00:00Z",
+      35 -    autor: { id: "u9", nomeDeExibicao: "Coordenação UniMax", in
+         -stituicao: true },                                             
+      35 +    autor: {                                                   
+      36 +      id: "u9",                                                
+      37 +      nomeDeExibicao: "Coordenação UniMax",                    
+      38 +      instituicao: true,                                       
+      39 +    },                                                         
+      40      materias: [],
+      41      cursos: [],
+      42      lido: false,
+     ...
+      44    };
+      45  }
+      46  
+      47 +// O toque dentro de act assíncrono, como no teste do feed: a m
+         +udança de estado só chega                                      
+      48 +// à tela depois dele.                                         
+      49 +async function apertar(elemento: Parameters<typeof fireEvent.pr
+         +ess>[0]) {                                                     
+      50 +  await act(async () => {                                      
+      51 +    fireEvent.press(elemento);                                 
+      52 +  });                                                          
+      53 +}                                                              
+      54 +                                                               
+      55  let mural: jest.Mock<Promise<Response>, [Request]>;
+      56  let umAviso: jest.Mock<Promise<Response>, [Request]>;
+      57  let leitura: jest.Mock<Promise<Response>, [Request]>;
+     ...
+      109        autorDoAviso({ nomeDeExibicao: "Coordenação", instituica
+           o: true }),
+      110      ).toBe("UniMax");
+      111      expect(
+      100 -      autorDoAviso({ nomeDeExibicao: "Renata Albuquerque", ins
+          -tituicao: false }),                                           
+      112 +      autorDoAviso({                                          
+      113 +        nomeDeExibicao: "Renata Albuquerque",                 
+      114 +        instituicao: false,                                   
+      115 +      }),                                                     
+      116      ).toBe("Renata Albuquerque");
+      117    });
+      118  });
+     ...
+      142  
+      143      // O lido: só o título, recolhido. Tocar abre ali mesmo, s
+           em registrar leitura.
+      144      expect(screen.queryByTestId("aviso-a2")).toBeNull();
+     … 86 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● 13 de 13 verdes (prettier formatou os arquivos do mural). Agora a suíte
+  inteira do app, lint, typecheck e prettier.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tudo verde no app (435 testes). Agora as capturas: subo o compose local com o
+  build web novo e preparo uma conta com avisos. Vejo como o e2e cria contas.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Vou montar as capturas com um spec temporário do Playwright usando esses
+  helpers; apago o spec depois. Vejo como um spec existente faz login pela tela.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Subo o compose com o build novo da API e do web, em segundo plano.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto o compose sobe, escrevo o spec temporário das capturas (sai antes do
+  commit).
+
+● Write(e2e\tests\capturas-mural.spec.ts)
+  ⎿  Wrote 144 lines to e2e\tests\capturas-mural.spec.ts
+       1 // TEMPORÁRIO: capturas da etapa 4 do passo 10 para a revisão do
+          autor. Não vai para o commit.
+       2 import { readFileSync } from "node:fs";
+       3 import path from "node:path";
+       4 
+       5 import {
+       6   expect,
+       7   test,
+       8   type APIRequestContext,
+       9   type Page,
+     … +135 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O compose está subindo com o build novo; as capturas saem assim que a pilha
+  estiver de pé.
+
+✻ Cooked for 11m 6s · done 0:46
+
+● Background command "Wait for compose stack status" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A pilha está de pé, e o seed demo ainda está rodando. Espero ele terminar para
+  tirar as capturas.
+
+✻ Sautéed for 10s · done 0:47
+
+● Background command "Build and start compose stack, seed demo" completed (exit
+code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O outputDir do Playwright ainda não existe quando a foto é gravada. Gravo as
+  fotos de teste na pasta de capturas.
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && sed -i 's|path.join(info.outputDir, "feed.jpg")|path.join(SAIDA,
+      `feed-${tema}.jpg`)|…)
+  ⎿    2 passed (27.3s)
+     aviso-claro.png
+     aviso-escuro.png
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\capturas-mural.spec.ts (+2 -2)
+      81      );
+      82      const doAluno = comToken(await token(request, aluno.email, 
+          aluno.senha));
+      83  
+      84 -    const feed = path.join(info.outputDir, "feed.jpg");        
+      85 -    const grade = path.join(info.outputDir, "grade.jpg");      
+      84 +    const feed = path.join(SAIDA, `feed-${tema}.jpg`);         
+      85 +    const grade = path.join(SAIDA, `grade-${tema}.jpg`);       
+      86      await fotoDeTeste(page, feed, 1080, "#4a90d9");
+      87      await fotoDeTeste(page, grade, 320, "#4a90d9");
+      88      const cc = sql(`SELECT id FROM curso WHERE sigla = 'CC';`);
+  ⎿  (timeout 10m)
+
+  Read 2 files (ctrl+o to expand)
+
+● O código está certo, mas as duas capturas se misturaram: os temas rodaram em
+  paralelo, e um viu os avisos não lidos do outro. Refaço um tema por vez.
+
+  Read 3 files, ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      e2e/tests/capturas-mural.spec.ts && git status --short)
+  ⎿   M apps/mobile/src/app/(app)/(abas)/mural.tsx
+      M apps/mobile/src/components/Icon.tsx
+     D  apps/mobile/src/navegacao/EmBreve.tsx
+     … +3 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\tests\capturas-mural.spec.ts (+0 -144)
+        1 -// TEMPORÁRIO: capturas da etapa 4 do passo 10 para a revisão 
+          -do autor. Não vai para o commit.                              
+        2 -import { readFileSync } from "node:fs";                       
+        3 -import path from "node:path";                                 
+        4 -                                                              
+        5 -import {                                                      
+        6 -  expect,                                                     
+        7 -  test,                                                       
+        8 -  type APIRequestContext,                                     
+        9 -  type Page,                                                  
+       10 -} from "@playwright/test";                                    
+       11 -                                                              
+       12 -import { novaConta, sql } from "./apoio/contas";              
+       13 -import { matricular, novaProfessora } from "./apoio/medalhas";
+       14 -import {                                                      
+       15 -  comToken,                                                   
+       16 -  fotoDeTeste,                                                
+       17 -  novaInstituicao,                                            
+       18 -  token,                                                      
+       19 -} from "./apoio/premios";                                     
+       20 -                                                              
+       21 -const SAIDA = process.env.MAXX_CAPTURAS!;                     
+       22 -                                                              
+       23 -async function entrar(page: Page, identificador: string, senha
+          -: string) {                                                   
+       24 -  await page.goto("/login");                                  
+       25 -  await page.getByLabel("RA ou e-mail").fill(identificador);  
+       26 -  await page.getByLabel("Senha", { exact: true }).fill(senha);
+       27 -  await page.getByRole("button", { name: "Entrar", exact: true
+          - }).click();                                                  
+       28 -  await expect(                                               
+       29 -    page.getByRole("button", { name: "Novo post" }).first(),  
+       30 -  ).toBeVisible();                                            
+       31 -}                                                             
+       32 -                                                              
+       33 -async function fotoDeAviso(                                   
+       34 -  request: APIRequestContext,                                 
+       35 -  headers: Record<string, string>,                            
+       36 -  feed: string,                                               
+       37 -  grade: string,                                              
+       38 -): Promise<string> {                                          
+       39 -  const bytesDoFeed = readFileSync(feed);                     
+       40 -  const bytesDaGrade = readFileSync(grade);                   
+     … 104 more lines (ctrl+o to expand)
+
+● A etapa 4 (tela do Mural) está pronta para a sua revisão, com as seis capturas
+  abaixo. Não fiz commit nem push; a CI dela roda depois do push. O sininho e
+  as bolinhas das abas ainda não aparecem: ficaram para a etapa 6, como no
+  plano.
+
+  A etapa 3 já fechou: o commit e18a7f3 passou nos seis jobs da CI (run
+  42557221985
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42557221985)).
+
+  O que entrou
+
+  - Aba Mural (src/mural/MuralScreen.tsx), no lugar do "Mural em breve":
+    - topo com o logo;
+    - "Mural" com o botão "Ler todos" (ícone de duplo check);
+    - os chips Todos, Faculdade, Curso e Professores, onde Professores é o
+      escopo turma;
+    - a lista paginada, com puxar para atualizar;
+    - estado vazio por filtro e erro amigável com "Tentar de novo".
+  - Cartão do aviso, conforme a sua resposta à pergunta 2:
+    - Não lido: vem aberto, com a bolinha dourada e o título em negrito, e o
+      leitor de tela ouve "não lido".
+    - Conteúdo do cartão aberto: rótulo em caixa alta (FACULDADE, CURSO · CC ou
+      as matérias da turma), a data dd/mm de São Paulo, título, texto, o autor
+      ("UniMax" para a instituição, o nome para o professor) e "Abrir" em cor de
+      link.
+    - Lido: vem recolhido, só com o título e a seta. Tocar abre o cartão ali
+      mesmo, sem registrar leitura.
+  - Aviso aberto (/aviso/:id): cabeçalho com voltar, rótulo, data, título,
+    autor, imagem quadrada com raio 16 e o texto. Abrir registra a leitura uma
+    vez e relê o mural, as novidades e as notificações. Aviso fora do mural
+    mostra "Esse aviso não está no seu mural." com o botão "Ir para o Mural".
+  - Ícones novos do Lucide: abrir (seta para baixo) e lerTodos (duplo check).
+  - Limpeza: apaguei navegacao/EmBreve.tsx, que não tinha mais uso nenhum.
+
+  Testes
+
+  - Jest, 13 novos:
+    - textos da data, do rótulo e do autor;
+    - cartão não lido aberto e lido recolhido, e tocar no recolhido não registra
+      leitura;
+    - "Abrir" leva ao aviso;
+    - os chips pedem o escopo certo;
+    - "Ler todos" marca e relê, e fica desativado sem aviso não lido;
+    - vazio por filtro;
+    - erro com "Tentar de novo";
+    - aviso aberto com imagem e uma leitura só, aviso já lido não registra de
+      novo, aviso fora do mural.
+  - Como a CI roda, localmente: prettier, lint e typecheck limpos, e a suíte
+    inteira do app passou (435 testes).
+
+  Capturas
+
+  Tiradas com Playwright em 390 x 844, o tamanho da prancheta, contra o compose
+  local com o build novo. O spec das capturas era temporário e já foi apagado;
+  não entra no commit.
+
+  - Mural, claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme
+    -Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b416bc
+    d21c8\scratchpad\capturas\mural-claro.png
+  - Mural, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherm
+    e-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b416b
+    cd21c8\scratchpad\capturas\mural-escuro.png
+  - Aviso aberto com imagem, claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\
+    C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac
+    -4d91-8705-3b416bcd21c8\scratchpad\capturas\aviso-claro.png
+  - Aviso aberto com imagem, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude
+    \C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0ca
+    c-4d91-8705-3b416bcd21c8\scratchpad\capturas\aviso-escuro.png
+  - Estado vazio (filtro Professores, aluno sem turma), claro:
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b416bcd21c8\scratchp
+    ad\capturas\vazio-claro.png
+  - Estado vazio, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-G
+    uilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705
+    -3b416bcd21c8\scratchpad\capturas\vazio-escuro.png
+
+  O banco local é compartilhado entre as execuções, por isso há avisos repetidos
+  na lista, e a data aparece como 09/11 porque os avisos de teste foram
+  publicados hoje. Não é defeito da tela.
+
+  Confere com a prancheta:
+  - a ordem logo, título com "Ler todos" e chips;
+  - o chip ativo em marinho no claro e em ouro no escuro;
+  - os cartões em surface com raio 16;
+  - o não lido aberto com a bolinha dourada, o rótulo em caixa alta, a data à
+    direita, o título em negrito, o texto, "UniMax" e "Abrir" com seta em cor de
+    link;
+  - os lidos recolhidos, só com o título e a seta.
+
+  Diferenças em relação à prancheta:
+  1. O sininho no topo e a bolinha na aba Mural ainda não aparecem. Ficam para a
+     etapa 6.
+  2. "Mural" está com 22 pt (titulo, o mesmo de "Troféus e medalhas"); na
+     prancheta parece um pouco maior. Posso trocar para display (28 pt).
+  3. Os chips usam o componente do passo 4 (texto 13, altura 32); na prancheta o
+     texto parece um pouco maior. Não mexi no componente, que é compartilhado.
+  4. O aviso aberto não tem prancheta. Segui a identidade visual, com o
+     cabeçalho de voltar como o do post.
+
+  Para você conferir
+
+  - "Ler todos" fica desativado quando a lista visível, já filtrada pelo chip,
+    não tem aviso não lido. Num filtro, então, ele pode desativar mesmo havendo
+    não lido em outro escopo. Na etapa 6 ele passa a seguir a bolinha do Mural
+    (novidades.mural), que é o mural inteiro.
+
+  Mensagem de commit proposta
+
+  feat(mobile): adiciona a aba mural com cartões, ler todos e o aviso aberto com
+  imagem
+
+  Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 5.
+
+✻ Churned for 3m 8s · done 0:50
