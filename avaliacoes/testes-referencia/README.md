@@ -85,9 +85,12 @@ Forma da regra (`regra.js`):
 {
   fontes: ['README.md:89', 'src/regras.js:4'],
   acoes: { publicar: 10, curtidaRecebida: 2, comentarioEmPostAlheio: 3 },
-  limites: { comentarioUmaVezPorPost: true, acaoSobreProprioConteudoVale: false },
+  limites: { comentarioUmaVezPorPost: true, acaoSobreProprioConteudoVale: false,
+             interacaoComNaoParticipanteVale: true },
   premios: [{ id: 'tipo', nome: '...', pontos: 50 }],   // itens com valor declarado
   premioRepetidoSoma: true,
+  desfazer: 'recalcula',   // desfazer a ação tira os pontos
+  notas: { F8: 'ambiguidade da regra, vai para a evidência do caso' },
   metas: [{ id: 'primeiro_post', conta: 'posts', meta: 1, bonus: 20 }],
   ranking: { participa: ['aluno'], empate: 'mesma-posicao', ordemNoEmpate: 'nome' },
   tiers: null,          // ou [{ nome: 'Bronze', min: 1, max: 30 }, ...]
@@ -118,6 +121,12 @@ de volta (`{ id, nome, curso, papel, ... }`).
 | `pedidoInvalido(tipo, contexto)` | Traduz um caso neutro de entrada inválida no pedido cru do produto |
 | `premioPorTier(professor, pontos)` | Só com tiers: cria ou acha um prêmio com esse valor e devolve o tier |
 | `tierDoAluno(aluno)` | Só com tiers: tier exibido do aluno, ou `null` |
+| `formarAluno(aluno)` | Só com ex-alunos: torna o aluno ex-aluno |
+| `historico` | Lista de `{ metodo, caminho, status }` de cada pedido, para a evidência |
+
+Ação válida recusada pelo produto (5xx, 4xx inesperado) é lançada pelo adaptador como
+`ErroProduto` (`nucleo/erros.js`) e vira falha do caso. Qualquer outro erro do
+adaptador é tratado como defeito da suíte e aborta a execução.
 
 ## Casos
 
@@ -136,6 +145,7 @@ como falha.
 | F5 | Ações fora da regra valem 0 (editar perfil, receber comentário, abrir páginas) |
 | F6 | Desfazer a ação tira os pontos (descurtir, apagar post) |
 | F7 | Total do perfil igual ao total do ranking, e igual à regra aplicada ao estado |
+| F8 | Interação com quem não participa do ranking (professor) segue o que a regra declara; ambiguidade anotada na evidência |
 
 ### E. Entradas inválidas
 
