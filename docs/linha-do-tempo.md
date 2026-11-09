@@ -120,6 +120,9 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
   resposta; prompt chegou com acentos corrompidos por defeito do comando de cópia do
   Cowork (declarado em `resultados/leigo/leigo_pu.md`); para o `eng_pu`, cópia com
   `-Encoding UTF8`.
+- `eng_10_mural` atravessou a madrugada de 09/11/2026: o agente entregou a etapa 7 à
+  01h50 (Brasília) e a sessão ficou aberta esperando até as 07h23, quando o autor
+  aprovou; a pausa de 5 h 33 min está descontada do tempo de atividade no registro.
 
 ## Dependências entre fases
 

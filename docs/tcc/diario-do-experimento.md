@@ -497,3 +497,13 @@ prompt (acentos corrompidos pelo comando de cópia que o Cowork deu ao autor), s
 de conteúdo; execução mantida com a ressalva declarada. Registro em
 `resultados/leigo/leigo_pu.md`.
 
+09/11 (07h34): `eng_10_mural` fechada em 8 h 19 min de ponta a ponta, 2 h 45 min de
+atividade: a sessão ficou aberta 5 h 33 min esperando a aprovação da etapa 7 enquanto o
+autor dormia. Sete etapas, uma migration por etapa (três): publicação de aviso nos três
+escopos, mural com ETag e leitura, notificações com nove tipos e novidades, aba Mural,
+novo aviso do professor, sininho e tela de notificações, docs e e2e. Primeira rodada com
+CI verde de primeira em todas as etapas. O `medalhas.spec` do passo 6 estourou o tempo
+só localmente, sob a carga da suíte e2e inteira com a pilha no ar há horas; na CI passou
+em todas as etapas; registrado pelo agente como ocorrência de ambiente. PR #12, merge na
+`main` (`d4ac193`). Registro em `resultados/engenheiro/eng_10_mural.md`. Próxima:
+`eng_11_rankings`.
