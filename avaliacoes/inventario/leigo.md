@@ -19,7 +19,7 @@ produto no ar (`https://maxx-guilherme.azurewebsites.net`, commit `2a7dad5`) e o
 | 11 | Comprovação por foto, revisão e validação | parcial | a foto do post gera pontos, sem revisão nem validação; nada a ver com a comprovação da ideia |
 | 12 | Contestação e revogação | ausente | |
 | 13 | Ex-alunos | quebrado | qualquer um faz login sem distinção entre aluno atual e ex-aluno |
-| 14 | Entrada da banca sem cadastro (demonstração) | implementado, desligado no ar | caixa "Banca do TCC" por código (`CODIGO_BANCA`); a variável não foi definida no deploy, a confirmar pelo autor |
+| 14 | Entrada da banca sem cadastro (demonstração) | implementado, desligado no ar | caixa "Banca do TCC" por código (`CODIGO_BANCA`) existe no código (rodada 1), mas a variável não foi definida no deploy e a caixa não aparece no site publicado (conferido pelo autor em 08/11) |
 | 15 | Instruções de execução no repositório e registro do que foi decidido e do que faltou | parcial | README com execução, demo, banca e deploy; sem registro de decisões nem do que faltou |
 
 Fase alcançada: funcionalidade (todas as seis telas utilizáveis). Estado de execução:
