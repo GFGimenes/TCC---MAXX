@@ -30,7 +30,7 @@ A ideia é a mesma nas duas trilhas, o aplicativo Maxx para a UniMax, mas a quan
 
 > "Oi chat, queria fazer um aplicativo que fosse tipo um instagram para a minha faculdade, mas sem stories, videos ou poder enviar mensagens. O nome seria Maxx. Queria que quem usasse ganhasse premios pelas coisas que fizesse e os professores pudessem dar medalhas também e tudo isso contasse pra um ranking geral e um por curso. Seria só pra alunos e professores da faculdade UniMax. Ah, também queria que tivesse um mural pra faculdade colocar os avisos lá. Consegue fazer pra mim ?"
 
-A abertura do engenheiro é uma mensagem de produto de várias páginas, seguida de uma mensagem técnica, que define os três tipos de usuário, o login por RA ou e-mail institucional, os dois tipos de prêmio (troféus e medalhas), os tiers com faixas de pontos, a progressão, a comprovação por foto com validação, a contestação, o ex-aluno, o mural por escopo e assim por diante. O agente respondeu a ela com oito bloqueadores, cerca de quarenta lacunas e quatro contradições antes de qualquer código, e o autor respondeu a cada ponto nas rodadas seguintes (`prompts/engenheiro/eng_00_produto*.md`).
+A abertura do engenheiro veio depois do design e das conversas prévias descritas no capítulo 3, e é uma mensagem de produto de várias páginas, seguida de uma mensagem técnica, que define os três tipos de usuário, o login por RA ou e-mail institucional, os dois tipos de prêmio (troféus e medalhas), os tiers com faixas de pontos, a progressão, a comprovação por foto com validação, a contestação, o ex-aluno, o mural por escopo e assim por diante. O agente respondeu a ela com oito bloqueadores, cerca de quarenta lacunas e quatro contradições antes de qualquer código, e o autor respondeu a cada ponto nas rodadas seguintes (`prompts/engenheiro/eng_00_produto*.md`).
 
 A frase "ganhasse premios pelas coisas que fizesse" do leigo não diz onde as coisas são feitas. O agente leu "no app" e, em oito minutos e meio, entregou um produto em que os pontos nascem de postar, curtir e comentar:
 
@@ -69,9 +69,9 @@ Na trilha do engenheiro, o padrão é o oposto, e não por iniciativa do modelo:
 
 ## 4.4 Verificação: quem olha o que o agente fez
 
-Na trilha do leigo, o agente declarou duas vezes não ter aberto o aplicativo no navegador (rodadas 0 e 4), pedindo ao autor que avisasse se algo ficasse estranho; a persona, por política, não respondeu. Nas rodadas 2, 3, 5 e 6 ele tirou capturas próprias e corrigiu sozinho um defeito de layout no celular. Na rodada de publicação, duas alegações do agente estavam erradas: "apaguei o post de teste" (um script com o cookie trocado não apagou nada) e "dados preservados após reinício" (o teste anterior não conferia fotos). As duas só foram corrigidas porque a persona abriu o produto no celular e encontrou um post de teste com foto quebrada (Figura 1). Sem esse acesso, o relatório final da trilha estaria errado em dois pontos.
+Na trilha do leigo, o agente declarou duas vezes não ter aberto o aplicativo no navegador (rodadas 0 e 4), pedindo ao autor que avisasse se algo ficasse estranho; a persona, por política, não respondeu. Nas rodadas 2, 3, 5 e 6 ele tirou capturas próprias e corrigiu sozinho um defeito de layout no celular. Na rodada de publicação, duas alegações do agente estavam erradas: "apaguei o post de teste" (um script com o cookie trocado não apagou nada) e "dados preservados após reinício" (o teste anterior não conferia fotos). As duas só foram corrigidas porque a persona abriu o produto no celular e encontrou um post de teste com foto quebrada (Figura 2). Sem esse acesso, o relatório final da trilha estaria errado em dois pontos.
 
-![Figura 1. Post de teste com foto quebrada, encontrado pela persona no produto publicado (resultados/leigo/capturas/leigo_07_deploy_v2/08-post-teste-foto-quebrada.png)](../../resultados/leigo/capturas/leigo_07_deploy_v2/08-post-teste-foto-quebrada.png)
+![Figura 2. Post de teste com foto quebrada, encontrado pela persona no produto publicado (resultados/leigo/capturas/leigo_07_deploy_v2/08-post-teste-foto-quebrada.png)](../../resultados/leigo/capturas/leigo_07_deploy_v2/08-post-teste-foto-quebrada.png)
 
 Os testes automáticos do produto do leigo são três casos em um arquivo, um deles um fluxo de cerca de 160 linhas com ids fixos, sem testes de unidade da regra de pontos e sem integração contínua. A suíte de referência do experimento, independente do produto, executou 51 casos contra ele: 43 passaram, 1 falhou (comentário vazio aceito com redirecionamento em vez de recusa) e 7 ficaram ausentes porque o produto não tem tiers nem ex-aluno. Ou seja, o que o agente construiu, construiu bem; o problema está no que não foi pedido e no que não foi verificado.
 
@@ -99,7 +99,7 @@ Vale registrar que a base técnica é boa, e o revisor diz que sozinha chegaria 
 
 A rodada de publicação acrescentou uma segunda camada, registrada antes do envio como "pontos de exposição": a persona colou o próprio e-mail institucional completo no chat quando o agente só precisava do domínio, e o agente passou a usá-lo; o agente leu e exibiu o IP da rede local do autor; orientou duas vezes um leigo a entregar cartão de crédito a provedores de nuvem "só para verificação" e sugeriu dado cadastral inexato (nome próprio como empresa) para contornar um bloqueio; criou chave SSH e pasta `.ssh` fora do repositório sem confirmação; baixou e instalou software (Azure CLI) na máquina do autor sem confirmação; obteve acesso autenticado à conta Azure do autor por login de código de dispositivo e operou a conta sozinho; gravou a senha do administrador em texto puro em `Documents`; e deixou o site público sem verificação de e-mail, com `@prof` nascendo professor. O agente não pediu segredos no chat (senha do admin e código da banca ficaram fora da conversa), e o modo auto do CLI pediu aprovação uma única vez em toda a trilha, para ler um arquivo fora do repositório. Tudo o mais entrou no espaço de ação que a persona, sem saber, concedeu.
 
-![Figura 2. Cadastro da Oracle Cloud no Brasil só aceitando conta corporativa, primeira das três barreiras de provedor "grátis" na publicação (resultados/leigo/capturas/leigo_07_deploy_v2/01-cadastro-corporate.png)](../../resultados/leigo/capturas/leigo_07_deploy_v2/01-cadastro-corporate.png)
+![Figura 3. Cadastro da Oracle Cloud no Brasil só aceitando conta corporativa, primeira das três barreiras de provedor "grátis" na publicação (resultados/leigo/capturas/leigo_07_deploy_v2/01-cadastro-corporate.png)](../../resultados/leigo/capturas/leigo_07_deploy_v2/01-cadastro-corporate.png)
 
 Na trilha do engenheiro, as mesmas questões foram decididas em documento antes do código: RA é identidade interna e nunca aparece para outros alunos; o e-mail institucional vem de uma base abastecida pela faculdade e o aluno não o escolhe; o cadastro só é aceito para quem está nessa base; segredo nenhum no repositório, com varredura de segredos na CI; limite de taxa atrás do Caddy; credenciais de produção só no `.env` da VPS, nunca no chat do agente. [A PREENCHER: nota de segurança do engenheiro pelo revisor e pelo autor, falhas reproduzidas e comparação com as oito do leigo.]
 
@@ -121,9 +121,9 @@ A Tabela 3 traz as notas do produto do leigo, do agente avaliador (seis sessões
 
 As duas divergências de dois pontos têm a mesma explicação, registrada pelo autor depois de abrir os reviews, sem alterar a nota cega: o revisor pontuou o artefato (deploy público, configuração por variáveis, scripts de servidor, monólito coerente com a stack), sem acesso aos prompts e às sessões, como ele próprio declarou; o autor pontuou o processo que levou ao artefato, em que nenhuma discussão de arquitetura, regras, cenários, público ou volume de uso aconteceu, e em que a regra central do produto foi inventada pelo agente. Para o autor, a avaliação é também sobre as etapas, porque é nelas que assumir e alucinar continuam comuns e perigosos, e um artefato razoável esconde isso.
 
-Em UX, o revisor deu 4 porque as seis telas existem, funcionam de ponta a ponta e tratam estados vazios e de erro, com decisões sensatas onde a especificação não cobre ("faltam N pontos para passar Fulano", próxima conquista com barra de progresso); o autor deu 3 porque o produto "tem a cara de algo gerado rapidamente por uma IA", sem identidade visual, e porque os prêmios estão fora de contexto (Figura 3). Em Código, os dois deram 4: o código é pequeno, legível e organizado; faltam testes e cenários.
+Em UX, o revisor deu 4 porque as seis telas existem, funcionam de ponta a ponta e tratam estados vazios e de erro, com decisões sensatas onde a especificação não cobre ("faltam N pontos para passar Fulano", próxima conquista com barra de progresso); o autor deu 3 porque o produto "tem a cara de algo gerado rapidamente por uma IA", sem identidade visual, e porque os prêmios estão fora de contexto (Figura 4). Em Código, os dois deram 4: o código é pequeno, legível e organizado; faltam testes e cenários.
 
-![Figura 3. Produto do leigo aberto no celular da persona, logo depois da publicação (resultados/leigo/capturas/leigo_07_deploy_v2/10-celular.png)](../../resultados/leigo/capturas/leigo_07_deploy_v2/10-celular.png)
+![Figura 4. Produto do leigo aberto no celular da persona, logo depois da publicação (resultados/leigo/capturas/leigo_07_deploy_v2/10-celular.png)](../../resultados/leigo/capturas/leigo_07_deploy_v2/10-celular.png)
 
 [A PREENCHER: Tabela 4 com as notas do produto do engenheiro (revisor e autor, seis eixos), resultado dos testes de referência com o adaptador do engenheiro, inventário dos 15 itens, e a leitura das hipóteses H1 a H3 e da análise exploratória do pré-registro, que dependem também das duas condições de prompt único.]
 
@@ -131,7 +131,7 @@ Em UX, o revisor deu 4 porque as seis telas existem, funcionam de ponta a ponta 
 
 Além de produzir o segundo produto da comparação, a trilha do engenheiro documenta um jeito de trabalhar com o agente que a trilha do leigo não tem. Os elementos, todos verificáveis no repositório `maxx-engenheiro`, são: um documento de produto e um registro de decisões escritos antes do código (passo 0, cinco dias de discussão); um `CLAUDE.md` curto que aponta para esses documentos e proíbe decidir fora deles; um plano mestre de 13 passos, cada um aberto por um prompt que relembra o que fecha o passo e pede um plano de etapas com entrega e critério de aceite; revisão humana por etapa, com capturas conferidas contra as pranchetas nas etapas de tela; um commit por etapa, CI verde por etapa, `fix` separado, um PR por passo; e, em cada relatório, as decisões tomadas dentro dos documentos, as pendências empurradas para passos seguintes e os limites aceitos.
 
-Dois ajustes de protocolo foram feitos durante a execução e estão declarados: a regra da CI verde por etapa, fixada no passo 3, e a cadência por grupo, adotada no passo 11 por prazo, em que o agente emenda etapas sem tela e sem pergunta de produto, cada uma com commit, push e CI próprios, parando antes de etapa com tela, em pergunta de produto e em CI vermelha depois do fix. Com ela, as etapas 2, 3 e 4 do passo 11 saíram em 41 minutos, contra uma mediana de cerca de 20 minutos por etapa na cadência anterior, e as seis primeiras etapas do passo 12 em cerca de três horas sem nenhuma pergunta. O que não mudou em nenhum momento foi a exigência de que toda decisão fora dos documentos virasse pergunta.
+A regra que a persona considera primordial, e que aparece no `CLAUDE.md` antes de qualquer outra, é a de não assumir: decisão que não está nos documentos não foi tomada, e o agente pergunta. Tudo o mais no roteiro existe para sustentar essa regra: os documentos são o lugar onde as decisões ficam, o plano de etapas é onde o agente mostra o que entendeu antes de construir, e a revisão por etapa é onde o autor confere se algo foi assumido. Nenhuma dessas peças exige escrever código; exigem saber o que perguntar e o que conferir.
 
 [A PREENCHER: fechamento dos passos 12 e 13, número final de testes e deploy na VPS.]
 
@@ -169,46 +169,8 @@ Isso tem um custo que precisa ser dito com clareza: dezessete vezes mais tokens 
 
 ## 5.5 Limites e ameaças à validade
 
-Os limites deste experimento estão descritos no capítulo 3 e alguns se confirmaram na execução. As duas personas foram interpretadas pelo mesmo autor, engenheiro; a persona leiga foi construída a partir de uma pesquisa com usuários reais e seguiu uma política de reação fixa, mas um leigo de verdade poderia ter perguntado mais, ou menos. O agente da trilha do leigo leu, no histórico de merges, a estrutura em rodadas do experimento e passou a referi-la ("como nas rodadas anteriores"), um vazamento de metadado sem efeito observado no produto. Os agentes avaliadores trabalharam só com leitura, sem executar o produto, e sem acesso aos prompts e às sessões, o que explica parte das divergências com o autor; a suíte de referência compensa isso em Código. O autor avaliou o produto do leigo conhecendo o experimento, com a mitigação de ter fechado o formulário antes de abrir os reviews. A trilha do engenheiro sofreu duas alterações de protocolo declaradas (CI verde por etapa no passo 3 e cadência por grupo no passo 11) e uma queda do GitHub Actions durante o passo 12, todas registradas na linha do tempo. A condição de prompt único do leigo foi executada com o prompt corrompido nos acentos por um defeito de cópia, sem perda de conteúdo, declarado no registro.
+Os limites deste experimento estão descritos no capítulo 3 e alguns se confirmaram na execução. As duas personas foram interpretadas pelo mesmo autor, engenheiro; a persona leiga foi construída a partir de uma pesquisa com usuários reais e seguiu uma política de reação fixa, mas um leigo de verdade poderia ter perguntado mais, ou menos. O agente da trilha do leigo leu, no histórico de merges, a estrutura em rodadas do experimento e passou a referi-la ("como nas rodadas anteriores"), um vazamento de metadado sem efeito observado no produto. Os agentes avaliadores trabalharam só com leitura, sem executar o produto, e sem acesso aos prompts e às sessões, o que explica parte das divergências com o autor; a suíte de referência compensa isso em Código. O autor avaliou o produto do leigo conhecendo o experimento, com a mitigação de ter fechado o formulário antes de abrir os reviews. A trilha do engenheiro teve a exigência de CI verde por etapa acrescentada no passo 3 e uma queda do GitHub Actions durante o passo 12, ambas registradas na linha do tempo. A condição de prompt único do leigo foi executada com o prompt corrompido nos acentos por um defeito de cópia, sem perda de conteúdo, declarado no registro.
 
 # 6 Conclusão
 
 Com a mesma ideia e o mesmo agente, a persona leiga obteve em três horas um produto publicado que faz coisas diferentes das que foram pedidas, com oito falhas de segurança reproduzíveis e uma dezena de exposições ao longo do caminho, e a persona engenheira obteve, em cerca de cinquenta horas, um produto ainda em construção que faz o que os documentos dizem, com testes, CI e registro de cada decisão. O que separa os dois não é a capacidade do modelo, que escreveu código bom nos dois casos, mas a informação que chegou a ele no início e a verificação que o acompanhou depois. A documentação do fornecedor já descreve as duas coisas como responsabilidade de quem opera; este experimento mostra o que acontece quando quem opera não sabe disso. [A PREENCHER: leitura das hipóteses H1 a H3 com as notas dos dois produtos e das duas condições de prompt único.]
-
-# Referências desta seção
-
-ANTHROPIC. Prompting best practices. Claude Platform Docs, 2026a. Disponível em: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices. Acesso em: 9 nov. 2026.
-
-ANTHROPIC. Best practices for Claude Code. Claude Code Docs, 2026b. Disponível em: https://code.claude.com/docs/en/best-practices. Acesso em: 9 nov. 2026.
-
-ANTHROPIC. Trustworthy agents in practice. 9 abr. 2026c. Disponível em: https://www.anthropic.com/research/trustworthy-agents. Acesso em: 9 nov. 2026.
-
-ANTHROPIC. Security. Claude Code Docs, 2026d. Disponível em: https://code.claude.com/docs/en/security. Acesso em: 9 nov. 2026.
-
-ANTHROPIC. How Claude remembers your project. Claude Code Docs, 2026e. Disponível em: https://code.claude.com/docs/en/memory. Acesso em: 9 nov. 2026.
-
-BARKOSKI, Lucas. Vibe coding e o custo jurídico do software sem revisão. Consultor Jurídico, 6 nov. 2026. Disponível em: https://conjur.com.br/2026-nov-06/vibe-coding-e-o-custo-juridico-do-software-sem-revisao/. Acesso em: 9 nov. 2026. (CONJUR, 2026)
-
-ESCAPE. How we discovered vulnerabilities in apps built with vibe coding. 29 out. 2025. Disponível em: https://escape.tech/blog/methodology-how-we-discovered-vulnerabilities-apps-built-with-vibe-coding/. Acesso em: 9 nov. 2026.
-
-NOLAN, Beatrice. AI coding tool Replit wiped a database and called it a catastrophic failure. Fortune, 23 jul. 2025. Disponível em: https://fortune.com/2025/07/23/ai-coding-tool-replit-wiped-database-called-it-a-catastrophic-failure/. Acesso em: 9 nov. 2026. (FORTUNE, 2025)
-
-PERRY, Neil; SRIVASTAVA, Megha; KUMAR, Deepak; BONEH, Dan. Do users write more insecure code with AI assistants? In: ACM SIGSAC Conference on Computer and Communications Security (CCS), 2023. Disponível em: https://arxiv.org/abs/2211.03622. Acesso em: 9 nov. 2026.
-
-ALBERGOTTI, Reed. The hottest new vibe coding startup Lovable is a sitting duck for hackers. Semafor, 29 maio 2025. Disponível em: https://www.semafor.com/article/05/29/2025/the-hottest-new-vibe-coding-startup-lovable-is-a-sitting-duck-for-hackers. Acesso em: 9 nov. 2026. (SEMAFOR, 2025)
-
-SCHLUNTZ, Erik; ZHANG, Barry. Building effective agents. Anthropic, 19 dez. 2024. Disponível em: https://www.anthropic.com/engineering/building-effective-agents. Acesso em: 9 nov. 2026.
-
-TECHCRUNCH. Some Supabase customers are publicly exposing reams of people's data to the web. 25 set. 2026. Disponível em: https://techcrunch.com/2026/09/25/some-supabase-customers-are-publicly-exposing-reams-of-peoples-data-to-the-web/. Acesso em: 9 nov. 2026.
-
-TECHRADAR. Over 29 million secrets were leaked on GitHub in 2025, and AI really isn't helping. mar. 2026. Disponível em: https://www.techradar.com/pro/security/over-29-million-secrets-were-leaked-on-github-in-2025-and-ai-really-isnt-helping. Acesso em: 9 nov. 2026.
-
-THE HACKER NEWS. Official Claude Code VS Code extension trojanized on third-party marketplace. 30 out. 2026. Disponível em: https://thehackernews.com/2026/10/official-claude-code-vs-code-extension.html. Acesso em: 9 nov. 2026.
-
-TI INSIDE. Vazamentos de dados no Brasil crescem 21,5% e chegam a 7 milhões de contas. 4 nov. 2026. Disponível em: https://tiinside.com.br/04/11/2026/vazamentos-de-dados-no-brasil-crescem-215-e-chegam-a-7-milhoes-de-contas/. Acesso em: 9 nov. 2026.
-
-VERACODE. 2025 GenAI Code Security Report. 30 jul. 2025. Disponível em: https://www.veracode.com/press-release/ai-generated-code-poses-major-security-risks-in-nearly-half-of-all-development-tasks-veracode-research-reveals/. Acesso em: 9 nov. 2026.
-
-VERACODE. 2026 GenAI Code Security Report. 28 jul. 2026. Disponível em: https://www.veracode.com/blog/2026-genai-code-security-report-ai-risk. Acesso em: 9 nov. 2026.
-
-WIZ. Exposed Moltbook database reveals millions of API keys. 2 fev. 2026. Disponível em: https://www.wiz.io/blog/exposed-moltbook-database-reveals-millions-of-api-keys. Acesso em: 9 nov. 2026.
