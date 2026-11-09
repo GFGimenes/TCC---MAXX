@@ -507,3 +507,15 @@ só localmente, sob a carga da suíte e2e inteira com a pilha no ar há horas; n
 em todas as etapas; registrado pelo agente como ocorrência de ambiente. PR #12, merge na
 `main` (`d4ac193`). Registro em `resultados/engenheiro/eng_10_mural.md`. Próxima:
 `eng_11_rankings`.
+
+09/11 (12h25): `eng_11_rankings` fechada em 4 h 27 min de ponta a ponta, 3 h 23 min de
+atividade. Sessão aberta com o autor longe do PC, operando o cmd à distância pelo
+celular; o Cowork acompanhou a tela pelo app, só vendo e clicando. Por prazo (entrega
+hoje), alteração de protocolo declarada a partir da etapa 2: o agente emenda etapas sem
+tela e sem pergunta de produto, cada uma com commit, push e CI verde próprios, e para
+antes de tela, em pergunta de produto e em CI vermelha depois do fix. Etapas 2, 3 e 4
+saíram emendadas em 41 min. CI vermelha na etapa 5 por testes antigos, fix separado. O
+agente commitou a etapa 6 antes da revisão e declarou. PR #13, merge na `main`
+(`e43a83a`). Registro em `resultados/engenheiro/eng_11_rankings.md`. Próxima:
+`eng_12_instituicao`, com a mesma cadência escrita no prompt de abertura.
+

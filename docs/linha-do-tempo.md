@@ -123,6 +123,13 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
 - `eng_10_mural` atravessou a madrugada de 09/11/2026: o agente entregou a etapa 7 à
   01h50 (Brasília) e a sessão ficou aberta esperando até as 07h23, quando o autor
   aprovou; a pausa de 5 h 33 min está descontada do tempo de atividade no registro.
+- Cadência por grupo de etapas na trilha do engenheiro, a partir da `eng_11_rankings-r3`
+  (09/11/2026, 10h12 de Brasília), por prazo: etapas sem tela e sem pergunta de produto
+  emendadas pelo agente, cada uma com commit, push e CI verde próprios; parada antes de
+  etapa com tela, em pergunta de produto e em CI vermelha depois do fix. Um commit por
+  etapa, CI verde por etapa, fix separado e relatório por etapa mantidos; muda só a
+  frequência do checkpoint do autor. Declarada no registro da rodada e no diário; escrita
+  no prompt de abertura dos passos 12 e 13.
 
 ## Dependências entre fases
 
