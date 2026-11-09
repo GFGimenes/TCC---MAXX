@@ -1,5 +1,5 @@
  ▐▛███▛█   Claude Code v2.1.316
-▝▜██████▀  Opus 5.5 · Claude Max
+▝▜██████▀  Opus 5.5 · Claude Ultra
  ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
 
 
@@ -2199,3 +2199,749 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
   Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 3.
 
 ✻ Baked for 21s · done 0:03
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Etapa 2 aprovada com um ajuste de uma linha: GET /v1/perfis/{id}/avisos para  
+  perfil inexistente devolve 404, como a grade de posts, por coerência do       
+  contrato. As duas migrations por etapa estão dentro da regra. Com a suíte     
+  verde, commita com a mensagem proposta, push, acompanha a CI e segue para a   
+  etapa 3; para para a minha revisão no fim dela.                               
+
+● Faço o ajuste do 404 primeiro.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs)
+  ⎿  Added 7 lines, removed 2 lines
+      80          string? cursor,
+      81          ClaimsPrincipal principal,
+      82          MuralHandler handler,
+      83 +        IConsultaDePerfil perfis,                              
+      84          IArmazenamentoDeFotos armazenamento,
+      85          CancellationToken cancellationToken)
+      86      {
+      86 -        var pagina = await handler.MuralAsync(                 
+      87 -            PostEndpoints.UsuarioId(principal), null, usuarioId
+         -, cursor, AvisosPorPagina, cancellationToken);                 
+      87 +        // Perfil inexistente é 404, como na grade de posts do 
+         +perfil.                                                        
+      88 +        var leitor = PostEndpoints.UsuarioId(principal);       
+      89 +        _ = await perfis.PerfilAsync(usuarioId, leitor, cancell
+         +ationToken)                                                    
+      90 +            ?? throw new RecusaException(                      
+      91 +                TipoDeRecusa.NaoEncontrado, CodigosSociais.Usua
+         +rioNaoEncontrado, $"Usuário {usuarioId} sem perfil.");         
+      92 +        var pagina = await handler.MuralAsync(leitor, null, usu
+         +arioId, cursor, AvisosPorPagina, cancellationToken);           
+      93          return TypedResults.Ok(PaginaDoMuralResponse.De(pagina,
+           armazenamento));
+      94      }
+      95  
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=src/Maxx.Api/Mural/AvisoEndpoints.cs && sed -i 's|^using
+      Maxx.Application.Mura…)
+  ⎿  57:            .WithName("GetAvisosDoPerfil")
+     58-            .WithTags("Perfil")
+     59-            .ProducesProblem(StatusCodes.Status400BadRequest);
+     60-
+  ⎿  Updated apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs (+2 -0)
+       5  using Maxx.Application;
+       6  using Maxx.Application.Fotos;
+       7  using Maxx.Application.Mural;
+       8 +using Maxx.Application.Perfil;                                 
+       9 +using Maxx.Application.Social;                                 
+      10  using Maxx.Domain.Mural;
+      11  using Microsoft.AspNetCore.Http.HttpResults;
+      12  
+
+● Acrescento o 404 ao contrato do OpenAPI e um teste para o perfil inexistente.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=src/Maxx.Api/Mural/AvisoEndpoints.cs && sed -i '59s|
+      .ProducesProbl…)
+  ⎿          // regra do mural, cada um vê só os que estão no mural dele.
+             v1.MapGet("/perfis/{usuarioId:guid}/avisos", DoAutorAsync)
+                 .WithName("GetAvisosDoPerfil")
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs (+2 -1)
+      56          v1.MapGet("/perfis/{usuarioId:guid}/avisos", DoAutorAsy
+          nc)
+      57              .WithName("GetAvisosDoPerfil")
+      58              .WithTags("Perfil")
+      59 -            .ProducesProblem(StatusCodes.Status400BadRequest); 
+      59 +            .ProducesProblem(StatusCodes.Status400BadRequest)  
+      60 +            .ProducesProblem(StatusCodes.Status404NotFound);   
+      61  
+      62          return v1;
+      63      }
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      t=tests/Maxx.Api.IntegrationTests/Mural/LeituraDoMuralTests.cs && sed -i
+      '278a\…)  ⎿          Assert.Equal([deAlg], (await bruno.GetFromJsonAsync<PaginaDoMu
+     ralResponse>(doPerfil, Ct))!.Itens.Select(aviso => aviso.Id));
+             Assert.Empty((await diego.GetFromJsonAsync<PaginaDoMuralRespon
+     … +18 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Mural\LeituraDoMuralTests.cs
+     (+10 -0)
+      276          Assert.Equal([deAlg], (await bruno.GetFromJsonAsync<Pa
+           ginaDoMuralResponse>(doPerfil, Ct))!.Itens.Select(aviso => avi
+           so.Id));
+      277          Assert.Empty((await diego.GetFromJsonAsync<PaginaDoMur
+           alResponse>(doPerfil, Ct))!.Itens);
+      278          Assert.Equal([deAlg, deBd], (await renata.GetFromJsonA
+           sync<PaginaDoMuralResponse>(doPerfil, Ct))!.Itens.Select(aviso
+            => aviso.Id));
+      279 +                                                              
+      280 +        // Perfil inexistente é 404, como na grade de posts; a
+          + instituição não tem perfil social.                           
+      281 +        await AssertRecusaAsync(                              
+      282 +            await ana.GetAsync(new Uri($"/api/v1/perfis/{Guid.
+          +CreateVersion7()}/avisos", UriKind.Relative), Ct),            
+      283 +            HttpStatusCode.NotFound,                          
+      284 +            "usuario-nao-encontrado");                        
+      285 +        await AssertRecusaAsync(                              
+      286 +            await ana.GetAsync(new Uri($"/api/v1/perfis/{mundo
+          +.Id(Coordenacao)}/avisos", UriKind.Relative), Ct),            
+      287 +            HttpStatusCode.NotFound,                          
+      288 +            "usuario-nao-encontrado");                        
+      289      }
+      290  
+      291      private static async Task<PaginaDoMuralResponse> MuralAsyn
+           c(HttpClient client, string? escopo = null, string? cursor = n
+           ull)
+  ⎿  Updated packages\api-client\openapi.json (+10 -0)
+      720                  }
+      721                }
+      722              }
+      723 +          },                                                  
+      724 +          "404": {                                            
+      725 +            "description": "Not Found",                       
+      726 +            "content": {                                      
+      727 +              "application/problem+json": {                   
+      728 +                "schema": {                                   
+      729 +                  "$ref": "#/components/schemas/ProblemDetails
+          +"                                                             
+      730 +                }                                             
+      731 +              }                                               
+      732 +            }                                                 
+      733            }
+      734          },
+      735          "security": [
+  ⎿  Updated packages\api-client\src\schema.d.ts (+9 -0)
+      1983                      "application/problem+json": components["s
+            chemas"]["ProblemDetails"];
+      1984                  };
+      1985              };
+      1986 +            /** @description Not Found */                    
+      1987 +            404: {                                           
+      1988 +                headers: {                                   
+      1989 +                    [name: string]: unknown;                 
+      1990 +                };                                           
+      1991 +                content: {                                   
+      1992 +                    "application/problem+json": components["s
+           +chemas"]["ProblemDetails"];                                  
+      1993 +                };                                           
+      1994 +            };                                               
+      1995          };
+      1996      };
+      1997      GetTurmasDoProfessor: {
+  ⎿  (timeout 10m)
+
+● Ajuste verde nos testes do mural. Como você pediu a suíte verde antes do
+  commit, rodo a suíte completa em Release de novo.
+
+  Pushed to feat/passo-10-mural, ran 1 shell command (ctrl+o to expand)
+
+● Commit b0d7e6d enviado. Acompanho a CI em segundo plano e começo a etapa 3.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Etapa 3: notificações e novidades. Primeiro levanto os campos de medalha,
+  prêmio de participação e conquista que o resumo de cada notificação vai usar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Já tenho os campos. Começo pelo domínio: o marcador TrofeusVistoEm no usuário,
+  que só anda para a frente.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 5 lines
+      79  
+      80      public bool EhDemonstracao => LoteDaDemonstracao is not nul
+          l;
+      81  
+      82 +    // Quando o usuário abriu a aba Troféus pela última vez (pa
+         +sso 10, pergunta 5). Prêmio                                    
+      83 +    // obtido depois disso acende a bolinha da aba; é um marcad
+         +or próprio, separado do                                        
+      84 +    // sininho: abrir Troféus não lê notificação nenhuma.      
+      85 +    public DateTimeOffset? TrofeusVistoEm { get; private set; }
+      86 +                                                               
+      87      // Todo prefixo que o usuário já teve, o atual inclusive. N
+          enhum volta a ser de outro.
+      88      public IReadOnlyCollection<PrefixoReservado> PrefixosReserv
+          ados => _prefixosReservados.AsReadOnly();
+      89  
+
+● Update(apps\api\src\Maxx.Domain\Identidade\Usuario.cs)
+  ⎿  Added 10 lines
+      246          Sufixo = Identidade.Sufixo.ExAluno;
+      247      }
+      248  
+      249 +    // Só anda para a frente: um pedido atrasado, de outra aba
+          + ou de outro aparelho, não                                    
+      250 +    // reacende a bolinha de um prêmio já visto.              
+      251 +    public void MarcarTrofeusVistos(DateTimeOffset agora)     
+      252 +    {                                                         
+      253 +        if (TrofeusVistoEm is null || agora > TrofeusVistoEm) 
+      254 +        {                                                     
+      255 +            TrofeusVistoEm = agora;                           
+      256 +        }                                                     
+      257 +    }                                                         
+      258 +                                                              
+      259      // Público para a borda conferir antes de montar o usuário
+           .
+      260      public static string ValidarNomeDeExibicao(string nome)
+      261      {
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Domain.Tests/Identidade" && f=UsuarioTests.cs && cp
+      "$TEMP/u.cs" $f && ca…)
+  ⎿          Assert.False(ana.EhDemonstracao);
+             Assert.Null(ana.HashDaChaveDoDispositivo);
+         }
+  ⎿  Updated apps\api\tests\Maxx.Domain.Tests\Identidade\UsuarioTests.cs
+     (+17 -0)
+      301          Assert.False(ana.EhDemonstracao);
+      302          Assert.Null(ana.HashDaChaveDoDispositivo);
+      303      }
+      304 +                                                              
+      305 +    [Fact]                                                    
+      306 +    public void Trofeus_vistos_comeca_vazio_e_so_anda_para_a_f
+          +rente()                                                       
+      307 +    {                                                         
+      308 +        var ana = Ana();                                      
+      309 +        Assert.Null(ana.TrofeusVistoEm);                      
+      310 +                                                              
+      311 +        ana.MarcarTrofeusVistos(_agora.AddMinutes(5));        
+      312 +        Assert.Equal(_agora.AddMinutes(5), ana.TrofeusVistoEm)
+          +;                                                             
+      313 +                                                              
+      314 +        // Um pedido atrasado não volta o marcador e não reace
+          +nde prêmio já visto.                                          
+      315 +        ana.MarcarTrofeusVistos(_agora.AddMinutes(1));        
+      316 +        Assert.Equal(_agora.AddMinutes(5), ana.TrofeusVistoEm)
+          +;                                                             
+      317 +                                                              
+      318 +        ana.MarcarTrofeusVistos(_agora.AddMinutes(9));        
+      319 +        Assert.Equal(_agora.AddMinutes(9), ana.TrofeusVistoEm)
+          +;                                                             
+      320 +    }                                                         
+      321  }
+
+● Agora a aplicação: listar, marcar como lidas, novidades e o marcador de
+  Troféus.
+
+● Write(apps\api\src\Maxx.Application\Notificacoes\LeituraDasNotificacoes.cs)
+  ⎿  Wrote 95 lines to
+     apps\api\src\Maxx.Application\Notificacoes\LeituraDasNotificacoes.cs
+       1 using Maxx.Application.Autenticacao;
+       2 using Maxx.Application.Mural;
+       3 using Maxx.Application.Paginacao;
+       4 using Maxx.Domain.Notificacoes;
+       5 using Maxx.Domain.Premios;
+       6 
+       7 namespace Maxx.Application.Notificacoes;
+       8 
+       9 // A notificação como o sininho mostra (produto.md 8). O texto é
+          do app, pelo tipo; aqui vai
+     … +86 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Application\Mural\LeituraDoMural.cs)
+  ⎿  Added 3 lines
+      51      // Nulo para o aviso que não existe e para o que o leitor n
+          ão vê.
+      52      Task<AvisoLido?> AvisoAsync(LeitorDoMural leitor, Guid avis
+          oId, CancellationToken cancellationToken);
+      53  
+      54 +    // Se há aviso no mural do leitor que ele ainda não leu: a 
+         +bolinha da aba Mural.                                          
+      55 +    Task<bool> TemNaoLidoAsync(LeitorDoMural leitor, Cancellati
+         +onToken cancellationToken);                                    
+      56 +                                                               
+      57      // Registra a leitura dos avisos visíveis ao leitor entre o
+          s pedidos (todos, sem ids) e
+      58      // marca como lida a notificação de aviso novo de cada um. 
+          Idempotente: a leitura antiga
+      59      // fica com o instante dela. Devolve quantas leituras novas
+           gravou.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Infrastructure\Notificacoes\ConsultaDeNotificacoes.cs)
+  ⎿  Wrote 166 lines to apps\api\src\Maxx.Infrastructure\Notificacoes\Consu
+     ltaDeNotificacoes.cs
+      1 using Maxx.Application.Notificacoes;
+      2 using Maxx.Application.Paginacao;
+      3 using Maxx.Domain.Conquistas;
+      4 using Maxx.Domain.Mural;
+      5 using Maxx.Domain.Notificacoes;
+      6 using Maxx.Domain.Premios;
+      7 using Maxx.Domain.Social;
+      8 using Maxx.Infrastructure.Persistence;
+      9 using Microsoft.EntityFrameworkCore;
+     … +157 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Infrastructure\Mural\ConsultaDoMural.cs)
+  ⎿  Added 8 lines
+      72          return Projetar(Visiveis(leitor).Where(aviso => aviso.I
+          d == avisoId), leitor).SingleOrDefaultAsync(cancellationToken);
+      73      }
+      74  
+      75 +    public Task<bool> TemNaoLidoAsync(LeitorDoMural leitor, Can
+         +cellationToken cancellationToken)                              
+      76 +    {                                                          
+      77 +        ArgumentNullException.ThrowIfNull(leitor);             
+      78 +        return Visiveis(leitor).AnyAsync(                      
+      79 +            aviso => !db.Set<LeituraDeAviso>().Any(leitura => l
+         +eitura.AvisoId == aviso.Id && leitura.UsuarioId == leitor.Id), 
+      80 +            cancellationToken);                                
+      81 +    }                                                          
+      82 +                                                               
+      83      // A leitura e a notificação do aviso juntas, numa transaçã
+          o: quem leu o aviso não fica
+      84      // com a notificação dele acesa no sininho.
+      85      public async Task<int> RegistrarLeituraAsync(
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i 's|^
+           services.AddScoped<INotificacaoRepository, NotificacaoRep…)
+  ⎿  Maxx.Api/Program.cs:12:using Maxx.Api.Notificacoes;
+     Maxx.Api/Program.cs:113:builder.Services.AddScoped<Maxx.Application.No
+     tificacoes.NotificacoesHandler>();
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+3 -0)
+       9  using Maxx.Api.LimiteDeTaxa;
+      10  using Maxx.Api.Medalhas;
+      11  using Maxx.Api.Mural;
+      12 +using Maxx.Api.Notificacoes;                                   
+      13  using Maxx.Api.OpenApi;
+      14  using Maxx.Api.Perfil;
+      15  using Maxx.Api.Posts;
+     ...
+      110  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      111  builder.Services.AddScoped<Maxx.Application.Mural.PublicarAvis
+           oHandler>();
+      112  builder.Services.AddScoped<Maxx.Application.Mural.MuralHandler
+           >();
+      113 +builder.Services.AddScoped<Maxx.Application.Notificacoes.Notif
+          +icacoesHandler>();                                            
+      114  
+      115  var app = builder.Build();
+      116  
+     ...
+      183  v1.MapComprovacaoEndpoints();
+      184  v1.MapContestacaoEndpoints();
+      185  v1.MapAvisoEndpoints();
+      186 +v1.MapNotificacaoEndpoints();                                 
+      187  v1.MapGroup("/auth").AllowAnonymous().MapCadastroEndpoints().M
+           apLoginEndpoints().MapRecuperacaoEndpoints();
+      188  if (demonstracao)
+      189  {
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -0)
+      69          services.AddScoped<IMedalhaRepository, MedalhaRepositor
+          y>();
+      70          services.AddScoped<IConsultaDoProfessor, ConsultaDoProf
+          essor>();
+      71          services.AddScoped<INotificacaoRepository, NotificacaoR
+          epository>();
+      72 +        services.AddScoped<IConsultaDeNotificacoes, ConsultaDeN
+         +otificacoes>();                                                
+      73          services.AddScoped<IConsultaDePremios, ConsultaDePremio
+          s>();
+      74          services.AddScoped<IEventoRepository, EventoRepository>
+          ();
+      75          services.AddScoped<IPremioParticipacaoRepository, Premi
+          oParticipacaoRepository>();
+
+● O marcador mapeia por convenção. Agora as rotas.
+
+● Write(apps\api\src\Maxx.Api\Notificacoes\NotificacaoEndpoints.cs)
+  ⎿  Wrote 106 lines to
+     apps\api\src\Maxx.Api\Notificacoes\NotificacaoEndpoints.cs
+       1 using System.Security.Claims;
+       2 using Maxx.Api.Medalhas;
+       3 using Maxx.Api.Posts;
+       4 using Maxx.Application.Notificacoes;
+       5 using Microsoft.AspNetCore.Http.HttpResults;
+       6 
+       7 namespace Maxx.Api.Notificacoes;
+       8 
+       9 // O sininho do cabeçalho do feed e as bolinhas das abas (produt
+         o.md 8). Cada um vê só as
+     … +97 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet build
+      src/Maxx.Api 2>&1 | grep -E " error |Aviso\(s\)|Erro\(s\)" | sort -…)
+  ⎿      0 Aviso(s)
+         0 Erro(s)
+     Done. To undo this action, use 'ef migrations remove'
+     … +12 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     09031938_TrofeusVistos.cs (+29 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class TrofeusVistos : Migration             
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.AddColumn<DateTimeOffset>(        
+      15 +                name: "trofeus_visto_em",                      
+      16 +                table: "usuario",                              
+      17 +                type: "timestamp with time zone",              
+      18 +                nullable: true);                               
+      19 +        }                                                      
+      20 +                                                               
+      21 +        /// <inheritdoc />                                     
+      22 +        protected override void Down(MigrationBuilder migration
+         +Builder)                                                       
+      23 +        {                                                      
+      24 +            migrationBuilder.DropColumn(                       
+      25 +                name: "trofeus_visto_em",                      
+      26 +                table: "usuario");                             
+      27 +        }                                                      
+      28 +    }                                                          
+      29 +}                                                              
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+4 -0)
+      764                          .HasColumnType("text")
+      765                          .HasColumnName("sufixo");
+      766  
+      767 +                    b.Property<DateTimeOffset?>("TrofeusVistoE
+          +m")                                                           
+      768 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      769 +                        .HasColumnName("trofeus_visto_em");   
+      770 +                                                              
+      771                      b.HasKey("Id")
+      772                          .HasName("pk_usuario");
+      773  
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+● Build limpo e migration TrofeusVistos gerada. Para os testes que cobrem os
+  nove tipos, vejo os mundos de teste dos passos 8 e 9.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Escrevo os testes de integração das notificações: o resumo de cada um dos nove
+  tipos, a leitura, as três bolinhas e o marcador de Troféus.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Notificacoes\NotificacoesTests.
+       cs)
+  ⎿  Wrote 302 lines to apps\api\tests\Maxx.Api.IntegrationTests\Notificaco
+     es\NotificacoesTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Json;
+       3 using Maxx.Api.IntegrationTests.Fotos;
+       4 using Maxx.Api.IntegrationTests.PremiosParticipacao;
+       5 using Maxx.Api.Mural;
+       6 using Maxx.Api.Notificacoes;
+       7 using Maxx.Api.PremiosParticipacao;
+       8 using Maxx.Domain.Catalogo;
+       9 using Maxx.Domain.Conquistas;
+      10 using Maxx.Domain.Identidade;
+     … +292 lines (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Notificacoes\NotificacoesTests
+        .cs)
+  ⎿  Added 2 lines, removed 2 lines
+      121              Resumo(postRevogado.Premio.Id, item: postRevogado.
+           Premio.Nome, motivo: "Removido pela instituição."),
+      122              Resumo(porTipo["premioRevogado"].Single()));
+      123          Assert.Equal(
+      124 -            Resumo(confirmado, item: "Semana acadêmica", decis
+          -ao: "confirmada", postId: postConfirmado.Id),                 
+      125 -            Resumo(porTipo["decisaoDeContestacao"].Single()) w
+          -ith { Item = "Semana acadêmica" });                           
+      124 +            Resumo(confirmado, item: postConfirmado.Premio.Nom
+          +e, decisao: "confirmada", postId: postConfirmado.Id),         
+      125 +            Resumo(porTipo["decisaoDeContestacao"].Single()));
+      126          Assert.Equal(Resumo(confirmado, item: postConfirmado.P
+           remio.Nome, postId: postConfirmado.Id), Resumo(porTipo["contes
+           tacaoAberta"].Single()));
+      127          Assert.Equal(
+      128              Resumo(reprovado, item: postConfirmado.Premio.Nome
+           , motivo: "Foto de outro evento."),
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os dois testes falham pela mesma razão: o relógio do MundoSocial começa no
+  segundo cheio, mas as contas são criadas com a hora real, alguns segundos
+  depois. Vou ajustar o teste para alcançar a hora real antes de publicar.
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Notificacoes\NotificacoesTests
+        .cs)
+  ⎿  Added 10 lines
+      255  
+      256      private static async Task AvisosAsync(Social.MundoSocial s
+           ocial, int quantos)
+      257      {
+      258 +        // As contas do MundoSocial nascem na hora real, e o r
+          +elógio do teste parte do segundo                              
+      259 +        // cheio em que o mundo começou a ser montado, antes d
+          +a migração. Sem alcançar a hora                               
+      260 +        // real, o aviso sairia antes das contas, e os destina
+          +tários, fixados na publicação,                                
+      261 +        // não as incluiriam.                                 
+      262 +        var atraso = DateTimeOffset.UtcNow - social.Relogio.Ge
+          +tUtcNow();                                                    
+      263 +        if (atraso > TimeSpan.Zero)                           
+      264 +        {                                                     
+      265 +            social.Relogio.Avancar(TimeSpan.FromSeconds(Math.C
+          +eiling(atraso.TotalSeconds)));                                
+      266 +        }                                                     
+      267 +                                                              
+      268          using var coordenacao = await social.ComoAsync(Coorden
+           acao);
+      269          for (var i = 0; i < quantos; i++)
+      270          {
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch the CI run for etapa 2" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI da etapa 2 passou nos seis jobs (run 42555508742, b0d7e6d). A etapa 2
+  está pronta.
+
+  Na etapa 3, os 5 testes passam. Faço a prova reversa do limite ate da leitura
+  do sininho.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Prova reversa confirmada, e o código foi restaurado. Agora regenero o cliente,
+  formato e rodo a suíte completa.
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      (cd packages/api-client && npm run gerar 2>&1 | tail -1) && dotnet format
+      Maxx.sln 2>&1 |…)
+  ⎿  🚀 openapi.json → src/schema.d.ts [219.8ms]
+     format ok
+     All matched files use Prettier code style!
+     … +19 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+255 -0)
+      2468          ]
+      2469        }
+      2470      },
+      2471 +    "/api/v1/eu/notificacoes": {                             
+      2472 +      "get": {                                               
+      2473 +        "tags": [                                            
+      2474 +          "Notificações"                                     
+      2475 +        ],                                                   
+      2476 +        "operationId": "GetNotificacoes",                    
+      2477 +        "parameters": [                                      
+      2478 +          {                                                  
+      2479 +            "name": "cursor",                                
+      2480 +            "in": "query",                                   
+      2481 +            "schema": {                                      
+      2482 +              "type": "string"                               
+      2483 +            }                                                
+      2484 +          }                                                  
+      2485 +        ],                                                   
+      2486 +        "responses": {                                       
+      2487 +          "200": {                                           
+      2488 +            "description": "OK",                             
+      2489 +            "content": {                                     
+      2490 +              "application/json": {                          
+      2491 +                "schema": {                                  
+      2492 +                  "$ref": "#/components/schemas/PaginaDeNotif
+           +icacoesResponse"                                             
+      2493 +                }                                            
+      2494 +              }                                              
+      2495 +            }                                                
+      2496 +          },                                                 
+      2497 +          "400": {                                           
+      2498 +            "description": "Bad Request",                    
+      2499 +            "content": {                                     
+      2500 +              "application/problem+json": {                  
+      2501 +                "schema": {                                  
+      2502 +                  "$ref": "#/components/schemas/ProblemDetail
+           +s"                                                           
+      2503 +                }                                            
+      2504 +              }                                              
+      2505 +            }                                                
+      2506 +          }                                                  
+      2507 +        },                                                   
+     … 245 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+193 -0)
+      676          patch?: never;
+      677          trace?: never;
+      678      };
+      679 +    "/api/v1/eu/notificacoes": {                              
+      680 +        parameters: {                                         
+      681 +            query?: never;                                    
+      682 +            header?: never;                                   
+      683 +            path?: never;                                     
+      684 +            cookie?: never;                                   
+      685 +        };                                                    
+      686 +        get: operations["GetNotificacoes"];                   
+      687 +        put?: never;                                          
+      688 +        post?: never;                                         
+      689 +        delete?: never;                                       
+      690 +        options?: never;                                      
+      691 +        head?: never;                                         
+      692 +        patch?: never;                                        
+      693 +        trace?: never;                                        
+      694 +    };                                                        
+      695 +    "/api/v1/eu/notificacoes/leitura": {                      
+      696 +        parameters: {                                         
+      697 +            query?: never;                                    
+      698 +            header?: never;                                   
+      699 +            path?: never;                                     
+      700 +            cookie?: never;                                   
+      701 +        };                                                    
+      702 +        get?: never;                                          
+      703 +        put?: never;                                          
+      704 +        post: operations["LerNotificacoes"];                  
+      705 +        delete?: never;                                       
+      706 +        options?: never;                                      
+      707 +        head?: never;                                         
+      708 +        patch?: never;                                        
+      709 +        trace?: never;                                        
+      710 +    };                                                        
+      711 +    "/api/v1/eu/novidades": {                                 
+      712 +        parameters: {                                         
+      713 +            query?: never;                                    
+      714 +            header?: never;                                   
+      715 +            path?: never;                                     
+     … 183 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 3 (notificações e novidades) está pronta para a sua revisão. Não fiz
+  commit nem push; a CI dela roda depois do push.
+
+  A etapa 2 já fechou: o commit b0d7e6d passou nos seis jobs da CI (run
+  42555508742
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42555508742)), com
+  o 404 do perfil inexistente incluído e testado.
+
+  O que entrou
+
+  Rotas
+  - GET /v1/eu/notificacoes?cursor= lista as notificações de quem pede, da mais
+    nova à mais antiga, 20 por página. Cada uma traz o tipo, a referência,
+    quando foi criada, se foi lida e um resumo para o app montar a frase e o
+    toque:
+
+  | Tipo                         | O que vem no resumo
+                                     |
+  |------------------------------|----------------------------------------------
+  ------------------------------------|
+  | Medalha recebida             | Nome do item
+                                     |
+  | Conquista obtida ou removida | Nome do item
+                                     |
+  | Comprovação aprovada         | Nome do item e o post, se ainda está no ar
+                                     |
+  | Contestação aberta           | Nome do item e o post
+                                     |
+  | Comprovação reprovada        | Nome do item e o motivo
+                                     |
+  | Prêmio revogado              | Nome do item e o motivo
+                                     |
+  | Decisão de contestação       | Nome do item, a decisão (confirmada ou
+  revogada), o motivo da revogação e o post |
+  | Aviso novo                   | Título do aviso
+                                     |
+    Post removido vem como postId nulo.
+  - POST /v1/eu/notificacoes/leitura aceita um corpo opcional { "ate": instante 
+    } e marca como lidas as notificações criadas até esse instante. Sem corpo,
+    marca todas.
+  - GET /v1/eu/novidades devolve { sininho, mural, trofeus }.
+  - PUT /v1/eu/trofeus/visto registra que o aluno abriu a aba Troféus.
+
+  As três bolinhas
+  - Sininho: acende enquanto houver notificação não lida.
+  - Mural: acende enquanto houver aviso no mural da pessoa que ela não leu, pela
+    mesma regra de visibilidade da etapa 2. Ler o aviso também marca a
+    notificação dele, então o sininho apaga junto.
+  - Troféus: só para aluno. Acende quando surge, depois do marcador, uma medalha
+    ativa, um prêmio de participação aprovado e ainda válido ou definitivo, ou
+    uma conquista não removida.
+  - Marcador: usuario.trofeus_visto_em, com migration nova
+    20261109031938_TrofeusVistos. No domínio, Usuario.MarcarTrofeusVistos só
+    anda para a frente, e abrir Troféus não lê o sininho.
+
+  Testes
+
+  - Domínio: um teste novo, para o marcador que só anda para a frente.
+  - Integração, 5 novos:
+    - os nove tipos pelos fluxos reais (API e worker), com o resumo de cada um.
+      A exceção são as duas de conquista, gravadas no banco junto com a
+      conquista, sem passar pelo worker.
+    - cada pessoa vê só as próprias, com cursor de 20 e cursor inválido;
+    - a leitura até ate, que deixa acesa a notificação que chegou depois, e a
+      leitura sem corpo;
+    - a bolinha do mural;
+    - a bolinha de Troféus: acende, apaga, não apaga o sininho, a medalha
+      anulada não conta e o professor nunca acende.
+  - Prova reversa: sem o limite ate, a notificação que chegou depois foi marcada
+    como lida e o teste falhou. O código foi restaurado.
+  - Um ajuste no teste, não no código: o relógio dos testes começa alguns
+    segundos antes de as contas existirem, e a regra de destinatários fixados na
+    publicação as excluía. O helper que publica avisos agora acerta o relógio
+    para a hora real antes de publicar.
+  - Como a CI roda, localmente:
+    - API: formatação limpa, build em Release com 0 avisos e 1.101 testes, todos
+      verdes. Os 6 ignorados são esperados (devem ser o VerificacaoDoR2Tests,
+      fora da CI).
+    - App e cliente: cliente regenerado; prettier, lint e typecheck passam.
+
+  Para você conferir
+
+  1. O ate na leitura do sininho não estava no plano. Sem ele, uma notificação
+     que chegasse entre abrir a lista e marcar como lido seria apagada sem ser
+     mostrada. É só acréscimo, e sem corpo o comportamento é o da pergunta 6.
+  2. Aluno novo vê a bolinha do Mural acesa. O mural mostra os avisos antigos da
+     faculdade, e eles contam como não lidos até ele ler ou usar "Ler todos".
+     Segui a regra "aviso não lido acende" ao pé da letra.
+  3. Prêmio de participação em Troféus. O prêmio de participação acende a
+     bolinha pela aprovação. Uma contestação confirmada depois não acende de
+     novo, e um prêmio em averiguação não acende.
+  4. Terceira migration do passo, uma por etapa.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona as notificações do sininho, as novidades e o marcador de 
+  troféus
+
+  Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 4.
+
+✻ Churned for 27m 59s · done 0:33
