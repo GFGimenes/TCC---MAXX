@@ -34,8 +34,8 @@ que nenhum verbo ficou de fora.
      pelo `rodar.ps1`), `MAXX_MAILPIT_PORT`, `MAXX_ARMAZENAMENTO_PORT` (livres a partir
      de 3200);
    - os volumes, que já ficam isolados pelo nome do projeto.
-3. **Dados.** `docker compose run --rm seeder seed demo` para o mundo de demonstração.
-   `Demo__Habilitada` fica desligada.
+3. **Dados.** `docker compose run --rm seeder seed demo` para o mundo de demonstração, e
+   `Demo__Habilitada` e `Demo__Lote` ligados só no projeto de teste (decisão 2).
 4. **Pronto.** Espera `GET /ready` (Caddy na porta escolhida) responder 200, com limite de
    5 minutos (o build da imagem .NET demora).
 5. **Derrubar.** `docker compose -p <projeto> down -v --remove-orphans` e
@@ -49,7 +49,7 @@ que nenhum verbo ficou de fora.
 | Verbo | Rota no engenheiro |
 |---|---|
 | login de cada usuário | `POST /api/v1/auth/login` (RA ou e-mail e senha), guarda o access; em 401, entra de novo |
-| `criarAluno`, `criarProfessor` | Usuários do `seed demo`, um por vez. **Aberto:** o mundo tem poucos usuários; ver "Decisões pendentes" |
+| `criarAluno`, `criarProfessor` | Professores e turmas do `seed demo`; alunos novos pela entrada da demonstração (decisão 2) |
 | `publicar` | `POST /api/v1/posts` (a foto passa por `POST /api/v1/uploads`) |
 | `curtir`, `descurtir` | `PUT` e `DELETE /api/v1/posts/{id}/curtida` |
 | `comentar` | `POST /api/v1/posts/{id}/comentarios` |
@@ -75,28 +75,40 @@ que nenhum verbo ficou de fora.
 - **Ranking:** quem participa, a política de empate e a ordem no empate, lidas na doc do
   passo 11.
 
-## Decisões pendentes (do autor)
+## Quando implementar
 
-1. **Fronteiras de tier (T1 a T5) por HTTP.** O catálogo é arquivo, validado no seed
-   (`CatalogoValidator.cs:88-91`): não há rota para criar um prêmio de 30, 31 ou 151 pontos.
-   Há duas saídas:
-   - (a) T1 a T5 verificam os itens do catálogo que a API expõe: cada item fica dentro da
-     faixa do seu tier, e as fronteiras só são testadas se houver item com esse valor;
-   - (b) o adaptador roda o seeder do produto com um catálogo de teste montado pelo
-     override, fora do checkout, e confere que 0 e 151 são recusados e que 30/31, 70/71 e
-     100/101 caem no tier certo.
+Só quando a `main` do `maxx-engenheiro` estiver final, depois do passo 13 (decisão do
+autor, 08/11/2026). Até lá o adaptador fica desenhado como está, e as rotas acima são
+relidas no commit avaliado antes de implementar.
 
-   A (b) testa a validação de verdade, mas sai da caixa-preta por HTTP.
-2. **Quantidade de usuários.** O `seed demo` cria um mundo pequeno e fixo. A suíte cria
-   usuários novos por caso. Há três saídas:
-   - um mundo de teste montado pelo override (mesmo mecanismo do item 1);
-   - a rota de demonstração (`/api/v1/demo/alunos`), ligando `Demo__Habilitada` só no
-     projeto de teste;
-   - reaproveitar usuários, com cada caso medindo diferenças em vez de totais.
-3. **Caso novo, só com regra:** "professor premia aluno que não é da turma dele" (item 9
-   do inventário). No leigo sai ausente; no engenheiro, deve dar 4xx.
-4. **Ranking assíncrono:** quanto esperar o worker antes de dar o ranking como errado.
-   Proposta: até 30 s, lendo a cada 1 s.
+## Decisões do autor (08/11/2026)
+
+Os números seguem os itens que o esqueleto (`adaptador.js`) cita como "decisão pendente".
+
+1. **Fronteiras de tier (T1 a T5): pelos itens que o catálogo já tem, sem criar prêmio
+   pela API.** O catálogo é arquivo, validado no seed (`CatalogoValidator.cs:88-91`), e
+   não há rota para criar um prêmio de 30, 31 ou 151 pontos. T1 a T5 conferem os itens do
+   catálogo que a API expõe: cada item fica dentro da faixa do seu tier. Uma fronteira
+   (0/1, 30/31, 70/71, 100/101, 150/151) só é testada nos valores que algum item tem; o
+   valor que nenhum item tem fica registrado na evidência como não exercitado. Fica
+   descartada a saída de rodar o seeder com um catálogo de teste, que sairia da
+   caixa-preta por HTTP.
+2. **Usuários: pelo seeder de demonstração do produto e pela entrada da
+   demonstração.** O `seed demo` (`docker compose run --rm seeder seed demo`) cria o
+   mundo de demonstração, com professores e turmas. Os alunos novos que cada caso pede
+   entram pela rota de demonstração (`/api/v1/demo/alunos` e `/api/v1/demo/entrar`),
+   com `Demo__Habilitada` e `Demo__Lote` ligados só no projeto de teste, pelo `.env`
+   gerado na pasta temporária. Isso substitui o passo 3 da subida, que deixava a
+   demonstração desligada.
+3. **Caso novo na suíte: "professor premia aluno fora da turma".** Entra no grupo E
+   (item 9 do inventário), com a capacidade própria. No leigo sai "ausente", porque
+   qualquer professor premia qualquer aluno. No engenheiro passa quando a concessão é
+   recusada com 4xx e os pontos do aluno não mudam. O caso é escrito junto com o
+   adaptador do engenheiro, e o leigo é rodado de novo nesse momento para ganhar a linha
+   "ausente".
+4. **Ranking assíncrono: espera pelo worker de até 30 s.** O adaptador lê o ranking a
+   cada 1 s até ele refletir o estado esperado ou passar de 30 s. Passado o limite, vale o
+   que foi lido, e o caso falha com o tempo esperado na evidência.
 
 ## Prompt único (`eng_pu`, `leigo_pu`)
 
