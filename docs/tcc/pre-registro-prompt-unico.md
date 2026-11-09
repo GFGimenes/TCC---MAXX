@@ -99,6 +99,18 @@ mesmo tempo que um turno em andamento da `eng_07_posts`.
 
 ## 7. Registro e métricas
 
+Alteração declarada em 09/11/2026 (00h50, Brasília), antes de qualquer avaliação de
+produto de prompt único: nos produtos `leigo_pu` e `eng_pu`, a nota validada por humano
+é a nota do revisor de IA confirmada ou ajustada pelo autor, eixo a eixo, depois de ler
+o review, com motivo quando ajustada; não há nota cega independente do autor nesses
+dois produtos, e portanto não há medida de divergência cega neles. As hipóteses H1 e H2
+usam essa nota validada. A comparação da condição prioriza o inventário de cobertura
+(até onde o agente chegou sozinho), as decisões sem perguntar e as perguntas sem
+resposta (contagem do autor a partir do export e do registro de decisões do próprio
+agente, com o revisor de decisões como insumo) e o custo. Motivo: concentrar a
+atenção humana nos dois produtos finais das trilhas, onde a nota cega já foi (leigo) ou
+será (engenheiro) dada, e medir no prompt único o que ele isola, a autonomia do agente.
+
 - `/export` em `resultados/engenheiro/eng_pu-sessao.txt` e
   `resultados/leigo/leigo_pu-sessao.txt`; `.jsonl` copiado para
   `resultados/<trilha>/<id>-sessao.jsonl`; registro em `resultados/<trilha>/<id>.md`
