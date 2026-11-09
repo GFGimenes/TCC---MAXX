@@ -2,14 +2,14 @@
     "produto":  "leigo",
     "eixo":  "codigo",
     "secao":  "5. Código",
-    "tentativa":  1,
+    "tentativa":  2,
     "status":  "ok",
     "motivos":  [
 
                 ],
-    "inicio":  "2026-11-08T20:10:00-03:00",
-    "fim":  "2026-11-08T20:11:46-03:00",
-    "duracao_s":  106,
+    "inicio":  "2026-11-08T23:21:47-03:00",
+    "fim":  "2026-11-08T23:23:30-03:00",
+    "duracao_s":  102,
     "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-leigo",
     "ref":  "main",
     "hash_avaliado":  "2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c",
@@ -19,23 +19,23 @@
     "esforco_usado":  "medium",
     "versao_cli":  "2.1.316 (Claude Code)",
     "versao_cli_sessao":  "2.1.316",
-    "sessao_id":  "2c33c060-9f76-4bb3-aa1d-7761b08bbef0",
+    "sessao_id":  "f1d20e03-644e-4213-964b-e282ce39b68e",
     "tokens":  {
-                   "entrada":  14,
-                   "saida":  11535,
-                   "cache_criacao":  60971,
-                   "cache_leitura":  224566
+                   "entrada":  18,
+                   "saida":  10513,
+                   "cache_criacao":  72592,
+                   "cache_leitura":  383267
                },
-    "custo_usd":  0.7634372,
-    "turnos":  20,
+    "custo_usd":  0.8677214,
+    "turnos":  21,
     "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
     "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
-    "hash_prompt":  "11ce598e4618fa24e41797e2a2600af6fa05956bfd55dfe95b72ec2aeb3b2664",
+    "hash_prompt":  "096676f6d897f296553b60cd9ebb79607c936e7a2e319be8d47c35b96fc7ab81",
     "encaixe":  {
-                    "presente":  false,
-                    "arquivo":  null,
-                    "hash":  null,
-                    "aviso":  "Sem testes de referência (C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\avaliacoes\\reviews\\leigo-testes-referencia.md). O eixo Código segue sem eles."
+                    "presente":  true,
+                    "arquivo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\avaliacoes\\reviews\\leigo-testes-referencia.md",
+                    "hash":  "e9b87d984a4db2d2b1db1db8d66749553b24dc1995a67e6a60baa651ecffdedc",
+                    "aviso":  null
                 },
     "ferramentas_sessao":  [
                                "Glob",
@@ -48,135 +48,112 @@
     "instrucoes_carregadas":  [
 
                               ],
-    "chamadas_ferramenta":  19,
+    "chamadas_ferramenta":  20,
     "nota":  4,
-    "justificativa":  "Não há resultado da suíte de testes de referência para este produto; nota dada sem ela, e os testes de fronteira de tier ficam ausentes porque o produto não tem tiers. O código é pequeno, legível e bem modularizado (config, regras, pontos, feed, html, views, banca, senha, db, app). As regras de pontuação ficam como dados num único arquivo, e o cálculo é puro e feito na hora. A validação de entrada é consistente (idParam, texto com limite, listas fixas de curso e papel, tipo de medalha, upload restrito, redirecionamento seguro), com tratador de erros central. Os testes próprios fazem o fluxo completo por HTTP e conferem pontos calculados à mão, ordem do ranking, ranking por curso, permissões, XSS, open redirect e várias entradas inválidas. Não chega a 5 porque não há CI, a suíte é um único teste gigante e frágil (regex sobre HTML, IDs fixos), sem teste unitário de calcular ou posicionar nem de empate. Há também app.js monolítico (rotas e SQL juntos), pequenas duplicações e o ranking recalculado duas vezes por perfil. Não há lógica errada nem import ou API inexistente no que existe.",
+    "justificativa":  "Na suíte de referência, passou em 19/19 casos de fronteira da regra de pontos declarada, 18/19 entradas inválidas e 5/5 casos de ranking (ordem, empate, só alunos, por curso, perfil igual ao ranking); os 7 casos de tier e ex-aluno são ausentes. A regra de pontos vive num lugar só (regras.js) e é calculada por função pura (pontos.js:calcular/posicionar); a validação é centralizada (ErroUsuario, idParam, caminhoSeguro) e os templates escapam HTML automaticamente. As dependências são reais e não há sinal de alucinação. Não chega a 5 porque não há CI, os testes próprios são um único teste de integração longo com ids fixos e sem testes de unidade de calcular/posicionar, falhou o caso de comentário vazio (302 em vez de 4xx), há efeitos colaterais e migrações em dois mecanismos na hora do require, e há duplicações pequenas (primeiroNome, consulta de tipos de medalha, teste de meta atingida).",
     "evidencias":  [
                        {
+                           "local":  "testes-referencia.md (resumo)",
+                           "descricao":  "51 casos: 43 passaram, 1 falhou (E5-comentario), 7 ausentes (T1-T6 tiers, R6 ex-aluno). Todas as fronteiras F1-F8 e o ranking R1-R5 passaram."
+                       },
+                       {
+                           "local":  "src/app.js:255-265",
+                           "descricao":  "Comentário vazio: com \u0027if (t)\u0027 falso não grava nada e redireciona com 302 em vez de recusar com 4xx; único caso de entrada inválida que falhou na referência."
+                       },
+                       {
                            "local":  "src/regras.js:4-29",
-                           "descricao":  "Pontos, conquistas e medalhas padrão como dados declarativos num lugar só."
+                           "descricao":  "Constantes de pontos, conquistas e medalhas centralizadas num único módulo."
                        },
                        {
-                           "local":  "src/pontos.js:20-30",
-                           "descricao":  "calcular é pura: o total vem dos dados brutos e se ajusta quando algo é apagado."
-                       },
-                       {
-                           "local":  "src/pontos.js:33-39",
-                           "descricao":  "Ranking ordena por total decrescente com desempate por nome em pt-BR; empatados dividem a posição. Ordem correta."
-                       },
-                       {
-                           "local":  "src/pontos.js:56-62",
-                           "descricao":  "statsDoAluno chama ranking() duas vezes, e cada chamada roda a consulta de todos os alunos; ineficiente."
-                       },
-                       {
-                           "local":  "src/pontos.js:57",
-                           "descricao":  "SQL_STATS + \u0027 AND u.id = ?\u0027 duplicado também na linha 69."
-                       },
-                       {
-                           "local":  "src/pontos.js:77-80",
-                           "descricao":  "Migração à mão via PRAGMA user_version; em src/db.js:106-111 há outra por checagem de coluna, sem mecanismo único."
-                       },
-                       {
-                           "local":  "src/app.js:23-28",
-                           "descricao":  "Classe ErroUsuario e tratador de erros central (linhas 466-480), que também apaga upload órfão."
-                       },
-                       {
-                           "local":  "src/app.js:99-106",
-                           "descricao":  "caminhoSeguro, texto (corte no tamanho máximo) e idParam (inteiro positivo, senão 404) validam a entrada."
-                       },
-                       {
-                           "local":  "src/app.js:158-180",
-                           "descricao":  "Cadastro valida nome, formato e domínio do e-mail, curso da lista, senha de pelo menos 8 caracteres e e-mail duplicado."
-                       },
-                       {
-                           "local":  "src/app.js:333-346",
-                           "descricao":  "Medalha valida papel de quem dá, aluno de destino e tipo_id; não valida vínculo de turma entre professor e aluno."
-                       },
-                       {
-                           "local":  "src/app.js:306",
-                           "descricao":  "Consulta de tipos_medalha duplicada na linha 380."
-                       },
-                       {
-                           "local":  "src/app.js:1-483",
-                           "descricao":  "Arquivo monolítico com rotas, SQL e regras pequenas juntos, sem camada de serviço ou repositório."
+                           "local":  "src/pontos.js:20-39",
+                           "descricao":  "calcular() é função pura; posicionar() ordena por total e depois nome e dá a mesma posição aos empatados; pontos derivados dos dados, então desfazer corrige o total (F6 passou)."
                        },
                        {
                            "local":  "src/html.js:1-33",
-                           "descricao":  "Mini motor de templates com escape automático: padrão que ajuda e protege contra XSS por padrão."
+                           "descricao":  "Template tag com escape automático contra XSS: padrão usado onde ajuda; testado em test/fluxo.test.js:86-90."
                        },
                        {
-                           "local":  "src/views.js:333",
-                           "descricao":  "p.nome.split(\u0027 \u0027)[0] repetido (também nas linhas 345 e 470), embora exista o helper primeiroNome na linha 548; em 470 uma variável local tem o mesmo nome do helper."
+                           "local":  "src/app.js:23-28,99-106,466-480",
+                           "descricao":  "Erro do usuário tipado, validação de id e de redirecionamento e tratador de erro únicos: validação consistente."
                        },
                        {
-                           "local":  "src/feed.js:16-47",
-                           "descricao":  "Feed montado com UNION ALL e carregado em lote via json_each, evitando N+1."
-                       },
-                       {
-                           "local":  "src/senha.js:3-15",
-                           "descricao":  "scrypt com sal e comparação com timingSafeEqual."
+                           "local":  "src/app.js:333-337",
+                           "descricao":  "Medalha valida o papel, se o aluno existe e o tipo no banco; E1-E3 passaram com 400/403/404."
                        },
                        {
                            "local":  "test/fluxo.test.js:55-212",
-                           "descricao":  "Um único teste de ponta a ponta com dezenas de asserções em regex sobre HTML e IDs sequenciais; frágil, e uma falha esconde as demais."
+                           "descricao":  "Testes próprios: 3 casos, um deles com cerca de 160 linhas e ids fixos (/u/2, /admin/usuarios/4); confere totais exatos (114 pts) e ordem do ranking, mas não testa unidades, empate, fronteiras de meta nem comentário vazio."
                        },
                        {
-                           "local":  "test/fluxo.test.js:152-156",
-                           "descricao":  "Confere totais calculados à mão (114 e 6) e a ordem do ranking."
-                       },
-                       {
-                           "local":  "test/fluxo.test.js:61-111",
-                           "descricao":  "Entradas inválidas testadas: domínio externo, e-mail repetido, arquivo que não é imagem, open redirect, aluno tentando ação de professor ou admin; medalha para professor na linha 144."
-                       },
-                       {
-                           "local":  "test/fluxo.test.js",
-                           "descricao":  "Não testa empate no ranking, tipo_id inválido, senha curta, curso inválido, ID não numérico nem imagem acima do limite."
+                           "local":  "test/fluxo.test.js:183",
+                           "descricao":  "Variável \u0027psico\u0027 sobrando de uma lista de cursos antiga; nome inconsistente com o curso testado (Administração)."
                        },
                        {
                            "local":  "package.json:10",
-                           "descricao":  "npm test com node --test; não há CI no repositório (sem .github nem outro pipeline)."
+                           "descricao":  "Script npm test existe, mas não há configuração de CI no repositório (sem .github/ nem pipeline)."
                        },
                        {
-                           "local":  "src/regras.js:5",
-                           "descricao":  "10 pontos por post sem limite nem conteúdo mínimo (src/app.js:217-226): posts de 1 caractere inflam o ranking. Lacuna de regra de negócio."
+                           "local":  "src/db.js:8-130 e src/pontos.js:77-80",
+                           "descricao":  "Schema, seed e migração executados ao importar o módulo; migrações por dois mecanismos diferentes (table_info em db.js:106 e PRAGMA user_version em pontos.js:77)."
+                       },
+                       {
+                           "local":  "src/views.js:196,214,333,345,470 vs 548",
+                           "descricao":  "nome.split(\u0027 \u0027)[0] repetido cinco vezes embora exista o helper primeiroNome."
+                       },
+                       {
+                           "local":  "src/app.js:306,380",
+                           "descricao":  "Mesma consulta \u0027SELECT * FROM tipos_medalha ORDER BY pontos DESC\u0027 duplicada."
+                       },
+                       {
+                           "local":  "src/pontos.js:21 e src/views.js:437,471-472",
+                           "descricao":  "Teste de meta atingida (s[c.conta] \u003e= c.meta) repetido na view em vez de usar stats.conquistas já calculado."
+                       },
+                       {
+                           "local":  "src/pontos.js:56-63",
+                           "descricao":  "statsDoAluno recalcula o ranking inteiro duas vezes por perfil aberto, embora rankings() já resolva os dois de uma vez."
+                       },
+                       {
+                           "local":  "src/app.js:101",
+                           "descricao":  "texto() corta entradas longas sem avisar (legenda acima de 2200, comentário acima de 500) em vez de recusar."
+                       },
+                       {
+                           "local":  "src/app.js:454-460",
+                           "descricao":  "Troca de papel não confere se o usuário existe; UPDATE sem efeito e resposta 302."
                        }
                    ],
     "regras_ausentes":  [
-                            "Tiers Bronze, Prata, Ouro e Diamante com faixas 1-30, 31-70, 71-100 e 101-150 (testes de fronteira 30/31, 70/71, 100/101 e 150/151 ausentes)",
-                            "Progressão da mesma conquista para o tier seguinte até o Diamante",
-                            "Nível de encontrabilidade dos prêmios",
-                            "Troféus e medalhas como entidades distintas, com troféu valendo mais e cadastro pela faculdade",
+                            "Tiers Bronze/Prata/Ouro/Diamante com faixas 1-30, 31-70, 71-100, 101-150 (fronteiras de tier da suíte ausentes)",
+                            "Progressão da mesma conquista para o tier seguinte até Diamante",
+                            "Distinção troféu x medalha com peso diferente e cadastro de prêmios pelo corpo da faculdade",
+                            "Ex-aluno que mantém posição no ranking e não pontua mais",
+                            "Professor só dá medalha a alunos que leciona ou orienta",
+                            "Rankings all-time geral e all-time por curso",
                             "Login por RA",
-                            "Esqueci minha senha",
-                            "Ex-aluno mantém posição mas não pontua",
-                            "Semestre no perfil",
-                            "Ranking all-time geral e all-time por curso (sem noção de período)",
-                            "Professor só dá medalha a aluno que leciona ou orienta",
-                            "Prova por foto, denúncia e revogação de prêmio",
+                            "Prova por foto e denúncia/revogação de prêmio",
+                            "Log de leitura do mural (quem leu e quando)",
+                            "Categorias do mural (Faculdade, Curso, Professores) com filtro por público",
                             "Seguidores e seguindo",
-                            "Categorias do mural (Faculdade, Curso, Professores) com filtro por relevância",
-                            "Log de leitura por aviso (quem leu e quando)",
-                            "Compartilhar post"
+                            "Esqueci minha senha"
                         ],
     "decisoes_do_agente":  [
-                               "Usar node:sqlite (DatabaseSync) embutido e experimental, sem ORM, suprimindo o ExperimentalWarning nos scripts",
-                               "Renderizar HTML no servidor com motor próprio de templates (tagged template) e escape automático",
-                               "Calcular os pontos sempre na hora a partir dos dados brutos, sem total gravado no banco",
-                               "Definir as conquistas como tabela de dados em src/regras.js (conta, meta, bonus)",
-                               "Inventar a tabela de pontos: post 10, curtida recebida 2, comentário 3 uma vez por post, sem contar curtida no próprio post",
-                               "Desempatar o ranking por nome e fazer empatados dividirem a posição",
-                               "Migrar o esquema à mão com PRAGMA user_version e checagem de coluna",
-                               "Centralizar os erros na classe ErroUsuario e num middleware de erro",
-                               "Escrever um único teste de integração HTTP com node:test em banco temporário, sem testes unitários",
-                               "Hash de senha com scrypt e token de sessão guardado como hash SHA-256",
-                               "Criar o módulo de acesso da banca com contas de teste ligadas por variável de ambiente",
-                               "Montar o feed numa só consulta UNION ALL com carregamento em lote via json_each"
+                               "Pontos calculados sempre a partir dos dados, sem saldo gravado",
+                               "Conquistas automáticas por meta com bônus fixos (regras.js:12-20) e tabela de registro para o feed",
+                               "Comentário pontua uma vez por post alheio; curtir ou comentar o próprio post não pontua",
+                               "Empate no ranking na mesma posição, ordenado pelo nome",
+                               "Mini-engine de templates própria com escape automático em vez de biblioteca",
+                               "node:sqlite (DatabaseSync) sem ORM, SQL escrito à mão",
+                               "Migrações ad hoc com PRAGMA user_version e ALTER TABLE condicional",
+                               "Suíte própria de integração ponta a ponta com node:test e fetch sobre banco temporário, sem testes de unidade",
+                               "Truncar textos longos sem avisar e ignorar comentário vazio em vez de recusar",
+                               "Feed paginado misturando posts, medalhas e conquistas numa consulta UNION",
+                               "Módulo de acesso da banca com limite de tentativas por IP em memória"
                            ],
     "nao_verificado":  [
-                           "Se npm install e npm test passam no Node 22.13 ou superior",
-                           "Se o app sobe e as rotas respondem como os testes descrevem",
-                           "Suporte de node:sqlite a close(), json_each e funções de janela na versão instalada",
-                           "Como a suíte de testes de referência se sairia em entradas inválidas e ordenação do ranking",
-                           "Desempenho real de statsDoAluno e ranking() com muitos alunos"
+                           "Se npm test (suíte própria) passa neste commit",
+                           "Cobertura real dos testes",
+                           "Inicialização do app além da evidência indireta da suíte de referência",
+                           "Comportamento de localeCompare(\u0027pt-BR\u0027) com acentos no desempate em outros runtimes",
+                           "Desempenho de statsDoAluno e rankings com muitos alunos",
+                           "Execução de scripts/demo.js e dos scripts de publicação"
                        ]
 }

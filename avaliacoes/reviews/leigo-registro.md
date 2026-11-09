@@ -50,3 +50,23 @@ Avisos:
 | decisoes (leigo_05_trofeus) | 1 | ok | 7422726c-ea1b-49cf-9db8-0575fa9a0b1c | claude-opus-5-5, medium | 4 / 7032 / 24245 / 10052 | 58 | 0.33662640000000005 | 2 | - |
 | decisoes (leigo_06_ranking) | 1 | ok | 0aed558c-c47e-48f8-ade9-6d19fffae7d6 | claude-opus-5-5, medium | 4 / 5229 / 22076 / 10048 | 43 | 0.28321359999999995 | 2 | - |
 | decisoes (leigo_07_deploy_v2) | 1 | ok | 237c64bb-6602-4927-ab39-bb72a40fb57b | claude-opus-5-5, medium | 6 / 9789 / 45732 / 47155 | 84 | 0.571091 | 3 | - |
+
+## Execução de 2026-11-08 23:21:45 -03:00
+
+- Modo: avaliação
+- Repositório: `C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-leigo`
+- Ref: `main`
+- Commit avaliado: `2a7dad587e67aec8c45df37ce7b59c1f3eccfe2c`
+- Início e fim: 2026-11-08 23:21:45 a 2026-11-08 23:23:30 (106 s)
+- Claude Code: 2.1.316 (Claude Code)
+- Modelo e esforço fixados: claude-opus-5-5, medium
+- Tempo limite por eixo: 60 min
+- Repositório de origem inalterado (estado `10a060fcedcb`): sim
+- Checkout inalterado depois das sessões: sim
+- SHA-256 de avaliacoes/rubrica.md: `114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541`
+- SHA-256 de avaliador/prompts/revisor.md: `6cc50e1a8aedfc361958142daa256362226132d3a568be88dc08cd42b813d69d`
+- SHA-256 de docs/especificacao-telas.md: `f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b`
+
+| Eixo | Tentativa | Status | Sessão | Modelo e esforço confirmados (transcrição) | Tokens (entrada / saída / cache criação / cache leitura) | Duração (s) | Custo (US$) | Chamadas de ferramenta | Falha ou motivo |
+|---|---|---|---|---|---|---|---|---|---|
+| codigo | 2 | ok | f1d20e03-644e-4213-964b-e282ce39b68e | claude-opus-5-5, medium | 18 / 10513 / 72592 / 383267 | 102 | 0.8677214 | 20 | - |
