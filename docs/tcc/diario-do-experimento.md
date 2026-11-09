@@ -482,3 +482,11 @@ pré-registro, prompts inalterados. Motivo: o `leigo_pu` não depende de você e
 as portas do engenheiro (o leigo iterativo usou Node na 3000); o `eng_pu` precisa da
 máquina livre.
 
+09/11 (madrugada): `eng_09_conquistas` fechada em 4 h 12 min (3 h 48 min de atividade),
+oito etapas mais o fix do Jest: avaliador puro, reavaliação por fato no worker com trava
+por aluno, recálculo na anulação, fechamento de período e congelamento, leitura e tela de
+Troféus com progresso, post de conquista, docs e e2e. CI vermelha três vezes por timeout
+do runner sem código do agente envolvido; fix separado. PR #11, merge na `main`
+(`eda626c`). Registro em `resultados/engenheiro/eng_09_conquistas.md`. Próxima:
+`eng_10_mural`.
+
