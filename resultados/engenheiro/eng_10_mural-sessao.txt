@@ -4349,3 +4349,1129 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
   Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 6.
 
 ✻ Cooked for 8m 57s · done 1:01
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Etapa 5 aprovada; capturas conferidas, identidade mantida. Os dois pontos     
+  ficam como você fez: a conta professora e instituição publica só para turmas  
+  pelo app, e só "Remover foto" nesta tela. Commita com a mensagem proposta,    
+  push, acompanha a CI e segue para a etapa 6; no fim dela, para para a minha   
+  revisão com capturas do sininho no feed e no Mural, da tela de notificações   
+  com os tipos, e das bolinhas das abas, no claro e no escuro.                  
+
+  Pushed to feat/passo-10-mural, ran 1 shell command (ctrl+o to expand)
+
+● Commit f430528 enviado e CI em acompanhamento. Começo a etapa 6 pelo ícone do
+  sino (o bell do Lucide).
+
+● Update(apps\mobile\src\components\Icon.tsx)
+  ⎿  Added 7 lines
+      119    // chevron-right e x do Lucide.
+      120    voltar: [{ d: "m15 18-6-6 6-6", modo: "aberto" }],
+      121    avancar: [{ d: "m9 18 6-6-6-6", modo: "aberto" }],
+      122 +  // bell do Lucide: o sininho das notificações, no cabeçalho 
+          +do feed e do Mural.                                           
+      123 +  sino: [                                                     
+      124 +    {                                                         
+      125 +      d: "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9",         
+      126 +    },                                                        
+      127 +    { d: "M10.3 21a1.94 1.94 0 0 0 3.4 0", modo: "aberto" },  
+      128 +  ],                                                          
+      129    // chevron-down do Lucide: o cartão recolhido do mural, que 
+           abre ao toque.
+      130    abrir: [{ d: "m6 9 6 6 6-6", modo: "aberto" }],
+      131    // check-check do Lucide: o "Ler todos" do mural.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Agora a camada de dados das notificações: hooks, textos e destinos por tipo.
+
+● Write(apps\mobile\src\notificacoes\api.ts)
+  ⎿  Wrote 91 lines to apps\mobile\src\notificacoes\api.ts
+       1 import type { components } from "@maxx/api-client";
+       2 import {
+       3   useInfiniteQuery,
+       4   useMutation,
+       5   useQuery,
+       6   useQueryClient,
+       7 } from "@tanstack/react-query";
+       8 
+       9 import { useApiClient } from "../api/ApiClientProvider";
+      10 import { FalhaDaApi } from "../api/FalhaDaApi";
+     … +81 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\notificacoes\textos.ts)
+  ⎿  Wrote 95 lines to apps\mobile\src\notificacoes\textos.ts
+       1 import type { IconName } from "../components/Icon";
+       2 
+       3 // O texto de cada notificação é do app, pelo tipo (decisoes/REA
+         DME.md, Notificação). A API
+       4 // manda só o que a frase pede: o nome do item, o motivo, a deci
+         são, o post, o título do
+       5 // aviso.
+       6 export interface DadosDaNotificacao {
+       7   tipo: string;
+       8   referenciaId: string;
+     … +87 lines (ctrl+o to expand)
+
+● Os textos ficaram com um remendo para o nome ausente. Reescrevo com um helper
+  limpo.
+
+● Write(apps\mobile\src\notificacoes\textos.ts)
+  ⎿  Added 40 lines, removed 25 lines
+      13    tituloDoAviso?: string | null;
+      14  }
+      15  
+      16 -interface Apresentacao {                                       
+      16 +export interface Apresentacao {                                
+      17    texto: string;
+      18    icone: IconName;
+      19    // Para onde o toque leva (passo 10, pergunta 6); nulo, nenhu
+          m destino.
+      20    destino: string | null;
+      21  }
+      22  
+      23 +// O nome do item, ou o genérico quando a referência já não exi
+         +ste.                                                           
+      24 +const nome = (item: string | null | undefined, generico: string
+         +) =>                                                           
+      25 +  item ?? generico;                                            
+      26 +                                                               
+      27 +// O motivo, quando há, entra depois de dois pontos, com um pon
+         +to final só.                                                   
+      28  const comMotivo = (frase: string, motivo?: string | null) =>
+      24 -  motivo ? `${frase}: ${motivo.replace(/\.?\s*$/, "")}.` : `${f
+         -rase}.`;                                                       
+      29 +  motivo ? `${frase}: ${motivo.trim().replace(/\.+$/, "")}.` : 
+         +`${frase}.`;                                                   
+      30  
+      31 +// O post do prêmio, quando ainda está no ar; senão, Troféus.  
+      32 +const doPost = (postId?: string | null) =>                     
+      33 +  postId ? `/post/${postId}` : "/trofeus";                     
+      34 +                                                               
+      35  // Um tipo por linha; o teste confere que todo tipo da API tem 
+          a sua. Um tipo que o app
+      36  // instalado ainda não conhece (a API anda na frente) cai no te
+          xto genérico.
+      37  export const APRESENTACOES: Record<
+     ...
+      39    (dados: DadosDaNotificacao) => Apresentacao
+      40  > = {
+      41    medalhaRecebida: ({ item }) => ({
+      33 -    texto: `Você recebeu a medalha ${item ?? "de um professor"}
+         -.`,                                                            
+      42 +    texto: `Você recebeu a medalha ${nome(item, "de um professo
+         +r")}.`,                                                        
+      43      icone: "fita",
+      44      destino: "/trofeus",
+      45    }),
+      46    comprovacaoAprovada: ({ item, postId }) => ({
+      38 -    texto: `Sua comprovação de ${item ?? "prêmio"} foi aprovada
+         -.`,                                                            
+      47 +    texto: `Sua comprovação de ${nome(item, "prêmio")} foi apro
+         +vada.`,                                                        
+      48      icone: "taca",
+      40 -    destino: postId ? `/post/${postId}` : "/trofeus",          
+      49 +    destino: doPost(postId),                                   
+      50    }),
+      51    comprovacaoReprovada: ({ item, motivo }) => ({
+      43 -    texto: comMotivo(`Sua comprovação de ${item ?? "prêmio"} fo
+         -i reprovada`, motivo),                                         
+      52 +    texto: comMotivo(                                          
+      53 +      `Sua comprovação de ${nome(item, "prêmio")} foi reprovada
+         +`,                                                             
+      54 +      motivo,                                                  
+      55 +    ),                                                         
+      56      icone: "taca",
+      57      destino: "/trofeus",
+      58    }),
+      59    contestacaoAberta: ({ item, postId }) => ({
+      48 -    texto: `Seu prêmio ${item ?? ""} foi contestado e está em a
+         -veriguação.`.replace(                                          
+      49 -      "  ",                                                    
+      50 -      " ",                                                     
+      51 -    ),                                                         
+      60 +    texto: `Seu prêmio ${nome(item, "de participação")} foi con
+         +testado e está em averiguação.`,                               
+      61      icone: "taca",
+      53 -    destino: postId ? `/post/${postId}` : "/trofeus",          
+      62 +    destino: doPost(postId),                                   
+      63    }),
+      55 -  decisaoDeContestacao: ({ item, decisao, motivo, postId }) => 
+         -({                                                             
+      56 -    texto:                                                     
+      57 -      decisao === "revogada"                                   
+      58 -        ? comMotivo(`A contestação de ${item ?? "seu prêmio"} t
+         -erminou e o prêmio foi revogado`, motivo)                      
+      59 -        : `A contestação de ${item ?? "seu prêmio"} terminou e 
+         -o prêmio foi confirmado.`,                                     
+      60 -    icone: "taca",                                             
+      61 -    destino: postId ? `/post/${postId}` : "/trofeus",          
+      62 -  }),                                                          
+      64 +  decisaoDeContestacao: ({ item, decisao, motivo, postId }) => 
+         +{                                                              
+      65 +    const premio = nome(item, "seu prêmio");                   
+      66 +    return {                                                   
+      67 +      texto:                                                   
+      68 +        decisao === "revogada"                                 
+      69 +          ? comMotivo(                                         
+      70 +              `A contestação de ${premio} terminou e o prêmio f
+         +oi revogado`,                                                  
+      71 +              motivo,                                          
+      72 +            )                                                  
+      73 +          : `A contestação de ${premio} terminou e o prêmio foi
+         + confirmado.`,                                                 
+      74 +      icone: "taca",                                           
+      75 +      destino: doPost(postId),                                 
+      76 +    };                                                         
+      77 +  },                                                           
+      78    premioRevogado: ({ item, motivo }) => ({
+      64 -    texto: comMotivo(`Seu prêmio ${item ?? ""} foi revogado`.re
+         -place("  ", " "), motivo),                                     
+      79 +    texto: comMotivo(                                          
+      80 +      `Seu prêmio ${nome(item, "de participação")} foi revogado
+         +`,                                                             
+      81 +      motivo,                                                  
+      82 +    ),                                                         
+      83      icone: "taca",
+      84      destino: "/trofeus",
+      85    }),
+      86    conquistaObtida: ({ item }) => ({
+      69 -    texto: `Você obteve a conquista ${item ?? "nova"}.`,       
+      87 +    texto: `Você obteve a conquista ${nome(item, "nova")}.`,   
+      88      icone: "taca",
+      89      destino: "/trofeus",
+      90    }),
+      91    conquistaRemovida: ({ item }) => ({
+      74 -    texto: `A conquista ${item ?? ""} foi removida no recálculo
+         - dos seus prêmios.`.replace(                                   
+      75 -      "  ",                                                    
+      76 -      " ",                                                     
+      77 -    ),                                                         
+      92 +    texto: `A conquista ${nome(item, "que você tinha")} foi rem
+         +ovida no recálculo dos seus prêmios.`,                         
+      93      icone: "taca",
+      94      destino: "/trofeus",
+      95    }),
+
+● Agora o botão do sininho e a tela de notificações.
+
+● Write(apps\mobile\src\notificacoes\Sininho.tsx)
+  ⎿  Wrote 65 lines to apps\mobile\src\notificacoes\Sininho.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { Pressable, StyleSheet, View } from "react-native";
+       3 
+       4 import { Icon } from "../components/Icon";
+       5 import { useTheme } from "../theme/ThemeProvider";
+       6 import { raios, tamanhos } from "../theme/tokens";
+       7 import { useNovidades } from "./api";
+       8 
+       9 // O sininho do cabeçalho do feed e do Mural (produto.md 8; pran
+         cheta feed-*.png e
+     … +56 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\notificacoes\NotificacoesScreen.tsx)
+  ⎿  Wrote 198 lines to apps\mobile\src\notificacoes\NotificacoesScreen.tsx
+       1 import { useRouter, type Href } from "expo-router";
+       2 import { useEffect, useRef } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   FlatList,
+       6   Pressable,
+       7   StyleSheet,
+       8   Text,
+       9   View,
+      10 } from "react-native";
+     … +188 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" && printf
+      'import { NotificacoesScreen } from "../../notificacoes/Notificaco…)
+  ⎿  49:  const cabecalho = (
+     50-    <View style={styles.topo}>
+     51-      <Logo largura={110} />
+     … +19 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\src\app\(app)\notificacoes.tsx (+3 -0)
+      1 +import { NotificacoesScreen } from "../../notificacoes/Notificac
+        +oesScreen";                                                     
+      2 +                                                                
+      3 +export default NotificacoesScreen;                              
+● Coloco o sininho no cabeçalho do feed, ao lado do "+".
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\feed\FeedScreen.tsx)
+  ⎿  Added 3 lines, removed 3 lines
+      21  import { useFeed } from "./api";
+      22  import { CartaoDePost } from "./CartaoDePost";
+      23  
+      24 -// A Home (produto.md 6.2 e prancheta do feed): o logo e o "+" 
+         -do novo post no topo, e os                                     
+      25 -// posts de quem a pessoa segue intercalados com recomendações,
+         - rolando sem fim. O sininho                                    
+      26 -// chega com as notificações, no passo 10.                     
+      24 +// A Home (produto.md 6.2 e prancheta do feed): o logo, o "+" d
+         +o novo post e o sininho das                                    
+      25 +// notificações (passo 10) no topo, e os posts de quem a pessoa
+         + segue intercalados com                                        
+      26 +// recomendações, rolando sem fim.                             
+      27  export function FeedScreen() {
+      28    const { colors } = useTheme();
+      29    const insets = useSafeAreaInsets();
+
+● Update(apps\mobile\src\feed\FeedScreen.tsx)
+  ⎿  Added 14 lines, removed 11 lines
+      49    const cabecalho = (
+      50      <View style={styles.topo}>
+      51        <Logo largura={110} />
+      52 -      {ehAluno && (                                            
+      53 -        <Pressable                                             
+      54 -          role="button"                                        
+      55 -          accessibilityLabel="Novo post"                       
+      56 -          hitSlop={8}                                          
+      57 -          onPress={() => router.push("/novo-post")}            
+      58 -          style={styles.botao}                                 
+      59 -        >                                                      
+      60 -          <Icon name="novo" color={colors.ink} size={tamanhos.i
+         -coneNav} />                                                    
+      61 -        </Pressable>                                           
+      62 -      )}                                                       
+      52 +      <View style={styles.acoes}>                              
+      53 +        {ehAluno && (                                          
+      54 +          <Pressable                                           
+      55 +            role="button"                                      
+      56 +            accessibilityLabel="Novo post"                     
+      57 +            hitSlop={8}                                        
+      58 +            onPress={() => router.push("/novo-post")}          
+      59 +            style={styles.botao}                               
+      60 +          >                                                    
+      61 +            <Icon name="novo" color={colors.ink} size={tamanhos
+         +.iconeNav} />                                                  
+      62 +          </Pressable>                                         
+      63 +        )}                                                     
+      64 +        <Sininho />                                            
+      65 +      </View>                                                  
+      66      </View>
+      67    );
+      68  
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f=feed/FeedScreen.tsx && sed -i 's|^import { Logo } from
+      "../marca/Logo";…)
+  ⎿  159:  botao: {
+     160-    width: tamanhos.alvoDeToque,
+     161-    height: tamanhos.alvoDeToque,
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\feed\FeedScreen.tsx (+1 -0)
+      16  import { Icon } from "../components/Icon";
+      17  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      18  import { Logo } from "../marca/Logo";
+      19 +import { Sininho } from "../notificacoes/Sininho";             
+      20  import { useTheme } from "../theme/ThemeProvider";
+      21  import { espacamento, tamanhos } from "../theme/tokens";
+      22  import { useFeed } from "./api";
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f=feed/FeedScreen.tsx && sed -i '159,165{s|    marginRight: -10,|
+      marg…)
+  ⎿  159:  acoes: { flexDirection: "row", alignItems: "center" },
+     165:    marginRight: 4,
+  ⎿  Updated apps\mobile\src\feed\FeedScreen.tsx (+2 -1)
+      156      paddingHorizontal: espacamento.margemLateral,
+      157      paddingVertical: 8,
+      158    },
+      159 +  acoes: { flexDirection: "row", alignItems: "center" },      
+      160    botao: {
+      161      width: tamanhos.alvoDeToque,
+      162      height: tamanhos.alvoDeToque,
+      163      alignItems: "center",
+      164      justifyContent: "center",
+      164 -    marginRight: -10,                                         
+      165 +    marginRight: 4,                                           
+      166    },
+      167    espera: { marginTop: 48 },
+      168    estado: { paddingHorizontal: espacamento.margemLateral, padd
+           ingTop: 48 },
+
+● Agora o Mural: sininho no topo, à direita do "+" do professor, e o "Ler todos"
+  seguindo a bolinha do Mural.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\mobile\src\mural\MuralScreen.tsx)
+  ⎿  Added 1 line, removed 2 lines
+      42  
+      43  // A aba Mural (produto.md 7 e prancheta mural-*.png): o mural 
+          combinado da faculdade, do
+      44  // curso e das turmas, do mais novo ao mais antigo, somente lei
+          tura. O "+" do professor abre
+      45 -// o novo aviso para as turmas dele. O sininho do cabeçalho che
+         -ga com as notificações, na                                     
+      46 -// etapa 6 do passo 10.                                        
+      45 +// o novo aviso para as turmas dele; o sininho abre as notifica
+         +ções, como no feed.                                            
+      46  export function MuralScreen() {
+      47    const { colors } = useTheme();
+      48    const insets = useSafeAreaInsets();
+
+● Update(apps\mobile\src\mural\MuralScreen.tsx)
+  ⎿  Added 6 lines, removed 1 line
+      54    const lerTodos = useLerTodos();
+      55    const [atualizando, setAtualizando] = useState(false);
+      56  
+      57 +  const novidades = useNovidades();                            
+      58    const avisos = mural.data?.pages.flatMap((pagina) => pagina.i
+          tens) ?? [];
+      58 -  const temNaoLido = avisos.some((aviso) => !aviso.lido);      
+      59  
+      60 +  // "Ler todos" marca o mural inteiro, não só o filtro do chip
+         +: segue a bolinha da aba, que                                  
+      61 +  // é do mural inteiro. Sem a resposta das novidades, vale o q
+         +ue a lista mostra.                                             
+      62 +  const temNaoLido =                                           
+      63 +    novidades.data?.mural ?? avisos.some((aviso) => !aviso.lido
+         +);                                                             
+      64 +                                                               
+      65    const atualizar = async () => {
+      66      setAtualizando(true);
+      67      try {
+
+● Update(apps\mobile\src\mural\MuralScreen.tsx)
+  ⎿  Added 14 lines, removed 11 lines
+      75      <View>
+      76        <View style={styles.topo}>
+      77          <Logo largura={110} />
+      78 -        {ehProfessor && (                                      
+      79 -          <Pressable                                           
+      80 -            role="button"                                      
+      81 -            accessibilityLabel="Novo aviso"                    
+      82 -            hitSlop={8}                                        
+      83 -            onPress={() => router.push("/novo-aviso")}         
+      84 -            style={styles.botao}                               
+      85 -          >                                                    
+      86 -            <Icon name="novo" color={colors.ink} size={tamanhos
+         -.iconeNav} />                                                  
+      87 -          </Pressable>                                         
+      88 -        )}                                                     
+      78 +        <View style={styles.acoes}>                            
+      79 +          {ehProfessor && (                                    
+      80 +            <Pressable                                         
+      81 +              role="button"                                    
+      82 +              accessibilityLabel="Novo aviso"                  
+      83 +              hitSlop={8}                                      
+      84 +              onPress={() => router.push("/novo-aviso")}       
+      85 +              style={styles.botao}                             
+      86 +            >                                                  
+      87 +              <Icon name="novo" color={colors.ink} size={tamanh
+         +os.iconeNav} />                                                
+      88 +            </Pressable>                                       
+      89 +          )}                                                   
+      90 +          <Sininho />                                          
+      91 +        </View>                                                
+      92        </View>
+      93        <View style={styles.linhaDoTitulo}>
+      94          <Text role="heading" style={[textStyles.titulo, { color
+          : colors.ink }]}>
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f=mural/MuralScreen.tsx && sed -i 's|^import { Logo } from
+      "../marca/Logo…)
+  ⎿  21:import { useNovidades } from "../notificacoes/api";
+     22:import { Sininho } from "../notificacoes/Sininho";
+     59:  const novidades = useNovidades();
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\mural\MuralScreen.tsx (+4 -1)
+      18  import { Icon } from "../components/Icon";
+      19  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      20  import { Logo } from "../marca/Logo";
+      21 +import { useNovidades } from "../notificacoes/api";            
+      22 +import { Sininho } from "../notificacoes/Sininho";             
+      23  import { fontFamily, textStyles } from "../theme/fonts";
+      24  import { useTheme } from "../theme/ThemeProvider";
+      25  import { espacamento, interacao, raios, tamanhos } from "../the
+          me/tokens";
+     ...
+      251      paddingHorizontal: espacamento.margemLateral,
+      252      paddingTop: 4,
+      253    },
+      254 +  acoes: { flexDirection: "row", alignItems: "center" },      
+      255    botao: {
+      256      width: tamanhos.alvoDeToque,
+      257      height: tamanhos.alvoDeToque,
+      258      alignItems: "center",
+      259      justifyContent: "center",
+      257 -    marginRight: -10,                                         
+      260 +    marginRight: 4,                                           
+      261    },
+      262    toqueLerTodos: {
+      263      minHeight: tamanhos.alvoDeToque,
+
+● Agora as bolinhas das abas na navegação e o marcador ao abrir Troféus.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f=navegacao/LayoutDasAbas.tsx && sed -i 's|^import { useEu } from
+      "../api…)
+  ⎿  }
+
+     // As cinco abas, na ordem do design: Home, Busca, Mural, Troféus, Per
+     … +26 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\navegacao\LayoutDasAbas.tsx (+8 -1)
+      2  import { StyleSheet, View } from "react-native";
+      3  
+      4  import { useEu } from "../api/useEu";
+      5 +import { useNovidades } from "../notificacoes/api";             
+      6  import { BottomNav, type Aba } from "../components/BottomNav";
+      7  import { useTheme } from "../theme/ThemeProvider";
+      8  
+     ...
+      23  
+      24  // As cinco abas, na ordem do design: Home, Busca, Mural, Trofé
+          us, Perfil (produto.md 10).
+      25  // Troféus desde o passo 6, Busca e Perfil desde o passo 7, Mur
+          al desde o passo 10.
+      25 -// A bolinha de novidade chega com o sininho, na etapa 6 do pas
+         -so 10.                                                         
+      26 +// A bolinha de novidade (aviso não lido no Mural, prêmio novo 
+         +em Troféus) vem das                                            
+      27 +// novidades, perguntadas ao focar e a cada 60 s, desde o passo
+         + 10.                                                           
+      28  export function LayoutDasAbas() {
+      29    const { colors } = useTheme();
+      30    const router = useRouter();
+      31    const caminho = usePathname();
+      32    const eu = useEu();
+      33 +  const novidades = useNovidades();                            
+      34  
+      35    return (
+      36      <View style={[styles.fill, { backgroundColor: colors.bg }]}
+          >
+     ...
+      40        <BottomNav
+      41          active={abaDaRota(caminho)}
+      42          nome={eu.data?.nomeDeExibicao ?? ""}
+      43 +        novidades={{                                           
+      44 +          mural: novidades.data?.mural ?? false,               
+      45 +          trofeus: novidades.data?.trofeus ?? false,           
+      46 +        }}                                                     
+      47          onSelect={(aba) => router.navigate(ROTAS[aba])}
+      48        />
+      49      </View>
+
+● Update(apps\mobile\src\trofeus\TrofeusScreen.tsx)
+  ⎿  Added 8 lines, removed 2 lines
+      35  ] as const;
+      36  
+      37  // A tela de Troféus (prancheta trofeus-*.png): o catálogo do p
+          róprio aluno, o que falta, o
+      38 -// critério e a raridade por escassez. A posição no ranking, o 
+         -sininho e a bolinha de                                         
+      39 -// prêmio novo chegam nos passos 10 e 11.                      
+      38 +// critério e a raridade por escassez. Abrir a aba apaga a boli
+         +nha de prêmio novo (passo 10,                                  
+      39 +// pergunta 5), sem ler o sininho. A posição no ranking chega n
+         +o passo 11.                                                    
+      40  export function TrofeusScreen() {
+      41    const { colors } = useTheme();
+      42    const eu = useEu();
+      43    const ehAluno = eu.data?.papeis.includes("aluno") ?? false;
+      44    const premios = usePremios(ehAluno);
+      45 +  const { mutate: verTrofeus } = useVerTrofeus();              
+      46 +  useEffect(() => {                                            
+      47 +    if (ehAluno) {                                             
+      48 +      verTrofeus();                                            
+      49 +    }                                                          
+      50 +  }, [ehAluno, verTrofeus]);                                   
+      51    const [aba, setAba] = useState<AbaDeTrofeus>("trofeus");
+      52    const [mostrarNaoObtidos, setMostrarNaoObtidos] = useState(tr
+          ue);
+      53  
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      f=navegacao/LayoutDasAbas.tsx && sed -i '5d' $f && sed -i 's|^import {
+      Bo…)
+  ⎿  import { Slot, usePathname, useRouter, type Href } from "expo-router";
+     import { StyleSheet, View } from "react-native";
+     … +20 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\navegacao\LayoutDasAbas.tsx (+1 -1)
+      2  import { StyleSheet, View } from "react-native";
+      3  
+      4  import { useEu } from "../api/useEu";
+      5 -import { useNovidades } from "../notificacoes/api";             
+      5  import { BottomNav, type Aba } from "../components/BottomNav";
+      6 +import { useNovidades } from "../notificacoes/api";             
+      7  import { useTheme } from "../theme/ThemeProvider";
+      8  
+      9  const ROTAS: Record<Aba, Href> = {
+  ⎿  Updated apps\mobile\src\notificacoes\NotificacoesScreen.tsx (+3 -6)
+      18  import { fontFamily, textStyles } from "../theme/fonts";
+      19  import { useTheme } from "../theme/ThemeProvider";
+      20  import { espacamento, interacao, raios, tamanhos } from "../the
+          me/tokens";
+      21 -import {                                                       
+      22 -  useLerNotificacoes,                                          
+      23 -  useNotificacoes,                                             
+      24 -  type Notificacao,                                            
+      25 -} from "./api";                                                
+      21 +import { useLerNotificacoes, useNotificacoes, type Notificacao 
+         +} from "./api";                                                
+      22  import { apresentar } from "./textos";
+      23  
+      24  // O sininho aberto (produto.md 8). Sem prancheta: segue a iden
+          tidade visual e a atividade do
+     ...
+      33    const ler = useLerNotificacoes();
+      34    const lidaAoAbrir = useRef(false);
+      35  
+      40 -  const itens = notificacoes.data?.pages.flatMap((pagina) => pa
+         -gina.itens) ?? [];                                             
+      36 +  const itens =                                                
+      37 +    notificacoes.data?.pages.flatMap((pagina) => pagina.itens) 
+         +?? [];                                                         
+      38    const maisNova = itens[0];
+      39    const { mutate } = ler;
+      40    useEffect(() => {
+  ⎿  Updated apps\mobile\src\trofeus\TrofeusScreen.tsx (+2 -1)
+      1 -import { useState } from "react";                               
+      1 +import { useEffect, useState } from "react";                    
+      2  import {
+      3    ActivityIndicator,
+      4    StyleSheet,
+     ...
+      12  import { Screen } from "../components/Screen";
+      13  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      14  import { Logo } from "../marca/Logo";
+      15 +import { useVerTrofeus } from "../notificacoes/api";           
+      16  import { TrilhaFamilia } from "../premios/TrilhaFamilia";
+      17  import { SecaoDeReivindicacoes } from "../premiosParticipacao/S
+          ecaoDeReivindicacoes";
+      18  import { textStyles } from "../theme/fonts";
+  ⎿  (timeout 5m)
+
+● O lint aponta um aviso de dependência no efeito da tela de notificações.
+  Calculo antes, fora do efeito, se há não lida, e o efeito passa a depender só
+  de valores estáveis.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\notificacoes\NotificacoesScreen.tsx)
+  ⎿  Added 5 lines, removed 4 lines
+      35  
+      36    const itens =
+      37      notificacoes.data?.pages.flatMap((pagina) => pagina.itens) 
+          ?? [];
+      38 -  const maisNova = itens[0];                                   
+      38 +  const maisNova = itens[0]?.criadaEm;                         
+      39 +  const temNaoLida = itens.some((notificacao) => !notificacao.l
+         +ida);                                                          
+      40    const { mutate } = ler;
+      41    useEffect(() => {
+      42      if (!lidaAoAbrir.current && maisNova) {
+      43        lidaAoAbrir.current = true;
+      43 -      if (itens.some((notificacao) => !notificacao.lida)) {    
+      44 -        mutate(maisNova.criadaEm);                             
+      44 +      if (temNaoLida) {                                        
+      45 +        mutate(maisNova);                                      
+      46        }
+      47      }
+      47 -  }, [maisNova, itens, mutate]);                               
+      48 +  }, [maisNova, temNaoLida, mutate]);                          
+      49  
+      50    return (
+      51      <View
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A suíte do app segue verde (445). Agora os testes das notificações, incluindo
+  o que falha se a API ganhar um tipo novo sem texto.
+
+● Write(apps\mobile\src\notificacoes\notificacoes.test.tsx)
+  ⎿  Wrote 357 lines to apps\mobile\src\notificacoes\notificacoes.test.tsx
+       1 import { act, fireEvent, screen, waitFor } from "@testing-librar
+         y/react-native";
+       2 import { readFileSync } from "fs";
+       3 import { join } from "path";
+       4 
+       5 import { MuralScreen } from "../mural/MuralScreen";
+       6 import { json, renderComApi } from "../test/renderComApi";
+       7 import { TrofeusScreen } from "../trofeus/TrofeusScreen";
+       8 import { NotificacoesScreen } from "./NotificacoesScreen";
+       9 import { Sininho } from "./Sininho";
+     … +348 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx prettier
+      --write src/notificacoes > /dev/null && npx jest src/notificacoe…)
+  ⎿    ● tela de notificações › mostra cada uma com o texto, a não lida em
+     destaque, e marca como lidas até a mais nova
+     Tests:       1 failed, 22 passed, 23 total
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\notificacoes\notificacoes.test.tsx (+8 -11)
+      24  // Os tipos que a API grava, lidos do enum do domínio, em camel
+          Case como no JSON.
+      25  function tiposDaApi(): string[] {
+      26    const fonte = readFileSync(
+      27 -    join(                                                      
+      28 -      __dirname,                                               
+      29 -      "../../../api/src/Maxx.Domain/Notificacoes/Notificacao.cs
+         -",                                                             
+      30 -    ),                                                         
+      27 +    join(__dirname, "../../../api/src/Maxx.Domain/Notificacoes/
+         +Notificacao.cs"),                                              
+      28      "utf8",
+      29    );
+      30    const corpo = fonte.match(/enum TipoDeNotificacao\s*\{([^}]*)
+          \}/)![1]!;
+     ...
+      209              texto: "Sexta.",
+      210              foto: null,
+      211              publicadoEm: "2026-07-24T15:00:00Z",
+      215 -            autor: { id: "u9", nomeDeExibicao: "Coordenação", 
+          -instituicao: true },                                          
+      212 +            autor: {                                          
+      213 +              id: "u9",                                       
+      214 +              nomeDeExibicao: "Coordenação",                  
+      215 +              instituicao: true,                              
+      216 +            },                                                
+      217              materias: [],
+      218              cursos: [],
+      219              lido: true,
+     ...
+      309      );
+      310      await renderComApi(<NotificacoesScreen />, api);
+      311  
+      311 -    expect(                                                   
+      312 -      await screen.findByText("Nenhuma notificação ainda."),  
+      313 -    ).toBeTruthy();                                           
+      312 +    expect(await screen.findByText("Nenhuma notificação ainda.
+          +")).toBeTruthy();                                             
+      313    });
+      314  
+      315    it("falha vira mensagem amigável", async () => {
+      317 -    lista.mockImplementation(async () =>                      
+      318 -      json(500, { codigo: "erro-interno" }),                  
+      319 -    );                                                        
+      316 +    lista.mockImplementation(async () => json(500, { codigo: "
+          +erro-interno" }));                                            
+      317      await renderComApi(<NotificacoesScreen />, api);
+      318  
+      319      expect(
+  ⎿  (timeout 5m)
+
+● O teste tentou reler a resposta já consumida. Fixo o instante da notificação
+  mais nova numa constante e comparo com ela.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/notificacoes"
+      && f=notificacoes.test.tsx && perl -0pi -e 's/let quemSou: type…)
+  ⎿  162:let maisNova: string;
+     173:  maisNova = new Date(Date.now() - 60_000).toISOString();
+     182:          criadaEm: maisNova,
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\notificacoes\notificacoes.test.tsx (+4 -3)
+      159    foto: null,
+      160  };
+      161  
+      162 +let maisNova: string;                                         
+      163  let quemSou: typeof aluna;
+      164  let novidades: { sininho: boolean; mural: boolean; trofeus: bo
+           olean };
+      165  let lista: jest.Mock<Promise<Response>, [Request]>;
+     ...
+      170  beforeEach(() => {
+      171    jest.clearAllMocks();
+      172    quemSou = aluna;
+      173 +  maisNova = new Date(Date.now() - 60_000).toISOString();     
+      174    novidades = { sininho: true, mural: false, trofeus: false };
+      175    lista = jest.fn(async (_pedido: Request) =>
+      176      json(200, {
+     ...
+      179            tipo: "avisoNovo",
+      180            tituloDoAviso: "Matrícula até 30/07",
+      181            item: null,
+      180 -          criadaEm: new Date(Date.now() - 60_000).toISOString(
+          -),                                                            
+      182 +          criadaEm: maisNova,                                 
+      183          }),
+      184          notificacao("n1", { lida: true }),
+      185        ],
+     ...
+      277  
+      278      await waitFor(() => expect(leitura).toHaveBeenCalledTimes(
+           1));
+      279      const corpo = await leitura.mock.calls[0]![0].clone().json
+           ();
+      278 -    const itens = await (await lista.mock.results[0]!.value).c
+          -lone().json();                                                
+      279 -    expect(corpo).toEqual({ ate: itens.itens[0].criadaEm });  
+      280 +    expect(corpo).toEqual({ ate: maisNova });                 
+      281  
+      282      // Enquanto a tela está aberta, a que era nova continua em
+            destaque.
+      283      expect(screen.getAllByTestId("bolinha-nao-lida")).toHaveLe
+           ngth(1);
+  ⎿  (timeout 5m)
+● Os 23 testes passam. Suíte inteira do app e as verificações da CI.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O app está com 468 testes passando. Para as capturas, vou gerar uma aluna com
+  os nove tipos de notificação pelos fluxos reais, verificando como os e2e dos
+  passos 8 e 9 reivindicam, decidem e fecham a conquista pela API.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Vou testar os nove tipos de prêmio numa aluna de teste, cobrindo os fluxos
+  reais, e depois escrevo o spec temporário.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(e2e\tests\capturas-notificacoes.spec.ts)
+  ⎿  Wrote 149 lines to e2e\tests\capturas-notificacoes.spec.ts
+       1 // TEMPORÁRIO: capturas da etapa 6 do passo 10 para a revisão do
+          autor. Não vai para o commit.
+       2 import path from "node:path";
+       3 
+       4 import { expect, test, type APIRequestContext, type Page } from 
+         "@playwright/test";
+       5 
+       6 import { novaConta, sql } from "./apoio/contas";
+       7 import { anularMedalha, matricular, novaProfessora } from "./apo
+         io/medalhas";
+     … +142 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch the CI run for etapa 5" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 5 passou nos seis jobs, então a etapa está pronta. Na captura
+  faltou a notificação premioRevogado e apareceram duas contestacaoAberta; vou
+  investigar no banco o efeito da remoção do post sobre o terceiro prêmio.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O código está correto. Pelo banco, o prêmio foi revogado porque a espera de 60
+  s acabou antes do worker gravar a última notificação; a consulta anterior
+  tinha pegado outra conta. Vou subir a espera para 120 s e mostrar o corpo da
+  resposta para ver o 409.
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e"
+      && f=tests/capturas-notificacoes.spec.ts && sed -i 's|
+      expect(resposta.ok(), `${respost…)
+  ⎿      Error: http://localhost/api/v1/professor/turmas/01a19f29-90aa-715d
+     -8d99-0b1b5f264bd8/medalhas: 409 {"type":"https://tools.ietf.org/html/
+     rfc9110#section-15.5.10","title":"Conflict","status":409,"codigo":"lim
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\capturas-notificacoes.spec.ts (+3 -3)
+      24  }
+      25  
+      26  async function ok(resposta: Awaited<ReturnType<APIRequestContex
+          t["post"]>>) {
+      27 -  expect(resposta.ok(), `${resposta.url()}: ${resposta.status()
+         -}`).toBe(true);                                                
+      27 +  expect(resposta.ok(), `${resposta.url()}: ${resposta.status()
+         +} ${await resposta.text()}`).toBe(true);                       
+      28    return resposta;
+      29  }
+      30  
+      31  test("capturas das notificações", { tag: "@celular" }, async ({
+           page, request }, info) => {
+      32 -  test.setTimeout(240_000);                                    
+      32 +  test.setTimeout(360_000);                                    
+      33    const tema = info.project.name.includes("escuro") ? "escuro" 
+          : "claro";
+      34    const instituicao = await novaInstituicao(request);
+      35    const professora = await novaProfessora(request);
+     ...
+      125    // O worker grava as notificações fora da requisição.
+      126    const tipos = () =>
+      127      sql(`SELECT count(DISTINCT tipo) FROM notificacao WHERE us
+           uario_id = '${alunaId}';`);
+      128 -  await expect.poll(tipos, { timeout: 60_000 }).toBe("9");    
+      128 +  await expect.poll(tipos, { timeout: 120_000 }).toBe("9");   
+      129  
+      130    await entrar(page, aluna.email, aluna.senha);
+      131    await expect(page.getByTestId("novidade-sininho")).toBeVisib
+           le({ timeout: 15_000 });
+  ⎿  (timeout 10m)
+
+● limite-atingido: a busca por "Ana Souza" na turma achou uma aluna de uma
+  rodada anterior, que já tinha atingido o limite. Uso um nome único por
+  execução.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A rodada clara estourou o tempo do teste no último passo (a rolagem), depois
+  de já gravar as primeiras capturas. A escura segue em segundo plano. Confiro o
+  que já saiu.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● As capturas estão corretas, mas na lista escura a "conquista obtida" não
+  aparece onde eu esperava, entre a removida e a medalha de presença. Vou
+  conferir a ordem no banco para essa aluna.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A ordem está correta: a primeira medalha já foi reavaliada com as cinco
+  presentes e a C01 foi concedida, então a conquista aparece mais abaixo. Vou
+  conferir a captura do fim da lista depois que a rodada escura terminar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Wait for dark capture run result" completed (exit code 0)
+
+  Listed 1 directory (ctrl+o to expand)
+
+● A causa foi o scrollIntoViewIfNeeded, que procurava um texto inexistente e
+  esgotou o tempo do teste. Vou remover essa linha e rolar só com a roda do
+  mouse, nos dois temas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As capturas das notificações estão sendo refeitas nos dois temas, em segundo
+  plano; o relatório da etapa 6 sai quando elas terminarem.
+
+  A etapa 5 fechou: o commit f430528 passou nos seis jobs da CI (run 42559704052
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42559704052)).
+
+  Da etapa 6, o código está pronto e a suíte inteira do app passou (468 testes).
+  As capturas do feed, do Mural e do topo da lista de notificações já saíram,
+  nos dois temas, mas o spec temporário falhou no último passo: procurava um
+  texto que não existe na tela e esperou até o tempo do teste acabar. Corrigi
+  isso e estou refazendo as duas rodadas, para ter também a captura do fim da
+  lista.
+
+✻ Cogitated for 22m 15s · done 1:26
+
+● Background command "Fix scroll step and rerun both themes" completed (exit
+code 0)
+
+  Read 2 files, listed 1 directory (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      e2e/tests/capturas-notificacoes.spec.ts && git status --short)
+  ⎿   M apps/mobile/src/components/Icon.tsx
+      M apps/mobile/src/feed/FeedScreen.tsx
+      M apps/mobile/src/mural/MuralScreen.tsx
+     … +4 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\tests\capturas-notificacoes.spec.ts (+0 -150)
+        1 -// TEMPORÁRIO: capturas da etapa 6 do passo 10 para a revisão 
+          -do autor. Não vai para o commit.                              
+        2 -import path from "node:path";                                 
+        3 -                                                              
+        4 -import { expect, test, type APIRequestContext, type Page } fro
+          -m "@playwright/test";                                         
+        5 -                                                              
+        6 -import { novaConta, sql } from "./apoio/contas";              
+        7 -import { anularMedalha, matricular, novaProfessora } from "./a
+          -poio/medalhas";                                               
+        8 -import {                                                      
+        9 -  comToken,                                                   
+       10 -  fotoDeTeste,                                                
+       11 -  fotoEnviada,                                                
+       12 -  novaInstituicao,                                            
+       13 -  token,                                                      
+       14 -} from "./apoio/premios";                                     
+       15 -                                                              
+       16 -const SAIDA = process.env.MAXX_CAPTURAS!;                     
+       17 -                                                              
+       18 -async function entrar(page: Page, identificador: string, senha
+          -: string) {                                                   
+       19 -  await page.goto("/login");                                  
+       20 -  await page.getByLabel("RA ou e-mail").fill(identificador);  
+       21 -  await page.getByLabel("Senha", { exact: true }).fill(senha);
+       22 -  await page.getByRole("button", { name: "Entrar", exact: true
+          - }).click();                                                  
+       23 -  await expect(page.getByRole("button", { name: "Novo post" })
+          -.first()).toBeVisible();                                      
+       24 -}                                                             
+       25 -                                                              
+       26 -async function ok(resposta: Awaited<ReturnType<APIRequestConte
+          -xt["post"]>>) {                                               
+       27 -  expect(resposta.ok(), `${resposta.url()}: ${resposta.status(
+          -)} ${await resposta.text()}`).toBe(true);                     
+       28 -  return resposta;                                            
+       29 -}                                                             
+       30 -                                                              
+       31 -test("capturas das notificações", { tag: "@celular" }, async (
+          -{ page, request }, info) => {                                 
+       32 -  test.setTimeout(360_000);                                   
+       33 -  const tema = info.project.name.includes("escuro") ? "escuro"
+          - : "claro";                                                   
+       34 -  const instituicao = await novaInstituicao(request);         
+       35 -  const professora = await novaProfessora(request);           
+       36 -  const nome = `Ana ${Date.now().toString().slice(-5)}`;      
+       37 -  const aluna = await novaConta(request, nome);               
+       38 -  matricular(aluna, professora.turmaId);                      
+       39 -  const daInstituicao = comToken(await token(request, institui
+          -cao.email, instituicao.senha));                               
+       40 -  const daProfessora = comToken(await token(request, professor
+          -a.email, professora.senha));                                  
+     … 110 more lines (ctrl+o to expand)
+
+● A etapa 6 (sininho, notificações e bolinhas) está pronta para a sua revisão,
+  com as capturas. Não fiz commit nem push; a CI dela roda depois do push.
+
+  A etapa 5 já fechou: o commit f430528 passou nos seis jobs da CI (run
+  42559704052
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42559704052)).
+
+  O que entrou
+
+  - Sininho no topo do feed e do Mural. Usa o ícone bell do Lucide. A bolinha
+    dourada, com o mesmo halo das abas, aparece quando há notificação não lida,
+    e o rótulo de acessibilidade vira "Notificações, com novidade". No feed fica
+    à direita do "+"; no Mural, à direita do "+" do professor.
+  - Tela de notificações (/notificacoes). Não tem prancheta, então segue a
+    identidade visual e a atividade do Instagram:
+    - uma linha por notificação: ícone num círculo (surface), texto, tempo
+      relativo, e bolinha com negrito quando não lida;
+    - ao abrir, marca como lido tudo até a mais nova mostrada (o ate da
+      etapa 3);
+    - enquanto a tela está aberta, o que era novo continua em destaque, e só as
+      bolinhas se apagam;
+    - paginação, estado vazio e erro amigável.
+  - Os nove textos e destinos, em notificacoes/textos.ts:
+
+  | Tipo                   | Texto
+                                          | Toque leva a                    |
+  |------------------------|----------------------------------------------------
+  -----------------------------------------|---------------------------------|
+  | Medalha recebida       | "Você recebeu a medalha {item}."
+                                          | Troféus                         |
+  | Comprovação aprovada   | "Sua comprovação de {item} foi aprovada."
+                                          | O post (Troféus se o post saiu) |
+  | Comprovação reprovada  | "Sua comprovação de {item} foi reprovada:
+  {motivo}."                                        | Troféus
+       |
+  | Contestação aberta     | "Seu prêmio {item} foi contestado e está em
+  averiguação."                                   | O post
+     |
+  | Decisão de contestação | "A contestação de {item} terminou e o prêmio foi
+  confirmado." ou "…foi revogado: {motivo}." | O post                          |
+  | Prêmio revogado        | "Seu prêmio {item} foi revogado: {motivo}."
+                                          | Troféus                         |
+  | Conquista obtida       | "Você obteve a conquista {item}."
+                                          | Troféus                         |
+  | Conquista removida     | "A conquista {item} foi removida no recálculo dos
+  seus prêmios."                            | Troféus                         |
+  | Aviso novo             | "Aviso novo no Mural: {título}"
+                                          | O aviso                         |
+    Um tipo que o app instalado ainda não conhece mostra "Você tem uma
+    novidade." e não leva a lugar nenhum.
+  - Bolinhas das abas Mural e Troféus. Vêm de GET /v1/eu/novidades, consultado
+    quando o app volta ao foco e a cada 60 s (D5).
+    - Troféus: abrir a aba, como aluno, chama PUT /v1/eu/trofeus/visto e apaga a
+      bolinha, sem ler o sininho.
+    - Mural: o "Ler todos" passou a seguir a bolinha do Mural, como combinado na
+      etapa 4.
+
+  Testes
+
+  - Jest, 23 novos:
+    - Um teste lê o enum TipoDeNotificacao do C# e falha se algum tipo ficar sem
+      texto.
+    - Texto e destino de cada tipo, a frase sem o nome do item e o tipo
+      desconhecido.
+    - Sininho com e sem bolinha.
+    - Tela de notificações: a leitura com ate igual à mais nova, e nenhuma
+      leitura quando tudo já está lido; o toque leva ao destino; vazio e erro.
+    - Troféus marca como visto para o aluno e não para o professor.
+    - "Ler todos" segue a bolinha do Mural.
+  - Como a CI roda, localmente: prettier, lint e typecheck limpos, e a suíte
+    inteira do app passou (468 testes).
+
+  Capturas
+
+  Tiradas em 390 x 844 contra o compose local com o build web novo. Os nove
+  tipos de notificação nasceram pelos fluxos reais, numa aluna de teste:
+  - cinco medalhas, que fecham a conquista C01;
+  - a anulação de uma delas, que remove a conquista;
+  - uma reivindicação reprovada;
+  - uma aprovada, contestada pela professora e revogada;
+  - uma aprovada e depois removida pela instituição;
+  - e um aviso de faculdade.
+
+  O spec das capturas era temporário e já foi apagado.
+
+  - Feed com o sininho aceso e as bolinhas de Mural e Troféus, claro:
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b416bcd21c8\scratchp
+    ad\capturas\feed-sininho-claro.png
+  - O mesmo, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilhe
+    rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b41
+    6bcd21c8\scratchpad\capturas\feed-sininho-escuro.png
+  - Mural com o sininho, claro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--U
+    sers-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d9
+    1-8705-3b416bcd21c8\scratchpad\capturas\mural-sininho-claro.png
+  - Mural com o sininho, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--
+    Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d
+    91-8705-3b416bcd21c8\scratchpad\capturas\mural-sininho-escuro.png
+  - Notificações, topo da lista, claro: C:\Users\GUILHE~1\AppData\Local\Temp\cla
+    ude\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-
+    0cac-4d91-8705-3b416bcd21c8\scratchpad\capturas\notificacoes-claro.png
+  - Notificações, topo da lista, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\cl
+    aude\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180
+    -0cac-4d91-8705-3b416bcd21c8\scratchpad\capturas\notificacoes-escuro.png
+  - Notificações, fim da lista com medalhas e conquistas, claro:
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\d5b88180-0cac-4d91-8705-3b416bcd21c8\scratchp
+    ad\capturas\notificacoes-fim-claro.png
+  - Notificações, fim da lista, escuro: C:\Users\GUILHE~1\AppData\Local\Temp\cla
+    ude\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\d5b88180-
+    0cac-4d91-8705-3b416bcd21c8\scratchpad\capturas\notificacoes-fim-escuro.png
+
+  Confere com as pranchetas do feed e do mural: o sininho no canto direito do
+  topo, com a bolinha dourada no canto do ícone, e as bolinhas nas abas Mural e
+  Troféus.
+
+  Diferença: a prancheta do feed põe um espaço maior entre o "+" e o sininho;
+  aqui os dois têm a área de toque de 44 com 4 de distância.
+
+  Efeitos do banco local de teste, não defeitos:
+  - Avisos repetidos no Mural: o banco é compartilhado entre as rodadas.
+  - O nome "Palestra obrigatória" nas frases: é o nome do item P01 no catálogo,
+    e não o nome do evento digitado.
+  - A "conquista obtida" aparece abaixo de quatro das medalhas: o worker
+    reavaliou quando as cinco já existiam.
+
+  Para você conferir
+
+  - O tempo relativo nas notificações ("agora", "há 5 minutos") é o mesmo do
+    feed. A prancheta não mostra a tela de notificações, então segui o feed.
+
+  Mensagem de commit proposta
+
+  feat(mobile): adiciona o sininho, a tela de notificações e as bolinhas das 
+  abas
+
+  Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 7,
+  que fecha o passo com o e2e e os docs.
+
+✻ Crunched for 48s · done 1:27
+
+● Background command "Use unique student name and rerun both themes" completed
+(exit code 0)
+
+  Listed 1 directory (ctrl+o to expand)
+● Essa notificação é de uma rodada antiga das capturas, que falhou antes da
+  correção. Ela não mexeu em nada: as oito capturas da etapa 6 são as da rodada
+  corrigida, que passou nos dois temas.
+
+  A etapa 6 continua parada para a sua revisão, com a mensagem de commit
+  proposta na mensagem anterior.
+
+✻ Cooked for 10s · done 1:27
