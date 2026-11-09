@@ -1,0 +1,346 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Ultra
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro\apps\api\src
+
+
+> /model 
+  ⎿  Kept model as Opus 5.5
+
+> Passo 12 do plano mestre: área web da instituição. Estamos na                 
+  rodada/eng_12_instituicao, saída da main com os passos 1 a 11 mergeados.      
+  Antes de qualquer código, me traga o plano de etapas, com entrega e critério  
+  de aceite por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá:     
+  decisão que não está nos docs não foi tomada, então pergunte antes de         
+  assumir. Uma regra que fixei no passo 3 e vale daqui em diante: cada etapa só 
+  é dada como pronta depois de a CI do push dela passar, e o resultado da CI    
+  entra no relatório da etapa. Cadência que combinamos no passo 11 e que vale   
+  aqui também: etapas sem tela e sem pergunta de produto você emenda, cada uma  
+  com o próprio commit, o próprio push e a própria CI verde antes de seguir,    
+  fix separado se a CI falhar, relatório de cada etapa no fim; para antes de    
+  etapa com tela, em qualquer pergunta de produto que não está nos docs, e se   
+  uma CI ficar vermelha depois do fix. Lembro o que fecha o passo: fila de      
+  comprovações e fila de contestações com aprovar, reprovar, confirmar e        
+  revogar; conceder prêmio de participação já aprovado, pedindo o recálculo do  
+  ranking com o instante da concessão como desempate; publicar aviso de         
+  faculdade e de curso pela área web, usando o POST /v1/avisos que já recebe os 
+  dois escopos e um ou mais cursos, com a foto pela finalidade aviso; anular    
+  medalha enfileirando o mesmo recálculo do comando administrativo; corrigir    
+  e-mail de aluno; marcar ex-aluno e trocar de curso enfileirando o recálculo   
+  do ranking na mesma transação do ato; purgar dados de demonstração por lote,  
+  em uma transação, com as fotos do lote removidas do bucket, como o D14 do     
+  passo 7 pede; seed de demonstração completo com 150 alunos, 120 ativos        
+  distribuídos por semestres e 30 ex-alunos, quatro cursos, turmas, matérias,   
+  professores, posts com foto nascendo com as contas desses alunos, prêmios     
+  distribuídos de modo que as quatro raridades apareçam, avisos, eventos        
+  passados e futuros, duas comprovações pendentes e uma contestação aberta, com 
+  as conquistas do seed nascendo do worker a partir das medalhas e dos prêmios  
+  semeados, e não gravadas à mão. Sobre os avisos do seed nascerem pela         
+  própria publicação, como o passo 10 sugeriu: a decisão é sua no plano, me     
+  traga a recomendação. Eu reviso o plano e aí começamos a primeira etapa.      
+
+  Read 2 files, ran 3 shell commands (ctrl+o to expand)
+
+● Lendo os docs e o código para montar o plano do passo 12. Já li plano mestre,
+  produto e o índice de decisões; agora vejo o que já existe na API, no seed e
+  no app.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Ainda mapeando o que existe (domínio de usuário, troca de curso, ex-aluno,
+  e-mail) antes de escrever o plano.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Quase lá: conferindo as fábricas de medalha, prêmio e aviso no domínio, que
+  decidem como o seed consegue gravar fatos com data passada.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Passo 12: plano de etapas (área web da instituição)
+
+  Li o plano mestre, produto.md, o índice de decisões e o código que o passo
+  toca. Este é o plano para você revisar; nenhum código foi escrito.
+
+  O que já existe e o que falta
+
+  Já pronto e testado:
+  - Fila de comprovações (aprovar e reprovar) e de contestações (confirmar e
+    revogar), na API.
+  - Contestação pela instituição e POST /v1/avisos com os escopos faculdade e
+    curso.
+  - Anulação, só pelo comando administrativo.
+  - Usuario.MarcarExAluno e Usuario.TrocarDeCurso, que hoje só mudam o sufixo.
+  - O handler avaliar-fechamento-do-aluno, que roda mesmo depois do
+    congelamento. É ele que deixa as conquistas de fechamento do seed nascerem
+    no worker.
+  - O trabalho remover-fotos, que serve para a purga.
+
+  Falta:
+  - Concessão direta.
+  - Anulação, ficha do aluno, correção de e-mail, ex-aluno e troca de curso pela
+    API.
+  - Purga pela API.
+  - Todas as telas.
+  - O seed completo.
+
+  Três achados que viram pergunta:
+  - A conta só de instituição não tem entrada nenhuma no app. Na aba Perfil ela
+    vê "Esse perfil não existe.", e o menu só mostra Comprovações a quem é
+    professor.
+  - O domínio proíbe conta de aluno criada pelo seed. Usuario.CriarPeloSeed
+    recusa aluno com "Aluno se cadastra pelo app". As 150 contas do seed pedem
+    uma regra nova.
+  - A lista de domínios de e-mail aceitos nunca foi implementada. Ela está em
+    produto.md 2.4 como configuração, mas ValidarEmail só confere a forma.
+
+  Etapas
+
+  Branch feat/passo-12-instituicao, saída da rodada/eng_12_instituicao. Em toda
+  etapa: um commit, push, CI verde e o resultado da CI no relatório.
+
+  Seguindo a cadência combinada:
+  - As etapas 1 a 6 (sem tela) seguem emendadas.
+  - Paro antes da 7, a primeira com tela, e de novo antes da 8 e da 9.
+
+  Etapa 1. API: ficha do aluno e atos sobre a conta (feat(api))
+
+  Entrega:
+  - Busca da instituição por nome, arroba, RA ou e-mail, incluindo a linha da
+    base sem conta (ver P3).
+  - Ficha do aluno, com as medalhas ativas.
+  - Correção de e-mail.
+  - Marcar ex-aluno.
+  - Trocar de curso. O curso passa a mudar também em CadastroElegivel, que é de
+    onde o worker lê.
+  - Marcar ex-aluno e trocar de curso enfileiram fila.PedirRecalculos() na mesma
+    transação do ato.
+  - O registro de quem fez e quando (P5), com a migration.
+
+  Aceite:
+  - Testes de domínio dos atos novos.
+  - Testes de integração de cada rota: papel errado dá 403, e as recusas saem
+    com codigo.
+  - Prova reversa: sem o pedido de recálculo, o teste do ex-aluno saindo do
+    semestre falha.
+  - OpenAPI e cliente regenerados, sem diferença.
+
+  Etapa 2. API: anulação e concessão direta (feat(api))
+
+  Entrega:
+  - Anulação: POST de anulação da medalha, pelo mesmo caso de uso do comando
+    administrativo, com o mesmo recálculo de conquistas, ranking e raridade.
+  - Concessão direta: aluno, item, evento semeado ou digitado, e a matéria no
+    P17. A instituição escolhe entre os eventos semeados abertos ao curso do
+    aluno.
+  - O instante da concessão é o instante de aprovação, que é o do desempate. Na
+    mesma transação vão o PedirRecalculos(), o tornar-premio-definitivo adiado e
+    a notificação (P2).
+  - Se aprovado em P2, POST /v1/posts passa a aceitar premioParticipacaoId, como
+    acréscimo.
+
+  Aceite:
+  - Integração cobrindo o desempate pelo instante da concessão.
+  - Deduplicação: a corrida responde 409, nunca 500.
+  - O fim da janela torna o prêmio definitivo e reavalia as conquistas.
+  - Prova reversa do recálculo.
+
+  Etapa 3. API: purga por lote (feat(api))
+
+  Entrega:
+  - Lista dos lotes com contagens, e a purga de um lote numa transação só.
+  - O SQL de decisoes/README.md vira código e ganha as tabelas que chegaram
+    depois: ranking em cascata, prêmio, contestação, leitura de aviso.
+  - As chaves de foto (posts, fotos de perfil e uploads pendentes do lote) são
+    coletadas antes de apagar, e remover-fotos é enfileirado na mesma transação.
+  - PedirRecalculos().
+  - A rota vale com a flag desligada, porque a purga acontece depois da
+    avaliação (P6).
+
+  Aceite:
+  - Integração com Postgres e o emulador: nada do lote sobra em nenhuma tabela,
+    e nada de outro lote nem dos alunos do seed é tocado.
+  - O worker remove os objetos do bucket.
+  - Falha no meio desfaz tudo.
+
+  Etapa 4. Seed: estrutura do mundo (feat(seed))
+
+  Entrega:
+  - Alunos: 150, sendo 120 ativos distribuídos pelos semestres de cada curso e
+    30 ex-alunos. Os 20 de hoje entram entre os ativos.
+  - Professores: dois por curso.
+  - Matérias e turmas: seis matérias por curso, com turmas em 2026/1 e 2026/2.
+    Os ex-alunos ficam só nas turmas de 2026/1.
+  - Contas: dos 150 alunos (P8). Os ex-alunos são marcados pelo mesmo ato da
+    etapa 1.
+  - Eventos: passados, de 2026/1 e do início de 2026/2, e futuros, depois de
+    hoje e antes de 05/12.
+  - A validação da CI cobre os arquivos novos.
+
+  Aceite:
+  - O seed roda duas vezes sem duplicar nada.
+  - A divergência continua falhando sem gravar nada.
+  - Os e2e de hoje seguem verdes.
+
+  Etapa 5. Seed: fatos (feat(seed))
+
+  Entrega:
+  - Medalhas com datas passadas, concedidas pelos professores das turmas.
+  - Prêmios de participação:
+    - aprovados há mais de 15 dias, que o worker torna definitivos;
+    - aprovados há menos de 15 dias, que ficam válidos;
+    - concessões diretas.
+  - Duas comprovações pendentes, uma delas passando da marca de 7 dias.
+  - Uma contestação aberta.
+  - Avisos, pela recomendação abaixo.
+  - Conquistas, só pelo worker: o seed enfileira a reavaliação por aluno e o
+    avaliar-fechamento-do-aluno de cada instância fechada, e depois
+    PedirRecalculos().
+  - Raridades: um plano declarativo de quantos alunos têm cada item, pensado
+    para as quatro raridades aparecerem com folga para as contas de demonstração
+    e de e2e. Lendário com um aluno só; Épico com 4 ou 5; Raro com cerca de
+    10%; Comum com pelo menos 35%.
+
+  Aceite:
+  - Teste de integração: depois do seed e com a fila drenada, existem conquistas
+    com evidências, o ranking está populado, e há itens nas quatro raridades
+    com dono (não só o Lendário de 0%).
+  - Ninguém grava conquista à mão: o teste confere que toda conquista veio de um
+    trabalho do worker.
+  - O tempo de drenagem da fila é medido no runner da CI.
+  - O e2e espera a fila esvaziar antes de começar. Esse é o risco principal da
+    etapa: milhares de trabalhos disputando o worker com os e2e que esperam 30 a
+    45 s.
+
+  Etapa 6. Seed: posts com foto (feat(seed))
+
+  Entrega:
+  - As fotos de data/demo/fotos/ (P7), com as duas derivadas já geradas e
+    versionadas. O seed sobe cada uma com chave aleatória nova.
+  - Posts de reivindicação com foto (os prêmios aprovados e os pendentes), posts
+    de medalha com foto e posts só com foto e legenda.
+
+  Aceite:
+  - No compose e na CI, as fotos abrem pela URL de leitura.
+  - O feed de um aluno de demonstração novo vem cheio.
+  - Rodar de novo não sobe foto de novo.
+
+  Etapa 7. Telas: entrada e filas (feat(mobile)). Paro antes.
+
+  Entrega:
+  - A entrada da área da instituição (P1).
+  - Fila de comprovações, reaproveitando a tela do professor.
+  - Fila de contestações, com confirmar e revogar pela folha de motivo.
+  - "Contestar prêmio" no menu do post também para a instituição, como
+    produto.md 2.1 já permite.
+
+  Aceite: Jest das telas, claro e escuro, e erro em mensagem amigável.
+
+  Etapa 8. Telas: alunos (feat(mobile)). Paro antes.
+
+  Entrega: busca e ficha do aluno, com corrigir e-mail, marcar ex-aluno, trocar
+  de curso, anular medalha (com confirmação) e conceder prêmio. Se aprovado em
+  P2, o novo post oferece o prêmio concedido.
+
+  Aceite: Jest e as recusas da API com mensagem em erros.ts. O teste existente
+  falha se faltar alguma.
+
+  Etapa 9. Telas: aviso e purga (feat(mobile)). Paro antes.
+
+  Entrega:
+  - O novo aviso, com o escopo faculdade ou curso e os cursos em chips de
+    seleção múltipla, com a foto pela finalidade aviso.
+  - A tela da purga, com a lista dos lotes e a confirmação.
+
+  Aceite: Jest.
+
+  Etapa 10. e2e e docs (docs(docs))
+
+  Entrega:
+  - e2e no celular, claro e escuro: a instituição aprova pela fila, confirma e
+    revoga uma contestação, concede, anula, marca ex-aluno, publica aviso de
+    curso, e purga um lote criado pela execução, com o objeto sumindo do
+    emulador.
+  - Docs: decisões do passo 12 no README, o plano mestre atualizado, a seção da
+    purga apontando para a rota, e as regras novas em produto.md.
+
+  Aceite: CI inteira verde e a definição de pronto cumprida.
+
+  Recomendação: avisos do seed pela publicação
+
+  Recomendo que sim, com um ajuste. A publicação pelo handler grava publicado_em
+  com o instante de agora, e todos os avisos sairiam com a mesma data. Por isso
+  proponho:
+
+  - O seed cria os avisos pela mesma fábrica do domínio (Aviso.Publicar, com as
+    mesmas validações), com datas passadas.
+  - Enfileira notificar-aviso-novo como a publicação faz, e quem distribui é o
+    worker, como nas conquistas.
+  - As contas do seed nascem com criado_em retroativo, no início do semestre de
+    ingresso. Sem isso, a regra "conta criada até a publicação" não alcançaria
+    ninguém.
+
+  O ganho que se vê na prática: a professora que você usar na avaliação recebe
+  os avisos da faculdade no sininho.
+
+  Perguntas antes de começar
+
+  Cada uma vem com a minha recomendação.
+
+  - P1. Onde fica a área web. Recomendo:
+    - No mesmo app Expo, em /instituicao, dentro da moldura de celular. É um
+      layout só, e as filas já existem nessa largura.
+    - Entrada por "Área da instituição" no menu do perfil, só na web, para quem
+      tem o papel.
+    - A conta só de instituição passa a ver o nome e esse botão no lugar de
+      "Esse perfil não existe.".
+    - No nativo, a rota diz "A área da instituição abre no navegador.".
+  - P2. Concessão direta. Recomendo:
+    - O prêmio nasce válido, com a janela de 15 dias e contestável, como
+      qualquer aprovado.
+    - O post não é automático: o aluno posta pelo novo post, como faz com a
+      medalha.
+    - Uma notificação nova, premioConcedido, que leva a Troféus.
+    - Valem as mesmas regras de data do evento (D3) e de deduplicação (D5).
+  - P3. Corrigir e-mail. Recomendo:
+    - Corrigir a linha da base com ou sem conta. O caso principal é o aluno que
+      não consegue se cadastrar porque o e-mail da base está errado.
+    - Conferir só a forma e a unicidade.
+    - Invalidar as recuperações de senha pendentes, porque o link pode ter ido
+      para o endereço errado.
+    - Manter as sessões abertas.
+  - P4. Ex-aluno e troca de curso. Recomendo:
+    - Marcar ex-aluno sem volta na fase 1.
+    - Ex-aluno não troca de curso.
+    - A troca pede o curso novo e o semestre nele (Medicina vai até o 12º), e as
+      matrículas antigas ficam.
+  - P5. Registro de quem fez e quando. Correção de e-mail, ex-aluno, troca de
+    curso e purga não estão na lista de produto.md 4.10. Recomendo registrar os
+    quatro: quem e quando no próprio usuário para o ex-aluno, e tabelas pequenas
+    para a correção (com o e-mail anterior), a troca e a purga.
+  - P6. Purga. Recomendo permitir também o lote vigente, porque o ensaio do
+    passo 13 purga o próprio lote, com confirmação digitando o nome do lote.
+  - P7. De onde vêm as fotos do seed (cerca de 40). As opções:
+    - (a) fotos suas;
+    - (b) banco livre, Unsplash ou Pexels, com os créditos em
+      data/demo/fotos/CREDITOS.md;
+    - (c) imagens geradas por script.
+
+    Recomendo (b), com cenas sem rosto identificável (palestra vista de trás,
+    caderno, tela de código), para nenhuma pessoa real passar por aluno da
+    UniMax.
+  - P8. Contas dos alunos do seed. Recomendo:
+    - Uma fábrica nova no domínio: conta sem senha e sem aceite do termo, com
+      criado_em retroativo.
+    - Um risco para você decidir: os e-mails seguem @al.unieduk.com.br, como os
+      20 de hoje. Na VPS, quem pedir recuperação para um desses endereços
+      dispara e-mail para um domínio real. As saídas são trocar os e-mails do
+      mundo fictício por um domínio reservado, ou bloquear a recuperação das
+      contas do seed. Prefiro o domínio reservado, mas isso altera as 20 linhas
+      atuais, e um banco local antigo precisa ser recriado.
+  - P9. Seguimentos, curtidas e comentários no seed. Não estão na lista do
+    passo. Recomendo poucos, para o feed e o perfil parecerem vivos. Se preferir
+    não, fica só o que você listou.
+
+  Com as respostas, ajusto o plano e começo a etapa 1.
+
+✻ Brewed for 6m 35s · done 12:35
