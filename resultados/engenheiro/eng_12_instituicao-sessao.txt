@@ -8109,3 +8109,1043 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt
   Com o seu ok (ou ajustes), faço o commit, o push e espero a CI.
 
 ✻ Cogitated for 12m 14s · done 16:20
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_12_instituicao-sessao.txt 
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_12_instituicao-sessao.txt
+
+> Etapa 7 aprovada, capturas conferidas. Os dois detalhes ficam como estão: a   
+  linha "em comum" segue a regra da API, e a foto sorteada é dado de            
+  demonstração. Commita com a mensagem proposta, push, acompanha a CI e segue   
+  para a etapa 8; no fim dela, para para a minha revisão com as capturas da     
+  busca e da ficha do aluno e das ações (corrigir e-mail, marcar ex-aluno,      
+  trocar de curso, anular medalha, conceder prêmio), em claro e escuro, com a   
+  mensagem de commit antes de commitar.                                         
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 7 rodando em segundo plano. Enquanto isso começo a etapa 8
+  (alunos), vendo o que dá para reaproveitar da reivindicação no novo post.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Para conceder, a instituição precisa da lista de prêmios de participação, que
+  hoje só o aluno consegue ler. Vou ver como esses itens são montados para
+  expô-los também à instituição.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Vou expor a rota GET /v1/instituicao/alunos/{cadastroId}/premios-participacao
+  reaproveitando a leitura de Troféus do aluno, filtrada para os prêmios de
+  participação. Em seguida leio o restante do seletor para reutilizá-lo na
+  concessão.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Primeiro o acréscimo na API: os prêmios de participação que a instituição pode
+  conceder ao aluno.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && perl -0pi -e
+      's/(    \/\/ As matérias que o aluno cursa hoje, para a apresen…)
+  ⎿  ok
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Instituicao\ConcessaoDiretaHandler.cs
+     (+13 -0)
+       1  using Maxx.Application.Autenticacao;
+       2  using Maxx.Application.Fila;
+       3 +using Maxx.Application.Premios;                                
+       4  using Maxx.Application.PremiosParticipacao;
+       5  using Maxx.Application.Ranking;
+       6  using Maxx.Domain.Academico;
+       7 +using Maxx.Domain.Catalogo;                                    
+       8  using Maxx.Domain.Premios;
+       9  
+      10  namespace Maxx.Application.Instituicao;
+     ...
+      21      IPremioParticipacaoRepository premios,
+      22      EventosHandler eventosReivindicaveis,
+      23      MateriasDoAlunoHandler materiasDoAluno,
+      24 +    IConsultaDePremios consultaDePremios,                      
+      25      IFilaDeTrabalhos fila,
+      26      IUnitOfWork unitOfWork,
+      27      TimeProvider relogio)
+     ...
+       86          return await eventosReivindicaveis.ReivindicaveisAsync
+           (aluno.Id, item, cancellationToken);
+       87      }
+       88  
+       89 +    // Os prêmios de participação do catálogo que o aluno pode
+          + receber: os mesmos da tela de                                
+       90 +    // Troféus dele, sem os restritos a outro curso, com o cri
+          +tério e se pedem a matéria.                                   
+       91 +    public async Task<IReadOnlyList<ItemDoAluno>> ItensAsync(G
+          +uid quemId, Guid cadastroId, CancellationToken cancellationTok
+          +en)                                                           
+       92 +    {                                                         
+       93 +        await AtosSobreOAlunoHandler.InstituicaoAsync(usuarios
+          +, quemId, cancellationToken);                                 
+       94 +        var aluno = await AtosSobreOAlunoHandler.ContaDoAlunoA
+          +sync(alunos, cadastroId, cancellationToken);                  
+       95 +        var premios = await consultaDePremios.DoAlunoAsync(alu
+          +no.Id, cancellationToken);                                    
+       96 +        return [.. (premios?.Itens ?? []).Where(item => item.T
+          +ipo == TipoDeItem.PremioParticipacao)];                       
+       97 +    }                                                         
+       98 +                                                              
+       99      // As matérias que o aluno cursa hoje, para a apresentação
+            em sala (P17).
+      100      public async Task<IReadOnlyList<Materia>> MateriasAsync(Gu
+           id quemId, Guid cadastroId, CancellationToken cancellationToke
+           n)
+      101      {
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && perl -0pi -e
+      's/(        alunos.MapGet\("\/\{cadastroId:guid\}\/materias", M…)
+  ⎿  Updated apps\api\src\Maxx.Api\Instituicao\InstituicaoEndpoints.cs (+16
+     -0)
+      66              .ProducesProblem(StatusCodes.Status404NotFound)
+      67              .ProducesProblem(StatusCodes.Status409Conflict);
+      68  
+      69 +        alunos.MapGet("/{cadastroId:guid}/premios-participacao"
+         +, ItensAsync)                                                  
+      70 +            .WithName("GetPremiosParaConcessao")               
+      71 +            .ProducesProblem(StatusCodes.Status403Forbidden)   
+      72 +            .ProducesProblem(StatusCodes.Status404NotFound)    
+      73 +            .ProducesProblem(StatusCodes.Status409Conflict);   
+      74 +                                                               
+      75          alunos.MapGet("/{cadastroId:guid}/materias", MateriasAs
+          ync)
+      76              .WithName("GetMateriasParaConcessao")
+      77              .ProducesProblem(StatusCodes.Status403Forbidden)
+     ...
+      152          TypedResults.Ok<IReadOnlyList<EventoResponse>>([.. (aw
+           ait handler.EventosAsync(PostEndpoints.UsuarioId(principal), c
+           adastroId, item, cancellationToken))
+      153              .Select(evento => new EventoResponse(evento.Id, ev
+           ento.Nome, evento.Inicio, evento.Fim, evento.ItensAceitos))]);
+      154  
+      155 +    private static async Task<Ok<IReadOnlyList<ItemParaConcess
+          +aoResponse>>> ItensAsync(                                     
+      156 +        Guid cadastroId, ClaimsPrincipal principal, ConcessaoD
+          +iretaHandler handler, CancellationToken cancellationToken) => 
+      157 +        TypedResults.Ok<IReadOnlyList<ItemParaConcessaoRespons
+          +e>>([.. (await handler.ItensAsync(PostEndpoints.UsuarioId(prin
+          +cipal), cadastroId, cancellationToken))                       
+      158 +            .Select(item => new ItemParaConcessaoResponse(    
+      159 +                item.Codigo, item.Nome, item.Criterio, Profess
+          +orEndpoints.Nome(item.Tier), item.Pontos, item.ExigeMateria))]
+          +);                                                            
+      160 +                                                              
+      161      private static async Task<Ok<IReadOnlyList<MateriaResponse
+           >>> MateriasAsync(
+      162          Guid cadastroId, ClaimsPrincipal principal, ConcessaoD
+           iretaHandler handler, CancellationToken cancellationToken) =>
+      163          TypedResults.Ok<IReadOnlyList<MateriaResponse>>([.. (a
+           wait handler.MateriasAsync(PostEndpoints.UsuarioId(principal),
+            cadastroId, cancellationToken))
+     ...
+      246      EventoDigitadoRequest? EventoDigitado,
+      247      Guid? MateriaId);
+      248  
+      249 +// Um prêmio de participação que a instituição pode conceder a
+          +o aluno. Tier em camelCase.                                   
+      250 +// ExigeMateria: a apresentação em sala, que vai com evento di
+          +gitado e a matéria.                                           
+      251 +public sealed record ItemParaConcessaoResponse(string Codigo, 
+          +string Nome, string Criterio, string Tier, int Pontos, bool Ex
+          +igeMateria);                                                  
+      252 +                                                              
+      253  // Tier em camelCase, como no catálogo. ConcedidoEm: o instant
+           e da aprovação, que é o do
+      254  // desempate no ranking.
+      255  public sealed record PremioConcedidoResponse(Guid Id, Guid Alu
+           noId, string Item, string Tier, int Pontos, DateTimeOffset Con
+           cedidoEm);
+  ⎿  (timeout 5m)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Instituicao\ConcessaoEAnulacao
+        Tests.cs)
+  ⎿  Added 16 lines
+      179      }
+      180  
+      181      [Fact]
+      182 +    public async Task A_lista_de_premios_para_conceder_e_a_de_
+          +participacao_do_aluno_com_a_materia_quando_pede()             
+      183 +    {                                                         
+      184 +        await using var mundo = await MundoDePremios.CriarAsyn
+          +c(postgres, armazenamento);                                   
+      185 +        using var coordenacao = await mundo.Social.ComoAsync(C
+          +oordenacao);                                                  
+      186 +        using var renata = await mundo.Social.ComoAsync(Renata
+          +);                                                            
+      187 +        var ana = await CadastroAsync(mundo, Ana);            
+      188 +                                                              
+      189 +        var itens = (await coordenacao.GetFromJsonAsync<List<I
+          +temParaConcessaoResponse>>(Rota($"/alunos/{ana}/premios-partic
+          +ipacao"), Ct))!;                                              
+      190 +                                                              
+      191 +        Assert.Equal(["P01", "P06", "P17"], itens.Select(item 
+          +=> item.Codigo).Order(StringComparer.Ordinal));               
+      192 +        Assert.True(itens.Single(item => item.Codigo == "P17")
+          +.ExigeMateria);                                               
+      193 +        Assert.All(itens, item => Assert.False(string.IsNullOr
+          +WhiteSpace(item.Criterio)));                                  
+      194 +        Assert.Equal(HttpStatusCode.Forbidden, (await renata.G
+          +etAsync(Rota($"/alunos/{ana}/premios-participacao"), Ct)).Stat
+          +usCode);                                                      
+      195 +    }                                                         
+      196 +                                                              
+      197 +    [Fact]                                                    
+      198      public async Task O_aluno_posta_o_premio_concedido_uma_vez
+           _e_nao_posta_o_que_esta_em_averiguacao()
+      199      {
+      200          await using var mundo = await MundoDePremios.CriarAsyn
+           c(postgres, armazenamento);
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet test apps/api/tests/Maxx.Api.IntegrationTests --filter
+      "FullyQualifiedName~Concess…)
+  ⎿    concluído com êxito: 9
+
+      packages/api-client/openapi.json    | 99 ++++++++++++++++++++++++++++
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+99 -0)
+      3141              "Bearer": [ ]
+      3142            }
+      3143          ]
+      3144 +      },                                                     
+      3145 +      "get": {                                               
+      3146 +        "tags": [                                            
+      3147 +          "Instituicao"                                      
+      3148 +        ],                                                   
+      3149 +        "operationId": "GetPremiosParaConcessao",            
+      3150 +        "parameters": [                                      
+      3151 +          {                                                  
+      3152 +            "name": "cadastroId",                            
+      3153 +            "in": "path",                                    
+      3154 +            "required": true,                                
+      3155 +            "schema": {                                      
+      3156 +              "type": "string",                              
+      3157 +              "format": "uuid"                               
+      3158 +            }                                                
+      3159 +          }                                                  
+      3160 +        ],                                                   
+      3161 +        "responses": {                                       
+      3162 +          "200": {                                           
+      3163 +            "description": "OK",                             
+      3164 +            "content": {                                     
+      3165 +              "application/json": {                          
+      3166 +                "schema": {                                  
+      3167 +                  "type": "array",                           
+      3168 +                  "items": {                                 
+      3169 +                    "$ref": "#/components/schemas/ItemParaCon
+           +cessaoResponse"                                              
+      3170 +                  }                                          
+      3171 +                }                                            
+      3172 +              }                                              
+      3173 +            }                                                
+      3174 +          },                                                 
+      3175 +          "403": {                                           
+      3176 +            "description": "Forbidden",                      
+      3177 +            "content": {                                     
+      3178 +              "application/problem+json": {                  
+      3179 +                "schema": {                                  
+      3180 +                  "$ref": "#/components/schemas/ProblemDetail
+           +s"                                                           
+     … 71 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+59 -1)
+      859              path?: never;
+      860              cookie?: never;
+      861          };
+      862 -        get?: never;                                          
+      862 +        get: operations["GetPremiosParaConcessao"];           
+      863          put?: never;
+      864          post: operations["ConcederPremioParticipacao"];
+      865          delete?: never;
+     ...
+      1459              exigeMateria: boolean;
+      1460              progresso?: null | components["schemas"]["Progres
+            soResponse"];
+      1461          };
+      1462 +        ItemParaConcessaoResponse: {                         
+      1463 +            codigo: string;                                  
+      1464 +            nome: string;                                    
+      1465 +            criterio: string;                                
+      1466 +            tier: string;                                    
+      1467 +            /** Format: int32 */                             
+      1468 +            pontos: number;                                  
+      1469 +            exigeMateria: boolean;                           
+      1470 +        };                                                   
+      1471          LerNotificacoesRequest: {
+      1472              /** Format: date-time */
+      1473              ate: null | string;
+     ...
+      4130              };
+      4131          };
+      4132      };
+      4133 +    GetPremiosParaConcessao: {                               
+      4134 +        parameters: {                                        
+      4135 +            query?: never;                                   
+      4136 +            header?: never;                                  
+      4137 +            path: {                                          
+      4138 +                cadastroId: string;                          
+      4139 +            };                                               
+      4140 +            cookie?: never;                                  
+      4141 +        };                                                   
+      4142 +        requestBody?: never;                                 
+      4143 +        responses: {                                         
+      4144 +            /** @description OK */                           
+      4145 +            200: {                                           
+      4146 +                headers: {                                   
+     … 38 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● CI da etapa 7 ainda rodando. Sigo no app: adapto o seletor da reivindicação
+  para servir também à concessão.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A lista de cursos (GET /v1/cursos) não traz o id, que a troca de curso pede.
+  Acrescento o id à resposta, como acréscimo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && sed -i
+      's/public sealed record CursoDaBusca(string Sigla, string Nome, int D…)
+  ⎿  148:        TypedResults.Ok<IReadOnlyList<CursoResponse>>([.. (await c
+     onsulta.CursosAsync(cancellationToken)).Select(curso => new CursoRespo
+     nse(curso.Sigla, curso.Nome, curso.DuracaoEmSemestres, curso.Id))]);
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs (+3 -2)
+      145              await handler.PrefixoDisponivelAsync(PostEndpoints
+           .UsuarioId(principal), prefixo, cancellationToken)));
+      146  
+      147      private static async Task<Ok<IReadOnlyList<CursoResponse>>
+           > CursosAsync(IConsultaDePerfil consulta, CancellationToken ca
+           ncellationToken) =>
+      148 -        TypedResults.Ok<IReadOnlyList<CursoResponse>>([.. (awa
+          -it consulta.CursosAsync(cancellationToken)).Select(curso => ne
+          -w CursoResponse(curso.Sigla, curso.Nome, curso.DuracaoEmSemest
+          -res))]);                                                      
+      148 +        TypedResults.Ok<IReadOnlyList<CursoResponse>>([.. (awa
+          +it consulta.CursosAsync(cancellationToken)).Select(curso => ne
+          +w CursoResponse(curso.Sigla, curso.Nome, curso.DuracaoEmSemest
+          +res, curso.Id))]);                                            
+      149  
+      150      private static async Task<Ok<PaginaDeAlunosResponse>> Busc
+           arAsync(
+      151          string? termo,
+     ...
+      253      Guid Id, string NomeDeExibicao, string Arroba, string? Cur
+           so, int? Semestre, bool ExAluno, string? Foto, bool EuSigo);
+      254  
+      255  // DuracaoEmSemestres: os chips de semestre da Busca seguem o 
+           curso escolhido.
+      256 -public sealed record CursoResponse(string Sigla, string Nome, 
+          -int DuracaoEmSemestres);                                      
+      256 +// Id: acréscimo do passo 12, para a troca de curso pela área 
+          +da instituição.                                               
+      257 +public sealed record CursoResponse(string Sigla, string Nome, 
+          +int DuracaoEmSemestres, Guid Id);                             
+      258  
+      259  public sealed record PaginaDeAlunosResponse(IReadOnlyList<Alun
+           oEncontradoResponse> Itens, string? Proximo);
+  ⎿  Updated apps\api\src\Maxx.Application\Perfil\Perfil.cs (+1 -1)
+      59  public sealed record FiltroDaBusca(string Termo, string? Curso,
+           int? Semestre);
+      60  
+      61  // A duração dá os semestres do filtro: cada curso vai do 1º ao
+           último dele (Medicina tem 12).
+      62 -public sealed record CursoDaBusca(string Sigla, string Nome, in
+         -t DuracaoEmSemestres);                                         
+      62 +public sealed record CursoDaBusca(string Sigla, string Nome, in
+         +t DuracaoEmSemestres, Guid Id = default);                      
+      63  
+      64  public sealed record AlunoEncontrado(
+      65      Guid Id, string NomeDeExibicao, string Arroba, string? Curs
+          o, int? Semestre, bool ExAluno, string? ChaveDaFotoDaGrade, boo
+          l EuSigo);
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Perfil\ConsultaDePerfil.cs
+     (+1 -1)
+      186      }
+      187  
+      188      public async Task<IReadOnlyList<CursoDaBusca>> CursosAsync
+           (CancellationToken cancellationToken) =>
+      189 -        await db.Set<Curso>().OrderBy(curso => curso.Sigla).Se
+          -lect(curso => new CursoDaBusca(curso.Sigla, curso.Nome, curso.
+          -DuracaoEmSemestres)).ToListAsync(cancellationToken);          
+      189 +        await db.Set<Curso>().OrderBy(curso => curso.Sigla).Se
+          +lect(curso => new CursoDaBusca(curso.Sigla, curso.Nome, curso.
+          +DuracaoEmSemestres, curso.Id)).ToListAsync(cancellationToken);
+      190  
+      191      public Task<bool> PrefixoDeOutraPessoaAsync(string prefixo
+           , Guid usuarioId, CancellationToken cancellationToken) =>
+      192          db.Set<PrefixoReservado>().AnyAsync(reservado => reser
+           vado.Prefixo == prefixo && reservado.UsuarioId != usuarioId, c
+           ancellationToken);
+  ⎿  Updated packages\api-client\openapi.json (+6 -1)
+      4836          "required": [
+      4837            "sigla",
+      4838            "nome",
+      4839 -          "duracaoEmSemestres"                               
+      4839 +          "duracaoEmSemestres",                              
+      4840 +          "id"                                               
+      4841          ],
+      4842          "type": "object",
+      4843          "properties": {
+     ...
+      4850            "duracaoEmSemestres": {
+      4851              "type": "integer",
+      4852              "format": "int32"
+      4853 +          },                                                 
+      4854 +          "id": {                                            
+      4855 +            "type": "string",                                
+      4856 +            "format": "uuid"                                 
+      4857            }
+      4858          }
+      4859        },
+  ⎿  Updated packages\api-client\src\schema.d.ts (+2 -0)
+      1306              nome: string;
+      1307              /** Format: int32 */
+      1308              duracaoEmSemestres: number;
+      1309 +            /** Format: uuid */                              
+      1310 +            id: string;                                      
+      1311          };
+      1312          CurtidasResponse: {
+      1313              /** Format: int32 */
+  ⎿  (timeout 6m 40s)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      perl -0pi -e 's/            \[new CursoResponse\("CC", "Ciência da
+      Computação", 8\), new…)
+  ⎿  C:\Users\Guilherme Gimenes\Documents\Repos\tcc\maxx-engenheiro\apps\ap
+     i\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs(337,13): error
+      CS8604: Possível argumento de referência nula para o parâmetro 'sourc
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs
+     (+5 -2)
+      330          var cursos = await ana.GetFromJsonAsync<List<CursoResp
+           onse>>("/api/v1/cursos", Ct);
+      331  
+      332          Assert.Equal(
+      333 -            [new CursoResponse("CC", "Ciência da Computação", 
+          -8), new CursoResponse("MED", "Medicina", 12)],                
+      334 -            cursos);                                          
+      333 +            [("CC", "Ciência da Computação", 8), ("MED", "Medi
+          +cina", 12)],                                                  
+      334 +            cursos!.Select(curso => (curso.Sigla, curso.Nome, 
+          +curso.DuracaoEmSemestres)));                                  
+      335 +        Assert.Equal(                                         
+      336 +            (await mundo.LinhasAsync<Curso>()).OrderBy(curso =
+          +> curso.Sigla, StringComparer.Ordinal).Select(curso => curso.I
+          +d),                                                           
+      337 +            cursos.Select(curso => curso.Id));                
+      338      }
+      339  
+      340      [Fact]
+  ⎿  (timeout 6m 40s)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/        var cursos = await
+      ana.GetFromJsonAsync<List<CursoResponse>>("\/api\/v1…)
+  ⎿    concluído com êxito: 1
+     6:1309-            /** Format: uuid */
+     7:1310-            id: string;
+     9:1312-        CurtidasResponse: {
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Social\PerfilTests.cs
+     (+2 -2)
+      327          using var ana = await mundo.ComoAsync(Ana);
+      328          await MedicinaAsync(mundo);
+      329  
+      330 -        var cursos = await ana.GetFromJsonAsync<List<CursoResp
+          -onse>>("/api/v1/cursos", Ct);                                 
+      330 +        var cursos = (await ana.GetFromJsonAsync<List<CursoRes
+          +ponse>>("/api/v1/cursos", Ct))!;                              
+      331  
+      332          Assert.Equal(
+      333              [("CC", "Ciência da Computação", 8), ("MED", "Medi
+           cina", 12)],
+      334 -            cursos!.Select(curso => (curso.Sigla, curso.Nome, 
+          -curso.DuracaoEmSemestres)));                                  
+      334 +            cursos.Select(curso => (curso.Sigla, curso.Nome, c
+          +urso.DuracaoEmSemestres)));                                   
+      335          Assert.Equal(
+      336              (await mundo.LinhasAsync<Curso>()).OrderBy(curso =
+           > curso.Sigla, StringComparer.Ordinal).Select(curso => curso.I
+           d),
+      337              cursos.Select(curso => curso.Id));
+  ⎿  (timeout 6m 40s)
+
+● Agora o seletor da reivindicação aceitando outras fontes de eventos e matérias
+  e o texto em terceira pessoa.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/m
+      obile/src/premiosParticipacao" && perl -0pi -e '
+      s/import type \{ ReactNode \} from "re…)
+  ⎿  Updated apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx
+     (+51 -9)
+      1 +import type { UseQueryResult } from "@tanstack/react-query";    
+      2  import type { ReactNode } from "react";
+      3  import {
+      4    ActivityIndicator,
+     ...
+      19  import { useTheme } from "../theme/ThemeProvider";
+      20  import { raios, tiers, type Tier } from "../theme/tokens";
+      21  import type { ItemDoAluno } from "../trofeus/montagem";
+      21 -import { useEventos, useMateriasDoAluno, type EventoEscolhido }
+         - from "./api";                                                 
+      22 +import {                                                       
+      23 +  useEventos,                                                  
+      24 +  useMateriasDoAluno,                                          
+      25 +  type EventoEscolhido,                                        
+      26 +  type EventoSemeado,                                          
+      27 +  type MateriaDoAluno,                                         
+      28 +} from "./api";                                                
+      29  import { lerData, periodo } from "./textos";
+      30  
+      31  // O que o aluno escolheu até agora. eventoId "outro": o evento
+           é digitado.
+     ...
+      67    return { tipo: "digitado", nome: escolha.nome.trim(), inicio,
+           fim };
+      68  }
+      69  
+      70 +// O que a escolha mostra de cada prêmio: o catálogo do aluno, 
+         +ou o que a instituição pode                                    
+      71 +// conceder a ele (passo 12).                                  
+      72 +export type ItemEscolhivel = Pick<                             
+      73 +  ItemDoAluno,                                                 
+      74 +  "codigo" | "nome" | "tier" | "pontos" | "criterio" | "exigeMa
+         +teria"                                                         
+      75 +>;                                                             
+      76 +                                                               
+      77 +// De onde vêm os eventos e as matérias: do próprio aluno, na r
+         +eivindicação, ou do aluno da                                   
+      78 +// ficha, na concessão direta da instituição.                  
+      79 +export interface FontesDaEscolha {                             
+      80 +  useEventosDoItem: (item: string | null) => UseQueryResult<Eve
+         +ntoSemeado[]>;                                                 
+      81 +  useMaterias: (ativo: boolean) => UseQueryResult<MateriaDoAlun
+         +o[]>;                                                          
+      82 +}                                                              
+      83 +                                                               
+      84 +const DO_ALUNO: FontesDaEscolha = {                            
+      85 +  useEventosDoItem: useEventos,                                
+      86 +  useMaterias: useMateriasDoAluno,                             
+      87 +};                                                             
+      88 +                                                               
+     … 72 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Agora os ganchos da área para alunos.
+
+● Write(apps\mobile\src\instituicao\alunos\api.ts)  ⎿  Wrote 242 lines to apps\mobile\src\instituicao\alunos\api.ts
+       1 import type { components } from "@maxx/api-client";
+       2 import { useMutation, useQuery, useQueryClient } from "@tanstack
+         /react-query";
+       3 
+       4 import { useApiClient } from "../../api/ApiClientProvider";
+       5 import { FalhaDaApi } from "../../api/FalhaDaApi";
+       6 import type { FontesDaEscolha } from "../../premiosParticipacao/
+         EscolhaDaReivindicacao";
+       7 import type { EventoEscolhido } from "../../premiosParticipacao/
+         api";
+     … +235 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo uma folha genérica para os atos e a tela de busca.
+
+● Write(apps\mobile\src\instituicao\alunos\FolhaDeAto.tsx)
+  ⎿  Wrote 102 lines to apps\mobile\src\instituicao\alunos\FolhaDeAto.tsx
+      1 import type { ReactNode } from "react";
+      2 import { Modal, Pressable, StyleSheet, Text, View } from "react-n
+        ative";
+      3 import { useSafeAreaInsets } from "react-native-safe-area-context
+        ";
+      4 
+      5 import { AvisoDeErro } from "../../autenticacao/AvisoDeErro";
+      6 import { Button } from "../../components/Button";
+      7 import { textStyles } from "../../theme/fonts";
+      8 import { useTheme } from "../../theme/ThemeProvider";
+     … +94 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\instituicao\alunos\BuscaDeAlunosScreen.tsx)
+  ⎿  Wrote 150 lines to
+     apps\mobile\src\instituicao\alunos\BuscaDeAlunosScreen.tsx
+       1 import { useRouter } from "expo-router";
+       2 import { useEffect, useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   FlatList,
+       6   Pressable,
+       7   StyleSheet,
+       8   Text,
+       9   View,
+      10 } from "react-native";
+     … +140 lines (ctrl+o to expand)
+
+● Write(apps\mobile\src\instituicao\alunos\textos.ts)
+  ⎿  Wrote 27 lines to apps\mobile\src\instituicao\alunos\textos.ts
+       1 import type { AlunoDaBase } from "./api";
+       2 
+       3 // A linha de baixo do aluno na busca e na ficha: curso, semestr
+         e, RA e a situação.
+       4 export function descreverAluno(aluno: AlunoDaBase): string {
+       5   return [
+       6     aluno.curso,
+       7     `${aluno.semestre}º semestre`,
+       8     `RA ${aluno.ra}`,
+       9     situacao(aluno),
+     … +18 lines (ctrl+o to expand)
+
+● Agora a ficha do aluno, com os atos.
+
+● Write(apps\mobile\src\instituicao\alunos\FichaDoAlunoScreen.tsx)
+  ⎿  Wrote 448 lines to
+     apps\mobile\src\instituicao\alunos\FichaDoAlunoScreen.tsx
+       1 import { useLocalSearchParams, useRouter } from "expo-router";
+       2 import { useState } from "react";
+       3 import {
+       4   ActivityIndicator,
+       5   ScrollView,
+       6   StyleSheet,
+       7   Text,
+       8   View,
+       9 } from "react-native";
+      10 import { useSafeAreaInsets } from "react-native-safe-area-contex
+     … +439 lines (~13 KB) (ctrl+o to expand)
+
+● Agora a tela de conceder prêmio, que reaproveita o seletor da reivindicação.
+
+● Write(apps\mobile\src\instituicao\alunos\ConcederPremioScreen.tsx)
+  ⎿  Wrote 124 lines to
+     apps\mobile\src\instituicao\alunos\ConcederPremioScreen.tsx
+       1 import { useLocalSearchParams, useRouter } from "expo-router";
+       2 import { useMemo, useState } from "react";
+       3 import { ActivityIndicator, ScrollView, StyleSheet, Text, View }
+          from "react-native";
+       4 import { useSafeAreaInsets } from "react-native-safe-area-contex
+         t";
+       5 
+       6 import { falhaParaTela } from "../../api/FalhaDaApi";
+       7 import { AvisoDeErro } from "../../autenticacao/AvisoDeErro";
+       8 import { Button } from "../../components/Button";
+     … +116 lines (ctrl+o to expand)
+
+● Rotas e a entrada "Alunos" na área.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src" &&
+      d="app/(app)/instituicao/alunos" && mkdir -p "$d/[id]" && printf 'import…)
+  ⎿  src/instituicao/alunos/api.ts(220,11): error TS2322: Type '{ eventoId:
+      string; item: string; materiaId: string | null; } | { eventoDigitado:
+      { nome: string; inicio: string; fim: string; }; item: string; materia
+     … +11 lines (ctrl+o to expand)
+  ⎿  Created apps\mobile\src\app\(app)\instituicao\alunos\[id]\conceder.tsx
+     (+3 -0)
+      1 +import { ConcederPremioScreen } from "../../../../../instituicao
+        +/alunos/ConcederPremioScreen";                                  
+      2 +                                                                
+      3 +export default ConcederPremioScreen;                            
+  ⎿  Created apps\mobile\src\app\(app)\instituicao\alunos\[id]\index.tsx
+     (+3 -0)
+      1 +import { FichaDoAlunoScreen } from "../../../../../instituicao/a
+        +lunos/FichaDoAlunoScreen";                                      
+      2 +                                                                
+      3 +export default FichaDoAlunoScreen;                              
+  ⎿  Created apps\mobile\src\app\(app)\instituicao\alunos\index.tsx (+3 -0)
+      1 +import { BuscaDeAlunosScreen } from "../../../../instituicao/alu
+        +nos/BuscaDeAlunosScreen";                                       
+      2 +                                                                
+      3 +export default BuscaDeAlunosScreen;                             
+  ⎿  Updated apps\mobile\src\instituicao\AreaDaInstituicaoScreen.tsx (+8 
+     -2)
+      14    destino: Href;
+      15  }
+      16  
+      17 -// O que a área da instituição oferece (produto.md 10.2). As fi
+         -las chegam na etapa 7 do passo                                 
+      18 -// 12; alunos, avisos e a purga, nas etapas seguintes.         
+      17 +// O que a área da instituição oferece (produto.md 10.2). Aviso
+         +s e a purga chegam na etapa 9                                  
+      18 +// do passo 12.                                                
+      19  const ENTRADAS: Entrada[] = [
+      20 +  {                                                            
+      21 +    titulo: "Alunos",                                          
+      22 +    descricao: "Ficha, e-mail, curso, ex-aluno, medalhas e prêm
+         +ios.",                                                         
+      23 +    icone: "user",                                             
+      24 +    destino: "/instituicao/alunos",                            
+      25 +  },                                                           
+      26    {
+      27      titulo: "Comprovações",
+      28      descricao: "Reivindicações com foto esperando aprovação.",
+  ⎿  Updated apps\mobile\src\instituicao\alunos\ConcederPremioScreen.tsx
+     (+22 -5)
+       1  import { useLocalSearchParams, useRouter } from "expo-router";
+       2  import { useMemo, useState } from "react";
+       3 -import { ActivityIndicator, ScrollView, StyleSheet, Text, View 
+         -} from "react-native";                                         
+       3 +import {                                                       
+       4 +  ActivityIndicator,                                           
+       5 +  ScrollView,                                                  
+       6 +  StyleSheet,                                                  
+       7 +  Text,                                                        
+       8 +  View,                                                        
+       9 +} from "react-native";                                         
+      10  import { useSafeAreaInsets } from "react-native-safe-area-conte
+          xt";
+      11  
+      12  import { falhaParaTela } from "../../api/FalhaDaApi";
+     ...
+      23  import { useTheme } from "../../theme/ThemeProvider";
+      24  import { espacamento } from "../../theme/tokens";
+      25  import { TelaDaArea } from "../TelaDaArea";
+      20 -import { fontesDoAluno, useConceder, useFicha, useItensParaConc
+         -essao } from "./api";                                          
+      26 +import {                                                       
+      27 +  fontesDoAluno,                                               
+      28 +  useConceder,                                                 
+      29 +  useFicha,                                                    
+      30 +  useItensParaConcessao,                                       
+      31 +} from "./api";                                                
+      32  
+      33  // A concessão direta de prêmio de participação pela instituiçã
+          o (produto.md 4.7, P2 do
+      34  // passo 12): já aprovado, sem foto e sem comprovação, com a ja
+          nela de 15 dias. A escolha é a
+     ...
+      37  export function ConcederPremioScreen() {
+      38    const { id } = useLocalSearchParams<{ id: string }>();
+      39    return (
+      29 -    <TelaDaArea titulo="Conceder prêmio" voltarPara={`/institui
+         -cao/alunos/${id}`}>                                            
+      40 +    <TelaDaArea                                                
+      41 +      titulo="Conceder prêmio"                                 
+      42 +      voltarPara={`/instituicao/alunos/${id}`}                 
+      43 +    >                                                          
+      44        <Concessao cadastroId={id} />
+      45      </TelaDaArea>
+      46    );
+     ...
+      55    const conceder = useConceder(cadastroId);
+      56    const fontes = useMemo(() => fontesDoAluno(cadastroId), [cada
+          stroId]);
+      57    const [escolha, setEscolha] = useState<Escolha>(ESCOLHA_VAZIA
+          );
+     … 11 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+● Background command "Watch CI etapa 7" completed (exit code 0)
+
+● Bash(cat "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimen
+      es-Documents-Repos-tcc-maxx-engenheiro/38159b62-809d-48b4-b879-988b5a3ce98
+      a/tasks/bkoen…)
+  ⎿  rc=0
+     segurança: success
+     e2e: success
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\instituicao\alunos\api.ts (+2 -1)
+      221              item,
+      222              materiaId,
+      223              ...(evento.tipo === "semeado"
+      224 -              ? { eventoId: evento.id }                       
+      224 +              ? { eventoId: evento.id, eventoDigitado: null } 
+      225                : {
+      226 +                  eventoId: null,                             
+      227                    eventoDigitado: {
+      228                      nome: evento.nome,
+      229                      inicio: evento.inicio,
+  ⎿  (timeout 5m)
+
+● CI da etapa 7 verde nos seis jobs. Tipos e lint limpos na etapa 8; escrevo os
+  testes de Jest das telas de alunos.
+
+● Write(apps\mobile\src\instituicao\alunos\alunos.test.tsx)
+  ⎿  Wrote 320 lines to apps\mobile\src\instituicao\alunos\alunos.test.tsx
+       1 import { act, fireEvent, screen, within } from "@testing-library
+         /react-native";
+       2 import { Platform } from "react-native";
+       3 
+       4 import { json, renderComApi } from "../../test/renderComApi";
+       5 import { BuscaDeAlunosScreen } from "./BuscaDeAlunosScreen";
+       6 import { ConcederPremioScreen } from "./ConcederPremioScreen";
+       7 import { FichaDoAlunoScreen } from "./FichaDoAlunoScreen";
+       8 
+       9 const mockRoteador = {
+     … +311 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && grep -n
+      "premio-ja-reivindicado" src/api/erros.ts; perl -0pi -e 's/    expect…)
+  ⎿  69:  "premio-ja-reivindicado": "Você já reivindicou esse prêmio para e
+     sse evento.",
+       ● ficha do aluno › corrigir e-mail manda o novo e mostra a recusa de
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\instituicao\alunos\alunos.test.tsx (+79 -25)
+      159      });
+      160  
+      161      expect(await screen.findByText("Élisa Prado")).toBeOnTheSc
+           reen();
+      162 -    expect(new URL(busca.mock.calls.at(-1)![0].url).searchPara
+          -ms.get("busca")).toBe("lu");                                  
+      163 -    expect(screen.getByText("Sem conta · CC · 3º semestre · RA
+          - 20260199 · Sem conta".replace("Sem conta · ", ""))).toBeOnThe
+          -Screen();                                                     
+      162 +    expect(                                                   
+      163 +      new URL(busca.mock.calls.at(-1)![0].url).searchParams.ge
+          +t("busca"),                                                   
+      164 +    ).toBe("lu");                                             
+      165 +    expect(                                                   
+      166 +      screen.getByText("CC · 3º semestre · RA 20260199 · Sem c
+          +onta"),                                                       
+      167 +    ).toBeOnTheScreen();                                      
+      168      await apertar("Lucas Ferreira");
+      165 -    expect(mockRoteador.push).toHaveBeenCalledWith("/instituic
+          -ao/alunos/cad-lucas");                                        
+      169 +    expect(mockRoteador.push).toHaveBeenCalledWith(           
+      170 +      "/instituicao/alunos/cad-lucas",                        
+      171 +    );                                                        
+      172    });
+      173  
+      174    it("antes de 2 letras, nada a buscar", async () => {
+     ...
+      183    it("mostra a base, a conta, as medalhas e os atos do aluno a
+           tivo", async () => {
+      184      await renderComApi(<FichaDoAlunoScreen />, api);
+      185  
+      180 -    expect(await screen.findByText("lucas.ferreira@al.unieduk.
+          -invalid")).toBeOnTheScreen();                                 
+      186 +    expect(                                                   
+      187 +      await screen.findByText("lucas.ferreira@al.unieduk.inval
+          +id"),                                                         
+      188 +    ).toBeOnTheScreen();                                      
+      189      expect(screen.getByText("CC · 3º semestre")).toBeOnTheScre
+           en();
+      190      expect(screen.getByText("Ativo")).toBeOnTheScreen();
+      191      expect(
+     ...
+      193          "Banco de Dados · 4º bimestre de 2026 · Renata Albuque
+           rque",
+      194        ),
+      195      ).toBeOnTheScreen();
+      188 -    for (const ato of ["Corrigir e-mail", "Trocar de curso", "
+          -Conceder prêmio", "Marcar ex-aluno"]) {                       
+      196 +    for (const ato of [                                       
+      197 +      "Corrigir e-mail",                                      
+      198 +      "Trocar de curso",                                      
+      199 +      "Conceder prêmio",                                      
+      200 +      "Marcar ex-aluno",                                      
+      201 +    ]) {                                                      
+      202        expect(screen.getByRole("button", { name: ato })).toBeOn
+           TheScreen();
+     … 138 more lines (ctrl+o to expand)
+  ⎿  (timeout 6m 40s)
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Enquanto o teste isolado roda, ajusto a mensagem da recusa de prêmio repetido,
+  que hoje fala com o aluno ("Você já reivindicou").
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && perl -0pi -e
+      's/        <AvisoDeErro mensagem=\{falhaParaTela\(conceder.error…)
+  ⎿  372:      await screen.findByText("O aluno já tem esse prêmio nesse ev
+     ento."),
+  ⎿  Updated apps\mobile\src\instituicao\alunos\ConcederPremioScreen.tsx
+     (+10 -1)
+      117          quem="instituicao"
+      118        />
+      119        {conceder.isError && (
+      120 -        <AvisoDeErro mensagem={falhaParaTela(conceder.error).m
+          -ensagem} />                                                   
+      120 +        <AvisoDeErro mensagem={mensagemDaConcessao(conceder.er
+          +ror)} />                                                      
+      121        )}
+      122        <Button
+      123          label={conceder.isPending ? "Concedendo..." : "Concede
+           r prêmio"}
+     ...
+      134    );
+      135  }
+      136  
+      137 +// A mensagem da recusa vem da tabela do app, escrita para o a
+          +luno que reivindica. A do prêmio                              
+      138 +// repetido fala do aluno, aqui.                              
+      139 +function mensagemDaConcessao(erro: unknown): string {         
+      140 +  const falha = falhaParaTela(erro);                          
+      141 +  return falha.codigo === "premio-ja-reivindicado"            
+      142 +    ? "O aluno já tem esse prêmio nesse evento."              
+      143 +    : falha.mensagem;                                         
+      144 +}                                                             
+      145 +                                                              
+      146  const styles = StyleSheet.create({
+      147    margem: { paddingHorizontal: espacamento.margemLateral },
+      148    coluna: { gap: 16 },
+  ⎿  Updated apps\mobile\src\instituicao\alunos\alunos.test.tsx (+3 -1)
+      368      await apertar(/^Semana Acadêmica de Ciência da Computação/
+           , "radio");
+      369      await apertar("Conceder prêmio");
+      370  
+      371 -    expect(await screen.findByText(/já/)).toBeOnTheScreen();  
+      371 +    expect(                                                   
+      372 +      await screen.findByText("O aluno já tem esse prêmio ness
+          +e evento."),                                                  
+      373 +    ).toBeOnTheScreen();                                      
+      374      expect(screen.queryByText("Prêmio concedido.")).toBeNull()
+           ;
+      375    });
+      376  });
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Narrow down interference" completed (exit code 0)
+
+● Isolados, os testes passam; o segundo teste da ficha (que desmonta e renderiza
+  de novo na mesma execução) é que atrapalha os seguintes. Separo-o em dois
+  testes.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && perl -0pi -e
+      's/(    expect\(\n      screen.queryByRole\("button", \{ name: "…)
+  ⎿  Tests:       24 passed, 24 total
+  ⎿  Updated apps\mobile\src\instituicao\alunos\alunos.test.tsx (+4 -3)
+      203      }
+      204    });
+      205  
+      206 -  it("sem conta, só corrige e-mail e troca de curso; ex-aluno,
+          - só corrige e-mail", async () => {                            
+      206 +  it("sem conta, só corrige e-mail e troca de curso", async ()
+          + => {                                                         
+      207      ficha = { aluno: aluno({ conta: null }), medalhas: [] };
+      208 -    const { unmount } = await renderComApi(<FichaDoAlunoScreen
+          - />, api);                                                    
+      208 +    await renderComApi(<FichaDoAlunoScreen />, api);          
+      209  
+      210      expect(
+      211        await screen.findByText("Ainda não criou a conta"),
+     ...
+      219      expect(
+      220        screen.queryByRole("button", { name: "Marcar ex-aluno" }
+           ),
+      221      ).toBeNull();
+      222 -    unmount();                                                
+      222 +  });                                                         
+      223  
+      224 +  it("ex-aluno, só corrige e-mail", async () => {             
+      225      ficha = {
+      226        aluno: aluno({
+      227          conta: { ...aluno().conta, exAlunoDesde: "2026-06-28T0
+           3:00:00Z" },
+  ⎿  (timeout 8m 20s)
+
+● 24 de 24. Suíte inteira do app, tipos e lint.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● App verde (514 testes). Confiro a formatação da API, subo a pilha com o build
+  novo e faço as capturas.
+
+  Ran 2 shell commands (ctrl+o to expand)
+● Escrevo o script de capturas da etapa 8 (busca, ficha e as folhas de cada ato,
+  sem confirmar nenhum).
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Reviso uma das folhas em tamanho real, porque o texto da explicação parece ter
+  trechos em outra cor.
+
+  Read 1 file (ctrl+o to expand)
+
+● Em tamanho real está certo; era efeito da redução. Confiro o escuro.
+
+  Read 1 file (ctrl+o to expand)
+
+● Parei para a sua revisão no fim da etapa 8. As telas de alunos estão prontas e
+  testadas, as capturas estão no scratchpad, e nada foi commitado.
+
+  A etapa 7 foi commitada (6dd1e82) e a CI dela passou nos seis jobs.
+
+  O que entrou no app
+  - Entrada "Alunos" na área: fica antes de Comprovações e Contestações.
+  - Busca (/instituicao/alunos): campo "Nome, arroba, e-mail ou RA", que espera
+    400 ms depois da digitação e só busca a partir de 2 letras. Cada linha
+    mostra o nome completo, o arroba ou "Sem conta", e curso, semestre, RA e
+    situação (Ativo, Ex-aluno, Sem conta ou Demonstração). Tocar abre a ficha.
+  - Ficha (/instituicao/alunos/[id]): dados da base (e-mail, RA, curso e
+    semestre, situação), os atos e as medalhas ativas, cada uma com "Anular". Os
+    botões dependem da situação:
+    - Aluno ativo: os quatro atos.
+    - Sem conta: só corrigir e-mail e trocar de curso.
+    - Ex-aluno: só corrigir e-mail.
+  - Cada ato abre uma folha que sobe de baixo, com a recusa da API dentro dela:
+    - corrigir e-mail: o campo já vem com o e-mail atual;
+    - trocar de curso: chips do curso novo e do semestre nele, até o 12º em
+      Medicina;
+    - marcar ex-aluno: avisa "Não dá para desfazer.";
+    - anular medalha: sem motivo público.
+  - Conceder prêmio (/instituicao/alunos/[id]/conceder): reaproveita o seletor
+    da reivindicação do aluno (prêmio, evento da lista ou digitado, matéria
+    quando o prêmio pede), agora com os eventos e as matérias do aluno da ficha
+    e os textos em terceira pessoa. Concedido, mostra "Prêmio concedido.".
+  - Mensagem do prêmio repetido: nesta tela, a recusa diz "O aluno já tem esse
+    prêmio nesse evento.", porque a mensagem geral foi escrita para o aluno
+    ("Você já reivindicou...").
+
+  Dois acréscimos na API, só aditivos:
+  - GET /v1/instituicao/alunos/{cadastroId}/premios-participacao: os prêmios de
+    participação que a instituição pode conceder ao aluno, a mesma lista da tela
+    de Troféus dele. Sem isso, a tela não tinha de onde tirar a lista.
+  - GET /v1/cursos passou a trazer o id do curso, que a troca de curso exige.
+
+  Verificação
+  - Integração: um teste novo da lista de prêmios, e o teste de cursos ajustado
+    ao id.
+  - Jest: 24 testes novos; a suíte do app passou inteira (514 testes, 48
+    arquivos).
+  - Lint, tipos, Prettier e dotnet format limpos; OpenAPI e cliente regenerados.
+
+  Capturas, em C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gi
+  menes-Documents-Repos-tcc-maxx-engenheiro\38159b62-809d-48b4-b879-988b5a3ce98a
+  \scratchpad\capturas8\, cada uma com -claro.png e -escuro.png:
+  - area: a entrada da área, agora com Alunos.
+  - busca: a busca com "ana".
+  - ficha e ficha-medalhas: a ficha do Arthur Honorato, em cima e rolada até as
+    medalhas.
+  - corrigir-email, trocar-curso, marcar-ex-aluno, anular-medalha: cada folha
+    aberta.
+  - conceder e conceder-evento: a lista de prêmios e, depois, a escolha do
+    evento.
+
+  folha-claro.png e folha-escuro.png juntam as dez telas de cada tema. Abri as
+  folhas sem confirmar nenhum ato, então o banco local continua como estava.
+
+  Mensagem de commit proposta
+  feat(mobile): adiciona a busca e a ficha do aluno com os atos da instituição
+
+  Busca na base de alunos por nome, arroba, e-mail ou RA, com e sem conta, e a 
+  ficha com a
+  base, a conta, as medalhas ativas e os atos: corrigir e-mail, trocar de curso,
+  marcar
+  ex-aluno e anular medalha, cada um numa folha com a recusa dentro dela, e 
+  conceder prêmio
+  de participação com a mesma escolha de prêmio e evento da reivindicação. A API
+  ganha a
+  lista dos prêmios que a instituição pode conceder ao aluno e o id do curso na 
+  lista de
+  cursos, ambos como acréscimo.
+
+  Com o seu ok (ou ajustes), faço o commit, o push e espero a CI antes da etapa
+  9.
+
+✻ Cogitated for 28m 30s · done 16:52
