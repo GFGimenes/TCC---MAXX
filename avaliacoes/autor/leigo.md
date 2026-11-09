@@ -162,6 +162,38 @@ Lista:
 ## Depois de abrir os reviews
 
 Uma linha por eixo em que a nota do autor e a do revisor diferem em 2 pontos ou mais,
-explicando a diferença (rubrica, "Como preencher", passo 4).
+explicando a diferença (rubrica, "Como preencher", passo 4). Reviews abertos em
+08/11/2026, depois do formulário fechado e commitado (`337c2ca`). Notas cegas do autor
+mantidas em todos os eixos.
 
-- 
+- Infraestrutura, autor 1 e revisor 3: o autor pontuou pela capacidade de atender um
+  campus e pela ausência de qualquer discussão de infraestrutura na trilha; o revisor
+  pontuou pelo inventário do repositório (deploy público, configuração por variáveis,
+  scripts de servidor com systemd e Caddy), creditando scripts da Oracle que nunca
+  rodaram num servidor real, e sem teste de carga. Depois de ler o review, o autor
+  reconhece o deploy e a configuração por variáveis e daria 2, não mais: o produto não
+  tem CI, pipeline nem passo automatizado de verificação. A nota cega de 1 é mantida
+  como a válida.
+- Projeto e arquitetura, autor 1 e revisor 3: o revisor pontuou o que saiu, o desenho
+  do artefato (monólito coerente com a stack, módulos por assunto, regras centralizadas
+  em parte), sem acesso aos prompts e às sessões, como ele mesmo declarou. O autor
+  pontuou como o agente foi usado e o processo que levou ao artefato: a pessoa deu uma
+  ideia, o agente tomou um primeiro ponto de partida e saiu fazendo, sem nenhuma
+  discussão de arquitetura, regras, cenários, público ou volume de uso, e inventou a
+  regra central do produto (pontos por atividade no app). Para o autor, a avaliação é
+  também sobre o processo e as etapas, não só sobre o resultado final, porque é nesse
+  processo que assumir coisas e alucinar continuam comuns e perigosos em agentes, e o
+  artefato razoável esconde isso. O autor mantém 1.
+
+Observações acrescentadas após os reviews (não alteram as notas):
+
+- Segurança: o revisor reproduziu oito falhas, duas delas não vistas pelo autor antes:
+  promoções feitas pela conta "Faculdade" da banca sobrevivem ao desligamento do código
+  da banca; e o deploy no Azure não define `NODE_ENV=production` no repositório. O autor
+  conferiu no site publicado que a senha padrão do admin não entra, então o agente de
+  fato definiu `ADMIN_SENHA` no portal.
+- Decisões sem perguntar: o revisor de decisões contou 168 (129 declaradas, 39
+  silenciosas, 29 duvidosas) e 25 perguntas (18 respondidas), contra 58 e 6 do autor. A
+  diferença é de granularidade (cada detalhe de tela contado como decisão) e de critério
+  de pergunta (os "posso commitar" contados). Vale a contagem do autor, como fixado no
+  pré-registro; a do revisor fica como insumo.
