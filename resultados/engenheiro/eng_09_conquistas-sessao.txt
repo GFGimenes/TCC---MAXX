@@ -4921,3 +4921,576 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt
   commito, faço push, acompanho a CI e sigo para a etapa 6 (tela de Troféus).
 
 ✻ Cooked for 18m 29s · done 21:21
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+> Etapa 5 aprovada, com as cinco decisões aceitas: instância em números com o   
+  rótulo no cliente, sem progresso de bimestre e semestre no recesso e com ano  
+  e curso seguindo, sem progresso com alvo zero, fora da vigência ou regra      
+  customizada, a contagem simples na leitura, e o postId nulo até a etapa do    
+  post. O commit único com o cliente regenerado está certo. Commita com a       
+  mensagem proposta, push, acompanha a CI e segue para a etapa 6; no fim dela,  
+  para para a minha revisão com capturas da aba Troféus com a conquista obtida, 
+  o rótulo da instância e a linha de progresso, no claro e no escuro.           
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI da etapa 5 rodando (commit a6e356f). Começo a etapa 6 lendo a tela de
+  Troféus e a linha do item.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Implemento o texto da conquista na montagem: a linha de detalhe com "Regra
+  automática", o rótulo da instância e a linha de progresso.
+
+● Update(apps\mobile\src\trofeus\montagem.ts)
+  ⎿  Added 61 lines
+      120  export const textoDaRaridade = (percentual: number) =>
+      121    `${percentual.toLocaleString("pt-BR", { maximumFractionDigit
+           s: 1 })}% dos alunos`;
+      122  
+      123 +export type Instancia = NonNullable<                          
+      124 +  ItemDoAluno["obtidos"][number]["instancia"]                 
+      125 +>;                                                            
+      126 +export type Progresso = NonNullable<ItemDoAluno["progresso"]>;
+      127 +                                                              
+      128 +// A instância de uma conquista obtida, em texto: "4º bimestre
+          + de 2026", "2026/2", "2026" ou                                
+      129 +// "no curso" (passo 9). A API manda os números; o texto é do 
+          +app.                                                          
+      130 +export function rotuloDaInstancia(instancia: Instancia): strin
+          +g {                                                           
+      131 +  const { periodo, ano, semestre, bimestre } = instancia;     
+      132 +  switch (periodo) {                                          
+      133 +    case "bimestre":                                          
+      134 +      return bimestre && ano ? `${bimestre}º bimestre de ${ano
+          +}` : "bimestre";                                              
+      135 +    case "semestre":                                          
+      136 +      return semestre && ano ? `${ano}/${semestre}` : "semestr
+          +e";                                                           
+      137 +    case "ano":                                               
+      138 +      return ano ? `${ano}` : "ano";                          
+      139 +    default:                                                  
+      140 +      return "no curso";                                      
+      141 +  }                                                           
+      142 +}                                                             
+      143 +                                                              
+      144 +const NA_INSTANCIA_VIGENTE: Record<string, string> = {        
+      145 +  bimestre: "neste bimestre",                                 
+      146 +  semestre: "neste semestre",                                 
+      147 +  ano: "neste ano",                                           
+      148 +  curso: "no curso",                                          
+      149 +};                                                            
+      150 +                                                              
+      151 +// A linha de progresso da conquista que falta na instância vi
+          +gente: "2 de 3 neste bimestre".                               
+      152 +// A API só a manda para o dono, fora do recesso e quando há a
+          +lvo (passo 9).                                                
+      153 +export function textoDoProgresso(item: ItemDoAluno): string | 
+          +null {                                                        
+      154 +  const progresso = item.progresso;                           
+      155 +  if (!progresso) {                                           
+      156 +    return null;                                              
+      157 +  }                                                           
+      158 +                                                              
+      159 +  const onde = NA_INSTANCIA_VIGENTE[progresso.periodo] ?? ""; 
+      160 +  return `${formatarNumero(progresso.contagem)} de ${formatarN
+          +umero(progresso.alvo)} ${onde}`.trim();                       
+      161 +}                                                             
+      162 +                                                              
+      163 +// Conquista é regra automática (prancheta trofeus-*.png): o c
+          +ritério, enquanto falta; obtida,                              
+      164 +// a instância da mais recente e quantas vezes.               
+      165 +function detalheDaConquista(item: ItemDoAluno): string {      
+      166 +  const [maisRecente] = item.obtidos;                         
+      167 +  if (!maisRecente) {                                         
+      168 +    return `Regra automática · ${item.criterio}`;             
+      169 +  }                                                           
+      170 +                                                              
+      171 +  const instancia = maisRecente.instancia                     
+      172 +    ? ` · ${rotuloDaInstancia(maisRecente.instancia)}`        
+      173 +    : "";                                                     
+      174 +  const vezes =                                               
+      175 +    item.obtidos.length > 1 ? ` · ${item.obtidos.length} vezes
+          +` : "";                                                       
+      176 +  return `Regra automática${instancia}${vezes}`;              
+      177 +}                                                             
+      178 +                                                              
+      179  // A linha de detalhe: o critério, ou, na medalha obtida, onde
+            e quando veio a mais recente.
+      180 +// Na conquista, a regra automática (detalheDaConquista).     
+      181  export function detalheDaLinha(item: ItemDoAluno): string {
+      182 +  if (item.tipo === "conquista") {                            
+      183 +    return detalheDaConquista(item);                          
+      184 +  }                                                           
+      185 +                                                              
+      186    const [maisRecente] = item.obtidos;
+      187    if (!maisRecente || !maisRecente.materia) {
+      188      return item.criterio;
+
+● Update(apps\mobile\src\trofeus\LinhaDePremio.tsx)
+  ⎿  Added 8 lines
+      57          <Text style={[textStyles.legenda, { color: colors.ink2 
+          }]}>
+      58            {detalheDaLinha(item)}
+      59          </Text>
+      60 +        {progresso && (                                        
+      61 +          <Text                                                
+      62 +            testID={`progresso-${item.codigo}`}                
+      63 +            style={[textStyles.legenda, { color: colors.ink }]}
+      64 +          >                                                    
+      65 +            {progresso}                                        
+      66 +          </Text>                                              
+      67 +        )}                                                     
+      68        </View>
+      69        <Text
+      70          style={[
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/trofeus" &&
+      sed -i 's|^  const obtido = item.obtidos.length > 0;$|  const obt…)
+  ⎿  13:  textoDoProgresso,
+     21:// instância vigente ganha a linha de progresso ("2 de 3 neste bime
+     stre"), sob o critério.
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\trofeus\LinhaDePremio.tsx (+5 -1)
+      10    glifoDe,
+      11    pontosDaLinha,
+      12    raridadeDe,
+      13 +  textoDoProgresso,                                            
+      14    textoDaRaridade,
+      15    type ItemDoAluno,
+      16  } from "./montagem";
+      17  
+      18  // Uma linha da lista de Troféus (prancheta trofeus-*.png): med
+          alhão com tier e raridade,
+      19  // nome, "Tier · Raridade · x% dos alunos", o critério ou de on
+          de veio, e os pontos. O que
+      19 -// falta aparece apagado, com o valor do catálogo sem o "+".   
+      20 +// falta aparece apagado, com o valor do catálogo sem o "+". A 
+         +conquista que falta na                                         
+      21 +// instância vigente ganha a linha de progresso ("2 de 3 neste 
+         +bimestre"), sob o critério.                                    
+      22  export function LinhaDePremio({ item }: { item: ItemDoAluno }) 
+          {
+      23    const { colors, name } = useTheme();
+      24    const tier = item.tier as Tier;
+      25    const raridade = raridadeDe(item);
+      26    const obtido = item.obtidos.length > 0;
+      27 +  const progresso = textoDoProgresso(item);                    
+      28  
+      29    return (
+      30      <View
+     ...
+      35          rotulosDeTier[tier],
+      36          raridade && rotulosDeRaridade[raridade],
+      37          obtido ? "obtido" : "não obtido",
+      38 +        progresso,                                             
+      39        ]
+      40          .filter(Boolean)
+      41          .join(", ")}
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/trofeus" &&
+      sed -i '13,14{s/  textoDoProgresso,/  TMPX,/}' LinhaDePremio.tsx…)
+  ⎿  import {
+       detalheDaLinha,
+       glifoDe,
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\trofeus\LinhaDePremio.tsx (+1 -1)
+      10    glifoDe,
+      11    pontosDaLinha,
+      12    raridadeDe,
+      13 -  textoDoProgresso,                                            
+      13    textoDaRaridade,
+      14 +  textoDoProgresso,                                            
+      15    type ItemDoAluno,
+      16  } from "./montagem";
+      17  
+
+● Agora os testes do cliente: a montagem dos textos e a tela.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/trofeus" &&
+      sed -i '199s|.*|    expect(\n      within(c05).getByText("Regra a…)
+  ⎿    it("a medalha obtida diz onde veio a mais recente e quantas vezes",
+     () => {
+         expect(detalheDaLinha(PREMIOS.itens[0]!)).toBe(
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+3 -1)
+      196      expect(
+      197        within(c05).getByText(" · Lendário · 0,4% dos alunos"),
+      198      ).toBeOnTheScreen();
+      199 -    expect(within(c05).getByText("Critério de C05.")).toBeOnTh
+          -eScreen();                                                    
+      199 +    expect(                                                   
+      200 +      within(c05).getByText("Regra automática · Critério de C0
+          +5."),                                                         
+      201 +    ).toBeOnTheScreen();                                      
+      202      expect(within(c05).getByText("110")).toBeOnTheScreen();
+      203      // Sem raridade calculada ainda, só o tier.
+      204      expect(
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Escrevo os testes: unitários para os textos e um de tela com uma conquista
+  obtida e outra com progresso.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/trofeus" &&
+      cat > /tmp/unit.ts <<'EOF'…)
+  ⎿  7:  rotuloDaInstancia,
+     10:  textoDaRaridade,
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+60 -0)
+       4  import { json, renderComApi } from "../test/renderComApi";
+       5  import {
+       6    detalheDaLinha,
+       7 +  rotuloDaInstancia,                                           
+       8 +  textoDoProgresso,                                            
+       9    itensDaAba,
+      10    textoDaRaridade,
+      11    trilhasDaAba,
+      12 +  type Instancia,                                              
+      13    type ItemDoAluno,
+      14    type PremiosDoAluno,
+      15  } from "./montagem";
+     ...
+      47    postId: null,
+      48  });
+      49  
+      50 +const conquistaEm = (instancia: Instancia) => ({               
+      51 +  id: `c-${instancia.periodo}-${instancia.bimestre ?? 0}`,     
+      52 +  tier: "bronze",                                              
+      53 +  pontos: 25,                                                  
+      54 +  materia: null,                                               
+      55 +  bimestre: null,                                              
+      56 +  obtidoEm: "2026-11-10T13:00:00Z",                            
+      57 +  postId: null,                                                
+      58 +  instancia,                                                   
+      59 +});                                                            
+      60 +                                                               
+      61  const PREMIOS: PremiosDoAluno = {
+      62    pontos: 15020,
+      63    familias: [
+     ...
+      166      expect(textoDaRaridade(0.4)).toBe("0,4% dos alunos");
+      167      expect(textoDaRaridade(50)).toBe("50% dos alunos");
+      168    });
+      169 +                                                              
+      170 +  it("a conquista que falta diz que é regra automática e o cri
+          +tério", () => {                                               
+      171 +    expect(detalheDaLinha(PREMIOS.itens[3]!)).toBe(           
+      172 +      "Regra automática · Critério de C05.",                  
+      173 +    );                                                        
+      174 +  });                                                         
+      175 +                                                              
+      176 +  it("a conquista obtida diz a instância da mais recente e qua
+          +ntas vezes", () => {                                          
+     … 41 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/trofeus" &&
+      sed -i '6,11c\  detalheDaLinha,\n  itensDaAba,\n  rotuloDaInstanc…)
+  ⎿  import {
+       detalheDaLinha,
+       itensDaAba,
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+2 -2)
+       4  import { json, renderComApi } from "../test/renderComApi";
+       5  import {
+       6    detalheDaLinha,
+       7 -  rotuloDaInstancia,                                           
+       8 -  textoDoProgresso,                                            
+       7    itensDaAba,
+       8 +  rotuloDaInstancia,                                           
+       9    textoDaRaridade,
+      10 +  textoDoProgresso,                                            
+      11    trilhasDaAba,
+      12    type Instancia,
+      13    type ItemDoAluno,
+
+● Agora o teste de tela, com uma conquista obtida e outra com progresso.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/trofeus" &&
+      cat > /tmp/tela.ts <<'EOF'
+        it("a conquista obtida mostra a inst…)
+  ⎿  Tests:       16 passed, 16 total
+  ⎿  Updated apps\mobile\src\trofeus\trofeus.test.tsx (+85 -6)
+      178        codigo: "C01",
+      179        tipo: "conquista",
+      180        obtidos: [
+      181 -        conquistaEm({ periodo: "bimestre", ano: 2026, semestre
+          -: 2, bimestre: 4 }),                                          
+      182 -        conquistaEm({ periodo: "bimestre", ano: 2026, semestre
+          -: 2, bimestre: 3 }),                                          
+      181 +        conquistaEm({                                         
+      182 +          periodo: "bimestre",                                
+      183 +          ano: 2026,                                          
+      184 +          semestre: 2,                                        
+      185 +          bimestre: 4,                                        
+      186 +        }),                                                   
+      187 +        conquistaEm({                                         
+      188 +          periodo: "bimestre",                                
+      189 +          ano: 2026,                                          
+      190 +          semestre: 2,                                        
+      191 +          bimestre: 3,                                        
+      192 +        }),                                                   
+      193        ],
+      194      });
+      195  
+     ...
+      200  
+      201    it("o rótulo da instância por período", () => {
+      202      expect(
+      193 -      rotuloDaInstancia({ periodo: "semestre", ano: 2026, seme
+          -stre: 2, bimestre: null }),                                   
+      203 +      rotuloDaInstancia({                                     
+      204 +        periodo: "semestre",                                  
+      205 +        ano: 2026,                                            
+      206 +        semestre: 2,                                          
+      207 +        bimestre: null,                                       
+      208 +      }),                                                     
+      209      ).toBe("2026/2");
+      210      expect(
+      196 -      rotuloDaInstancia({ periodo: "ano", ano: 2026, semestre:
+          - null, bimestre: null }),                                     
+      211 +      rotuloDaInstancia({                                     
+      212 +        periodo: "ano",                                       
+      213 +        ano: 2026,                                            
+      214 +        semestre: null,                                       
+      215 +        bimestre: null,                                       
+      216 +      }),                                                     
+      217      ).toBe("2026");
+     … 79 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Cliente verde: 419 testes, lint, tipos e formatação limpos. Agora as capturas.
+  Vejo como o e2e sobe a pilha e cria professora e aluno, para reaproveitar.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A pilha está de pé, mas com imagens de 3 horas atrás, sem as etapas 2 a 6.
+  Reconstruo com o código atual para as capturas.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Watch CI for stage 5" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 5 do CI passou, e o worker novo já fechou os bimestres 1 a 3 e o
+  semestre 2026/1. Vou escrever um roteiro temporário de Playwright só para as
+  capturas, sem commitá-lo, já que o e2e real fica para a etapa 7.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(e2e\tests\capturas-temporarias.spec.ts)
+  ⎿  Wrote 49 lines to e2e\tests\capturas-temporarias.spec.ts
+       1 import { expect, test } from "@playwright/test";
+       2 
+       3 import { novaConta } from "./apoio/contas";
+       4 import { matricular, novaProfessora } from "./apoio/medalhas";
+       5 
+       6 // TEMPORÁRIO, fora do commit: só as capturas da etapa 6 do pass
+         o 9.
+       7 const PASTA =
+       8   "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherm
+         e-Gimenes-Documents-Repos-tcc-maxx-engenheiro/8f686629-a938-4c06
+     … +42 lines (~2 KB) (ctrl+o to expand)
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● As capturas saíram, mas a lista ainda rola e a captura "inteira" parou no
+  mesmo ponto, deixando a C02 fora da vista. Vou acrescentar uma captura com a
+  C02 rolada para a vista.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^  await page.screenshot({ path:
+      `${PASTA}/trofeus-${tema}-inteira.png`, fullPa…)
+  ⎿    ok 1 [celular-claro] › e2e\tests\capturas-temporarias.spec.ts:10:5 ›
+      capturas da aba Troféus @celular (10.9s)
+       ok 2 [celular-escuro] › e2e\tests\capturas-temporarias.spec.ts:10:5
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\capturas-temporarias.spec.ts (+5 -1)
+      45  
+      46    const tema = test.info().project.use.colorScheme;
+      47    await page.screenshot({ path: `${PASTA}/trofeus-${tema}.png` 
+          });
+      48 -  await page.screenshot({ path: `${PASTA}/trofeus-${tema}-intei
+         -ra.png`, fullPage: true });                                    
+      48 +  const c02 = page.getByTestId("premio-C02");                  
+      49 +  await c02.scrollIntoViewIfNeeded();                          
+      50 +  await page.evaluate(() => window.scrollBy(0, 0));            
+      51 +  await c02.evaluate((el) => el.scrollIntoView({ block: "center
+         +" }));                                                         
+      52 +  await page.screenshot({ path: `${PASTA}/trofeus-${tema}-progr
+         +esso.png` });                                                  
+      53  });
+  ⎿  (timeout 10m)
+
+  Read 2 files (ctrl+o to expand)
+
+● Capturas boas nos dois temas. Removo o roteiro temporário e confiro que nada
+  dele ficou no repositório.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      e2e/tests/capturas-temporarias.spec.ts && git status --short && ls
+      "C:/Users/GUILHE~1/…)
+  ⎿   M apps/mobile/src/trofeus/LinhaDePremio.tsx
+      M apps/mobile/src/trofeus/montagem.ts
+      M apps/mobile/src/trofeus/trofeus.test.tsx
+     … +15 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\tests\capturas-temporarias.spec.ts (+0 -53)
+       1 -import { expect, test } from "@playwright/test";               
+       2 -                                                               
+       3 -import { novaConta } from "./apoio/contas";                    
+       4 -import { matricular, novaProfessora } from "./apoio/medalhas"; 
+       5 -                                                               
+       6 -// TEMPORÁRIO, fora do commit: só as capturas da etapa 6 do pas
+         -so 9.                                                          
+       7 -const PASTA =                                                  
+       8 -  "C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilher
+         -me-Gimenes-Documents-Repos-tcc-maxx-engenheiro/8f686629-a938-4c
+         -06-bdfd-bbf74ba41330/scratchpad";                              
+       9 -                                                               
+      10 -test("capturas da aba Troféus", { tag: "@celular" }, async ({ p
+         -age, request }) => {                                           
+      11 -  const professora = await novaProfessora(request);            
+      12 -  const nome = `Ana ${Date.now().toString().slice(-6)}`;       
+      13 -  const aluno = await novaConta(request, nome);                
+      14 -  matricular(aluno, professora.turmaId);                       
+      15 -                                                               
+      16 -  const login = await request.post("/api/v1/auth/login", {     
+      17 -    data: { identificador: professora.email, senha: professora.
+         -senha },                                                       
+      18 -  });                                                          
+      19 -  const token = (await login.json()).accessToken as string;    
+      20 -  const headers = { Authorization: `Bearer ${token}` };        
+      21 -  const alunos = await (                                       
+      22 -    await request.get(`/api/v1/professor/turmas/${professora.tu
+         -rmaId}/alunos`, { headers })                                   
+      23 -  ).json();                                                    
+      24 -  const alunoId = alunos.find((a: { nomeDeExibicao: string }) =
+         -> a.nomeDeExibicao === nome).id;                               
+      25 -  for (const item of ["M01", "M01", "M02", "M02", "M03"]) {    
+      26 -    const resposta = await request.post(`/api/v1/professor/turm
+         -as/${professora.turmaId}/medalhas`, {                          
+      27 -      headers,                                                 
+      28 -      data: { alunoId, item },                                 
+      29 -    });                                                        
+      30 -    expect(resposta.status()).toBe(201);                       
+      31 -  }                                                            
+      32 -                                                               
+      33 -  await page.goto("/login");                                   
+      34 -  await page.getByLabel("RA ou e-mail").fill(aluno.ra);        
+      35 -  await page.getByLabel("Senha", { exact: true }).fill(aluno.se
+         -nha);                                                          
+      36 -  await page.getByRole("button", { name: "Entrar" }).click();  
+      37 -  await page.getByRole("tab", { name: "Troféus" }).click();    
+      38 -                                                               
+      39 -  // O worker concede em segundos: recarrega até a C01 aparecer
+         -.                                                              
+      40 -  await expect(async () => {                                   
+     … 13 more lines (ctrl+o to expand)
+
+● A etapa 6 está pronta para a sua revisão, com as capturas. Ainda não commitei;
+  a CI desta etapa roda quando você aprovar e eu fizer o push.
+
+  CI da etapa 5
+
+  O commit a6e356f ficou com os seis jobs verdes na primeira tentativa.
+
+  O que foi feito na etapa 6
+
+  Tudo em apps/mobile/src/trofeus/:
+  - Conquista que falta: a linha de detalhe passa a dizer "Regra automática ·
+    {critério}", como na prancheta, e logo abaixo vem a linha de progresso:
+
+  | Período  | Texto                   |
+  |----------|-------------------------|
+  | bimestre | "2 de 3 neste bimestre" |
+  | semestre | "0 de 3 neste semestre" |
+  | ano      | "5 de 20 neste ano"     |
+  | curso    | "5 de 100 no curso"     |
+    A linha só aparece quando a API manda o progresso. A cor é ink, a de texto
+    normal, nunca ouro, e o texto entra também no rótulo de acessibilidade.
+  - Conquista obtida: a linha passa a dizer "Regra automática · 4º bimestre de
+    2026", com " · 2 vezes" quando é repetida. Os outros rótulos de instância
+    são "2026/2", "2026" e "no curso".
+  - Testes: 5 novos. Quatro unitários (detalhe da que falta, detalhe da obtida
+    com instância e vezes, rótulos por período, textos de progresso em formato
+    brasileiro) e um de tela (a obtida com a instância e sem progresso, a que
+    falta com a linha e o rótulo de acessibilidade). Um teste antigo mudou o
+    texto esperado da C05 para a forma com "Regra automática".
+
+  Capturas
+
+  A pilha do compose foi reconstruída com o código atual. Um roteiro temporário
+  de Playwright, já apagado e fora do commit, criou uma professora e uma aluna,
+  concedeu cinco medalhas pela API e fotografou a aba Troféus no celular.
+
+  - Claro, com a C01 obtida e o progresso da C18: C:\Users\GUILHE~1\AppData\Loca
+    l\Temp\claude\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro
+    \8f686629-a938-4c06-bdfd-bbf74ba41330\scratchpad\trofeus-light.png
+  - Escuro, o mesmo: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilhe
+    rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\8f686629-a938-4c06-bdfd-bbf7
+    4ba41330\scratchpad\trofeus-dark.png
+  - Claro, rolado até a C02 com "2 de 3 neste bimestre":
+    C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Docum
+    ents-Repos-tcc-maxx-engenheiro\8f686629-a938-4c06-bdfd-bbf74ba41330\scratchp
+    ad\trofeus-light-progresso.png
+  - Escuro, o mesmo: C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilhe
+    rme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\8f686629-a938-4c06-bdfd-bbf7
+    4ba41330\scratchpad\trofeus-dark-progresso.png
+
+  Os dois arquivos -inteira.png saíram iguais aos de cima, porque a lista rola
+  dentro da tela.
+
+  O que aparece nelas:
+  - A C01 "Cinco no bimestre", obtida, com "Bronze · Lendário · 0% dos alunos",
+    "Regra automática · 4º bimestre de 2026" e "+25".
+  - A C18, apagada, com "Regra automática · Acumular cem medalhas ao longo do
+    curso." e "5 de 100 no curso".
+  - A C02, com "2 de 3 neste bimestre", e a C05 e a C06, com "0 de 3 neste
+    semestre".
+  - A trilha "Colecionador de medalhas" passa a aparecer porque a C01 a abriu
+    ("1 de 5 · 25 pts").
+
+  Três pontos que quero que você veja
+
+  1. "3 de 4 matérias" não entrou. O plano previa esse texto para a regra
+     dinâmica, mas a API não diz ao app que o alvo é de matérias. Hoje as quatro
+     de alvo dinâmico mostram "1 de 2 neste bimestre". Para ter o "matérias",
+     basta um campo opcional no progresso (algo como unidade: "materias"), mais
+     um acréscimo na API. Faço nesta etapa se você quiser; não fiz porque mexe
+     na API numa etapa do cliente.
+  2. O critério da conquista é a frase inteira do catálogo, então a linha ocupa
+     duas ou três linhas ("Regra automática · Receber três medalhas de nota 10
+     em prova no mesmo bimestre."). A prancheta mostra algo curto, como "Regra
+     automática · presença de 100%", mas o catálogo não tem um critério curto.
+     Deixei a frase inteira; encurtar seria um campo novo no catálogo.
+  3. O "0% dos alunos" da C01 é a raridade ainda não recalculada no instante da
+     captura, pela coalescência de 10 s. Recarregando, ela passa a contar a
+     aluna.
+
+  Verificação local
+
+  - Jest: 42 arquivos e 419 testes passando.
+  - expo lint e tsc --noEmit limpos, Prettier em apps/mobile limpo.
+  - Nada mudou na API.
+
+  Mensagem de commit proposta
+
+  feat(mobile): mostra a conquista obtida e o progresso na tela de troféus
+
+  Com o seu ok (e a sua escolha sobre o "matérias"), commito, faço push,
+  acompanho a CI e sigo para a etapa curta do post de conquista.
+
+✻ Baked for 10m 24s · done 21:34
