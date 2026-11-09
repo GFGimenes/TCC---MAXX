@@ -59,8 +59,11 @@ como um texto só.
   - que nenhum arquivo de instrução (CLAUDE.md e afins) foi carregado.
 
   Qualquer desvio deixa o eixo "a conferir".
-- **Nota escondida.** Na avaliação real, a nota dos revisores não aparece no terminal
-  nem no registro: o autor pontua antes de ver.
+- **Nota escondida nas trilhas, visível no prompt único.** Na avaliação real de `leigo`
+  e `engenheiro`, a nota dos revisores não aparece no terminal nem no registro: o autor
+  pontua antes de ver. Em `leigo_pu` e `eng_pu` não há nota cega (pré-registro, §7,
+  alteração de 09/11/2026): a nota aparece no terminal e no registro, e o autor a valida
+  ou ajusta depois de ler o review (seção "Depois: formulário, reviews e consolidação").
 
 ## Contraprova da isca: refazer a cada versão do Claude Code
 
@@ -113,7 +116,8 @@ não são tocados.
 
 1. **Testes sem sessão (custo zero).** São os testes das etapas 1 a 5: checkout,
    leitura do bloco JSON, auditoria de caminhos, `-SemClaude`, registro, formulário,
-   revisor de decisões com um claude falso e consolidação com dados fictícios.
+   revisor de decisões com um claude falso e consolidação com dados fictícios. As
+   etapas 3 e 5 cobrem os dois modos de nota, com um produto falso de cada tipo.
 
    ```powershell
    powershell -ExecutionPolicy Bypass -File avaliacoes\avaliador\testes\rodar-testes.ps1
@@ -238,8 +242,8 @@ O que a execução grava:
 | `.prompt.txt`, `.saida.jsonl`, `.sessao.jsonl` | O prompt exato, a saída bruta do CLI e a transcrição de cada eixo. |
 | `avaliacoes/reviews/<produto>-decisoes-<id>.md` e `.json` | Revisor de decisões, um par por export. |
 | `avaliacoes/reviews/<produto>-decisoes.md` e `.json` | O conjunto dos exports do produto, sem deduplicar. |
-| `avaliacoes/reviews/<produto>-registro.md` | Uma seção por execução, sem notas. |
-| `avaliacoes/autor/<produto>.md` | Formulário em branco do autor, criado só na primeira vez e nunca sobrescrito. |
+| `avaliacoes/reviews/<produto>-registro.md` | Uma seção por execução. Sem notas em `leigo` e `engenheiro`; com a coluna "Nota do revisor" em `leigo_pu` e `eng_pu`. |
+| `avaliacoes/autor/<produto>.md` | Formulário do autor, criado só na primeira vez e nunca sobrescrito. Em `leigo_pu` e `eng_pu`, a cada execução o script preenche a linha "Nota do revisor:" dos eixos que ainda não têm número, e só ela. |
 
 O `.json` de cada eixo traz:
 - status e motivos;
@@ -271,7 +275,17 @@ Status:
 
 ## Depois: formulário, reviews e consolidação
 
-Na ordem da rubrica ("Como preencher"):
+O formulário tem dois modos, conforme o produto:
+
+| Produto | Modo | Nota do autor |
+|---|---|---|
+| `leigo`, `engenheiro` | nota cega | `Nota (1 a 5):`, dada antes de abrir os reviews |
+| `leigo_pu`, `eng_pu` | nota validada (pré-registro, §7, alteração de 09/11/2026) | `Nota validada (1 a 5):`, dada depois de ler o review |
+
+Os arquivos já gerados não mudam de modo: o formulário só é criado na primeira vez, e o
+do `leigo` continua o de nota cega.
+
+**Nota cega (`leigo`, `engenheiro`),** na ordem da rubrica ("Como preencher"):
 
 1. **Preencha `avaliacoes/autor/<produto>.md` antes de abrir os reviews.** O registro
    (`<produto>-registro.md`) não tem notas e pode ser lido. O formulário pede:
@@ -284,7 +298,27 @@ Na ordem da rubrica ("Como preencher"):
    Mantenha os títulos e os rótulos, porque o `consolidar.ps1` lê o arquivo por eles.
 2. **Só então abra os reviews.** Para cada divergência de 2 pontos ou mais, escreva
    uma linha na seção "Depois de abrir os reviews".
-3. **Consolide:**
+
+**Nota validada (`leigo_pu`, `eng_pu`):**
+
+1. **Leia o review de cada eixo** (`avaliacoes/reviews/<produto>-<eixo>.md`) antes de
+   preencher a seção do eixo. Cada seção traz quatro linhas no lugar de `Nota (1 a 5):`:
+   - `Nota do revisor:` preenchida pelo `avaliar.ps1` a partir do `.json` do eixo (o
+     número, quando o status é ok; o status, quando não é; "pendente", sem review). Não
+     edite. Se o eixo for refeito, o script troca só linha sem número; uma nota já escrita
+     fica, e sai um aviso no terminal se o review novo tiver outra;
+   - `Validada (sim ou não):` "sim" se a nota do revisor se sustenta, "não" se você a
+     ajusta;
+   - `Nota validada (1 a 5):` sempre um inteiro de 1 a 5, a do revisor ou a sua;
+   - `Motivo do ajuste:` obrigatório quando a nota muda.
+
+   Observações objetivas, regras ausentes, decisões sem perguntar e perguntas sem
+   resposta são iguais às do modo cego. Não há seção "Depois de abrir os reviews".
+2. **Confira os avisos do `consolidar.ps1`.** Ele aponta, como problema no formulário,
+   "sim" com nota diferente da do revisor, ajuste sem motivo e `Validada` fora de sim
+   ou não. A nota validada vale mesmo assim; o aviso é para corrigir.
+
+**Consolide:**
 
    ```powershell
    .\avaliacoes\avaliador\consolidar.ps1
@@ -295,14 +329,18 @@ Na ordem da rubrica ("Como preencher"):
      produto, eixo, nota_revisor, nota_autor, divergencia, regras_ausentes e
      decisoes_listadas.
    - **MD:** notas e totais por produto, a matriz do autor, H1, H2, H3, a exploratória
-     e as decisões listadas pelos revisores.
-   - **Hipóteses:** usam a nota e as contagens do autor.
+     e as decisões listadas pelos revisores. Em `leigo_pu` e `eng_pu`, também a lista
+     dos ajustes do autor (nota do revisor, nota validada e motivo).
+   - **Hipóteses:** usam a nota e as contagens do autor. Em `leigo_pu` e `eng_pu`, a
+     nota do autor é a nota validada.
    - **Dados que faltam:** o que não tem dado fica "pendente".
-   - **Revisor oculto:** enquanto o formulário de um produto não tem as seis notas,
-     nada do revisor desse produto aparece.
+   - **Revisor oculto, só na nota cega:** enquanto o formulário de `leigo` ou
+     `engenheiro` não tem as seis notas, nada do revisor desse produto aparece. Em
+     `leigo_pu` e `eng_pu` o revisor nunca fica oculto.
 
    Regras aplicadas:
    - **Divergência:** autor menos revisor, com asterisco quando o módulo é 2 ou mais.
+     Em `leigo_pu` e `eng_pu`, "n/a (validada)", porque não há nota cega.
    - **H1:** eng_pu - leigo_pu >= 1 em pelo menos 4 dos 5 eixos (Segurança,
      Infraestrutura, Documentação, Código, Projeto e arquitetura).
    - **H2:** em nenhum dos 5 eixos eng_pu - leigo <= -1.
