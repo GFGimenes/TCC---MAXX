@@ -256,7 +256,7 @@
 
   Assim que você responder as perguntas, ajusto o plano e começo a etapa 1.
 
-✻ Churned for 2m 52s · done 23:18
+✻ Churned for 2m 52s · done domingo, 23:18
 
 > /export C:\Users\Guilherme                                                    
 Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
@@ -1175,7 +1175,7 @@ Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
   integração) está rodando em segundo plano. O relatório da etapa 1 e a mensagem
   de commit saem quando ela terminar.
 
-✻ Churned for 16m 20s · done 23:40
+✻ Churned for 16m 20s · done domingo, 23:40
 
 ※ recap: Estamos no passo 10 (mural e notificações), na etapa 1, a publicação de aviso, já escrita e com os checks locais verdes. A suíte completa da API ainda está rodando; quando ela terminar, mando o relatório com a mensagem de commit para a sua revisão. (disable recaps in /config)
 
@@ -1263,4 +1263,939 @@ code 0)
   Com o seu ok, faço o commit e o push da feat/passo-10-mural e acompanho a CI
   até o fim. A etapa só fica pronta com a CI verde.
 
-✻ Brewed for 21s · done 23:44
+✻ Brewed for 21s · done domingo, 23:44
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt         ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+> Etapa 1 aprovada, com os dois pontos aceitos: quem vê recebe, sem notificar a 
+  instituição nem o autor; e o curso atual como fonte dos destinatários, com a  
+  janela de segundos registrada como limite conhecido. A prova reversa na       
+  condição da conta criada foi bem feita. Commita com a mensagem proposta,      
+  push, acompanha a CI e segue para a etapa 2; para para a minha revisão no fim 
+  dela.                                                                         
+
+● Faço o commit sem rodapé de co-autoria, como pede o CLAUDE.md, e o push.
+
+  Pushed to feat/passo-10-mural (ctrl+o to expand)
+
+● Push feito (76cd841). Acompanho a CI em segundo plano enquanto estudo o que a
+  etapa 2 precisa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a CI roda, começo a etapa 2 lendo os padrões de ETag, cursor e
+  paginação do perfil.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● O padrão de ETag do perfil serve ao mural. Escrevo a camada de aplicação da
+  leitura: consulta do mural, leitura e "Ler todos".
+
+● Write(apps\api\src\Maxx.Domain\Mural\LeituraDeAviso.cs)
+  ⎿  Wrote 24 lines to apps\api\src\Maxx.Domain\Mural\LeituraDeAviso.cs
+       1 namespace Maxx.Domain.Mural;
+       2 
+       3 // A leitura de um aviso por um usuário (produto.md 7): é o que 
+         apaga a bolinha dourada da
+       4 // aba Mural. Uma por usuário e aviso; ler de novo não muda o in
+         stante da primeira leitura.
+       5 public sealed class LeituraDeAviso
+       6 {
+       7     // Para o EF Core materializar do banco.
+       8     private LeituraDeAviso()
+     … +16 lines (ctrl+o to expand)
+
+● Write(apps\api\src\Maxx.Application\Mural\LeituraDoMural.cs)
+  ⎿  Wrote 100 lines to
+     apps\api\src\Maxx.Application\Mural\LeituraDoMural.cs
+      1 using Maxx.Application.Autenticacao;
+      2 using Maxx.Application.Paginacao;
+      3 using Maxx.Domain.Mural;
+      4 
+      5 namespace Maxx.Application.Mural;
+      6 
+      7 // Quem lê o mural e o que o define (produto.md 7): os vínculos v
+        êm do banco a cada pedido,
+      8 // nunca do token. Curso é o atual, do cadastro; o professor não 
+        tem nenhum dos dois.
+     … +92 lines (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Application\Mural\CodigosDoMural.cs)
+  ⎿  Added 3 lines
+      31  
+      32      // O upload existe, mas as duas derivadas não chegaram ao b
+          ucket.
+      33      public const string FotoNaoEnviada = "foto-nao-enviada";
+      34 +                                                               
+      35 +    // O aviso não existe ou não está no mural de quem pede.   
+      36 +    public const string AvisoNaoEncontrado = "aviso-nao-encontr
+         +ado";                                                          
+      37  }
+
+● Agora a consulta do mural na infraestrutura, com a regra de visibilidade num
+  lugar só.
+
+● Write(apps\api\src\Maxx.Infrastructure\Mural\ConsultaDoMural.cs)
+  ⎿  Wrote 165 lines to
+     apps\api\src\Maxx.Infrastructure\Mural\ConsultaDoMural.cs
+      1 using Maxx.Application.Mural;
+      2 using Maxx.Application.Paginacao;
+      3 using Maxx.Domain.Academico;
+      4 using Maxx.Domain.Identidade;
+      5 using Maxx.Domain.Mural;
+      6 using Maxx.Domain.Notificacoes;
+      7 using Maxx.Infrastructure.Persistence;
+      8 using Maxx.Infrastructure.Seed;
+      9 using Microsoft.EntityFrameworkCore;
+     … +156 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && cat >>
+      Maxx.Infrastructure/Persistence/Configurations/AvisoConfiguration.cs…)
+  ⎿  Maxx.Infrastructure/DependencyInjection.cs:99:        services.AddScop
+     ed<IConsultaDoMural, ConsultaDoMural>();
+     Maxx.Api/Program.cs:111:builder.Services.AddScoped<Maxx.Application.Mu
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Perfil\PerfilEndpoints.cs (+1 -1)
+      173  
+      174      // ETag do conteúdo, com 304 quando o app já tem a versão 
+           (decisoes/README.md, Cache). A
+      175      // resposta depende de quem pede (RA, "eu sigo"): private,
+            nunca em cache compartilhado.
+      176 -    private static IResult ComEtag<T>(HttpContext http, T corp
+          -o, bool aceitar304 = true)                                    
+      176 +    internal static IResult ComEtag<T>(HttpContext http, T cor
+          +po, bool aceitar304 = true)                                   
+      177      {
+      178          var opcoes = http.RequestServices.GetRequiredService<I
+           Options<Microsoft.AspNetCore.Http.Json.JsonOptions>>().Value.S
+           erializerOptions;
+      179          var etag = $"W/\"{Convert.ToBase64String(SHA256.HashDa
+           ta(JsonSerializer.SerializeToUtf8Bytes(corpo, opcoes)))[..22]}
+           \"";
+  ⎿  Updated apps\api\src\Maxx.Api\Program.cs (+1 -0)
+      108  builder.Services.AddScoped<Maxx.Application.PremiosParticipaca
+           o.ContestacaoHandler>();
+      109  builder.Services.AddScoped<Maxx.Application.Perfil.BuscaDeAlun
+           osHandler>();
+      110  builder.Services.AddScoped<Maxx.Application.Mural.PublicarAvis
+           oHandler>();
+      111 +builder.Services.AddScoped<Maxx.Application.Mural.MuralHandler
+          +>();                                                          
+      112  
+      113  var app = builder.Build();
+      114  
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+1 
+     -0)
+       96          services.AddScoped<IConsultaDePerfil, ConsultaDePerfil
+           >();
+       97          services.AddScoped<IAvisoRepository, AvisoRepository>(
+           );
+       98          services.AddScoped<IDistribuicaoDeAviso, DistribuicaoD
+           eAviso>();
+       99 +        services.AddScoped<IConsultaDoMural, ConsultaDoMural>(
+          +);                                                            
+      100  
+      101          // Fila no Postgres (ADR 0008): a API e o worker enfil
+           eiram; só o worker consome.
+      102          services.AddOptions<FilaOptions>();
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Configurations\Av
+     isoConfiguration.cs (+17 -0)
+      71          builder.HasOne<Curso>().WithMany().HasForeignKey(alvo =
+          > alvo.CursoId).OnDelete(DeleteBehavior.Restrict);
+      72      }
+      73  }
+      74 +                                                               
+      75 +// A leitura de aviso (produto.md 7). Uma por usuário e aviso, 
+         +pela chave; a ordem da chave                                   
+      76 +// serve à pergunta do mural, "o que este usuário já leu".     
+      77 +internal sealed class LeituraDeAvisoConfiguration : IEntityType
+         +Configuration<LeituraDeAviso>                                  
+      78 +{                                                              
+      79 +    public void Configure(EntityTypeBuilder<LeituraDeAviso> bui
+         +lder)                                                          
+      80 +    {                                                          
+      81 +        builder.ToTable("leitura_de_aviso");                   
+      82 +        builder.HasKey(leitura => new { leitura.UsuarioId, leit
+         +ura.AvisoId });                                                
+      83 +        builder.HasIndex(leitura => leitura.AvisoId);          
+      84 +                                                               
+      85 +        // Sem cascata do usuário, como o resto do que ele grav
+         +a: a purga da demonstração                                     
+      86 +        // apaga as leituras antes dele. O aviso não sai na fas
+         +e 1; se sair, leva as leituras.                                
+      87 +        builder.HasOne<Usuario>().WithMany().HasForeignKey(leit
+         +ura => leitura.UsuarioId).OnDelete(DeleteBehavior.Restrict);   
+      88 +        builder.HasOne<Aviso>().WithMany().HasForeignKey(leitur
+         +a => leitura.AvisoId).OnDelete(DeleteBehavior.Cascade);        
+      89 +    }                                                          
+      90 +}                                                              
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs)
+  ⎿  Added 95 lines, removed 2 lines
+      11  namespace Maxx.Api.Mural;
+      12  
+      13  // O aviso do mural (produto.md 7). Publicar é do professor (tu
+          rmas suas) e da instituição
+      14 -// (faculdade e cursos); quem decide o papel é o domínio, e o e
+         -scopo de turma, o banco.                                       
+      15 -// A leitura do mural chega na etapa 2 do passo 10.            
+      14 +// (faculdade e cursos); quem decide o papel é o domínio, e o e
+         +scopo de turma, o banco. Ler                                   
+      15 +// é de qualquer usuário logado, pelo mural dele: os vínculos d
+         +o banco decidem o que ele vê.                                  
+      16  internal static class AvisoEndpoints
+      17  {
+      18 +    public const int AvisosPorPagina = 20;                     
+      19 +                                                               
+      20      public static IEndpointRouteBuilder MapAvisoEndpoints(this 
+          IEndpointRouteBuilder v1)
+      21      {
+      22          var avisos = v1.MapGroup("/avisos").WithTags("Mural");
+     ...
+       28              .ProducesProblem(StatusCodes.Status404NotFound)
+       29              .ProducesProblem(StatusCodes.Status409Conflict);
+       30  
+       31 +        avisos.MapGet("/{avisoId:guid}", AvisoAsync)          
+       32 +            .WithName("GetAviso")                             
+       33 +            .Produces<AvisoResponse>()                        
+       34 +            .Produces(StatusCodes.Status304NotModified)       
+       35 +            .ProducesProblem(StatusCodes.Status404NotFound);  
+       36 +                                                              
+       37 +        avisos.MapPut("/{avisoId:guid}/leitura", LerAsync)    
+       38 +            .WithName("LerAviso")                             
+       39 +            .ProducesProblem(StatusCodes.Status404NotFound);  
+       40 +                                                              
+       41 +        var mural = v1.MapGroup("/mural").WithTags("Mural");  
+       42 +                                                              
+       43 +        mural.MapGet("/", MuralAsync)                         
+       44 +            .WithName("GetMural")                             
+       45 +            .Produces<PaginaDoMuralResponse>()                
+       46 +            .Produces(StatusCodes.Status304NotModified)       
+       47 +            .ProducesValidationProblem();                     
+       48 +                                                              
+       49 +        mural.MapPost("/leitura", LerTodosAsync)              
+       50 +            .WithName("LerTodosOsAvisos");                    
+       51 +                                                              
+       52 +        // Os avisos que o professor publicou, no perfil dele 
+          +(produto.md 2.1): pela mesma                                  
+       53 +        // regra do mural, cada um vê só os que estão no mural
+          + dele.                                                        
+       54 +        v1.MapGet("/perfis/{usuarioId:guid}/avisos", DoAutorAs
+          +ync)                                                          
+       55 +            .WithName("GetAvisosDoPerfil")                    
+       56 +            .WithTags("Perfil")                               
+       57 +            .ProducesProblem(StatusCodes.Status400BadRequest);
+       58 +                                                              
+       59          return v1;
+       60      }
+       61  
+       62 +    // O mural combinado, filtrado pelos vínculos de quem pede
+          +, com ETag: o app pergunta de                                 
+       63 +    // novo ao voltar à aba, e a resposta não muda na maior pa
+          +rte das vezes.                                                
+       64 +    private static async Task<IResult> MuralAsync(            
+       65 +        [AllowedValues(null, PublicarAvisoRequest.Faculdade, P
+          +ublicarAvisoRequest.Curso, PublicarAvisoRequest.Turma)] string
+          +? escopo,                                                     
+       66 +        string? cursor,                                       
+       67 +        HttpContext http,                                     
+       68 +        ClaimsPrincipal principal,                            
+       69 +        MuralHandler handler,                                 
+       70 +        IArmazenamentoDeFotos armazenamento,                  
+       71 +        CancellationToken cancellationToken)                  
+       72 +    {                                                         
+       73 +        var pagina = await handler.MuralAsync(                
+       74 +            PostEndpoints.UsuarioId(principal), Escopo(escopo)
+          +, null, cursor, AvisosPorPagina, cancellationToken);          
+       75 +        return Perfil.PerfilEndpoints.ComEtag(http, PaginaDoMu
+          +ralResponse.De(pagina, armazenamento));                       
+       76 +    }                                                         
+       77 +                                                              
+       78 +    private static async Task<Ok<PaginaDoMuralResponse>> DoAut
+          +orAsync(                                                      
+       79 +        Guid usuarioId,                                       
+       80 +        string? cursor,                                       
+       81 +        ClaimsPrincipal principal,                            
+       82 +        MuralHandler handler,                                 
+       83 +        IArmazenamentoDeFotos armazenamento,                  
+       84 +        CancellationToken cancellationToken)                  
+       85 +    {                                                         
+       86 +        var pagina = await handler.MuralAsync(                
+       87 +            PostEndpoints.UsuarioId(principal), null, usuarioI
+          +d, cursor, AvisosPorPagina, cancellationToken);               
+       88 +        return TypedResults.Ok(PaginaDoMuralResponse.De(pagina
+          +, armazenamento));                                            
+       89 +    }                                                         
+       90 +                                                              
+       91 +    private static async Task<IResult> AvisoAsync(            
+       92 +        Guid avisoId,                                         
+       93 +        HttpContext http,                                     
+       94 +        ClaimsPrincipal principal,                            
+       95 +        MuralHandler handler,                                 
+       96 +        IArmazenamentoDeFotos armazenamento,                  
+       97 +        CancellationToken cancellationToken)                  
+       98 +    {                                                         
+       99 +        var aviso = await handler.AvisoAsync(PostEndpoints.Usu
+          +arioId(principal), avisoId, cancellationToken);               
+      100 +        return Perfil.PerfilEndpoints.ComEtag(http, AvisoRespo
+          +nse.De(aviso, armazenamento));                                
+      101 +    }                                                         
+      102 +                                                              
+      103 +    private static async Task<NoContent> LerAsync(            
+      104 +        Guid avisoId, ClaimsPrincipal principal, MuralHandler 
+          +handler, CancellationToken cancellationToken)                 
+      105 +    {                                                         
+      106 +        await handler.LerAsync(PostEndpoints.UsuarioId(princip
+          +al), avisoId, cancellationToken);                             
+      107 +        return TypedResults.NoContent();                      
+      108 +    }                                                         
+      109 +                                                              
+      110 +    private static async Task<NoContent> LerTodosAsync(       
+      111 +        ClaimsPrincipal principal, MuralHandler handler, Cance
+          +llationToken cancellationToken)                               
+      112 +    {                                                         
+      113 +        await handler.LerTodosAsync(PostEndpoints.UsuarioId(pr
+          +incipal), cancellationToken);                                 
+      114 +        return TypedResults.NoContent();                      
+      115 +    }                                                         
+      116 +                                                              
+      117 +    private static EscopoDoAviso? Escopo(string? escopo) => es
+          +copo switch                                                   
+      118 +    {                                                         
+      119 +        PublicarAvisoRequest.Faculdade => EscopoDoAviso.Faculd
+          +ade,                                                          
+      120 +        PublicarAvisoRequest.Curso => EscopoDoAviso.Curso,    
+      121 +        PublicarAvisoRequest.Turma => EscopoDoAviso.Turma,    
+      122 +        _ => null,                                            
+      123 +    };                                                        
+      124 +                                                              
+      125      private static async Task<Created<AvisoPublicadoResponse>>
+            PublicarAsync(
+      126          PublicarAvisoRequest pedido,
+      127          ClaimsPrincipal principal,
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && cat >>
+      Maxx.Api/Mural/AvisoEndpoints.cs <<'EOF'…)
+  ⎿      0 Aviso(s)
+         0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Api\Mural\AvisoEndpoints.cs (+45 -0)
+      197          [.. aviso.Turmas.Select(turma => turma.TurmaId)],
+      198          [.. aviso.Cursos.Select(curso => curso.CursoId)]);
+      199  }
+      200 +                                                              
+      201 +// O aviso no mural de quem pede. O autor da instituição o app
+          + mostra como "UniMax"; o do                                   
+      202 +// professor, pelo nome. As matérias das turmas no escopo turm
+          +a, as siglas dos cursos no                                    
+      203 +// escopo curso. "lido" é deste leitor: é o que acende a bolin
+          +ha e abre ou recolhe o cartão.                                
+      204 +public sealed record AvisoResponse(                           
+      205 +    Guid Id,                                                  
+      206 +    string Escopo,                                            
+      207 +    string Titulo,                                            
+      208 +    string Texto,                                             
+      209 +    FotoDoPostResponse? Foto,                                 
+      210 +    DateTimeOffset PublicadoEm,                               
+      211 +    AutorDoAvisoResponse Autor,                               
+      212 +    IReadOnlyList<string> Materias,                           
+      213 +    IReadOnlyList<string> Cursos,                             
+      214 +    bool Lido)                                                
+      215 +{                                                             
+      216 +    public static AvisoResponse De(AvisoLido aviso, IArmazenam
+          +entoDeFotos armazenamento)                                    
+      217 +    {                                                         
+      218 +        ArgumentNullException.ThrowIfNull(aviso);             
+      219 +        return new(                                           
+      220 +            aviso.Id,                                         
+      221 +            ProfessorEndpoints.Nome(aviso.Escopo),            
+      222 +            aviso.Titulo,                                     
+      223 +            aviso.Texto,                                      
+      224 +            aviso is { ChaveDaFotoDoFeed: { } feed, ChaveDaFot
+          +oDaGrade: { } grade }                                         
+      225 +                ? new FotoDoPostResponse(armazenamento.UrlDeLe
+          +itura(feed).AbsoluteUri, armazenamento.UrlDeLeitura(grade).Abs
+          +oluteUri)                                                     
+      226 +                : null,                                       
+      227 +            aviso.PublicadoEm,                                
+      228 +            new AutorDoAvisoResponse(aviso.Autor.Id, aviso.Aut
+          +or.NomeDeExibicao, aviso.Autor.Instituicao),                  
+      229 +            aviso.Materias,                                   
+      230 +            aviso.Cursos,                                     
+      231 +            aviso.Lido);                                      
+      232 +    }                                                         
+      233 +}                                                             
+      234 +                                                              
+      235 +public sealed record AutorDoAvisoResponse(Guid Id, string Nome
+          +DeExibicao, bool Instituicao);                                
+      236 +                                                              
+     … 8 more lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && dotnet ef
+      migrations add LeituraDeAviso --project src/Maxx.Infrastructure --star…)
+  ⎿  Build succeeded.
+     Done. To undo this action, use 'ef migrations remove'
+     20261109025024_LeituraDeAviso.Designer.cs
+     … +37 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     09025024_LeituraDeAviso.cs (+52 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class LeituraDeAviso : Migration            
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "leitura_de_aviso",                      
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    usuario_id = table.Column<Guid>(type: "uuid
+         +", nullable: false),                                           
+      19 +                    aviso_id = table.Column<Guid>(type: "uuid",
+         + nullable: false),                                             
+      20 +                    lida_em = table.Column<DateTimeOffset>(type
+         +: "timestamp with time zone", nullable: false)                 
+      21 +                },                                             
+      22 +                constraints: table =>                          
+      23 +                {                                              
+      24 +                    table.PrimaryKey("pk_leitura_de_aviso", x =
+         +> new { x.usuario_id, x.aviso_id });                           
+      25 +                    table.ForeignKey(                          
+      26 +                        name: "fk_leitura_de_aviso_aviso_aviso_
+         +id",                                                           
+      27 +                        column: x => x.aviso_id,               
+      28 +                        principalTable: "aviso",               
+      29 +                        principalColumn: "id",                 
+      30 +                        onDelete: ReferentialAction.Cascade);  
+      31 +                    table.ForeignKey(                          
+      32 +                        name: "fk_leitura_de_aviso_usuario_usua
+         +rio_id",                                                       
+      33 +                        column: x => x.usuario_id,             
+      34 +                        principalTable: "usuario",             
+      35 +                        principalColumn: "id",                 
+      36 +                        onDelete: ReferentialAction.Restrict); 
+      37 +                });                                            
+      38 +                                                               
+      39 +            migrationBuilder.CreateIndex(                      
+      40 +                name: "ix_leitura_de_aviso_aviso_id",          
+     … 12 more lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Persistence\Migrations\MaxxDb
+     ContextModelSnapshot.cs (+40 -0)
+      892                      b.ToTable("aviso_turma", (string)null);
+      893                  });
+      894  
+      895 +            modelBuilder.Entity("Maxx.Domain.Mural.LeituraDeAv
+          +iso", b =>                                                    
+      896 +                {                                             
+      897 +                    b.Property<Guid>("UsuarioId")             
+      898 +                        .HasColumnType("uuid")                
+      899 +                        .HasColumnName("usuario_id");         
+      900 +                                                              
+      901 +                    b.Property<Guid>("AvisoId")               
+      902 +                        .HasColumnType("uuid")                
+      903 +                        .HasColumnName("aviso_id");           
+      904 +                                                              
+      905 +                    b.Property<DateTimeOffset>("LidaEm")      
+      906 +                        .HasColumnType("timestamp with time zo
+          +ne")                                                          
+      907 +                        .HasColumnName("lida_em");            
+      908 +                                                              
+      909 +                    b.HasKey("UsuarioId", "AvisoId")          
+      910 +                        .HasName("pk_leitura_de_aviso");      
+      911 +                                                              
+      912 +                    b.HasIndex("AvisoId")                     
+      913 +                        .HasDatabaseName("ix_leitura_de_aviso_
+          +aviso_id");                                                   
+      914 +                                                              
+      915 +                    b.ToTable("leitura_de_aviso", (string)null
+          +);                                                            
+      916 +                });                                           
+      917 +                                                              
+      918              modelBuilder.Entity("Maxx.Domain.Notificacoes.Noti
+           ficacao", b =>
+      919                  {
+      920                      b.Property<Guid>("Id")
+     ...
+      2172                          .HasConstraintName("fk_aviso_turma_tu
+            rma_turma_id");
+      2173                  });
+      2174  
+      2175 +            modelBuilder.Entity("Maxx.Domain.Mural.LeituraDeA
+           +viso", b =>                                                  
+      2176 +                {                                            
+      2177 +                    b.HasOne("Maxx.Domain.Mural.Aviso", null)
+      2178 +                        .WithMany()                          
+      2179 +                        .HasForeignKey("AvisoId")            
+      2180 +                        .OnDelete(DeleteBehavior.Cascade)    
+      2181 +                        .IsRequired()                        
+      2182 +                        .HasConstraintName("fk_leitura_de_avi
+           +so_aviso_aviso_id");                                         
+     … 12 more lines (ctrl+o to expand)
+  ⎿  … 1 more file changed
+  ⎿  (timeout 5m)
+
+● Migration da leitura gerada. Antes dos testes, vejo o teste da purga: ele roda
+  o SQL do README e precisa cobrir a leitura de aviso de um usuário da
+  demonstração.
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\DemonstracaoTests
+        .cs)
+  ⎿  Added 15 lines
+      475                  ]);
+      476          }
+      477  
+      478 +        // Um aviso da Renata para a turma, lido pelas duas (p
+          +asso 10): a leitura segura o                                  
+      479 +        // usuário, sem cascata. O aviso não é do lote e fica.
+      480 +        await using (var scope = factory.Services.CreateAsyncS
+          +cope())                                                       
+      481 +        {                                                     
+      482 +            var banco = scope.ServiceProvider.GetRequiredServi
+          +ce<MaxxDbContext>();                                          
+      483 +            var agora = DateTimeOffset.UtcNow;                
+      484 +            var aviso = Maxx.Domain.Mural.Aviso.Publicar(     
+      485 +                contaDaRenata, Maxx.Domain.Mural.EscopoDoAviso
+          +.Turma, [turma], "Prova remarcada", "Passou para sexta.", null
+          +, agora).Aviso!;                                              
+      486 +            var leitoras = await banco.Set<Usuario>()         
+      487 +                .Where(usuario => usuario.NomeDeExibicao == "A
+          +na Paula" || usuario.NomeDeExibicao == "Carla Dias")          
+      488 +                .Select(usuario => usuario.Id)                
+      489 +                .ToListAsync(Ct);                             
+      490 +            await SalvarAsync(factory, [aviso, .. leitoras.Sel
+          +ect(leitora => new Maxx.Domain.Mural.LeituraDeAviso(leitora, a
+          +viso.Id, agora))]);                                           
+      491 +        }                                                     
+      492 +                                                              
+      493          var readme = await File.ReadAllTextAsync(Path.Combine(
+           Repositorio.Raiz, "docs", "decisoes", "README.md"), Ct);
+      494          var purga = Regex.Match(readme, @"```sql\s+(BEGIN;.*?C
+           OMMIT;)\s+```", RegexOptions.Singleline, TimeSpan.FromSeconds(
+           5));
+      495          Assert.True(purga.Success);
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && f=
+      apps/api/tests/Maxx.Api.IntegrationTests/Autenticacao/DemonstracaoTests.cs
+      && sed -i 's…)
+  ⎿  515:        Assert.Equal(restante.Id, (await db.Set<Maxx.Domain.Mural.
+     LeituraDeAviso>().SingleAsync(Ct)).UsuarioId);
+     128:DELETE FROM leitura_de_aviso WHERE usuario_id IN (SELECT usuario_i
+     d FROM alvo);
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\Demonstr
+     acaoTests.cs (+2 -0)
+      512          Assert.Equal(1, await db.Set<EvidenciaDaConquista>().C
+           ountAsync(Ct));
+      513          Assert.Equal(restante.Id, (await db.Set<ProgressoDeCon
+           quistaRow>().SingleAsync(Ct)).AlunoId);
+      514          Assert.Equal(restante.Id, (await db.Set<Notificacao>()
+           .SingleAsync(Ct)).UsuarioId);
+      515 +        Assert.Equal(restante.Id, (await db.Set<Maxx.Domain.Mu
+          +ral.LeituraDeAviso>().SingleAsync(Ct)).UsuarioId);            
+      516 +        Assert.Equal(1, await db.Set<Maxx.Domain.Mural.Aviso>(
+          +).CountAsync(Ct));                                            
+      517          Assert.All(await db.Set<UploadPendente>().ToListAsync(
+           Ct), upload => Assert.Equal(restante.Id, upload.UsuarioId));
+      518          Assert.Equal(2, await db.Set<UploadPendente>().CountAs
+           ync(Ct));
+      519          Assert.All(await db.Set<Post>().ToListAsync(Ct), post 
+           => Assert.Equal(restante.Id, post.AutorId));
+  ⎿  Updated docs\decisoes\README.md (+1 -0)
+      125  DELETE FROM familia_sessao WHERE usuario_id IN (SELECT usuario
+           _id FROM alvo);
+      126  DELETE FROM recuperacao_senha WHERE usuario_id IN (SELECT usua
+           rio_id FROM alvo);
+      127  DELETE FROM notificacao WHERE usuario_id IN (SELECT usuario_id
+            FROM alvo);
+      128 +DELETE FROM leitura_de_aviso WHERE usuario_id IN (SELECT usuar
+          +io_id FROM alvo);                                             
+      129  DELETE FROM curtida WHERE usuario_id IN (SELECT usuario_id FRO
+           M alvo);
+      130  DELETE FROM comentario WHERE autor_id IN (SELECT usuario_id FR
+           OM alvo);
+      131  DELETE FROM seguimento WHERE seguidor_id IN (SELECT usuario_id
+            FROM alvo) OR seguido_id IN (SELECT usuario_id FROM alvo);
+
+● Purga coberta. Agora os testes de integração da leitura do mural.
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Mural\LeituraDoMuralTests.cs)
+  ⎿  Wrote 298 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Mural\LeituraDoMuralTests.cs
+       1 using System.Net;
+       2 using System.Net.Http.Headers;
+       3 using System.Net.Http.Json;
+       4 using Maxx.Api.IntegrationTests.Fotos;
+       5 using Maxx.Api.Mural;
+       6 using Maxx.Domain.Mural;
+       7 using Maxx.Domain.Notificacoes;
+       8 using static Maxx.Api.IntegrationTests.Mural.MundoDoMural;
+       9 
+      10 namespace Maxx.Api.IntegrationTests.Mural;
+     … +288 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests/Mural" && f=LeituraDoMuralTests.cs && \
+      sed -i 's|…)
+  ⎿  118:        var aberto = (await ana.GetFromJsonAsync<AvisoResponse>(ne
+     w Uri($"/api/v1/avisos/{laboratorio.Id}", UriKind.Relative), Ct))!;
+     119:        Assert.Equal((laboratorio.Id, laboratorio.Titulo, laborato
+     … +13 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Mural\LeituraDoMuralTests.cs
+     (+5 -3)
+      115          Assert.Equal(TamanhoDoFeed, (await http.GetByteArrayAs
+           ync(new Uri(laboratorio.Foto!.Feed), Ct)).Length);
+      116  
+      117          // Aberto pelo id, o mesmo aviso.
+      118 -        Assert.Equal(laboratorio, await ana.GetFromJsonAsync<A
+          -visoResponse>(new Uri($"/api/v1/avisos/{laboratorio.Id}", UriK
+          -ind.Relative), Ct));                                          
+      118 +        var aberto = (await ana.GetFromJsonAsync<AvisoResponse
+          +>(new Uri($"/api/v1/avisos/{laboratorio.Id}", UriKind.Relative
+          +), Ct))!;                                                     
+      119 +        Assert.Equal((laboratorio.Id, laboratorio.Titulo, labo
+          +ratorio.Autor, laboratorio.Foto), (aberto.Id, aberto.Titulo, a
+          +berto.Autor, aberto.Foto));                                   
+      120 +        Assert.Equal(laboratorio.Materias, aberto.Materias);  
+      121      }
+      122  
+      123      [Fact]
+     ...
+      291          return [.. (await MuralAsync(client, escopo)).Itens.Se
+           lect(aviso => aviso.Id)];
+      292      }
+      293  
+      292 -    private static Task<HttpResponseMessage> ComEtagAsync(Http
+          -Client client, Uri uri, EntityTagHeaderValue etag)            
+      294 +    private static async Task<HttpResponseMessage> ComEtagAsyn
+          +c(HttpClient client, Uri uri, EntityTagHeaderValue etag)      
+      295      {
+      296          using var pedido = new HttpRequestMessage(HttpMethod.G
+           et, uri);
+      297          pedido.Headers.IfNoneMatch.Add(etag);
+      296 -        return client.SendAsync(pedido, Ct);                  
+      298 +        return await client.SendAsync(pedido, Ct);            
+      299      }
+      300  }
+  ⎿  (timeout 10m)
+
+● Só o formato do Cache-Control no teste (o .NET reordena as diretivas). Ajusto
+  para conferir as duas diretivas.
+
+● Bash(cd "C:/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Api.IntegrationTests/Mural/LeituraDoMuralTests.cs && sed -i
+      's|…)  ⎿  209:        Assert.True(primeira.Headers.CacheControl is { Private: tr
+     ue, NoCache: true });
+       total: 9
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Mural\LeituraDoMuralTests.cs
+     (+1 -1)
+      206          Assert.Equal(HttpStatusCode.OK, primeira.StatusCode);
+      207          var etag = primeira.Headers.ETag!;
+      208          Assert.True(etag.IsWeak);
+      209 -        Assert.Equal("private, no-cache", primeira.Headers.Cac
+          -heControl!.ToString());                                       
+      209 +        Assert.True(primeira.Headers.CacheControl is { Private
+          +: true, NoCache: true });                                     
+      210  
+      211          Assert.Equal(HttpStatusCode.NotModified, (await ComEta
+           gAsync(ana, _mural, etag)).StatusCode);
+      212  
+  ⎿  (timeout 10m)
+
+● Background command "Watch the CI run for the etapa 1 push" completed (exit
+code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A CI da etapa 1 passou verde nos seis jobs, então dou a etapa por pronta. Na
+  etapa 2, os nove testes de leitura passam, e vou fazer uma prova reversa do
+  "Ler todos" sem o filtro do mural de quem pede.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O primeiro comando quebrou antes de mudar o arquivo, então o teste rodou no
+  código original. Refaço a mutação só com awk.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A mutação não compilou (o tipo DbSet não aceita o Where seguinte), por isso o
+  teste nem rodou. Uso .AsQueryable().
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O teste falhou sem o filtro, como esperado, e o arquivo já foi restaurado.
+  Agora vou revisar a mensagem do código novo no app, o OpenAPI, a formatação e
+  rodar a suíte completa.
+
+● Bash(cd "C:/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^  "texto-do-aviso-invalido": "O texto precisa ter de 1 a 2.000
+      caracteres.",|&…)
+  ⎿  95:  "aviso-nao-encontrado": "Esse aviso não está mais no seu mural.",
+     ✨ openapi-typescript 7.13.0
+     🚀 openapi.json → src/schema.d.ts [217.8ms]
+     … +27 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.ts (+1 -0)
+      92    "curso-nao-encontrado": "Esse curso não existe mais.",
+      93    "titulo-do-aviso-invalido": "O título precisa ter de 3 a 120 
+          caracteres.",
+      94    "texto-do-aviso-invalido": "O texto precisa ter de 1 a 2.000 
+          caracteres.",
+      95 +  "aviso-nao-encontrado": "Esse aviso não está mais no seu mura
+         +l.",                                                           
+      96    // Paginação (CodigosDaPaginacao.cs)
+      97    "cursor-invalido": "Não deu para carregar mais. Puxe para atu
+          alizar.",
+      98    // Genéricos, pelo status (DomainExceptionHandler.cs)
+  ⎿  Updated packages\api-client\openapi.json (+319 -3)
+      676          ]
+      677        }
+      678      },
+      679 +    "/api/v1/perfis/{usuarioId}/avisos": {                    
+      680 +      "get": {                                                
+      681 +        "tags": [                                             
+      682 +          "Perfil"                                            
+      683 +        ],                                                    
+      684 +        "operationId": "GetAvisosDoPerfil",                   
+      685 +        "parameters": [                                       
+      686 +          {                                                   
+      687 +            "name": "usuarioId",                              
+      688 +            "in": "path",                                     
+      689 +            "required": true,                                 
+      690 +            "schema": {                                       
+      691 +              "type": "string",                               
+      692 +              "format": "uuid"                                
+      693 +            }                                                 
+      694 +          },                                                  
+      695 +          {                                                   
+      696 +            "name": "cursor",                                 
+      697 +            "in": "query",                                    
+      698 +            "schema": {                                       
+      699 +              "type": "string"                                
+      700 +            }                                                 
+      701 +          }                                                   
+      702 +        ],                                                    
+      703 +        "responses": {                                        
+      704 +          "200": {                                            
+      705 +            "description": "OK",                              
+      706 +            "content": {                                      
+      707 +              "application/json": {                           
+      708 +                "schema": {                                   
+      709 +                  "$ref": "#/components/schemas/PaginaDoMuralR
+          +esponse"                                                      
+      710 +                }                                             
+      711 +              }                                               
+      712 +            }                                                 
+      713 +          },                                                  
+      714 +          "400": {                                            
+      715 +            "description": "Bad Request",                     
+     … 324 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+261 -0)
+      228          patch?: never;
+      229          trace?: never;
+      230      };
+      231 +    "/api/v1/perfis/{usuarioId}/avisos": {                    
+      232 +        parameters: {                                         
+      233 +            query?: never;                                    
+      234 +            header?: never;                                   
+      235 +            path?: never;                                     
+      236 +            cookie?: never;                                   
+      237 +        };                                                    
+      238 +        get: operations["GetAvisosDoPerfil"];                 
+      239 +        put?: never;                                          
+      240 +        post?: never;                                         
+      241 +        delete?: never;                                       
+      242 +        options?: never;                                      
+      243 +        head?: never;                                         
+      244 +        patch?: never;                                        
+      245 +        trace?: never;                                        
+      246 +    };                                                        
+      247      "/api/v1/professor/turmas": {
+      248          parameters: {
+      249              query?: never;
+     ...
+      612          patch?: never;
+      613          trace?: never;
+      614      };
+      615 +    "/api/v1/avisos/{avisoId}": {                             
+      616 +        parameters: {                                         
+      617 +            query?: never;                                    
+      618 +            header?: never;                                   
+      619 +            path?: never;                                     
+      620 +            cookie?: never;                                   
+      621 +        };                                                    
+      622 +        get: operations["GetAviso"];                          
+      623 +        put?: never;                                          
+      624 +        post?: never;                                         
+      625 +        delete?: never;                                       
+      626 +        options?: never;                                      
+      627 +        head?: never;                                         
+      628 +        patch?: never;                                        
+      629 +        trace?: never;                                        
+     … 263 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● O prettier reclamou do README de decisões. Confiro se isso já existia antes da
+  minha linha (a CI não roda prettier em docs/).
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Já existia antes (a versão do HEAD também não passa no prettier, e docs/ está
+  fora da CI). Não mexo. Agora a suíte completa da API em Release, em segundo
+  plano.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 1 fechou com a CI verde. Na etapa 2, o código e os testes novos
+  passam; falta só a suíte inteira da API, que está rodando agora, e o relatório
+  da etapa 2 sai quando ela terminar.
+
+  Etapa 1: commit 76cd841 (feat(api): adiciona a publicação de aviso com a 
+  notificação de aviso novo) enviado para a feat/passo-10-mural. A CI passou nos
+  seis jobs: api, mobile, api-client, e2e, segurança e build (run 42552814299
+  (https://github.com/GFGimenes/maxx-engenheiro/actions/runs/42552814299)).
+
+  Etapa 2 até aqui:
+  - Rotas novas:
+    - GET /v1/mural, com filtro de escopo e cursor de 20 em 20, ETag e 304;
+    - GET /v1/avisos/{id}, também com ETag;
+    - PUT /v1/avisos/{id}/leitura;
+    - POST /v1/mural/leitura, o "Ler todos";
+    - GET /v1/perfis/{id}/avisos, os avisos de um professor no perfil dele.
+  - Visibilidade: a regra que você aprovou na pergunta 3 está num lugar só e
+    vale para a lista, para o aviso aberto, para a leitura e para o "Ler todos".
+    Um aviso fora do mural de quem pede responde 404 aviso-nao-encontrado,
+    igual a um aviso que não existe.
+  - Leitura: registrar a leitura também marca como lida a notificação daquele
+    aviso, na mesma transação. Ler de novo mantém o instante da primeira
+    leitura.
+  - Banco e purga: nova migration LeituraDeAviso. O SQL da purga no README
+    ganhou a linha de leitura_de_aviso, e o teste que roda esse SQL passou a
+    cobrir uma leitura de usuário da demonstração.
+  - Testes: os 9 da leitura e os 12 da publicação passam. Também fiz uma prova
+    reversa: sem o filtro do mural, o "Ler todos" marcou 5 avisos em vez de 3, e
+    o teste falhou.
+  - Verificações locais: formatação .NET limpa, OpenAPI e cliente regenerados, e
+    o app passa em lint, typecheck e no teste de mensagens (com a mensagem nova
+    de aviso-nao-encontrado).
+
+  O prettier acusa problema de formatação no docs/decisoes/README.md, mas a
+  versão do último commit já tinha o mesmo problema, e a CI não confere docs/.
+  Não mexi.
+
+✻ Baked for 11m 16s · done domingo, 23:58
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt       
+  ⎿  Conversation exported to: C:\Users\Guilherme
+     Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_10_mural-sessao.txt
+
+※ recap: Estamos no passo 10 (mural e notificações); a etapa 1 já fechou com a CI verde. A etapa 2, leitura do mural, está com tudo passando e só espera a suíte completa da API; depois mando o relatório e a mensagem de commit para você revisar. (disable recaps in /config)
+
+● Background command "Build Release and run full API suite" completed (exit code
+0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A etapa 2 (leitura do mural) está pronta para a sua revisão. Não fiz commit
+  nem push; a CI dela roda depois do push.
+
+  O que entrou
+
+  Rotas novas
+  - GET /v1/mural?escopo=&cursor=: o mural de quem pede, com filtro opcional de
+    escopo (faculdade, curso, turma) e páginas de 20 por cursor. Responde com
+    ETag, Cache-Control: private, no-cache e 304.
+  - GET /v1/avisos/{id}: o aviso aberto, também com ETag.
+  - PUT /v1/avisos/{id}/leitura: registra a leitura e marca como lida a
+    notificação avisoNovo desse aviso, na mesma transação. Ler de novo não muda
+    o instante da primeira leitura.
+  - POST /v1/mural/leitura: o "Ler todos", só do que está no mural de quem pede.
+  - GET /v1/perfis/{id}/avisos: os avisos do professor, filtrados pela mesma
+    regra do mural, então cada pessoa vê ali só o que já veria no mural dela.
+
+  Visibilidade
+  - A regra da pergunta 3 está num lugar só (ConsultaDoMural.Visiveis) e vale
+    para a lista, para o aviso aberto, para a leitura e para o "Ler todos".
+  - A instituição vê tudo. Os outros veem a faculdade, o que publicaram, o curso
+    atual e as turmas em que têm matrícula, de qualquer semestre.
+  - Um aviso fora do mural de quem pede responde 404 aviso-nao-encontrado, igual
+    a um aviso que não existe.
+
+  Formato do aviso
+  - Cada aviso traz o autor, as matérias das turmas ou as siglas dos cursos, a
+    foto e o campo lido.
+  - O autor vem com instituicao: true quando publica como instituição, e o app
+    vai mostrar "UniMax" nesse caso.
+  - A conta que é professora e instituição, publicando para turma, aparece como
+    professora, pelo nome.
+
+  Banco e purga
+  - Nova migration 20261109025024_LeituraDeAviso, com a tabela leitura_de_aviso:
+    chave (usuário, aviso), sem cascata a partir do usuário e com cascata a
+    partir do aviso.
+  - O SQL da purga no docs/decisoes/README.md ganhou a linha de
+    leitura_de_aviso.
+  - O teste que roda esse SQL agora cria um aviso lido por um aluno da
+    demonstração e por um aluno de fora do lote. Ele confere que só a leitura do
+    lote sai.
+
+  App
+  - Mensagem nova para o código aviso-nao-encontrado.
+
+  Testes
+
+  - Integração, 9 da leitura:
+    - o mural de cada papel, inclusive ex-aluna e a conta de professora e
+      instituição;
+    - o filtro por escopo e o escopo inválido;
+    - o conteúdo do aviso;
+    - aviso fora do mural responde 404;
+    - a leitura grava uma vez só e apaga a notificação do aviso;
+    - o "Ler todos";
+    - ETag com 304, e a ETag muda depois de uma leitura;
+    - cursor com 25 avisos, sem repetir nenhum;
+    - perfil do professor.
+  - Prova reversa: com a leitura em massa sem o filtro do mural, o "Ler todos"
+    marcou 5 avisos em vez de 3 e o teste falhou. O código foi restaurado.
+  - Como a CI roda, localmente:
+    - API: formatação limpa, build em Release com 0 avisos e 1.095 testes, todos
+      verdes. Os 6 ignorados são esperados (devem ser o VerificacaoDoR2Tests,
+      fora da CI).
+    - App e cliente: OpenAPI e cliente regenerados; lint, typecheck e o teste de
+      mensagens passam.
+
+  Para você conferir
+
+  1. Perfil de usuário inexistente. GET /v1/perfis/{id}/avisos para um id que
+     não existe devolve a lista vazia, e não 404. A grade de posts do perfil
+     devolve 404 nesse caso. Como o app só chega aqui a partir de um perfil que
+     abriu, deixei assim; se preferir 404, é uma linha.
+  2. Duas migrations no passo, uma por etapa (Mural e LeituraDeAviso), dentro da
+     regra de que o esquema cresce por passo.
+
+  Mensagem de commit proposta
+
+  feat(api): adiciona a leitura do mural com registro de leitura e ler todos
+
+  Com o seu ok, faço o commit e o push, acompanho a CI e sigo para a etapa 3.
+
+✻ Baked for 21s · done 0:03
