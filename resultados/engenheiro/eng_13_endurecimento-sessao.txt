@@ -346,3 +346,854 @@
 ✻ Cooked for 3m 52s · done 18:16
 
 ※ recap: Estamos no passo 13 (endurecimento, deploy e ensaio), e o plano de 11 etapas já está escrito, ainda sem nenhum código. Falta você revisar o plano e responder às 10 perguntas do fim para eu começar a etapa 1, os domínios de e-mail aceitos. (disable recaps in /config)
+
+> /export ..\tcc\resultados\engenheiro\eng_13_endurecimento-sessao.txt          
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\tc
+     c\resultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+※ recap: Estamos no passo 13, de endurecimento, deploy e ensaio, e o plano de 11 etapas com 10 perguntas está pronto, sem nenhum código escrito. Falta você revisar o plano e responder às perguntas para eu começar a etapa 1, a dos domínios de e-mail aceitos. (disable recaps in /config)
+
+> Plano aprovado com uma mudança de ordem e alguns cortes. Respostas às         
+  perguntas primeiro, depois a ordem nova.                                      
+                                                                                
+  Perguntas                                                                     
+                                                                                
+  1. Sim: os 9 endereços passam para maxx-unimax.com e o domínio entra na lista 
+  aceita. Eu configuro o Email Routing da Cloudflare com catch-all para a       
+  minha caixa antes da etapa do deploy. Mantenha os nomes locais (coordenacao@, 
+  renata.albuquerque@ e os demais), só troca o domínio.                         
+  2. Textos aprovados como estão. Pode passar o produto.md 2.4 para             
+  "configuração da API".                                                        
+  3. Não vou criar bucket agora. O backup fica no disco da VPS, em              
+  /opt/maxx/backups, com rotação de 14 dias feita pelo próprio script. Registre 
+  o envio para um bucket sem domínio público como pendência fora da fase 1. As  
+  três variáveis MAXX_BACKUP_* saem do .env.                                    
+  4. Monitor externo. Eu crio o UptimeRobot depois do deploy, apontando para    
+  /api/health/worker a cada 5 minutos; nada de cron com SMTP no host. Isso não  
+  entra em etapa sua, só no roteiro de operação.                                
+  5. Sim ao workflow_dispatch na branch com a tag sha-<curto>, latest só da     
+  main. Pacote público no GHCR: os repositórios já são públicos e as imagens    
+  não carregam segredo. Sem token na VPS.                                       
+  6. Não entra. O usuário dono fica, com a revisão do privilégio registrada no  
+  índice de decisões. Pendência fora da fase 1.                                 
+     7 e 8. Corto a carga a 2.000 usuários por prazo. No lugar, com a           
+  demonstração carregada na VPS: EXPLAIN (ANALYZE) do feed, da busca e do       
+  ranking com o volume do seed demo, planos registrados, e um k6 pequeno, 50    
+  usuários virtuais por 2 minutos, rodando de dentro da própria VPS só nas      
+  rotas anônimas ou com as contas já existentes do seed demo, sem seed de carga 
+  novo. O p95 dessa rodada entra no registro com a ressalva de que não é o      
+  cenário do ADR 0005; o cenário completo fica como pendência.                  
+  9. Entra. Trivy nas duas imagens, no job build, mesmo corte.                  
+  10. Se o Expo 58 suportar e a suíte e a CI ficarem verdes de primeira, troca. 
+  Qualquer atrito, mantém o 22 e registra a avaliação.                          
+                                                                                
+  Ordem nova                                                                    
+                                                                                
+  O deploy vem antes do endurecimento, porque as etapas seguintes precisam ser  
+  conferidas no ar e eu preciso do produto acessível de fora o quanto antes.    
+                                                                                
+  1. Compose de produção, imagens no GHCR e job publicar (sua etapa 5, mais o   
+  workflow_dispatch da pergunta 5).                                             
+  2. Primeiro deploy na VPS (sua etapa 7). Você para antes dela e me passa a    
+  lista final de variáveis; eu escrevo o /opt/maxx/.env e aviso com "env        
+  feito". Você confere só os nomes. O teste do R2 roda do jeito que você        
+  descreveu.                                                                    
+  3. Domínios de e-mail aceitos (sua etapa 1).                                  
+  4. Cabeçalhos de segurança e CSP (sua etapa 2).                               
+  5. Saúde do worker (sua etapa 3).                                             
+  6. Node 24, npm audit e Trivy (suas etapas 4 e 9 juntas).                     
+  7. Backup local com rotação e deploy.sh com dump antes do migrator (sua etapa 
+  8 reduzida).                                                                  
+  8. Planos e carga reduzida (sua etapa 9 reduzida, conforme as perguntas 7     
+  e 8).                                                                         
+  9. Ensaio da demonstração remota (sua etapa 10). Para aqui e me entrega o     
+  roteiro.                                                                      
+  10. Registro do passo (sua etapa 11), incluindo os cortes acima como          
+  pendências.                                                                   
+                                                                                
+  Depois de cada etapa de 3 a 7 que muda a API ou o Caddy, publica a imagem     
+  pela branch e atualiza a VPS com pull e up, para que o aceite seja conferido  
+  no ar e não só na CI. A etapa 3 pode ser emendada direto com os textos        
+  aprovados.                                                                    
+                                                                                
+  Paradas: antes da etapa 2 (lista de variáveis), na etapa 9 (ensaio) e         
+  qualquer número que estoure um alvo. Fora isso, emenda as etapas em           
+  sequência, cada uma com commit, push e CI verde, sem me esperar entre elas.   
+                                                                                
+  Processo: comandos longos (build de imagem, e2e, k6) em segundo plano, com    
+  trabalho independente em paralelo; suíte inteira só antes do push. Nenhum     
+  valor de credencial sai da VPS nem entra no chat; só nomes de variáveis.      
+                                                                                
+  Pode começar pela etapa 1.                                                    
+
+● Começando a etapa 1. Primeiro a branch e o remoto.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora o compose de produção.
+
+● Write(docker-compose.producao.yml)
+  ⎿  Wrote 145 lines to docker-compose.producao.yml
+      1 # Maxx em produção, na VPS: Postgres, migração, seed base, duas r
+        éplicas de API, worker e
+      2 # Caddy com HTTPS automático. Sem build: as imagens vêm do GHCR, 
+        publicadas pela CI.
+      3 # Sem Mailpit e sem emulador do bucket: SMTP e Cloudflare R2 vêm 
+        do .env da VPS.
+      4 # Uso na VPS, em /opt/maxx (roteiro em docs/operacao.md):
+      5 #   docker compose -f docker-compose.producao.yml pull
+      6 #   docker compose -f docker-compose.producao.yml up -d
+      7 # Na avaliação, com a demonstração ligada por cima, como no compo
+     … +139 lines (~5 KB) (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/^!\.env\.example$/!.env.example\n!.env.producao.example/'
+      .gitignore && head -5…)
+  ⎿  # Segredos
+     .env
+     .env.*
+     … +5 lines (ctrl+o to expand)
+  ⎿  Created .env.producao.example (+38 -0)
+       1 +# Nomes das variáveis do docker-compose.producao.yml. Só os nom
+         +es: os valores existem só no                                   
+       2 +# /opt/maxx/.env da VPS, escrito à mão e nunca versionado. Falt
+         +ando qualquer uma, o compose                                   
+       3 +# recusa subir. Ficam de fora de propósito: COMPOSE_PROFILES (s
+         +em emulador do bucket) e                                       
+       4 +# MAXX_ARMAZENAMENTO_ENDPOINT_PUBLICO (no R2, o público é o pró
+         +prio endpoint).                                                
+       5 +                                                               
+       6 +# Tag das imagens no GHCR: sha-<curto> de uma publicação, ou la
+         +test (só da main).                                             
+       7 +MAXX_IMAGEM_TAG=                                               
+       8 +                                                               
+       9 +POSTGRES_DB=                                                   
+      10 +POSTGRES_USER=                                                 
+      11 +POSTGRES_PASSWORD=                                             
+      12 +                                                               
+      13 +# Chave HS256 do access token, base64 de ao menos 32 bytes (ope
+         +nssl rand -base64 48).                                         
+      14 +MAXX_JWT_CHAVE=                                                
+      15 +                                                               
+      16 +# https://app.maxx-unimax.com: link do e-mail de recuperação e 
+         +endereço do site no Caddy,                                     
+      17 +# que com https:// emite o certificado sozinho.                
+      18 +MAXX_URL_PUBLICA=                                              
+      19 +                                                               
+      20 +# SMTP de produção, usado só pelo worker.                      
+      21 +MAXX_EMAIL_REMETENTE=                                          
+      22 +MAXX_SMTP_HOST=                                                
+      23 +MAXX_SMTP_PORTA=                                               
+      24 +MAXX_SMTP_SEGURANCA=                                           
+      25 +MAXX_SMTP_USUARIO=                                             
+      26 +MAXX_SMTP_SENHA=                                               
+      27 +                                                               
+      28 +# Lote da avaliação. Só vale com o docker-compose.demo.yml por 
+         +cima.                                                          
+      29 +MAXX_DEMO_LOTE=                                                
+      30 +                                                               
+      31 +# Cloudflare R2: endpoint https://<conta>.r2.cloudflarestorage.
+         +com, região auto, token                                        
+      32 +# restrito ao bucket, leitura pelo domínio da CDN (com a barra 
+         +no fim).                                                       
+      33 +MAXX_ARMAZENAMENTO_BUCKET=                                     
+      34 +MAXX_ARMAZENAMENTO_ENDPOINT=                                   
+      35 +MAXX_ARMAZENAMENTO_URL_DE_LEITURA=                             
+      36 +MAXX_ARMAZENAMENTO_REGIAO=                                     
+      37 +MAXX_ARMAZENAMENTO_CHAVE_DE_ACESSO=                            
+      38 +MAXX_ARMAZENAMENTO_SEGREDO=                                    
+  ⎿  Updated .gitignore (+1 -0)
+      2  .env
+      3  .env.*
+      4  !.env.example
+      5 +!.env.producao.example                                          
+      6  
+      7  # .NET
+      8  bin/
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A barra final é normalizada pela API; ajusto o comentário e escrevo o job de
+  publicação na CI.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/restrito ao bucket, leitura pelo domínio da CDN (com a barra no
+      fim)\./restrito…)
+  ⎿  32:# restrito ao bucket, leitura pelo domínio da CDN (https://fotos.ma
+     xx-unimax.com).
+  ⎿  Updated .env.producao.example (+1 -1)
+      29  MAXX_DEMO_LOTE=
+      30  
+      31  # Cloudflare R2: endpoint https://<conta>.r2.cloudflarestorage.
+          com, região auto, token
+      32 -# restrito ao bucket, leitura pelo domínio da CDN (com a barra 
+         -no fim).                                                       
+      32 +# restrito ao bucket, leitura pelo domínio da CDN (https://foto
+         +s.maxx-unimax.com).                                            
+      33  MAXX_ARMAZENAMENTO_BUCKET=
+      34  MAXX_ARMAZENAMENTO_ENDPOINT=
+      35  MAXX_ARMAZENAMENTO_URL_DE_LEITURA=
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Sem Python na máquina; faço pelas edições diretas.
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 2 lines, removed 1 line
+       5    push:
+       6    workflow_dispatch:
+       7  
+       8 +# O disparo à mão (publicar pela branch) não cancela o push da 
+         +mesma branch, nem o contrário.                                 
+       9  concurrency:
+       9 -  group: ci-${{ github.ref }}                                  
+      10 +  group: ci-${{ github.ref }}-${{ github.event_name }}         
+      11    cancel-in-progress: true
+      12  
+      13  permissions:
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 7 lines
+      173      runs-on: ubuntu-latest
+      174      steps:
+      175        - uses: actions/checkout@v7
+      176 +      # Prova que o .env.producao.example lista toda variável 
+          +que o compose de produção                                     
+      177 +      # exige: com um valor falso em cada nome, sozinho e com 
+          +a demonstração por cima.                                      
+      178 +      - name: Compose de produção válido                      
+      179 +        run: |                                                
+      180 +          sed -n 's/^\([A-Z_]*\)=.*/\1=falso/p' .env.producao.
+          +example > producao.env                                        
+      181 +          docker compose --env-file producao.env -f docker-com
+          +pose.producao.yml config -q                                   
+      182 +          docker compose --env-file producao.env -f docker-com
+          +pose.producao.yml -f docker-compose.demo.yml config -q        
+      183        - name: Imagens da API e do Caddy com o build web
+      184          run: |
+      185            cp .env.example .env
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 34 lines
+      186            # Chave descartável, uma por execução: o .env.exampl
+           e vem sem chave de propósito.
+      187            sed -i "s|^MAXX_JWT_CHAVE=.*|MAXX_JWT_CHAVE=$(openss
+           l rand -base64 48)|" .env
+      188            docker compose build
+      189 +                                                              
+      190 +  # Imagens da API e do Caddy no GHCR, só com os seis jobs ver
+          +des. No push da main, com as                                  
+      191 +  # tags latest e sha-<curto>; no disparo à mão por uma branch
+          +, só sha-<curto>, para o                                      
+      192 +  # deploy e o ensaio antes de a rodada chegar à main. A VPS p
+          +uxa sem login: o pacote é                                     
+      193 +  # público e as imagens não carregam segredo.                
+      194 +  publicar:                                                   
+      195 +    name: publicar                                            
+      196 +    needs: [api, mobile, api-client, e2e, seguranca, build]   
+      197 +    if: github.event_name == 'workflow_dispatch' || github.ref
+          + == 'refs/heads/main'                                         
+      198 +    runs-on: ubuntu-latest                                    
+      199 +    permissions:                                              
+      200 +      contents: read                                          
+      201 +      packages: write                                         
+      202 +    steps:                                                    
+      203 +      - uses: actions/checkout@v7                             
+      204 +      - name: Entra no GHCR                                   
+      205 +        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login
+          + ghcr.io -u "${{ github.actor }}" --password-stdin            
+      206 +      - name: Constrói e publica                              
+      207 +        run: |                                                
+      208 +          base="ghcr.io/gfgimenes"                            
+      209 +          curta="sha-${GITHUB_SHA::7}"                        
+      210 +          publicar() {                                        
+      211 +            nome="$1"                                         
+      212 +            dockerfile="$2"                                   
+      213 +            tags=(-t "$base/$nome:$curta")                    
+      214 +            if [ "$GITHUB_REF" = "refs/heads/main" ]; then tag
+          +s+=(-t "$base/$nome:latest"); fi                              
+      215 +            docker build -f "$dockerfile" "${tags[@]}" \      
+      216 +              --label "org.opencontainers.image.source=https:/
+          +/github.com/${GITHUB_REPOSITORY}" \                           
+      217 +              --label "org.opencontainers.image.revision=${GIT
+          +HUB_SHA}" .                                                   
+      218 +            docker push --all-tags "$base/$nome"              
+      219 +          }                                                   
+      220 +          publicar maxx-api apps/api/Dockerfile               
+      221 +          publicar maxx-caddy infra/caddy/Dockerfile          
+      222 +          echo "Publicado: $curta"                            
+
+● Validando o compose localmente, como a CI fará:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Válido, e a ausência de uma variável derruba a subida, como queremos. Ajusto o
+  comentário do Caddyfile:
+
+● Update(infra\caddy\Caddyfile)
+  ⎿  Added 2 lines, removed 1 line
+      1  # Origem única (ADR 0001): o build web em / e a API em /api, no 
+         mesmo host.
+      2 -# Local, o endereço é :80 em HTTP. HTTPS, HSTS e CSP entram no p
+        -asso 13.                                                        
+      2 +# Local, o endereço é :80 em HTTP. Na VPS, o docker-compose.prod
+        +ucao.yml passa a URL pública                                    
+      3 +# (https://app.maxx-unimax.com), e o Caddy emite o certificado e
+        + redireciona HTTP para HTTPS.                                   
+      4  {$MAXX_SITE_ADDRESS::80} {
+      5    encode zstd gzip
+      6  
+
+● Commit e push da etapa 1, depois o disparo à mão para publicar pela branch.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto as duas rodadas da CI rodam, sigo com a etapa 2. A troca para
+  maxx-unimax.com precisa entrar antes do seed na VPS, porque o seed localiza as
+  contas de professores e da instituição pelo e-mail.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Os testes de domínio usam esses e-mails só como valor qualquer, e ficam como
+  estão. Vejo quais testes de integração dependem das contas semeadas:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Só SeedDemoTests e EventosTests dependem das contas semeadas. Confiro se algum
+  código de produção conhece o domínio antes de trocar:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Nenhum código de produção conhece o domínio. Troco nos dois arquivos do seed e
+  nos dois testes que leem as contas semeadas:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/@prof\.unieduk\.com\.br/@maxx-unimax.com/g;
+      s/@unieduk\.com\.br/@maxx-unimax.co…)
+  ⎿  data/demo/mundo.json:9
+     data/demo/atividade.json:10
+      .../PremiosParticipacao/EventosTests.cs              |  2 +-
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\PremiosParticipacao\E
+     ventosTests.cs (+1 -1)
+      24      private const string _senha = "senha-boa-123";
+      25      private const string _anaDeCc = "ana.souza@al.unieduk.inval
+          id";
+      26      private const string _gabrielDeAdm = "gabriel.martins@al.un
+          ieduk.invalid";
+      27 -    private const string _renataProfessora = "renata.albuquerqu
+         -e@prof.unieduk.com.br";                                        
+      27 +    private const string _renataProfessora = "renata.albuquerqu
+         +e@maxx-unimax.com";                                            
+      28  
+      29      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      30  
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs (+3 
+     -3)
+      140          await factory.SeedDemoAsync(Ct);
+      141  
+      142          // Um cadastro de fora do arquivo, como o aluno que a 
+           banca criar no passo 5.
+      143 -        await AdicionarAsync(factory, CadastroElegivel.Institu
+          -icao("outra@unieduk.com.br", "Outra Conta"));                 
+      143 +        await AdicionarAsync(factory, CadastroElegivel.Institu
+          +icao("outra@maxx-unimax.com", "Outra Conta"));                
+      144          await factory.SeedDemoAsync(Ct);
+      145  
+      146          Assert.Equal(160, (await ContagensAsync(factory)).Cada
+           stros);
+     ...
+      188                  join cadastro in db.Set<CadastroElegivel>() on
+            usuario.CadastroElegivelId equals cadastro.Id
+      189                  select new { usuario, cadastro.Email })
+      190              .ToDictionaryAsync(linha => linha.Email, linha => 
+           linha.usuario, StringComparer.OrdinalIgnoreCase, Ct);
+      191 -        var instituicao = contas["coordenacao@unieduk.com.br"]
+          -;                                                             
+      191 +        var instituicao = contas["coordenacao@maxx-unimax.com"
+          +];                                                            
+      192  
+      193          // 2026/1 começa em 26/01 e termina em 27/06; 2026/2 c
+           omeça em 27/07. Meia-noite em São Paulo.
+      194          var inicioDe2026_1 = new DateTimeOffset(2026, 1, 26, 3
+           , 0, 0, TimeSpan.Zero);
+      195          Assert.Equal(inicioDe2026_1, contas["lucas.ferreira@al
+           .unieduk.invalid"].CriadoEm);
+      196          Assert.Equal(new DateTimeOffset(2026, 7, 27, 3, 0, 0, 
+           TimeSpan.Zero), contas["ana.souza@al.unieduk.invalid"].CriadoE
+           m);
+      197          Assert.Equal(inicioDe2026_1, instituicao.CriadoEm);
+      198 -        Assert.Equal(inicioDe2026_1, contas["renata.albuquerqu
+          -e@prof.unieduk.com.br"].CriadoEm);                            
+      198 +        Assert.Equal(inicioDe2026_1, contas["renata.albuquerqu
+          +e@maxx-unimax.com"].CriadoEm);                                
+      199  
+      200          var exAlunos = contas.Values.Where(conta => conta.EhEx
+           Aluno).ToList();
+      201          Assert.Equal(30, exAlunos.Count);
+  ⎿  Updated data\demo\atividade.json (+10 -10)
+      35      "item": "P03",
+      36      "evento": "workshop-carreira-2026-2",
+      37      "concedidoEm": "2026-11-02T10:00",
+      38 -    "contestadaPor": "renata.albuquerque@prof.unieduk.com.br", 
+      38 +    "contestadaPor": "renata.albuquerque@maxx-unimax.com",     
+      39      "contestadaEm": "2026-11-04T16:30",
+      40      "motivo": "O nome não está na lista de presença do workshop
+          . Conferir antes de valer."
+      41    },
+      42    "avisos": [
+      43      {
+      44 -      "autor": "coordenacao@unieduk.com.br",                   
+      44 +      "autor": "coordenacao@maxx-unimax.com",                  
+      45        "escopo": "faculdade",
+      46        "titulo": "Bem-vindos ao primeiro semestre de 2026",
+      47        "texto": "As aulas começam hoje. O calendário acadêmico, 
+          as salas e os horários estão no portal. Boas aulas a todos!",
+      48        "publicadoEm": "2026-01-26T08:00"
+      49      },
+      50      {
+      51 -      "autor": "coordenacao@unieduk.com.br",                   
+      51 +      "autor": "coordenacao@maxx-unimax.com",                  
+      52        "escopo": "faculdade",
+      53        "titulo": "Rematrícula para 2026/2",
+      54        "texto": "A rematrícula vai de 6 a 17 de julho, pelo port
+          al. Quem tiver pendência na secretaria deve resolver antes do p
+          razo.",
+      55        "publicadoEm": "2026-06-29T09:00"
+      56      },
+      57      {
+      58 -      "autor": "coordenacao@unieduk.com.br",                   
+      58 +      "autor": "coordenacao@maxx-unimax.com",                  
+      59        "escopo": "faculdade",
+      60        "titulo": "Semana de provas do 4º bimestre",
+      61        "texto": "As provas do 4º bimestre acontecem de 23 de nov
+          embro a 4 de dezembro. Confira com cada professor as datas da s
+          ua turma.",
+      62        "publicadoEm": "2026-11-03T08:30"
+      63      },
+      64      {
+      65 -      "autor": "coordenacao@unieduk.com.br",                   
+      65 +      "autor": "coordenacao@maxx-unimax.com",                  
+      66        "escopo": "curso",
+      67        "cursos": ["CC", "IA"],
+      68        "titulo": "Laboratório 3 em manutenção",
+     ...
+      70        "publicadoEm": "2026-10-15T14:00"
+     … 39 more lines (ctrl+o to expand)
+  ⎿  Updated data\demo\mundo.json (+9 -9)
+      2    "observacao": "Mundo de demonstração do seed demo, completo de
+         sde o passo 12. Cursos e matérias são da UniMax; pessoas, RAs e 
+         e-mails são fictícios, e o e-mail dos alunos fica no domínio res
+         ervado al.unieduk.invalid, que nunca recebe nada. O seed só acre
+         scenta o que falta: nunca apaga, e falha se uma linha que já exi
+         ste divergir deste arquivo, salvo o que a instituição corrigiu (
+         e-mail e curso do aluno). Cada matéria lista os semestres letivo
+         s em que tem turma; o professor entra em todas as turmas das mat
+         érias dele, e o aluno nas das matérias dele nos semestres letivo
+         s que lista (sem a lista, em todos). Todo aluno do arquivo nasce
+          com conta, sem senha; o ex-aluno é marcado pela instituição no 
+         fim do último semestre que cursou.",
+      3    "instituicao": [
+      4      {
+      5 -      "email": "coordenacao@unieduk.com.br",                    
+      5 +      "email": "coordenacao@maxx-unimax.com",                   
+      6        "nomeCompleto": "Coordenação UniMax"
+      7      }
+      8    ],
+     ...
+      39        ],
+      40        "professores": [
+      41          {
+      42 -          "email": "renata.albuquerque@prof.unieduk.com.br",   
+      42 +          "email": "renata.albuquerque@maxx-unimax.com",       
+      43            "nomeCompleto": "Renata Albuquerque",
+      44            "materias": [
+      45              "Algoritmos e Programação",
+     ...
+      49            ]
+      50          },
+      51          {
+      52 -          "email": "fernando.prado@prof.unieduk.com.br",       
+      52 +          "email": "fernando.prado@maxx-unimax.com",           
+      53            "nomeCompleto": "Fernando Prado",
+      54            "materias": ["Redes de Computadores", "Sistemas Opera
+          cionais"]
+      55          }
+     ...
+      642        ],
+      643        "professores": [
+      644          {
+      645 -          "email": "marcos.teixeira@prof.unieduk.com.br",     
+      645 +          "email": "marcos.teixeira@maxx-unimax.com",         
+      646            "nomeCompleto": "Marcos Teixeira",
+      647            "materias": [
+      648              "Teoria Geral da Administração",
+     ...
+      652            ]
+      653          },
+      654          {
+      655 -          "email": "patricia.lacerda@prof.unieduk.com.br",    
+      655 +          "email": "patricia.lacerda@maxx-unimax.com",        
+      656            "nomeCompleto": "Patrícia Lacerda",
+      657            "materias": ["Finanças Corporativas", "Logística Emp
+           resarial"]
+      658          }
+     … 30 more lines (ctrl+o to expand)
+
+● Rodo só os testes que cobrem a troca (catálogo, seed demo, atividade e
+  eventos), em segundo plano:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Enquanto isso, levanto o que o roteiro de operação precisa: a tabela da fila
+  (para medir a drenagem) e as variáveis do teste do R2.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Tenho o que preciso. Escrevo o roteiro de operação (entra no commit da etapa
+  2):
+
+● Write(docs\operacao.md)
+  ⎿  Wrote 125 lines to docs\operacao.md
+       1 # Operação do Maxx na VPS
+       2 
+       3 Roteiro do ambiente de produção: uma VPS Hetzner CX23 (Ubuntu 24
+         .04, Docker Engine e
+       4 Compose), em `app.maxx-unimax.com`, com o Cloudflare R2 nas foto
+         s e o Brevo no e-mail.
+       5 Decisões em [`decisoes/README.md`](decisoes/README.md), Entrega 
+         e infraestrutura.
+       6 
+       7 ## Como está montada
+     … +118 lines (ctrl+o to expand)
+
+● Correção no bloco do R2: carregar o .env inteiro no shell quebra se o
+  remetente tiver < ou espaço sem aspas. Filtro só as linhas do R2 para um
+  arquivo temporário e privado:
+
+● Update(docs\operacao.md)
+  ⎿  Added 8 lines, removed 8 lines
+      103  ## Verificação do R2
+      104  
+      105  Uma vez, contra o bucket de verdade, num contêiner do SDK na p
+           rópria VPS: as credenciais
+      106 -do R2 não saem dela. Só as variáveis do R2 entram no contêiner
+          -, passadas pelo nome.                                         
+      106 +do R2 não saem dela. Só as linhas do R2 entram no contêiner, p
+          +or um arquivo temporário que                                  
+      107 +só o root lê e que é apagado no fim.                          
+      108  
+      109  ```sh
+      110  git clone --depth 1 https://github.com/GFGimenes/maxx-engenhei
+           ro.git /tmp/maxx-src
+      110 -set -a; . /opt/maxx/.env; set +a                              
+      111 -docker run --rm -v /tmp/maxx-src:/src -w /src \               
+      112 -  -e MAXX_VERIFICAR_R2=1 -e MAXX_VERIFICAR_R2_ORIGEM="$MAXX_UR
+          -L_PUBLICA" \                                                  
+      113 -  -e MAXX_ARMAZENAMENTO_BUCKET -e MAXX_ARMAZENAMENTO_ENDPOINT 
+          -\                                                             
+      114 -  -e MAXX_ARMAZENAMENTO_URL_DE_LEITURA -e MAXX_ARMAZENAMENTO_R
+          -EGIAO \                                                       
+      115 -  -e MAXX_ARMAZENAMENTO_CHAVE_DE_ACESSO -e MAXX_ARMAZENAMENTO_
+          -SEGREDO \                                                     
+      111 +(umask 077; grep '^MAXX_ARMAZENAMENTO_' /opt/maxx/.env > /root
+          +/r2.env)                                                      
+      112 +docker run --rm -v /tmp/maxx-src:/src -w /src --env-file /root
+          +/r2.env \                                                     
+      113 +  -e MAXX_VERIFICAR_R2=1 -e MAXX_VERIFICAR_R2_ORIGEM=https://a
+          +pp.maxx-unimax.com \                                          
+      114    mcr.microsoft.com/dotnet/sdk:10.0 \
+      115    dotnet test --project apps/api/tests/Maxx.Api.IntegrationTes
+           ts \
+      116      --filter-class Maxx.Api.IntegrationTests.Fotos.Verificacao
+           DoR2Tests
+      119 -rm -rf /tmp/maxx-src                                          
+      117 +rm -rf /tmp/maxx-src /root/r2.env                             
+      118  ```
+      119  
+      120 +O `--env-file` do Docker não tira aspas: as linhas do R2 no `.
+          +env` ficam sem aspas.                                         
+      121 +                                                              
+      122  ## Voltar uma versão
+      123  
+      124  Trocar `MAXX_IMAGEM_TAG` pela tag anterior e `dc up -d`. Migra
+           tion não volta sozinha: se a
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O job build já passou, com a validação do compose de produção. Enquanto api e
+  e2e rodam, confiro o estado da VPS (só leitura):
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A VPS está como descrita (2 vCPU, 3,7 GiB, 34 GB livres, /opt/maxx vazia).
+  Aguardo os testes do seed e a CI.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run seed-related integration tests" completed (exit code
+0)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● As camadas foram enviadas, mas o registro negou o manifesto (denied),
+  provavelmente porque o pacote maxx-api já pertence a outro repositório. Vou
+  verificar as permissões agora.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● ghcr.io/gfgimenes/maxx-api já existe, é público e pertence a outro
+  repositório. Pelo nome, provavelmente o maxx-leigo. Vejo de onde vem, sem
+  tocar nele:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Como o pacote maxx-api não tem tag e não é deste repositório, vou renomeá-lo
+  para maxx-engenheiro-api e maxx-engenheiro-caddy para não colidir com o outro
+  repositório do TCC, num fix separado da etapa 1.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's/publicar maxx-api apps/publicar maxx-engenheiro-api apps/;
+      s/publicar maxx-cadd…)
+  ⎿   .github/workflows/ci.yml                             |  4 ++--
+      .../PremiosParticipacao/EventosTests.cs              |  2 +-
+      .../tests/Maxx.Api.IntegrationTests/SeedDemoTests.cs |  6 +++---
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated .github\workflows\ci.yml (+2 -2)
+      217                --label "org.opencontainers.image.revision=${GIT
+           HUB_SHA}" .
+      218              docker push --all-tags "$base/$nome"
+      219            }
+      220 -          publicar maxx-api apps/api/Dockerfile               
+      221 -          publicar maxx-caddy infra/caddy/Dockerfile          
+      220 +          publicar maxx-engenheiro-api apps/api/Dockerfile    
+      221 +          publicar maxx-engenheiro-caddy infra/caddy/Dockerfil
+          +e                                                             
+      222            echo "Publicado: $curta"
+  ⎿  Updated docker-compose.producao.yml (+2 -2)
+      11  name: maxx
+      12  
+      13  x-api-image: &api-image
+      14 -  image: ghcr.io/gfgimenes/maxx-api:${MAXX_IMAGEM_TAG:?defina n
+         -o .env}                                                        
+      14 +  image: ghcr.io/gfgimenes/maxx-engenheiro-api:${MAXX_IMAGEM_TA
+         +G:?defina no .env}                                             
+      15  
+      16  # Log do Docker com teto, para o disco da VPS não encher com o 
+          tempo.
+      17  x-log: &log
+     ...
+      114    # HTTPS automático: com o endereço do site em https://, o Ca
+           ddy pede o certificado ao
+      115    # Let's Encrypt pela porta 80 e redireciona HTTP para HTTPS.
+      116    caddy:
+      117 -    image: ghcr.io/gfgimenes/maxx-caddy:${MAXX_IMAGEM_TAG:?def
+          -ina no .env}                                                  
+      117 +    image: ghcr.io/gfgimenes/maxx-engenheiro-caddy:${MAXX_IMAG
+          +EM_TAG:?defina no .env}                                       
+      118      <<: *log
+      119      environment:
+      120        MAXX_SITE_ADDRESS: ${MAXX_URL_PUBLICA:?defina no .env}
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's#`ghcr.io/gfgimenes/maxx-api` e
+      `ghcr.io/gfgimenes/maxx-caddy`#`ghcr.io/gfgimene…)
+  ⎿  13:| Imagens | `ghcr.io/gfgimenes/maxx-engenheiro-api` e `ghcr.io/gfgi
+     menes/maxx-engenheiro-caddy`, públicas, publicadas pelo job `publicar`
+      da CI |
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated docs\operacao.md (+1 -1)
+      10  |---|---|
+      11  | Pasta | `/opt/maxx`, com `docker-compose.producao.yml`, `dock
+          er-compose.demo.yml` e `.env` |
+      12  | Segredos | Só no `/opt/maxx/.env`, escrito à mão na VPS. Os n
+          omes estão em `.env.producao.example`; nenhum valor sai da VPS 
+          |
+      13 -| Imagens | `ghcr.io/gfgimenes/maxx-api` e `ghcr.io/gfgimenes/m
+         -axx-caddy`, públicas, publicadas pelo job `publicar` da CI |   
+      13 +| Imagens | `ghcr.io/gfgimenes/maxx-engenheiro-api` e `ghcr.io/
+         +gfgimenes/maxx-engenheiro-caddy`, públicas, publicadas pelo job
+         + `publicar` da CI |                                            
+      14  | Versão no ar | `MAXX_IMAGEM_TAG` no `.env`: `sha-<curto>` de 
+          uma publicação, ou `latest`, só da `main`. É a única linha do `
+          .env` que muda num deploy |
+      15  | Portas | 80 e 443, só do Caddy. Postgres e API ficam na rede 
+          interna do compose |
+      16  | HTTPS | O Caddy emite o certificado do Let's Encrypt sozinho,
+           pela porta 80, porque o endereço do site é a `MAXX_URL_PUBLICA
+          ` com `https://`. O DNS na Cloudflare aponta direto para a VPS,
+           sem proxy. Os certificados ficam no volume `caddy-data` |
+
+● Enquanto as duas rodadas correm (cerca de 10 minutos), aguardo o resultado da
+  publicação.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Background command "Wait for dispatch run and check publish" completed (exit
+code 0)
+
+● Recusado também com nome novo, então não é colisão: é permissão. Confiro a
+  configuração de permissões do Actions no repositório:
+  Ran 1 shell command (ctrl+o to expand)
+
+● O token tem Packages: write e o login funciona, mas o push do manifesto é
+  recusado. Vejo se os pacotes novos chegaram a ser criados pelo envio das
+  camadas:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os dois pacotes já existem, e as camadas sobem; só o manifesto é recusado,
+  provavelmente pelo atestado de proveniência do Docker. Vou tentar publicar com
+  --provenance=false.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 4 lines, removed 1 line
+      212              dockerfile="$2"
+      213              tags=(-t "$base/$nome:$curta")
+      214              if [ "$GITHUB_REF" = "refs/heads/main" ]; then tag
+           s+=(-t "$base/$nome:latest"); fi
+      215 -            docker build -f "$dockerfile" "${tags[@]}" \      
+      215 +            # Sem o atestado de proveniência, a imagem sai com
+          +o manifesto simples, e o GHCR                                 
+      216 +            # lê o rótulo source, que liga o pacote a este rep
+          +ositório: sem a ligação, o                                    
+      217 +            # GITHUB_TOKEN não grava o manifesto (denied).    
+      218 +            docker build --provenance=false -f "$dockerfile" "
+          +${tags[@]}" \                                                 
+      219                --label "org.opencontainers.image.source=https:/
+           /github.com/${GITHUB_REPOSITORY}" \
+      220                --label "org.opencontainers.image.revision=${GIT
+           HUB_SHA}" .
+      221              docker push --all-tags "$base/$nome"
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Etapa 1 quase fechada: a CI do push passou, e o job publicar está rodando
+  agora a terceira tentativa, a do --provenance=false. Aguardo o resultado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Publicado. Confiro que a VPS consegue puxar sem login, que é o que vale para o
+  pacote público:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Wait for dispatch publish run" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Etapa 1 pronta: compose de produção, imagens no GHCR e job publicar
+
+  Commits na chore/passo-13-endurecimento:
+  - ci(infra): adiciona o compose de produção e publica as imagens no ghcr
+  - fix(infra): publica as imagens com nomes próprios do repositório no ghcr
+  - fix(infra): publica as imagens sem atestado para ligar o pacote ao 
+    repositório
+
+  Entrega:
+  - docker-compose.producao.yml, independente do compose local:
+    - imagens do GHCR pela MAXX_IMAGEM_TAG, sem build, sem Mailpit e sem
+      emulador;
+    - SMTP e R2 obrigatórios;
+    - Caddy em 80 e 443 com volumes caddy-data e caddy-config. O endereço do
+      site é a própria MAXX_URL_PUBLICA, e com https:// o Caddy emite o
+      certificado sozinho;
+    - log de cada contêiner limitado a 5 arquivos de 10 MB, para não encher o
+      disco;
+    - o arquivo nunca menciona a flag da demonstração.
+  - .env.producao.example, só com os nomes, com exceção própria no .gitignore.
+  - CI:
+    - o job build valida o compose de produção, sozinho e com o
+      docker-compose.demo.yml por cima, com um valor falso em cada nome do
+      exemplo. Isso prova que a lista de nomes está completa;
+    - o job publicar roda depois dos seis jobs: latest e sha-<curto> na main, só
+      sha-<curto> no disparo à mão pela branch;
+    - o disparo à mão e o push da mesma branch não cancelam mais um ao outro.
+
+  Desvio do plano: os nomes das imagens viraram maxx-engenheiro-api e
+  maxx-engenheiro-caddy. A primeira tentativa, com maxx-api, foi recusada. A
+  causa real era outra (o item seguinte), mas os nomes ficaram assim porque são
+  próprios deste repositório e não disputam nome com o maxx-leigo.
+
+  Os dois fix: as camadas subiam e o manifesto voltava denied. O Docker do
+  runner publicava um índice com atestado de proveniência, e assim o pacote não
+  ficava ligado ao repositório. Com --provenance=false, o rótulo source liga o
+  pacote, e o GITHUB_TOKEN passou a gravar.
+
+  Uma limpeza fica com você: sobrou o pacote vazio ghcr.io/gfgimenes/maxx-api,
+  criado pela minha primeira tentativa (antes eu disse que ele vinha do outro
+  repositório, e estava errado). Ele não tem tag nenhuma e pode ser apagado nas
+  configurações do pacote no GitHub.
+
+  CI:
+  - push do último commit (run 42706980909): os seis jobs verdes;
+  - disparo à mão (run 42706980612): seis jobs verdes e publicar verde, com a
+    tag sha-c1f2b77.
+
+  Aceite no ar: a VPS puxou as duas imagens sem login (pacote público), com a
+  revisão c1f2b77… no rótulo.
+
+  Parada antes da etapa 2: variáveis do /opt/maxx/.env
+
+  São exatamente os nomes do .env.producao.example:
+
+  Nome: MAXX_IMAGEM_TAG
+  Observação de formato, sem valor: Pode deixar vazio. Só essa linha eu atualizo
+
+  a cada deploy, por sed
+  ────────────────────────────────────────
+  Nome: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+  Observação de formato, sem valor:
+  ────────────────────────────────────────
+  Nome: MAXX_JWT_CHAVE
+  Observação de formato, sem valor: base64 de ao menos 32 bytes (openssl rand 
+  -base64 48)
+  ────────────────────────────────────────
+  Nome: MAXX_URL_PUBLICA
+  Observação de formato, sem valor: Exatamente https://app.maxx-unimax.com, sem
+  barra no fim. O Caddy usa como endereço do site
+  ────────────────────────────────────────
+  Nome: MAXX_EMAIL_REMETENTE
+  Observação de formato, sem valor: Por exemplo, Maxx 
+  <nao-responda@maxx-unimax.com>
+  ────────────────────────────────────────
+  Nome: MAXX_SMTP_HOST, MAXX_SMTP_PORTA, MAXX_SMTP_USUARIO, MAXX_SMTP_SENHA
+  Observação de formato, sem valor:
+  ────────────────────────────────────────
+  Nome: MAXX_SMTP_SEGURANCA
+  Observação de formato, sem valor: Valor do MailKit: StartTls
+  ────────────────────────────────────────
+  Nome: MAXX_DEMO_LOTE
+  Observação de formato, sem valor:
+  ────────────────────────────────────────
+  Nome: MAXX_ARMAZENAMENTO_BUCKET, MAXX_ARMAZENAMENTO_ENDPOINT,
+  MAXX_ARMAZENAMENTO_URL_DE_LEITURA, MAXX_ARMAZENAMENTO_CHAVE_DE_ACESSO,
+  MAXX_ARMAZENAMENTO_SEGREDO
+  Observação de formato, sem valor: Sem aspas: o teste do R2 lê essas linhas
+  pelo
+  --env-file do Docker, que não tira aspas
+  ────────────────────────────────────────
+  Nome: MAXX_ARMAZENAMENTO_REGIAO
+  Observação de formato, sem valor: auto
+
+  Ficam de fora COMPOSE_PROFILES e MAXX_ARMAZENAMENTO_ENDPOINT_PUBLICO.
+
+  Antes do seed demo, preciso do Email Routing com catch-all em maxx-unimax.com.
+  Sem ele, o primeiro acesso das contas de professor e instituição não chega.
+
+  O que já está pronto para a etapa 2, ainda sem commit:
+  - A troca dos 9 e-mails para @maxx-unimax.com em data/demo/mundo.json e
+    atividade.json, com os dois testes de integração que leem as contas
+    semeadas. Ela precisa vir antes do seed demo na VPS, porque o seed confere o
+    e-mail dessas contas. Os testes de catálogo, seed demo, atividade e eventos
+    passaram localmente: 60 de 60.
+  - O roteiro docs/operacao.md.
+
+  Os dois entram no commit da etapa 2, com uma publicação nova antes do seed. A
+  sha-c1f2b77 ainda tem os e-mails antigos.
+
+  Aguardo o "env feito".
+
+✻ Churned for 38m 10s · done 19:07
