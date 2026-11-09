@@ -6966,3 +6966,1079 @@ code 0)
 ✻ Worked for 55m 29s · done 22:39
 
 ※ recap: Estamos no passo 9 (conquistas), e a etapa do post de conquista está pronta para a sua revisão, ainda sem commit. Falta você aprovar a mensagem de commit e a regra do post da conquista removida; então commito, acompanho a CI e sigo para a etapa de docs e e2e.
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+> Etapa do post de conquista aprovada, com a regra por analogia à medalha       
+  anulada aceita; registra em 4.9 na etapa de docs. O commit único com API,     
+  cliente e app está certo. A disputa de recurso com a pilha de pé fica anotada 
+  como ocorrência de ambiente; para a suíte local, pilha parada. Commita com a  
+  mensagem proposta, push, acompanha a CI e segue para a última etapa, docs e   
+  e2e; para para a minha revisão no fim dela, com o relatório de fechamento do  
+  passo e o que ficou para os passos seguintes.                                 
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CI do post de conquista rodando (commit 5e0e8f6). Começo a última etapa pelo
+  e2e. Vejo os ajudantes que já existem.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Escrevo o e2e do passo 9.
+
+● Write(e2e\tests\conquistas.spec.ts)
+  ⎿  Wrote 87 lines to e2e\tests\conquistas.spec.ts
+       1 import { expect, test, type APIRequestContext, type Page } from 
+         "@playwright/test";
+       2 
+       3 import { novaConta } from "./apoio/contas";
+       4 import { matricular, novaProfessora, type Professora } from "./a
+         poio/medalhas";
+       5 import { comToken, token } from "./apoio/premios";
+       6 
+       7 // O passo 9 de ponta a ponta (fluxos/03-concessao-de-medalha.md
+         ): a professora concede, o
+     … +80 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      docker compose up --build -d 2>&1 | tail -2 && npx prettier --write
+      e2e/tests/conquistas.…)
+  ⎿   Container maxx-worker-1 Started
+      Container maxx-caddy-1 Started
+         > 115 |     ).toBeVisible();
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\conquistas.spec.ts (+44 -14)
+      1 -import { expect, test, type APIRequestContext, type Page } from 
+        -"@playwright/test";                                             
+      1 +import {                                                        
+      2 +  expect,                                                       
+      3 +  test,                                                         
+      4 +  type APIRequestContext,                                       
+      5 +  type Page,                                                    
+      6 +} from "@playwright/test";                                      
+      7  
+      8  import { novaConta } from "./apoio/contas";
+      9  import { matricular, novaProfessora, type Professora } from "./a
+         poio/medalhas";
+     ...
+      22    await page.getByLabel("RA ou e-mail").fill(identificador);
+      23    await page.getByLabel("Senha", { exact: true }).fill(senha);
+      24    await page.getByRole("button", { name: "Entrar", exact: true 
+          }).click();
+      20 -  await expect(page.getByRole("button", { name: "Novo post" }).
+         -first()).toBeVisible();                                        
+      25 +  await expect(                                                
+      26 +    page.getByRole("button", { name: "Novo post" }).first(),   
+      27 +  ).toBeVisible();                                             
+      28  }
+      29  
+      30  // A concessão pela API da professora, como a tela faz.
+      24 -async function concessora(request: APIRequestContext, professor
+         -a: Professora, nome: string) {                                 
+      25 -  const headers = comToken(await token(request, professora.emai
+         -l, professora.senha));                                         
+      31 +async function concessora(                                     
+      32 +  request: APIRequestContext,                                  
+      33 +  professora: Professora,                                      
+      34 +  nome: string,                                                
+      35 +) {                                                            
+      36 +  const headers = comToken(                                    
+      37 +    await token(request, professora.email, professora.senha),  
+      38 +  );                                                           
+      39    const alunos = await (
+      27 -    await request.get(`/api/v1/professor/turmas/${professora.tu
+         -rmaId}/alunos`, { headers })                                   
+      40 +    await request.get(`/api/v1/professor/turmas/${professora.tu
+         +rmaId}/alunos`, {                                              
+      41 +      headers,                                                 
+      42 +    })                                                         
+      43    ).json();
+      29 -  const alunoId = alunos.find((aluno: { nomeDeExibicao: string 
+         -}) => aluno.nomeDeExibicao === nome).id;                       
+      44 +  const alunoId = alunos.find(                                 
+      45 +    (aluno: { nomeDeExibicao: string }) => aluno.nomeDeExibicao
+         + === nome,                                                     
+      46 +  ).id;                                                        
+     … 47 more lines (ctrl+o to expand)
+  ⎿  (timeout 10m)
+
+● Falhou só na última verificação, a do nome do prêmio dentro do cartão do feed.
+  Vejo o que o cartão mostra de fato.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Só o seletor estava ambíguo: o cartão mostra o nome do prêmio duas vezes, no
+  selo e na faixa, como em todo post com prêmio. Todas as outras verificações
+  passaram. Uso o primeiro.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|      cartao.getByText("Cinco no bimestre", { exact: true }),|
+         cartao.getB…)
+  ⎿    ok 1 [celular-claro] › e2e\tests\conquistas.spec.ts:70:5 › cinco med
+     alhas no bimestre fecham a conquista, que aparece em Troféus e vira po
+     st @celular (15.6s)
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated e2e\tests\conquistas.spec.ts (+1 -1)
+      111        .first();
+      112      await expect(cartao).toBeVisible();
+      113      await expect(
+      114 -      cartao.getByText("Cinco no bimestre", { exact: true }), 
+      114 +      cartao.getByText("Cinco no bimestre", { exact: true }).f
+          +irst(),                                                       
+      115      ).toBeVisible();
+      116    },
+      117  );
+  ⎿  (timeout 10m)
+
+● O e2e passa nos dois temas. Rodo a suíte e2e inteira em segundo plano enquanto
+  escrevo os docs.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora os docs. Começo pelas regras de produto (4.9 e 8).
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\produto.md)  ⎿  Added 19 lines, removed 2 lines
+      404  próprio aluno: a contagem é a vida dele no Maxx e não reinicia
+            na troca de curso.
+      405  
+      406  A conquista pontua no semestre **do período a que se refere**,
+            mesmo quando calculada
+      407 -depois. O prêmio de participação conta no semestre **do evento
+          -**, não no da aprovação.                                      
+      407 +depois. O prêmio de participação conta no semestre **do evento
+          +**, não no da aprovação: o                                    
+      408 +semestre letivo que contém a **data de início** do evento; o e
+          +vento que começa no recesso                                   
+      409 +conta no **semestre seguinte** (passo 9). O passo 11 usa a mes
+          +ma regra para o ranking.                                      
+      410  
+      411 +"Todas as matérias" são as **matérias distintas** das turmas e
+          +m que o aluno está                                            
+      412 +matriculado no período; o aluno **sem matrícula** no período n
+          +ão ganha a conquista de                                       
+      413 +todas as matérias, porque o alvo zero não se cumpre de graça. 
+      414 +                                                              
+      415  Cada conquista concedida guarda as **evidências**: os prêmios 
+           que a compuseram. É o que
+      416  torna a anulação recalculável e o que responde ao aluno por qu
+           e ele ganhou aquilo.
+      417  
+      412 -A especificação das regras é declarativa, no próprio catálogo,
+          - com três formas de                                           
+      418 +A conquista que o recálculo remove, depois de uma anulação, sa
+          +i da pontuação e fica no                                      
+      419 +histórico; se o critério voltar a ser satisfeito, ela é conced
+          +ida de novo. O post da                                        
+      420 +conquista removida segue a regra da medalha anulada (seção 4.8
+          +): perde o vínculo e fica                                     
+      421 +como post comum; se era só a conquista, sem foto e sem legenda
+          +, é apagado. Mudança de                                       
+      422 +catálogo nunca remove conquista já concedida: quem a remove é 
+          +o fato.                                                       
+      423 +                                                              
+      424 +Na tela de Troféus, a conquista obtida mostra a instância em q
+          +ue foi obtida ("4º bimestre                                   
+      425 +de 2026"); a que falta na instância vigente mostra o progresso
+          + ("2 de 3 neste bimestre",                                    
+      426 +"1 de 2 matérias neste bimestre"), só para o próprio aluno. No
+          + recesso, não há progresso de                                 
+      427 +bimestre nem de semestre.                                     
+      428 +                                                              
+      429 +A especificação das regras é declarativa, no próprio catálogo,
+          + com duas formas de                                           
+      430  contagem. Ver `docs/regras-conquista.md`.
+      431  
+      432  ### 4.10 Auditoria
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '529,532c\Geram notificação: medalha recebida, comprovação aprovada
+      ou reprovada,…)
+  ⎿  Push nativo é evolução de fase 2.
+
+     Geram notificação: medalha recebida, comprovação aprovada ou reprovada
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated docs\produto.md (+3 -2)
+      528  
+      529  Geram notificação: medalha recebida, comprovação aprovada ou r
+           eprovada, contestação
+      530  aberta, decisão de contestação, prêmio revogado sem contestaçã
+           o (pela remoção do post pela
+      531 -instituição, seção 4.7), aviso novo. Bolinha dourada de novida
+          -de aparece nas abas                                           
+      532 -Mural (aviso não lido) e Troféus (prêmio novo).               
+      531 +instituição, seção 4.7), conquista obtida, conquista removida 
+          +pelo recálculo (seção 4.9),                                   
+      532 +aviso novo. Bolinha dourada de novidade aparece nas abas Mural
+          + (aviso não lido) e Troféus                                   
+      533 +(prêmio novo).                                                
+      534  
+      535  ---
+      536  
+
+● Agora regras-conquista.md: alvo dinâmico, prêmio no semestre do evento,
+  bimestre só com medalha, mecanismo do fechamento e remoção lógica.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As crases do markdown brigaram com o shell, e nada foi gravado. Faço as
+  edições com o editor.
+
+● Update(docs\regras-conquista.md)
+  ⎿  Added 10 lines, removed 3 lines
+      40  medalha; `tipoDeEvento` vem do item do catálogo do prêmio de pa
+          rticipação. O avaliador
+      41  nunca navega além do prêmio e do item dele.
+      42  
+      43 -`alvo: "todasAsMatriculasDoPeriodo"` resolve para a quantidade 
+         -de matrículas do aluno no                                      
+      44 -período, e só faz sentido com `agruparPor: "materia"`. É o que 
+         -permite "todas as                                              
+      45 -matérias" sem o catálogo saber quantas matérias existem.       
+      43 +`alvo: "todasAsMatriculasDoPeriodo"` resolve para o número de *
+         +*matérias distintas** das                                      
+      44 +turmas em que o aluno está matriculado nos semestres que a inst
+         +ância cobre, e só faz                                          
+      45 +sentido com `agruparPor: "materia"`. É o que permite "todas as 
+         +matérias" sem o catálogo                                       
+      46 +saber quantas matérias existem. Só contam os fatos dessas matér
+         +ias. Matéria distinta, e                                       
+      47 +não matrícula, porque quem cursa a mesma matéria nos dois semes
+         +tres do ano nunca fecharia                                     
+      48 +a C15 contando matrículas. Sem matrícula no período, o alvo é z
+         +ero, e alvo zero **nunca**                                     
+      49 +é satisfeito (decisão do passo 9).                             
+      50  
+      51 +Conquista de `periodo: "bimestre"` só conta medalha: o prêmio d
+         +e participação conta no                                        
+      52 +semestre do evento e não tem bimestre. O validador do catálogo 
+         +recusa a combinação.                                           
+      53 +                                                               
+      54  ## 3. O que entra na contagem
+      55  
+      56  Um prêmio é contável quando:
+
+● Update(docs\regras-conquista.md)
+  ⎿  Added 8 lines, removed 3 lines
+       91  no bimestre).
+       92  
+       93  A instância é determinada pelo período de referência do prêmio
+           : a medalha carrega
+       94 -bimestre e semestre; o prêmio de participação é atribuído ao s
+          -emestre do evento.                                            
+       94 +bimestre e semestre; o prêmio de participação é atribuído ao s
+          +emestre do evento, o                                          
+       95 +semestre letivo que contém a data de início dele; o evento que
+          + começa no recesso conta no                                   
+       96 +semestre seguinte. Enquanto o calendário não tem esse semestre
+          + seguinte, o prêmio ainda                                     
+       97 +não entra em contagem nenhuma (decisões do passo 9).          
+       98  
+       96 -Unicidade garantida por índice: `(aluno, item, tipoDePeriodo, 
+          -referenciaDoPeriodo)`. É o                                    
+       97 -índice que impede disparo duplo quando dois fatos chegam junto
+          -s.                                                            
+       99 +Unicidade garantida por índice: `(aluno, item, tipoDePeriodo, 
+          +referenciaDoPeriodo)`, só                                     
+      100 +entre as conquistas não removidas. Quem impede o disparo duplo
+          + quando dois fatos chegam                                     
+      101 +juntos é uma trava consultiva por aluno no worker, que seriali
+          +za as avaliações dele; o                                      
+      102 +índice é a rede de segurança.                                 
+      103  
+      104  ## 5. Quando o avaliador roda
+      105  
+
+● Update(docs\regras-conquista.md)
+  ⎿  Added 11 lines
+      113  fim do semestre). É o que cobre o prêmio de participação que v
+           ira definitivo já na
+      114  virada: a conquista pontua no semestre do período a que se ref
+           ere, não no da conta.
+      115  
+      116 +A reavaliação vale até a véspera do congelamento: no dia do fi
+          +m do semestre mais 30, a                                      
+      117 +instância já está congelada. Para a instância de bimestre, con
+          +ta o fim do semestre dela;                                    
+      118 +para a de ano, o fim do segundo semestre.                     
+      119 +                                                              
+      120  A avaliação acontece no worker, acionada pela fila. Nunca no c
+           aminho da requisição do
+      121  usuário.
+      122  
+      123 +O fechamento é um ato do worker, não uma data. A verificação d
+          +e fechamentos roda de hora                                    
+      124 +em hora: fecha cada instância encerrada (meia-noite de São Pau
+          +lo do dia seguinte ao fim)                                    
+      125 +que ainda não tem registro de fechamento, e abre um trabalho p
+          +or aluno matriculado no                                       
+      126 +período. Uma instância encerrada sem registro ainda não está f
+          +echada. O primeiro                                            
+      127 +fechamento roda mesmo depois do congelamento: o limite vale pa
+          +ra a reavaliação, não para o                                  
+      128 +fechamento.                                                   
+      129 +                                                              
+      130  ## 6. Evidências e recálculo
+      131  
+      132  Toda conquista concedida guarda as **evidências**: os prêmios 
+           que a compuseram. Serve
+
+● Update(docs\regras-conquista.md)
+  ⎿  Added 6 lines, removed 2 lines
+      134  barato.
+      135  
+      136  Quando a instituição anula uma medalha, o worker reavalia apen
+           as as conquistas que têm
+      137 -aquela medalha nas evidências. Se o critério deixou de ser sat
+          -isfeito, a conquista é                                        
+      138 -removida, os pontos saem, e o aluno é notificado.             
+      137 +aquela medalha nas evidências, sem limite de data. Se o critér
+          +io deixou de ser satisfeito,                                  
+      138 +a conquista é removida, os pontos saem, e o aluno é notificado
+          +. A remoção é lógica: a                                       
+      139 +conquista fica no histórico, fora do índice de unicidade, e, s
+          +e o critério voltar a ser                                     
+      140 +satisfeito, nasce outra. Se continua satisfeita, as evidências
+          + passam a ser o conjunto                                      
+      141 +atual, para a próxima anulação achar a conquista pela medalha 
+          +certa. A anulação nunca                                       
+      142 +concede, e mudança de catálogo nunca remove conquista concedid
+          +a.                                                            
+      143  
+      144  Prêmio de participação revogado nunca chega a ser evidência, p
+           orque só conta depois de
+      145  definitivo e, depois de definitivo, não pode mais ser contesta
+           do.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\regras-conquista.md)
+  ⎿  Added 3 lines
+      151  escape existe para não travar o catálogo numa regra que as dua
+           s formas não alcancem,
+      152  não para ser o caminho padrão.
+      153  
+      154 +Limite conhecido (passo 9): a regra customizada não declara fo
+          +nte, então nenhum fato a                                      
+      155 +dispara e ela não tem progresso. Quem a usar precisa dar a ela
+          + um gatilho próprio.                                          
+      156 +                                                              
+      157  ## 8. Plano de teste
+      158  
+      159  - **Por forma:** um teste de `contagem` e um de `contagemDisti
+           nta`, cobrindo alvo fixo e
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat >> docs/regras-conquista.md <<'EOF'…)
+  ⎿  | Por fronteira, no domínio | `AvaliadorDeConquistaTests.cs`, `FatoCon
+     tavelTests.cs` e `InstanciaENotificacaoTests.cs` |
+     | Por fronteira, com Postgres | `ReavaliacaoDeConquistasTests.cs` (prê
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated docs\regras-conquista.md (+10 -0)
+      166    antes do congelamento.
+      167  - **Por idempotência:** dois fatos simultâneos não concedem a 
+           mesma conquista duas vezes
+      168    na mesma instância de período.
+      169 +                                                              
+      170 +Onde cada um mora, desde o passo 9:                           
+      171 +                                                              
+      172 +| Plano | Testes |                                            
+      173 +|---|---|                                                     
+      174 +| Por forma | `Maxx.Domain.Tests/Conquistas/AvaliadorDeConquis
+          +taTests.cs` |                                                 
+      175 +| Por item | `Maxx.Api.IntegrationTests/Conquistas/ConquistasD
+          +oCatalogoTests.cs`, sem banco, lendo o catálogo como o seeder 
+          +lê |                                                          
+      176 +| Por fronteira, no domínio | `AvaliadorDeConquistaTests.cs`, 
+          +`FatoContavelTests.cs` e `InstanciaENotificacaoTests.cs` |    
+      177 +| Por fronteira, com Postgres | `ReavaliacaoDeConquistasTests.
+          +cs` (prêmio antes e depois de definitivo), `AnulacaoEConquista
+          +sTests.cs` (medalha anulada), `FechamentoDePeriodoTests.cs` (f
+          +ato depois do fechamento, até a véspera do congelamento) |    
+      178 +| Por idempotência | `ReavaliacaoDeConquistasTests.cs`: três c
+          +onsumidores ao mesmo tempo concedem uma conquista só, sem trab
+          +alho falho |                                                  
+
+● Background command "Watch CI for the conquista post stage" completed (exit
+code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A CI do post de conquista ficou verde na primeira tentativa. Agora a seção do
+  passo 9 no índice de decisões, e o ajuste das linhas dos passos 6 e 8 que
+  apontavam para cá.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i '267s|; a conquista entra no passo 9 |. Desde o passo 9, também a
+      conquista não re…)
+  ⎿  | Numerador | Alunos distintos com ao menos uma medalha ativa do item,
+      ex-alunos inclusive. Desde o passo 8, também o prêmio de participação
+      válido ou definitivo. Desde o passo 9, também a conquista não removid
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+3 -3)
+      264  | Notificação | Tabela `notificacao`, com usuário, tipo, refer
+           ência, criada em e lida em. Uma por usuário, tipo e referência
+           , por índice único. Medalha anulada antes do trabalho, ou apag
+           ada pela purga, não notifica. O texto é do cliente, pelo tipo,
+            no passo 10 |
+      265  | Bolinha de novidade | A de Troféus chega no passo 10, com o 
+           sininho. No passo 6, a notificação só é gravada |
+      266  | Raridade | Tabela `raridade_do_item`, uma linha por item do 
+           catálogo, com alunos com o item, alunos elegíveis, raridade e 
+           quando foi calculada. A leitura só lê |
+      267 -| Numerador | Alunos distintos com ao menos uma medalha ativa 
+          -do item, ex-alunos inclusive. Desde o passo 8, também o prêmio
+          - de participação válido ou definitivo; a conquista entra no pa
+          -sso 9 |                                                       
+      267 +| Numerador | Alunos distintos com ao menos uma medalha ativa 
+          +do item, ex-alunos inclusive. Desde o passo 8, também o prêmio
+          + de participação válido ou definitivo. Desde o passo 9, também
+          + a conquista não removida, uma vez por aluno |                
+      268  | Divisor | Alunos com conta, ativos e ex-alunos, os de demons
+           tração inclusive: o campus inteiro para item aberto, o curso a
+           tual para item restrito |
+      269  | Troca de curso | Quem trocou de curso leva a medalha de item
+            restrito ao curso antigo e não é elegível no curso novo: o nu
+           merador fica limitado ao divisor |
+      270  | Faixas | Em inteiros, com "abaixo de" estrito: Lendário abai
+           xo de 1%, Épico abaixo de 5%, Raro abaixo de 20%. Item que nin
+           guém tem é Lendário com 0% |
+     ...
+      315  
+      316  | Decisão | Detalhe |
+      317  |---|---|
+      318 -| Post (D5) | Ao menos um entre medalha, foto e legenda. Legen
+          -da de até 1.000 caracteres. Não é editável. Um prêmio rende um
+          - post, por índice único `ix_post_medalha_ativa`, e a corrida r
+          -esponde 409, nunca 500. O passo 8 acrescentou o prêmio de part
+          -icipação (`ix_post_premio_participacao_ativo`, e `ck_post_um_p
+          -remio` contra os dois no mesmo post); a conquista entra no pas
+          -so 9 |                                                        
+      318 +| Post (D5) | Ao menos um entre medalha, foto e legenda. Legen
+          +da de até 1.000 caracteres. Não é editável. Um prêmio rende um
+          + post, por índice único `ix_post_medalha_ativa`, e a corrida r
+          +esponde 409, nunca 500. O passo 8 acrescentou o prêmio de part
+          +icipação (`ix_post_premio_participacao_ativo`, e `ck_post_um_p
+          +remio` contra os dois no mesmo post). O passo 9 acrescentou a 
+          +conquista (`ix_post_conquista_ativa`, e `ck_post_um_premio` pa
+          +ssou a aceitar no máximo um dos três) |                       
+      319  | Quem posta | Só aluno ativo. Ex-aluno, professor e instituiç
+           ão recebem 403. A medalha tem de ser do autor e não estar anul
+           ada |
+      320  | Remoção pelo autor | Física: curtidas e comentários saem em 
+           cascata, as fotos pela fila, e o prêmio fica livre para um pos
+           t novo |
+      321  | Remoção pela instituição (D7) | Lógica, com `removido_em` e 
+           `removido_por_id`: o post some do feed, do perfil e do link, e
+            o registro fica. No app, pelo menu "..." do post e do comentá
+           rio |
+     ...
+      464  | Limite | Onde é tratado |
+      465  |---|---|
+      466  | O ranking não é recalculado pela aprovação, contestação, dec
+           isão e remoção: a tabela de ranking não existe ainda | Passo 1
+           1 |
+      467 -| Prêmio definitivo não reavalia conquistas | Passo 9 |       
+      467 +| Prêmio definitivo não reavalia conquistas | Resolvido no pas
+          +so 9: o fim da janela e a confirmação da contestação enfileira
+          +m a reavaliação |                                             
+      468  | A conta de instituição não tem telas para a fila de contesta
+           ções nem para a concessão direta | Passo 12 |
+      469  | A remoção pela instituição que corre contra outro ato sobre 
+           o mesmo prêmio responde 404, como a corrida de duas remoções |
+            Aceito |
+      470  | P17 com data no recesso não acha matéria | Aceito |
+
+● Agora a seção nova do passo 9, antes de "Processo e qualidade".
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run the full e2e suite" completed (exit code 0)
+
+● O shell não aceitou o texto longo. Gravo o trecho com o editor e insiro
+  depois.
+
+  Made 1 scratchpad edit +71 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      P="C:/Users/GUILHE~1/AppData/Local/Temp/claude/C--Users-Guilherme-Gimenes-
+      Documents-Repos…)
+  ⎿  290:## Posts, upload e feed (passo 7)
+     386:## Prêmios de participação (passo 8)
+     473:## Conquistas (passo 9)
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated docs\decisoes\README.md (+70 -0)
+      470  | P17 com data no recesso não acha matéria | Aceito |
+      471  | O e2e depende do evento semeado da semana acadêmica de CC no
+            semestre vigente | Risco "Semestre vigente na avaliação" do p
+           lano mestre |
+      472  
+      473 +## Conquistas (passo 9)                                       
+      474 +                                                              
+      475 +O avaliador das regras do catálogo, os gatilhos por fato e por
+          + fechamento de período, o                                     
+      476 +recálculo na anulação, a leitura em Troféus e o post de conqui
+          +sta. As decisões D1 a D10                                     
+      477 +foram fechadas no plano do passo, com as quatro perguntas dele
+          +; as demais, nas etapas. As                                   
+      478 +regras de produto que nasceram aqui estão em `produto.md` 4.9 
+          +(semestre do prêmio de                                        
+      479 +participação, todas as matérias, conquista removida e o post d
+          +ela, progresso em Troféus) e                                  
+      480 +8 (notificações de conquista). A especificação do avaliador fo
+          +i atualizada em                                               
+      481 +`regras-conquista.md`.                                        
+      482 +                                                              
+      483 +### Avaliador e modelo                                        
+      484 +                                                              
+      485 +| Decisão | Detalhe |                                         
+      486 +|---|---|                                                     
+      487 +| Avaliador | `AvaliadorDeConquista`, no domínio: recebe a reg
+          +ra, a instância e os fatos, devolve contagem, alvo, se satisfa
+          +z e as evidências. Não grava nem sabe quando roda. O escape `c
+          +ustomizada` delega a uma `IRegraCustomizada` registrada pelo n
+          +ome; sem registro, erro |                                     
+      488 +| Fato contável | `FatoContavel`: só a medalha ativa (`DaMedal
+          +ha`) e o prêmio de participação definitivo (`DoPremio`) viram 
+          +fato. `DescreverMedalha` descreve a anulada só para localizar 
+          +as instâncias que ela tocava, nunca para contar |             
+      489 +| Instância | `InstanciaDePeriodo`: tipo e id do bimestre, do 
+          +semestre, do ano letivo ou do próprio aluno (período curso) | 
+      490 +| Modelo (D1) | `conquista` (aluno, item, versão, tier e ponto
+          +s congelados, tipo e referência do período, concedida em, remo
+          +vida em) e `evidencia_da_conquista` (medalha ou prêmio, nunca 
+          +os dois, por check) |                                         
+      491 +| Unicidade (D2) | Índice parcial `ix_conquista_instancia_ativ
+          +a` entre as não removidas. Dentro do worker, uma violação abor
+          +ta a transação do trabalho, então quem evita o disparo duplo é
+          + uma trava consultiva por aluno (`pg_advisory_xact_lock`), tom
+          +ada no início de cada avaliação e solta no commit. Prova rever
+          +sa: sem a trava, o teste de três consumidores simultâneos falh
+          +a nas três rodadas |                                          
+      492 +| Remoção (D3) | Lógica, com `removida_em`: a linha fica no hi
+          +stórico e sai do índice; se o critério volta, nasce outra |   
+      493 +| Evidências (D4) | Todos os fatos contáveis da instância na c
+          +oncessão; no recálculo, se ainda satisfeita, o conjunto atual 
+          +|                                                             
+      494 +| Progresso (D5) | `progresso_de_conquista` (aluno, item, inst
+          +ância, contagem, alvo), escrito pelo worker para toda conquist
+          +a que um fato toca, inclusive as de fechamento. A leitura só l
+          +ê |                                                           
+      495 +| Alvo dinâmico | Matérias distintas das matrículas do período
+          +; alvo zero nunca satisfaz (pergunta 3) |                     
+      496 +| Semestre do prêmio | O semestre que contém o início do event
+          +o; no recesso, o seguinte (pergunta 1). Sem o semestre seguint
+          +e no calendário, o prêmio ainda não é fato. Conquista de bimes
+          +tre só conta medalha, e o validador do catálogo recusa outra f
+          +onte |                                                        
+      497 +| Vigência e curso | O item restrito a outro curso, ou fora da
+          + vigência na data de referência (o fim da instância; hoje, no 
+          +período curso), não se aplica: não concede nem grava progresso
+          + |                                                            
+      498 +| Teste por item | Em `Maxx.Api.IntegrationTests`, sem banco: 
+          +o leitor do JSON é da Infrastructure, que o domínio não conhec
+          +e |                                                           
+      499 +                                                              
+      500 +### Gatilhos e worker                                         
+      501 +                                                              
+      502 +| Decisão | Detalhe |                                         
+      503 +|---|---|                                                     
+      504 +| Por fato (D6) | `reavaliar-conquistas`, com o aluno e o id d
+          +a medalha ou do prêmio, na mesma transação do fato: concessão 
+          +de medalha, fim da janela que torna o prêmio definitivo e conf
+          +irmação da contestação. Avalia só as conquistas que o fato pod
+          +e mexer, na instância dele |                                  
+      505 +| Fechamento (D7) | `verificar-fechamentos` se reenfileira de 
+          +hora em hora, com trava própria, e apaga as outras pendentes. 
+          +Fecha cada instância encerrada (meia-noite de São Paulo do dia
+          + seguinte ao fim) sem registro em `fechamento_de_periodo`: gra
+          +va o registro e enfileira `fechar-periodo` juntos. Este abre u
+          +m `avaliar-fechamento-do-aluno` por aluno matriculado no perío
+          +do, ex-alunos inclusive, para não passar dos 60 s por trabalho
+          +. O seed base garante uma verificação pendente. Na primeira ex
+          +ecução no calendário real, fechou os bimestres 1 a 3 e o semes
+          +tre 2026/1 |                                                  
+      506 +| Carga com período | O tipo de período vai pelo nome do enum 
+          +("Bimestre"), não pelo número |                               
+      507 +| Congelamento (D8) | Com a instância fechada, o fato que cheg
+          +a concede a conquista de fechamento até a véspera do congelame
+          +nto: o fim do último semestre coberto, mais 30 dias, já é cong
+          +elado. Constante `InstanciaDePeriodo.DiasAteOCongelamento`, qu
+          +e o passo 11 herda. O primeiro fechamento roda mesmo depois do
+          + congelamento |                                               
+      508 +| Anulação (D9) | `recalcular-conquistas-da-medalha`, sem limi
+          +te de data: refaz o progresso das instâncias que a medalha toc
+          +ava e reavalia só as conquistas com ela nas evidências. Nunca 
+          +concede. Mudança de catálogo não remove conquista |           
+      509 +| Notificação e pontos (D10) | `conquistaObtida` e `conquistaR
+          +emovida`, gravadas pelo próprio handler, na transação do traba
+          +lho; o texto chega no passo 10. Perfil e Troféus somam a conqu
+          +ista não removida; a raridade a conta uma vez por aluno, e con
+          +ceder ou remover pede o recálculo |                           
+     … 36 more lines (ctrl+o to expand)
+
+● O texto das decisões ficou sem travessões. Mas a suíte e2e local teve 6
+  falhas, em demonstracao.spec.ts e medalhas.spec.ts. Investigo antes de seguir.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● A falha da medalha foi estouro dos 30 s, sem passo indicado. Rodo as duas
+  specs sozinhas para separar lentidão de defeito.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A especificação da medalha passa sozinha, mas a suíte inteira estourou o
+  limite de 30 s sob carga paralela, um risco já registrado no passo 7. Vou
+  seguir com os fluxos e o plano mestre.
+
+  Ran 2 shell commands (ctrl+o to expand)
+● Acrescento as seções "No passo 9" aos dois fluxos.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      cat >> docs/fluxos/04-contestacao.md <<'EOF'…)
+  ⎿    ("4 de 5 neste bimestre").
+
+     Decisões em `decisoes/README.md`, Conquistas (passo 9).
+  ⎿  Updated docs\fluxos\03-concessao-de-medalha.md (+22 -0)
+      115  
+      116  A anulação é o comando `Maxx.Api anular-medalha <id> --institu
+           icao <e-mail>`, que sai com 0
+      117  quando a medalha fica anulada ou já estava, 1 quando recusa e 
+           2 quando o uso está errado.
+      118 +                                                              
+      119 +## No passo 9                                                 
+      120 +                                                              
+      121 +O que era desenho agora roda, menos o ranking (passo 11):     
+      122 +                                                              
+      123 +- A concessão enfileira também `reavaliar-conquistas`. O worke
+          +r trava o aluno, avalia só                                    
+      124 +  as conquistas que a medalha pode mexer, na instância dela, g
+          +rava o progresso de todas e                                   
+      125 +  concede as de gatilho `porFato` que alcançaram o alvo, com a
+          +s evidências e a notificação                                  
+      126 +  `conquistaObtida`. A trava por aluno impede disparo duplo; o
+          + índice único é a rede de                                     
+      127 +  segurança.                                                  
+      128 +- As de gatilho `fechamentoDePeriodo` só ganham progresso pela
+          + concessão. Quem as concede é                                 
+      129 +  o fechamento: a verificação de fechamentos, de hora em hora,
+          + fecha cada instância                                         
+      130 +  encerrada e abre a avaliação de cada aluno matriculado. Fato
+          + que chega a uma instância já                                 
+      131 +  fechada ainda a concede até a véspera do congelamento.      
+      132 +- A anulação enfileira `recalcular-conquistas-da-medalha`: ref
+          +az o progresso e reavalia só                                  
+      133 +  as conquistas com a medalha nas evidências. A que deixou de 
+          +ser satisfeita é removida                                     
+      134 +  (fica no histórico), os pontos saem, o aluno recebe `conquis
+          +taRemovida`, e o post dela                                    
+      135 +  perde o vínculo, como o da medalha anulada.                 
+      136 +- O aluno vê em Troféus a conquista obtida, com a instância, e
+          + o progresso das que faltam                                   
+      137 +  ("4 de 5 neste bimestre").                                  
+      138 +                                                              
+      139 +Decisões em `decisoes/README.md`, Conquistas (passo 9).       
+  ⎿  Updated docs\fluxos\04-contestacao.md (+9 -0)
+      85    instituição." (`produto.md` 4.7).
+      86  - Em averiguação, o post aparece sem o prêmio para quem não é o
+           aluno nem a instituição.
+      87  - Rotas, códigos e decisões em `decisoes/README.md`, Prêmios de
+           participação (passo 8).
+      88 +                                                               
+      89 +## Como ficou no passo 9                                       
+      90 +                                                               
+      91 +- O prêmio que fica definitivo, pelo fim da janela de 15 dias o
+         +u pela confirmação da                                          
+      92 +  contestação, enfileira `reavaliar-conquistas` na mesma transa
+         +ção. O worker conta o prêmio                                   
+      93 +  no semestre que contém a data de início do evento (no recesso
+         +, o seguinte) e concede as                                     
+      94 +  conquistas de prêmio de participação que ele fecha.          
+      95 +- Válido e em averiguação não contam; revogado nunca chega a se
+         +r evidência.                                                   
+      96 +- Decisões em `decisoes/README.md`, Conquistas (passo 9).      
+
+● Agora o plano mestre: o que ficou do passo 9 e o que os passos seguintes
+  herdam.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');const f='docs/plano-mestre.md';let
+      s=fs.readFileSync(f,'…)
+  ⎿    fotos de perfil) removidas do bucket, que o SQL sozinho não alcança
+     (D14 do passo 7).
+     - Seed de demonstração completo: 150 alunos, 120 ativos distribuídos p
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+15 -0)
+      226  - Do passo 8: reavaliar as conquistas quando o prêmio de parti
+           cipação fica definitivo,
+      227    pelo fim da janela de 15 dias (trabalho `tornar-premio-defin
+           itivo`) ou pela confirmação
+      228    da contestação.
+      229 +- Entrou também, aprovado no plano do passo: o post de conquis
+          +ta, porque um prêmio rende                                    
+      230 +  um post (produto.md 6.1).                                   
+      231 +                                                              
+      232 +Ficam pendentes: o recálculo do ranking pela conquista concedi
+          +da ou removida (passo 11); o                                  
+      233 +texto das notificações `conquistaObtida` e `conquistaRemovida`
+          +, já gravadas, e a                                            
+      234 +bolinha de Troféus (passo 10); conquistas no seed de demonstra
+          +ção (passo 12). Decisões do                                   
+      235 +passo em `decisoes/README.md`, Conquistas (passo 9).          
+      236  
+      237  ### Passo 10. Mural e notificações
+      238  
+     ...
+      241  - Registro de leitura e bolinha dourada na aba Mural.
+      242  - Sininho no cabeçalho do feed, com as notificações de medalha
+           , aprovação, reprovação,
+      243    contestação, decisão e aviso novo. A de medalha recebida já 
+           é gravada desde o passo 6.
+      244 +- Do passo 9: o texto das notificações de conquista obtida e d
+          +e conquista removida pelo                                     
+      245 +  recálculo, já gravadas pelo worker.                         
+      246  - Bolinha de prêmio novo na aba Troféus.
+      247  
+      248  ### Passo 11. Rankings
+     ...
+      257    pela contestação, pela decisão da instituição e pela remoção
+            do post pela instituição
+      258    (ADR 0005), e a regra de em que semestre o prêmio de partici
+           pação conta (D4); hoje o
+      259    prêmio guarda só as datas do evento.
+      260 +- Do passo 9: o recálculo do ranking também pela conquista con
+          +cedida ou removida (ADR                                       
+      261 +  0005). A regra do semestre do prêmio de participação já foi 
+          +decidida (produto.md 4.9: o                                   
+      262 +  semestre que contém o início do evento; no recesso, o seguin
+          +te), e o calendário a                                         
+      263 +  responde em `Calendario.SemestreDoEvento`. O congelamento re
+          +aproveita                                                     
+      264 +  `InstanciaDePeriodo.DiasAteOCongelamento` e a mesma leitura:
+          + no dia do fim mais 30, já                                    
+      265 +  congelado. A conquista pontua no semestre da instância dela.
+      266  
+      267  ### Passo 12. Área web da instituição
+      268  
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      node -e "
+      const fs=require('fs');const f='docs/plano-mestre.md';let
+      s=fs.readFileSync(f,'…)
+  ⎿  warning: in the working copy of 'docs/regras-conquista.md', CRLF will
+     be replaced by LF the next time Git touches it
+      docs/decisoes/README.md                | 76 +++++++++++++++++++++++++
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+4 -0)
+      278    distribuídos de modo que as quatro raridades apareçam, aviso
+           s, eventos passados e
+      279    futuros, duas comprovações pendentes e uma contestação abert
+           a. Os posts semeados, que o
+      280    passo 7 deixou para cá (D13), nascem com as contas desses al
+           unos.
+      281 +- Do passo 9: conquistas no seed, que nascem do worker a parti
+          +r das medalhas e dos prêmios                                  
+      282 +  semeados (reavaliação e fechamento), e não gravadas à mão: é
+          + o que mantém evidências e                                    
+      283 +  progresso coerentes. A anulação pela área web enfileira o me
+          +smo recálculo do comando                                      
+      284 +  administrativo.                                             
+      285  
+      286  ### Passo 13. Endurecimento e ensaio
+      287  
+
+● O Git avisa que regras-conquista.md ficou com fim de linha CRLF. Normalizo
+  para LF, como o resto do repositório.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      for f in docs/regras-conquista.md docs/produto.md docs/decisoes/README.md
+      docs/plano-mest…)
+  ⎿  docs/regras-conquista.md 178
+     docs/produto.md 656
+     docs/decisoes/README.md 554
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated docs\regras-conquista.md (+168 -168)
+        1 -# Regras de conquista                                         
+        2 -                                                              
+        3 -Especificação do avaliador declarativo que decide quando uma c
+          -onquista é concedida. A                                       
+        4 -regra de cada conquista é dado, não código: mora em `data/cata
+          -logo/conquistas.json`, e o                                    
+        5 -avaliador é um só.                                            
+        6 -                                                              
+        7 -Regras de produto por trás disto: `docs/produto.md`, seção 4.9
+          -.                                                             
+        8 -                                                              
+        9 ----                                                           
+       10 -                                                              
+       11 -## 1. Duas formas de contagem, não três                       
+       12 -                                                              
+       13 -Ao escrever as 18 conquistas da fase 1, as três formas previst
+          -as no plano colapsaram em                                     
+       14 -duas. "Contagem distinta com alvo dinâmico" e "contagem de tip
+          -os distintos" são a mesma                                     
+       15 -forma com parâmetros diferentes: o que muda é por onde se agru
+          -pa e se o alvo é fixo ou                                      
+       16 -calculado.                                                    
+       17 -                                                              
+       18 -| Forma | O que conta | Usada por |                           
+       19 -|---|---|---|                                                 
+       20 -| `contagem` | Quantos prêmios contáveis existem no período | 
+          -C01, C02, C05, C07, C08, C09, C12, C13, C16, C17, C18 |       
+       21 -| `contagemDistinta` | Quantos valores distintos de um campo a
+          -parecem entre os prêmios contáveis do período | C03, C04, C06,
+          - C10, C11, C14, C15 |                                         
+       22 -                                                              
+       23 -A conquista é concedida quando a contagem **alcança ou passa**
+          - o alvo.                                                      
+       24 -                                                              
+       25 -## 2. Campos da regra                                         
+       26 -                                                              
+       27 -```                                                           
+       28 -regra: {                                                      
+       29 -  forma:       "contagem" | "contagemDistinta"                
+       30 -  fonte:       "medalha" | "premioParticipacao" | "ambos"     
+       31 -  filtroItens: null (qualquer item da fonte) | ["M01", ...] (s
+          -ó esses códigos)                                              
+       32 -  agruparPor:  null (só em contagem) | "materia" | "bimestre" 
+          -| "tipoDeEvento"                                              
+       33 -  alvo:        inteiro | "todasAsMatriculasDoPeriodo"         
+       34 -}                                                             
+       35 -```                                                           
+       36 -                                                              
+       37 -`fonte: "ambos"` é suportado pelo avaliador e não é usado por 
+          -nenhuma conquista da fase 1.                                  
+       38 -                                                              
+       39 -`agruparPor` só aceita campos que o próprio prêmio carrega: `m
+          -ateria` e `bimestre` vêm da                                   
+       40 -medalha; `tipoDeEvento` vem do item do catálogo do prêmio de p
+          -articipação. O avaliador                                      
+     … 299 more lines (ctrl+o to expand)
+
+● Os outros arquivos também têm CRLF na cópia de trabalho; é a conversão
+  automática do Git no Windows, e o diff não muda. Confiro formatação e tipos do
+  e2e, como faz o job da CI.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A última etapa está pronta para a sua revisão, junto com o fechamento do passo
+  9. Ainda não commitei; o commit, o push, a CI e o PR esperam o seu ok.
+
+  CI da etapa do post de conquista
+
+  O commit 5e0e8f6 ficou com os seis jobs verdes na primeira tentativa.
+
+  O que foi feito na etapa 8 (docs e e2e)
+
+  e2e (e2e/tests/conquistas.spec.ts, no celular, claro e escuro): a professora
+  concede quatro medalhas pela API, e o aluno vê "4 de 5 neste bimestre" na C01.
+  A quinta fecha a conquista: aparecem "Regra automática · Nº bimestre de
+  AAAA", o "+25" e o total de 160 pts, e a linha de progresso some. Depois o
+  aluno posta a conquista pelo novo post, e ela aparece no feed. Passou nos dois
+  temas.
+
+  Docs:
+  - produto.md 4.9:
+    - o semestre do prêmio de participação, que o passo 11 herda;
+    - "todas as matérias" como matérias distintas, sem matrícula sem conquista;
+    - a conquista removida e o post dela, pela regra da medalha anulada;
+    - mudança de catálogo não remove conquista;
+    - o progresso em Troféus;
+    - a correção de "três formas" para "duas formas".
+  - produto.md 8: as notificações de conquista obtida e removida.
+  - regras-conquista.md:
+    - o alvo dinâmico, e conquista de bimestre só com medalha;
+    - o prêmio no semestre do evento;
+    - a trava por aluno ao lado do índice;
+    - a leitura do congelamento e o fechamento como ato do worker;
+    - a remoção lógica e o limite da regra customizada;
+    - um mapa de onde mora cada teste do plano de teste.
+  - decisoes/README.md: a seção "Conquistas (passo 9)", com avaliador e modelo,
+    gatilhos e worker, leitura, tela e post, e2e e limites conhecidos. As três
+    linhas dos passos 6 e 8 que apontavam para o passo 9 foram atualizadas.
+  - Fluxos 03 e 04: a seção "No passo 9".
+  - Plano mestre: as pendências do passo 9 e o que os passos 10, 11 e 12 herdam.
+
+  Nenhum travessão nos docs.
+
+  Verificação local:
+  - Prettier e tipos do e2e limpos.
+  - A suíte e2e inteira teve 69 testes passando e 6 falhando, sem relação com
+    este passo:
+    - as quatro de demonstração (duas specs, nos dois temas) pedem a flag da
+      demonstração ligada, e o .env local a deixa desligada; a de "flag
+      desligada" passa;
+    - a da medalha, nos dois temas, passou dos 30 s sob carga paralela, e
+      sozinha passa em 21,7 s. Esse risco já está registrado desde o passo 7.
+
+    Na CI, o e2e passou em todos os pushes do passo.
+
+  Mensagem de commit proposta:
+
+  docs(docs): registra as decisões do passo 9 e adiciona o e2e de conquistas
+
+  Fechamento do passo 9
+
+  Commits na feat/passo-09-conquistas:
+
+  ┌──────────────────────────────┬──────────┬──────────────────────────────┐
+  │            Etapa             │  Commit  │              CI              │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 1. Avaliador no domínio      │ 52ad6c3  │ verde na 2ª tentativa        │
+  │                              │          │ (timeout do Jest no runner)  │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 2. Persistência e gatilho    │ 43d0f64  │ mobile vermelho em 3         │
+  │ por fato                     │          │ tentativas, mesmo timeout    │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ Fix do tempo limite do Jest  │ febe605  │ verde; fechou a etapa 2      │
+  │ (aprovado à parte)           │          │                              │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 3. Recálculo na anulação     │ 92489e6  │ verde                        │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 4. Fechamento e congelamento │ bc72a23  │ verde                        │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 5. Leitura de Troféus        │ a6e356f  │ verde                        │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 6. Tela de Troféus           │ 132a8dc  │ verde                        │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 7. Post de conquista         │ 5e0e8f6  │ verde                        │
+  ├──────────────────────────────┼──────────┼──────────────────────────────┤
+  │ 8. Docs e e2e                │ a        │ depois do seu ok             │
+  │                              │ commitar │                              │
+  └──────────────────────────────┴──────────┴──────────────────────────────┘
+
+  O que fecha o passo, item por item:
+  - Avaliador das duas formas, lendo a regra do catálogo: feito.
+  - Gatilho por fato e por fechamento de período, com reavaliação até o
+    congelamento: feito.
+  - Evidências por conquista concedida: feito.
+  - Recálculo na anulação, removendo a conquista que deixou de ser satisfeita:
+    feito.
+  - Progresso "2 de 3" em Troféus: feito, com "matérias" no alvo dinâmico.
+  - Índice de unicidade por instância: feito, com a trava por aluno como guarda
+    principal.
+  - Testes por forma, por item e de fronteira de regras-conquista.md: feitos.
+  - Do passo 8, a reavaliação quando o prêmio fica definitivo (fim da janela e
+    confirmação): feita.
+  - O post de conquista, aprovado no plano: feito.
+
+  Definição de pronto:
+  - Testes passando: API com 1034 testes, sem falha e com os 6 da R2 ignorados;
+    cliente com 420; e2e com o fluxo novo nos dois temas.
+  - Lint e formatação limpos.
+  - Três migrations criadas e aplicadas: Conquista, FechamentoDePeriodo e
+    PostDeConquista.
+  - OpenAPI regenerado e cliente sem diferença pendente.
+  - p95 não se aplica: este passo não tem decisão de cache.
+  - Revisão humana em cada etapa.
+
+  Ficou para os passos seguintes:
+  - Passo 10: o texto das notificações conquistaObtida e conquistaRemovida (já
+    gravadas) e a bolinha de Troféus.
+  - Passo 11:
+    - o recálculo do ranking pela conquista concedida ou removida;
+    - herda a regra do semestre do prêmio (Calendario.SemestreDoEvento) e a
+      constante e a leitura do congelamento
+      (InstanciaDePeriodo.DiasAteOCongelamento, com o dia do fim mais 30 já
+      congelado);
+    - a conquista pontua no semestre da sua instância.
+  - Passo 12: conquistas no seed de demonstração, nascidas do worker a partir
+    das medalhas e prêmios semeados. A anulação pela área web enfileira o mesmo
+    recálculo do comando.
+  - Passo 13: acompanhar o risco novo do plano mestre, o tempo do primeiro teste
+    de cada arquivo do Jest no runner.
+
+  Limites aceitos, registrados:
+  - a regra customizada não é disparada por fato nem tem progresso;
+  - o fato depois do fechamento não se reproduz pelo fluxo com o catálogo da
+    fase 1, e o teste isola o mecanismo;
+  - o post de conquista no feed não mostra a instância;
+  - a disputa de recurso entre a suíte local e a pilha do compose de pé.
+
+  Ocorrências de ambiente:
+  - os timeouts do Jest no runner, resolvidos com o limite de 15 s;
+  - a suíte local com a pilha de pé, contornada parando a pilha;
+  - o e2e local de demonstração, que precisa da flag que a CI liga.
+
+  Estado local: a pilha do compose está de pé com o código atual, porque rodei o
+  e2e nela. Para a suíte da API, ela precisa ser parada antes.
+
+  Com o seu ok, commito esta etapa, faço push, acompanho a CI e, com ela verde,
+  abro o PR da feat/passo-09-conquistas para a rodada/eng_09_conquistas. A
+  descrição do PR vai sem rodapé de co-autoria, como manda o CLAUDE.md.
+
+✻ Brewed for 10m 48s · done 22:58
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_09_conquistas-sessao.txt  
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_09_conquistas-sessao.txt
+
+> Etapa 8 aprovada e passo 9 fechado do meu lado. As seis falhas do e2e local   
+  estão explicadas (flag da demonstração e carga paralela) e a CI é a           
+  referência. Commita com a mensagem proposta, push, acompanha a CI e, verde,   
+  abre o PR da feat/passo-09-conquistas para a rodada/eng_09_conquistas e me    
+  manda o link. Pode derrubar a pilha do compose no fim.                        
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Commit fb0e63c enviado. Acompanho a CI até o fim.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+> ,                                                                             
+
+● CI verde nos seis jobs. A mensagem que chegou agora tem só uma vírgula; tomo
+  como envio acidental e sigo com o PR. Vejo o formato do PR do passo 8 para
+  manter o padrão.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Abro o PR no mesmo formato, sem rodapé de co-autoria.
+
+  Made 1 scratchpad edit +45, ran 1 shell command (ctrl+o to expand)
+
+● O GitHub diz que a base não é um branch: provavelmente a
+  rodada/eng_09_conquistas existe só localmente. Confiro.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A rodada/eng_09_conquistas só existe localmente, apontando para 7417ebe, o
+  mesmo commit da main. As rodadas anteriores estão todas no remoto. Publico a
+  rodada sem mudar nada nela e abro o PR.
+
+  Created PR #11 (ctrl+o to expand)
+
+● PR aberto. Derrubo a pilha do compose.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O PR do passo 9 está aberto:
+  https://github.com/GFGimenes/maxx-engenheiro/pull/11
+
+  - Último commit: fb0e63c (docs e e2e) passou nos seis jobs da CI na primeira
+    tentativa.
+  - Base do PR: a rodada/eng_09_conquistas só existia na sua máquina, então a
+    publiquei no GitHub antes de abrir o PR, sem mudar nada nela. Ela aponta
+    para 7417ebe, o mesmo commit da main.
+  - Descrição: segue o formato do PR do passo 8 (o que entra, verificação, o que
+    fica para depois) e não tem rodapé de co-autoria.
+  - Pilha do compose: derrubada. A cópia de trabalho está limpa.
+
+  Recebi uma mensagem sua com só uma vírgula no meio do trabalho. Tratei como
+  envio acidental e segui; se era para dizer algo, me avise.
+
+✻ Brewed for 8m 13s · done 23:09
