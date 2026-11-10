@@ -11,7 +11,7 @@
 > títulos e os rótulos como estão.
 
 - Commit na criação do formulário: `076549bbea15649813d347c2618a4b51377e6bdd` (`main`)
-- Commit que o autor avaliou (o do registro da execução usada): `076549bbea15649813d347c2618a4b51377e6bdd` (`main`, fim do passo 12) para Segurança, Documentação, Código e Arquitetura; `8910b51` (`main` final, fim do passo 13) para Experiência do usuário e Infraestrutura, como o revisor
+- Commit que o autor avaliou (o do registro da execução usada): `8910b51` (`main` final, fim do passo 13); os eixos 2, 4, 5 e 6 foram pontuados em 09/11 sobre `076549b` e conferidos em 10/11 sobre a `main` final, com as mesmas observações, porque os artefatos citados existem nos dois commits
 - Data do preenchimento: 09/11/2026 (eixos 2, 4, 5 e 6) e 10/11/2026 (eixos 1 e 3, depois do ensaio no produto no ar)
 - Preenchido antes de abrir os reviews (sim ou não): sim
 
@@ -128,7 +128,7 @@ decisões rodado sobre os 14 exports (`engenheiro-decisoes.md`), depois de abert
 | Testes e processo | 56 |  |
 | Hospedagem e deploy | 8 |  |
 
-Total: 197 declaradas (silenciosas a contar do revisor de decisões)
+Total: 197
 
 Lista (por rodada; D = declarada, S = silenciosa):
 

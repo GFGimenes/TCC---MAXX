@@ -1,0 +1,136 @@
+{
+  "produto": "engenheiro",
+  "eixo": "arquitetura",
+  "secao": "6. Projeto e arquitetura",
+  "tentativa": 1,
+  "status": "ok",
+  "motivos": [
+    "acessos fora das pastas liberadas: Grep: C:\\Users\\Guilherme Gimenes\\.claude\\projects\\C--Users-Guilherme-Gimenes-AppData-Local-Temp-avaliador-tcc-engenheiro-076549bbea15-20261109-181205-139d-sessao-arquitetura-t1\\cf5ef812-28d6-4686-88b1-9271a8b487e3\\tool-results\\toolu_01Sj3bcqRMdmbbd8cdmunWgP.txt",
+    "validado à mão pelo autor em 10/11/2026: o único acesso fora das pastas liberadas foi ao arquivo tool-results da própria sessão do revisor (saída longa de um Grep que o CLI grava em disco e o modelo relê); nenhum arquivo fora do checkout avaliado foi lido"
+  ],
+  "inicio": "2026-11-09T18:25:31-03:00",
+  "fim": "2026-11-09T18:27:46-03:00",
+  "duracao_s": 135,
+  "repo": "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-engenheiro",
+  "ref": "main",
+  "hash_avaliado": "076549bbea15649813d347c2618a4b51377e6bdd",
+  "modelo_pedido": "claude-opus-5-5",
+  "modelo_usado": "claude-opus-5-5",
+  "esforco_pedido": "medium",
+  "esforco_usado": "medium",
+  "versao_cli": "2.1.316 (Claude Code)",
+  "versao_cli_sessao": "2.1.316",
+  "sessao_id": "cf5ef812-28d6-4686-88b1-9271a8b487e3",
+  "tokens": {
+    "entrada": 32,
+    "saida": 13778,
+    "cache_criacao": 118379,
+    "cache_leitura": 1260353
+  },
+  "custo_usd": 1.4747905999999997,
+  "turnos": 34,
+  "hash_rubrica": "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+  "hash_especificacao": "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+  "hash_prompt": "c75a7e47941ec09c71bbe84ec89cfb825d084dab48b0a1c2aadfdd76edfb9eee",
+  "encaixe": {
+    "presente": null,
+    "arquivo": null,
+    "hash": null,
+    "aviso": null
+  },
+  "ferramentas_sessao": [
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "acessos_fora": [
+    "Grep: C:\\Users\\Guilherme Gimenes\\.claude\\projects\\C--Users-Guilherme-Gimenes-AppData-Local-Temp-avaliador-tcc-engenheiro-076549bbea15-20261109-181205-139d-sessao-arquitetura-t1\\cf5ef812-28d6-4686-88b1-9271a8b487e3\\tool-results\\toolu_01Sj3bcqRMdmbbd8cdmunWgP.txt"
+  ],
+  "instrucoes_carregadas": [],
+  "chamadas_ferramenta": 33,
+  "nota": 5,
+  "justificativa": "O backend tem quatro camadas (Domain, Application, Infrastructure, Api) e a direção das dependências é garantida por teste de arquitetura. As regras de produto ficam no domínio e no catálogo versionado: faixas de tier num ponto só, concessão de medalha com papéis, ex-aluno, período, curso e limite em Medalha.Conceder, e conquistas declarativas com avaliador único. Os endpoints são finos e os handlers orquestram. O modelo de dados representa tiers, períodos (bimestre, semestre, ano, curso), papéis em flags, turma e matrícula, e tier e pontos congelados na concessão. As decisões estão em ADRs com alternativas, pesos e consequências, e a escalabilidade foi pensada para o campus todo (ranking pré-calculado por worker, fotos fora da API, fila no Postgres). O produto cobre as seis telas e as regras centrais do pitch. Os pontos fracos são menores: validação de formato repetida no cliente (declarada), Api referenciando Infrastructure só para registrar dependências, seeders grandes e algumas regras da ideia reinterpretadas de forma documentada.",
+  "evidencias": [
+    {
+      "local": "apps/api/tests/Maxx.Architecture.Tests/LayerDependencyTests.cs:10-40",
+      "descricao": "Teste que garante a direção das dependências entre camadas"
+    },
+    {
+      "local": "apps/api/src/Maxx.Domain/Catalogo/Tier.cs:19-28",
+      "descricao": "Faixas Bronze 1-30, Prata 31-70, Ouro 71-100, Diamante 101-150 num ponto único"
+    },
+    {
+      "local": "apps/api/src/Maxx.Domain/Premios/Medalha.cs:119-171",
+      "descricao": "Regras de concessão no domínio: só professor concede, só aluno recebe, ex-aluno recusado, período, curso, limite por período"
+    },
+    {
+      "local": "apps/api/src/Maxx.Application/Medalhas/ConcederMedalhaHandler.cs:51-54",
+      "descricao": "Escopo de turma do professor conferido no banco, não lido do token"
+    },
+    {
+      "local": "apps/api/src/Maxx.Application/Medalhas/ConcederMedalhaHandler.cs:84-88",
+      "descricao": "Medalha, notificação, reavaliação de conquistas e recálculo de ranking na mesma transação"
+    },
+    {
+      "local": "apps/api/src/Maxx.Api/Medalhas/ProfessorEndpoints.cs:81-90",
+      "descricao": "Endpoint fino, sem regra de negócio, delegando ao handler"
+    },
+    {
+      "local": "apps/api/src/Maxx.Domain/Ranking/Classificacao.cs:36-90",
+      "descricao": "Quatro visões de ranking e desempate determinístico como função pura do domínio"
+    },
+    {
+      "local": "apps/api/src/Maxx.Domain/Catalogo/CatalogoValidator.cs:88-91",
+      "descricao": "Validação do catálogo reusa as faixas de tier, sem duplicar"
+    },
+    {
+      "local": "docs/decisoes/0004-motor-de-conquistas-declarativo.md",
+      "descricao": "Conquistas como dado declarativo, com alternativas pesadas e consequências negativas"
+    },
+    {
+      "local": "docs/decisoes/0005-ranking-por-worker.md",
+      "descricao": "Escalabilidade do ranking pensada para 3.200 alunos e p95 de 300 ms, com tabela escrita por worker"
+    },
+    {
+      "local": "apps/mobile/src/cadastro/regras.ts:1-2",
+      "descricao": "Duplicação declarada de validação de formato no cliente; a API decide"
+    },
+    {
+      "local": "apps/mobile/src/mural/MuralScreen.tsx:29-35",
+      "descricao": "Chips Faculdade, Curso, Professores; Professores corresponde ao escopo turma"
+    },
+    {
+      "local": "docs/produto.md:266-268",
+      "descricao": "A regra de progressão para o tier acima foi substituída de propósito"
+    }
+  ],
+  "regras_ausentes": [
+    "Progressão: a mesma conquista repetida rende um prêmio do tier acima até o Diamante (substituída por conquistas repetíveis por período e trilhas de família)",
+    "Denúncia de post pelo usuário (adiada para a fase 2; só a instituição remove e só professor ou instituição contestam)",
+    "Professor dar medalha a aluno que orienta sem ter turma em comum (escopo sempre por turma)",
+    "Perfil com o último troféu em destaque e com 'followed by xxxx e yyyy'",
+    "Mural com semi-colapso do mais recente e troca de foco ao clicar (simplificado para não lido aberto e lido recolhido)",
+    "Restrição de cadastro por domínio de e-mail institucional (lista de domínios pendente para o passo 13)"
+  ],
+  "decisoes_do_agente": [
+    "Separar o backend em quatro projetos (Domain, Application, Infrastructure, Api), com fatias por recurso e teste automatizado de arquitetura",
+    "Separar Medalha, PremioParticipacao e Conquista no modelo, com Troféu só como rótulo de interface",
+    "Guardar as regras de conquista como dado declarativo em JSON, com avaliador único (ADR 0004)",
+    "Pré-calcular ranking e raridade numa tabela escrita por worker, com coalescência (ADR 0005)",
+    "Usar fila em tabela do Postgres com SKIP LOCKED, sem broker (ADR 0008)",
+    "Congelar tier, pontos e versão do item na concessão (ADR 0007)",
+    "Calcular a raridade a partir da escassez, no lugar de encontrabilidade como campo do catálogo",
+    "Ligar o ranking ao semestre letivo, congelá-lo 30 dias depois do fim e desempatar pelo instante da última concessão",
+    "Criar o ciclo de vida do prêmio de participação com janela de contestação de 15 dias e estado de averiguação",
+    "Gerar o contrato OpenAPI e o cliente TypeScript",
+    "Criar modo de demonstração com flag, lote e purga",
+    "Montar a área web da instituição dentro do mesmo app, em /instituicao"
+  ],
+  "nao_verificado": [
+    "Se a solução compila e se os testes de arquitetura, domínio e integração passam",
+    "Se o worker recalcula ranking e raridade e se a coalescência funciona em execução",
+    "Desempenho com 2.000 usuários e p95 de 300 ms (k6 pendente no passo 13)",
+    "Se as migrations aplicam e se o modelo físico confere com as entidades",
+    "Se as telas correspondem aos mockups e pranchetas (imagens não abertas)"
+  ]
+}
