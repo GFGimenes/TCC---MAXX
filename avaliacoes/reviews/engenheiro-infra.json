@@ -1,0 +1,209 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "infra",
+    "secao":  "3. Infraestrutura",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-10T17:18:55-03:00",
+    "fim":  "2026-11-10T17:21:12-03:00",
+    "duracao_s":  138,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\maxx-engenheiro",
+    "ref":  "main",
+    "hash_avaliado":  "8910b51ae7b0ca10582517ead72ee832746683a3",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "10a26f9f-ba9b-4b7e-8fe7-9a0270d62f41",
+    "tokens":  {
+                   "entrada":  20,
+                   "saida":  14755,
+                   "cache_criacao":  102776,
+                   "cache_leitura":  512958
+               },
+    "custo_usd":  1.2199796,
+    "turnos":  31,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "c7851758faed29d5c0a3fff18279502f958fc104bbb1b09e48841a8178f48946",
+    "encaixe":  {
+                    "presente":  false,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  "Sem relatório de carga em C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\avaliacoes\\carga para \u0027engenheiro-*\u0027. O eixo Infraestrutura segue sem ele."
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  30,
+    "nota":  4,
+    "justificativa":  "Cumpre integralmente o nível 4 e boa parte do 5. Deploy reproduzível com contêineres: imagens publicadas no GHCR pela CI só depois que os seis jobs passam, docker-compose.producao.yml separado do local e infra/deploy.sh que confere o .env, faz dump antes da migration, sobe e espera o /api/ready. Configuração toda por variável de ambiente com ${VAR:?}, validada na CI. Postgres em contêiner e volume próprios, com migrator separado e advisory lock. Backup noturno e antes de cada migration, validado com pg_restore --list e com script de prova de restauração. Do nível 5 já há API sem estado com duas réplicas atrás do Caddy, fotos fora da API (PUT pré-assinado ao R2 e leitura pela CDN), fila no Postgres consumida por worker separado, health e readiness, saúde do worker com monitor externo e teto de log. Não chega a 5 porque falta redundância onde mais importa: VPS única, Postgres único sem réplica e backup no mesmo disco, o que a própria documentação admite. O teste de carga foi reduzido (50 usuários virtuais, seed de 150 alunos), o cenário de 2.000 usuários ficou pendente e não há relatório do avaliador. Também restam domínio fixo nos scripts, a aplicação usando o superusuário do Postgres, limite de taxa por réplica em memória, ausência de healthcheck da API e do worker no compose e observabilidade limitada a logs e health checks, sem métricas.",
+    "evidencias":  [
+                       {
+                           "local":  "docker-compose.producao.yml:13-14",
+                           "descricao":  "Imagem da API vem do GHCR com a tag em MAXX_IMAGEM_TAG obrigatória; não há build na VPS."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:26-36",
+                           "descricao":  "Conexão do banco e credenciais do R2 exigidas por ${VAR:?defina no .env}; faltando uma, a pilha não sobe."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:39-53",
+                           "descricao":  "Postgres 18 em contêiner próprio com volume, healthcheck e restart unless-stopped."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:55-64",
+                           "descricao":  "Contêiner migrator separado, que roda antes das réplicas."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Infrastructure/Persistence/DatabaseMigrator.cs:25",
+                           "descricao":  "Migration protegida por pg_advisory_lock."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:78-93",
+                           "descricao":  "Duas réplicas de API sem estado, descritas como resiliência de deploy e não capacidade."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:95-112",
+                           "descricao":  "Worker separado com uma réplica e SMTP só nele."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:16-22",
+                           "descricao":  "Log de cada contêiner limitado a 5 arquivos de 10 MB."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:114-143",
+                           "descricao":  "Caddy com HTTPS automático e volumes de certificado; só as portas 80 e 443 publicadas; sub-rede fixa e Postgres e API apenas na rede interna."
+                       },
+                       {
+                           "local":  "infra/caddy/Caddyfile:31-43",
+                           "descricao":  "Proxy com descoberta dinâmica das réplicas, round robin e lb_try_duration para tentar outra réplica em caso de falha."
+                       },
+                       {
+                           "local":  "apps/api/Dockerfile:6-34",
+                           "descricao":  "Build multi-stage, apt-get upgrade na imagem final, usuário sem privilégio e uma única imagem para API, migrate, seed e worker."
+                       },
+                       {
+                           "local":  ".github/workflows/ci.yml:81-136",
+                           "descricao":  "Job e2e sobe o compose completo na CI e roda o Playwright: prova automatizada de que a pilha sobe fora da máquina do autor."
+                       },
+                       {
+                           "local":  ".github/workflows/ci.yml:178-182",
+                           "descricao":  "CI valida o compose de produção com valor falso para cada nome do .env.producao.example."
+                       },
+                       {
+                           "local":  ".github/workflows/ci.yml:193-207",
+                           "descricao":  "Trivy nas imagens da API e do Caddy, com corte em achado alto ou crítico."
+                       },
+                       {
+                           "local":  ".github/workflows/ci.yml:213-244",
+                           "descricao":  "Job publicar envia as imagens ao GHCR com as tags sha e latest, só depois que os seis jobs passam."
+                       },
+                       {
+                           "local":  "infra/deploy.sh:17-49",
+                           "descricao":  "Deploy por sha: baixa compose e scripts no mesmo commit, valida o .env, troca a tag, faz pull, dump antes da migration, up -d e espera o /api/ready."
+                       },
+                       {
+                           "local":  "infra/deploy.sh:46-49",
+                           "descricao":  "URL de produção fixa no script (app.maxx-unimax.com): configuração misturada com código."
+                       },
+                       {
+                           "local":  "carga/rodar.sh:39",
+                           "descricao":  "Domínio de produção também fixo no script de carga."
+                       },
+                       {
+                           "local":  "infra/backup/backup.sh:14-30",
+                           "descricao":  "pg_dump -Fc gravado como .parcial, validado com pg_restore --list, permissão 700 e rotação de 14 dias."
+                       },
+                       {
+                           "local":  "infra/backup/restaurar-teste.sh:17-46",
+                           "descricao":  "Restaura em Postgres descartável e compara a contagem de linhas de cada tabela com a produção."
+                       },
+                       {
+                           "local":  "docs/operacao.md:171-176",
+                           "descricao":  "Admite que o backup fica no disco da VPS e não sobrevive à perda dele."
+                       },
+                       {
+                           "local":  "docs/operacao.md:200-213",
+                           "descricao":  "Roteiro de restauração real e de rollback de versão."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Api/Health/HealthEndpoints.cs:12-26",
+                           "descricao":  "Endpoints /api/health (liveness), /api/ready (banco) e /api/health/worker (503 com a lista de problemas)."
+                       },
+                       {
+                           "local":  "docs/operacao.md:148-159",
+                           "descricao":  "Monitor externo UptimeRobot a cada 5 minutos, com tabela de problemas e ação correspondente."
+                       },
+                       {
+                           "local":  "carga/leitura.js:38-64",
+                           "descricao":  "Teste k6 versionado com limite de p95 \u003c 300 ms por rota."
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:883-895",
+                           "descricao":  "Carga reduzida declarada: 50 usuários virtuais por 2 minutos, 9.488 pedidos, 0 falha, p95 geral de 43 ms; cenário de 2.000 usuários pendente."
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:807",
+                           "descricao":  "API e worker usam o superusuário do Postgres; papel com menos privilégio pendente."
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:55",
+                           "descricao":  "Limite de taxa em memória, por réplica, sem estado compartilhado."
+                       },
+                       {
+                           "local":  "docker-compose.producao.yml:79-93",
+                           "descricao":  "Serviços api e worker sem healthcheck no compose; o caddy usa depends_on simples."
+                       },
+                       {
+                           "local":  "README.md:1",
+                           "descricao":  "README raiz tem só o título; as instruções de execução estão no cabeçalho do docker-compose.yml e em docs/operacao.md."
+                       }
+                   ],
+    "regras_ausentes":  [
+
+                        ],
+    "decisoes_do_agente":  [
+                               "Hospedar em uma única VPS Hetzner CX23 com Docker Compose, sem orquestrador",
+                               "Usar Caddy como borda com HTTPS automático, HSTS só em HTTPS, CSP montada por variáveis e balanceamento dinâmico das réplicas",
+                               "Separar o compose local do de produção, com docker-compose.demo.yml sobreposto para a demonstração",
+                               "Publicar as imagens como públicas no GHCR pela CI, com --provenance=false",
+                               "Criar o deploy por script (infra/deploy.sh) que baixa a si mesmo do repositório pelo sha",
+                               "Rodar duas réplicas de API como resiliência de deploy e uma réplica de worker",
+                               "Fazer a fila no Postgres com SKIP LOCKED, sem Redis nem broker",
+                               "Rodar a migration em contêiner separado com advisory lock, nunca no startup",
+                               "Guardar as fotos no Cloudflare R2 com PUT pré-assinado e CDN, com VersityGW como emulador local e na CI",
+                               "Usar sub-rede fixa no compose para confiar no X-Forwarded-For só vindo do Caddy",
+                               "Fazer backup local com pg_dump, timer do systemd, rotação de 14 dias e script de prova de restauração, deixando o backup externo como pendência",
+                               "Criar batimento do worker em tabela, endpoint /api/health/worker e monitor externo UptimeRobot",
+                               "Limitar o log a 10 MB x 5 arquivos por contêiner",
+                               "Adicionar Trivy com exceções que expiram, gitleaks no histórico completo e auditoria de NuGet e npm na CI",
+                               "Rodar a carga reduzida (50 usuários virtuais por 2 minutos) assinando os tokens na VPS com a chave de produção",
+                               "Manter o superusuário do Postgres para a aplicação",
+                               "Aplicar o limite de taxa por réplica, sem estado compartilhado",
+                               "Fazer apt-get upgrade na imagem final da API"
+                           ],
+    "nao_verificado":  [
+                           "Se as imagens compilam e se docker compose up --build sobe de fato",
+                           "Se a URL https://app.maxx-unimax.com está no ar com certificado válido",
+                           "Se a CI está verde no commit avaliado e se as imagens sha-8910b51 existem no GHCR",
+                           "Os números do teste de carga, que são autodeclarados; não há relatório de teste de carga do avaliador para este produto",
+                           "Se o timer de backup está instalado na VPS e se os dumps existem",
+                           "Se o monitor UptimeRobot existe e dispara alertas",
+                           "O comportamento real do failover entre réplicas no Caddy",
+                           "O resultado declarado da prova de restauração (46 tabelas iguais)"
+                       ]
+}

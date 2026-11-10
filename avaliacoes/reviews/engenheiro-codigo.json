@@ -1,0 +1,148 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "codigo",
+    "secao":  "5. Código",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-10T17:22:58-03:00",
+    "fim":  "2026-11-10T17:25:05-03:00",
+    "duracao_s":  126,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\maxx-engenheiro",
+    "ref":  "main",
+    "hash_avaliado":  "8910b51ae7b0ca10582517ead72ee832746683a3",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "6592d385-04d7-4a82-82c9-b9a0a91d3899",
+    "tokens":  {
+                   "entrada":  30,
+                   "saida":  12715,
+                   "cache_criacao":  124599,
+                   "cache_leitura":  1127849
+               },
+    "custo_usd":  1.4767818,
+    "turnos":  34,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "fbda876296368aca6d16de69d2cbc7d2a8d547c135cd245dcb753dd9983b54cc",
+    "encaixe":  {
+                    "presente":  false,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  "Sem testes de referência (C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\avaliacoes\\reviews\\engenheiro-testes-referencia.md). O eixo Código segue sem eles."
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  33,
+    "nota":  5,
+    "justificativa":  "Faixas de tier centralizadas em Tiers.Faixa (Bronze 1-30, Prata 31-70, Ouro 71-100, Diamante 101-150) e testadas exatamente nas fronteiras 30/31, 70/71, 100/101, 150/151. Pontos sempre vêm do catálogo, nunca do pedido. O ranking ordena por pontos com desempate determinístico e tem 10 testes de domínio. Entradas inválidas viram recusas tipadas e códigos de erro, com testes de integração para 400/403/404/409 e concorrência. Cerca de 970 testes .NET (domínio, arquitetura, integração com Postgres real) e 49 arquivos de teste no mobile, tudo rodando na CI com build que trata aviso como erro, format, lint, typecheck e e2e. Padrões aplicados com propósito (camadas verificadas por teste, resultado tipado, catálogo validado, fila, extensão por regra customizada). Pontos menores: helper UsuarioId e leitura do claim sub repetidos nos endpoints, Nome\u003cT\u003e usado entre endpoints e duplicando NomeJson.De, sobrecargas acumuladas em PublicarPostHandler. Sem resultado da suíte de referência; nota dada só pela leitura, sem compilar nem rodar.",
+    "evidencias":  [
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Catalogo/Tier.cs:21",
+                           "descricao":  "Faixas de pontos por tier num único switch, com limites inclusivos (linha 14)."
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Domain.Tests/Catalogo/CatalogoValidatorTests.cs:65",
+                           "descricao":  "Theory com as fronteiras 0/31/30/71/70/101/100/151 recusadas e 1/30/31/70/71/100/101/150 aceitas."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Catalogo/CatalogoValidator.cs:88",
+                           "descricao":  "O validador recusa item com pontos fora da faixa do tier e exige pontos crescentes na família (progressão), linhas 376-385."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Ranking/Classificacao.cs:86",
+                           "descricao":  "Ordenação do ranking por pontos decrescentes, depois última concessão, depois id do aluno."
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Domain.Tests/Ranking/ClassificacaoTests.cs:29",
+                           "descricao":  "10 testes de ordenação, desempate, ex-aluno, semestre x histórico e curso."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Premios/Medalha.cs:90",
+                           "descricao":  "Concessão com validações de papel, ex-aluno, período, vigência, curso e limite, devolvendo recusa tipada."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Api/Medalhas/ProfessorEndpoints.cs:113",
+                           "descricao":  "Pedido traz só o código do item, com Required e StringLength; tier e pontos vêm do catálogo."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Application/Medalhas/ConcederMedalhaHandler.cs:31",
+                           "descricao":  "Corrida de concessões tratada por índice único com uma nova tentativa."
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Api.IntegrationTests/Social/PostTests.cs:95",
+                           "descricao":  "Testes de entrada inválida (post vazio, legenda longa = 400), foto alheia e concorrência (linhas 119, 165, 183)."
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Api.IntegrationTests/Medalhas/ConcessaoDeMedalhaTests.cs:136",
+                           "descricao":  "Concessões simultâneas, escopo de turma, aluno em rota de professor e ex-aluno testados."
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Architecture.Tests/LayerDependencyTests.cs:8",
+                           "descricao":  "Testes que verificam a direção das dependências entre camadas."
+                       },
+                       {
+                           "local":  ".github/workflows/ci.yml:26",
+                           "descricao":  "CI com format, build Release, testes de domínio, arquitetura e integração, lint, typecheck e testes do mobile, cliente OpenAPI e e2e Playwright."
+                       },
+                       {
+                           "local":  "Directory.Build.props:7",
+                           "descricao":  "TreatWarningsAsErrors, AnalysisLevel latest-recommended e EnforceCodeStyleInBuild."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Api/Medalhas/ProfessorEndpoints.cs:93",
+                           "descricao":  "Duplicação menor: UsuarioId(ClaimsPrincipal) idêntico em Fotos/UploadEndpoints.cs:46 e leitura do claim sub repetida em EuEndpoints.cs:26, PremiosEndpoints.cs:27, EventoEndpoints.cs:83 e PostEndpoints.cs:83."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Api/Medalhas/ProfessorEndpoints.cs:98",
+                           "descricao":  "Nome\u003cT\u003e usado como helper por outros arquivos e duplicando NomeJson.De (Infrastructure/Seed/NomeJson.cs:12)."
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Application/Posts/Posts.cs:103",
+                           "descricao":  "Três sobrecargas de PublicarAsync acumulando ids anuláveis e exclusivos; checagem de prêmio já postado inconsistente entre os tipos (linhas 160-163)."
+                       },
+                       {
+                           "local":  "apps/mobile/src/feed/FeedScreen.tsx:91",
+                           "descricao":  "Tela enxuta com carregamento, erro e vazio via componentes compartilhados; o mobile tem 49 arquivos de teste."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Vinculação da conta via portal da instituição (SSO/OIDC): o cadastro usa e-mail institucional ou RA conferido contra lista de elegíveis, sem integração com portal."
+                        ],
+    "decisoes_do_agente":  [
+                               "Faixa de tier como value object FaixaDePontos, com tier e pontos congelados na concessão (ADR 0007).",
+                               "Catálogo de prêmios como dado JSON, com CatalogoValidator rodando na CI e antes do seed (ADR 0004).",
+                               "Recusas de domínio como enum e resultado tipado, convertidas em RecusaException com código de erro na aplicação.",
+                               "Desempate do ranking por instante da última concessão e depois por id do aluno, para posição estável.",
+                               "Concorrência resolvida por índice único com uma nova tentativa (medalha) e por xmin (upload).",
+                               "Testes de arquitetura verificando a direção de dependência entre camadas.",
+                               "Testes de integração contra Postgres real em vez de banco em memória.",
+                               "Build com TreatWarningsAsErrors, AnalysisLevel latest-recommended e dotnet format verificado na CI.",
+                               "Cliente TypeScript gerado do OpenAPI e conferido na CI.",
+                               "Suíte e2e Playwright sobre docker compose, nos modos com e sem demonstração.",
+                               "Raridade (encontrabilidade) calculada a partir da escassez, em inteiros e sem arredondamento.",
+                               "Ponto de extensão IRegraCustomizada registrado por nome para conquistas com regra em C#."
+                           ],
+    "nao_verificado":  [
+                           "Se a solução compila e se a CI está verde neste commit.",
+                           "Se os cerca de 970 testes .NET, os testes do mobile e os e2e passam.",
+                           "Suíte de testes de referência (fronteiras, entradas inválidas, ordenação do ranking): resultado não fornecido.",
+                           "Cobertura de testes em porcentagem.",
+                           "Comportamento em execução da API e do app mobile."
+                       ]
+}

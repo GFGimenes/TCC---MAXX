@@ -1,0 +1,673 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (eng_00)",
+    "export_id":  "eng_00",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\engenheiro\\eng_00-sessao.txt",
+    "hash_export":  "b8df8b65a2442a0cea0a1383944d6a2af4710468b5fbdce0938cab9650871d18",
+    "linhas_export":  4194,
+    "linhas_lidas":  4194,
+    "leituras_export":  1,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "a conferir",
+    "motivos":  [
+                    "bloco JSON inconsistente: contagem.declaradas = 30, mas as listas dão 29; contagem.silenciosas = 4, mas as listas dão 5; contagem.duvidosas = 9, mas as listas dão 8"
+                ],
+    "inicio":  "2026-11-09T18:27:46-03:00",
+    "fim":  "2026-11-09T18:30:29-03:00",
+    "duracao_s":  163,
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "44d91123-bf25-4cfd-a8a6-9547545c7630",
+    "tokens":  {
+                   "entrada":  6,
+                   "saida":  18696,
+                   "cache_criacao":  118527,
+                   "cache_leitura":  22619
+               },
+    "custo_usd":  1.3266837999999999,
+    "turnos":  4,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "d34ea29f9a51c7b4df1ab8e90f84ff47244a0d618541b8b3b80c4b3a8b7035a5",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  3,
+    "decisoes":  [
+                     {
+                         "descricao":  "Datas guardadas em UTC (timestamptz), com fronteiras de bimestre, semestre e ano interpretadas em America/Sao_Paulo",
+                         "trecho":  "Tudo timestamptz em UTC, com as fronteiras de bimestre e semestre interpretadas em America/Sao_Paulo.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Modelo de dados inicial: CadastroElegivel separado de Aluno, UsuarioPapel, ConquistaEvidencia, AuditoriaPremio, UploadPendente, RefreshToken com família, Trabalho com SKIP LOCKED, índices únicos que carregam regra e UPDATE condicional para \u0027quem aprova primeiro vale\u0027",
+                         "trecho":  "CadastroElegivel(ra, email, curso) ... Ela é separada de Aluno de propósito: existir na base não é ter conta.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Composição do seed de demonstração: 1 turma por curso com 4 matérias, 1 professor por turma, histórico de 2 semestres, ~25 posts, 6 avisos, 3 eventos passados e 2 futuros, 2 comprovações pendentes e 1 contestação aberta",
+                         "trecho":  "3 cursos de demonstração, 1 turma por curso com 4 matérias cada, 1 professor por turma",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Pipeline de CI: jobs api, mobile, api-client, e2e e seguranca; tudo roda em PR e o merge na main gera a imagem; checagem de migration pendente; cliente regenerado com falha em caso de diferença",
+                         "trecho":  "Em PR, tudo; em merge na main, mais o build da imagem.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Biblioteca Isopoh para o hash Argon2id",
+                         "trecho":  "Módulo próprio (tabela de usuários, Argon2id via Isopoh, JWT curto",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Ex-alunos excluídos do numerador e do divisor da raridade na primeira versão de produto.md, sem perguntar; a persona corrigiu depois",
+                         "trecho":  "Ex-alunos não entram em nenhum dos dois lados.",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Termo de uso versionado no cadastro",
+                         "trecho":  "cadastro e login contra a base de elegíveis · termo de uso versionado",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Regra de processo gravada nos documentos: decisão que não está nos arquivos não foi tomada e deve ser perguntada",
+                         "trecho":  "Decisão que não está aqui não foi tomada: pergunte antes de",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Esquema dos JSON do catálogo com campos não combinados, como versao, observacao, base, regraDeDeduplicacao e vigencia",
+                         "trecho":  "\"versao\": 1, \"tipo\": \"medalha\", \"observacao\":",
+                         "tipo":  "modelo de dados",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Nomes curtos e descrições dos itens de medalha e prêmio escritos pelo agente (ex.: \u0027Melhor nota da turma\u0027, \u0027Pontualidade\u0027)",
+                         "trecho":  "\"descricao\": \"Tirar 10 em uma prova da matéria.\"",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Repetibilidade das medalhas com limitePorPeriodo por item (M06 até 3, M07 até 2, M08 até 2, M09 até 4); a persona alterou depois",
+                         "trecho":  "Repetível com limite declarado por item (o que escrevi)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "tipoDeEvento definido no item do catálogo, e não no evento, com a lista de tipos",
+                         "trecho":  "Coloquei o tipo no item (palestra, visitaTecnica, extensao, ...) em vez de no evento",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Campo formaDoEvento (pontual ou periodo)",
+                         "trecho":  "formaDoEvento. pontual ou periodo, para distinguir o que é um dia do que é um semestre inteiro",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Apresentação em sala com código P17 no fim da sequência, sem renumerar; ordem de exibição por tier e pontos",
+                         "trecho":  "Preferi não renumerar para não quebrar o vocabulário",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "M05 (evolução de nota) atribuída ao bimestre mais recente",
+                         "trecho":  "M05 (evolução de nota) compara dois bimestres mas é atribuída ao bimestre mais recente",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Validação dos arquivos de catálogo e de documentação por scripts Node (faixas de tier, códigos únicos, links, travessões)",
+                         "trecho":  "Validei por script: JSON íntegro, códigos únicos",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Avaliador de conquistas reduzido a duas formas de contagem em vez das três combinadas",
+                         "trecho":  "as três formas previstas colapsaram em duas",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Esquema da regra declarativa {forma, fonte, filtroItens, agruparPor, alvo}, com alvo dinâmico \u0027todasAsMatriculasDoPeriodo\u0027",
+                         "trecho":  "regra: { forma, fonte, filtroItens, agruparPor, alvo }",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Nomes de exibição das 18 conquistas inventados pelo agente",
+                         "trecho":  "Inventei os 18 nomes curtos (\"Primeiros passos\", ...)",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "C14 com alvo literal 4 em vez de alvo dinâmico",
+                         "trecho":  "Usei o literal 4 (\"os quatro bimestres do ano\") em vez de um alvo dinâmico",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Oito famílias de trilha em vez das sete planejadas, com presença dividida em duas e 19 itens sem trilha",
+                         "trecho":  "Oito famílias, cobrindo 27 dos 46 itens.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Arquivo familias.json com o campo \u0027passos\u0027 redundante, usado pelo validador",
+                         "trecho":  "Mantive o campo passos na família como redundância deliberada",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Formato dos ADRs (status \u0027aceito · 01/11/2026\u0027, opções com peso), escolha dos ADRs sem diagrama e índice agrupado em cinco grupos",
+                         "trecho":  "Deixei sem diagrama os dois ADRs em que um desenho não acrescentaria nada",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Travessão dos títulos dos ADRs trocado por \u0027·\u0027, fora das opções que a persona deu (vírgula, dois pontos ou parênteses)",
+                         "trecho":  "# ADR 0001 · Origem única",
+                         "tipo":  "testes e processo",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Reordenação dos passos 6 a 9 do plano mestre já aprovado (posts antes de prêmios de participação)",
+                         "trecho":  "Inverti os dois passos.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Esquema incremental (uma migration por passo) e fila/worker no passo 6, escritos no plano antes da aprovação",
+                         "trecho":  "O esquema cresce por passo. Cada passo traz a sua migration",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Plano mestre com grafo de dependências em Mermaid, tabela de riscos e pendências declaradas entre passos",
+                         "trecho":  "grafo de dependências em Mermaid, os 13 passos com entrega verificável, backlog de fase 2 e tabela de riscos",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Identificadores de código sem acento e sem cedilha",
+                         "trecho":  "Identificadores sem acento e sem cedilha. Premio, Materia, Contestacao",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "snake_case no Postgres mapeado do PascalCase do C#",
+                         "trecho":  "snake_case no Postgres, PascalCase no C#.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Glossário com proibição de Award, Prize, Badge, Reward e Trophy no código",
+                         "trecho":  "escrevi que Award, Prize, Badge, Reward e Trophy não existem no código",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Rodapé Co-Authored-By nos commits e como convenção no CLAUDE.md, antes de perguntar",
+                         "trecho":  "Commits de agente terminam com o rodapé `Co-Authored-By:` do modelo que os escreveu.",
+                         "tipo":  "testes e processo",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "CLAUDE.md sem regras de produto, apontando para docs/produto.md",
+                         "trecho":  "O que ele deliberadamente não tem: regra de produto.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Proibição explícita no CLAUDE.md de rodapé de co-autoria e de menção à ferramenta em commit e PR, além da remoção pedida",
+                         "trecho":  "Removo a linha, troco por uma proibição explícita",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Commits reescritos com git filter-branch em vez do rebase interativo pedido",
+                         "trecho":  "git filter-branch com filtro de mensagem, já que rebase interativo não roda neste ambiente",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "Fonte da verdade acadêmica: quem garante RA, curso, semestre, turmas e professores?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Pontos: valor fixo por item ou escolhido por quem concede? Quem escolhe o tier da medalha?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Progressão soma ou substitui? O que acontece depois do Diamante?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Estados do prêmio: pendente conta? Comprovação reprovada mata o prêmio? Quem vence se professor e instituição divergirem?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Assiduidade e eventos na fase 1: lançamento manual, foto ou só seed?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Console da instituição e telas do professor entram na fase 1?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Dois sentidos de semestre: qual é o calendário e o que acontece na virada?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Feed sem conteúdo: existe descoberta? Seguir exige aprovação?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Autenticação: contas da instituição, domínios, senha e recuperação, papéis múltiplos, ex-aluno",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Posts: foto obrigatória? Legenda, curtidas, comentários, comprovação pública, moderação?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Visibilidade de perfil, \u0027em averiguação\u0027 e prêmio revogado; o aluno pode sair do ranking?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Contestação: prazos, recontestação, efeito na progressão, revogação pelo professor?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Medalhas: existe cota? Vale para turma de semestre passado?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Avisos: escopos, anexo, fixação, expiração, notificação, comentários?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Rankings: desempate, top N, ex-aluno, troca de curso?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Catálogo \u0027o que falta\u0027: critérios, prêmio secreto, por curso, vigência?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Demo: como se acessa, lembrança local, rankings, concessão ao vivo, contas reais, expurgo?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Notificações existem? Só pt-BR?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Confirme que motivo e parecer são registro e não caixa de entrada",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Quem decide quando professor e instituição divergem na validação?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Instituição é um papel só ou dois (coordenação e secretaria)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Domínio de e-mail de professor e instituição",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O que o seed carrega por aluno e o que o cadastro confere",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Medalha concedida por engano: anulação pela instituição?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Ocorrência repetida do mesmo prêmio de participação: amarrar a evento?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Quem é \u0027professor da turma\u0027 para aprovar e contestar?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Prazo da instituição para decidir a contestação",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Fim da janela quando houve contestação; uma contestação por prêmio?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Destino do post quando a comprovação é reprovada ou revogada",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Conteúdo mínimo de um post",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "A medalha registra matéria e bimestre? A matrícula por matéria entra no seed?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Conquista que só fecha depois do período: em que semestre pontua?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "A palavra \u0027troféu\u0027 e o que a instituição concede",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Navegação do professor até o aluno (lista de turmas)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Professor e instituição no social",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Ex-aluno: até onde vai o \u0027não posta\u0027",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Comentários: quem pode e quem remove",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Aviso de turma: uma turma ou várias?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Catálogo de outro aluno: faltantes e progresso visíveis?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Confirmações sobre a demo (rankings, posts da banca, curtidas, contas semeadas)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Troca de curso: o histórico do curso antigo perde o aluno?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Valor canônico da medalha de nota 10",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "\u0027Diamante baixo\u0027 é sub-tier?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "E-mail errado sem verificação: validar e permitir correção pela instituição?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Medalha é sempre concessão humana?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Medalhas discricionárias M12–M14 entram ou saem?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Medalha acima de Bronze (M10, M11) é aceitável?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Evento precisa de data de início e fim?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Conquista pode contar conquista?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Ranking semestral congela 30 dias depois?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Assumir sem normalizar o desequilíbrio estrutural dos rankings?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Dedupe de evento em texto livre",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O que mostra o perfil do professor? Ele tem feed?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "M13 cai ou vira prêmio de participação?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Dedupe da apresentação em sala por item + data + matéria?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Pode reenviar a parte técnica, ou devo localizar o design sozinho?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O que é a raridade do design?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Destino da trilha de progressão com cadeado",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Navegação: onde fica Rankings e o que a Busca faz?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Ações \u0027enviar\u0027 e \u0027salvar\u0027 do post",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Onde fica o sininho?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O que é editável no \u0027editar perfil\u0027?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Foto de perfil para aluno e professor?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Opções técnicas com pesos (origem, storage, leitura de fotos, miniaturas, motor, snapshot, ranking, auth, cliente, testes, camadas, migrations, feed, catálogo)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Idioma do código",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Confirme o desempate pelo instante da última concessão",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Tem fotos para o seed ou uso placeholders?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Onde vive o repositório e a CI?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Preferência de plano B de rede na banca",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Termo de uso entra na fase 1?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Denominador da raridade para item restrito a curso",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "A raridade congela no prêmio?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "População do seed demo: 120 alunos?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Existe @usuário único ou só nome de exibição?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Convenção de branch e commit; manter rodada/eng_00 no passo 0?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Um commit por etapa e um PR para o passo 0?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "ADRs separados ou arquivo único?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Link compartilhado cai no login e vira deep link /post/:id?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Sufixo do arroba do ex-aluno",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Colisão na sugestão de arroba",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Arroba antigo liberado na troca de curso?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Sufixo do arroba com papel múltiplo",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Repetibilidade da medalha no período (limitePorPeriodo)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Duas formas de contagem ou manter os três nomes?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Período curso e troca de curso: a contagem reinicia?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Revisar os nomes de exibição das conquistas",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "C06: duas palestras contam como um tipo?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "C14 com alvo fixo 4",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Trilha pode misturar medalha e troféu?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Esquema incremental, com migration por passo?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Fila e worker nascem no passo 6?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Manter ou remover o rodapé Co-Authored-By no CLAUDE.md?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Adianto o plano do passo 1 enquanto você revisa o PR?",
+                          "respondida":  true
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  34,
+                     "declaradas":  30,
+                     "silenciosas":  4,
+                     "duvidosas":  9,
+                     "perguntas":  93,
+                     "perguntas_respondidas":  93
+                 }
+}

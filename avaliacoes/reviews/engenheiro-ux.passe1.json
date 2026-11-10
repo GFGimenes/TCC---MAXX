@@ -1,0 +1,176 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "ux",
+    "secao":  "1. Experiência do usuário",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T18:12:39-03:00",
+    "fim":  "2026-11-09T18:15:19-03:00",
+    "duracao_s":  161,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-engenheiro",
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "d889e180-f5dd-45ce-b94f-7d93b5b1a1a9",
+    "tokens":  {
+                   "entrada":  40,
+                   "saida":  16088,
+                   "cache_criacao":  116661,
+                   "cache_leitura":  1392743
+               },
+    "custo_usd":  1.5337566000000002,
+    "turnos":  38,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "71a5276101c6fea6c0035c9a4e65f87a9ae12c8b5ce1d5a0a4b03e13aa88b4f8",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  37,
+    "nota":  4,
+    "justificativa":  "As seis telas existem e se ligam por uma navegação inferior clara (Home, Busca, Mural central, Troféus, Perfil), com Ranking aberto pelos pontos. Login por RA ou e-mail, feed com curtir/comentar/enviar, perfil com pontos e #posição, mural com filtros, \u0027Ler todos\u0027 e log de leitura, troféus com abas, tier, raridade, \u0027Mostrar não obtidos\u0027 e trilha de progressão, e ranking com as 4 visões. Carregamento, erro com nova tentativa, vazio e paginação são tratados de forma uniforme em todas as telas; todo erro vira mensagem amigável; o tema claro/escuro e os componentes compartilhados dão coerência visual; a acessibilidade é cuidada; há modo de demonstração para a banca. Não chega a 5 por divergências de detalhe da especificação e dos mockups: o perfil não tem bio, \u0027último troféu\u0027, \u0027seguida por\u0027 nem \u0027Compartilhar\u0027, que estão no mockup do próprio repositório; o mural trocou a sanfona com aviso semi-aberto por \u0027não lido aberto, lido recolhido\u0027; o card do feed não tem campo de comentário; a grade do perfil separa posts, troféus e medalhas em abas; o tema não muda no login.",
+    "evidencias":  [
+                       {
+                           "local":  "apps/mobile/src/autenticacao/LoginScreen.tsx:80-124",
+                           "descricao":  "Campo único \u0027RA ou e-mail\u0027, validação de vazio, erro de credencial no campo da senha, botão \u0027Entrando...\u0027 desativado e link \u0027Esqueci minha senha\u0027."
+                       },
+                       {
+                           "local":  "apps/mobile/src/autenticacao/LoginScreen.tsx:126-137",
+                           "descricao":  "Texto de primeiro acesso para aluno e professor e botão \u0027Entrar na demonstração\u0027."
+                       },
+                       {
+                           "local":  "apps/mobile/src/cadastro/DadosScreen.tsx:19-125",
+                           "descricao":  "Cadastro em 3 passos com RA, e-mail institucional e senha; para conta existente, oferece \u0027Esqueci minha senha\u0027."
+                       },
+                       {
+                           "local":  "apps/mobile/src/feed/FeedScreen.tsx:91-144",
+                           "descricao":  "Estados de carregando, erro com nova tentativa e vazio, rolagem infinita com erro de paginação e \u0027puxar para atualizar\u0027."
+                       },
+                       {
+                           "local":  "apps/mobile/src/feed/CartaoDePost.tsx:106-121",
+                           "descricao":  "Curtida aparece na hora e é desfeita, com mensagem, se a API falhar."
+                       },
+                       {
+                           "local":  "apps/mobile/src/feed/CartaoDePost.tsx:240-275",
+                           "descricao":  "Faixa do prêmio, curtidas, legenda, \u0027Ver todos os N comentários\u0027 e horário; não há campo de comentário no card."
+                       },
+                       {
+                           "local":  "apps/mobile/src/posts/ComentariosScreen.tsx:167-196",
+                           "descricao":  "Comentar fica em tela separada, com limite de 500 caracteres e estado de envio."
+                       },
+                       {
+                           "local":  "apps/mobile/src/components/BottomNav.tsx:18-92",
+                           "descricao":  "Abas Home, Busca, Mural (centro), Troféus e Perfil (avatar), com bolinha de novidade anunciada ao leitor de tela."
+                       },
+                       {
+                           "local":  "apps/mobile/src/perfil/PerfilScreen.tsx:361-392",
+                           "descricao":  "Cabeçalho com pontos, #posição, seguidores e seguindo; os pontos abrem o ranking só no próprio perfil."
+                       },
+                       {
+                           "local":  "apps/mobile/src/perfil/PerfilScreen.tsx:42-48",
+                           "descricao":  "Abas Posts, Troféus e Medalhas separadas, em vez da grade mista da especificação."
+                       },
+                       {
+                           "local":  "design/telas/perfil-claro.png e apps/mobile/src/perfil/PerfilScreen.tsx",
+                           "descricao":  "O mockup tem bio, \u0027Último troféu\u0027, \u0027Seguida por\u0027 e \u0027Compartilhar\u0027; o código não tem nenhum desses itens."
+                       },
+                       {
+                           "local":  "apps/mobile/src/mural/MuralScreen.tsx:31-158",
+                           "descricao":  "Filtros Todos, Faculdade, Curso e Professores; \u0027Ler todos\u0027 desativado sem pendências e com erro próprio."
+                       },
+                       {
+                           "local":  "apps/mobile/src/mural/CartaoDeAviso.tsx:16-24",
+                           "descricao":  "Não lido aberto com bolinha dourada e lido recolhido, no lugar da sanfona com o aviso mais recente semi-aberto pedida na especificação."
+                       },
+                       {
+                           "local":  "apps/mobile/src/mural/AvisoScreen.tsx:39-54",
+                           "descricao":  "Abrir o aviso registra a leitura (log de leitura); botão de voltar no topo à esquerda."
+                       },
+                       {
+                           "local":  "apps/mobile/src/trofeus/TrofeusScreen.tsx:38-151",
+                           "descricao":  "Abas Troféus/Medalhas, chave \u0027Mostrar não obtidos\u0027 e trilhas de progressão por conquista."
+                       },
+                       {
+                           "local":  "apps/mobile/src/trofeus/LinhaDePremio.tsx:48-80",
+                           "descricao":  "Cada linha mostra tier, raridade com %, critério, progresso e pontos; o que falta aparece apagado."
+                       },
+                       {
+                           "local":  "apps/mobile/src/rankings/api.ts:23-53",
+                           "descricao":  "Visões Geral, Curso, Histórico e Histórico do curso, filtradas por papel e por ex-aluno."
+                       },
+                       {
+                           "local":  "apps/mobile/src/rankings/RankingsScreen.tsx:84-164",
+                           "descricao":  "Botão voltar, chips de visão, card \u0027Sua posição\u0027, filtro \u0027Quem eu sigo\u0027 e textos de vazio próprios."
+                       },
+                       {
+                           "local":  "apps/mobile/src/api/erros.ts:4-149",
+                           "descricao":  "Tabela de códigos de erro da API para mensagens em português, com padrão para falta de conexão."
+                       },
+                       {
+                           "local":  "apps/mobile/src/perfil/MenuDoPerfil.tsx:61",
+                           "descricao":  "Troca de tema só no menu do Perfil; a tela de login segue o tema do aparelho."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Bio no perfil",
+                            "\u0027Último troféu\u0027 em destaque no perfil",
+                            "\u0027Seguida por xxxx e yyyy\u0027 no perfil",
+                            "Grade mista no perfil (fotos, troféus e fotos de troféus na mesma grade)",
+                            "Mural em sanfona: aviso mais recente semi-aberto, um por vez, e abertura quase em tela cheia",
+                            "Campo \u0027adicionar comentário\u0027 e comentários visíveis no card do feed",
+                            "Troca de tema claro/escuro na tela de login",
+                            "Denúncia de prêmio pelo próprio aluno (só professor e instituição contestam)"
+                        ],
+    "decisoes_do_agente":  [
+                               "Botão \u0027Entrar na demonstração\u0027, com contas prontas e ligado por opção de configuração, para a banca",
+                               "Cadastro em 3 passos (dados, escolha do arroba, termo de uso)",
+                               "Texto de orientação no login sobre o primeiro acesso de aluno e de professor",
+                               "Erro de credencial mostrado no campo da senha e demais erros abaixo do botão",
+                               "Tabela única que transforma cada código de erro da API em mensagem em português, nunca o erro cru",
+                               "Curtida que aparece na hora e é desfeita, com mensagem, se a API falhar",
+                               "\u0027Puxar para atualizar\u0027 e rolagem infinita em feed, mural, perfil, ranking e comentários",
+                               "Feed com recomendações aleatórias para nunca ficar vazio, com ordem nova a cada atualização",
+                               "Instituição sem curtir e sem comentar: o coração some para esse papel",
+                               "Mural com não lido aberto e lido recolhido; leitura conta só ao abrir o aviso inteiro; \u0027Ler todos\u0027 vale para o mural inteiro",
+                               "Filtro \u0027Professores\u0027 do mural mapeado para os avisos de turma",
+                               "Bolinha de novidade nas abas Mural e Troféus, consultada a cada 60 s",
+                               "Ranking como tela empilhada, sem aba própria, com filtro \u0027Quem eu sigo\u0027 e card \u0027Sua posição\u0027",
+                               "Posição exibida em perfil, feed e Troféus é a do histórico geral",
+                               "\u0027Mostrar não obtidos\u0027 ligado por padrão",
+                               "Perfil com três abas (Posts, Troféus, Medalhas) e versão própria para o professor (turmas e medalhas concedidas)",
+                               "Botão \u0027Conceder medalha\u0027 no perfil do aluno para o professor que tem turma com ele",
+                               "RA exibido na linha de descrição do perfil",
+                               "Preferência de tema (sistema, claro ou escuro) salva no aparelho e acessível pelo menu do Perfil",
+                               "Botão \u0027Enviar\u0027 que copia o link do post quando não há folha de compartilhamento"
+                           ],
+    "nao_verificado":  [
+                           "Renderização real das telas e fidelidade pixel a pixel aos PNGs de design/telas (app não executado)",
+                           "Fluxos de ponta a ponta com a API (login, cadastro, curtir, comentar, ler aviso, ranking)",
+                           "Se os testes de componente (*.test.tsx) passam",
+                           "Diferenças entre web e nativo (navegação, folha de compartilhamento, teclado, área segura)",
+                           "Contraste real dos temas claro e escuro e tempos de carregamento",
+                           "Mockups originais do autor fora do repositório (LOGIN.png, \u0027paigna de dashboard.png\u0027); usei só as telas de design/telas"
+                       ]
+}

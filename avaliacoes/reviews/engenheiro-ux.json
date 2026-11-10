@@ -1,0 +1,165 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "ux",
+    "secao":  "1. Experiência do usuário",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-10T17:11:20-03:00",
+    "fim":  "2026-11-10T17:13:52-03:00",
+    "duracao_s":  152,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\maxx-engenheiro",
+    "ref":  "main",
+    "hash_avaliado":  "8910b51ae7b0ca10582517ead72ee832746683a3",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "e8093f31-1dfa-4a52-a082-41c59edde8f1",
+    "tokens":  {
+                   "entrada":  46,
+                   "saida":  15243,
+                   "cache_criacao":  132777,
+                   "cache_leitura":  1829417
+               },
+    "custo_usd":  1.7331434000000001,
+    "turnos":  44,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "c05ecbdc6b03f36c188105ddb45bc2dae19e0dbab822eb0bdc9b7ac2f831cbd4",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  43,
+    "nota":  4,
+    "justificativa":  "As seis telas existem e estão ligadas à API, com navegação inferior de cinco abas e pilha para as telas internas. Estados de carregamento, erro (com tentar de novo e mensagens amigáveis por código) e vazio são tratados de forma consistente, há tema claro e escuro, acessibilidade cuidada e alta fidelidade aos mockups do engenheiro no Feed, no Mural, em Troféus e em Rankings. Não chega a 5 porque o Perfil omite bio, último troféu em destaque, \u0027Seguida por\u0027 e Compartilhar, presentes na especificação e no próprio mockup (decisão D10 do agente); o sino falta em Troféus e Perfil, ao contrário dos mockups; e há pequenas incoerências: card lido do mural que não recolhe de novo, texto de vazio em Troféus que manda ligar uma chave já ligada, e Rankings sem mensagem de erro ao carregar a página seguinte.",
+    "evidencias":  [
+                       {
+                           "local":  "apps/mobile/src/autenticacao/LoginScreen.tsx:78-129",
+                           "descricao":  "Login com \u0027RA ou e-mail\u0027, senha, \u0027Esqueci minha senha\u0027, erros no campo ou abaixo do botão e orientação de primeiro acesso; sem login social."
+                       },
+                       {
+                           "local":  "apps/mobile/src/autenticacao/SegmentadoDeAcesso.tsx:7-28",
+                           "descricao":  "Seletor Entrar/Cadastrar, cada lado em rota própria."
+                       },
+                       {
+                           "local":  "apps/mobile/src/feed/CartaoDePost.tsx:136-277",
+                           "descricao":  "Card do post fiel ao mockup feed-claro.png: autor com curso e semestre, selo, foto, curtir/comentar/enviar, faixa do prêmio, curtidas, legenda, comentários e tempo."
+                       },
+                       {
+                           "local":  "apps/mobile/src/feed/CartaoDePost.tsx:106-121",
+                           "descricao":  "Curtida aplicada na hora, desfeita com mensagem se a API falhar."
+                       },
+                       {
+                           "local":  "apps/mobile/src/feed/FeedScreen.tsx:91-131",
+                           "descricao":  "Carregando, erro com tentar de novo, vazio com ação e erro na paginação."
+                       },
+                       {
+                           "local":  "apps/mobile/src/mural/MuralScreen.tsx:31-158",
+                           "descricao":  "Chips Todos/Faculdade/Curso/Professores e \u0027Ler todos\u0027 desabilitado quando não há não lidos; fiel a mural-claro.png."
+                       },
+                       {
+                           "local":  "apps/mobile/src/mural/CartaoDeAviso.tsx:23-24",
+                           "descricao":  "Card lido expandido não volta a recolher: só existe setExpandido(true)."
+                       },
+                       {
+                           "local":  "apps/mobile/src/mural/AvisoScreen.tsx:39-79",
+                           "descricao":  "Aviso aberto em tela própria com voltar, registro de leitura e estados de inexistente e de erro."
+                       },
+                       {
+                           "local":  "apps/mobile/src/trofeus/TrofeusScreen.tsx:77-151",
+                           "descricao":  "Abas Troféus/Medalhas, \u0027Mostrar não obtidos\u0027, trilha de progressão e pontos que abrem o ranking."
+                       },
+                       {
+                           "local":  "apps/mobile/src/trofeus/TrofeusScreen.tsx:70-72",
+                           "descricao":  "Topo de Troféus sem o sino, que aparece no mockup trofeus-claro.png."
+                       },
+                       {
+                           "local":  "apps/mobile/src/trofeus/TrofeusScreen.tsx:153-162",
+                           "descricao":  "Texto de vazio manda ligar \u0027Mostrar não obtidos\u0027 mesmo com a chave já ligada."
+                       },
+                       {
+                           "local":  "apps/mobile/src/rankings/RankingsScreen.tsx:113-144",
+                           "descricao":  "Quatro visões em chips, card \u0027Sua posição\u0027 e filtro \u0027Quem eu sigo\u0027; fiel a rankings-claro.png."
+                       },
+                       {
+                           "local":  "apps/mobile/src/rankings/RankingsScreen.tsx:188-200",
+                           "descricao":  "Erro ao carregar a página seguinte não é mostrado, ao contrário de Feed e Mural."
+                       },
+                       {
+                           "local":  "apps/mobile/src/perfil/PerfilScreen.tsx:384-388",
+                           "descricao":  "Pontos e posição no próprio perfil abrem /rankings?visao=historico, como pede a especificação."
+                       },
+                       {
+                           "local":  "apps/mobile/src/perfil/PerfilScreen.tsx:395-419",
+                           "descricao":  "Perfil sem bio, sem último troféu em destaque e sem \u0027Seguida por\u0027, itens da especificação e do mockup perfil-claro.png."
+                       },
+                       {
+                           "local":  "apps/mobile/src/perfil/PerfilScreen.tsx:79-91",
+                           "descricao":  "Topo do próprio perfil sem o sino, que aparece no mockup."
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:361",
+                           "descricao":  "Decisão D10 registra a remoção de bio, \u0027Seguida por\u0027 e Compartilhar."
+                       },
+                       {
+                           "local":  "apps/mobile/src/api/erros.ts:4-151",
+                           "descricao":  "Catálogo de códigos de erro da API em mensagens em português, com mensagem padrão e caso de falta de conexão."
+                       },
+                       {
+                           "local":  "apps/mobile/src/app/(app)/_layout.tsx:18-36",
+                           "descricao":  "Sessão restaurando, anônimo (vai ao login e depois volta) e sem conexão com tentar de novo."
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Consulta do log de leitura de avisos pelo professor ou pela coordenação (a leitura é gravada, mas não há tela para consultá-la)",
+                            "Bio no perfil",
+                            "\u0027Último troféu\u0027 em destaque no perfil",
+                            "\u0027Followed by xxxx and yyyy\u0027 no perfil",
+                            "Campo \u0027add a comment\u0027 dentro do card do feed (comentário só em tela separada)",
+                            "Grade do perfil com troféus e conquistas como células (abas de prêmios em lista)"
+                        ],
+    "decisoes_do_agente":  [
+                               "Remover do Perfil a bio, o \u0027Seguida por\u0027 e o Compartilhar (D10)",
+                               "Mural com não lidos abertos e lidos recolhidos; tocar abre no lugar sem contar leitura; só \u0027Abrir\u0027 grava a leitura",
+                               "\u0027Ler todos\u0027 marca o mural inteiro, não só o filtro ativo",
+                               "Sem botão de salvar no post na fase 1",
+                               "Filtro \u0027Quem eu sigo\u0027 no Rankings",
+                               "Card \u0027Sua posição\u0027 com o link \u0027Ver prêmios\u0027 no Rankings",
+                               "Botão e tela de demonstração habilitados pela API",
+                               "Orientação de primeiro acesso do professor por \u0027Esqueci minha senha\u0027",
+                               "Cadastro em três passos: dados, arroba e termo de uso",
+                               "Tema Sistema/Claro/Escuro no menu do Perfil",
+                               "Instituição não curte nem comenta; Troféus com mensagem de vazio própria para quem não é aluno",
+                               "Seção \u0027Reivindicações\u0027 em Troféus e contestação ou remoção pelo menu \u0027…\u0027 do post",
+                               "Busca de alunos com chips de curso e semestre e atalhos para o ranking",
+                               "Bolinhas de novidade nas abas Mural e Troféus, consultadas a cada 60 s",
+                               "Acessibilidade: rótulos de leitor de tela, áreas de toque mínimas, role e aria, e \u0027não lido\u0027 anunciado em voz e não só pela cor"
+                           ],
+    "nao_verificado":  [
+                           "Renderização real das telas e fidelidade em pixels aos mockups nos temas claro e escuro",
+                           "Comportamento no Android, no iOS e na web (teclado, área segura, rolagem)",
+                           "Execução dos testes do app e da CI",
+                           "Fluxos de ponta a ponta contra a API e o banco, inclusive com os dados de exemplo",
+                           "Tempo de resposta e carregamento de imagens",
+                           "Deploy em app.maxx-unimax.com"
+                       ]
+}

@@ -1,0 +1,559 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (eng_03_auth)",
+    "export_id":  "eng_03_auth",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\engenheiro\\eng_03_auth-sessao.txt",
+    "hash_export":  "36abcc02bc43d46c934eebe207eb6a16a7f41b57c2d9e4192b55a5cb5a0a52e6",
+    "linhas_export":  3369,
+    "linhas_lidas":  3369,
+    "leituras_export":  3,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T18:38:36-03:00",
+    "fim":  "2026-11-09T18:40:49-03:00",
+    "duracao_s":  133,
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "9f25bccd-d364-4e08-b6ad-654ca65c09b6",
+    "tokens":  {
+                   "entrada":  8,
+                   "saida":  16860,
+                   "cache_criacao":  85881,
+                   "cache_leitura":  108443
+               },
+    "custo_usd":  1.0459686000000001,
+    "turnos":  5,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "df955714d902b9a2084051accbd63771bc92c839d29c6a906891163b1497f921",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  4,
+    "decisoes":  [
+                     {
+                         "descricao":  "Disponibilidade de arroba exige RA e e-mail válidos",
+                         "trecho":  "Disponibilidade exige RA e e-mail válidos",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Cabeçalho X-Maxx-Cliente: web escolhe cookie; nome do cookie maxx_refresh",
+                         "trecho":  "Cabeçalho X-Maxx-Cliente: web escolhe o cookie",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Todo erro sai com codigo, derivado do status quando não há próprio",
+                         "trecho":  "Todo erro sai com codigo",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Campos em branco voltam com o código da regra de domínio, não dados-invalidos",
+                         "trecho":  "Nome, prefixo e senha em branco voltam com o código da regra de domínio",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Escrita da sessão (cookie/corpo) antecipada da E7 para a E6",
+                         "trecho":  "a escolha entre cookie e corpo, que estava na E7, entrou aqui",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "RA e e-mail sempre no corpo, nunca na URL",
+                         "trecho":  "RA e e-mail sempre no corpo, nunca na URL, para não irem parar em log de acesso",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Atributos do cookie de refresh: HttpOnly, Secure, SameSite=Strict, Path=/api/v1/auth",
+                         "trecho":  "cookie maxx_refresh (HttpOnly, Secure, SameSite=Strict, Path=/api/v1/auth)",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Recusa 404 idêntica para par trocado, RA inexistente e linha de professor",
+                         "trecho":  "A resposta é idêntica nos três casos, e um teste compara os corpos",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Handlers na Application, repositórios EF na Infrastructure, UnitOfWork traduz índice violado em conflito tipado",
+                         "trecho":  "CadastroHandler e SessaoService na Application ... Os repositórios EF ficam na Infrastructure",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Refresh simultâneo conta como reuso e derruba a família",
+                         "trecho":  "Refresh simultâneo conta como reuso",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Identificador com @ é e-mail, sem @ é RA",
+                         "trecho":  "Identificador com @ é e-mail; sem @, é RA",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conta do seed sem senha recebe o mesmo 401 de credencial errada",
+                         "trecho":  "Conta do seed sem senha recebe o mesmo 401 de credencial errada",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Um só código sessao-invalida para toda falha de refresh",
+                         "trecho":  "Um só código para toda falha de refresh (sessao-invalida)",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Logout dispensa access token, revoga a família e responde sempre 204",
+                         "trecho":  "Logout: dispensa o access token ... responde 204 até para refresh desconhecido",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Cookie só lido com o cabeçalho web; refresh recusado e logout apagam o cookie",
+                         "trecho":  "Cookie só com o cabeçalho na web",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Login não aplica política de senha, só teto de 512 caracteres",
+                         "trecho":  "O login não aplica a política de senha. Ele só limita a senha a 512 caracteres",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "MaxxApiFactory ganha coletor de log e gancho para trocar serviços",
+                         "trecho":  "o MaxxApiFactory ganhou um coletor de log e um gancho para trocar serviços",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Custo do Argon2id testado por contagem de chamadas, não por tempo",
+                         "trecho":  "Testei o custo pela contagem de chamadas, e não medindo tempo",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conflito de concorrência tipado, Descartar() e nova tentativa relendo o banco",
+                         "trecho":  "public sealed class ConflitoDeConcorrenciaException ... void Descartar();",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Subiu o Docker Desktop por conta própria para rodar os testes",
+                         "trecho":  "O Docker estava parado e eu subi o Docker Desktop",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Exigência de login no grupo /v1 e não em FallbackPolicy",
+                         "trecho":  "Exigir login no grupo, e não numa FallbackPolicy",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "/v1/eu lê papéis e arroba do banco e ganha o campo arroba",
+                         "trecho":  "/v1/eu lê papéis e arroba do banco, e não do token",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Seed cria conta sem senha para toda linha de professor/instituição, com prefixo sugerido em ordem de e-mail",
+                         "trecho":  "O seed cria conta para toda linha de professor e de instituição que está no banco",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Rotas de professor/instituição registradas só no host de teste",
+                         "trecho":  "os testes registram duas rotas, /teste/instituicao e /teste/turmas/{id}, só no host de teste",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Testes de escopo com calendário em volta da data real",
+                         "trecho":  "Os testes de escopo montam um calendário em volta da data real de hoje",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Repositório de usuário em memória nos dois testes da E5",
+                         "trecho":  "Eles ganharam um repositório de usuário em memória",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Teste com a lista fechada das rotas anônimas de /v1",
+                         "trecho":  "Rota pública nova entra nesta lista de propósito, nunca por esquecimento",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Health e documento OpenAPI de desenvolvimento ficam anônimos",
+                         "trecho":  "menos o que é público por natureza: saúde, entrada na conta e o documento OpenAPI",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "MailKit como biblioteca de SMTP",
+                         "trecho":  "dotnet add apps/api/src/Maxx.Infrastructure package MailKit",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Mailpit v1.33.0 no compose, publicado só em 127.0.0.1:8025",
+                         "trecho":  "image: axllent/mailpit:v1.33.0 ... \"127.0.0.1:${MAXX_MAILPIT_PORT:-8025}:8025\"",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Pacote Microsoft.Extensions.Hosting.Abstractions na Infrastructure",
+                         "trecho":  "Pacote novo: Microsoft.Extensions.Hosting.Abstractions na Infrastructure",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Token de recuperação no fragmento do link (#token=)",
+                         "trecho":  "Token no fragmento do link: http://\u003curl-publica\u003e/redefinir-senha#token=",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Confirmar a senha nova não abre sessão",
+                         "trecho":  "Confirmar não abre sessão: responde 204",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "App__UrlPublica obrigatória fora de desenvolvimento",
+                         "trecho":  "App__UrlPublica obrigatória fora de desenvolvimento: sem ela a API não sobe",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Um só código recuperacao-invalida para todo link inválido",
+                         "trecho":  "Um só código para todo link inválido (recuperacao-invalida)",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "E-mail de recuperação vai para o endereço gravado na base",
+                         "trecho":  "O e-mail vai para o endereço gravado na base, e não para o digitado",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Fila em memória de até 1.000 mensagens que descarta a nova quando cheia; falha de envio só no log",
+                         "trecho":  "A fila em memória guarda até 1.000 mensagens por réplica, e, cheia, descarta a nova",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Política de senha conferida antes do token; Argon2id roda uma vez só",
+                         "trecho":  "A política de senha é conferida antes de buscar o token",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Teste do SMTP real com MailKit contra contêiner do Mailpit",
+                         "trecho":  "o SMTP real, com MailKit, foi testado contra um contêiner do Mailpit",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Variáveis MAXX_SMTP_*, MAXX_URL_PUBLICA e remetente nao-responda@maxx.local",
+                         "trecho":  "Email__Remetente: ${MAXX_EMAIL_REMETENTE:-Maxx \u003cnao-responda@maxx.local\u003e}",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Com o disco cheio, não liberou espaço sozinho e parou para a persona decidir",
+                         "trecho":  "Por que não liberei nada sozinho",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Apagou bin e obj para resolver o IDE0005 causado por arquivo gerado corrompido",
+                         "trecho":  "Vou apagar bin e obj nos projetos da API e reconstruir",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Com a flag desligada, rotas da demo não são mapeadas; OpenAPI as mapeia mesmo assim",
+                         "trecho":  "Desligada, as rotas nem são mapeadas",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Flag da demo só liga pelo docker-compose.demo.yml",
+                         "trecho":  "A flag só liga pelo docker-compose.demo.yml",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Demo__Lote obrigatório com a flag ligada",
+                         "trecho":  "Lote obrigatório com a flag ligada: sem Demo__Lote, a API não sobe",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Curso da demo escolhido pela sigla entre os com turma vigente",
+                         "trecho":  "Curso escolhido pela sigla, entre os cursos com turma no semestre vigente",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "RA DEMO+8 caracteres, e-mail @demonstracao.invalid, semestre 1, nome como nome completo e de exibição",
+                         "trecho":  "RA gerado no formato DEMO mais 8 caracteres ... \u003cra\u003e@demonstracao.invalid",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Aluno de demonstração sem senha e sem recuperação",
+                         "trecho":  "Sem senha e sem recuperação: o aluno de demonstração entra só pela chave",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Chave do dispositivo sempre no corpo, inclusive na web",
+                         "trecho":  "A chave do dispositivo vai sempre no corpo, na web também",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Sugestão de arroba extraída para o serviço compartilhado SugestaoDeArroba",
+                         "trecho":  "a sugestão de arroba saiu do CadastroHandler para um serviço compartilhado",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Consulta de semestre vigente extraída para o helper SemestreVigente",
+                         "trecho":  "a consulta de semestre vigente saiu do EscopoDeTurma para um helper",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Remoção do HasDefaultValue(false) e migration gerada de novo",
+                         "trecho":  "Vou tirar o HasDefaultValue(false) do bool",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Check no banco: lote e chave juntos, papel aluno, sem senha; índice no lote",
+                         "trecho":  "Uma check no banco exige lote e chave juntos, papel de aluno e nenhuma senha",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Apagou os dados da fumaça por SQL direto no banco, numa transação",
+                         "trecho":  "apago os dados da fumaça pelo lote, numa transação",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Limite de taxa como filtro de endpoint, não policy do middleware",
+                         "trecho":  "Filtro de endpoint em vez das policies do middleware",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Janela fixa, sem fila; toda tentativa conta",
+                         "trecho":  "Janela fixa e sem fila. Estourou, recusa na hora",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Chave do limite normalizada (trim e minúsculas)",
+                         "trecho":  "Chave normalizada: sem espaços nas pontas e em minúsculas",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Confirmar da recuperação sem limite de taxa",
+                         "trecho":  "O confirmar não, porque o token tem 256 bits",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "/demo/entrar sem limite de taxa",
+                         "trecho":  "/demo/entrar fica sem limite",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Limite provisório de upload de 30 por hora por usuário",
+                         "trecho":  "Upload com número provisório: 30 por hora por usuário",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Log do limite registra só o nome do limite, nunca a chave",
+                         "trecho":  "o log registra só o nome do limite, nunca a chave",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Acrescentou ao plano-mestre o debounce do arroba e a tela /redefinir-senha, sem pedido",
+                         "trecho":  "Acrescentei também o debounce na digitação do arroba e a tela /redefinir-senha, que você não tinha pedido",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  ".gitleaksignore com os dois achados e o literal de senha de teste movido para constante",
+                         "trecho":  "o .gitleaksignore lista só esses dois achados",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Publicou no remoto a branch rodada/eng_03_auth, que só existia local, para servir de base ao PR",
+                         "trecho":  "Vou publicá-la como está, sem commit novo, para que o PR tenha base",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "E6: Decisões que tomei e quero confirmar (4 decisões)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Proponho registrar 2 e 3 em docs/decisoes/README.md no fechamento do passo ... Se preferir agora, entra neste commit.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "E7: Decisões que tomei e quero confirmar (7 decisões); proponho registrar 1, 4 e 6 no fechamento",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "E8: Decisões que tomei e quero confirmar (3 decisões)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Opções de limpeza, se quiser ... Me avise quando o disco tiver espaço que eu continuo de onde parei.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "E9: Decisões que tomei e quero confirmar (7 decisões)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "E10: Decisões que tomei e quero confirmar (7 decisões)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Posso registrá-lo como procedimento de purga no fechamento do passo.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Esta preciso que você decida: deixar como está, ou pôr um limite por IP nas duas, com um número a definir.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "E11: Decisões que tomei e quero confirmar (1, 2, 3, 5, 6 e 7)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se preferir só a serialização, eu tiro os dois.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Faço isso num commit docs(docs) no começo do passo 4, se você quiser.",
+                          "respondida":  false
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  64,
+                     "declaradas":  60,
+                     "silenciosas":  4,
+                     "duvidosas":  7,
+                     "perguntas":  12,
+                     "perguntas_respondidas":  11
+                 }
+}

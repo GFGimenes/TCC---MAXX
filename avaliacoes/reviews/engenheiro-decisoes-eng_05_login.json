@@ -1,0 +1,449 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (eng_05_login)",
+    "export_id":  "eng_05_login",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\engenheiro\\eng_05_login-sessao.txt",
+    "hash_export":  "0d7911bc25ee7574952516010db0d47199df7b8bb297a639a68d0c0a75cf129c",
+    "linhas_export":  5906,
+    "linhas_lidas":  5906,
+    "leituras_export":  7,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T18:46:13-03:00",
+    "fim":  "2026-11-09T18:48:59-03:00",
+    "duracao_s":  165,
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "4f9428e1-f765-4d09-9bdf-463f39c36925",
+    "tokens":  {
+                   "entrada":  18,
+                   "saida":  18593,
+                   "cache_criacao":  142429,
+                   "cache_leitura":  496119
+               },
+    "custo_usd":  1.6105877999999998,
+    "turnos":  10,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "0e6fb4427f17dd2e046590afc9fb172ffb22d4a39f791ccbc796bc30586f4ef9",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  9,
+    "decisoes":  [
+                     {
+                         "descricao":  "Debounce de 500 ms na disponibilidade do arroba, cancelando o pedido anterior e conferindo o formato antes de consultar",
+                         "trecho":  "A disponibilidade usa debounce de 500 ms, cancela o pedido anterior e confere o formato antes de consultar.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Serializar o refresh entre abas com navigator.locks (Web Locks) e compartilhar o refresh em voo dentro da aba",
+                         "trecho":  "Na web, navigator.locks serializa entre abas. Dentro da aba, os pedidos compartilham o refresh em voo.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Sem Web Locks (fora de HTTPS), fica só a fila da própria aba",
+                         "trecho":  "Sem ela (página fora de HTTPS), fica só a fila da própria aba.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Access token só em memória; refresh em expo-secure-store no nativo e cookie com X-Maxx-Cliente na web",
+                         "trecho":  "Refresh em expo-secure-store no nativo e cookie com X-Maxx-Cliente: web na web.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Renovação proativa 30 s antes de vencer; 401 provoca uma renovação e uma única repetição",
+                         "trecho":  "Se o token está a menos de 30 segundos de vencer, a sessão é renovada antes do pedido.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Estado \u0027sem conexão\u0027: falha de rede, 429 ou 5xx não encerram a sessão; só sessao-invalida encerra",
+                         "trecho":  "Falha de rede, 429 ou 5xx não encerram a sessão. Só sessao-invalida encerra.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Esvaziar o cache de consultas só ao sair de uma sessão autenticada",
+                         "trecho":  "A correção esvazia o cache só quando se sai de uma sessão autenticada",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tabela única código→mensagem com os textos amigáveis e mensagem padrão para código desconhecido",
+                         "trecho":  "Código desconhecido cai na mensagem padrão.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Teste que lê CodigosDeRecusa.cs e DomainExceptionHandler.cs e falha se um código da API não tiver mensagem",
+                         "trecho":  "Esse teste lê CodigosDeRecusa.cs e DomainExceptionHandler.cs, então um código novo na API sem mensagem no app quebra o teste.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "createApiClient ganha fetch opcional para injetar o gerenciador de sessão",
+                         "trecho":  "createApiClient ganhou um fetch opcional, e o layout raiz liga tudo isso.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tabelas termo_de_uso (PK versão \u003e= 1) e aceite_de_termo (PK usuário+versão, FK RESTRICT ao termo, cascata com o usuário)",
+                         "trecho":  "Apagar o usuário apaga os aceites dele [...] Uma versão que alguém aceitou não pode sair do banco.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Versão publicada imutável no seed (falha sem gravar), fim de linha ignorado, vigente é a de número mais alto",
+                         "trecho":  "Uma versão publicada não muda nem some: texto alterado ou arquivo apagado faz o seed falhar sem gravar nada.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Status e códigos do termo: 400 dados-invalidos, 409 termo-desatualizado, 404 termo-indisponivel",
+                         "trecho":  "Com uma versão que não é a vigente, é 409 termo-desatualizado.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Apagar a linha do termo no banco local, reconstruir a imagem do seeder e republicar antes do commit",
+                         "trecho":  "vou apagar essa linha e rodar o seed de novo, antes do commit e do push",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Detalhes do erro de campo: legenda, ícone 16, gap 8, role alert, accessibilityHint, borda like também no foco com espessura do foco",
+                         "trecho":  "Borda em like, inclusive com o campo em foco (aí com a espessura do foco).",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Logo vetorial com react-native-svg gerado por script novo design/icones/logoVetor.js integrado ao gerar.js, com teste de sincronia",
+                         "trecho":  "O traçado vem de design/assets/maxx-ouro.svg por um script novo, design/icones/logoVetor.js",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Screen com rolagem passa a ocupar ao menos a altura da tela para o rodapé ficar no fim",
+                         "trecho":  "o Screen com rolagem passou a ocupar ao menos a altura da tela",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conteúdo da tela de autenticação centrado no espaço acima do pé",
+                         "trecho":  "conteudo: { flexGrow: 1, justifyContent: \"center\", gap: 24, paddingTop: 24 }",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Grupos de rotas (publico) e (app), espera com logo e indicador, \u0027Sem conexão\u0027 com Tentar de novo; /status pública",
+                         "trecho":  "Grupo (app): o que exige login. Sem sessão, manda para /login.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Login: credencial errada no campo da senha, outros erros abaixo do botão, campo vazio sem ir à API, identificador com trim",
+                         "trecho":  "Credencial errada aparece no campo da senha. Limite de taxa e falta de rede aparecem abaixo do botão",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Links para /cadastro e /esqueci-senha caem em rota inexistente até as etapas 5 e 6",
+                         "trecho":  "Quem tocar nelas agora cai na página padrão de rota inexistente do Expo Router.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Adiar a leitura do Mailpit da etapa 4 para a etapa 6",
+                         "trecho":  "A leitura do Mailpit, que o plano punha nesta etapa, ficou para a 6",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "e2e cria linhas próprias de cadastro elegível direto no Postgres por psql, com curso CC do seed demo",
+                         "trecho":  "e2e/tests/apoio/contas.ts cria uma linha nova de elegível por teste, direto no Postgres do compose",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Fluxos com conta só no @celular claro/escuro; teste de limite só no celular-claro",
+                         "trecho":  "os fluxos com cadastro e login rodam só em @celular, claro e escuro",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Dados do cadastro só em memória num contexto; senha fora de URL e armazenamento; recarregar volta ao passo 1",
+                         "trecho":  "a senha não vai para a URL nem para o armazenamento, e recarregar no meio volta ao passo 1",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Validação no cliente espelhando o domínio (senha 8 a 128, emoji como um caractere)",
+                         "trecho":  "A contagem trata emoji como um caractere, como o domínio.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Passos 2 e 3 sem prancheta com \u0027Voltar\u0027, \u00272 de 3\u0027, título e termo rolando com o botão no fim",
+                         "trecho":  "Eles mostram \"Voltar\" e \"2 de 3\" ou \"3 de 3\" no alto e um título na escala titulo.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Acrescentar o ícone check do Lucide 1.70.0 ao Icon",
+                         "trecho":  "Acrescento o check do Lucide 1.70.0 ao Icon",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Termo alterado durante a leitura pede novo aceite; arroba tomado oferece \u0027Escolher outro arroba\u0027; RA com conta leva à recuperação",
+                         "trecho":  "Se outra pessoa tomou o arroba no último instante, a tela oferece \"Escolher outro arroba\".",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Formato do texto do termo restrito a parágrafos e títulos \u0027## \u0027",
+                         "trecho":  "o que começa por \"## \" é título de seção. Nada além disso, de propósito.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Desligar a coleta de cache (gcTime Infinity) no cliente de teste",
+                         "trecho":  "O cliente de teste agora desliga essa coleta.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Token de recuperação capturado uma vez ao carregar o bundle, só na rota /redefinir-senha, apagado com replaceState",
+                         "trecho":  "Agora o token é capturado uma única vez, quando o bundle carrega",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "/redefinir-senha fora dos grupos de rotas",
+                         "trecho":  "/redefinir-senha, fora dos grupos, porque o link pode ser aberto com ou sem sessão",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Senha nova encerra a sessão local; link sem token ou nativo mostra \u0027link incompleto\u0027 sem formulário",
+                         "trecho":  "Se havia uma sessão aberta no aparelho, ela é encerrada",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Reescrever a frase de abertura do Esqueci minha senha",
+                         "trecho":  "troquei a frase de abertura do pedido, que dizia \"Mandamos um link\" antes de a pessoa pedir",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "FilterChip ganha papel radio; radiogroup só na web",
+                         "trecho":  "O FilterChip ganha um papel opcional de radio, porque a escolha do curso é única.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Botão da demonstração secundário, abaixo do texto do primeiro acesso, só com resposta 200",
+                         "trecho":  "O botão \"Entrar na demonstração\" (discreto, abaixo do texto do primeiro acesso) só aparece com resposta 200.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Contas de demonstração em AsyncStorage na web e secure store no nativo; chave guardada antes de entrar; lista malformada vira vazia",
+                         "trecho":  "A chave fica guardada antes de entrar: se a sessão cair, a pessoa ainda volta pela lista.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "chave-invalida tira a conta da lista; curso-indisponivel volta à escolha do curso",
+                         "trecho":  "curso-indisponivel: volta à escolha do curso.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Aviso na tela da demonstração de que as contas de teste são apagadas",
+                         "trecho":  "Mostra um título e um aviso de que as contas de teste são apagadas ao fim da avaliação.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "CI do e2e em duas passadas (--grep-invert @demo e --grep @demo) com lote e2e-ci-run_id",
+                         "trecho":  "CI: o job e2e agora roda em duas passadas.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Publicar a branch rodada/eng_05_login no remoto para abrir o PR, sem perguntar",
+                         "trecho":  "vou publicá-la como está e abrir o PR.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Início provisório lê o arroba de GET /v1/eu",
+                         "trecho":  "Início provisório: mostra \"Você entrou como @arroba\", lido de GET /v1/eu",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Componente AvisoDeErro para erro de formulário com o mesmo desenho do erro de campo",
+                         "trecho":  "O mesmo desenho do erro de campo: ícone em `like`, texto em `ink`, anunciado ao aparecer.",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "expo-secure-store instalado via expo install com config plugin no app.json",
+                         "trecho":  "› Added config plugin: expo-secure-store",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Branch feat/passo-05-login, um commit por etapa e um PR no fim",
+                         "trecho":  "Tudo em feat/passo-05-login, saindo da rodada, com um commit por etapa e um PR no fim.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "Decisão 1: onde entram nome e arroba no cadastro",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisão 2: texto no lugar do Portal UniMax",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisão 3: texto e guarda do termo",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisão 4: quem aceita, e se há novo aceite",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisão 5: versaoDoTermo obrigatório em duas rotas",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisão 6: o que aparece depois de entrar, já que o feed só chega no passo 7",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisão 7: aparência do erro de campo",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisão 8: botão grande só no Entrar ou também em Criar conta",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Secure store e deep link não serão testados em aparelho, a menos que você queira fazer essa conferência",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O texto não fala de LGPD, direitos do titular, contato, prazo de guarda [...] Se quiser algum desses pontos, me diga o conteúdo.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se quiser o bloco na mesma altura da prancheta, ajusto antes do commit.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se quiser, apago esses alunos com o SQL da purga do README.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se você contava outro fix, me diga qual e ajusto a descrição.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O risco \u0027Rede do campus na apresentação\u0027 e o ensaio do passo 13 supõem apresentação presencial; reescrever o passo 13 é decisão sua",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "TermoDeUso e AceiteDeTermo não estão no glossário do CLAUDE.md. Se quiser, acrescento as duas linhas.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Linha \u0027Banca\u0027 e justificativa do limite de 60 registros por hora ainda supõem apresentação presencial; ficam para quando você quiser revisar",
+                          "respondida":  false
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  46,
+                     "declaradas":  43,
+                     "silenciosas":  3,
+                     "duvidosas":  3,
+                     "perguntas":  16,
+                     "perguntas_respondidas":  15
+                 }
+}

@@ -1,0 +1,150 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "documentacao",
+    "secao":  "4. Documentação",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-10T17:21:13-03:00",
+    "fim":  "2026-11-10T17:22:58-03:00",
+    "duracao_s":  105,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\maxx-engenheiro",
+    "ref":  "main",
+    "hash_avaliado":  "8910b51ae7b0ca10582517ead72ee832746683a3",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "3c1f6e28-86c2-479f-ba95-7e6dd6ef32fd",
+    "tokens":  {
+                   "entrada":  20,
+                   "saida":  11102,
+                   "cache_criacao":  116231,
+                   "cache_leitura":  699191
+               },
+    "custo_usd":  1.2918062,
+    "turnos":  25,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "72ce16d4c54101eb0a9473c8d33c22348a2739a32ad689273a6b40ec1a901152",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  24,
+    "nota":  5,
+    "justificativa":  "Documentação completa e atualizada ao longo da construção: regras de produto canônicas (docs/produto.md), 8 ADRs com opções pontuadas e consequências negativas, índice de decisões por passo com limites conhecidos, plano mestre com 13 passos fechado em 10/11/2026, pendências da fase 2 e riscos, especificação do avaliador de conquistas, seis diagramas de sequência, roteiros de operação e de ensaio, e CLAUDE.md com mapa, camadas, glossário, convenções e regras de segurança. Afirmações amostradas batem com o código (limites de taxa, Feed.Intercalar, remoção do EmBreve). Ressalvas que não derrubam o nível: README.md da raiz tem só o título; não há guia único de execução local na raiz; trechos desatualizados em apps/mobile/README.md:90-91 e docs/decisoes/README.md:904-905.",
+    "evidencias":  [
+                       {
+                           "local":  "CLAUDE.md:7-19",
+                           "descricao":  "Tabela \u0027Leia antes de agir\u0027 que aponta onde fica cada tipo de decisão"
+                       },
+                       {
+                           "local":  "CLAUDE.md:86-109",
+                           "descricao":  "Glossário obrigatório do domínio, com proibição de sinônimos"
+                       },
+                       {
+                           "local":  "docs/produto.md:212-219",
+                           "descricao":  "Faixas de tier documentadas (Bronze 1-30, Prata 31-70, Ouro 71-100, Diamante 101-150)"
+                       },
+                       {
+                           "local":  "docs/produto.md:311-357",
+                           "descricao":  "Ciclo de vida do prêmio de participação com diagrama de estados e regras"
+                       },
+                       {
+                           "local":  "docs/produto.md:703-716",
+                           "descricao":  "Decisões assumidas de propósito, com justificativa para a banca"
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:11-22",
+                           "descricao":  "Índice dos 8 ADRs com a consequência negativa principal de cada um"
+                       },
+                       {
+                           "local":  "docs/decisoes/0005-ranking-por-worker.md:17-83",
+                           "descricao":  "ADR com opções pontuadas, decisão, diagrama e consequências negativas"
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:789-895",
+                           "descricao":  "Decisões do passo 13 (produção, borda, backup, carga reduzida) com números e cortes declarados"
+                       },
+                       {
+                           "local":  "docs/plano-mestre.md:389-423",
+                           "descricao":  "Fase 2, pendências com o local onde estão registradas, e riscos acompanhados"
+                       },
+                       {
+                           "local":  "docs/regras-conquista.md:11-60",
+                           "descricao":  "Especificação declarativa do avaliador de conquistas"
+                       },
+                       {
+                           "local":  "docs/fluxos/README.md:8-15",
+                           "descricao":  "Seis diagramas de sequência ligados ao passo de implementação"
+                       },
+                       {
+                           "local":  "docs/operacao.md:39-213",
+                           "descricao":  "Roteiro de deploy, purga, saúde do worker, backup, restauração e rollback"
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:98-103",
+                           "descricao":  "Limites de taxa idênticos aos de apps/api/src/Maxx.Api/LimiteDeTaxa/LimitesDeTaxa.cs:48-56"
+                       },
+                       {
+                           "local":  "README.md:1",
+                           "descricao":  "README da raiz contém só \u0027# Maxx\u0027: sem ponto de entrada nem instrução de execução"
+                       },
+                       {
+                           "local":  "apps/mobile/README.md:90-91",
+                           "descricao":  "Desatualizado: cita telas \u0027Em breve\u0027 removidas no passo 10 (docs/decisoes/README.md:595); o README do cliente para no passo 6"
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:904-905",
+                           "descricao":  "Linha de processo desatualizada (Maestro no endurecimento, k6 a 2.000 VUs), contradizendo o passo 13 do mesmo arquivo (:159, :883)"
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Progressão de tier por repetição da mesma conquista (substituída por famílias de trilha, docs/produto.md:269-271)",
+                            "Login/cadastro via portal da instituição",
+                            "Bio e \u0027followed by\u0027 no perfil",
+                            "Listas de seguidores e seguindo (só contadores)",
+                            "Denúncia de post/prêmio pelo usuário",
+                            "Comportamento de semi-colapso do mural conforme a especificação",
+                            "Ex-aluno mantendo posição no ranking do semestre (só no histórico)",
+                            "Salvar post"
+                        ],
+    "decisoes_do_agente":  [
+                               "Usar o CLAUDE.md como ponto de entrada da documentação, deixando o README.md só com o título",
+                               "Separar regras de produto (docs/produto.md) de decisões técnicas (docs/decisoes/) com índice",
+                               "Formato de ADR com tabela de opções pontuadas e consequências negativas obrigatórias",
+                               "Índice de decisões organizado por passo, com seção \u0027Limites conhecidos\u0027 em cada um",
+                               "Seção \u0027Decisões assumidas de propósito\u0027 voltada às perguntas da banca",
+                               "Glossário obrigatório que proíbe sinônimos em inglês no código",
+                               "Diagramas de sequência escritos antes do código, cada passo apontando para a regra de origem",
+                               "Padrão de texto \u0027sem travessões\u0027 em docs/",
+                               "Roteiros separados de operação (docs/operacao.md) e de ensaio (docs/ensaio.md)",
+                               "Registro explícito da exceção única à regra de mudanças só aditivas na API (versaoDoTermo)",
+                               "README do cliente documentado por passo (parou no passo 6)"
+                           ],
+    "nao_verificado":  [
+                           "Correspondência completa entre cada decisão do índice e o código (feita só por amostragem)",
+                           "Se as instruções de execução local funcionam de fato (subir a stack, seed, e2e)",
+                           "Se os números de carga, ensaio e backup registrados ocorreram e se a VPS está no ar",
+                           "Coerência dos PNGs em design/telas/ com a documentação",
+                           "Leitura integral de docs/regras-conquista.md, docs/decisoes/README.md (linhas 390-543 e 623-788) e dos diagramas individuais em docs/fluxos/"
+                       ]
+}

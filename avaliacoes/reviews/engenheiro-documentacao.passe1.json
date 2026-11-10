@@ -1,0 +1,147 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "documentacao",
+    "secao":  "4. Documentação",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T18:21:46-03:00",
+    "fim":  "2026-11-09T18:23:19-03:00",
+    "duracao_s":  93,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-engenheiro",
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "e699cce9-407e-446c-a623-568c7eab8f18",
+    "tokens":  {
+                   "entrada":  18,
+                   "saida":  9774,
+                   "cache_criacao":  113659,
+                   "cache_leitura":  538437
+               },
+    "custo_usd":  1.2125114,
+    "turnos":  20,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "e97a0838f1eccd83cb2b18b7f6466084d8689645061f7d4d4702ce0ecf922155",
+    "encaixe":  {
+                    "presente":  null,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  null
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  19,
+    "nota":  5,
+    "justificativa":  "Documentação de produto (docs/produto.md), arquitetura e convenções (CLAUDE.md, docs/fluxos), decisões (8 ADRs com opções pesadas e consequências negativas, mais um índice de decisões por passo com limites conhecidos) e plano de evolução (docs/plano-mestre.md com 13 passos, fase 2 e riscos) estão completos, coerentes com o código nos nomes conferidos e atualizados até o passo 12. Ressalvas que impedem um 5 pleno: README da raiz contém só \u0027# Maxx\u0027; não há instrução de execução consolidada (fragmentada entre .env.example, apps/mobile/README.md e decisoes/README.md); apps/mobile/README.md está desatualizado (abas \u0027em breve\u0027, EmBreve.tsx já removido e sem as seções dos passos 7 a 12); o estado atual do projeto (passo 13 pendente) não está declarado.",
+    "evidencias":  [
+                       {
+                           "local":  "README.md:1",
+                           "descricao":  "README da raiz contém apenas o título \u0027# Maxx\u0027, sem descrição nem instruções de execução"
+                       },
+                       {
+                           "local":  "CLAUDE.md:7-19",
+                           "descricao":  "Tabela \u0027Leia antes de agir\u0027 apontando para os documentos canônicos de produto, decisões, regras e plano"
+                       },
+                       {
+                           "local":  "CLAUDE.md:51-109",
+                           "descricao":  "Mapa do repositório, camadas e dependências, idioma do código e glossário obrigatório"
+                       },
+                       {
+                           "local":  "docs/produto.md:1-728",
+                           "descricao":  "Regras de produto completas: papéis, identidade, prêmios, tiers, ciclo de vida, rankings, social, mural, notificações, privacidade, demonstração"
+                       },
+                       {
+                           "local":  "docs/produto.md:700-713",
+                           "descricao":  "Seção 12, decisões de produto assumidas de propósito"
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:13-22",
+                           "descricao":  "Índice dos 8 ADRs com a consequência negativa principal de cada um"
+                       },
+                       {
+                           "local":  "docs/decisoes/0002-fotos-fora-da-api.md:12-65",
+                           "descricao":  "ADR com opções pesadas por nota, diagrama Mermaid, decisão e consequências negativas"
+                       },
+                       {
+                           "local":  "docs/decisoes/README.md:776-787",
+                           "descricao":  "Limites conhecidos do passo 12, com o tratamento de cada um; padrão repetido em todos os passos"
+                       },
+                       {
+                           "local":  "docs/plano-mestre.md:48-66",
+                           "descricao":  "Grafo de dependências dos 13 passos da fase 1"
+                       },
+                       {
+                           "local":  "docs/plano-mestre.md:372-394",
+                           "descricao":  "Fase 2 e riscos acompanhados"
+                       },
+                       {
+                           "local":  "docs/fluxos/README.md:8-15",
+                           "descricao":  "Seis diagramas de sequência ligados aos passos que os implementam"
+                       },
+                       {
+                           "local":  "docs/regras-conquista.md:11-33",
+                           "descricao":  "Especificação do avaliador declarativo de conquistas"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Social/Feed.cs:15",
+                           "descricao":  "Feed.Intercalar existe, como documentado em docs/decisoes/README.md:332 (coerência doc-código)"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Conquistas/InstanciaDePeriodo.cs:14",
+                           "descricao":  "DiasAteOCongelamento = 30, coerente com produto.md seção 5 e o índice de decisões"
+                       },
+                       {
+                           "local":  "apps/mobile/README.md:90-91",
+                           "descricao":  "Desatualizado: diz Busca, Mural e Perfil \u0027em breve\u0027 e cita telas \u0027Em breve\u0027; docs/decisoes/README.md:595 registra a remoção de EmBreve.tsx, ausente em apps/mobile/src/navegacao/"
+                       },
+                       {
+                           "local":  ".env.example:1-49",
+                           "descricao":  "Variáveis comentadas com origem e uso; é a instrução de configuração mais clara, mas isolada, sem um README que a encadeie"
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Bio e \u0027followed by xxxx and yyyy\u0027 no perfil (removidos pela decisão D10)",
+                            "Progressão em que a mesma conquista repetida rende prêmio de tier acima (substituída por famílias e períodos)",
+                            "Colapso do mural com aviso semi-colapsado e abertura quase em tela cheia (substituído por aberto/recolhido)",
+                            "Denúncia de post pelo usuário (adiada para a fase 2)",
+                            "Cadastro de professor via portal da instituição (contas vêm do seed, primeiro acesso por recuperação de senha)",
+                            "Cadastro de troféus e medalhas por tela pelo corpo da faculdade (catálogo entra por seed)"
+                        ],
+    "decisoes_do_agente":  [
+                               "Adotar ADRs com opções pesadas por nota numérica e consequências negativas obrigatórias",
+                               "Manter um índice de decisões em uma linha para decisões sem troca real, separado dos ADRs",
+                               "Separar documento canônico de produto (produto.md) de decisões técnicas (decisoes/), com a regra \u0027decisão que não está aqui não foi tomada\u0027",
+                               "Registrar tabelas de \u0027Limites conhecidos\u0027 por passo e atualizá-las para \u0027Resolvido no passo N\u0027",
+                               "Criar a seção \u0027Decisões assumidas de propósito\u0027 para antecipar perguntas da banca",
+                               "Escrever seis diagramas de sequência antes do código, ligados às regras de origem",
+                               "Definir glossário obrigatório no CLAUDE.md, proibindo sinônimos em inglês no código",
+                               "Convenção textual \u0027sem travessões\u0027 nos documentos",
+                               "Fase documental (passo 0) antes de qualquer código",
+                               "Deixar o README da raiz vazio, usando o CLAUDE.md como ponto de entrada"
+                           ],
+    "nao_verificado":  [
+                           "Se as instruções de execução espalhadas bastam para subir o sistema (docker compose não foi executado)",
+                           "Coerência integral entre documentos e código; conferida apenas por amostragem de nomes e constantes",
+                           "Quais decisões de documentação vieram do prompt do engenheiro e quais foram iniciativa do agente (sem acesso aos prompts e exports de sessão)",
+                           "Conteúdo dos ADRs 0001 e 0003 a 0008 e dos arquivos individuais de fluxo, avaliados pelos resumos do índice",
+                           "Documentos de design (design/README.md, design/identidade-visual.md), não lidos por completo"
+                       ]
+}

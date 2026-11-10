@@ -1,0 +1,134 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "codigo",
+    "secao":  "5. Código",
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T18:23:19-03:00",
+    "fim":  "2026-11-09T18:25:31-03:00",
+    "duracao_s":  132,
+    "repo":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\maxx-engenheiro",
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "96ef4321-8e95-49a6-bcbf-e5103d3e053e",
+    "tokens":  {
+                   "entrada":  34,
+                   "saida":  13176,
+                   "cache_criacao":  110794,
+                   "cache_leitura":  1192996
+               },
+    "custo_usd":  1.3886072,
+    "turnos":  36,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_especificacao":  "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+    "hash_prompt":  "60b8044ba35d851798e03c313593f5a97829fe878337373dcf45d8202155bc3c",
+    "encaixe":  {
+                    "presente":  false,
+                    "arquivo":  null,
+                    "hash":  null,
+                    "aviso":  "Sem testes de referência (C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\avaliacoes\\reviews\\engenheiro-testes-referencia.md). O eixo Código segue sem eles."
+                },
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  35,
+    "nota":  5,
+    "justificativa":  "Não há resultado da suíte de testes de referência; a nota vem só da leitura. As faixas de tier estão corretas e num lugar só (Tier.cs:21-28), com testes dos dois lados de todas as fronteiras de referência (30/31, 70/71, 100/101, 150/151, além de 0). O ranking ordena por pontos com desempate determinístico e é coberto por 10 testes de domínio. Entradas inválidas são recusadas no domínio com resultados tipados (legenda longa, post vazio, mais de um prêmio, upload alheio ou já usado, medalha fora de escopo, de vigência ou do limite). Há testes amplos de domínio, de integração com Postgres real, de arquitetura, do app (Jest) e e2e (Playwright), todos rodando na CI com formatação e aviso virando erro. Padrões usados onde ajudam: handlers, repositórios, fábricas que validam, motor de conquistas declarativo, tratamento de concessões simultâneas. Dívidas pequenas: utilitário genérico ProfessorEndpoints.Nome usado em 8 arquivos de outros módulos, três sobrecargas encadeadas de Post.Publicar, formatarNumero duplicado no app e comentários longos que citam \u0027passo N\u0027 da construção.",
+    "evidencias":  [
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Catalogo/Tier.cs:21-28",
+                           "descricao":  "Faixas Bronze 1-30, Prata 31-70, Ouro 71-100, Diamante 101-150, centralizadas"
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Domain.Tests/Catalogo/CatalogoValidatorTests.cs:65-91",
+                           "descricao":  "Testes de fronteira recusando 0/31/30/71/70/101/100/151 e aceitando 1/30/31/70/71/100/101/150"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Ranking/Classificacao.cs:86-90",
+                           "descricao":  "Ordenação por pontos desc, depois última concessão asc, depois id"
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Domain.Tests/Ranking/ClassificacaoTests.cs",
+                           "descricao":  "10 testes de soma, ordem, desempates, ex-aluno, troca de curso e aluno sem pontos"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Social/Post.cs:113,157,201-224",
+                           "descricao":  "Validação de entrada no domínio: mais de um prêmio, post vazio, legenda \u003e 1000 caracteres, upload alheio ou já usado"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Premios/Medalha.cs:119-172",
+                           "descricao":  "Regras da concessão: só professor concede, só aluno recebe, ex-aluno não pontua, vigência, restrição de curso, limite por período"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Application/Medalhas/ConcederMedalhaHandler.cs:29-63",
+                           "descricao":  "Escopo professor/turma/aluno checado e corrida de concessões tratada por índice único e nova tentativa"
+                       },
+                       {
+                           "local":  "apps/api/tests/Maxx.Architecture.Tests/LayerDependencyTests.cs",
+                           "descricao":  "Dependências entre camadas garantidas por teste"
+                       },
+                       {
+                           "local":  ".github/workflows/ci.yml:15-180",
+                           "descricao":  "CI roda testes da API, testes do app, verificação do cliente OpenAPI, e2e e varreduras de segurança"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Api/Medalhas/ProfessorEndpoints.cs:98",
+                           "descricao":  "Utilitário genérico de enum para camelCase no lugar errado, usado 22 vezes em 8 arquivos de outros módulos"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Domain/Social/Post.cs:81-104",
+                           "descricao":  "Três sobrecargas encadeadas de Publicar acumuladas ao longo da construção"
+                       },
+                       {
+                           "local":  "apps/mobile/src/trofeus/montagem.ts:115",
+                           "descricao":  "formatarNumero duplicado de apps/mobile/src/feed/textos.ts:5"
+                       },
+                       {
+                           "local":  "apps/api/src/Maxx.Api/Posts/PostEndpoints.cs:88-91",
+                           "descricao":  "Exemplo de comentário que cita passos do histórico da construção (\u0027passo 9\u0027, \u0027passo 12\u0027, \u0027acréscimo\u0027)"
+                       }
+                   ],
+    "regras_ausentes":  [
+                            "Consulta do log de leitura do mural pelo professor (quem leu e quando): a leitura é gravada em LeituraDeAviso, mas AvisoEndpoints.cs não expõe rota de consulta"
+                        ],
+    "decisoes_do_agente":  [
+                               "Resultados de recusa tipados (ResultadoDaConcessao, ResultadoDaPublicacao) no lugar de exceções para regras de negócio",
+                               "Validador de catálogo com passo próprio na CI; catálogo de prêmios como dado e motor de conquistas declarativo (ADR 0004)",
+                               "Desempate do ranking pelo instante da última concessão e depois pelo id do aluno",
+                               "Aluno sem pontos fica fora do ranking",
+                               "Pontos e tier congelados no momento da concessão (ADR 0007)",
+                               "Chave de deduplicação e limite de medalhas por período e matéria",
+                               "Testes de arquitetura garantindo a dependência entre camadas",
+                               "Testes de integração contra Postgres real e e2e Playwright sobre o docker compose",
+                               "Cliente TypeScript gerado do OpenAPI, com checagem de divergência na CI",
+                               "Build com aviso virando erro, dotnet format e Prettier obrigatórios na CI",
+                               "Concessões simultâneas de medalha tratadas por índice único e nova tentativa",
+                               "Família de prêmios com pontos estritamente crescentes por passo, validada",
+                               "Raridade (encontrabilidade) calculada pelo percentual de alunos que têm o prêmio"
+                           ],
+    "nao_verificado":  [
+                           "Se a solução .NET e o app Expo compilam",
+                           "Se as suítes de domínio, integração, Jest e e2e passam",
+                           "Suíte de testes de referência: não há resultado para este produto",
+                           "Se as versões de pacote declaradas existem (Expo ~58, React Native 0.88.1, TypeScript ~6.0, GitHub Actions @v7)",
+                           "Se a CI está verde no commit avaliado",
+                           "O comportamento em tempo de execução das recusas como respostas HTTP"
+                       ]
+}

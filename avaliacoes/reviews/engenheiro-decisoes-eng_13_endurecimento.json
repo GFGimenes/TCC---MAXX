@@ -1,0 +1,421 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (eng_13_endurecimento)",
+    "export_id":  "eng_13_endurecimento",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\resultados\\engenheiro\\eng_13_endurecimento-sessao.txt",
+    "hash_export":  "5e4266f52f13ce9c9465205591d0edc5e8a4b07d5b30ebe05a047dbc42e44b22",
+    "linhas_export":  6350,
+    "linhas_lidas":  6350,
+    "leituras_export":  7,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-10T16:44:50-03:00",
+    "fim":  "2026-11-10T16:47:32-03:00",
+    "duracao_s":  162,
+    "ref":  "main",
+    "hash_avaliado":  "8910b51ae7b0ca10582517ead72ee832746683a3",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "33e6ca8d-c565-4424-87f8-89ea1157da35",
+    "tokens":  {
+                   "entrada":  20,
+                   "saida":  18099,
+                   "cache_criacao":  162528,
+                   "cache_leitura":  562231
+               },
+    "custo_usd":  1.7747301999999998,
+    "turnos":  11,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "c92c93811a3ad4c8bebd28c04e8d3f088b861709092095eb7b002de3927c78ef",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  10,
+    "decisoes":  [
+                     {
+                         "descricao":  "Renomeou as imagens do GHCR para maxx-engenheiro-api e maxx-engenheiro-caddy, em vez de maxx-api/maxx-caddy do plano",
+                         "trecho":  "vou renomeá-lo para maxx-engenheiro-api e maxx-engenheiro-caddy para não colidir com o outro repositório do TCC",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Publicação das imagens com docker build --provenance=false para ligar o pacote ao repositório",
+                         "trecho":  "Vou tentar publicar com --provenance=false.",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Grupo de concorrência da CI por ref e evento, para o disparo à mão e o push não se cancelarem",
+                         "trecho":  "group: ci-${{ github.ref }}-${{ github.event_name }}",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Log de cada contêiner de produção limitado a 5 arquivos de 10 MB",
+                         "trecho":  "log de cada contêiner limitado a 5 arquivos de 10 MB, para não encher o disco",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Exceção no .gitignore para versionar o .env.producao.example",
+                         "trecho":  "+!.env.producao.example",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Verificação do R2 filtrando só as linhas MAXX_ARMAZENAMENTO_ para um arquivo temporário privado (umask 077), apagado no fim",
+                         "trecho":  "Filtro só as linhas do R2 para um arquivo temporário e privado",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Correção do envio ao R2 desligando o chunk encoding do PutObject (UseChunkEncoding = false)",
+                         "trecho":  "A correção é desligar o chunk encoding no PutObjectRequest, forma que o R2 aceita",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Novo teste de envio direto no VerificacaoDoR2Tests, com prova reversa rodada na VPS",
+                         "trecho":  "Escrevo primeiro o teste, para rodá-lo na VPS sem a correção (prova reversa)",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Dois códigos de recusa (email-fora-da-faculdade no cadastro, dominio-nao-aceito na correção) em vez do código único do plano",
+                         "trecho":  "a etapa 3 vai usar dois códigos, um para o cadastro (email-fora-da-faculdade) e outro para a correção (dominio-nao-aceito)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Checagem de domínio também na sugestão e na disponibilidade do arroba, antes da consulta à base, com código próprio",
+                         "trecho":  "a checagem no BuscarSemContaAsync (vale para cadastro, sugestão e disponibilidade do arroba)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Lista de domínios no appsettings.json, igual em todo ambiente e sem lista separada de teste; vazia, nada sobe",
+                         "trecho":  "não é segredo, e a lista é a mesma em todo ambiente. Vazia ou mal formada, nada sobe.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Batimento do worker gravado no máximo a cada 15 s",
+                         "trecho":  "Sem batimento há mais de 2 minutos (o worker grava um a cada 15 s)",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Falha ao gravar o batimento só gera aviso no log, e o laço do worker continua",
+                         "trecho":  "LogFalhaNoBatimento(logger, falha.GetType().Name, falha.Message);",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tabela batimento_do_worker de uma linha com restrição de checagem id = 1",
+                         "trecho":  "apenas a tabela de uma linha e a restrição id = 1",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Janela de trabalho falho calculada pelo disponivel_em, sem coluna nova",
+                         "trecho":  "a consulta das últimas 24 horas não precisa de coluna nova",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Fila parada contada do que vier depois entre a chegada e a disponibilidade do trabalho",
+                         "trecho":  "contados do que vier depois entre a chegada e a disponibilidade (o seed enfileira com datas passadas)",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Formato da resposta do /health/worker: status, idades, contagens, códigos worker-parado/fila-parada/trabalho-falho, 503 com o mesmo corpo",
+                         "trecho":  "200 com \"status\": \"ok\", ou 503 com a lista problemas",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Parou o worker em produção por mais de 2 minutos para provar o alerta",
+                         "trecho":  "Vou parar o worker por pouco mais de 2 minutos para checar o alerta worker-parado na produção",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Cabeçalhos e diretivas além do plano: X-Frame-Options DENY, COOP same-origin, remoção do Server, font/worker/manifest-src, form-action, connect-src com data: e blob:",
+                         "trecho":  "X-Frame-Options \"DENY\" ... Cross-Origin-Opener-Policy \"same-origin\" -Server",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "HSTS de um ano, sem includeSubDomains nem preload",
+                         "trecho":  "Um ano, sem subdomínios nem preload: vale só para o app.",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "style-src com \u0027unsafe-inline\u0027 por causa do react-native-web e do expo-reset",
+                         "trecho":  "o style-src vai precisar de \u0027unsafe-inline\u0027, como eu tinha previsto, e registro o motivo",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Trivy fixado na v0.76.1, com checksum, escolhendo versão com mais de duas semanas",
+                         "trecho":  "Fixo a v0.76.1, de 21/10, com a soma conferida pelo arquivo de checksums.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Trivy com --ignore-unfixed e varredura de segredos nas imagens",
+                         "trecho":  "alto ou crítico e --ignore-unfixed",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "apt-get upgrade no estágio final da imagem da API para corrigir achado do Trivy",
+                         "trecho":  "o Trivy também ganha um fix próprio para atualizar os pacotes do Ubuntu",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Laço do Trivy varrendo sempre as duas imagens antes de falhar o job",
+                         "trecho":  "As duas sempre, e o job falha no fim: a primeira com achado não esconde a segunda.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Exceção do Trivy limitada ao binário do Caddy",
+                         "trecho":  "o .trivyignore.yaml com a exceção limitada ao binário do Caddy e com validade",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Backup com pg_dump -Fc, nome com instante UTC e rótulo, validação por pg_restore --list antes do nome final, pasta 700 de root, timer Persistent",
+                         "trecho":  "O dump só ganha o nome final depois de o pg_restore --list conseguir lê-lo.",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "deploy.sh baixa compose e scripts do GitHub no mesmo commit, confere o .env, troca a si mesmo com mv e espera o /api/ready",
+                         "trecho":  "traz do repositório, no mesmo commit, os arquivos do compose, o .env.producao.example e os scripts de infra/, inclusive ele mesmo",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "k6 fixado em grafana/k6:1.8.2",
+                         "trecho":  "Fixo a grafana/k6:1.8.2, de 12/10",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Contêiner do k6 rodando como root na VPS",
+                         "trecho":  "Vou rodar o contêiner do k6 como root, passando a chave só pelo --env-file",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Aquecimento de 20 s descartado antes da medida de carga",
+                         "trecho":  "depois de 20 s de aquecimento descartado (as réplicas tinham acabado de reiniciar",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Limites no k6: p95 \u003c 300 ms por rota e taxa de falha \u003c 1%",
+                         "trecho":  "http_req_failed: [\"rate\u003c0.01\"] ... [\"p(95)\u003c300\"]",
+                         "tipo":  "testes e processo",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "EXPLAIN com enable_seqscan = off na VPS para provar que os índices do feed e de trigramas servem",
+                         "trecho":  "Vou forçar enable_seqscan = off para confirmar se os índices de trigramas atendem à consulta",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Escolha dos índices pelo planejador com volume real registrada como pendência fora da fase 1",
+                         "trecho":  "a escolha com volume real fica pendente junto com o cenário de 2.000 usuários",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Gravação de logs e docker stats a cada 10 s na VPS durante o ensaio",
+                         "trecho":  "Vou gravar logs e amostras de docker stats a cada 10 s para cruzar com cada passo",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Correção do passo 6: tocar de novo no prêmio escolhido devolve a lista, mantém nome e datas, limpa evento e matéria; vale também para a concessão da instituição",
+                         "trecho":  "tocar de novo no prêmio escolhido devolve a lista inteira, com o mesmo efeito do \"Trocar prêmio\"",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Captura por spec temporário do Playwright, a 390 de largura, nos temas claro e escuro",
+                         "trecho":  "Vou gravar a captura com uma especificação temporária do Playwright, fora do commit, nos temas claro e escuro",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Rotina de purga em operacao.md com desligar a demonstração antes e esperar a fila esvaziar",
+                         "trecho":  "1. Desligar a demonstração (dc up -d), para ninguém entrar no lote durante a purga.",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Atualização de comentários e docs que citavam o passo 13 como futuro",
+                         "trecho":  "Ficaram cinco referências ao passo 13 escritas como futuro.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Publicou no remoto a branch rodada/eng_13_endurecimento para servir de base do PR",
+                         "trecho":  "publico-a sem commit novo, como base para o PR",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Primeira subida na VPS com sha-c1f2b77 só com seed base, antes da troca dos e-mails",
+                         "trecho":  "a primeira subida na VPS com a sha-c1f2b77, usando só o seed base",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Encadeamento que só implanta na VPS se a publicação terminar verde",
+                         "trecho":  "Escrevo um script de implantação reutilizável; depois de checar que a publicação ficou verde, vou trocar a tag na VPS",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "E-mails dos professores e da instituição no seed: trocar para endereços em maxx-unimax.com com Email Routing? Ou você prefere outro caminho?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Textos do código dominio-nao-aceito: aprova? E posso passar o produto.md 2.4 para \u0027configuração da API\u0027?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Bucket de backup separado maxx-backup sem domínio público, com token próprio e retenção de 14 dias: você cria?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Para onde vai o alerta: monitor externo (UptimeRobot) ou cron no host com Brevo?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Imagens antes da main por workflow_dispatch com sha-\u003ccurto\u003e; pacote no GHCR público ou privado?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Papel maxx_app com menos privilégio: entra no passo, ou o usuário dono fica, só com a revisão registrada?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Contas e volume do k6: seed carga com cerca de 3.050 alunos como lote carga-k6. Topa? Ou \u0027volume real\u0027 quer dizer outra coisa?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "De onde roda o k6: uma CX temporária da Hetzner no mesmo datacenter, criada por você. Pode ser?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Varredura das imagens com Trivy no job build, mesmo corte alto ou crítico. Entra?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Node 24: se o Expo 58 suportar e a CI ficar verde, eu já troco, ou só trago a avaliação para você decidir?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Como você prefere seguir? 1. Derrubo a pilha local e rodo de novo a suíte do Node 24; 2. pulo a suíte local e deixo a CI decidir.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Qual opção para o Caddy? (exceção com prazo no Trivy, compilar com xcaddy, ou Trivy não bloqueante)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O lote do ensaio no MAXX_DEMO_LOTE: o .env já tem um valor; confirme se ele é o do ensaio ou troque.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se o e-mail de primeiro acesso da coordenação chegou.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Cache da CDN depois da purga: passo manual na rotina, automatizar na API, ou só registrar como limite? Qual você prefere?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O CLAUDE.md tem duas linhas desatualizadas pelo passo 13. Se quiser, ajusto no mesmo PR.",
+                          "respondida":  true
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  42,
+                     "declaradas":  32,
+                     "silenciosas":  10,
+                     "duvidosas":  3,
+                     "perguntas":  16,
+                     "perguntas_respondidas":  16
+                 }
+}

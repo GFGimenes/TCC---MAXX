@@ -1,0 +1,200 @@
+{
+  "produto": "engenheiro",
+  "eixo": "seguranca",
+  "secao": "2. Segurança",
+  "tentativa": 1,
+  "status": "ok",
+  "motivos": [
+    "acessos fora das pastas liberadas: Read: C:\\Users\\Guilherme Gimenes\\.claude\\projects\\C--Users-Guilherme-Gimenes-AppData-Local-Temp-avaliador-tcc-engenheiro-8910b51ae7b0-20261110-171112-fa29-sessao-seguranca-t1\\b65bf3f1-02f3-4f27-af54-5e839afc91c6\\tool-results\\toolu_01BW3QPfuveuNchD4FJXJTmZ.txt",
+    "validado à mão pelo autor em 10/11/2026: o único acesso fora das pastas liberadas foi ao arquivo tool-results da própria sessão do revisor (saída longa de busca gravada pelo CLI e relida pelo modelo); nenhum arquivo fora do checkout avaliado foi lido"
+  ],
+  "inicio": "2026-11-10T17:13:52-03:00",
+  "fim": "2026-11-10T17:18:54-03:00",
+  "duracao_s": 302,
+  "repo": "C:\\Users\\Guilherme Gimenes\\Documents\\repos\\tcc\\maxx-engenheiro",
+  "ref": "main",
+  "hash_avaliado": "8910b51ae7b0ca10582517ead72ee832746683a3",
+  "modelo_pedido": "claude-opus-5-5",
+  "modelo_usado": "claude-opus-5-5",
+  "esforco_pedido": "medium",
+  "esforco_usado": "medium",
+  "versao_cli": "2.1.316 (Claude Code)",
+  "versao_cli_sessao": "2.1.316",
+  "sessao_id": "b65bf3f1-02f3-4f27-af54-5e839afc91c6",
+  "tokens": {
+    "entrada": 76,
+    "saida": 27420,
+    "cache_criacao": 218476,
+    "cache_leitura": 5143545
+  },
+  "custo_usd": 3.325221,
+  "turnos": 71,
+  "hash_rubrica": "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+  "hash_especificacao": "f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b",
+  "hash_prompt": "013a215eb1ad8671cd8988d2989f6732446f5018d5e3f158848cefb9b9a91893",
+  "encaixe": {
+    "presente": null,
+    "arquivo": null,
+    "hash": null,
+    "aviso": null
+  },
+  "ferramentas_sessao": [
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "acessos_fora": [
+    "Read: C:\\Users\\Guilherme Gimenes\\.claude\\projects\\C--Users-Guilherme-Gimenes-AppData-Local-Temp-avaliador-tcc-engenheiro-8910b51ae7b0-20261110-171112-fa29-sessao-seguranca-t1\\b65bf3f1-02f3-4f27-af54-5e839afc91c6\\tool-results\\toolu_01BW3QPfuveuNchD4FJXJTmZ.txt"
+  ],
+  "instrucoes_carregadas": [],
+  "chamadas_ferramenta": 70,
+  "nota": 4,
+  "justificativa": "Autorização fechada por padrão (/v1 RequireAuthorization) com policies por papel e escopo de turma do professor sempre conferido no banco; posse checada no domínio (post, upload, prêmio, comentário, aviso); RA exposto só ao próprio aluno e à instituição; Argon2id com resposta uniforme no login; access JWT de 15 min e refresh rotativo com detecção de reuso em cookie HttpOnly/Secure/SameSite=Strict; segredos só por variável de ambiente e varridos na CI; upload limitado em tipo, tamanho e taxa por assinatura; CSP, HSTS e cabeçalhos na borda. Não chega a 5 porque há falha reproduzível: o cadastro do aluno não verifica posse do e-mail, e quem sabe RA e e-mail de um colega cria a conta dele (decisão documentada, adiada para a fase 2). Também falta menor privilégio no banco (a API usa o superusuário do Postgres), o limite de taxa é por réplica em memória e o conteúdo das fotos não é validado no servidor.",
+  "evidencias": [
+    {
+      "local": "apps/api/src/Maxx.Api/Program.cs:178",
+      "descricao": "Grupo /v1 com RequireAuthorization: fechado por padrão; públicas só auth, termo e demo (linha 195)."
+    },
+    {
+      "local": "apps/api/src/Maxx.Api/Autenticacao/Politicas.cs:22",
+      "descricao": "Policies por papel (aluno, professor, instituição, aprovador) aplicadas por grupo nas rotas."
+    },
+    {
+      "local": "apps/api/src/Maxx.Application/Medalhas/ConcederMedalhaHandler.cs:51",
+      "descricao": "Professor só concede medalha em turma que leciona no semestre vigente (banco) e a aluno matriculado nela (linha 61)."
+    },
+    {
+      "local": "apps/api/src/Maxx.Application/PremiosParticipacao/DecidirComprovacaoHandler.cs:80",
+      "descricao": "Aprovação ou reprovação de comprovação só por instituição ou professor que ensina o aluno."
+    },
+    {
+      "local": "apps/api/src/Maxx.Domain/Social/Post.cs:146",
+      "descricao": "Medalha, conquista, prêmio e upload têm de ser do autor do post (linhas 120, 133, 216)."
+    },
+    {
+      "local": "apps/api/src/Maxx.Infrastructure/Perfil/ConsultaDePerfil.cs:81",
+      "descricao": "RA só devolvido quando o leitor é o próprio aluno."
+    },
+    {
+      "local": "apps/api/src/Maxx.Application/Autenticacao/Login/LoginHandler.cs:19",
+      "descricao": "Conta inexistente roda VerifyDummy: mesma resposta e mesmo custo de Argon2id."
+    },
+    {
+      "local": "apps/api/src/Maxx.Infrastructure/Autenticacao/Argon2idSenhaHasher.cs:9",
+      "descricao": "Argon2id 19 MiB, t=2, p=1, comparação em tempo constante."
+    },
+    {
+      "local": "apps/api/src/Maxx.Domain/Identidade/FamiliaDeSessao.cs:48",
+      "descricao": "Refresh rotativo; reuso derruba a família. Validade de 30 dias renovável, sem teto absoluto (linha 9)."
+    },
+    {
+      "local": "apps/api/src/Maxx.Api/Autenticacao/SessaoHttp.cs:52",
+      "descricao": "Cookie do refresh HttpOnly, Secure, SameSite Strict, Path /api/v1/auth; só lido com o cabeçalho X-Maxx-Cliente."
+    },
+    {
+      "local": "apps/api/src/Maxx.Api/Autenticacao/AutenticacaoServiceCollectionExtensions.cs:95",
+      "descricao": "Chave JWT só por variável de ambiente; sem ela a API não sobe fora de desenvolvimento."
+    },
+    {
+      "local": "apps/api/src/Maxx.Domain/Fotos/UploadPendente.cs:107",
+      "descricao": "Upload aceita só image/jpeg até 1 MiB e 200 KiB, mas pelo valor declarado; os bytes não são inspecionados."
+    },
+    {
+      "local": "apps/api/src/Maxx.Infrastructure/Fotos/ArmazenamentoS3.cs:41",
+      "descricao": "Content-Length e Content-Type presos na assinatura do PUT."
+    },
+    {
+      "local": "infra/caddy/Caddyfile:15",
+      "descricao": "CSP restritiva, nosniff, X-Frame-Options DENY, COOP e HSTS em HTTPS."
+    },
+    {
+      "local": "apps/api/src/Maxx.Application/Autenticacao/Cadastro/CadastroHandler.cs:63",
+      "descricao": "Sessão aberta no cadastro sem verificar a posse do e-mail; produto.md:133 adia a verificação para a fase 2."
+    },
+    {
+      "local": "docker-compose.producao.yml:26",
+      "descricao": "API, worker e migrator usam o mesmo usuário dono do Postgres (linhas 43-45): sem menor privilégio."
+    },
+    {
+      "local": "apps/api/src/Maxx.Api/LimiteDeTaxa/LimitesDeTaxa.cs:7",
+      "descricao": "Limites em memória por réplica; com 2 réplicas em round robin o limite efetivo dobra."
+    },
+    {
+      "local": ".github/workflows/ci.yml:146",
+      "descricao": "gitleaks no histórico, npm audit e trivy nas imagens na CI."
+    },
+    {
+      "local": "apps/api/Dockerfile:32",
+      "descricao": "Contêiner roda como usuário sem privilégio ($APP_UID)."
+    }
+  ],
+  "regras_ausentes": [
+    "Cadastro e vínculo via portal da instituição (SSO): substituído por base de elegíveis via seed/CSV com RA e e-mail na mesma linha",
+    "Verificação de posse do e-mail institucional no cadastro (adiada para a fase 2)",
+    "Denúncia de prêmio pelo aluno: a contestação existe, mas só professor e instituição podem abrir"
+  ],
+  "decisoes_do_agente": [
+    "Autenticação própria com JWT HS256 de 15 min e refresh opaco rotativo com detecção de reuso por família (ADR 0006)",
+    "Hash de senha Argon2id com parâmetros OWASP e verificação fictícia para igualar tempo de resposta",
+    "Refresh em cookie HttpOnly/Secure/SameSite=Strict limitado a /api/v1/auth e exigência do cabeçalho X-Maxx-Cliente contra CSRF; no nativo, SecureStore",
+    "Limites de taxa por identificador, IP, RA, e-mail, upload e registro de demonstração",
+    "Confiança em X-Forwarded-For só vinda da sub-rede do Caddy",
+    "Escopo de turma do professor conferido no banco a cada ação, nunca no token",
+    "RA exposto apenas ao próprio aluno e à instituição; RA e e-mail sempre no corpo, nunca na URL",
+    "Upload direto ao bucket por URL assinada com tipo e tamanho presos, chaves aleatórias e limpeza de upload não confirmado",
+    "Token de recuperação de 256 bits no fragmento da URL, uso único, que revoga todas as sessões",
+    "Contas de professor e instituição sem autocadastro, com primeiro acesso pela recuperação de senha",
+    "Termo de uso versionado com aceite registrado",
+    "CSP, HSTS e cabeçalhos de segurança no Caddy",
+    "Modo demonstração desligado por padrão, ativado só por compose próprio, com lote obrigatório e purga",
+    "gitleaks, trivy e npm audit na CI; contêiner sem root",
+    "ToString sobrescrito em requests e records para não logar senha ou token",
+    "Adiar a verificação de e-mail no cadastro para a fase 2, aceitando o risco para alunos"
+  ],
+  "nao_verificado": [
+    "Execução dos testes de integração de autorização (cerca de 68 asserções de 403 em apps/api/tests)",
+    "SQL real de EscopoDeTurma, ConsultaDoMural e ConsultaDeComprovacoes (avaliado pelas interfaces e comentários)",
+    "Política real do bucket R2 e da CDN em produção (leitura pública sem listagem, CORS, cabeçalhos servidos)",
+    "Comportamento efetivo do limite de taxa com duas réplicas atrás do Caddy",
+    "Se o seed demo foi rodado em produção e se as contas de seed sem senha estão de fato inacessíveis",
+    "Proteção do .env e das credenciais R2 e SMTP na VPS",
+    "Comportamento do app web e nativo em execução (XSS, armazenamento real de tokens)"
+  ],
+  "falhas": [
+    {
+      "titulo": "Tomada de conta de aluno pelo cadastro sem verificação de posse do e-mail",
+      "reproducao": "1) Obter o RA de um colega ainda não cadastrado e deduzir o e-mail nome.sobrenome@al.unieduk.com.br. 2) POST /api/v1/auth/cadastro com {ra, email, nomeDeExibicao, prefixo, senha, versaoDoTermo}. 3) A API responde 201 com sessão. 4) O verdadeiro aluno, ao tentar se cadastrar, recebe conta existente e precisa recuperar a senha pelo e-mail.",
+      "local": "apps/api/src/Maxx.Application/Autenticacao/Cadastro/CadastroHandler.cs:41"
+    },
+    {
+      "titulo": "Oráculo de pares RA/e-mail nos endpoints de sugestão e disponibilidade do cadastro",
+      "reproducao": "Com um e-mail institucional conhecido, enviar POST /api/v1/auth/cadastro/sugestao {ra, email} variando o RA. 404 indica par inexistente, 200 par válido sem conta, 409 par com conta. O limite é só 60/min por IP; distribuir entre IPs aumenta a vazão.",
+      "local": "apps/api/src/Maxx.Application/Autenticacao/Cadastro/CadastroHandler.cs:85"
+    },
+    {
+      "titulo": "Limite de taxa em memória por réplica permite o dobro de tentativas",
+      "reproducao": "Com o compose de produção (2 réplicas em round robin), enviar 10 POST /api/v1/auth/login seguidos com o mesmo identificador e senhas erradas. Pela distribuição, espera-se cerca de 10 respostas 401 antes do primeiro 429, em vez de 5.",
+      "local": "apps/api/src/Maxx.Api/LimiteDeTaxa/LimitesDeTaxa.cs:46"
+    },
+    {
+      "titulo": "API conecta ao banco com o usuário dono do Postgres (sem menor privilégio)",
+      "reproducao": "Ler docker-compose.producao.yml: ConnectionStrings__Maxx das réplicas usa POSTGRES_USER e POSTGRES_PASSWORD, as mesmas do serviço postgres. Qualquer comprometimento da API tem permissão de DDL e de leitura total.",
+      "local": "docker-compose.producao.yml:26"
+    },
+    {
+      "titulo": "Conteúdo da foto não validado no servidor (bytes arbitrários e EXIF)",
+      "reproducao": "1) POST /api/v1/uploads {finalidade: post, tipoDeConteudo: image/jpeg, tamanhoDoFeed: N, tamanhoDaGrade: M}. 2) PUT nas URLs assinadas com N e M bytes que não são JPEG, ou JPEG com GPS no EXIF. 3) POST /api/v1/posts com o uploadId. O objeto fica público na CDN sem reencode nem remoção de metadados.",
+      "local": "apps/api/src/Maxx.Domain/Fotos/UploadPendente.cs:107"
+    },
+    {
+      "titulo": "Sessão sem expiração absoluta",
+      "reproducao": "Após o login, chamar POST /api/v1/auth/refresh pelo menos uma vez a cada 30 dias: cada rotação emite um refresh com mais 30 dias, e a sessão nunca expira.",
+      "local": "apps/api/src/Maxx.Domain/Identidade/FamiliaDeSessao.cs:10"
+    },
+    {
+      "titulo": "Modo demonstração cria aluno anônimo com acesso aos dados reais e chave sem expiração",
+      "reproducao": "Subir com -f docker-compose.demo.yml. Sem login, POST /api/v1/demo/alunos {nome, curso, versaoDoTermo} devolve sessão de aluno matriculado nas turmas vigentes, que lê feed, busca e perfis reais. A chave do dispositivo, guardada no localStorage na web, reabre a conta indefinidamente via POST /api/v1/demo/entrar.",
+      "local": "apps/api/src/Maxx.Api/Demonstracao/DemonstracaoEndpoints.cs:43"
+    }
+  ]
+}

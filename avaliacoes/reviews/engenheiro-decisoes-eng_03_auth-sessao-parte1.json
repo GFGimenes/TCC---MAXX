@@ -1,0 +1,621 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (eng_03_auth-sessao-parte1)",
+    "export_id":  "eng_03_auth-sessao-parte1",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\engenheiro\\eng_03_auth-sessao-parte1.txt",
+    "hash_export":  "02c07ced8cb2a41674d83de838b307fb423089711e26cfebc62c04401c48461c",
+    "linhas_export":  3683,
+    "linhas_lidas":  3683,
+    "leituras_export":  4,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T18:35:36-03:00",
+    "fim":  "2026-11-09T18:38:35-03:00",
+    "duracao_s":  179,
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "83c8821d-cf8d-4e4f-87e9-d0a0569d09cc",
+    "tokens":  {
+                   "entrada":  12,
+                   "saida":  21061,
+                   "cache_criacao":  93450,
+                   "cache_leitura":  228755
+               },
+    "custo_usd":  1.214619,
+    "turnos":  7,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "afa38d3f0fc6e95be70d6eee5297bd90d67865f206eb743f0a30208a2bb020ed",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  6,
+    "decisoes":  [
+                     {
+                         "descricao":  "Branch feat/passo-03-auth saindo de rodada/eng_03_auth, um commit por etapa e um PR no fim",
+                         "trecho":  "Branch: feat/passo-03-auth, saindo de rodada/eng_03_auth. Um commit por etapa, um PR no fim.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Nomes e métodos das rotas de autenticação em /api/v1/auth (cadastro/sugestao, login, refresh, logout, recuperacao, recuperacao/confirmar)",
+                         "trecho":  "Sugestão de arroba (POST /v1/auth/cadastro/sugestao, com RA e e-mail)",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Modelo Usuario ligado 1:1 a CadastroElegivel, com tabelas usuario, familia_sessao, refresh_token e recuperacao_senha",
+                         "trecho":  "Usuario, ligado 1:1 a um CadastroElegivel.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Refresh token e token de reset guardados só como hash SHA-256",
+                         "trecho":  "Refresh e reset guardados só como hash SHA-256, nunca o valor em claro.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Uso de citext no Postgres para a unicidade do arroba sem diferenciar maiúsculas",
+                         "trecho":  "em arroba com citext",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Refresh na web em cookie HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth e no nativo no corpo, com a distinção feita por cabeçalho de cliente",
+                         "trecho":  "Na web, o refresh vai em cookie HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth. No nativo, vai no corpo.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Login de professor e instituição só por e-mail; professor tentando entrar por RA é recusado",
+                         "trecho":  "aluno por RA ou e-mail, professor e instituição só por e-mail",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Mesma resposta para credencial errada e usuário inexistente, com tempo igualado por um hash fictício",
+                         "trecho":  "Credencial errada e usuário inexistente dão a mesma resposta, e o tempo é igualado com um hash fictício.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "No cadastro, par RA/e-mail errado recebe resposta genérica; RA que já tem conta recebe 409 com código que leva à recuperação de senha",
+                         "trecho":  "RA que já tem conta responde 409 com um código que o cliente usa para levar à recuperação de senha.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "O cadastro já devolve uma sessão aberta (entrada automática)",
+                         "trecho":  "e o cadastro já devolvendo sessão",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Escopo do professor consultado no banco só para o semestre vigente em America/Sao_Paulo, com IEscopoDeTurma e token sem turmas",
+                         "trecho":  "IEscopoDeTurma.ProfessorLecionaAsync(usuarioId, turmaId), consultando vinculo_professor no banco, só para o semestre vigente em America/Sao_Paulo",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Pedido de recuperação de senha sempre responde 202",
+                         "trecho":  "POST /v1/auth/recuperacao, que sempre responde 202.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Rotas da demonstração (GET /v1/demo, POST /v1/demo/alunos, POST /v1/demo/entrar) e usuário demo marcado por flag e por lote",
+                         "trecho":  "GET /v1/demo, POST /v1/demo/alunos (nome e curso) e POST /v1/demo/entrar",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Teste que lê os appsettings*.json versionados e falha se a chave da demonstração existir",
+                         "trecho":  "Um teste lê os appsettings*.json versionados e falha se a chave existir.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Limite de taxa chaveado pelo IP real vindo do X-Forwarded-For do Caddy, com 429 em ProblemDetails e Retry-After",
+                         "trecho":  "A chave usa o IP real vindo do X-Forwarded-For do Caddy.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Nos docs, o limite de cadastro ficou \u0027por RA\u0027 e o de recuperação \u0027por e-mail\u0027, quando o plano aprovado dizia \u0027por e-mail ou RA\u0027",
+                         "trecho":  "| Cadastro | 3 a cada 15 minutos por RA |",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Validação de entrada com AddValidation() nativo do .NET 10, registrada como decisão nova",
+                         "trecho":  "| Validação de entrada | `AddValidation()` nativo do .NET 10 na borda",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Fora de um semestre letivo vigente, o professor fica sem escopo",
+                         "trecho":  "escrevi que, fora de um semestre letivo vigente (férias), o professor fica sem escopo",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "O dono pode voltar a um prefixo antigo seu",
+                         "trecho":  "escrevi que o dono pode voltar a um prefixo antigo dele",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Registro de demonstração não pede aceite do termo de uso até o passo 5",
+                         "trecho":  "escrevi que o registro de demonstração não pede aceite do termo até o passo 5",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Nome com menos de 3 caracteres gera sugestão já numerada; nome com mais de 30 é cortado, com o número dentro do limite",
+                         "trecho":  "se o nome der menos de 3 letras, a sugestão já sai numerada (\"Li\" vira li2)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Hífen e apóstrofo no nome são descartados na geração do arroba, sem separar palavras",
+                         "trecho":  "Hífen e apóstrofo no nome são descartados (\"D\u0027Ávila\" vira Davila",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Trocar só as maiúsculas do próprio prefixo muda a exibição sem criar outra reserva",
+                         "trecho":  "Trocar só as maiúsculas do próprio prefixo muda a exibição sem criar outra reserva.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Ex-aluno pode editar o prefixo, mantendo o sufixo -EX",
+                         "trecho":  "Ex-aluno pode editar o prefixo, e o sufixo continua -EX.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tamanho da senha contado em caracteres (runes) e não em unidades UTF-16; a mensagem de recusa nunca repete a senha",
+                         "trecho":  "contados como caractere e não como unidade de UTF-16 (um emoji conta um). A mensagem de recusa nunca repete a senha",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conta criada pelo seed (professor e instituição) nasce com o nome completo como nome de exibição",
+                         "trecho":  "CriarPeloSeed (só professor e instituição, sem senha, com o nome completo como nome de exibição)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Teto de 10.000 tentativas numeradas na sugestão de prefixo",
+                         "trecho":  "private const int _tentativasNumeradas = 10_000;",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "A rotação do refresh devolve um resultado em vez de lançar exceção; erros de quem chama (token de outra família, outro usuário) lançam exceção",
+                         "trecho":  "a rotação devolve um resultado em vez de lançar exceção",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Motivos de revogação Logout, Reuso e SenhaRedefinida, com só a primeira revogação registrada",
+                         "trecho":  "O motivo é Logout, Reuso ou SenhaRedefinida, e só a primeira revogação fica registrada.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Refresh expirado é só recusado e não revoga a família",
+                         "trecho":  "Refresh expirado só é recusado e não revoga a família. Não é sinal de roubo.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Fronteira de validade inclusiva: o último instante ainda vale, um segundo depois não",
+                         "trecho":  "as duas fronteiras de validade (o último instante ainda vale e um segundo depois não)",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Na invalidação de pedidos de reset: pedido já usado não vira invalidado, pedido expirado não invalida ninguém, e há um resultado novo \u0027Invalidada\u0027",
+                         "trecho":  "public void Pedido_ja_usado_nao_vira_invalidado()",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "xmin do Postgres como token de concorrência otimista em refresh_token e recuperacao_senha",
+                         "trecho":  "refresh_token e recuperacao_senha, ambas com xmin como token de concorrência",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Regras do domínio repetidas no banco como check constraints (regex do prefixo, papéis, ex-aluno com sufixo EX)",
+                         "trecho":  "As regras do domínio também vão para o banco como check constraints, seguindo o passo 2.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tabela prefixo_reservado com o prefixo citext como chave primária, no lugar da tabela arroba do plano",
+                         "trecho":  "a tabela do arroba se chama prefixo_reservado, e não arroba, porque a unicidade é do prefixo",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Exclusão em cascata dentro do agregado, Restrict para cadastro_elegivel e índices parciais (famílias ativas, pedidos pendentes)",
+                         "trecho":  "familia_sessao, com índice parcial nas famílias ativas do usuário",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Pacotes Konscious.Security.Cryptography.Argon2 1.3.1 e JwtBearer 10.0.14; interfaces na Application, hasher e gerador na Infrastructure, JWT na Api",
+                         "trecho":  "O pacote de Argon2 e o JwtBearer vão para o Directory.Packages.props, com as interfaces em Maxx.Application/Autenticacao.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Hash no formato PHC com os parâmetros dentro dele, comparado em tempo constante",
+                         "trecho":  "formato PHC com os parâmetros dentro do hash. Compara em tempo constante",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Token opaco de 32 bytes em base64url para o cliente e SHA-256 em hexadecimal para o banco",
+                         "trecho":  "TokenGenerator: 32 bytes em base64url para o cliente e SHA-256 em hexadecimal para o banco.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "JWT só com sub e papel; emissor e audiência fixos no código, sem configuração",
+                         "trecho":  "Validade, emissor e audiência são decisão, não configuração",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Chave base64 de pelo menos 32 bytes; a API não sobe sem ela fora de Development; migrate, seed e geração do OpenAPI não exigem a chave",
+                         "trecho":  "fora de Development a API não sobe sem uma chave válida. Migrate, seed e a geração do OpenAPI não exigem a chave.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Senha vazia vira um placeholder com o mesmo custo de hash e a verificação dá falso, em vez de erro 500",
+                         "trecho":  "Vou corrigir o hasher para que senha vazia gaste o mesmo custo e devolva falso.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Formato de erro: ProblemDetails com extensão \u0027codigo\u0027 em kebab-case; DomainException vira 400 sem a mensagem interna",
+                         "trecho":  "ProblemDetails com a extensão codigo em kebab-case (ex.: requisicao-invalida)",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tolerância de relógio de 30 segundos na validação do JWT",
+                         "trecho":  "Tolerância de relógio de 30 segundos na validação do JWT.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Em Development sem chave, a API gera uma chave por processo",
+                         "trecho":  "sem chave em Development, a API gera uma por processo",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Sub-rede 172.30.0.0/24 fixa no compose e ForwardedHeaders aceito só dessa rede (Proxy__RedesConfiaveis)",
+                         "trecho":  "a rede interna ganha uma sub-rede fixa, para a API confiar no X-Forwarded-For só vindo dela",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "CI passa a gerar uma chave JWT descartável a cada execução nos jobs de e2e e de build",
+                         "trecho":  "Passo a gerar uma chave por execução logo depois da cópia",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Alterou o .env local da persona, acrescentando uma MAXX_JWT_CHAVE gerada",
+                         "trecho":  "Seu .env local: acrescentei a ele uma MAXX_JWT_CHAVE gerada",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "MAXX_JWT_CHAVE no .env.example e obrigatória no compose via ${...:?}, passada só às réplicas da API",
+                         "trecho":  "Jwt__Chave: ${MAXX_JWT_CHAVE:?defina no .env}",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Derrubou e subiu de novo a stack local (sem -v) para verificar a API em Production",
+                         "trecho":  "Vou subir a stack inteira para checar a API em Production e a rede nova, o que exige antes um down sem -v",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "InternalsVisibleTo da Api para os testes de integração e parâmetro de configuração extra no MaxxApiFactory (ChaveDeTeste)",
+                         "trecho":  "abro InternalsVisibleTo da Api para o projeto de testes de integração",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "GET /v1/eu antecipado na E5, em versão mínima (id e papéis)",
+                         "trecho":  "GET /v1/eu nasceu mínimo aqui (id e papéis), porque o 401 precisava de uma rota protegida",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Teste de senha em log adiado para a E7 e testes de X-Forwarded-For adiados para a E11",
+                         "trecho":  "O teste de \"senha não aparece em log\" vai para a E7",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Esquema bearer no OpenAPI exigido só nas rotas autenticadas",
+                         "trecho":  "o esquema bearer no OpenAPI, exigido só nas rotas autenticadas",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "RecusaException, IUnitOfWork e repositórios declarados na Application; UnitOfWork traduz índice violado em conflito tipado; SessaoService compartilhado",
+                         "trecho":  "CadastroHandler e SessaoService na Application, que também declara os repositórios, o IUnitOfWork e a RecusaException",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Status e códigos de recusa do cadastro: 404 cadastro-nao-encontrado idêntico nos três casos, 409 conta-existente, 409 prefixo-indisponivel, 400 com o código da regra",
+                         "trecho":  "404 cadastro-nao-encontrado: par trocado, RA inexistente ou linha de professor. A resposta é idêntica nos três casos",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "RA e e-mail sempre no corpo (POST), nunca na URL, para não irem a log de acesso",
+                         "trecho":  "RA e e-mail sempre no corpo, nunca na URL, para não irem parar em log de acesso",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Consulta de disponibilidade do prefixo exige RA e e-mail válidos",
+                         "trecho":  "Disponibilidade exige RA e e-mail válidos.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Cabeçalho X-Maxx-Cliente: web escolhe o cookie maxx_refresh; sem o cabeçalho, refresh no corpo; na web o corpo traz refreshToken null",
+                         "trecho":  "Cabeçalho X-Maxx-Cliente: web escolhe o cookie. Sem o cabeçalho, o refresh vai no corpo. O nome do cookie é maxx_refresh.",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Todo erro sai com \u0027codigo\u0027; quem não traz um próprio ganha o do status",
+                         "trecho":  "Todo erro sai com codigo: quem não traz um próprio ganha o do status",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Nome, prefixo e senha em branco voltam com o código da regra de domínio, não com dados-invalidos",
+                         "trecho":  "Nome, prefixo e senha em branco voltam com o código da regra de domínio, e não com dados-invalidos",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tamanhos máximos na borda: Ra 32, Email 254, NomeDeExibicao 240, Prefixo 64, Senha 512",
+                         "trecho":  "[property: Required(AllowEmptyStrings = true), StringLength(512)] string Senha",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "ToString do CadastroRequest sobrescrito para omitir e-mail e senha",
+                         "trecho":  "public override string ToString() =\u003e $\"CadastroRequest {{ Ra = {Ra}, Prefixo = {Prefixo} }}\";",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Usuario.ValidarNomeDeExibicao tornado público para a borda usar",
+                         "trecho":  "O handler usa Usuario.ValidarNomeDeExibicao, então o deixo público no domínio.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Escrita da sessão (cookie ou corpo) antecipada da E7 para a E6",
+                         "trecho":  "Escrita da sessão: a escolha entre cookie e corpo, que estava na E7, entrou aqui",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "E-mail comparado sem diferenciar maiúsculas na busca do cadastro elegível",
+                         "trecho":  "A linha de aluno em que RA e e-mail estão juntos, com o curso dela. E-mail sem diferenciar maiúsculas.",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "1. Professor e instituição: como entram? (recomenda não se autocadastrarem; seed sem senha e primeiro acesso pela recuperação)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "2. Unicidade do arroba: pelo prefixo sem diferenciar maiúsculas, ou pelo arroba completo?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "3. Editar o prefixo no perfil também reserva o antigo?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "4. Formato do prefixo (letras ASCII e dígitos, 3 a 30, começando por letra; acentos e partículas na geração)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "5. Validade dos tokens (access 15 min, refresh 30 dias renovado, reset 30 min)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "6. Assinatura do JWT (HS256 com chave em variável de ambiente)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "7. E-mail (SMTP com MailKit, Mailpit no compose, envio em BackgroundService)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "8. Senha e Argon2id (8 a 128 sem regra de composição; Konscious com parâmetros do OWASP)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "9. Limites de taxa (tabela por rota; upload só declarado)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "10. Demonstração no passo 3 (API aqui e tela no passo 5, chave de dispositivo, lote, cadastro elegível demo)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "11. Termo de uso: deixar o campo de versão aceita para o passo 5?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Três pontos que escrevi além das suas respostas (escopo fora de semestre, voltar a prefixo antigo, demo sem aceite do termo). Confira se concorda",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Comportamentos que não estavam escritos nos docs e que eu fixei (1 a 4). Confira",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Nome de exibição sem tamanho máximo. Se quiser um limite, me diga qual",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se aprovar o 1 e o 2, proponho registrá-los em produto.md 2.3.1 neste mesmo commit",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Outros pedidos de reset pendentes: recomendo invalidá-los na conclusão. Não implementei porque não está decidido",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Pontos para confirmar: reuso estrito sem janela, refresh expirado só recusa, concorrência na E4",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Para fechar a E4, preciso que você suba o Docker",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisões que tomei e quero confirmar (E5): formato de erro com codigo, tolerância de 30 s, chave em desenvolvimento, sub-rede fixa",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Normalização Unicode da senha: recomendo normalizar para NFC no Hash e no Verify, mas é decisão sua",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Se aprovar, registro os itens 1 a 3 (e o 5, se entrar) em docs/decisoes/README.md neste mesmo commit",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Decisões que tomei e quero confirmar (E6): disponibilidade exige RA e e-mail, cabeçalho X-Maxx-Cliente e cookie maxx_refresh, codigo em todo erro, campos em branco com código do domínio",
+                          "respondida":  false
+                      },
+                      {
+                          "texto":  "Proponho registrar 2 e 3 em docs/decisoes/README.md no fechamento do passo. Se preferir agora, entra neste commit",
+                          "respondida":  false
+                      },
+                      {
+                          "texto":  "Plano: as etapas já assumem as recomendações; se escolher outra opção eu ajusto antes de começar (pedido de aprovação do plano)",
+                          "respondida":  true
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  66,
+                     "declaradas":  60,
+                     "silenciosas":  6,
+                     "duvidosas":  4,
+                     "perguntas":  24,
+                     "perguntas_respondidas":  22
+                 }
+}

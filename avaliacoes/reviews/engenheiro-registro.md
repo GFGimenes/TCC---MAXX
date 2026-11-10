@@ -94,3 +94,36 @@ Avisos:
 
 
 Validação manual (10/11/2026): o eixo arquitetura ficou "a conferir" por um acesso fora das pastas liberadas; o caminho é o `tool-results` da própria sessão do revisor (saída longa de um Grep gravada pelo CLI e relida pelo modelo), não um arquivo externo ao checkout. Status alterado para ok no `.json` pelo autor, com o motivo mantido.
+
+## Execução de 2026-11-10 17:11:12 -03:00
+
+- Modo: avaliação
+- Repositório: `C:\Users\Guilherme Gimenes\Documents\repos\tcc\maxx-engenheiro`
+- Ref: `main`
+- Commit avaliado: `8910b51ae7b0ca10582517ead72ee832746683a3`
+- Início e fim: 2026-11-10 17:11:12 a 2026-11-10 17:27:17 (965 s)
+- Claude Code: 2.1.316 (Claude Code)
+- Modelo e esforço fixados: claude-opus-5-5, medium
+- Tempo limite por eixo: 60 min
+- Repositório de origem inalterado (estado `6d08459f350d`): sim
+- Checkout inalterado depois das sessões: sim
+- SHA-256 de avaliacoes/rubrica.md: `114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541`
+- SHA-256 de avaliador/prompts/revisor.md: `6cc50e1a8aedfc361958142daa256362226132d3a568be88dc08cd42b813d69d`
+- SHA-256 de docs/especificacao-telas.md: `f58c2d6e39f2379d572df06b4b5337c77004910b7149ef8c65d1c7a03b6a0b9b`
+
+Avisos:
+
+- [infra] Sem relatório de carga em C:\Users\Guilherme Gimenes\Documents\repos\tcc\avaliacoes\carga para 'engenheiro-*'. O eixo Infraestrutura segue sem ele.
+- [codigo] Sem testes de referência (C:\Users\Guilherme Gimenes\Documents\repos\tcc\avaliacoes\reviews\engenheiro-testes-referencia.md). O eixo Código segue sem eles.
+
+| Eixo | Tentativa | Status | Sessão | Modelo e esforço confirmados (transcrição) | Tokens (entrada / saída / cache criação / cache leitura) | Duração (s) | Custo (US$) | Chamadas de ferramenta | Falha ou motivo |
+|---|---|---|---|---|---|---|---|---|---|
+| ux | 1 | ok | e8093f31-1dfa-4a52-a082-41c59edde8f1 | claude-opus-5-5, medium | 46 / 15243 / 132777 / 1829417 | 152 | 1.7331434000000001 | 43 | - |
+| seguranca | 1 | a conferir | b65bf3f1-02f3-4f27-af54-5e839afc91c6 | claude-opus-5-5, medium | 76 / 27420 / 218476 / 5143545 | 302 | 3.325221 | 70 | acessos fora das pastas liberadas: Read: C:\Users\Guilherme Gimenes\.claude\projects\C--Users-Guilherme-Gimenes-AppData-Local-Temp-avaliador-tcc-engenheiro-8910b51ae7b0-20261110-171112-fa29-sessao-seguranca-t1\b65bf3f1-02f3-4f27-af54-5e839afc91c6\tool-results\toolu_01BW3QPfuveuNchD4FJXJTmZ.txt |
+| infra | 1 | ok | 10a26f9f-ba9b-4b7e-8fe7-9a0270d62f41 | claude-opus-5-5, medium | 20 / 14755 / 102776 / 512958 | 138 | 1.2199796 | 30 | - |
+| documentacao | 1 | ok | 3c1f6e28-86c2-479f-ba95-7e6dd6ef32fd | claude-opus-5-5, medium | 20 / 11102 / 116231 / 699191 | 105 | 1.2918062 | 24 | - |
+| codigo | 1 | ok | 6592d385-04d7-4a82-82c9-b9a0a91d3899 | claude-opus-5-5, medium | 30 / 12715 / 124599 / 1127849 | 126 | 1.4767818 | 33 | - |
+| arquitetura | 1 | ok | 70b5d635-2859-49af-843c-bf9450666b8c | claude-opus-5-5, medium | 26 / 13168 / 132857 / 1069359 | 130 | 1.5401918 | 31 | - |
+
+
+Validação manual (10/11/2026, segunda passagem): o eixo segurança ficou "a conferir" pelo mesmo motivo do arquitetura na primeira passagem, um acesso ao `tool-results` da própria sessão do revisor. Status alterado para ok no `.json` pelo autor, com o motivo mantido. As seis notas da segunda passagem (`main` em `8910b51`) são iguais às da primeira (`076549b`; Infra em `8910b51`): UX 4, Segurança 4, Infraestrutura 4, Documentação 5, Código 5, Arquitetura 5.

@@ -1,0 +1,453 @@
+{
+    "produto":  "engenheiro",
+    "eixo":  "decisoes",
+    "rotulo":  "decisoes (eng_08_premios)",
+    "export_id":  "eng_08_premios",
+    "export":  "C:\\Users\\Guilherme Gimenes\\Documents\\Repos\\tcc\\resultados\\engenheiro\\eng_08_premios-sessao.txt",
+    "hash_export":  "3e296684239f9a41d59fc1c98c229362e1e6e8bdb1c6e9f01aef133df854b18f",
+    "linhas_export":  11066,
+    "linhas_lidas":  11066,
+    "leituras_export":  10,
+    "leitura_completa":  true,
+    "tentativa":  1,
+    "status":  "ok",
+    "motivos":  [
+
+                ],
+    "inicio":  "2026-11-09T18:55:06-03:00",
+    "fim":  "2026-11-09T18:58:03-03:00",
+    "duracao_s":  178,
+    "ref":  "main",
+    "hash_avaliado":  "076549bbea15649813d347c2618a4b51377e6bdd",
+    "modelo_pedido":  "claude-opus-5-5",
+    "modelo_usado":  "claude-opus-5-5",
+    "esforco_pedido":  "medium",
+    "esforco_usado":  "medium",
+    "versao_cli":  "2.1.316 (Claude Code)",
+    "versao_cli_sessao":  "2.1.316",
+    "sessao_id":  "450997d7-9f6e-4741-bdd8-be28104513ea",
+    "tokens":  {
+                   "entrada":  30,
+                   "saida":  18699,
+                   "cache_criacao":  265295,
+                   "cache_leitura":  1617566
+               },
+    "custo_usd":  2.8199731999999997,
+    "turnos":  17,
+    "hash_rubrica":  "114a881e74d6ccfd5bb1d7095c99000b3318b293bccebfc8049fd6a251922541",
+    "hash_prompt":  "07b753fb45b2d41413b3ebabfac6dec923cb7e2adf60ca4013b3461805f1652b",
+    "ferramentas_sessao":  [
+                               "Glob",
+                               "Grep",
+                               "Read"
+                           ],
+    "acessos_fora":  [
+
+                     ],
+    "instrucoes_carregadas":  [
+
+                              ],
+    "chamadas_ferramenta":  16,
+    "decisoes":  [
+                     {
+                         "descricao":  "GET /v1/eventos restrito a aluno (professor recebe 403), filtrado pelo curso do aluno e ordenado do mais recente ao mais antigo",
+                         "trecho":  "Rota GET /v1/eventos?item=: só para aluno. Traz os eventos semeados abertos ao curso dele e reivindicáveis hoje, do mais recente ao mais antigo.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Validação do Evento: nome de 3 a 120 caracteres contando emoji como um, fim igual ou depois do início, código só com minúsculas, dígitos e hífen",
+                         "trecho":  "Validação: nome de 3 a 120 caracteres, contando emoji como um; fim igual ou depois do início; código só com minúsculas, dígitos e hífen.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Itens aceitos guardados como text[] no Postgres; constraints que separam semeado de texto livre; índice único em codigo e índice em (origem, inicio)",
+                         "trecho":  "vou guardar os itens aceitos como string[], que o Npgsql mapeia direto para text[]",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conteúdo do seed de eventos: 8 eventos, 4 abertos e 1 por curso (CC, MED, ADM, IA), com a mostra de IA ainda futura para exercitar a recusa",
+                         "trecho":  "Quatro abertos a todos; um de cada curso: CC, MED, ADM e IA. A mostra de IA (25/11) ainda não começou, para exercitar a recusa de evento futuro.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "No teste da rota, login no relógio real e depois avanço do relógio injetado, sem mexer na autenticação de produção",
+                         "trecho":  "o teste faz o login no horário de agora e só depois leva o relógio para o dia de 2026 que quer testar. Não mexi na autenticação de produção.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Estendeu a trava do post de reivindicação também à remoção pela instituição (a persona só tinha respondido sobre o autor)",
+                         "trecho":  "apliquei a mesma trava à remoção pela instituição, porque a remoção dela também manda a foto para fora do bucket",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Matéria do P17 vale se o aluno estava matriculado numa turma dela no semestre que contém a data do evento; P17 no recesso não acha matéria",
+                         "trecho":  "Matéria do P17: decidi que vale uma matéria em que o aluno estava matriculado no semestre letivo que contém a data do evento.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Adiantou para a etapa 2 a atualização do SQL da purga com as tabelas novas, prevista para a etapa 4",
+                         "trecho":  "Era tarefa da etapa 4, mas adiantei porque essas tabelas já nascem aqui.",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Reescreveu mensagens antigas do app que falavam em \u0027medalha\u0027 para \u0027prêmio\u0027 e encurtou frases",
+                         "trecho":  "Quatro mensagens antigas que falavam em \"medalha\" agora dizem \"prêmio\", porque a reivindicação usa os mesmos códigos.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Conjunto de códigos de recusa novos (evento-ambiguo, materia-nao-se-aplica, premio-nao-contestavel etc.) e os textos das mensagens no app",
+                         "trecho":  "\"evento-ambiguo\": \"Escolha um evento da lista ou digite outro, não os dois.\"",
+                         "tipo":  "UX e visual",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Tetos brutos de tamanho nos corpos das requisições (Item 16, Legenda 4000, Nome do evento 1000, Motivo 4000)",
+                         "trecho":  "[property: Required, StringLength(16)] string Item ... [property: StringLength(4000)] string? Legenda",
+                         "tipo":  "segurança",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Colunas de motivo (reprovação, revogação, contestação) com limite de 2000 caracteres (4 x 500)",
+                         "trecho":  "HasMaxLength(4 * Motivo.TamanhoMaximo)",
+                         "tipo":  "modelo de dados",
+                         "forma":  "silenciosa",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Adiantou para a etapa 3 o handler tornar-premio-definitivo (que reenfileira se rodar cedo) e a contagem de prêmios na raridade",
+                         "trecho":  "Duas coisas adiantadas da etapa 4 ... Handler tornar-premio-definitivo ... Raridade (D6)",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "A comprovação de quem virou ex-aluno não pode ser aprovada (409 ex-aluno), mas pode ser reprovada",
+                         "trecho":  "Aprovar ... Recusa uma segunda decisão (JaDecidida) e aluno que virou ex-aluno.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Fila de comprovações paginada com 20 por página, por cursor (criada_em, id)",
+                         "trecho":  "Das mais antigas para as mais novas, 20 por página, com a marca dos 7 dias.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Rota extra GET /v1/comprovacoes/eventos com os eventos que têm pendentes e a contagem, para os chips",
+                         "trecho":  "GET /v1/comprovacoes/eventos: os eventos com comprovação pendente e quantas, para o chip de filtro da etapa 6.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Nova policy \u0027aprovador\u0027 (professor ou instituição) na borda, com o escopo do professor conferido no banco",
+                         "trecho":  "Rotas (policy nova aprovador, que aceita professor ou instituição)",
+                         "tipo":  "segurança",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Quem aprovou também pode contestar, e a conta com os dois papéis decide como instituição",
+                         "trecho":  "Contestam o professor da turma (inclusive quem aprovou) ou a instituição",
+                         "tipo":  "regra de produto",
+                         "forma":  "silenciosa",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Contestação modelada como tabela própria, com índice único por prêmio, índice das abertas e xmin",
+                         "trecho":  "Tabela contestacao, com índice único por prêmio, índice das abertas e xmin.",
+                         "tipo":  "modelo de dados",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Em Troféus, o prêmio de participação obtido aparece com o post e a data de aprovação",
+                         "trecho":  "O item obtido aparece com o post e a data de aprovação.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Semântica das recusas de contestação: pendente é não contestável; definitivo ou revogado está fora da janela; segunda contestação recusada mesmo depois de confirmada",
+                         "trecho":  "Recusa: não contestável (prêmio ainda não aprovado), já contestado (inclusive depois de confirmado) ou fora da janela.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Prêmio em averiguação: para quem não é o aluno nem a instituição, o post aparece sem o prêmio (implementado e registrado no produto.md antes de perguntar)",
+                         "trecho":  "Interpretei \"o post continua visível, sem exibir pontos nem tier\" como o post aparecendo sem o prêmio para esse leitor.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Criou a notificação PremioRevogado para prêmio válido revogado pela remoção do post",
+                         "trecho":  "Notificação PremioRevogado. Ela cobre o prêmio válido revogado pela remoção do post, que não tem contestação.",
+                         "tipo":  "regra de produto",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Rota GET /v1/eu/reivindicacoes, da mais recente para a mais antiga",
+                         "trecho":  "GET /v1/eu/reivindicacoes (D9): pendente, em averiguação, reprovada e revogada, com o motivo nas duas últimas, da mais recente para a mais antiga.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Acréscimos na API para a tela: exigeMateria no item do catálogo e GET /v1/eu/materias",
+                         "trecho":  "Faltam duas rotas na API, uma para saber se o item pede matéria e outra para listar as matérias do aluno no semestre",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  true
+                     },
+                     {
+                         "descricao":  "Novo post com controle segmentado \u0027Post | Reivindicar prêmio\u0027 e aviso de que a foto é a comprovação",
+                         "trecho":  "Controle segmentado \"Post\" | \"Reivindicar prêmio\", com um aviso curto de que a foto é a comprovação",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Evento digitado em dd/mm/aaaa com data de fim opcional e aviso de formato; P17 sem lista de eventos, pedindo \u0027o que você apresentou\u0027; upload reaproveitado na nova tentativa",
+                         "trecho":  "\"Outro evento\", com nome, data de início e data de fim opcional, no formato dd/mm/aaaa, com aviso de formato inválido.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Marcas no cartão: pendente com selo, marca e \u0027Aguardando aprovação\u0027; em averiguação só a marca, sem selo; chip com o raio dos filtros",
+                         "trecho":  "Pendente: selo do metal, mais a marca \"Pendente\" e \"Aguardando aprovação\" sob os pontos.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Seção Reivindicações some quando vazia, com medalhão apagado, \u0027há quanto tempo\u0027 e toque que abre o post",
+                         "trecho":  "a seção \"Reivindicações\" fica só na aba Troféus e some quando está vazia.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Lista de prêmios recolhe para o escolhido, com \u0027Trocar prêmio\u0027",
+                         "trecho":  "Escolhido um, a lista recolhe para ele, com \"Trocar prêmio\".",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Capturas por spec Playwright temporário fora do commit, apagando do banco local as reivindicações pendentes de execuções anteriores",
+                         "trecho":  "o spec temporário apagou do banco local as reivindicações pendentes de execuções anteriores",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Layout da tela Comprovações: padrão da Busca, chips \u0027Todos\u0027 e por evento com contagem, foto de ponta a ponta, chip \u0027Mais de 7 dias\u0027 em highlight, \u0027Evento digitado pelo aluno.\u0027",
+                         "trecho":  "A tela segue o padrão da Busca: cabeçalho e chips na margem, e a lista ocupando a largura toda",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Folha de motivo compartilhada entre reprovar e contestar, com contador; quando outra pessoa decide antes, mostra a mensagem e relê a fila",
+                         "trecho":  "Agora a folha de motivo, compartilhada por reprovar e contestar.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "\u0027Contestar prêmio\u0027 como menu próprio, visível só ao professor com prêmio válido; janela e escopo deixados para a API",
+                         "trecho":  "Faço o \"Contestar prêmio\" como um menu próprio ... O MenuDoPost atual, de apagar e remover, fica como está.",
+                         "tipo":  "UX e visual",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "e2e com conta de instituição própria por teste e comandoDaApi exportado",
+                         "trecho":  "com uma conta de instituição própria por teste por causa do limite de 3 recuperações de senha",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "e2e passou a aprovar e contestar pela tela da professora, desviando do plano (contestação pela API), para reduzir a instabilidade",
+                         "trecho":  "aprovar e contestar passaram a ser pela tela da professora, e os ids saem do banco",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Não alterou o teste instável do limite de taxa do login e registrou a falha no risco do plano mestre",
+                         "trecho":  "O teste de limite de taxa do login falhou, mas ele é anterior a este passo e está fora do escopo, então não o alterei",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Docs: atualizou linhas antigas dos passos 6 e 7 no decisoes/README, criou a seção \u0027Como ficou no passo 8\u0027 nos fluxos e ganchos nos passos 9 e 11 do plano mestre",
+                         "trecho":  "Também atualizei três linhas antigas dos passos 6 e 7 (numerador da raridade, quem pede o recálculo e post com prêmio).",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Enviou a branch rodada/eng_08_premios ao GitHub, sem perguntar, para conseguir abrir o PR",
+                         "trecho":  "Vou enviar a rodada como está, sem commits novos, e abrir o PR contra ela.",
+                         "tipo":  "hospedagem e deploy",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Título e descrição do PR no formato do PR do passo 7",
+                         "trecho":  "Título: \"feat: adiciona prêmios de participação (passo 8)\" ... no formato do PR do passo 7",
+                         "tipo":  "testes e processo",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "POST /v1/reivindicacoes responde 201 com o post como o feed o mostra, sem enfileirar nada",
+                         "trecho":  "Responde 201 com o post. O prêmio vem com estado: \"reivindicado\", que é a marca de pendente",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     },
+                     {
+                         "descricao":  "Refatorou o Post para as duas fábricas (Publicar e Reivindicar) usarem a mesma conferência comum",
+                         "trecho":  "Antes, Post.Publicar fazia sozinho a conferência comum (autor, legenda e upload). Agora as duas fábricas usam essa mesma conferência.",
+                         "tipo":  "stack e arquitetura",
+                         "forma":  "declarada",
+                         "duvidosa":  false
+                     }
+                 ],
+    "perguntas":  [
+                      {
+                          "texto":  "D1. Como evento e item se ligam (evento semeado lista os itens; texto livre aceita qualquer; P17 sempre por texto livre com matéria)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D2. Onde ficam os eventos semeados (data/demo/eventos.json, uns 8 eventos de 2026/2)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D3. Datas aceitas na reivindicação (só exigir que o evento já tenha começado)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D4. Semestre do evento: gravar só as datas e deixar a regra para o passo 11?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D5. Qual estado segura a chave de deduplicação (todos menos o reprovado)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D6. Quem conta para a raridade (só válidos e definitivos)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D7. A instituição no passo 8: API completa, telas no passo 12?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D8. Entrada do professor no app: \u0027Comprovações\u0027 no menu do perfil e \u0027Contestar\u0027 no menu do post?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D9. Onde o aluno acompanha as reivindicações (seção \u0027Reivindicações\u0027 na aba Troféus)?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D10. Motivo de 1 a 500 caracteres?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D11. Marca dos 7 dias: 7x24 horas desde a reivindicação e desde a contestação?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D12. Reavaliação de conquistas fica para o passo 9?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "D13. Turma visível na fila: as matérias em comum no semestre vigente?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Recesso: pela D3, ninguém reivindica entre 06/12 e 25/01. Se você quiser outro comportamento no recesso, ajusto antes do commit.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Relógio do teste da rota: login no horário de agora e depois o relógio vai para o dia de 2026 (sem mexer na autenticação de produção). Está certo?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "O autor pode apagar o post de uma reivindicação de prêmio de participação? (opções, com \u0027Bloqueia até definitivo\u0027 recomendado)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Apliquei a mesma trava à remoção pela instituição. Se preferir que a instituição remova assim mesmo, ajusto.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "produto.md: proponho registrar a trava do post de comprovação na 4.7 já neste commit.",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Matéria do P17: vale a matrícula no semestre letivo que contém a data do evento (com a consequência no recesso). Fica assim?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Prêmio em averiguação para os outros leitores: post sem o prêmio, ou nome do item sem tier e sem pontos?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Notificação PremioRevogado: registro na seção 8 do produto.md, ou troco por silêncio?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Corrida rara: a remoção pela instituição concorrente responde 404. Pode ficar assim?",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Posso commitar e fazer o push? (repetida ao fim de cada etapa, com a mensagem de commit proposta)",
+                          "respondida":  true
+                      },
+                      {
+                          "texto":  "Com a CI verde, abro o PR da feat/passo-08-premios para a rodada/eng_08_premios; o PR é ação externa, por isso espero o seu ok.",
+                          "respondida":  true
+                      }
+                  ],
+    "contagem":  {
+                     "decisoes":  42,
+                     "declaradas":  38,
+                     "silenciosas":  4,
+                     "duvidosas":  8,
+                     "perguntas":  24,
+                     "perguntas_respondidas":  24
+                 }
+}
