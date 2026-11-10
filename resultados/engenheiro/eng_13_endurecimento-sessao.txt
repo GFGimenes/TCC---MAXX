@@ -4918,3 +4918,404 @@ code 0)
   passo 6.
 
 ✻ Cogitated for 3m 34s · done 15:10
+
+❯ /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+❯ Opção 1: a limpeza do cache de fotos.maxx-unimax.com no painel da Cloudflare  
+  entra como passo da rotina depois da purga, no docs/ensaio.md e no            
+  docs/operacao.md, e o cache de borda fica registrado como limite conhecido    
+  com essa mitigação. Acabei de executar esse passo para o lote do ensaio,      
+  Purge Everything na zona; confira que a URL exata da foto passou a dar 404. O 
+  MAXX_DEMO_LOTE já está em banca-2026: sobe de novo com deploy.sh 789313a      
+  demo e confira o lote nas réplicas. Em seguida corrija o achado do passo 6    
+  (trocar o prêmio selecionado na folha de reivindicação) como fix separado,    
+  com Jest, e pare com a captura para a minha revisão antes da etapa 10.        
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● URL exata das duas fotos agora em 404, pelo GET também: a limpeza do cache
+  funcionou. Subo com o lote da avaliação e paro a gravação do ensaio na VPS:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A sessão ssh caiu com código 255, e o pkill -f acabou matando o próprio shell
+  remoto porque casou com o texto da sua própria linha de comando. Vou conferir
+  o estado e refazer o deploy com um padrão que não se case consigo mesmo.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● As duas réplicas já estão no ar com banca-2026, a demonstração lista os cursos
+  e o worker responde 200. Agora localizo a folha de reivindicação e o seletor
+  do prêmio para o passo 6.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● O componente já traz o link "Trocar prêmio", mas tocar no prêmio já marcado
+  não faz nada, pois o onPress só o marca de novo. Vou ver como a tela do novo
+  post usa o componente para descobrir por que a troca não funcionou.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O link "Trocar prêmio" existe, mas é discreto, e tocar no prêmio marcado não
+  faz nada, então vou fazer com que ele reabra a lista como o link já faz. Lendo
+  o teste existente agora.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo o teste primeiro e confirmo que ele falha com o código atual:
+
+● Update(apps\mobile\src\premiosParticipacao\reivindicacao.test.tsx)
+  ⎿  Added 22 lines
+      337      expect(screen.queryByRole("heading", { name: "Evento" })).
+           toBeNull();
+      338    });
+      339  
+      340 +  // Achado do ensaio (passo 13): no iPhone, tocar no prêmio e
+          +scolhido não reabria a lista, e                               
+      341 +  // o "Trocar prêmio" passou despercebido. Tocar nele de novo
+          + também devolve a lista.                                      
+      342 +  it("tocar de novo no prêmio escolhido devolve a lista para t
+          +rocar", async () => {                                         
+      343 +    await noModoDeReivindicacao();                            
+      344 +                                                              
+      345 +    await apertar(/Semana acadêmica/, "radio");               
+      346 +    expect(                                                   
+      347 +      screen.queryByRole("radio", { name: /Apresentação de tra
+          +balho em sala/ }),                                            
+      348 +    ).toBeNull();                                             
+      349 +                                                              
+      350 +    await apertar(/Semana acadêmica/, "radio");               
+      351 +    expect(                                                   
+      352 +      await screen.findByRole("radio", {                      
+      353 +        name: /Apresentação de trabalho em sala/,             
+      354 +      }),                                                     
+      355 +    ).toBeOnTheScreen();                                      
+      356 +    expect(                                                   
+      357 +      screen.getByRole("radio", { name: /Semana acadêmica/ }),
+      358 +    ).not.toBeChecked();                                      
+      359 +    expect(screen.queryByRole("heading", { name: "Evento" })).
+          +toBeNull();                                                   
+      360 +  });                                                         
+      361 +                                                              
+      362    it("voltar ao modo Post mostra as medalhas e o botão Publica
+           r", async () => {
+      363      await noModoDeReivindicacao();
+      364      await apertar("Post", "radio");
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Falha como esperado. Aplico a correção, com o mesmo efeito do "Trocar prêmio":
+
+● Update(apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx)
+  ⎿  Added 3 lines
+      117    const digitado = exigeMateria || valor.eventoId === OUTRO_EV
+           ENTO;
+      118    const mudar = (parcial: Partial<Escolha>) =>
+      119      onChange({ ...valor, ...parcial });
+      120 +  // Devolve a lista inteira, mantendo o nome e as datas já di
+          +gitados.                                                      
+      121 +  const trocarPremio = () =>                                  
+      122 +    onChange({ ...valor, item: null, eventoId: null, materiaId
+          +: null });                                                    
+      123  
+      124    return (
+      125      <View style={styles.coluna}>
+
+● Update(apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx)
+  ⎿  Added 11 lines, removed 7 lines
+      135              key={opcao.codigo}
+      136              marcada={valor.item === opcao.codigo}
+      137              rotulo={`${opcao.nome}, ${rotulosDeTier[opcao.tier
+            as Tier]}, ${opcao.pontos} pontos`}
+      138 +            // Tocar de novo no prêmio escolhido devolve a lis
+          +ta, como "Trocar prêmio": é o                                 
+      139 +            // gesto que se tenta primeiro (achado do ensaio, 
+          +passo 13).                                                    
+      140              onPress={() =>
+      139 -              onChange({                                      
+      140 -                ...ESCOLHA_VAZIA,                             
+      141 -                item: opcao.codigo,                           
+      142 -                nome: valor.nome,                             
+      143 -                inicio: valor.inicio,                         
+      144 -                fim: valor.fim,                               
+      145 -              })                                              
+      141 +              valor.item === opcao.codigo                     
+      142 +                ? trocarPremio()                              
+      143 +                : onChange({                                  
+      144 +                    ...ESCOLHA_VAZIA,                         
+      145 +                    item: opcao.codigo,                       
+      146 +                    nome: valor.nome,                         
+      147 +                    inicio: valor.inicio,                     
+      148 +                    fim: valor.fim,                           
+      149 +                  })                                          
+      150              }
+      151            >
+      152              <Medalhao tier={opcao.tier as Tier} glifo="taca" s
+           ize={40} />
+
+● Update(apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx)
+  ⎿  Added 1 line, removed 11 lines
+      163          ))}
+      164          {item && (
+      165            <View style={styles.trocar}>
+      166 -            <TextLink                                         
+      167 -              label="Trocar prêmio"                           
+      168 -              onPress={() =>                                  
+      169 -                onChange({                                    
+      170 -                  ...valor,                                   
+      171 -                  item: null,                                 
+      172 -                  eventoId: null,                             
+      173 -                  materiaId: null,                            
+      174 -                })                                            
+      175 -              }                                               
+      176 -            />                                                
+      166 +            <TextLink label="Trocar prêmio" onPress={trocarPre
+          +mio} />                                                       
+      167            </View>
+      168          )}
+      169        </View>
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && sed -i 's|^//
+      Escolhido o prêmio, a lista recolhe para ele, com "Trocar prêmi…)
+  ⎿  // sala). Sem prancheta: segue a identidade visual, em linhas como as
+     do modal de medalha.
+     // Escolhido o prêmio, a lista recolhe para ele, com "Trocar prêmio" (
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx
+     (+2 -1)
+       98  // Reivindicação de prêmio de participação (produto.md 4.6 e 4
+           .7): o prêmio, o evento, da
+       99  // lista ou digitado com nome e período, e a matéria quando o 
+           prêmio pede (apresentação em
+      100  // sala). Sem prancheta: segue a identidade visual, em linhas 
+           como as do modal de medalha.
+      101 -// Escolhido o prêmio, a lista recolhe para ele, com "Trocar p
+          -rêmio": o catálogo tem 17 itens                               
+      101 +// Escolhido o prêmio, a lista recolhe para ele, com "Trocar p
+          +rêmio" (ou um toque nele de                                   
+      102 +// novo) para devolvê-la: o catálogo tem 17 itens             
+      103  // e empurraria o evento para longe da foto.
+      104  export function EscolhaDaReivindicacao({
+      105    itens,
+  ⎿  (timeout 5m)
+
+● Ajusto a quebra do comentário, e a etapa está pronta para a captura:
+
+● Update(apps\mobile\src\premiosParticipacao\EscolhaDaReivindicacao.tsx)
+  ⎿  Added 1 line, removed 2 lines
+       99  // lista ou digitado com nome e período, e a matéria quando o 
+           prêmio pede (apresentação em
+      100  // sala). Sem prancheta: segue a identidade visual, em linhas 
+           como as do modal de medalha.
+      101  // Escolhido o prêmio, a lista recolhe para ele, com "Trocar p
+           rêmio" (ou um toque nele de
+      102 -// novo) para devolvê-la: o catálogo tem 17 itens             
+      103 -// e empurraria o evento para longe da foto.                  
+      102 +// novo) para devolvê-la: o catálogo tem 17 itens e empurraria
+          + o evento para longe da foto.                                 
+      103  export function EscolhaDaReivindicacao({
+      104    itens,
+      105    valor,
+● Antes da captura, confiro o lint e os tipos, porque a saída deles não apareceu
+  acima:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Vou gravar a captura com uma especificação temporária do Playwright, fora do
+  commit, nos temas claro e escuro, e depois confiro a assinatura do novaConta.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(e2e\tests\captura-passo6.spec.ts)
+  ⎿  Wrote 27 lines to e2e\tests\captura-passo6.spec.ts
+       1 // TEMPORÁRIO, fora do commit: captura do achado do passo 6 do e
+         nsaio para a revisão do autor.
+       2 import { expect, test } from "@playwright/test";
+       3 
+       4 import { novaConta } from "./apoio/contas";
+       5 
+       6 test("captura: trocar o prêmio escolhido", { tag: "@celular" }, 
+         async ({ page, request }, info) => {
+       7   const aluno = await novaConta(request, "Captura");
+       8   await page.goto("/login");
+     … +19 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a pilha local sobe e a captura roda, acrescento a limpeza do cache da
+  CDN como passo da rotina de purga, no roteiro do ensaio e no de operação:
+
+● Update(docs\ensaio.md)
+  ⎿  Added 7 lines, removed 3 lines
+      49     ensaio e digita o nome dele de novo.
+      50  2. Conferir na VPS: nenhum usuário com o lote do ensaio, e o re
+          gistro em
+      51     `purga_da_demonstracao` com o número de alunos e de fotos.
+      52 -3. Conferir no R2: a URL de uma foto de post do ensaio (anotada
+         - no passo 3) deixa de                                          
+      53 -   responder 200 pela CDN depois que a fila esvazia.           
+      54 -4. Trocar `MAXX_DEMO_LOTE` pelo lote da avaliação (autor) e sub
+         -ir de novo com a                                               
+      52 +3. **Limpar o cache da CDN**: no painel da Cloudflare, Caching,
+         + Purge Cache, Purge                                            
+      53 +   Everything na zona. A purga tira as fotos do bucket, mas a b
+         +orda da Cloudflare continua                                    
+      54 +   servindo a cópia que já tinha até ela expirar (limite conhec
+         +ido, `decisoes/README.md`,                                     
+      55 +   passo 13).                                                  
+      56 +4. Conferir no R2: a URL de uma foto de post do ensaio (anotada
+         + no passo 3) responde 404                                      
+      57 +   pela CDN, sem parâmetro nenhum na URL.                      
+      58 +5. Trocar `MAXX_DEMO_LOTE` pelo lote da avaliação (autor) e sub
+         +ir de novo com a                                               
+      59     demonstração ligada.
+      60  
+      61  ## O que registrar
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\operacao.md)
+  ⎿  Added 14 lines
+       84  Logs: `dc logs -f --tail=200 api worker caddy`. O log de cada 
+           contêiner tem teto de
+       85  5 arquivos de 10 MB.
+       86  
+       87 +## Purga de um lote de demonstração                           
+       88 +                                                              
+       89 +Depois da avaliação (e do ensaio), pela área da instituição, n
+          +unca por SQL à mão:                                           
+       90 +                                                              
+       91 +1. Desligar a demonstração (`dc up -d`), para ninguém entrar n
+          +o lote durante a purga.                                       
+       92 +2. Em `/instituicao/purga`, escolher o lote e digitar o nome d
+          +ele de novo. Banco e fila                                     
+       93 +   saem numa transação; as fotos do lote vão para o trabalho `
+          +remover-fotos`.                                               
+       94 +3. Esperar a fila esvaziar (`/api/health/worker` com `disponiv
+          +eis` em 0).                                                   
+       95 +4. **Limpar o cache da CDN**: painel da Cloudflare, Caching, P
+          +urge Cache, Purge Everything                                  
+       96 +   na zona de `fotos.maxx-unimax.com`. Sem isso, a borda conti
+          +nua servindo a foto que já                                    
+       97 +   tinha em cache até ela expirar, mesmo fora do bucket.      
+       98 +5. Conferir: nenhum usuário com o lote, o registro em `purga_d
+          +a_demonstracao`, e a URL de                                   
+       99 +   uma foto do lote em 404 pela CDN.                          
+      100 +                                                              
+      101  ## Seed de demonstração
+      102  
+      103  Uma vez, depois da primeira subida. Ele sobe as fotos dos post
+           s do mundo para o R2 e
+
+● O roteiro de operação ganhou a seção da purga de lote, com a limpeza do cache
+  da CDN no passo 4. Aguardo a captura, que inclui reconstruir o build web na
+  imagem local do Caddy.
+
+✻ Brewed for 5m 52s · done 15:20
+
+● Background command "Rebuild web, start stack, capture screenshots" completed
+(exit code 0)
+
+  Read 4 files (ctrl+o to expand)
+
+● Captura feita nos dois temas. Removo a especificação temporária e paro a pilha
+  local, para liberar memória:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" && rm
+      -f e2e/tests/captura-passo6.spec.ts && docker compose stop 2>&1 | tail
+      -1; git status…)
+  ⎿   Container maxx-postgres-1 Stopped
+      M apps/mobile/src/premiosParticipacao/EscolhaDaReivindicacao.tsx
+      M apps/mobile/src/premiosParticipacao/reivindicacao.test.tsx
+     … +3 lines (ctrl+o to expand)
+  ⎿  Deleted e2e\tests\captura-passo6.spec.ts (+0 -27)
+       1 -// TEMPORÁRIO, fora do commit: captura do achado do passo 6 do 
+         -ensaio para a revisão do autor.                                
+       2 -import { expect, test } from "@playwright/test";               
+       3 -                                                               
+       4 -import { novaConta } from "./apoio/contas";                    
+       5 -                                                               
+       6 -test("captura: trocar o prêmio escolhido", { tag: "@celular" },
+         - async ({ page, request }, info) => {                          
+       7 -  const aluno = await novaConta(request, "Captura");           
+       8 -  await page.goto("/login");                                   
+       9 -  await page.getByLabel("RA ou e-mail").fill(aluno.ra);        
+      10 -  await page.getByLabel("Senha", { exact: true }).fill(aluno.se
+         -nha);                                                          
+      11 -  await page.getByRole("button", { name: "Entrar", exact: true 
+         -}).click();                                                    
+      12 -  await page.getByRole("button", { name: "Novo post" }).first()
+         -.click();                                                      
+      13 -  await page.getByRole("radio", { name: "Reivindicar prêmio" })
+         -.click();                                                      
+      14 -                                                               
+      15 -  const premio = page.getByRole("radio", { name: /^Semana acadê
+         -mica,/ });                                                     
+      16 -  await premio.click();                                        
+      17 -  await expect(page.getByRole("heading", { name: "Evento" })).t
+         -oBeVisible();                                                  
+      18 -  await premio.scrollIntoViewIfNeeded();                       
+      19 -  const pasta = process.env.MAXX_CAPTURA_DIR ?? ".";           
+      20 -  await page.screenshot({ path: `${pasta}/passo6-${info.project
+         -.name}-1-escolhido.png` });                                    
+      21 -                                                               
+      22 -  await premio.click();                                        
+      23 -  await expect(page.getByRole("radio", { name: /^Apresentação d
+         -e trabalho em sala/ })).toBeVisible();                         
+      24 -  await expect(page.getByRole("heading", { name: "Evento" })).t
+         -oHaveCount(0);                                                 
+      25 -  await premio.scrollIntoViewIfNeeded();                       
+      26 -  await page.screenshot({ path: `${pasta}/passo6-${info.project
+         -.name}-2-lista-de-volta.png` });                               
+      27 -});                                                            
+
+● Parei para a sua revisão. Ainda não fiz o commit da correção do passo 6.
+
+  Ensaio fechado
+
+  - Cache da CDN: depois do seu Purge Everything, a URL exata das duas fotos do
+    passo 3 dá 404 também pelo GET, sem parâmetro (cf-cache-status: DYNAMIC).
+  - Lote da avaliação no ar: o deploy.sh subiu a versão com a demonstração
+    ligada, fazendo antes o dump antes-de-migration. As duas réplicas leem
+    banca-2026, GET /api/v1/demo responde com os quatro cursos e o worker está
+    em 200.
+  - Gravação do ensaio encerrada. Ao parar os processos, o meu pkill derrubou a
+    própria sessão de comando antes do deploy. Nada foi afetado, e eu refiz o
+    deploy em seguida.
+  - Rotina da purga: a limpeza do cache entrou como passo em docs/ensaio.md e em
+    docs/operacao.md, numa seção nova, "Purga de um lote de demonstração". O
+    registro do cache de borda como limite conhecido, com essa mitigação, vai no
+    índice na etapa 10.
+
+  Correção do passo 6 (falta o commit)
+
+  Causa: o link "Trocar prêmio" existia, mas é discreto (texto cinza abaixo do
+  cartão), e tocar no próprio prêmio marcado não fazia nada.
+
+  Correção em EscolhaDaReivindicacao.tsx: tocar de novo no prêmio escolhido
+  devolve a lista inteira, com o mesmo efeito do "Trocar prêmio". O link
+  continua lá. O nome e as datas digitados se mantêm, e o evento e a matéria
+  escolhidos saem, como já acontecia no link. Como o componente é o mesmo, vale
+  também para a concessão direta da instituição.
+
+  Jest: o teste novo, "tocar de novo no prêmio escolhido devolve a lista para
+  trocar", falhou antes da correção e passa depois. Os testes de prêmios e da
+  instituição deram 47 de 47; lint, tipos e formatação estão limpos.
+
+  Captura do build web local, a 390 de largura, claro e escuro, na pasta
+  C:\Users\GUILHE~1\AppData\Local\Temp\captura-passo6:
+  - passo6-celular-claro-1-escolhido.png e
+    passo6-celular-escuro-1-escolhido.png: Semana acadêmica escolhida, lista
+    recolhida, "Trocar prêmio" e a seção Evento;
+  - passo6-celular-claro-2-lista-de-volta.png e
+    passo6-celular-escuro-2-lista-de-volta.png: depois de tocar de novo no
+    cartão, a lista inteira volta, sem marcação e sem a seção Evento.
+
+  Ao aprovar a captura, eu faço o fix(mobile), push, CI e publicação na VPS (a
+  imagem do Caddy carrega o build web). Depois, a etapa 10. Os documentos do
+  ensaio e da operação ainda estão sem commit e entram com a etapa 10.
+
+✻ Sautéed for 35s · done 15:22
