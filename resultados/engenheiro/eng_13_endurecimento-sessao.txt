@@ -3,7 +3,10 @@
  ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro
 
 
-> Passo 13 do plano mestre: endurecimento, deploy e ensaio, o último. Estamos   
+❯                                                                               
+                                                                                
+  <pasted_content id="0669">                                                    
+  Passo 13 do plano mestre: endurecimento, deploy e ensaio, o último. Estamos   
   na rodada/eng_13_endurecimento, saída da main com os passos 1 a 12 mergeados. 
   Antes de qualquer código, me traga o plano de etapas, com entrega e critério  
   de aceite por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá:     
@@ -69,6 +72,8 @@
   SMTP, lote da demonstração, R2 sem o perfil do emulador) e me avisa; nenhum   
   valor passa por aqui, e você confere só que elas existem. Eu reviso o plano e 
   aí começamos a primeira etapa.                                                
+  </pasted_content id="0669">                                                   
+                                                                                
 
 ● Vou ler os docs e o estado do repositório antes de montar o plano.
 
@@ -347,13 +352,14 @@
 
 ※ recap: Estamos no passo 13 (endurecimento, deploy e ensaio), e o plano de 11 etapas já está escrito, ainda sem nenhum código. Falta você revisar o plano e responder às 10 perguntas do fim para eu começar a etapa 1, os domínios de e-mail aceitos. (disable recaps in /config)
 
-> /export ..\tcc\resultados\engenheiro\eng_13_endurecimento-sessao.txt          
+❯ /export ..\tcc\resultados\engenheiro\eng_13_endurecimento-sessao.txt          
   ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\tc
      c\resultados\engenheiro\eng_13_endurecimento-sessao.txt
 
 ※ recap: Estamos no passo 13, de endurecimento, deploy e ensaio, e o plano de 11 etapas com 10 perguntas está pronto, sem nenhum código escrito. Falta você revisar o plano e responder às perguntas para eu começar a etapa 1, a dos domínios de e-mail aceitos. (disable recaps in /config)
 
-> Plano aprovado com uma mudança de ordem e alguns cortes. Respostas às         
+❯ <pasted_content id="0669">                                                    
+  Plano aprovado com uma mudança de ordem e alguns cortes. Respostas às         
   perguntas primeiro, depois a ordem nova.                                      
                                                                                 
   Perguntas                                                                     
@@ -425,6 +431,7 @@
   valor de credencial sai da VPS nem entra no chat; só nomes de variáveis.      
                                                                                 
   Pode começar pela etapa 1.                                                    
+  </pasted_content id="0669">                                                   
 
 ● Começando a etapa 1. Primeiro a branch e o remoto.
 
@@ -1198,13 +1205,13 @@ code 0)
 
 ✻ Churned for 38m 10s · done 19:07
 
-> /export ..\tcc\resultados\engenheiro\eng_13_endurecimento-sessao.txt          
+❯ /export ..\tcc\resultados\engenheiro\eng_13_endurecimento-sessao.txt          
   ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\tc
      c\resultados\engenheiro\eng_13_endurecimento-sessao.txt
 
 ※ recap: O objetivo é colocar o passo 13 em produção na VPS; a etapa 1 terminou com as imagens publicadas no GHCR (sha-c1f2b77). O próximo passo é seu: escrever o /opt/maxx/.env com os nomes listados e me avisar com "env feito". (disable recaps in /config)
 
-> env feito. Está em /opt/maxx/.env com permissão 600, todos os nomes da sua    
+❯ env feito. Está em /opt/maxx/.env com permissão 600, todos os nomes da sua    
   lista, sem aspas, MAXX_IMAGEM_TAG em sha-c1f2b77 por enquanto,                
   MAXX_ARMAZENAMENTO_REGIAO em auto e MAXX_SMTP_SEGURANCA em StartTls. O Email  
   Routing com catch-all já está ativo e testado. Confira só os nomes, sem       
@@ -1263,7 +1270,7 @@ completed (exit code 0)
   esse valor para você ajustar e sigo pela suíte local.
 
   Ran 1 shell command (ctrl+o to expand)
-> Endpoint corrigido no .env, era resto do marcador. Pode seguir.               
+❯ Endpoint corrigido no .env, era resto do marcador. Pode seguir.               
 
 ● Você corrigiu o endpoint. Confiro só a forma, aplico o .env novo à API e ao
   worker e rodo de novo a verificação do R2:
@@ -1444,7 +1451,7 @@ completed (exit code 0)
 
   Ran 2 shell commands (ctrl+o to expand)
 
-> Não espere comandos longos em primeiro plano. Suíte, CI e builds de imagem    
+❯ Não espere comandos longos em primeiro plano. Suíte, CI e builds de imagem    
   ficam em segundo plano enquanto você adianta trabalho independente da etapa   
   (docs, compose, próximos testes); só confira o resultado antes de usar a      
   imagem na VPS, antes de abrir o PR e quando a notificação chegar vermelha.    
@@ -1455,7 +1462,23 @@ completed (exit code 0)
   vermelha. Enquanto isso, adianto o registro dos achados do deploy para a etapa
   10 e o roteiro.
 
-  Made 1 scratchpad edit +16 (ctrl+o to expand)
+● Write(C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-D
+       ocuments-Repos-tcc-maxx-engenheiro\e8cae222-afea-4a0d-99d3-64ff0935d6dd\s
+       cratchpad\notas-passo-13.md)
+  ⎿  Wrote 15 lines to C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users
+     -Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\e8cae222-afea-4
+     a0d-99d3-64ff0935d6dd\scratchpad\notas-passo-13.md
+       1 # Notas do passo 13 para o registro (etapa 10)
+       2 
+       3 ## Etapa 1
+       4 - Imagens: ghcr.io/gfgimenes/maxx-engenheiro-api e -caddy (nome 
+         próprio; maxx-api vazio sobrou da 1a tentativa, autor apaga).
+       5 - `--provenance=false`: com o índice de atestado, o pacote não s
+         e liga ao repo e o GITHUB_TOKEN recebe denied no manifesto.
+       6 - Concurrency por ref + evento.
+       7 
+       8 ## Etapa 2
+     … +7 lines (ctrl+o to expand)
 
 ● Update(docs\operacao.md)
   ⎿  Added 5 lines
@@ -1579,9 +1602,9 @@ code 0)
   correção de e-mail no domínio:
 
   Ran 1 shell command (ctrl+o to expand)
-
 ● Mudo a assinatura para receber a lista, e a recusa nova entra depois da
   conferência da forma:
+
 ● Bash(cd "/c/Users/Guilherme
       Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i 's/^
       EmailInvalido,$/    EmailInvalido,\n    DominioNaoAceito,/' src/M…)
@@ -2112,8 +2135,8 @@ code 0)
            d, DateTimeOffset.UtcNow).Troca!);
       246              await db.SaveChangesAsync(Ct);
       247          }
-
 ● Compilo para conferir (rápido):
+
   Ran 1 shell command (ctrl+o to expand)
 
 ● Compila sem aviso. Escrevo os testes de integração: cadastro, as duas
@@ -2410,9 +2433,9 @@ completed (exit code 0)
   Sigo quando os avisos chegarem.
 
 ✻ Cooked for 9m 53s · done 20:35
-
 ● Background command "Wait for reverse proof and confirm restore" completed
 (exit code 0)
+
   Ran 1 shell command (ctrl+o to expand)
 
 ● Prova reversa confirmada: sem as duas conferências, os 3 casos novos falham.
@@ -2505,7 +2528,25 @@ code 0)
 ● Escrevo um script de implantação reutilizável; depois de checar que a
   publicação ficou verde, vou trocar a tag na VPS e confirmar /api/ready.
 
-  Made 1 scratchpad edit +13, ran 1 shell command (ctrl+o to expand)
+● Write(C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-D
+       ocuments-Repos-tcc-maxx-engenheiro\e8cae222-afea-4a0d-99d3-64ff0935d6dd\s
+       cratchpad\implantar.sh)
+  ⎿  Wrote 12 lines to C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users
+     -Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\e8cae222-afea-4
+     a0d-99d3-64ff0935d6dd\scratchpad\implantar.sh
+       1 #!/usr/bin/env bash
+       2 # Uso: implantar.sh <run_id da publicação> <sha completo>
+       3 # Espera a publicação; só implanta se ela terminar verde.
+       4 set -u
+       5 run="$1"; sha="$2"; curta="sha-${sha:0:7}"
+       6 K="/c/Users/Guilherme Gimenes/.ssh/maxx"; S="root@2.29.147.114"
+       7 until [ "$(gh run view "$run" --repo GFGimenes/maxx-engenheiro -
+         -json status -q .status)" = "completed" ]; do sleep 20; done
+       8 c=$(gh run view "$run" --repo GFGimenes/maxx-engenheiro --json c
+         onclusion,jobs -q '.conclusion+" | "+([.jobs[]|.name+":"+.conclu
+     … +5 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
 
 ● Enquanto a etapa 3 publica e sobe, escrevo a etapa 4 no Caddyfile. A CSP
   recebe os dois endereços do bucket por variável de ambiente, e o HSTS vale só
@@ -2599,13 +2640,13 @@ code 0)
   endereço:
 
   Ran 1 shell command (ctrl+o to expand)
-
 ● Caddyfile válido e já formatado, nos dois cenários. Agora o teste e2e dos
   cabeçalhos. Leio as convenções do e2e:
 
   Ran 2 shell commands (ctrl+o to expand)
 
-● Write(e2e\tests\cabecalhos.spec.ts)  ⎿  Wrote 75 lines to e2e\tests\cabecalhos.spec.ts
+● Write(e2e\tests\cabecalhos.spec.ts)
+  ⎿  Wrote 75 lines to e2e\tests\cabecalhos.spec.ts
        1 import { expect, test } from "@playwright/test";
        2 
        3 // Os cabeçalhos de segurança do Caddy (passo 13), na web e na A
@@ -2651,7 +2692,7 @@ code 0)
 
 ※ recap: Passo 13: produção já está no ar na VPS, com o seed demo carregado, e a etapa 3 (domínios de e-mail aceitos) aguarda a publicação para subir. Próximo passo: conferir os cabeçalhos e a CSP da etapa 4, que estão em teste local.
 
-> /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
+❯ /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
   ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
      sultados\engenheiro\eng_13_endurecimento-sessao.txt
 
@@ -2725,13 +2766,13 @@ completed (exit code 0)
   alterar a árvore sem misturar etapas. Antes da etapa 5, vou verificar como o
   contexto registra as entidades, o que os testes de arquitetura exigem e onde o
   worker é registrado.
-
   Ran 2 shell commands (ctrl+o to expand)
 
 ● Escrevo a etapa 5. Primeiro o que a Application declara, com a avaliação dos
   limites:
 
-● Write(apps\api\src\Maxx.Application\Fila\SaudeDoWorker.cs)  ⎿  Wrote 75 lines to apps\api\src\Maxx.Application\Fila\SaudeDoWorker.cs
+● Write(apps\api\src\Maxx.Application\Fila\SaudeDoWorker.cs)
+  ⎿  Wrote 75 lines to apps\api\src\Maxx.Application\Fila\SaudeDoWorker.cs
        1 namespace Maxx.Application.Fila;
        2 
        3 // A saúde do worker (ADR 0005, passo 13): o worker morto congel
@@ -3070,7 +3111,6 @@ completed (exit code 0)
            tion não volta sozinha: se a
 
   Ran 1 shell command (ctrl+o to expand)
-
 ● Três tarefas correm em segundo plano:
   - os testes da saúde do worker (etapa 5);
   - a nova rodada, em série, dos 3 e2e que falharam na suíte local (etapa 4);
@@ -3080,6 +3120,7 @@ completed (exit code 0)
   chegarem.
 
 ✻ Sautéed for 11m 1s · done 21:10
+
 ● Background command "Run worker health integration tests" completed (exit code
 0)
 
@@ -3264,7 +3305,6 @@ code 0)
 ● Aguardo esse levantamento e as outras duas tarefas.
 
 ✻ Cooked for 27s · done 21:18
-
 ● Background command "Get vulnerable ranges and installed versions" completed
 (exit code 0)
 
@@ -3272,6 +3312,7 @@ code 0)
 
 ● Três avisos vêm de dependências, e deepmerge não tem versão corrigida; vou
   simular se o npm audit fix sem --force resolve algo.
+
   Ran 1 shell command (ctrl+o to expand)
 
 ● Aguardo a simulação, a suíte da etapa 5 e a implantação da etapa 4.
@@ -3437,13 +3478,13 @@ prod" completed (exit code 0)
            des. No push da main, com as
       206    # tags latest e sha-<curto>; no disparo à mão por uma branch
            , só sha-<curto>, para o
-
   Ran 1 shell command (ctrl+o to expand)
 
 ● Os nomes das imagens conferem. Rodo o Trivy localmente quando a imagem do
   Caddy com o Node 24 terminar de construir, para saber o resultado antes do
   push. Aguardo os avisos: o teste do alerta na VPS e a suíte do cliente no Node
   24.
+
 ✻ Cogitated for 2m 16s · done 21:51
 
 ● Background command "Stop worker, confirm 503 alert, restart, confirm 200"
@@ -3534,3 +3575,532 @@ stopped because the system is running low on memory
 ✻ Sautéed for 1m 57s · done 22:16
 
 ※ recap: Estamos no passo 13 (endurecimento e deploy): as etapas 1 a 5 estão fechadas e no ar, e a etapa 6 (Node 24, Trivy e npm audit) parou porque a suíte local foi interrompida por falta de memória. Preciso que você escolha: derrubo a pilha local e rodo de novo, ou deixo a CI decidir.
+
+❯ /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+❯ Opção 2, por prazo: pula a suíte local no Node 24 e o Trivy local; derruba a  
+  pilha local do compose para liberar memória, commita a etapa 6 como está,     
+  push, e a CI decide com o Node do .nvmrc e o Trivy no job build. Se a CI não  
+  ficar verde de primeira, volta ao Node 22 num fix separado, mantém o Trivy e  
+  registra a avaliação do Node 24 como pendência. O registro do npm audit sem   
+  mudança fica como você descreveu. Depois segue para a 7 e a 8 sem me esperar; 
+  a pilha local só volta a subir se alguma etapa precisar do e2e. O             
+  UptimeRobot eu crio depois do passo.                                          
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Commit cec612a pushed for stage 6, with CI running; while it runs I'm moving
+  on to stage 7, local backups with rotation and a deploy.sh that dumps before
+  the migrator.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(infra\backup\backup.sh)
+  ⎿  Wrote 30 lines to infra\backup\backup.sh
+       1 #!/usr/bin/env bash
+       2 # Dump do Postgres da VPS em /opt/maxx/backups, com rotação de 1
+         4 dias (passo 13).
+       3 # Noturno pelo timer do systemd (maxx-backup.timer) e antes de t
+         oda migration pelo
+       4 # infra/deploy.sh. O envio para um bucket sem domínio público é 
+         pendência fora da fase 1.
+       5 #   /opt/maxx/infra/backup/backup.sh [rótulo]     rótulo: noturn
+         o (padrão) ou antes-de-migration
+       6 set -euo pipefail
+     … +24 lines (ctrl+o to expand)
+
+● Write(infra\backup\maxx-backup.service)
+  ⎿  Wrote 10 lines to infra\backup\maxx-backup.service
+       1 # Backup noturno do Postgres do Maxx (infra/backup/backup.sh). I
+         nstalado em
+       2 # /etc/systemd/system pelo roteiro de docs/operacao.md; disparad
+         o por maxx-backup.timer.
+       3 [Unit]
+       4 Description=Backup noturno do Postgres do Maxx
+       5 Requires=docker.service
+       6 After=docker.service
+       7 
+       8 [Service]
+     … +2 lines (ctrl+o to expand)
+
+● Write(infra\backup\maxx-backup.timer)
+  ⎿  Wrote 11 lines to infra\backup\maxx-backup.timer
+       1 # Às 03:00 de São Paulo, todo dia. A VPS roda em UTC; o fuso vai
+          no próprio OnCalendar.
+       2 # Persistent: se a VPS estava desligada na hora, roda assim que 
+         voltar.
+       3 [Unit]
+       4 Description=Backup noturno do Postgres do Maxx, às 03:00 de São 
+         Paulo
+       5 
+       6 [Timer]
+       7 OnCalendar=*-*-* 03:00:00 America/Sao_Paulo
+     … +4 lines (ctrl+o to expand)
+
+● Agora o teste de restauração e o deploy.sh:
+
+● Write(infra\backup\restaurar-teste.sh)
+  ⎿  Wrote 41 lines to infra\backup\restaurar-teste.sh
+       1 #!/usr/bin/env bash
+       2 # Prova de que o backup volta (passo 13): restaura um dump num P
+         ostgres descartável, fora do
+       3 # compose, e compara a contagem de linhas de cada tabela com a d
+         o banco de produção. Não
+       4 # toca no banco de produção além de ler as contagens. O contêine
+         r some no fim.
+       5 #   /opt/maxx/infra/backup/restaurar-teste.sh [arquivo.dump]   p
+         adrão: o dump mais novo
+       6 set -euo pipefail
+     … +35 lines (ctrl+o to expand)
+
+● Write(infra\deploy.sh)
+  ⎿  Wrote 48 lines to infra\deploy.sh
+       1 #!/usr/bin/env bash
+       2 # Implanta na VPS a versão de um commit cujas imagens o job publ
+         icar da CI já publicou
+       3 # (docs/operacao.md). Traz do repositório, no mesmo commit, os a
+         rquivos do compose e os
+       4 # scripts; troca a tag no .env; puxa as imagens; faz o dump ante
+         s de qualquer migration
+       5 # (decisoes/README.md, Backup); sobe, e o migrator roda antes da
+         s réplicas.
+       6 #   /opt/maxx/infra/deploy.sh <sha completo> [demo]
+     … +42 lines (ctrl+o to expand)
+
+● Corrijo o risco de sobrescrita no deploy.sh baixando cada arquivo para um
+  temporário e trocando com mv, para que o processo em execução siga com a
+  versão antiga aberta.
+
+● Update(infra\deploy.sh)
+  ⎿  Added 4 lines, removed 1 line
+      17  for arquivo in docker-compose.producao.yml docker-compose.demo.
+          yml .env.producao.example \
+      18    infra/deploy.sh infra/backup/backup.sh infra/backup/restaurar
+          -teste.sh \
+      19    infra/backup/maxx-backup.service infra/backup/maxx-backup.tim
+          er; do
+      20 -  curl -fsSL "$base/$arquivo" -o "$arquivo"                    
+      20 +  # Baixa ao lado e troca com mv: este próprio script está na l
+         +ista, e o bash lê o arquivo                                    
+      21 +  # aos poucos enquanto roda; o mv deixa o processo atual com a
+         + versão que abriu.                                             
+      22 +  curl -fsSL "$base/$arquivo" -o "$arquivo.novo"               
+      23 +  mv "$arquivo.novo" "$arquivo"                                
+      24  done
+      25  chmod +x infra/deploy.sh infra/backup/*.sh
+      26  
+
+  Ran 1 shell command (ctrl+o to expand)
+● ShellCheck só levantou avisos informativos, todos intencionais. Agora vou
+  verificar a CI da etapa 6 antes de seguir para a etapa 7.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O segurança e o api-client já passaram com o Node 24; mobile, e2e e build (com
+  o Trivy) seguem rodando. Enquanto isso, atualizo o roteiro com o deploy.sh e
+  o backup:
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\operacao.md)
+  ⎿  Added 21 lines, removed 6 lines
+      36  O job só publica com os seis jobs verdes. A tag sai no fim do l
+          og do passo "Constrói e
+      37  publica".
+      38  
+      39 -## Trazer os arquivos do compose                               
+      39 +## Implantar uma versão                                        
+      40  
+      41 -Os dois arquivos do compose vêm do repositório, no mesmo commit
+         - da imagem:                                                    
+      41 +Pelo `infra/deploy.sh`, com o sha completo de um commit já publ
+         +icado:                                                         
+      42  
+      43  ```sh
+      44 -sha=<commit completo>                                          
+      45 -base=https://raw.githubusercontent.com/GFGimenes/maxx-engenheir
+         -o/$sha                                                         
+      46 -curl -fsSLO "$base/docker-compose.producao.yml"                
+      47 -curl -fsSLO "$base/docker-compose.demo.yml"                    
+      44 +/opt/maxx/infra/deploy.sh <sha completo>         # produção    
+      45 +/opt/maxx/infra/deploy.sh <sha completo> demo    # com a demons
+         +tração ligada                                                  
+      46  ```
+      47  
+      48 +Em ordem, ele:                                                 
+      49 +                                                               
+      50 +1. traz do repositório, no mesmo commit, os arquivos do compose
+         +, o `.env.producao.example`                                    
+      51 +   e os scripts de `infra/`, inclusive ele mesmo;              
+      52 +2. confere que todo nome exigido está no `.env`, e para sem toc
+         +ar em nada se faltar um;                                       
+      53 +3. troca a `MAXX_IMAGEM_TAG` e puxa as imagens;                
+      54 +4. faz o dump do banco (`antes-de-migration`) e sobe: o migrato
+         +r roda antes das réplicas;                                     
+      55 +5. espera o `/api/ready`.                                      
+      56 +                                                               
+      57 +Na primeira vez, quando ainda não há `infra/` na VPS, ele mesmo
+         + é baixado à mão:                                              
+      58 +                                                               
+      59 +```sh                                                          
+      60 +mkdir -p /opt/maxx/infra                                       
+      61 +curl -fsSL https://raw.githubusercontent.com/GFGimenes/maxx-eng
+         +enheiro/<sha>/infra/deploy.sh \                                
+      62 +  -o /opt/maxx/infra/deploy.sh && chmod +x /opt/maxx/infra/depl
+         +oy.sh                                                          
+      63 +```                                                            
+      64 +                                                               
+      65  ## Conferir o `.env` sem ler os valores
+      66  
+      67  Lista cada nome exigido que falta ou está vazio, sem imprimir v
+          alor nenhum:
+
+● Update(docs\operacao.md)
+  ⎿  Added 4 lines, removed 12 lines
+      75  O `.env.producao.example` vem do repositório, como os arquivos 
+          do compose. O próprio
+      76  compose confere de novo: faltando um valor, ele recusa subir e 
+          diz o nome.
+      77  
+      78 -## Subir e atualizar                                           
+      78 +## Ligar e desligar a demonstração                             
+      79  
+      80 -```sh                                                          
+      81 -sed -i "s/^MAXX_IMAGEM_TAG=.*/MAXX_IMAGEM_TAG=sha-<curto>/" .en
+         -v                                                              
+      82 -dc pull                                                        
+      83 -dc up -d                 # migrator, seed base, réplicas, worke
+         -r e Caddy, nessa ordem                                         
+      84 -dc ps                                                          
+      85 -curl -fsS https://app.maxx-unimax.com/api/ready                
+      86 -```                                                            
+      80 +A demonstração fica ligada só durante o ensaio e a avaliação: `
+         +deploy.sh <sha> demo`, ou,                                     
+      81 +sem trocar de versão, `dcdemo up -d`. Voltar a `dc up -d` desli
+         +ga a flag, e as rotas de                                       
+      82 +demonstração voltam a responder 404.                           
+      83  
+      88 -Com a demonstração ligada (só durante o ensaio e a avaliação), 
+         -troque `dc` por `dcdemo`                                       
+      89 -no `up`. Voltar a `dc up -d` desliga a flag, e as rotas de demo
+         -nstração voltam a responder                                    
+      90 -404.                                                           
+      91 -                                                               
+      84  Logs: `dc logs -f --tail=200 api worker caddy`. O log de cada c
+          ontêiner tem teto de
+      85  5 arquivos de 10 MB.
+      86  
+
+● Update(docs\operacao.md)
+  ⎿  Added 38 lines
+      154  O alerta de falho se apaga sozinho 24 horas depois da falha, o
+           u quando o trabalho volta à
+      155  fila.
+      156  
+      157 +## Backup                                                     
+      158 +                                                              
+      159 +`pg_dump` em formato custom em `/opt/maxx/backups` (pasta só d
+          +o root), um arquivo por                                       
+      160 +dump, `maxx-<instante UTC>-<rótulo>.dump`. Rotação de 14 dias 
+          +pelo próprio script. O envio                                  
+      161 +para um bucket sem domínio público é pendência fora da fase 1:
+          + hoje o backup não sobrevive                                  
+      162 +à perda do disco da VPS.                                      
+      163 +                                                              
+      164 +| Quando | Como |                                             
+      165 +|---|---|                                                     
+      166 +| Toda noite, 03:00 de São Paulo | `maxx-backup.timer` do syst
+          +emd, `noturno` |                                              
+      167 +| Antes de toda migration | `deploy.sh`, `antes-de-migration` 
+          +|                                                             
+      168 +| À mão | `/opt/maxx/infra/backup/backup.sh manual` |         
+      169 +                                                              
+      170 +Instalar o timer, uma vez, depois do primeiro `deploy.sh`:    
+      171 +                                                              
+      172 +```sh                                                         
+      173 +cp /opt/maxx/infra/backup/maxx-backup.{service,timer} /etc/sys
+          +temd/system/                                                  
+      174 +systemctl daemon-reload && systemctl enable --now maxx-backup.
+          +timer                                                         
+      175 +systemctl list-timers maxx-backup.timer                       
+      176 +```                                                           
+      177 +                                                              
+      178 +O dump só ganha o nome final depois de o `pg_restore --list` c
+          +onseguir lê-lo. Provar que                                    
+      179 +um dump volta, num Postgres descartável fora do compose, compa
+          +rando a contagem de linhas                                    
+      180 +de cada tabela com a produção:                                
+      181 +                                                              
+      182 +```sh                                                         
+      183 +/opt/maxx/infra/backup/backup.sh manual && /opt/maxx/infra/bac
+          +kup/restaurar-teste.sh                                        
+      184 +```                                                           
+      185 +                                                              
+      186 +Restaurar de verdade (perda de dados ou migration que deu erra
+          +do), com a API parada:                                        
+      187 +                                                              
+      188 +```sh                                                         
+      189 +dc stop api worker caddy                                      
+      190 +dc exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" --force 
+          +"$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
+      191 +dc exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "
+          +$POSTGRES_DB" --no-owner --exit-on-error' < /opt/maxx/backups/
+          +<arquivo>.dump                                                
+      192 +dc up -d                                                      
+      193 +```                                                           
+      194 +                                                              
+      195  ## Voltar uma versão
+      196  
+      197  Trocar `MAXX_IMAGEM_TAG` pela tag anterior e `dc up -d`. Migra
+           tion não volta sozinha: se a
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\operacao.md)
+  ⎿  Added 3 lines, removed 2 lines
+      194  
+      195  ## Voltar uma versão
+      196  
+      197 -Trocar `MAXX_IMAGEM_TAG` pela tag anterior e `dc up -d`. Migra
+          -tion não volta sozinha: se a                                  
+      198 -versão nova trouxe migration, a volta é pela restauração do du
+          -mp feito antes dela.                                          
+      197 +`deploy.sh` com o sha da versão anterior. Migration não volta 
+          +sozinha: se a versão nova                                     
+      198 +trouxe migration, a volta é pela restauração do dump `antes-de
+          +-migration` que o                                             
+      199 +`deploy.sh` fez antes dela (seção Backup), e só então o `deplo
+          +y.sh` da versão anterior.                                     
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A CI da etapa 6 ficou vermelha em mobile e build. Estou lendo os logs para ver
+  a causa:
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● O Trivy acusa 2 achados altos no apt da imagem da API, com correção na
+  2.8.4ubuntu0.1, e o Jest no mobile falhou em um teste de recusa da API; vou
+  ler o detalhe do Jest agora.
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● O teste falha no Node 24 de forma comportamental, então volto ao Node 22 num
+  fix separado; o Trivy também ganha um fix próprio para atualizar os pacotes do
+  Ubuntu, e agora varre as duas imagens e falha se qualquer uma tiver achado.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      git status --short && echo 22 > .nvmrc && sed -i 's/"node":
+      ">=24.3"/"node": ">=22.12"/'…)
+  ⎿   M docs/operacao.md
+     A  infra/backup/backup.sh
+     A  infra/backup/maxx-backup.service
+     … +9 lines (ctrl+o to expand)
+  ⎿  Updated .nvmrc (+1 -1)
+      1 -24                                                              
+      1 +22                                                              
+  ⎿  Updated infra\caddy\Dockerfile (+1 -1)
+      1  # syntax=docker/dockerfile:1
+      2  # Contexto: raiz do repositório. O build web do Expo vai dentro 
+         da imagem do Caddy.
+      3  
+      4 -FROM node:24-alpine AS web                                      
+      4 +FROM node:22-alpine AS web                                      
+      5  WORKDIR /repo
+      6  
+      7  # Instalação em camada própria: só refaz quando um package.json 
+         ou o lock muda.
+  ⎿  Updated package-lock.json (+1 -1)
+      14          "prettier": "^3.9.10"
+      15        },
+      16        "engines": {
+      17 -        "node": ">=24.3"                                       
+      17 +        "node": ">=22.12"                                      
+      18        }
+      19      },
+      20      "apps/mobile": {
+  ⎿  Updated package.json (+1 -1)
+       7      "packages/*"
+       8    ],
+       9    "engines": {
+      10 -    "node": ">=24.3"                                           
+      10 +    "node": ">=22.12"                                          
+      11    },
+      12    "scripts": {
+      13      "format": "prettier --write apps/mobile e2e packages data",
+
+● Os arquivos da etapa 7 entraram no commit por engano, porque já estavam no
+  índice; ainda não houve push, então vou desfazer o commit local, manter as
+  mudanças, tirar a etapa 7 do índice e refazer o fix só com os quatro arquivos
+  do Node.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O commit fix agora tem só o Node. Em seguida, o fix do Trivy: os pacotes do
+  Ubuntu atualizados na imagem da API, e o laço que varre as duas imagens.
+
+● Update(apps\api\Dockerfile)
+  ⎿  Added 5 lines
+      19  RUN dotnet publish apps/api/src/Maxx.Api/Maxx.Api.csproj -c Rel
+          ease -o /app --no-restore
+      20  
+      21  FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+      22 +# As correções de segurança do Ubuntu publicadas depois da imag
+         +em base, que o Trivy da CI                                     
+      23 +# cobra (alto ou crítico com correção). Ainda como root, antes 
+         +do USER abaixo.                                                
+      24 +RUN apt-get update \                                           
+      25 +    && apt-get upgrade -y --no-install-recommends \            
+      26 +    && rm -rf /var/lib/apt/lists/*                             
+      27  WORKDIR /app
+      28  COPY --from=build /app .
+      29  # Catálogo e calendário para o `seed` (Seed:DiretorioDeDados = 
+          "data", relativo a /app).
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 4 lines, removed 1 line
+      198            curl -sSfL "https://github.com/aquasecurity/trivy/re
+           leases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_check
+           sums.txt" \
+      199              | grep " trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz
+           $" | sha256sum -c -
+      200            tar -xzf "trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+            trivy
+      201 +          # As duas sempre, e o job falha no fim: a primeira c
+          +om achado não esconde a segunda.                              
+      202 +          falhou=0                                            
+      203            for imagem in maxx-api:local maxx-caddy:latest; do
+      202 -            ./trivy image --quiet --scanners vuln,secret --sev
+          -erity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$imagem"  
+      204 +            ./trivy image --quiet --scanners vuln,secret --sev
+          +erity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$imagem" |
+          +| falhou=1                                                    
+      205            done
+      206 +          exit "$falhou"                                      
+      207  
+      208    # Imagens da API e do Caddy no GHCR, só com os seis jobs ver
+           des. No push da main, com as
+      209    # tags latest e sha-<curto>; no disparo à mão por uma branch
+           , só sha-<curto>, para o
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os dois fix foram juntos num push (58f0666). A rodada nova cancela a anterior
+  pela regra de concorrência, então é ela que decide. Anoto a avaliação do Node
+  24 para o registro:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Enquanto a CI dos fix roda, sigo para a etapa 8: vou usar o próprio k6 na VPS
+  para assinar tokens curtos para as contas do seed, sem senha nem chave saindo
+  da máquina. Em seguida, verifico o formato do token que a API emite.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O token é HS256 com as claims esperadas, e o k6 consegue gerá-lo com o módulo
+  de criptografia dele. Vou subir as rotas de leitura que o roteiro vai cobrir.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Tenho o roteiro do k6 pronto; para capturar os planos, ligo o auto_explain do
+  Postgres numa rodada curta de 1 usuário, depois desligo as réplicas antes da
+  medição de 50 usuários.
+
+● Write(carga\leitura.js)
+  ⎿  Wrote 126 lines to carga\leitura.js
+       1 // Carga de leitura do Maxx (passo 13, versão reduzida aprovada 
+         pelo autor): 50 usuários
+       2 // virtuais por 2 minutos, rodando de dentro da própria VPS, com
+          as contas que o seed demo
+       3 // já criou. Não é o cenário do ADR 0005 (2.000 usuários virtuai
+         s, 3.200 alunos), que fica
+       4 // como pendência; o p95 daqui entra no registro com essa ressal
+         va.
+       5 //
+       6 // Os alunos do seed não têm senha. O token de acesso de cada us
+     … +121 lines (~4 KB) (ctrl+o to expand)
+
+● Roteiro do k6 escrito. Aguardo o aviso da CI dos dois fix. Se ela vier verde,
+  a etapa 6 fecha e a etapa 7 segue para o commit e para a VPS.
+✻ Worked for 5m 36s · done 23:28
+
+※ recap: Estamos no passo 13, com as etapas 1 a 5 no ar e a etapa 6 aguardando a CI dos dois `fix` (Node 22 de volta e Trivy). O próximo passo é conferir essa CI e, se vier verde, commitar e implantar o backup da etapa 7 na VPS. (disable recaps in /config)
+
+● Background command "Wait for fix CI run in background" completed (exit code
+-1)
+
+● O vigia terminou com código -1, sem resultado. Consulto a rodada diretamente:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Com o Node 22 o mobile passou, confirmando que a falha era do Node 24, mas o
+  build voltou a falhar depois do fix, então paro aqui e leio a causa para o
+  diagnóstico completo.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O fix resolveu a imagem da API, e o Ubuntu com as dependências do .NET agora
+  saem limpos. Há um novo erro na imagem do Caddy, que o laço antigo não chegava
+  a varrer, e vou checar se já existe uma versão do Caddy com a correção.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Parei aqui, pela sua regra: a CI ficou vermelha depois do fix.
+
+  O que a rodada 58f0666 mostrou:
+  - mobile verde com o Node 22. Isso confirma que a falha anterior era do
+    Node 24. A volta ao 22 fica, e a avaliação do Node 24 vai como pendência.
+  - Imagem da API limpa. O apt-get upgrade corrigiu o apt, e o Ubuntu e as
+    dependências do .NET saem sem achado.
+  - Imagem do Caddy com um achado ALTO, que antes nem era varrido porque o laço
+    parava na primeira imagem:
+
+  ┌──────────────────┬──────────────────────────────┬───────────┬───────────┐
+  │       Onde       │            Achado            │ Instalado │ Corrigido │
+  │                  │                              │           │     em    │
+  ├──────────────────┼──────────────────────────────┼───────────┼───────────┤
+  │                  │ golang.org/x/net             │           │           │
+  │ usr/bin/caddy, o │ CVE-2026-78661, negação de   │ v0.60.0   │ 0.62.0    │
+  │  binário Go      │ serviço no parser de HTML    │           │           │
+  │                  │ (x/net/html)                 │           │           │
+  └──────────────────┴──────────────────────────────┴───────────┴───────────┘
+
+  Não há Caddy corrigido para usar. O último lançamento, a v2.11.9 de 05/11,
+  ainda declara x/net v0.60.0 no go.mod, e a imagem caddy:2.11-alpine já é a
+  v2.11.9. Trocar a versão da imagem não resolve.
+
+  Opções:
+  1. Exceção com prazo no Trivy (recomendo). Um .trivyignore.yaml só com esse
+     CVE, a justificativa e uma data de validade, por exemplo 05/12, o fim da
+     avaliação. Passada a data, o Trivy volta a cobrar sozinho. A justificativa:
+     o nosso Caddy só serve arquivos estáticos e faz proxy de /api. Ele não usa
+     templates nem markdown, que são os caminhos que interpretam HTML. O resto
+     do corte continua valendo.
+  2. Compilar o Caddy com o xcaddy, forçando x/net v0.62.0. Resolve de verdade,
+     mas acrescenta um estágio de build com Go ao Dockerfile, deixa a CI mais
+     lenta e passa a ser um binário que nós montamos, não o oficial.
+  3. Deixar o Trivy não bloqueante para o binário do Caddy. Não recomendo:
+     esvazia o corte.
+
+  Estado do passo:
+  - Etapas 1 a 5: fechadas, com a CI verde e conferidas no ar.
+  - Etapa 6: aberta, só esperando essa decisão. Commits cec612a (Node 24 e
+    Trivy), 711ff11 (volta ao 22) e 58f0666 (pacotes do Ubuntu e laço do Trivy).
+    A revisão do npm audit está pronta para o registro, sem mudança.
+  - Etapa 7: pronta e sem commit. infra/backup/backup.sh faz o dump, confere com
+    pg_restore --list e roda a rotação de 14 dias; há o timer do systemd para
+    as 03:00 de São Paulo e o restaurar-teste.sh, que restaura num Postgres
+    descartável e compara a contagem de cada tabela. infra/deploy.sh confere o
+    .env, faz o dump antes do migrator e se troca com segurança enquanto roda. O
+    roteiro do docs/operacao.md foi atualizado.
+  - Etapa 8: roteiro do k6 pronto em carga/leitura.js. Uma decisão de método
+    para você saber: os tokens são assinados na própria VPS com a chave do .env
+    de lá, para usar as contas do seed, que não têm senha. Os planos saem pelo
+    auto_explain, ligado só numa rodada curta separada da medida.
+
+  Qual opção para o Caddy? Com a resposta, faço o fix e sigo para as etapas 7 e
+  8 sem esperar.
+
+✻ Cogitated for 1m 15s · done 23:38
