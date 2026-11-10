@@ -4680,3 +4680,241 @@ code 0)
 ✻ Cogitated for 34s · done 14:12
 
 ※ recap: Estamos fechando o passo 13, o endurecimento e o deploy na VPS. As etapas 1 a 8 estão prontas, com a CI verde, e paramos na 9 com o roteiro do ensaio em docs/ensaio.md. O próximo passo é seu: revisar o roteiro e confirmar o lote do ensaio no .env. (disable recaps in /config)
+
+❯ /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+❯ Roteiro aprovado como está. Respostas: o e-mail de primeiro acesso da         
+  coordenação chegou e a senha já foi definida; o MAXX_DEMO_LOTE do .env está   
+  em ensaio-2026-11, só do ensaio, e volto para o lote da avaliação depois da   
+  purga; participantes prontos em duas conexões, celular no 4G e computador na  
+  banda larga de casa, o que vai declarado no registro como abaixo das três do  
+  roteiro. Pode subir com deploy.sh 789313a demo e acompanhar pela VPS. Eu      
+  aviso cada passo concluído com o número dele e o tempo medido, e você me diz  
+  o que viu no log. Depois da purga, você confere banco e R2 e me avisa para    
+  trocar o lote.                                                                
+
+● Subo a versão com a demonstração ligada pelo deploy.sh, com o lote
+  ensaio-2026-11, e confiro o que o roteiro pede antes de começar:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A VPS está pronta para o ensaio, com o dump feito, as duas réplicas no ar com
+  a demonstração ligada, a API a responder com os quatro cursos e tudo em
+  repouso. Vou gravar logs e amostras de docker stats a cada 10 s para cruzar
+  com cada passo que você avisar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A gravação começou às 17:30:43 UTC, que são 14:30:43 em Brasília. A sessão ssh
+  ficou presa aos processos de fundo. Encerro só ela e confiro que a gravação
+  continua na VPS:
+
+● Stop Task
+  ⎿  ssh -i "/c/Users/Guilherme Gimenes/.ssh/maxx" -o BatchMode=yes
+     root@2.29.147.114 'mkdir -p /root/ensaio && cd /opt/maxx && date -u
+     +%FT%TZ > /root/ensaio/inicio… · stopped
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A gravação continua na VPS, com o log e a amostra de uso ativos. O log está
+  vazio porque, em repouso, a API não escreve nada.
+
+  Pode começar o ensaio. Avise cada passo concluído com o número dele (1 a 10,
+  como no docs/ensaio.md) e o tempo medido. A cada aviso, eu cruzo com o log e
+  com o uso da VPS naquele intervalo e digo o que vi. Quando terminar, a purga
+  de ensaio é pela tela /instituicao/purga, com o lote ensaio-2026-11; depois eu
+  confiro o banco e o R2 e aviso para você trocar o lote.
+
+✻ Churned for 3m 32s · done 14:32
+
+❯ /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+※ recap: Estamos fechando o passo 13; as etapas 1 a 8 estão prontas e a VPS está com a demonstração ligada no lote ensaio-2026-11. Falta você fazer o ensaio e me avisar cada passo concluído, com o número e o tempo medido.
+
+❯ Ensaio feito, passos 1 a 10, participante no iPhone 12 com Safari; passo 1 no 
+  5G da Claro, os demais no Wi-Fi de casa; professor e instituição pelo         
+  computador na banda larga.                                                    
+  Passo 1: cache limpo, tela de login com o botão de demonstração em 4 s.       
+  Passo 2, 14:47: entrei pela demonstração como Guilhermegimenes, curso CC, com 
+  foto de perfil.                                                               
+  Passo 3, 14:48: post com foto e legenda no feed,                              
+  https://app.maxx-unimax.com/post/01a1c693-183b-785f-a6aa-2a00b0d7524f (a URL  
+  da foto no R2 você tira do banco por esse id).                                
+  Passo 4, 14:48: curtida, comentário e seguir.                                 
+  Passo 5, 14:49: Troféus, ranking geral e do curso, Mural e sininho, tudo      
+  normal.                                                                       
+  Passo 6, 14:52: reivindiquei Palestra obrigatória com foto. Achado de tela:   
+  na folha de reivindicar, depois de selecionar o prêmio não há como trocar a   
+  seleção; tocar em cima dele não reabre o seletor. Anota para corrigir depois  
+  do ensaio.                                                                    
+  Passo 7, 14:56: como a professora Renata (CC), medalha concedida ao           
+  Guilhermegimenes; no iPhone, saí e voltei na aba de ranking e a posição já    
+  tinha mudado, 2 s. Tentei antes com o Cláudio, que só dá aula em IA, e ele    
+  não enxerga o aluno de CC, como manda a regra de escopo.                      
+  Passo 8, 14:59: reivindicação aprovada pela fila de comprovações.             
+  Passo 9, 15:00: aviso de curso publicado pela coordenação, apareceu no Mural  
+  do iPhone na hora.                                                            
+  Passo 10, 15:01: reabri o app no iPhone fora da aba anônima e entrou direto   
+  pela lembrança do aparelho, com um segundo usuário de demonstração criado no  
+  caminho.                                                                      
+  Vou para a purga agora e aviso os números.                                    
+
+● Cruzo agora o que gravei na VPS durante o ensaio, das 14:45 às 15:02 em
+  Brasília. Leio os avisos e erros do log, os trabalhos do worker, o pico de
+  uso, e já tiro do banco as chaves das fotos do post do passo 3, para conferir
+  o R2 depois da purga:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Nenhum erro ou falha: 7 avisos do EF já conhecidos, 4 recusas da API às 15:00,
+  5 logins e 1 e-mail enviado, com pico de CPU de 9,3% e 180 MiB de memória.
+  Vou ver o detalhe das recusas e do e-mail.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os dois tipos de registro parecem esperados. Confirmo de quem é o id das
+  quatro recusas e de quem foi o pedido de senha das 14:55:
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Leitura do log do ensaio, das 14:44 às 15:02 em Brasília:
+
+  Registro: 0 erro, 0 falha, 0 trabalho falho
+  Leitura: Limpo
+  ────────────────────────────────────────
+  Registro: 5 "Renovação recusada (Desconhecido)" às 14:44, 14:53, 14:56 e duas
+  às 15:01
+  Leitura: Esperado: o app abre sem sessão, tenta renovar e não encontra cookie.
+
+  As duas das 15:01 são o passo 10, fora da aba anônima
+  ────────────────────────────────────────
+  Registro: 1 e-mail "defina sua senha" às 14:55
+  Leitura: O primeiro acesso da professora Renata, logo antes do passo 7, usado
+  em seguida
+  ────────────────────────────────────────
+  Registro: 4 recusas usuario-nao-encontrado às 15:00
+  Leitura: Da coordenacaoUnimax, a conta só de instituição, ao publicar o aviso
+  do passo 9. O app pede o perfil dela, a API responde 404, e o app mostra a
+  conta no lugar, como decidido no passo 12. Comportamento esperado, mas são 4
+  pedidos que sempre falham: anoto como melhoria possível
+  ────────────────────────────────────────
+  Registro: 7 avisos MultipleCollectionInclude do EF
+  Leitura: Já conhecidos e só de log
+  ────────────────────────────────────────
+  Registro: Pico de uso
+  Leitura: CPU 9,3% no worker, 9% no Postgres e 8% numa réplica; memória máxima
+  de 180 MiB numa réplica. A VPS sobra
+
+  Do seu lado, para o registro:
+  - primeiro carregamento de 4 s no 5G;
+  - posição nova no ranking em 2 s depois da medalha, o momento de maior impacto
+    da avaliação;
+  - escopo de turma confirmado: o Cláudio, só de IA, não enxerga o aluno de CC;
+  - achado de tela no passo 6: a seleção do prêmio na folha de reivindicação não
+    pode ser trocada. Anotado para corrigir depois do ensaio; é etapa com tela,
+    então passa pela sua revisão;
+  - conexões: duas (5G da Claro no passo 1, Wi-Fi de casa nos outros, e banda
+    larga no computador), abaixo das três do roteiro. Vai declarado como você
+    pediu.
+
+  Para conferir depois da purga:
+  - as duas contas do lote ensaio-2026-11 (você e o segundo usuário criado no
+    passo 10);
+  - as fotos do post do passo 3: 01M739646RMPRWBVDY0X5ZBKH6/feed.jpg e
+    grade.jpg.
+
+  Pode seguir com a purga em /instituicao/purga, com o lote ensaio-2026-11.
+  Quando avisar os números, eu confiro o banco, a fila e o R2.
+
+✻ Cogitated for 1m 19s · done 15:04
+
+❯ Purga feita, 15:06 Confere banco e R2 (a foto do post                         
+  01a1c693-183b-785f-a6aa-2a00b0d7524f) e me avisa para trocar o lote.          
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Banco e fila estão limpos, mas as duas fotos dão 404 com um parâmetro que fura
+  o cache, então saíram do bucket, embora a URL exata do post ainda responda
+  200. Vou ver os cabeçalhos para confirmar que é o cache da CDN da Cloudflare.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A URL sem parâmetro agora devolve 404 com cf-cache-status: DYNAMIC, então o
+  200 de antes vinha de uma cópia ainda presa na CDN. Vou repetir a requisição
+  com GET e HEAD para ver se sobra alguma cópia.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os resultados se contradizem: o GET dá 200 e o HEAD deu 404, os dois com
+  DYNAMIC, que quer dizer sem cache da Cloudflare. Olho o que o GET devolve de
+  fato, tipo e tamanho:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A causa é o cache de borda da Cloudflare, que serviu a foto de 20 minutos
+  atrás, quando o objeto já não existe no bucket. Vou apagar a cópia que baixei
+  e encerrar o curl pendurado.
+
+● Stop Task
+  ⎿  curl -sS -D - -o "$TEMP/foto.bin"
+     "https://fotos.maxx-unimax.com/01M739646RMPRWBVDY0X5ZBKH6/feed.jpg" |
+     grep -iE "^(HTTP|content-type|content-length|cf-cache-st… · stopped
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Purga conferida:
+
+  Conferência: Contas do lote ensaio-2026-11
+  Resultado: 0, eram 2
+  ────────────────────────────────────────
+  Conferência: Post do passo 3
+  Resultado: 0
+  ────────────────────────────────────────
+  Conferência: Linhas de demonstração na base
+  Resultado: 0
+  ────────────────────────────────────────
+  Conferência: Registro em purga_da_demonstracao
+  Resultado: lote ensaio-2026-11, 2 alunos, 6 fotos, às 15:06:13
+  ────────────────────────────────────────
+  Conferência: Fila
+  Resultado: Nenhum trabalho falho. Restam 5 pendentes agendados, entre eles 3
+  limpar-upload-abandonado com prazo de 24 h, que não apagam nada que já foi
+  confirmado
+  ────────────────────────────────────────
+  Conferência: Bucket (R2)
+  Resultado: As duas fotos do passo 3 saíram: pedido direto ao bucket e HEAD dão
+
+  404
+  ────────────────────────────────────────
+  Conferência: CDN
+  Resultado: A URL exata ainda serve a foto pelo cache da borda da Cloudflare
+  (cf-cache-status: HIT, Age de 20 min). Ela some quando a cópia guardada
+  expirar. O tempo exato depende da configuração de cache da zona, que eu não
+  consigo ler daqui
+
+  Pode trocar o MAXX_DEMO_LOTE para o lote da avaliação. Avise quando trocar, e
+  eu subo de novo com deploy.sh 789313a… demo e confiro o lote novo nas
+  réplicas.
+
+  Uma decisão sobre o cache da CDN. A purga cumpre o que o produto.md 11
+  promete, "as fotos dele saem do bucket", mas quem tiver a URL guardada ainda
+  vê a foto até o cache da borda expirar. Para a purga real, depois da
+  avaliação:
+  1. Acrescentar um passo à rotina (recomendo): depois da purga real, você limpa
+     o cache de fotos.maxx-unimax.com no painel da Cloudflare, em Caching,
+     Purge Cache, a zona inteira ou pelo prefixo. É um passo só, e entra no
+     docs/ensaio.md e no docs/operacao.md.
+  2. Automatizar: a API pediria a limpeza do cache à Cloudflare na própria
+     purga. Isso exige um token novo da Cloudflare como segredo, código novo e
+     teste, e não cabe no prazo da fase 1.
+  3. Só registrar como limite aceito: a foto continua acessível pela URL até
+     expirar.
+
+  Qual você prefere? Também registro, para a etapa 10, os números do ensaio, as
+  duas conexões declaradas abaixo das três do roteiro e o achado de tela do
+  passo 6.
+
+✻ Cogitated for 3m 34s · done 15:10
