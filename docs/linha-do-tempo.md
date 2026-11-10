@@ -133,6 +133,7 @@ Igual nas duas trilhas, do piloto até a última rodada; nenhum item muda no mei
 - 09/11 18h07: fim da `eng_12_instituicao` (PR #14, `main` em `076549b`), dez etapas sem fix; queda do GitHub Actions no meio da tarde e primeira compactação de contexto da trilha.
 - 09/11 tarde: infraestrutura do passo 13 preparada pelo autor (VPS, DNS, R2, SMTP); repositórios tornados públicos; avaliação da trilha do engenheiro disparada com a `main` do passo 12, Infraestrutura a reavaliar depois do 13.
 - 09/11 18h16: abertura da `eng_13_endurecimento`; `r1` com deploy antecipado e cortes por prazo.
+- 10/11 16h18: fim da `eng_13_endurecimento` e da trilha do engenheiro (PR #15, `main` em `8910b51`); produto no ar em `app.maxx-unimax.com`; ensaio remoto executado e purga conferida.
 
 ## Dependências entre fases
 

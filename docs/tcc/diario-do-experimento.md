@@ -544,3 +544,15 @@ separado e o bucket de backup próprio, todos registrados como pendência fora d
 E-mails de professor e instituição do seed passam para `@maxx-unimax.com`, com o Email
 Routing da Cloudflare configurado pelo autor. Paradas combinadas: antes do deploy (lista
 de variáveis para o `.env`, escrito pelo autor) e no ensaio remoto.
+
+10/11 (16h18): `eng_13_endurecimento` fechada, e com ela a trilha do engenheiro. 22 h 06
+min de ponta a ponta (18h12 de 09/11 a 16h18 de 10/11), 6 h 27 min de atividade, 18
+commits, nenhuma mudança de protocolo. Produto no ar em `app.maxx-unimax.com` com
+demonstração ligada e lote `banca-2026`. Dois defeitos só visíveis em produção (R2 e laço
+do Trivy), ambos com prova reversa antes do fix. Ensaio remoto pelo autor com iPhone no 5G e
+Wi-Fi: login em 4 s, ranking em 2 s, purga conferida; um achado de tela corrigido no dia.
+Cortes por prazo registrados como pendência fora da fase 1. PR #15, merge na `main`
+(`8910b51`). Registro em `resultados/engenheiro/eng_13_endurecimento.md`. Próximo:
+reavaliação de Infraestrutura do engenheiro (revisor e autor) sobre a `main` final, notas
+de UX e Infra do autor no formulário cego, consolidação das notas e preenchimento das
+marcas do engenheiro no documento.
