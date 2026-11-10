@@ -5319,3 +5319,937 @@ code 0)
   ensaio e da operação ainda estão sem commit e entram com a etapa 10.
 
 ✻ Sautéed for 35s · done 15:22
+
+❯ /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+※ recap: Fechando o passo 13: ensaio feito, purga conferida e produção no ar com o lote banca-2026. A correção do passo 6 está pronta, sem commit, e espera você aprovar a captura em C:\Users\GUILHE~1\AppData\Local\Temp\captura-passo6.
+
+❯ Capturas conferidas, fiéis. Correção do passo 6 aprovada: commita como        
+  fix(mobile) com a mensagem proposta, push, CI e publicação na VPS. Depois     
+  segue para a etapa 10, o registro do passo, com os documentos do ensaio e da  
+  operação no mesmo commit; para no fim dela para a minha revisão antes do PR.  
+
+● Antes do push, rodo a suíte inteira da camada tocada (o app), em segundo
+  plano. Se ela passar, o encadeamento faz o commit, o push, a publicação e a
+  implantação na VPS, mantendo a demonstração ligada, porque o lote banca-2026
+  já está no ar:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a correção passa pela suíte e pela CI, começo a etapa 10. Leio as
+  linhas do índice e do plano mestre que o passo 13 muda:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Atualizo as linhas que o passo 13 resolveu ou mudou, começando pelas decisões
+  de entrega e infraestrutura:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/decisoes/README.md && sed -i \
+       -e 's#^| Hospedagem | Docker Compose em uma VPS, C…)
+  ⎿  18
+  ⎿  Updated docs\decisoes\README.md (+5 -5)
+      25  
+      26  | Decisão | Detalhe |
+      27  |---|---|
+      28 -| Hospedagem | Docker Compose em uma VPS, Caddy na frente, HTTP
+         -S automático com HSTS e cabeçalhos de segurança, CSP no build w
+         -eb |                                                           
+      28 +| Hospedagem | Docker Compose em uma VPS (Hetzner CX23, `app.ma
+         +xx-unimax.com`), Caddy na frente, HTTPS automático com HSTS e c
+         +abeçalhos de segurança, CSP no build web. Imagens publicadas no
+         + GHCR pela CI, implantadas pelo `infra/deploy.sh`. Ver Endureci
+         +mento e ensaio (passo 13) e `docs/operacao.md` |               
+      29  | Réplicas | Duas réplicas de API sem estado atrás do Caddy: re
+          siliência de deploy, não capacidade |
+      30  | Storage | Cloudflare R2 com a CDN da Cloudflare em produção. 
+          No compose, na CI e nos testes de integração, o emulador Versit
+          yGW, compatível com S3; trocar um pelo outro muda só o `.env`. 
+          Ver Posts, upload e feed (passo 7) |
+      31  | Migrations | Contêiner separado com advisory lock, antes de s
+          ubir as réplicas. Nunca no startup da aplicação |
+      32  | Worker | Contêiner separado, `Maxx.Api worker`, uma réplica, 
+          consumindo a fila do Postgres (ADR 0008). Ver Medalhas, fila e 
+          worker (passo 6) |
+      33 -| Backup | `pg_dump` noturno para o bucket, mais dump manual ob
+         -rigatório antes de cada migration, com restauração testada uma 
+         -vez |                                                          
+      33 +| Backup | `pg_dump` noturno no disco da VPS (`/opt/maxx/backup
+         +s`, rotação de 14 dias), mais dump antes de cada migration pelo
+         + `deploy.sh`, com restauração testada. O envio para um bucket s
+         +em domínio público é pendência fora da fase 1 (decidido no pass
+         +o 13) |                                                        
+      34  | Avaliação | Sem plano B local: a VPS é o único ambiente. A av
+          aliação é remota, antes de 05/12, sem apresentação presencial: 
+          cada avaliador entra na VPS pela própria conexão, e não há rede
+           do campus nem aparelho compartilhado de que dependa. O ensaio 
+          do passo 13 confirma o acesso de fora, por conexões diferentes 
+          |
+      35 -| CI | GitHub Actions, seis jobs: api, mobile, api-client, e2e,
+         - segurança e build (imagens da API e do Caddy com o build web) 
+         -|                                                              
+      35 +| CI | GitHub Actions, seis jobs: api, mobile, api-client, e2e,
+         + segurança e build (imagens da API e do Caddy com o build web, 
+         +varridas pelo Trivy), mais `publicar`, que leva as imagens ao G
+         +HCR com os seis verdes (passo 13) |                            
+      36  
+      37  ## Dados
+      38  
+     ...
+      77  | Normalização da senha | NFC antes do hash, no cadastro e no l
+          ogin: o "ç" composto de um teclado e o decomposto de outro são 
+          a mesma senha |
+      78  | Tolerância de relógio | 30 segundos na validação do access to
+          ken; as réplicas estão no mesmo host |
+      79  | Chave em desenvolvimento | Sem `Jwt__Chave` em Development, a
+           API gera uma chave por processo, que some no restart. Nenhuma 
+          chave versionada, nem a de desenvolvimento |
+      80 -| E-mail | SMTP genérico com MailKit; Mailpit no compose local.
+         - Provedor da VPS escolhido no passo 13 |                       
+      80 +| E-mail | SMTP genérico com MailKit; Mailpit no compose local;
+         + Brevo na VPS (`smtp-relay.brevo.com`, StartTls), remetente `na
+         +o-responda@maxx-unimax.com` (passo 13) |                       
+      81  | Envio de e-mail | Desde o passo 6, por um trabalho da fila do
+           Postgres (ADR 0008), executado só pelo worker, que é quem tem 
+          o SMTP. O pedido de recuperação grava o pedido sem token e enfi
+          leira só o id dele, na mesma transação: nenhum segredo espera e
+          m claro na fila. O worker emite o token, grava o hash e manda o
+           e-mail na transação do trabalho. Falha de envio desfaz o hash 
+          e volta com o recuo da fila; a retentativa emite outro token. P
+          edido já encerrado quando o trabalho roda (outro link trocou a 
+          senha) não gera e-mail. Se o envio sai e a transação não fecha,
+           o link que chegou não vale, e o usuário pede outro |
+      82  | Contas de professor e instituição | Criadas pelo seed demo, s
+          em senha, para toda linha de professor e de instituição que est
+          iver no banco, não só as do arquivo; primeiro acesso pela recup
+          eração de senha. Ver `produto.md` 2.5 |
+      83  | Login exigido | Toda rota de `/v1` exige login, e a pública d
+          eclara `AllowAnonymous`. A exigência fica no grupo `/v1`, e não
+           numa `FallbackPolicy`, porque a fallback vale também para pedi
+          do sem endpoint, e rota inexistente tem de continuar 404 |
+     ...
+      156  | Decisão | Detalhe |
+      157  |---|---|
+      158  | Stack | Expo com React Native e TypeScript, Expo Router, um 
+           código para web, Android e iOS |
+      159 -| Prioridade | A web é o acesso principal da fase 1; o nativo 
+          -fica pronto para publicar, com APK gerado, sem publicação em l
+          -oja |                                                         
+      159 +| Prioridade | A web é o acesso principal da fase 1; o nativo 
+          +fica no mesmo código, sem publicação em loja. O APK e a fumaça
+          + com Maestro saíram da fase 1 por prazo (passo 13): pendência 
+          +fora da fase |                                                
+      160  | Contrato | `openapi-typescript` e `openapi-fetch`, com hooks
+            TanStack Query escritos à mão. A CI falha se o cliente gerado
+            divergir do OpenAPI |
+      161  | Cache | Consulta com stale-while-revalidate no app; ETag com
+            304 no perfil e nos avisos; micro-cache em memória da primeir
+           a página do feed só se o teste de carga pedir. Nada que depend
+           a de quem pede vai para cache compartilhado |
+      162  | Feed | Paginação por cursor com índice, sem offset, e sement
+           e de sessão dentro do cursor para a recomendação aleatória ser
+            estável durante a sessão |
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As cinco linhas foram atualizadas. Agora os limites conhecidos dos passos 7,
+  10, 11 e 12 que apontavam para o passo 13. Leio as linhas inteiras:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/decisoes/README.md && sed -i \
+       -e '313s#Roda uma vez à mão, quando a conta existi…)
+  ⎿  12
+  ⎿  Updated docs\decisoes\README.md (+13 -13)
+      310  | Confirmação | O post ou a foto de perfil confirmam o upload,
+            depois de o HEAD achar os dois objetos. Upload de outro usuár
+           io ou de outra finalidade recebe 404 `upload-nao-encontrado`; 
+           já confirmado, 409 `upload-ja-usado`, também na corrida. Não h
+           á prazo próprio na confirmação: até a limpeza de 24 horas, o u
+           pload pendente ainda serve |
+      311  | Upload abandonado | O trabalho `limpar-upload-abandonado`, a
+           diado 24 horas e enfileirado na mesma transação da assinatura,
+            apaga os objetos e a linha se o upload continuar pendente. Co
+           nfirmado, não toca. Idempotente, com `xmin` contra a confirmaç
+           ão simultânea |
+      312  | Remoção de fotos | Post apagado, foto de perfil trocada ou r
+           emovida: os objetos saem pelo trabalho `remover-fotos`, enfile
+           irado na mesma transação. Remover chave que já não existe não 
+           é erro |
+      313 -| Verificação do R2 | `VerificacaoDoR2Tests`, pulado por padrã
+          -o e fora da CI: com `MAXX_VERIFICAR_R2=1` e as `MAXX_ARMAZENAM
+          -ENTO_*` do bucket real, prova no R2 o que o emulador prova na 
+          -CI (tipo e tamanho presos, leitura pela CDN sem login, remoção
+          -), e o CORS do PUT com `MAXX_VERIFICAR_R2_ORIGEM`. Roda uma ve
+          -z à mão, quando a conta existir |                             
+      313 +| Verificação do R2 | `VerificacaoDoR2Tests`, pulado por padrã
+          +o e fora da CI: com `MAXX_VERIFICAR_R2=1` e as `MAXX_ARMAZENAM
+          +ENTO_*` do bucket real, prova no R2 o que o emulador prova na 
+          +CI (tipo e tamanho presos, leitura pela CDN sem login, remoção
+          +), e o CORS do PUT com `MAXX_VERIFICAR_R2_ORIGEM`. Roda uma ve
+          +z à mão, quando a conta existir. Rodado no passo 13, na VPS, c
+          +om o teste do envio direto do seed: 7 de 7 |                  
+      314  
+      315  ### Post e interações
+      316  
+     ...
+      375  
+      376  | Limite | Onde é tratado |
+      377  |---|---|
+      378 -| O teste do índice do feed desliga a varredura (`enable_seqsc
+          -an = off`): prova que o índice serve, não que o planejador o e
+          -scolhe com pouco dado | k6 do passo 13 |                      
+      379 -| A busca não tem teste com `EXPLAIN` dos índices de trigramas
+          - | k6 do passo 13 |                                           
+      378 +| O teste do índice do feed desliga a varredura (`enable_seqsc
+          +an = off`): prova que o índice serve, não que o planejador o e
+          +scolhe com pouco dado | Passo 13: com o volume do seed demo o 
+          +planejador ainda prefere a varredura (52 posts); provar a esco
+          +lha com volume real é pendência fora da fase 1 |              
+      379 +| A busca não tem teste com `EXPLAIN` dos índices de trigramas
+          + | Resolvido no passo 13: com `enable_seqscan = off`, a consul
+          +ta real usa os dois índices de trigramas (`BitmapOr`); com 159
+          + usuários, o planejador prefere a varredura |                 
+      380  | Seguir no meio da sessão pode repetir um post já visto como 
+           recomendação, e deixar de seguir pode tirar um da sessão. O fe
+           ed não guarda estado no servidor; puxar para atualizar resolve
+            | Aceito |
+      381 -| A migration cria extensões: o usuário do banco precisa de `C
+          -REATE EXTENSION` | Passo 13, revisar na VPS |                 
+      382 -| O PUT de Blob no Android e no iOS só passa pelo Jest | Maest
+          -ro do passo 13 |                                              
+      381 +| A migration cria extensões: o usuário do banco precisa de `C
+          +REATE EXTENSION` | Revisado no passo 13: na VPS, o usuário é o
+          + dono do banco e superusuário (o `POSTGRES_USER` da imagem), e
+          + as extensões foram criadas. Um papel com menos privilégio par
+          +a API e worker é pendência fora da fase 1 |                   
+      382 +| O PUT de Blob no Android e no iOS só passa pelo Jest | Aceit
+          +o: o APK e o Maestro saíram da fase 1 por prazo (passo 13), e 
+          +o PUT no nativo continua só no Jest |                         
+      383  | HEIC não abre no Chrome: quem escolher um vê "Não deu para a
+           brir essa foto. Escolha outra." | Aceito |
+      384 -| A conferência do `content-length` assinado foi provada no em
+          -ulador, não no R2 | `VerificacaoDoR2Tests`, quando a conta exi
+          -stir |                                                        
+      384 +| A conferência do `content-length` assinado foi provada no em
+          +ulador, não no R2 | Resolvido no passo 13: o R2 recusa o taman
+          +ho diferente do assinado (`VerificacaoDoR2Tests` na VPS) |    
+      385  | As fotos do lote de demonstração não saem pelo SQL da purga 
+           (D14) | Resolvido no passo 12: a purga pela área web manda as 
+           fotos do lote para a remoção do bucket na mesma transação |
+      386  
+      387  ## Prêmios de participação (passo 8)
+     ...
+      609  | Os destinatários do aviso de curso são lidos pelo curso atua
+           l: quem trocar de curso entre a publicação e o trabalho do wor
+           ker (segundos) é lido pelo curso novo | Aceito |
+      610  | A tela de aviso de faculdade e de curso da instituição | Res
+           olvido no passo 12 |
+      611  | Avisos no seed de demonstração | Resolvido no passo 12: pela
+            fábrica do domínio, com a notificação pelo worker |
+      612 -| O p95 do mural com ETag e das novidades perguntadas a cada 6
+          -0 s por usuário | k6 do passo 13 |                            
+      612 +| O p95 do mural com ETag e das novidades perguntadas a cada 6
+          +0 s por usuário | Medido no passo 13 (carga reduzida): mural 3
+          +3 ms e novidades 35 ms de p95 |                               
+      613  | Sem push: a bolinha só acende quando o app pergunta (foco ou
+            60 s) | Fase 2, push nativo |
+      614 -| Na suíte e2e inteira rodada localmente (Windows, pilha no ar
+          - há horas, banco com os dados de muitas rodadas), o e2e da med
+          -alha estoura os 30 s: a página do aluno não volta a desenhar d
+          -epois do recarregamento que segue a anulação. Sozinho, passa; 
+          -na CI, passou de primeira em todas as etapas do passo, entre 1
+          -2 e 16 s | Ocorrência de ambiente; acompanhar no passo 13 |   
+      614 +| Na suíte e2e inteira rodada localmente (Windows, pilha no ar
+          + há horas, banco com os dados de muitas rodadas), o e2e da med
+          +alha estoura os 30 s: a página do aluno não volta a desenhar d
+          +epois do recarregamento que segue a anulação. Sozinho, passa; 
+          +na CI, passou de primeira em todas as etapas do passo, entre 1
+          +2 e 16 s | Ocorrência de ambiente: no passo 13, a suíte local 
+          +inteira teve 3 falhas de prazo, cada uma num tema só, que pass
+          +aram em série. Na CI, nenhuma |                               
+      615  | Medalhas concedidas em sequência rápida: a reavaliação da pr
+           imeira roda com as outras já gravadas e pode conceder a conqui
+           sta antes de as outras medalhas serem notificadas; no sininho,
+            a conquista obtida aparece entre as medalhas | Aceito: o aval
+           iador conta os fatos do momento |
+      616  
+      617  ## Rankings (passo 11)
+     ...
+      685  |---|---|
+      686  | A posição é eventualmente consistente: por alguns segundos o
+            aluno vê os pontos novos e a posição antiga | Aceito (ADR 000
+           5) |
+      687  | Marcar ex-aluno e trocar de curso ainda não pedem o recálcul
+           o: os atos não existem fora do teste | Resolvido no passo 12: 
+           os dois atos da área pedem na mesma transação |
+     … 20 more lines (ctrl+o to expand)
+● Esperava 13 linhas trocadas e a contagem deu 12. Vejo qual não casou:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● As 13 linhas estão certas; a 313 só mostrou outra coluna na listagem. Agora
+  completo a seção do passo 13 no índice, que hoje tem só a varredura das
+  imagens e a carga. Leio o estado atual dela:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 81 lines
+      788  
+      789  ## Endurecimento e ensaio (passo 13)
+      790  
+      791 +Produção na VPS, segurança da borda e das imagens, saúde do wo
+          +rker, backup, carga reduzida e                                
+      792 +o ensaio da demonstração remota. As perguntas do plano foram f
+          +echadas nele; a ordem foi                                     
+      793 +mudada pelo autor para o deploy vir antes do endurecimento, e 
+          +cada etapa que mexeu na API                                   
+      794 +ou no Caddy foi conferida no ar. O roteiro de operação está em
+          + `docs/operacao.md`, e o do                                   
+      795 +ensaio, em `docs/ensaio.md`.                                  
+      796 +                                                              
+      797 +### Produção                                                  
+      798 +                                                              
+      799 +| Decisão | Detalhe |                                         
+      800 +|---|---|                                                     
+      801 +| Compose de produção | `docker-compose.producao.yml`, indepen
+          +dente do local: imagens do GHCR pela `MAXX_IMAGEM_TAG`, sem bu
+          +ild, sem Mailpit e sem emulador; SMTP e R2 obrigatórios; Caddy
+          + em 80 e 443 com os volumes `caddy-data` e `caddy-config` (sem
+          + eles, cada recriação pediria certificado novo); log de cada c
+          +ontêiner com teto de 5 arquivos de 10 MB. Nunca menciona a fla
+          +g da demonstração: ela vem do `docker-compose.demo.yml` por ci
+          +ma |                                                          
+      802 +| Variáveis | Os nomes em `.env.producao.example`; os valores 
+          +só no `/opt/maxx/.env`, escrito pelo autor. O job `build` vali
+          +da o compose de produção com um valor falso em cada nome, sozi
+          +nho e com a demonstração: prova que a lista está completa |   
+      803 +| HTTPS | O endereço do site no Caddy é a `MAXX_URL_PUBLICA` c
+          +om `https://`, e o certificado do Let's Encrypt sai sozinho pe
+          +la porta 80. DNS na Cloudflare sem proxy |                    
+      804 +| Imagens | `ghcr.io/gfgimenes/maxx-engenheiro-api` e `-caddy`
+          +, públicas (não carregam segredo; a VPS puxa sem login). O job
+          + `publicar` roda depois dos seis jobs: na `main`, `latest` e `
+          +sha-<curto>`; por disparo à mão numa branch, só `sha-<curto>`,
+          + para implantar antes de a rodada chegar à `main`. Nome própri
+          +o do repositório, para não disputar com o outro do TCC |      
+      805 +| Proveniência | `docker build --provenance=false`: com o índi
+          +ce de atestado, o pacote não se ligava ao repositório pelo rót
+          +ulo `source`, e o `GITHUB_TOKEN` recebia `denied` no manifesto
+          + |                                                            
+      806 +| Implantação | `infra/deploy.sh <sha> [demo]`: traz do reposi
+          +tório, no mesmo commit, os arquivos do compose e os scripts; p
+          +ara se faltar nome no `.env`; troca a tag; puxa; faz o dump; s
+          +obe, com o migrator antes das réplicas. Ele se baixa a si mesm
+          +o e troca o arquivo com `mv`, porque o bash lê o script aos po
+          +ucos enquanto roda |                                          
+      807 +| Usuário do banco | Na VPS, o usuário é o `POSTGRES_USER` da 
+          +imagem: dono do banco e superusuário, o que cobre o `CREATE EX
+          +TENSION` da migration do passo 7. Decidido manter; o papel com
+          + menos privilégio para API e worker é pendência fora da fase 1
+          + |                                                            
+      808 +                                                              
+      809 +### Seed e R2 na VPS                                          
+      810 +                                                              
+      811 +| Decisão | Detalhe |                                         
+      812 +|---|---|                                                     
+      813 +| E-mails do seed | Os 9 endereços de professor e instituição 
+          +passaram de `unieduk.com.br` para `maxx-unimax.com`, com os me
+          +smos nomes antes do arroba: o primeiro acesso pela recuperação
+          + mandaria e-mail para caixas reais da UniEduk. O Email Routing
+          + da Cloudflare entrega tudo nesse domínio ao autor |          
+      814 +| Envio direto ao R2 | O `PutObject` do AWSSDK assina o corpo 
+          +em pedaços (`STREAMING-AWS4-HMAC-SHA256-PAYLOAD`), que o R2 re
+          +cusa e o emulador aceita: o primeiro `seed demo` na VPS caiu n
+          +isso. `UseChunkEncoding = false` no `EnviarAsync`, com um test
+          +e novo no `VerificacaoDoR2Tests` que falha no R2 sem a correçã
+          +o |                                                           
+      815 +| Seed demo na VPS | 56 s. A fila (975 trabalhos disponíveis) 
+          +esvaziou em 21 s, contra 66 s locais; 234 conquistas e 412 lin
+          +has de ranking pelo worker |                                  
+      816 +                                                              
+      817 +### Borda                                                     
+      818 +                                                              
+      819 +| Decisão | Detalhe |                                         
+      820 +|---|---|                                                     
+      821 +| CSP | `default-src 'self'`; `script-src 'self'` (o build do 
+          +Expo não tem script inline); `style-src 'self' 'unsafe-inline'
+          +`, porque o react-native-web injeta `<style>` em tempo de exec
+          +ução e o build traz o `expo-reset` inline; `img-src` com a URL
+          + de leitura da CDN; `connect-src` com o endpoint do R2; `blob:
+          +` e `data:` para a prévia e as derivadas no cliente; `object-s
+          +rc 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-an
+          +cestors 'none'`. Os dois endereços vêm das variáveis do bucket
+          +, sem nada da conta no repositório |                          
+      822 +| Demais cabeçalhos | `X-Content-Type-Options`, `X-Frame-Optio
+          +ns DENY`, `Referrer-Policy`, `Permissions-Policy` e `Cross-Ori
+          +gin-Opener-Policy`; o `Server` sai |                          
+      823 +| HSTS | Um ano, sem subdomínios nem preload, só no que foi se
+          +rvido por HTTPS: em `http://localhost` ficaria preso no navega
+          +dor de quem desenvolve |                                      
+      824 +| Teste | `e2e/tests/cabecalhos.spec.ts`: os cabeçalhos na web
+          + e na API, e o login sem nenhuma violação da CSP. A CSP vale t
+          +ambém no compose local e na CI, então os fluxos com foto a exe
+          +rcitam. Rodado também contra a VPS, com o HSTS |              
+      825 +                                                              
+      826 +### Domínios de e-mail aceitos                                
+      827 +                                                              
+      828 +| Decisão | Detalhe |                                         
+      829 +|---|---|                                                     
+      830 +| Configuração | `Cadastro:DominiosDeEmailAceitos` no `appsett
+          +ings.json`: não é segredo e é igual em todo ambiente. Vazia ou
+          + mal formada, a API não sobe. Traz os três domínios da faculda
+          +de, o `al.unieduk.invalid` dos alunos do seed e o `maxx-unimax
+          +.com` dos professores e da instituição do seed (`produto.md` 2
+          +.4) |                                                         
+      831 +| Regra | `DominiosDeEmailAceitos` no domínio: o domínio intei
+          +ro, sem maiúsculas; subdomínio de um aceito não é aceito |    
+      832 +| Onde | No cadastro (sugestão, disponibilidade e cadastro), a
+          +ntes da base, com `email-fora-da-faculdade` ("Use o e-mail da 
+          +faculdade."); na correção pela instituição, com `dominio-nao-a
+          +ceito` ("Esse domínio de e-mail não é aceito."). Dois códigos 
+          +porque o app tem um texto por código |                        
+      833 +                                                              
+      834 +### Saúde do worker                                           
+      835 +                                                              
+      836 +| Decisão | Detalhe |                                         
+      837 +|---|---|                                                     
+      838 +| Batimento | O laço do worker grava o instante numa tabela de
+          + uma linha (`batimento_do_worker`), no máximo a cada 15 s |   
+      839 +| Rota | `GET /api/health/worker`, anônima e fora de `/v1`: 20
+          +0, ou 503 com o mesmo corpo e a lista `problemas`. Só idades, 
+          +contagens e códigos |                                         
+      840 +| Problemas | `worker-parado`: batimento com mais de 2 minutos
+          +. `fila-parada`: trabalho disponível esperando há mais de 5 mi
+          +nutos, contados do que vier depois entre a chegada e a disponi
+          +bilidade (o seed enfileira com datas passadas). `trabalho-falh
+          +o`: falho nas últimas 24 horas, pelo `disponivel_em`, que no f
+          +alho é o instante da falha. Limites em `SaudeDoWorkerOptions` 
+          +|                                                             
+      841 +| Alerta | Monitor de fora (UptimeRobot, do autor) a cada 5 mi
+          +nutos, que também avisa se a VPS cair. Nada de cron com SMTP n
+          +o host |                                                      
+      842 +| No ar | Com o worker parado, 503 `worker-parado` aos 149 s; 
+          +religado, 200 |                                               
+      843 +                                                              
+      844 +### Backup                                                    
+      845 +                                                              
+      846 +| Decisão | Detalhe |                                         
+      847 +|---|---|                                                     
+      848 +| Onde | `/opt/maxx/backups`, só do root, `pg_dump -Fc`. O dum
+          +p só ganha o nome final depois de o `pg_restore --list` lê-lo.
+          + Rotação de 14 dias pelo próprio script |                     
+      849 +| Quando | Toda noite às 03:00 de São Paulo (`maxx-backup.time
+          +r`, com o fuso no `OnCalendar`) e antes de toda migration, pel
+          +o `deploy.sh` |                                               
+      850 +| Restauração | `infra/backup/restaurar-teste.sh` restaura num
+          + Postgres descartável e compara a contagem de cada tabela com 
+          +a produção: 46 tabelas iguais, em 1 s. A primeira versão dava 
+          +falso positivo, comparando dois arquivos vazios; agora recusa 
+          +a comparação sem tabela contada |                             
+      851 +| Fora do disco | O envio para um bucket sem domínio público é
+          + pendência fora da fase 1: hoje o backup não sobrevive à perda
+          + do disco da VPS |                                            
+      852 +                                                              
+      853 +### Node e dependências                                       
+      854 +                                                              
+      855 +| Decisão | Detalhe |                                         
+      856 +|---|---|                                                     
+      857 +| Node 24 | Avaliado e não adotado. O Expo 58, o React Native 
+          +0.88 e o Metro declaram `^24.3.0`, mas na CI com o Node 24 o t
+          +este "novo post no modo de reivindicação › recusa da API vira 
+          +mensagem e a tela continua" falhou (a mensagem da recusa não a
+          +parece), e passa no 22. Pela regra do autor, a CI não ficou ve
+          +rde de primeira e o 22 voltou. A causa não foi investigada: pe
+          +ndência |                                                     
+      858 +| `npm audit` | Os 33 achados abaixo do corte (1 baixo, 32 mod
+          +erados) vêm de três avisos: `glob` (GHSA-3g3m-2fjr-6pw4), `min
+          +imatch` (GHSA-g3hv-75wg-m249) e `deepmerge` (GHSA-gcqx-w48m-w2
+          +h4, sem versão corrigida). Chegam só por ferramenta de build, 
+          +teste e lint (CLI e Metro do Expo, Jest, ESLint); nada vai no 
+          +bundle. O `audit fix` sem `--force` não muda nada, e com `--fo
+          +rce` rebaixa o `expo` para 52 e o `jest` para 29. Sem mudança,
+          + revisitar a cada atualização do Expo. Os três do `minimatch` 
+          +do passo 1 são o mesmo aviso |                                
+      859 +                                                              
+      860 +### Ensaio                                                    
+      861 +                                                              
+      862 +| Decisão | Detalhe |                                         
+      863 +|---|---|                                                     
+      864 +| Quando e como | 10/11/2026, com a demonstração ligada e o lo
+          +te `ensaio-2026-11`. Duas conexões, abaixo das três do roteiro
+          +: iPhone 12 com Safari no 5G da Claro (primeiro acesso) e no W
+          +i-Fi de casa; professor e instituição no computador, na banda 
+          +larga |                                                       
+      865 +| Números | Tela de login com o botão da demonstração em 4 s n
+          +o 5G, com o cache limpo. Posição nova no ranking 2 s depois da
+          + medalha. Pico de CPU de 9% (worker, Postgres e réplicas) e no
+          + máximo 180 MiB numa réplica. Nenhum erro e nenhum trabalho fa
+          +lho |                                                         
+      866 +| Regras confirmadas | O professor de outro curso não enxerga 
+          +o aluno (escopo de turma); o aviso de curso chega ao Mural na 
+          +hora; o app volta pela lembrança do aparelho |                
+      867 +| Achado de tela | Na reivindicação, tocar no prêmio escolhido
+          + não reabria a lista, e o "Trocar prêmio" passava despercebido
+          +. Corrigido depois do ensaio: tocar de novo no prêmio devolve 
+          +a lista |                                                     
+      868 +| Purga de ensaio | Pela tela, 2 alunos e 6 fotos. Banco e fil
+          +a limpos, objetos fora do bucket |                            
+      869 +| Cache da CDN | **Limite conhecido.** Depois da purga, a URL 
+          +exata de uma foto do lote ainda respondia 200 pela borda da Cl
+          +oudflare (`cf-cache-status: HIT`), com o objeto já fora do buc
+          +ket. Mitigação: a limpeza do cache de `fotos.maxx-unimax.com` 
+          +no painel da Cloudflare entrou como passo da rotina da purga; 
+          +feita no ensaio, a URL passou a 404 |                         
+      870 +| Depois | Lote da avaliação: `banca-2026` |                  
+      871 +                                                              
+      872  ### Varredura das imagens
+      873  
+      874  | Decisão | Detalhe |
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Background command "Suite, commit fix, push, publish, deploy with demo" failed
+with exit code 1
+
+● A suíte inteira do app teve 1 falha em 523, e o encadeamento parou antes do
+  commit, como devia. Nada foi enviado. O log guardou só o resumo, então rodo de
+  novo para ver qual teste e por quê:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto isso, sigo com o plano mestre: o fechamento do passo 13, as
+  pendências fora da fase 1 e a tabela de riscos.
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 17 lines
+      367    `openapi-typescript` via `@redocly/openapi-core`. Registrado
+           s no passo 1: só ferramenta
+      368    de geração, fora do app, abaixo do corte alto ou crítico do 
+           job de segurança.
+      369  
+      370 +Fechado em 10/11/2026, com a ordem mudada pelo autor: o deploy
+          + veio antes do endurecimento,                                 
+      371 +e cada etapa que mexeu na API ou no Caddy foi conferida no ar.
+          + Cortes declarados pelo                                       
+      372 +autor: a carga a 2.000 usuários virtuais virou uma carga reduz
+          +ida (50 usuários por 2                                        
+      373 +minutos, de dentro da VPS, com o volume do seed demo) mais os 
+          +planos com `EXPLAIN ANALYZE`;                                 
+      374 +o backup fica no disco da VPS; o APK e o Maestro saem da fase 
+          +1. Entrou também, aprovado no                                 
+      375 +plano: o Trivy nas duas imagens, com uma exceção com prazo (05
+          +/12/2026) para o binário do                                   
+      376 +Caddy; e, depois do ensaio, a correção da troca de prêmio na r
+          +eivindicação. Decisões do                                     
+      377 +passo em `decisoes/README.md`, Endurecimento e ensaio (passo 1
+          +3); operação em                                               
+      378 +`operacao.md`; ensaio em `ensaio.md`.                         
+      379 +                                                              
+      380 +Ficam pendentes fora da fase 1 (seção 5): o cenário de carga d
+          +o ADR 0005; a escolha dos                                     
+      381 +índices do feed e da busca pelo planejador com volume real; o 
+          +backup num bucket sem domínio                                 
+      382 +público; o papel do banco com menos privilégio; o APK e a fuma
+          +ça com Maestro, com o PUT da                                  
+      383 +foto no Android, que continua só no Jest; a troca pelo Node 24
+          +, com o teste que falha nele;                                 
+      384 +a imagem corrigida do Caddy, antes de 05/12/2026; e a limpeza 
+          +do cache da CDN feita pela                                    
+      385 +própria purga.                                                
+      386 +                                                              
+      387  ---
+      388  
+      389  ## 5. Fase 2
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 12 lines
+      394  cadastro, publicação nas lojas. No termo de uso: base legal da
+            LGPD e direitos do
+      395  titular, canal de contato e prazo de guarda dos dados.
+      396  
+      397 +Pendências técnicas que o passo 13 deixou fora da fase 1, por 
+          +prazo:                                                        
+      398 +                                                              
+      399 +| Pendência | Por quê | Onde está registrada |                
+      400 +|---|---|---|                                                 
+      401 +| Carga a 2.000 usuários virtuais com 3.200 alunos (ADR 0005),
+          + e a escolha dos índices do feed e da busca pelo planejador co
+          +m esse volume | Cortada por prazo; a carga reduzida ficou abai
+          +xo do alvo de p95 em todas as rotas | `decisoes/README.md`, pa
+          +sso 13, Carga e planos |                                      
+      402 +| Backup num bucket sem domínio público | Hoje o dump fica só 
+          +no disco da VPS | Idem, Backup |                              
+      403 +| Papel do banco com menos privilégio para API e worker | O us
+          +uário da VPS é o dono e superusuário | Idem, Produção |       
+      404 +| APK e fumaça com Maestro, inclusive o PUT da foto no Android
+          + | Cortados por prazo; o nativo só passa pelo Jest | Idem, `de
+          +cisoes/README.md`, Cliente, Prioridade |                      
+      405 +| Node 24 LTS | Um teste do cliente falha nele | Idem, Node e 
+          +dependências |                                                
+      406 +| Imagem do Caddy com `x/net` corrigido | A exceção do Trivy e
+          +xpira em 05/12/2026 | Idem, Varredura das imagens |           
+      407 +| Limpeza do cache da CDN pela própria purga | Hoje é um passo
+          + à mão no painel da Cloudflare | Idem, Ensaio |               
+      408 +                                                              
+      409  ## 6. Riscos acompanhados
+      410  
+      411  | Risco | Onde é tratado |
+
+● Corrijo uma referência torta na tabela nova e atualizo a tabela de riscos com
+  o que o passo 13 mediu:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/plano-mestre.md && sed -i 's#| Cortados por prazo; o nativo só
+      passa pelo Jest | I…)
+  ⎿  413:| Conexão de cada avaliador na avaliação remota | Não há apresenta
+     ção presencial: a avaliação é remota, antes de 05/12, e cada
+     414:| Worker morto congela ranking sem erro em tela | Passo 13, verifi
+     … +11 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+1 -1)
+      401  | Carga a 2.000 usuários virtuais com 3.200 alunos (ADR 0005),
+            e a escolha dos índices do feed e da busca pelo planejador co
+           m esse volume | Cortada por prazo; a carga reduzida ficou abai
+           xo do alvo de p95 em todas as rotas | `decisoes/README.md`, pa
+           sso 13, Carga e planos |
+      402  | Backup num bucket sem domínio público | Hoje o dump fica só 
+           no disco da VPS | Idem, Backup |
+      403  | Papel do banco com menos privilégio para API e worker | O us
+           uário da VPS é o dono e superusuário | Idem, Produção |
+      404 -| APK e fumaça com Maestro, inclusive o PUT da foto no Android
+          - | Cortados por prazo; o nativo só passa pelo Jest | Idem, `de
+          -cisoes/README.md`, Cliente, Prioridade |                      
+      404 +| APK e fumaça com Maestro, inclusive o PUT da foto no Android
+          + | Cortados por prazo; o nativo só passa pelo Jest | `decisoes
+          +/README.md`, Cliente, Prioridade |                            
+      405  | Node 24 LTS | Um teste do cliente falha nele | Idem, Node e 
+           dependências |
+      406  | Imagem do Caddy com `x/net` corrigido | A exceção do Trivy e
+           xpira em 05/12/2026 | Idem, Varredura das imagens |
+      407  | Limpeza do cache da CDN pela própria purga | Hoje é um passo
+            à mão no painel da Cloudflare | Idem, Ensaio |
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/plano-mestre.md && sed -i \
+       -e '414s#| Passo 13, verificação de saúde e alerta |$…)
+  ⎿  | Conexão de cada avaliador na avaliação remota | Não há apresentação
+     presencial: a avaliação é remota, antes de 05/12, e cada avaliador ent
+     ra pela própria conexão na VPS. Passo 13, ensaio da demonstração r
+     … +28 lines (ctrl+o to expand)
+  ⎿  Updated docs\plano-mestre.md (+3 -3)
+      411  | Risco | Onde é tratado |
+      412  |---|---|
+      413  | Conexão de cada avaliador na avaliação remota | Não há apres
+           entação presencial: a avaliação é remota, antes de 05/12, e ca
+           da avaliador entra pela própria conexão na VPS. Passo 13, ensa
+           io da demonstração remota. Não há ambiente local alternativo |
+      414 -| Worker morto congela ranking sem erro em tela | Passo 13, ve
+          -rificação de saúde e alerta |                                 
+      415 -| Bundle da web grande no primeiro acesso | Passo 13, medição 
+          -no ensaio com celular real |                                  
+      416 -| Fila disputando I/O com o feed no pico | Passo 13, primeiro 
+          -lugar a olhar se o p95 não bater |                            
+      414 +| Worker morto congela ranking sem erro em tela | Resolvido no
+          + passo 13: `/api/health/worker` responde 503 com o worker para
+          +do (conferido na VPS), e um monitor de fora avisa |           
+      415 +| Bundle da web grande no primeiro acesso | Medido no ensaio d
+          +o passo 13: tela de login em 4 s no 5G, num iPhone 12 com o ca
+          +che limpo |                                                   
+      416 +| Fila disputando I/O com o feed no pico | Não apareceu na car
+          +ga reduzida do passo 13 (p95 abaixo de 75 ms em todas as rotas
+          +, worker no máximo a 9% de CPU no ensaio). Volta a valer no ce
+          +nário de 2.000 usuários, pendente |                           
+      417  | Avaliador de conquista é ponto único de falha lógica | Passo
+            9, teste por forma, por item e por fronteira |
+      418  | Foto pública para quem tem o link | Decisão consciente, ADR 
+           0002, coberta pelo termo de uso no passo 5 |
+      419  | Semestre vigente na avaliação | A demonstração só oferece cu
+           rsos com turma no semestre vigente, e o e2e dela depende disso
+           : no recesso (2026/2 termina em 05/12/2026), `GET /v1/demo` ve
+           m sem cursos, e o e2e da medalha não acha turma vigente nem bi
+           mestre para conceder. A avaliação acontece antes de 05/12 e nã
+           o há apresentação presencial, então o semestre vigente cobre. 
+           Depois disso, os e2e da demonstração e da medalha falham até o
+            calendário ganhar o semestre seguinte |
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      f=docs/plano-mestre.md && sed -i \
+       -e '420s#A decisão atual não tem janela de tolerância…)
+  ⎿  3
+  ⎿  Updated docs\plano-mestre.md (+3 -3)
+      417  | Avaliador de conquista é ponto único de falha lógica | Passo
+            9, teste por forma, por item e por fronteira |
+      418  | Foto pública para quem tem o link | Decisão consciente, ADR 
+           0002, coberta pelo termo de uso no passo 5 |
+      419  | Semestre vigente na avaliação | A demonstração só oferece cu
+           rsos com turma no semestre vigente, e o e2e dela depende disso
+           : no recesso (2026/2 termina em 05/12/2026), `GET /v1/demo` ve
+           m sem cursos, e o e2e da medalha não acha turma vigente nem bi
+           mestre para conceder. A avaliação acontece antes de 05/12 e nã
+           o há apresentação presencial, então o semestre vigente cobre. 
+           Depois disso, os e2e da demonstração e da medalha falham até o
+            calendário ganhar o semestre seguinte |
+      420 -| Resposta perdida no meio de um refresh | Se a rede cai ou a 
+          -página recarrega com o refresh em voo, o cliente fica com o to
+          -ken antigo, a próxima renovação conta como reuso e a pessoa vo
+          -lta ao login. A decisão atual não tem janela de tolerância. Ac
+          -ompanhar no passo 13 |                                        
+      420 +| Resposta perdida no meio de um refresh | Se a rede cai ou a 
+          +página recarrega com o refresh em voo, o cliente fica com o to
+          +ken antigo, a próxima renovação conta como reuso e a pessoa vo
+          +lta ao login. A decisão atual não tem janela de tolerância. No
+          + ensaio do passo 13 não aconteceu; segue sem tolerância na fas
+          +e 1 |                                                         
+      421  | Limite de taxa no e2e | Os fluxos com conta rodam só no celu
+           lar, cada teste com a própria conta, e o teste do limite só no
+            `celular-claro`. Mais testes de login podem esbarrar nos 30 p
+           or minuto por IP. No fechamento do passo 8, uma rodada local d
+           a suíte inteira (69 testes, em paralelo) teve uma falha no tes
+           te do limite do login, que passou nas outras; o limite é por r
+           éplica, e há duas atrás do Caddy |
+      422 -| Nativo sem teste em aparelho | Secure store, sessão e telas 
+          -de autenticação só passam pelo Jest até o Maestro do passo 13.
+          - No nativo, o link de senha nova abre no navegador |          
+      423 -| Timeout do Jest no runner da CI | No passo 9, o job `mobile`
+          - falhou em pushes que só mexiam na API: o primeiro teste de um
+          - arquivo (`cadastro`, `comprovacoes`, `feed`) passou dos 5 s d
+          -o Jest no runner, pelo custo de carregar o arquivo (localmente
+          -, 725 ms). No push da etapa 2, três tentativas seguidas falhar
+          -am no mesmo teste. O tempo limite dos testes do cliente subiu 
+          -para 15 s (`testTimeout` no `package.json` do app). Acompanhar
+          - no passo 13: se o primeiro teste de algum arquivo chegar pert
+          -o disso, aquecer o transform em vez de subir de novo o limite 
+          -|                                                             
+      422 +| Nativo sem teste em aparelho | Secure store, sessão e telas 
+          +de autenticação só passam pelo Jest: o APK e o Maestro saíram 
+          +da fase 1 no passo 13. No nativo, o link de senha nova abre no
+          + navegador |                                                  
+      423 +| Timeout do Jest no runner da CI | No passo 9, o job `mobile`
+          + falhou em pushes que só mexiam na API: o primeiro teste de um
+          + arquivo (`cadastro`, `comprovacoes`, `feed`) passou dos 5 s d
+          +o Jest no runner, pelo custo de carregar o arquivo (localmente
+          +, 725 ms). No push da etapa 2, três tentativas seguidas falhar
+          +am no mesmo teste. O tempo limite dos testes do cliente subiu 
+          +para 15 s (`testTimeout` no `package.json` do app). No passo 1
+          +3, o job `mobile` passou em todas as rodadas com o Node 22, se
+          +m falha de tempo. Se o primeiro teste de algum arquivo chegar 
+          +perto dos 15 s, aquecer o transform em vez de subir de novo o 
+          +limite |                                                      
+
+● Background command "Rerun mobile suite and capture the failure" completed
+(exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● A suíte completa do app passou na segunda rodada (523 de 523), mas a falha
+  intermitente da primeira não tem o nome do teste, então registro isso sem
+  apontar a causa. Sigo agora com commit, push, publicação e implantação do
+  fix(mobile) em segundo plano.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a correção publica, sigo com a etapa 10. Procuro travessões nos
+  documentos que mexi, proibidos pelo padrão de texto, e comentários que ainda
+  dizem "no passo 13" como algo futuro:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Ficaram cinco referências ao passo 13 escritas como futuro. Vejo cada uma:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Atualizo os quatro comentários e o fluxo. Deixo no relatório que duas linhas
+  do CLAUDE.md ficaram desatualizadas pelo passo 13, mas não as altero sem sua
+  autorização.
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      sed -i 's|^# http://localhost:8025 (MAXX_MAILPIT_PORT). O provedor da VPS
+      entra no passo…)
+  ⎿   .env.example                                       |   2 +-
+      apps/api/src/Maxx.Application/Feed/FeedHandler.cs  |   2 +-
+      .../src/Maxx.Infrastructure/Email/EnvioDeEmail.cs  |   4 +-
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated .env.example (+1 -1)
+      18  MAXX_URL_PUBLICA=http://localhost
+      19  
+      20  # SMTP do worker, que manda os e-mails. Vazio, vai para o Mailp
+          it do compose, com a caixa em
+      21 -# http://localhost:8025 (MAXX_MAILPIT_PORT). O provedor da VPS 
+         -entra no passo 13.                                             
+      21 +# http://localhost:8025 (MAXX_MAILPIT_PORT). Na VPS, o Brevo, p
+         +elo .env de lá (docs/operacao.md).                             
+      22  MAXX_MAILPIT_PORT=8025
+      23  MAXX_SMTP_HOST=
+      24  MAXX_SMTP_PORTA=
+  ⎿  Updated apps\api\src\Maxx.Application\Feed\FeedHandler.cs (+1 -1)
+      21          Guid leitorId, PosicaoNoTempo? depoisDe, int limite, Ca
+          ncellationToken cancellationToken);
+      22  
+      23      // Posts dos outros alunos, em ordem aleatória fixa pela se
+          mente (decisão D8, opção A).
+      24 -    // A ordenação não usa índice: varre os candidatos, e o p95
+         - se mede no passo 13.                                          
+      24 +    // A ordenação não usa índice: varre os candidatos (p95 de 
+         +59 ms na carga do passo 13).                                   
+      25      Task<IReadOnlyList<PosicaoAleatoria>> RecomendadosAsync(
+      26          Guid leitorId, string semente, PosicaoAleatoria? depois
+          De, int limite, CancellationToken cancellationToken);
+      27  }
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\Email\EnvioDeEmail.cs (+2 -2)
+       7  
+       8  namespace Maxx.Infrastructure.Email;
+       9  
+      10 -// SMTP genérico (decisoes/README.md, E-mail): Mailpit no compo
+         -se local, provedor da VPS no                                   
+      11 -// passo 13. A senha do SMTP só por variável de ambiente.      
+      10 +// SMTP genérico (decisoes/README.md, E-mail): Mailpit no compo
+         +se local, Brevo na VPS                                         
+      11 +// (passo 13). A senha do SMTP só por variável de ambiente.    
+      12  public sealed class EmailOptions
+      13  {
+      14      public const string Section = "Email";
+  ⎿  Updated docker-compose.yml (+1 -1)
+      109        DOTNET_ENVIRONMENT: Production
+      110        # O e-mail sai daqui, por um trabalho da fila. Sem a URL
+            o worker não sobe.
+      111        App__UrlPublica: ${MAXX_URL_PUBLICA:-http://localhost}
+      112 -      # SMTP: o Mailpit local por padrão. O provedor da VPS en
+          -tra no passo 13, pelo .env.                                   
+      112 +      # SMTP: o Mailpit local por padrão. Na VPS, o docker-com
+          +pose.producao.yml exige o Brevo.                              
+      113        Email__Remetente: ${MAXX_EMAIL_REMETENTE:-Maxx <nao-resp
+           onda@maxx.local>}
+      114        Email__Smtp__Host: ${MAXX_SMTP_HOST:-mailpit}
+      115        Email__Smtp__Porta: ${MAXX_SMTP_PORTA:-1025}
+  ⎿  Updated docs\fluxos\05-ranking.md (+2 -1)
+      52  catálogo não move nenhuma posição.
+      53  
+      54  Se o worker morre, o ranking congela sem erro em tela (ADR 0005
+          ). A verificação de saúde
+      55 -e o alerta ficam para o passo 13.                              
+      55 +e o alerta chegaram no passo 13: `GET /api/health/worker` respo
+         +nde 503 com o worker parado,                                   
+      56 +e um monitor de fora avisa (`docs/operacao.md`).               
+      57  
+      58  ## Como ficou no passo 11
+      59  
+  ⎿  (timeout 5m)
+
+● Comentários e fluxo da API foram atualizados e a formatação passou; antes do
+  push, rodo a suíte inteira da API em segundo plano, já que o commit da etapa
+  10 toca dois arquivos.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Aguardo os dois avisos: a correção do passo 6 (CI, publicação e VPS) e a suíte
+  da API da etapa 10.
+
+✻ Churned for 5m 16s · done 15:32
+
+※ recap: Estamos fechando o passo 13: a correção do prêmio na reivindicação está na CI e indo para a VPS, e o registro da etapa 10 espera a suíte da API. Quando as duas terminarem verdes, faço o commit da etapa 10 e paro para a sua revisão antes do PR.
+
+● Background command "Commit fix, push, publish, deploy with demo" completed
+(exit code 0)
+  Ran 1 shell command (ctrl+o to expand)
+
+● A correção do passo 6 está no ar com a sha-060f0b4, com a demonstração ligada:
+  as duas réplicas leem banca-2026 e o worker está em 200. A CI do push e a
+  publicação passaram com os sete jobs verdes.
+
+  Falta a suíte da API para fechar o commit da etapa 10.
+
+✻ Cogitated for 18s · done 15:43
+
+※ recap: Fechando o passo 13: as etapas 1 a 9 estão prontas, e a correção do passo 6 está no ar com o lote `banca-2026`. Assim que a suíte da API passar, faço o commit da etapa 10 e paro para a sua revisão antes do PR.
+
+● Background command "Run full API suite before etapa 10 push" completed (exit
+code 0)
+
+  Searched for 1 pattern, ran 2 shell commands (ctrl+o to expand)
+
+● A mesma falha do passo 11 voltou: o teste estourou o tempo de conexão com o
+  contêiner do Testcontainers, e não foi uma asserção, o que contradiz o que eu
+  tinha anotado. Vou corrigir essa anotação e rodar o teste sozinho em segundo
+  plano para confirmar.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Aguardo essa nova rodada.
+
+✻ Crunched for 32s · done 15:51
+
+● Background command "Correct index text and rerun failing class alone"
+completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Sozinha, a classe passa 9 de 9, já corrigida no índice. Vou fazer o commit da
+  etapa 10 com os documentos e o push, deixando a CI em vigia.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Aguardo a CI da etapa 10 para fechar o relatório e parar antes do PR.
+
+✻ Churned for 21s · done 15:52
+
+※ recap: O passo 13 está quase fechado: produção no ar com o lote banca-2026, ensaio feito e a correção do passo 6 publicada. Falta a CI do commit 4e42d75, o registro da etapa 10; quando ela fechar, paro para a sua revisão antes do PR.
+
+● Background command "Watch etapa 10 CI" completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Etapa 10 pronta: registro do passo, commit 4e42d75, CI verde
+
+  A CI passou com os seis jobs verdes; o publicar não roda no push, por
+  definição. A árvore está limpa, e a branch chore/passo-13-endurecimento tem 17
+  commits sobre a rodada.
+
+  O que o commit traz:
+  - docs/decisoes/README.md, seção "Endurecimento e ensaio (passo 13)": produção
+    (compose, GHCR, proveniência, deploy.sh, usuário do banco), seed e R2 na
+    VPS, borda (CSP, HSTS, cabeçalhos), domínios aceitos, saúde do worker,
+    backup, Node e npm audit, ensaio, com o cache da CDN como limite conhecido e
+    a mitigação, varredura das imagens, carga e planos.
+  - Linhas antigas do índice: atualizadas as cinco de infraestrutura
+    (Hospedagem, Backup, CI, E-mail, Prioridade, esta com o APK fora da fase 1)
+    e os 13 limites dos passos 7, 10, 11 e 12 que apontavam para o passo 13.
+  - docs/plano-mestre.md: o fechamento do passo 13 com os cortes declarados, uma
+    tabela de pendências fora da fase 1 na seção 5 (carga de 2.000, índices com
+    volume real, backup fora do disco, papel do banco, APK e Maestro, Node 24,
+    Caddy corrigido antes de 05/12, limpeza do cache pela própria purga) e a
+    tabela de riscos atualizada com o que foi medido.
+  - docs/ensaio.md e docs/operacao.md, com a limpeza do cache da CDN na rotina
+    da purga.
+  - Comentários desatualizados sobre o "passo 13" no .env.example, no
+    docker-compose.yml, em dois arquivos da API e no fluxo 05-ranking.md.
+
+  Ocorrências desta reta final, todas registradas:
+  - Correção do passo 6 no ar: CI verde, sha-060f0b4, com a demonstração ligada
+    e o lote banca-2026.
+  - Antes do commit dela, a suíte local do app teve 1 falha intermitente em 523.
+    Como o log só guardou o resumo, não sei qual teste foi; a nova rodada deu
+    523 de 523, e a CI passou.
+  - Antes do commit da etapa 10, a suíte local da API teve 1 falha de ambiente:
+    a conexão com o contêiner de armazenamento estourou o tempo, como no
+    passo 11. Sozinha, a classe passou 9 de 9. Eu tinha escrito no índice que 
+    essa ocorrência não se repetira; corrigi antes do commit.
+
+  Fica com você:
+  1. O CLAUDE.md tem duas linhas desatualizadas pelo passo 13: "Maestro mínimo
+     no nativo, no passo 13" e a carga "k6, 2.000 usuários virtuais, rodado nos
+     passos de endurecimento". Não mexi porque é o arquivo de instruções do
+     projeto. Se quiser, ajusto no mesmo PR.
+  2. O monitor do UptimeRobot em https://app.maxx-unimax.com/api/health/worker,
+     a cada 5 minutos.
+  3. A exceção do Trivy expira em 05/12/2026. Se o Caddy publicar a imagem
+     corrigida antes disso, a troca é a saída. Se não, o job build volta a
+     falhar nessa data.
+  4. A revisão antes do PR. O PR vai de chore/passo-13-endurecimento para
+     rodada/eng_13_endurecimento, um só para o passo, sem rodapé de co-autoria.
+     Eu o abro quando você aprovar.
+
+✻ Baked for 27s · done 16:02
