@@ -556,3 +556,5 @@ Cortes por prazo registrados como pendência fora da fase 1. PR #15, merge na `m
 reavaliação de Infraestrutura do engenheiro (revisor e autor) sobre a `main` final, notas
 de UX e Infra do autor no formulário cego, consolidação das notas e preenchimento das
 marcas do engenheiro no documento.
+
+10/11 (20h09): `eng_pu` enviado pelo autor no `maxx-engenheiro-pu` vazio, uma mensagem, prompt do pré-registro copiado em UTF-8, pilha local do engenheiro parada e demais sessões fechadas. Segunda passagem dos revisores no engenheiro sobre a `main` final com as mesmas seis notas da primeira (27 de 30; autor 30, formulário cego congelado antes).
