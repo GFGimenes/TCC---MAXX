@@ -1197,3 +1197,2340 @@ code 0)
   Aguardo o "env feito".
 
 ✻ Churned for 38m 10s · done 19:07
+
+> /export ..\tcc\resultados\engenheiro\eng_13_endurecimento-sessao.txt          
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\tc
+     c\resultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+※ recap: O objetivo é colocar o passo 13 em produção na VPS; a etapa 1 terminou com as imagens publicadas no GHCR (sha-c1f2b77). O próximo passo é seu: escrever o /opt/maxx/.env com os nomes listados e me avisar com "env feito". (disable recaps in /config)
+
+> env feito. Está em /opt/maxx/.env com permissão 600, todos os nomes da sua    
+  lista, sem aspas, MAXX_IMAGEM_TAG em sha-c1f2b77 por enquanto,                
+  MAXX_ARMAZENAMENTO_REGIAO em auto e MAXX_SMTP_SEGURANCA em StartTls. O Email  
+  Routing com catch-all já está ativo e testado. Confira só os nomes, sem       
+  imprimir valor, e segue com a etapa 2. O pacote maxx-api vazio eu apago       
+  depois.                                                                       
+
+● Confiro os nomes do .env na VPS, sem imprimir valor nenhum:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 19 nomes estão confirmados e a permissão 600 de root também; o exit 1 veio
+  só do grep contando zero linhas com aspas. Agora seguem em paralelo a suíte da
+  API local em segundo plano e a primeira subida na VPS com a sha-c1f2b77,
+  usando só o seed base.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Certificado emitido pelo Let's Encrypt, /api/ready em 200 por HTTPS e HTTP
+  redirecionando para HTTPS. Confiro a web, a demonstração desligada e o worker:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Com a demonstração desligada, as rotas dela dão 404 como esperado, e web, deep
+  link e termo de uso dão 200 com o worker rodando. O usuário do banco é
+  superusuário, e as extensões unaccent, pg_trgm e citext já foram criadas, o
+  que vai para a revisão do CREATE EXTENSION. Enquanto a suíte local roda,
+  disparo a verificação do R2 na VPS.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Aguardo os dois resultados.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run R2 verification test on VPS in SDK container"
+completed (exit code 0)
+
+● Os 6 testes falharam, e o tail cortou o motivo. Rodo de novo mostrando só as
+  linhas de falha, com qualquer trecho de assinatura (X-Amz-…) apagado da saída:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 6 falham antes de chegar ao R2: o adaptador recusa o endereço do endpoint
+  como inválido. Leio como ele monta os endereços:
+
+  Read 1 file (ctrl+o to expand)
+
+● O endpoint chega com valor, mas Uri.TryCreate não o aceita como URL absoluta
+  https. Vou conferir na VPS só a forma da linha, com letras e dígitos trocados
+  por x, para não expor o valor.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O valor de MAXX_ARMAZENAMENTO_ENDPOINT tem um > sobrando antes de
+  .r2.cloudflarestorage.com, provavelmente restou do marcador <conta>. Deixo
+  esse valor para você ajustar e sigo pela suíte local.
+
+  Ran 1 shell command (ctrl+o to expand)
+> Endpoint corrigido no .env, era resto do marcador. Pode seguir.               
+
+● Você corrigiu o endpoint. Confiro só a forma, aplico o .env novo à API e ao
+  worker e rodo de novo a verificação do R2:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run full API suite before push" completed (exit code 0)
+
+● Background command "Wait for local API suite result" completed (exit code 0)
+
+● Verificação do R2: 6 de 6, cobrindo tipo e tamanho presos na assinatura,
+  leitura pela CDN sem login, remoção e o CORS do PUT. Agora o resultado da
+  suíte local:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A suíte local passou com 1.239 de 1.245 testes, e os 6 pulados são a
+  verificação do R2, que só roda na VPS; formatação, build e recriação das
+  réplicas da API também passaram. Agora sigo com o commit da etapa 2, o push e
+  a publicação pela branch.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a CI publica (cerca de 12 minutos), preparo a medição de drenagem na
+  VPS: um laço que registra a contagem de trabalhos pendentes já disponíveis a
+  cada 5 s. Espero a publicação:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Publicado sha-cf65243, com os sete jobs verdes. Na VPS: troco a tag, puxo,
+  subo e rodo o seed demo, medindo o tempo dele e a drenagem da fila depois.
+  Tudo em segundo plano:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Wait for publish run of etapa 2" completed (exit code 0)
+
+● Enquanto o seed roda, confiro a CI do push do commit da etapa 2:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Deploy new tag, run seed demo, measure drain" completed
+(exit code 0)
+
+● O seed demo falhou em 7 s dentro de ComprovacaoPendenteAsync, e a transação
+  foi desfeita sem deixar dados. Como cada tentativa sobe fotos ao R2 antes do
+  commit, vou ler o código desse ponto antes de rodar de novo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os testes passaram localmente, então suspeito que a data do sistema esteja
+  fixada nos testes; vou conferir de onde o seed obtém o "agora" e qual regra
+  pode estar recusando a linha 318.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O null pode não vir da regra do domínio nem da deduplicação, já que os testes
+  passaram hoje; suspeito que a exceção nasça dentro da reivindicação, no
+  primeiro envio ao R2 pelo EnviarAsync, que a verificação do R2 não cobre. Vou
+  rodar de novo só para ler o topo da exceção.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O R2 não implementa a assinatura em pedaços
+  (STREAMING-AWS4-HMAC-SHA256-PAYLOAD) que o AWSSDK usa por padrão no PutObject;
+  o emulador aceitava isso, por isso a CI não pegou. Vou ler o adaptador agora.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A correção é desligar o chunk encoding no PutObjectRequest, forma que o R2
+  aceita; como o emulador não reproduz a recusa, vou provar isso com um teste do
+  EnviarAsync rodado na VPS, com e sem a correção.
+
+  Read 1 file (ctrl+o to expand)
+
+● Escrevo primeiro o teste, para rodá-lo na VPS sem a correção (prova reversa):
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Fotos\VerificacaoDoR2Tests.cs)
+  ⎿  Added 18 lines
+       82          Assert.NotEqual(HttpStatusCode.OK, leitura.StatusCode)
+           ;
+       83      }
+       84  
+       85 +    // O envio direto da API, que só o seed demo usa para as f
+          +otos do mundo. O R2 recusa o                                  
+       86 +    // corpo assinado em pedaços (STREAMING-AWS4-HMAC-SHA256-P
+          +AYLOAD), que o emulador aceita:                               
+       87 +    // foi o que derrubou o primeiro seed demo na VPS.        
+       88      [Fact]
+       89 +    public async Task Envio_direto_do_seed_e_aceito_e_lido_pel
+          +a_cdn()                                                       
+       90 +    {                                                         
+       91 +        var bytes = Bytes(_tamanho);                          
+       92 +        var chave = $"verificacao/{Guid.NewGuid():N}.jpg";    
+       93 +        _enviadas.Add(chave);                                 
+       94 +                                                              
+       95 +        await Armazenamento().EnviarAsync(chave, bytes, _jpeg,
+          + Ct);                                                         
+       96 +                                                              
+       97 +        var leitura = await _http.GetAsync(Armazenamento().Url
+          +DeLeitura(chave), Ct);                                        
+       98 +        Assert.Equal(HttpStatusCode.OK, leitura.StatusCode);  
+       99 +        Assert.Equal(_jpeg, leitura.Content.Headers.ContentTyp
+          +e?.MediaType);                                                
+      100 +        Assert.Equal(bytes, await leitura.Content.ReadAsByteAr
+          +rayAsync(Ct));                                                
+      101 +    }                                                         
+      102 +                                                              
+      103 +    [Fact]                                                    
+      104      public async Task Cors_libera_o_put_do_app_com_content_typ
+           e()
+      105      {
+      106          var origem = Environment.GetEnvironmentVariable("MAXX_
+           VERIFICAR_R2_ORIGEM");
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O tar do Git Bash leu o C: do caminho como host remoto. Refaço com
+  --force-local:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Passou de 10 minutos, bem mais que a rodada anterior. Vejo onde está parado:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O scp travou em 3,6 de 15,7 MB, então paro e mando só o arquivo de teste
+  alterado, clonando a branch na VPS.
+
+● Stop Task
+  ⎿  cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+     rm -rf "$TEMP/maxx-src-r2" && mkdir -p "$TEMP/maxx-src-r2" && git
+     archive -o "$TEMP/maxx-… · stopped
+
+  Ran 1 shell command (ctrl+o to expand)
+● Prova reversa obtida: sem a correção, o teste novo falha no R2 com o mesmo
+  erro do seed. Aplico a correção:
+
+● Update(apps\api\src\Maxx.Infrastructure\Fotos\ArmazenamentoS3.cs)
+  ⎿  Added 12 lines, removed 1 line
+      51          var clientes = _clientes.Value;
+      52          using var corpo = new MemoryStream(conteudo, writable: 
+          false);
+      53          await clientes.Operacao.PutObjectAsync(
+      54 -            new PutObjectRequest { BucketName = clientes.Bucket
+         -, Key = chave, InputStream = corpo, ContentType = tipoDeConteud
+         -o },                                                           
+      54 +            new PutObjectRequest                               
+      55 +            {                                                  
+      56 +                BucketName = clientes.Bucket,                  
+      57 +                Key = chave,                                   
+      58 +                InputStream = corpo,                           
+      59 +                ContentType = tipoDeConteudo,                  
+      60 +                                                               
+      61 +                // O corpo assinado de uma vez, não em pedaços:
+         + o R2 recusa o                                                 
+      62 +                // STREAMING-AWS4-HMAC-SHA256-PAYLOAD, que é o 
+         +padrão do SDK e que o emulador                                 
+      63 +                // aceita. Provado só contra o R2 (VerificacaoD
+         +oR2Tests).                                                     
+      64 +                UseChunkEncoding = false,                      
+      65 +            },                                                 
+      66              cancellationToken);
+      67      }
+      68  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Com a correção, a verificação do R2 passou 7 de 7 na VPS, incluindo o envio
+  direto. Agora roda a suíte completa da API local em segundo plano, cobrindo o
+  mesmo caminho contra o emulador.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a suíte roda, vou checar se as duas tentativas de seed deixaram
+  objetos órfãos no bucket; a tabela de posts está vazia, então não deveria
+  haver nenhum.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+> Não espere comandos longos em primeiro plano. Suíte, CI e builds de imagem    
+  ficam em segundo plano enquanto você adianta trabalho independente da etapa   
+  (docs, compose, próximos testes); só confira o resultado antes de usar a      
+  imagem na VPS, antes de abrir o PR e quando a notificação chegar vermelha.    
+  Fix separado continua valendo.                                                
+
+● Entendido: suíte, CI e builds ficam em segundo plano, e eu confiro o resultado
+  antes de usar a imagem na VPS, antes do PR e se a notificação chegar
+  vermelha. Enquanto isso, adianto o registro dos achados do deploy para a etapa
+  10 e o roteiro.
+
+  Made 1 scratchpad edit +16 (ctrl+o to expand)
+
+● Update(docs\operacao.md)
+  ⎿  Added 5 lines
+      119  
+      120  O `--env-file` do Docker não tira aspas: as linhas do R2 no `.
+           env` ficam sem aspas.
+      121  
+      122 +Para provar uma mudança ainda sem commit, o clone pode ser da 
+          +branch (`--branch <branch>`),                                 
+      123 +com o arquivo alterado mandado por cima, um por vez:          
+      124 +`ssh root@<vps> "cat > /tmp/maxx-src/<caminho>" < <caminho>`. 
+          +Mandar o repositório inteiro                                  
+      125 +pela conexão de casa é lento demais.                          
+      126 +                                                              
+      127  ## Voltar uma versão
+      128  
+      129  Trocar `MAXX_IMAGEM_TAG` pela tag anterior e `dc up -d`. Migra
+           tion não volta sozinha: se a
+
+● Mais uma preparação independente: a rota do pedido de recuperação, para
+  disparar o primeiro acesso logo depois do seed.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A suíte da API segue em segundo plano (tarefa bon8vrimf).
+
+  Feito até aqui na etapa 2:
+  - O .env confere: os 19 nomes, sem aspas.
+  - O site está no ar em https://app.maxx-unimax.com, com o certificado do Let's
+    Encrypt e o HTTP redirecionando para HTTPS.
+  - A demonstração está desligada: as rotas dela respondem 404.
+  - A verificação do R2 passa 7 de 7, incluindo o teste novo.
+
+  Um defeito achado no deploy: o seed demo falhou no R2. O SDK manda o corpo da
+  foto assinado em pedaços, e o R2 não implementa isso; o emulador aceita, por
+  isso a CI nunca viu. A correção é uma linha no envio direto do seed. O teste
+  novo falha no R2 sem ela e passa com ela.
+
+  Quando a suíte voltar verde:
+  1. Commit fix(api) separado, push e publicação.
+  2. Com a imagem nova na VPS: seed demo, medindo o tempo dele e a drenagem da
+     fila.
+  3. Pedido de recuperação para coordenacao@maxx-unimax.com, para você confirmar
+     que o e-mail chegou na sua caixa.
+
+✻ Baked for 1m 45s · done 20:22
+
+● Background command "Run full API suite before pushing the fix" completed (exit
+code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Keep waiting for API suite result" completed (exit code 0)
+
+● Background command "Wait for full API suite result" completed (exit code 0)
+
+● Suíte verde com 1.246 testes passando e 0 falhas; o fix já está na branch. Em
+  seguida vou deixar em segundo plano um encadeamento que só usa a imagem se a
+  publicação passar, trocando a tag na VPS e medindo a drenagem da fila.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto isso, adianto a leitura da etapa 3 (domínios aceitos), sem commit até
+  a etapa 2 fechar. Localizo o cadastro, a correção de e-mail e o padrão das
+  Options:
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Enquanto a publicação corre, sigo lendo o necessário para a etapa 3: o
+  registro das Options e as mensagens de recusa no app.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O app tem um mapa único de código para mensagem (erros.ts), e os dois textos
+  aprovados são diferentes para o mesmo código. Vejo se já existe sobreposição
+  por tela:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Para manter o mapa único, a etapa 3 vai usar dois códigos, um para o cadastro
+  (email-fora-da-faculdade) e outro para a correção (dominio-nao-aceito).
+  Adianto a regra de domínio e o teste, ainda sem commit.
+
+● Write(apps\api\src\Maxx.Domain\Identidade\DominiosDeEmailAceitos.cs)
+  ⎿  Wrote 40 lines to
+     apps\api\src\Maxx.Domain\Identidade\DominiosDeEmailAceitos.cs
+      1 namespace Maxx.Domain.Identidade;
+      2 
+      3 // Os domínios de e-mail aceitos (produto.md 2.4), que vêm da con
+        figuração da API. O papel
+      4 // nunca vem do domínio: a lista só diz se o endereço é de um dom
+        ínio da faculdade. A
+      5 // comparação é do domínio inteiro, sem maiúsculas: subdomínio de
+         um domínio aceito não é
+      6 // aceito.
+      7 public sealed class DominiosDeEmailAceitos
+     … +33 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(apps\api\tests\Maxx.Domain.Tests\Identidade\DominiosDeEmailAceitosTests.
+       cs)
+  ⎿  Wrote 48 lines to apps\api\tests\Maxx.Domain.Tests\Identidade\Dominios
+     DeEmailAceitosTests.cs
+       1 using Maxx.Domain.Identidade;
+       2 
+       3 namespace Maxx.Domain.Tests.Identidade;
+       4 
+       5 public class DominiosDeEmailAceitosTests
+       6 {
+       7     private static readonly DominiosDeEmailAceitos _faculdade =
+       8         new(["al.unieduk.com.br", "prof.unieduk.com.br", "uniedu
+         k.com.br"]);
+       9 
+     … +39 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 16 testes da regra passam. O log do seed ainda é o da tentativa antiga: o
+  encadeamento novo só escreve nele quando a publicação terminar. Sigo com a
+  correção de e-mail no domínio:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Mudo a assinatura para receber a lista, e a recusa nova entra depois da
+  conferência da forma:
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i 's/^
+      EmailInvalido,$/    EmailInvalido,\n    DominioNaoAceito,/' src/M…)
+  ⎿  public enum RecusaDaCorrecaoDeEmail
+     {
+         EmailInvalido,
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\AtosSobreOCadastro.cs (+1 
+     -0)
+      84  public enum RecusaDaCorrecaoDeEmail
+      85  {
+      86      EmailInvalido,
+      87 +    DominioNaoAceito,                                          
+      88  }
+      89  
+      90  public sealed record ResultadoDaTrocaDeCurso(TrocaDeCurso? Troc
+          a, RecusaDaTrocaDeCurso? Recusa);
+
+● Update(apps\api\src\Maxx.Domain\Academico\CadastroElegivel.cs)
+  ⎿  Added 11 lines, removed 3 lines
+       94  
+       95  
+       96      // Correção de e-mail pela instituição (produto.md 2.3, pa
+           sso 12): só a linha de aluno,
+       97 -    // com ou sem conta. Confere só a forma; a unicidade é do 
+          -banco. O mesmo e-mail, escrito                                
+       98 -    // igual, não muda nada e não gera registro; trocar só mai
+          -úsculas é correção.                                           
+       99 -    public ResultadoDaCorrecaoDeEmail CorrigirEmail(string? no
+          -vo, Guid corrigidoPorId, DateTimeOffset agora)                
+       97 +    // com ou sem conta. Confere a forma e o domínio (produto.
+          +md 2.4, passo 13); a unicidade é                              
+       98 +    // do banco. O mesmo e-mail, escrito igual, não muda nada 
+          +e não gera registro; trocar só                                
+       99 +    // maiúsculas é correção.                                 
+      100 +    public ResultadoDaCorrecaoDeEmail CorrigirEmail(          
+      101 +        string? novo, DominiosDeEmailAceitos dominios, Guid co
+          +rrigidoPorId, DateTimeOffset agora)                           
+      102      {
+      103 +        ArgumentNullException.ThrowIfNull(dominios);          
+      104          GarantirAluno("ter o e-mail corrigido");
+      105  
+      106          novo = novo?.Trim();
+     ...
+      109              return new(null, RecusaDaCorrecaoDeEmail.EmailInva
+           lido);
+      110          }
+      111  
+      112 +        if (!dominios.Aceita(novo))                           
+      113 +        {                                                     
+      114 +            return new(null, RecusaDaCorrecaoDeEmail.DominioNa
+          +oAceito);                                                     
+      115 +        }                                                     
+      116 +                                                              
+      117          if (string.Equals(novo, Email, StringComparison.Ordina
+           l))
+      118          {
+      119              return new(null, null);
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && head -12
+      src/Maxx.Domain/Academico/CadastroElegivel.cs; sed -i 's|    // Só a fo…)
+  ⎿  namespace Maxx.Domain.Academico;
+
+     // A base que a faculdade abastece. Estar nela não é ter conta: o Usua
+     … +59 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\CadastroElegivel.cs (+2 -1)
+      167          }
+      168      }
+      169  
+      170 -    // Só a forma. Os domínios aceitos são configuração do pas
+          -so 3.                                                         
+      170 +    // Só a forma. Os domínios aceitos (DominiosDeEmailAceitos
+          +) valem no cadastro e na                                      
+      171 +    // correção, não na carga da base.                        
+      172      private static string ValidarEmail(string email)
+      173      {
+      174          email = Texto.Obrigatorio(email, "O e-mail");
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" && sed -i
+      '1s/^/using Maxx.Domain.Identidade;\n\n/'
+      src/Maxx.Domain/Academico/Cadas…)
+  ⎿  14:    private static readonly DominiosDeEmailAceitos _dominios = new(
+     ["al.unieduk.com.br", "prof.unieduk.com.br"]);
+     24:        var resultado = ana.CorrigirEmail("  ana.b.souza@al.unieduk
+     … +23 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Domain\Academico\CadastroElegivel.cs (+2 -0)
+      1 +using Maxx.Domain.Identidade;                                   
+      2 +                                                                
+      3  namespace Maxx.Domain.Academico;
+      4  
+      5  // A base que a faculdade abastece. Estar nela não é ter conta: 
+         o Usuario do passo 3 se
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Academico\AtosSobreOCadastroTests.cs
+     (+11 -9)
+      1  using Maxx.Domain.Academico;
+      2 +using Maxx.Domain.Identidade;                                   
+      3  
+      4  namespace Maxx.Domain.Tests.Academico;
+      5  
+     ...
+      11      private static readonly Guid _coordenacao = Guid.CreateVers
+          ion7();
+      12      private static readonly Curso _cc = new("Ciência da Computa
+          ção", "CC", 8);
+      13      private static readonly Curso _med = new("Medicina", "MED",
+           12);
+      14 +    private static readonly DominiosDeEmailAceitos _dominios = 
+         +new(["al.unieduk.com.br", "prof.unieduk.com.br"]);             
+      15  
+      16      private static CadastroElegivel Ana() =>
+      17          CadastroElegivel.Aluno("20260101", "ana.souza@al.uniedu
+          k.com.br", "Ana Souza", _cc, 3);
+     ...
+      21      {
+      22          var ana = Ana();
+      23  
+      22 -        var resultado = ana.CorrigirEmail("  ana.b.souza@al.uni
+         -eduk.com.br ", _coordenacao, _agora);                          
+      24 +        var resultado = ana.CorrigirEmail("  ana.b.souza@al.uni
+         +eduk.com.br ", _dominios, _coordenacao, _agora);               
+      25  
+      26          Assert.Null(resultado.Recusa);
+      27          var correcao = Assert.IsType<CorrecaoDeEmail>(resultado
+          .Correcao);
+     ...
+      46      {
+      47          var ana = Ana();
+      48  
+      47 -        var resultado = ana.CorrigirEmail(email, _coordenacao, 
+         -_agora);                                                       
+      49 +        var resultado = ana.CorrigirEmail(email, _dominios, _co
+         +ordenacao, _agora);                                            
+      50  
+      51          Assert.Equal(RecusaDaCorrecaoDeEmail.EmailInvalido, res
+          ultado.Recusa);
+      52          Assert.Null(resultado.Correcao);
+     ...
+      58      {
+      59          var ana = Ana();
+      60  
+      59 -        Assert.Equal(new ResultadoDaCorrecaoDeEmail(null, null)
+         -, ana.CorrigirEmail("ana.souza@al.unieduk.com.br", _coordenacao
+         -, _agora));                                                    
+      60 -        Assert.NotNull(ana.CorrigirEmail("Ana.Souza@al.unieduk.
+         -com.br", _coordenacao, _agora).Correcao);                      
+      61 +        Assert.Equal(new ResultadoDaCorrecaoDeEmail(null, null)
+         +, ana.CorrigirEmail("ana.souza@al.unieduk.com.br", _dominios, _
+         +coordenacao, _agora));                                         
+      62 +        Assert.NotNull(ana.CorrigirEmail("Ana.Souza@al.unieduk.
+         +com.br", _dominios, _coordenacao, _agora).Correcao);           
+      63          Assert.Equal("Ana.Souza@al.unieduk.com.br", ana.Email);
+      64      }
+      65  
+     ...
+      68      {
+      69          var ana = Ana();
+     … 31 more lines (ctrl+o to expand)
+
+● Fiz a troca larga demais, e ela pegou o TrocarDeCurso também. Desfaço nessas
+  linhas e acrescento o teste da recusa nova:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api" &&
+      f=tests/Maxx.Domain.Tests/Academico/AtosSobreOCadastroTests.cs && sed -i
+      '/Troca…)
+  ⎿  0
+             Assert.Null(resultado.Correcao);
+             Assert.Equal("ana.souza@al.unieduk.com.br", ana.Email);
+     … +22 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Domain.Tests\Academico\AtosSobreOCadastroTests.cs
+     (+18 -4)
+      53          Assert.Equal("ana.souza@al.unieduk.com.br", ana.Email);
+      54      }
+      55  
+      56 +                                                               
+      57 +    [Theory]                                                   
+      58 +    [InlineData("ana.souza@gmail.com")]                        
+      59 +    [InlineData("ana.souza@x.al.unieduk.com.br")]              
+      60 +    public void Email_de_dominio_fora_da_lista_e_recusado_sem_m
+         +udar_nada(string email)                                        
+      61 +    {                                                          
+      62 +        var ana = Ana();                                       
+      63 +                                                               
+      64 +        var resultado = ana.CorrigirEmail(email, _dominios, _co
+         +ordenacao, _agora);                                            
+      65 +                                                               
+      66 +        Assert.Equal(RecusaDaCorrecaoDeEmail.DominioNaoAceito, 
+         +resultado.Recusa);                                             
+      67 +        Assert.Null(resultado.Correcao);                       
+      68 +        Assert.Equal("ana.souza@al.unieduk.com.br", ana.Email);
+      69 +    }                                                          
+      70      [Fact]
+      71      public void O_mesmo_email_nao_muda_nada_mas_so_maiusculas_e
+          _correcao()
+      72      {
+     ...
+      82      {
+      83          var ana = Ana();
+      84  
+      71 -        var resultado = ana.TrocarDeCurso(_med, 11, _dominios, 
+         -_coordenacao, _agora);                                         
+      85 +        var resultado = ana.TrocarDeCurso(_med, 11, _coordenaca
+         +o, _agora);                                                    
+      86  
+      87          Assert.Null(resultado.Recusa);
+      88          var troca = Assert.IsType<TrocaDeCurso>(resultado.Troca
+          );
+     ...
+       99          var ana = Ana();
+      100          var adm = new Curso("Administração", "ADM", 8);
+      101  
+       88 -        var resultado = ana.TrocarDeCurso(adm, semestre, _domi
+          -nios, _coordenacao, _agora);                                  
+      102 +        var resultado = ana.TrocarDeCurso(adm, semestre, _coor
+          +denacao, _agora);                                             
+      103  
+      104          Assert.Equal(RecusaDaTrocaDeCurso.SemestreForaDoCurso,
+            resultado.Recusa);
+      105          Assert.Equal((_cc.Id, 3), (ana.CursoId, ana.Semestre))
+           ;
+     ...
+      110      {
+      111          var ana = Ana();
+      112  
+       99 -        Assert.Equal(RecusaDaTrocaDeCurso.MesmoCurso, ana.Troc
+          -arDeCurso(_cc, 5, _dominios, _coordenacao, _agora).Recusa);   
+     … 11 more lines (ctrl+o to expand)
+
+● Ajusto as linhas em branco em volta do teste novo:
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Academico\AtosSobreOCadastroTests.cs)
+  ⎿  Removed 1 line
+      53          Assert.Equal("ana.souza@al.unieduk.com.br", ana.Email);
+      54      }
+      55  
+      56 -                                                               
+      56      [Theory]
+      57      [InlineData("ana.souza@gmail.com")]
+      58      [InlineData("ana.souza@x.al.unieduk.com.br")]
+
+● Update(apps\api\tests\Maxx.Domain.Tests\Academico\AtosSobreOCadastroTests.cs)
+  ⎿  Added 1 line
+      66          Assert.Null(resultado.Correcao);
+      67          Assert.Equal("ana.souza@al.unieduk.com.br", ana.Email);
+      68      }
+      69 +                                                               
+      70      [Fact]
+      71      public void O_mesmo_email_nao_muda_nada_mas_so_maiusculas_e
+          _correcao()
+      72      {
+
+● Agora a configuração na Application. Vejo como ela registra os serviços:
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● A publicação do fix ainda corre na CI e o seed demo espera por ela, por isso
+  adianto já o código da etapa 3, que não precisa de domínio só de teste. Em
+  seguida acrescento a lista no appsettings.json e o registro na borda.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" && cat
+      > appsettings.json <<'EOF'
+      {…)
+  ⎿  66:    private static Uri LerUrlPublica(IHostApplicationBuilder builde
+     r, bool exigir)
+     87:    private static SymmetricSecurityKey LerChave(WebApplicationBuil
+     der builder, bool exigirChave)
+  ⎿  Updated apps\api\src\Maxx.Api\appsettings.json (+10 -1)
+       7        "Npgsql.Command": "Warning"
+       8      }
+       9    },
+      10 -  "AllowedHosts": "*"                                          
+      10 +  "AllowedHosts": "*",                                         
+      11 +  "Cadastro": {                                                
+      12 +    "DominiosDeEmailAceitos": [                                
+      13 +      "al.unieduk.com.br",                                     
+      14 +      "prof.unieduk.com.br",                                   
+      15 +      "unieduk.com.br",                                        
+      16 +      "al.unieduk.invalid",                                    
+      17 +      "maxx-unimax.com"                                        
+      18 +    ]                                                          
+      19 +  }                                                            
+      20  }
+
+● Update(apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollectionExtensi
+        ons.cs)
+  ⎿  Added 1 line
+      22          builder.Services.AddScoped<SessaoService>();
+      23          builder.Services.AddScoped<SugestaoDeArroba>();
+      24          builder.Services.AddScoped<TermoDeUsoHandler>();
+      25 +        builder.Services.AddSingleton(LerDominiosAceitos(builde
+         +r));                                                           
+      26          builder.Services.AddScoped<CadastroHandler>();
+      27          builder.Services.AddScoped<LoginHandler>();
+      28          builder.Services.AddScoped<RefreshHandler>();
+
+● Update(apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollectionExtensi
+        ons.cs)
+  ⎿  Added 6 lines
+      64  
+      65      // Sem ela o link do e-mail de recuperação não teria para o
+          nde apontar: fora de
+      66      // desenvolvimento nem a API nem o worker sobem.
+      67 +    // Os domínios de e-mail aceitos no cadastro e na correção 
+         +pela instituição (produto.md                                   
+      68 +    // 2.4), em Cadastro:DominiosDeEmailAceitos do appsettings.
+         +json: não é segredo, e a lista                                 
+      69 +    // é a mesma em todo ambiente. Vazia ou mal formada, nada s
+         +obe.                                                           
+      70 +    private static DominiosDeEmailAceitos LerDominiosAceitos(IH
+         +ostApplicationBuilder builder) =>                              
+      71 +        new(builder.Configuration.GetSection("Cadastro:Dominios
+         +DeEmailAceitos").Get<string[]>() ?? []);                       
+      72 +                                                               
+      73      private static Uri LerUrlPublica(IHostApplicationBuilder bu
+          ilder, bool exigir)
+      74      {
+      75          var texto = builder.Configuration[$"{LinkDoApp.Section}
+          :UrlPublica"];
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api" && sed
+      -i 's/^using Maxx.Application.Autenticacao.Termos;$/using Maxx.…)
+  ⎿  using System.Security.Cryptography;
+     using Maxx.Application.Autenticacao;
+     using Maxx.Application.Autenticacao.Cadastro;
+     … +36 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Api\Autenticacao\AutenticacaoServiceCollecti
+     onExtensions.cs (+1 -0)
+       4  using Maxx.Application.Autenticacao.Login;
+       5  using Maxx.Application.Autenticacao.Recuperacao;
+       6  using Maxx.Application.Autenticacao.Termos;
+       7 +using Maxx.Domain.Identidade;                                  
+       8  using Maxx.Infrastructure.Email;
+       9  using Microsoft.AspNetCore.Authentication.JwtBearer;
+      10  using Microsoft.IdentityModel.Tokens;
+
+● Acrescento o código do cadastro, a checagem no BuscarSemContaAsync (vale para
+  cadastro, sugestão e disponibilidade do arroba) e o código da instituição:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Application/Autenticacao/CodigosDeRecusa.cs && sed -i 's|^
+      public…)
+  ⎿  {
+         public const string CadastroNaoEncontrado = "cadastro-nao-encontra
+     do";
+     … +29 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Application\Autenticacao\CodigosDeRecusa.cs
+     (+3 -0)
+       5  {
+       6      public const string CadastroNaoEncontrado = "cadastro-nao-e
+          ncontrado";
+       7  
+       8 +    // O e-mail não é de um domínio aceito (produto.md 2.4): co
+         +nferido antes da base.                                         
+       9 +    public const string EmailForaDaFaculdade = "email-fora-da-f
+         +aculdade";                                                     
+      10 +                                                               
+      11      // O RA já tem conta: o cliente leva à recuperação de senha
+           (produto.md 2.5).
+      12      public const string ContaExistente = "conta-existente";
+      13  
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Application/Autenticacao/Cadastro/CadastroHandler.cs && sed -i
+      's/^…)
+  ⎿  // O cadastro do aluno (produto.md 2.5): RA e e-mail na mesma linha do
+      cadastro elegível,
+     // um RA uma conta, arroba único pelo prefixo. Professor e instituição
+     … +49 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Autenticacao\Cadastro\CadastroHandler.cs
+     (+8 -1)
+      17      SugestaoDeArroba sugestoes,
+      18      TermoDeUsoHandler termos,
+      19      IFilaDeTrabalhos fila,
+      20 +    DominiosDeEmailAceitos dominios,                           
+      21      IUnitOfWork unitOfWork,
+      22      TimeProvider relogio)
+      23  {
+     ...
+      78          return sessao;
+      79      }
+      80  
+      80 -    // Par que não está na mesma linha, RA de outra pessoa, e-m
+         -ail de professor: a mesma                                      
+      81 +    // E-mail fora dos domínios aceitos: recusado antes da base
+         +, com código próprio (a lista                                  
+      82 +    // não é segredo). Par que não está na mesma linha, RA de o
+         +utra pessoa, e-mail de professor: a mesma                      
+      83      // resposta, para não dizer qual dos dois errou. RA que já 
+          tem conta vai para a
+      84      // recuperação de senha.
+      85      private async Task<(CadastroElegivel Cadastro, Curso Curso)
+          > BuscarSemContaAsync(
+      86          string ra, string email, CancellationToken cancellation
+          Token)
+      87      {
+      88 +        if (!dominios.Aceita(email.Trim()))                    
+      89 +        {                                                      
+      90 +            throw new RecusaException(TipoDeRecusa.Invalido, Co
+         +digosDeRecusa.EmailForaDaFaculdade);                           
+      91 +        }                                                      
+      92 +                                                               
+      93          var encontrado = await cadastros.BuscarAlunoAsync(ra.Tr
+          im(), email.Trim(), cancellationToken)
+      94              ?? throw new RecusaException(TipoDeRecusa.NaoEncont
+          rado, CodigosDeRecusa.CadastroNaoEncontrado);
+      95  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\api\src\Maxx.Application\Autenticacao\Cadastro\CadastroHandler.cs)
+  ⎿  Added 4 lines, removed 4 lines
+      78          return sessao;
+      79      }
+      80  
+      81 -    // E-mail fora dos domínios aceitos: recusado antes da base
+         -, com código próprio (a lista                                  
+      82 -    // não é segredo). Par que não está na mesma linha, RA de o
+         -utra pessoa, e-mail de professor: a mesma                      
+      83 -    // resposta, para não dizer qual dos dois errou. RA que já 
+         -tem conta vai para a                                           
+      84 -    // recuperação de senha.                                   
+      81 +    // E-mail fora dos domínios aceitos (produto.md 2.4): recus
+         +ado antes da base, com código                                  
+      82 +    // próprio, porque a lista não é segredo. Par que não está 
+         +na mesma linha, RA de outra                                    
+      83 +    // pessoa, e-mail de professor: a mesma resposta, para não 
+         +dizer qual dos dois errou. RA                                  
+      84 +    // que já tem conta vai para a recuperação de senha.       
+      85      private async Task<(CadastroElegivel Cadastro, Curso Curso)
+          > BuscarSemContaAsync(
+      86          string ra, string email, CancellationToken cancellation
+          Token)
+      87      {
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f2=Maxx.Application/Instituicao/CodigosDaInstituicao.cs && sed -i 's|^
+      pu…)
+  ⎿  17:public sealed class AtosSobreOAlunoHandler(
+     18-    IUsuarioRepository usuarios,
+     19-    IAlunosDaInstituicaoRepository alunos,
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Instituicao\CodigosDaInstituicao.cs (+3 
+     -0)
+      12  
+      13      public const string EmailInvalido = "email-invalido";
+      14  
+      15 +    // O e-mail novo não é de um domínio aceito (produto.md 2.4
+         +).                                                             
+      16 +    public const string DominioNaoAceito = "dominio-nao-aceito"
+         +;                                                              
+      17 +                                                               
+      18      // Outra linha da base, de qualquer papel, já tem esse e-ma
+          il.
+      19      public const string EmailEmUso = "email-em-uso";
+      20  
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" &&
+      f=Maxx.Application/Instituicao/AtosSobreOAlunoHandler.cs && sed -i
+      '17,24s/^…)
+  ⎿          var quem = await InstituicaoAsync(usuarios, quemId, cancellati
+     onToken);
+             var cadastro = await alunos.CadastroDeAlunoAsync(cadastroId, c
+     … +32 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\src\Maxx.Application\Instituicao\AtosSobreOAlunoHandler.cs
+     (+7 -1)
+      20      IConsultaDaInstituicao consulta,
+      21      IRecuperacaoDeSenhaRepository recuperacoes,
+      22      IFilaDeTrabalhos fila,
+      23 +    DominiosDeEmailAceitos dominios,                           
+      24      IUnitOfWork unitOfWork,
+      25      TimeProvider relogio)
+      26  {
+     ...
+      53          var cadastro = await alunos.CadastroDeAlunoAsync(cadast
+          roId, cancellationToken) ?? throw AlunoNaoEncontrado(cadastroId
+          );
+      54          var agora = relogio.GetUtcNow();
+      55  
+      55 -        var resultado = cadastro.CorrigirEmail(email, quem.Id, 
+         -agora);                                                        
+      56 +        var resultado = cadastro.CorrigirEmail(email, dominios,
+         + quem.Id, agora);                                              
+      57          if (resultado.Recusa is RecusaDaCorrecaoDeEmail.EmailIn
+          valido)
+      58          {
+      59              throw new RecusaException(TipoDeRecusa.Invalido, Co
+          digosDaInstituicao.EmailInvalido, "E-mail fora da forma.");
+      60          }
+      61  
+      62 +        if (resultado.Recusa is RecusaDaCorrecaoDeEmail.Dominio
+         +NaoAceito)                                                     
+      63 +        {                                                      
+      64 +            throw new RecusaException(TipoDeRecusa.Invalido, Co
+         +digosDaInstituicao.DominioNaoAceito, "E-mail fora dos domínios 
+         +aceitos.");                                                    
+      65 +        }                                                      
+      66 +                                                               
+      67          if (resultado.Correcao is not { } correcao)
+      68          {
+      69              return;
+  ⎿  Updated apps\api\tests\Maxx.Api.IntegrationTests\SeedDemoTests.cs (+1 
+     -1)
+      241              var db = scope.ServiceProvider.GetRequiredService<
+           MaxxDbContext>();
+      242              var lucas = await db.Set<CadastroElegivel>().Singl
+           eAsync(cadastro => cadastro.Ra == "20260102", Ct);
+      243              var mariana = await db.Set<CadastroElegivel>().Sin
+           gleAsync(cadastro => cadastro.Ra == "20260103", Ct);
+      244 -            db.Add(lucas.CorrigirEmail("lucas.f@al.unieduk.inv
+          -alid", instituicao.Id, DateTimeOffset.UtcNow).Correcao!);     
+      244 +            db.Add(lucas.CorrigirEmail("lucas.f@al.unieduk.inv
+          +alid", new DominiosDeEmailAceitos(["al.unieduk.invalid"]), ins
+          +tituicao.Id, DateTimeOffset.UtcNow).Correcao!);               
+      245              db.Add(mariana.TrocarDeCurso(adm, 2, instituicao.I
+           d, DateTimeOffset.UtcNow).Troca!);
+      246              await db.SaveChangesAsync(Ct);
+      247          }
+
+● Compilo para conferir (rápido):
+  Ran 1 shell command (ctrl+o to expand)
+
+● Compila sem aviso. Escrevo os testes de integração: cadastro, as duas
+  consultas do arroba e a correção. Leio o padrão:
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Escrevo os dois testes de integração:
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Instituicao\AtosSobreOAlunoTes
+        ts.cs)
+  ⎿  Added 19 lines
+      135              "aluno-nao-encontrado");
+      136      }
+      137  
+      138 +    // A lista do appsettings.json (produto.md 2.4). Prova rev
+          +ersa: sem a conferência no                                    
+      139 +    // domínio, a correção para o gmail grava e o teste falha.
+      140 +    [Theory]                                                  
+      141 +    [InlineData("elisa@gmail.com")]                           
+      142 +    [InlineData("elisa@x.al.unieduk.com.br")]                 
+      143 +    public async Task Correcao_para_dominio_fora_da_lista_e_re
+          +cusada_e_nada_muda(string email)                              
+      144 +    {                                                         
+      145 +        await using var mundo = await CriarAsync(postgres, arm
+          +azenamento);                                                  
+      146 +        var elisa = await ElisaSemContaAsync(mundo);          
+      147 +        var antes = Assert.Single(await mundo.LinhasAsync<Cada
+          +stroElegivel>(), linha => linha.Id == elisa).Email;           
+      148 +        using var coordenacao = await mundo.ComoAsync(Coordena
+          +cao);                                                         
+      149 +                                                              
+      150 +        await AssertRecusaAsync(                              
+      151 +            await coordenacao.PutAsJsonAsync(Rota($"/{elisa}/e
+          +mail"), new { email }, Ct), HttpStatusCode.BadRequest, "domini
+          +o-nao-aceito");                                               
+      152 +                                                              
+      153 +        Assert.Equal(antes, Assert.Single(await mundo.LinhasAs
+          +ync<CadastroElegivel>(), linha => linha.Id == elisa).Email);  
+      154 +        Assert.Empty(await mundo.LinhasAsync<CorrecaoDeEmail>(
+          +));                                                           
+      155 +    }                                                         
+      156 +                                                              
+      157      [Fact]
+      158      public async Task Marcar_ex_aluno_troca_o_sufixo_registra_
+           quem_e_pede_o_recalculo_uma_vez_so()
+      159      {
+
+● Update(apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs)
+  ⎿  Added 24 lines
+       99          Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+      100      }
+      101  
+      102 +    // Mesmo com o par na base, o e-mail de domínio fora da li
+          +sta (produto.md 2.4) é recusado                               
+      103 +    // nas três rotas, antes de a base ser consultada. Prova r
+          +eversa: sem a conferência, o                                  
+      104 +    // cadastro do Gil nasce com 201 e o teste falha.         
+      105      [Fact]
+      106 +    public async Task Email_fora_dos_dominios_aceitos_e_recusa
+          +do_nas_tres_rotas_e_a_conta_nao_nasce()                       
+      107 +    {                                                         
+      108 +        await using var factory = await MundoAsync();         
+      109 +        using var client = factory.CreateClient();            
+      110 +                                                              
+      111 +        await AssertRecusaAsync(                              
+      112 +            await client.PostAsJsonAsync(_sugestao, new { ra =
+          + _gil.Ra, email = _gil.Email }, Ct),                          
+      113 +            HttpStatusCode.BadRequest,                        
+      114 +            "email-fora-da-faculdade");                       
+      115 +        await AssertRecusaAsync(                              
+      116 +            await client.PostAsJsonAsync(_disponibilidade, new
+          + { ra = _gil.Ra, email = _gil.Email, prefixo = "gilRamos" }, C
+          +t),                                                           
+      117 +            HttpStatusCode.BadRequest,                        
+      118 +            "email-fora-da-faculdade");                       
+      119 +        await AssertRecusaAsync(await client.PostAsJsonAsync(_
+          +cadastro, _gil, Ct), HttpStatusCode.BadRequest, "email-fora-da
+          +-faculdade");                                                 
+      120 +                                                              
+      121 +        await using var scope = factory.Services.CreateAsyncSc
+          +ope();                                                        
+      122 +        var db = scope.ServiceProvider.GetRequiredService<Maxx
+          +DbContext>();                                                 
+      123 +        Assert.Equal(0, await db.Set<Usuario>().CountAsync(Ct)
+          +);                                                            
+      124 +    }                                                         
+      125 +                                                              
+      126 +    [Fact]                                                    
+      127      public async Task Professor_nao_se_cadastra_pelo_app()
+      128      {
+      129          await using var factory = await MundoAsync();
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/a
+      pi/tests/Maxx.Api.IntegrationTests" && f=Autenticacao/CadastroTests.cs &&
+      sed -i 's|^…)
+  ⎿  35:    private static readonly CadastroRequest _gil = new("20260105",
+     "gil.ramos@gmail.com", "Gil", "gilRamos", _senha, VersaoDoTermo);
+     115:            await client.PostAsJsonAsync(_sugestao, new { ra = _gi
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated
+     apps\api\tests\Maxx.Api.IntegrationTests\Autenticacao\CadastroTests.cs
+     (+4 -0)
+      31      private static readonly CadastroRequest _maria = new("20260
+          103", "maria.silva@al.unieduk.com.br", "Maria", "mariaS", _senh
+          a, VersaoDoTermo);
+      32      private static readonly CadastroRequest _outraMaria = new("
+          20260104", "maria.c.silva@al.unieduk.com.br", "Maria C.", "mari
+          aC", _senha, VersaoDoTermo);
+      33  
+      34 +    // Na base, mas com e-mail de domínio que a faculdade não u
+         +sa (produto.md 2.4).                                           
+      35 +    private static readonly CadastroRequest _gil = new("2026010
+         +5", "gil.ramos@gmail.com", "Gil", "gilRamos", _senha, VersaoDoT
+         +ermo);                                                         
+      36 +                                                               
+      37      private static CancellationToken Ct => TestContext.Current.
+          CancellationToken;
+      38  
+      39      [Fact]
+     ...
+      444              CadastroElegivel.Aluno(_bruno.Ra, _bruno.Email, "B
+           runo Lima", cc, 3),
+      445              CadastroElegivel.Aluno(_maria.Ra, _maria.Email, "M
+           aria Clara Fernandes da Silva", cc, 1),
+      446              CadastroElegivel.Aluno(_outraMaria.Ra, _outraMaria
+           .Email, "Maria Clara da Silva", cc, 2),
+      447 +            CadastroElegivel.Aluno(_gil.Ra, _gil.Email, "Gil R
+          +amos", cc, 1),                                                
+      448              CadastroElegivel.Professor("renata@prof.unieduk.co
+           m.br", "Renata Albuquerque", ra: "PROF-1"));
+      449          return factory;
+      450      }
+
+● Domínio: 626 de 626. Rodo em segundo plano só os testes de integração que
+  cobrem a etapa 3:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Agora o cliente: as duas mensagens no erros.ts. Vejo se há teste que confere
+  os códigos do C#:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Esse teste já lê os Codigos*.cs e falha se um código ficar sem texto: é a
+  prova reversa do lado do app. Acrescento as duas mensagens aprovadas:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx jest
+      src/api/erros.test.ts 2>&1 | grep -E "Tests:|sem texto|Expected|emai…)
+  ⎿      Expected value: "email-fora-da-faculdade"
+     Tests:       1 failed, 5 passed, 6 total
+     Tests:       6 passed, 6 total
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\api\erros.ts (+2 -0)
+       5    // Autenticação (CodigosDeRecusa.cs)
+       6    "cadastro-nao-encontrado":
+       7      "Não achamos esse RA com esse e-mail. Confira os dois.",
+       8 +  "email-fora-da-faculdade": "Use o e-mail da faculdade.",     
+       9    "conta-existente":
+      10      "Esse RA já tem conta. Use Esqueci minha senha para entrar.
+          ",
+      11    "prefixo-invalido": "Use de 3 a 30 letras ou números, começan
+          do por letra.",
+     ...
+      100    "aluno-nao-encontrado": "Esse aluno não está na base.",
+      101    "aluno-sem-conta": "Esse aluno ainda não criou a conta.",
+      102    "email-invalido": "Confira o e-mail digitado.",
+      103 +  "dominio-nao-aceito": "Esse domínio de e-mail não é aceito."
+          +,                                                             
+      104    "email-em-uso": "Esse e-mail já é de outra pessoa da base.",
+      105    "mesmo-curso": "O aluno já é desse curso.",
+      106    "semestre-invalido": "Esse curso não tem esse semestre.",
+
+● O teste falhou sem as mensagens e passa com elas. Confiro como as duas telas
+  mostram um código que não tratam de modo específico:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os dois casos caem no caminho genérico, que mostra a mensagem do mapa. Faltam
+  os testes de tela que o aceite pede. Vejo como o teste do cadastro simula a
+  recusa:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Update(apps\mobile\src\cadastro\cadastro.test.tsx)
+  ⎿  Added 17 lines
+      206        "Não achamos esse RA com esse e-mail. Confira os dois.",
+      207      );
+      208    });
+      209 +                                                              
+      210 +  it("e-mail fora dos domínios da faculdade pede o e-mail da f
+          +aculdade", async () => {                                      
+      211 +    api.mockResolvedValue(json(400, { codigo: "email-fora-da-f
+          +aculdade" }));                                                
+      212 +    await renderComApi(                                       
+      213 +      <ComDados dados={null}>                                 
+      214 +        <DadosScreen />                                       
+      215 +      </ComDados>,                                            
+      216 +      api,                                                    
+      217 +    );                                                        
+      218 +                                                              
+      219 +    await preencher("2023001", "ana@gmail.com", "senha-boa-123
+          +");                                                           
+      220 +    await apertar("Continuar");                               
+      221 +                                                              
+      222 +    expect(screen.getByRole("alert")).toHaveTextContent(      
+      223 +      "Use o e-mail da faculdade.",                           
+      224 +    );                                                        
+      225 +  });                                                         
+      226  });
+      227  
+      228  describe("passo 2: arroba", () => {
+
+● Update(apps\mobile\src\instituicao\alunos\alunos.test.tsx)
+  ⎿  Added 25 lines
+      275      ).toBeOnTheScreen();
+      276    });
+      277  
+      278 +  it("corrigir para domínio fora da lista mostra a recusa dent
+          +ro da folha", async () => {                                   
+      279 +    atos.mockResolvedValueOnce(                               
+      280 +      json(400, { status: 400, codigo: "dominio-nao-aceito" })
+          +,                                                             
+      281 +    );                                                        
+      282 +    await renderComApi(<FichaDoAlunoScreen />, api);          
+      283 +                                                              
+      284 +    await apertar("Corrigir e-mail");                         
+      285 +    const folha = await screen.findByTestId("folha-de-ato");  
+      286 +    await act(async () => {                                   
+      287 +      fireEvent.changeText(                                   
+      288 +        within(folha).getByLabelText("E-mail"),               
+      289 +        "lucas@gmail.com",                                    
+      290 +      );                                                      
+      291 +    });                                                       
+      292 +    await act(async () => {                                   
+      293 +      fireEvent.press(                                        
+      294 +        within(folha).getByRole("button", { name: "Salvar e-ma
+          +il" }),                                                       
+      295 +      );                                                      
+      296 +    });                                                       
+      297 +                                                              
+      298 +    expect(                                                   
+      299 +      await within(folha).findByText("Esse domínio de e-mail n
+          +ão é aceito."),                                               
+      300 +    ).toBeOnTheScreen();                                      
+      301 +  });                                                         
+      302 +                                                              
+      303    it("trocar de curso pede o curso novo e o semestre nele", as
+           ync () => {
+      304      await renderComApi(<FichaDoAlunoScreen />, api);
+      305  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Run cadastro and correction integration tests" completed
+(exit code 0)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Integração está em 38 de 38. Vou fazer a prova reversa dos dois testes novos
+  de verdade, desligando temporariamente as duas conferências numa cópia e
+  restaurando depois.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Disable checks temporarily and run reverse proof"
+completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A prova reversa ainda roda; o & desacoplou o processo. Deixo um vigia em
+  segundo plano, que me avisa quando ela terminar e as duas linhas forem
+  restauradas:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto isso, vejo como está a publicação do fix (só consulta, sem esperar):
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Estado agora:
+  - CI do push do fix (925e16a): verde nos seis jobs.
+  - Disparo à mão: os seis jobs verdes e o publicar rodando. Quando ele terminar
+    verde, o encadeamento em segundo plano sobe a sha-925e16a na VPS, roda o
+    seed demo e mede a drenagem.
+  - Etapa 3 adiantada e ainda sem commit:
+    - regra no domínio, com 626 testes de domínio verdes;
+    - checagem no cadastro, na sugestão, na disponibilidade e na correção, com
+      38 testes de integração verdes;
+    - as duas mensagens no app, com os testes de tela;
+    - a prova reversa dos testes de integração está rodando.
+
+  Sigo quando os avisos chegarem.
+
+✻ Cooked for 9m 53s · done 20:35
+
+● Background command "Wait for reverse proof and confirm restore" completed
+(exit code 0)
+  Ran 1 shell command (ctrl+o to expand)
+
+● Prova reversa confirmada: sem as duas conferências, os 3 casos novos falham.
+  As linhas foram restauradas.
+
+  Atualizo o produto.md 2.4, como você aprovou:
+
+● Update(docs\produto.md)
+  ⎿  Added 5 lines, removed 2 lines
+      116  | `@prof.unieduk.com.br` | Professor |
+      117  | `@unieduk.com.br` | Interno: administração, funcionários, in
+           stituição |
+      118  
+      119 -A lista de domínios aceitos é configuração do seed. O papel do
+          - usuário vem do cadastro                                      
+      120 -na base, nunca do domínio do e-mail.                          
+      119 +A lista de domínios aceitos é configuração da API, conferida n
+          +o cadastro do aluno e na                                      
+      120 +correção de e-mail pela instituição. Ela também traz os dois d
+          +omínios do mundo de                                           
+      121 +demonstração: `al.unieduk.invalid`, reservado, dos alunos fict
+          +ícios, e `maxx-unimax.com`,                                   
+      122 +dos professores e da instituição do seed, que recebem o e-mail
+          + do primeiro acesso. O papel                                  
+      123 +do usuário vem do cadastro na base, nunca do domínio do e-mail
+          +.                                                             
+      124  
+      125  ### 2.5 Cadastro e login
+      126  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A publicação da sha-925e16a terminou verde, e a VPS já puxou as imagens: o
+  seed demo está rodando agora. Fico no aguardo do aviso dele. A etapa 3 está
+  pronta localmente, incluindo o produto.md 2.4, e só vira commit depois de a
+  etapa 2 fechar.
+
+✻ Worked for 24s · done 20:35
+
+● Background command "Wait for publish, then deploy, seed demo, measure drain"
+completed (exit code 0)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● O seed demo rodou na VPS: 150 alunos e 1.178 medalhas, com 975 trabalhos
+  zerados em 21 s e 234 conquistas concedidas. O erro no fim vem do nome errado
+  da tabela do ranking, que eu vou corrigir; agora disparo o primeiro acesso da
+  coordenação e confiro o envio no Brevo e uma foto pela CDN.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A CDN serviu a foto do seed (200, image/jpeg), o worker escreveu as 412 linhas
+  de ranking e o Brevo aceitou o e-mail para a coordenação. Com a etapa 2
+  concluída, vou rodar em segundo plano a suíte das camadas da etapa 3 antes do
+  push.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a suíte roda, atualizo as notas do registro e começo a leitura da
+  etapa 4 (CSP): o que o build web do Expo põe no index.html.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Já anotei o resultado do seed nas notas do registro. Leitura do build web para
+  a CSP:
+  - não há <script> inline: os três scripts vêm de /_expo/..., então script-src 
+    'self' basta;
+  - há um <style id="expo-reset"> inline, e o react-native-web injeta mais
+    estilo em tempo de execução. Por isso o style-src vai precisar de
+    'unsafe-inline', como eu tinha previsto, e registro o motivo.
+
+  Aguardo a suíte da etapa 3 para o commit.
+
+✻ Cooked for 1m 12s · done 20:38
+
+※ recap: O passo 13 está com o deploy na VPS no ar e o seed demo carregado (etapas 1 e 2 fechadas). A etapa 3, dos domínios de e-mail, está pronta localmente; o próximo passo é ler a suíte em segundo plano e fazer commit, push e CI.
+
+● Background command "Run full suite for etapa 3 before push" completed (exit
+code 0)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Suíte verde na API (1.267 testes, 0 falhas, 7 pulados) e no app (522 de 522),
+  com lint, tipos e formatação limpos. Agora sigo com o commit da etapa 3, o
+  push e a publicação, e o encadeamento sobe a versão na VPS se ela terminar
+  verde.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Escrevo um script de implantação reutilizável; depois de checar que a
+  publicação ficou verde, vou trocar a tag na VPS e confirmar /api/ready.
+
+  Made 1 scratchpad edit +13, ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a etapa 3 publica e sobe, escrevo a etapa 4 no Caddyfile. A CSP
+  recebe os dois endereços do bucket por variável de ambiente, e o HSTS vale só
+  na resposta servida por HTTPS:
+
+● Write(infra\caddy\Caddyfile)
+  ⎿  Added 23 lines
+       4  {$MAXX_SITE_ADDRESS::80} {
+       5    encode zstd gzip
+       6  
+       7 +  # Cabeçalhos de segurança, em toda resposta (web e API).     
+       8 +  # CSP: só scripts do próprio build (o Expo não gera script in
+         +line); estilo inline                                           
+       9 +  # liberado porque o react-native-web injeta <style> em tempo 
+         +de execução e o build traz                                     
+      10 +  # o expo-reset inline. As fotos vêm da CDN (img-src) e sobem 
+         +direto do navegador ao                                         
+      11 +  # bucket por PUT assinado (connect-src), ADR 0002; os dois en
+         +dereços vêm do compose:                                        
+      12 +  # MAXX_CSP_FOTOS é a URL de leitura e MAXX_CSP_BUCKET o endpo
+         +int que vai na assinatura.                                     
+      13 +  # blob: e data: cobrem a prévia da foto escolhida e as deriva
+         +das geradas no cliente                                         
+      14 +  # (ADR 0003).                                                
+      15 +  header {                                                     
+      16 +    Content-Security-Policy "default-src 'self'; script-src 'se
+         +lf'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blo
+         +b: {$MAXX_CSP_FOTOS}; connect-src 'self' data: blob: {$MAXX_CSP
+         +_BUCKET}; font-src 'self' data:; worker-src 'self' blob:; manif
+         +est-src 'self'; object-src 'none'; base-uri 'self'; form-action
+         + 'self'; frame-ancestors 'none'"                               
+      17 +    X-Content-Type-Options "nosniff"                           
+      18 +    X-Frame-Options "DENY"                                     
+      19 +    Referrer-Policy "strict-origin-when-cross-origin"          
+      20 +    Permissions-Policy "camera=(), microphone=(), geolocation=(
+         +), payment=(), usb=()"                                         
+      21 +    Cross-Origin-Opener-Policy "same-origin"                   
+      22 +    -Server                                                    
+      23 +  }                                                            
+      24 +                                                               
+      25 +  # HSTS só no que foi servido por HTTPS: em http://localhost e
+         +le ficaria preso no                                            
+      26 +  # navegador de quem desenvolve. Um ano, sem subdomínios nem p
+         +reload: vale só para o app.                                    
+      27 +  @https protocol https                                        
+      28 +  header @https Strict-Transport-Security "max-age=31536000"   
+      29 +                                                               
+      30    # A API mapeia tudo sob /api: o prefixo segue como veio, sem 
+          corte.
+      31    handle /api/* {
+      32      reverse_proxy {
+
+● Passo os dois endereços ao Caddy nos dois composes:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docker-compose.yml)
+  ⎿  Added 5 lines
+      191      build:
+      192        context: .
+      193        dockerfile: infra/caddy/Dockerfile
+      194 +    # A CSP do build web libera a leitura das fotos e o PUT di
+          +reto ao bucket (Caddyfile).                                   
+      195 +    # Aqui, o emulador pela porta publicada, que é o que o nav
+          +egador alcança.                                               
+      196 +    environment:                                              
+      197 +      MAXX_CSP_FOTOS: ${MAXX_ARMAZENAMENTO_URL_DE_LEITURA:?def
+          +ina no .env}                                                  
+      198 +      MAXX_CSP_BUCKET: ${MAXX_ARMAZENAMENTO_ENDPOINT_PUBLICO:-
+          +${MAXX_ARMAZENAMENTO_ENDPOINT:?defina no .env}}               
+      199      ports:
+      200        - "${MAXX_HTTP_PORT:-80}:80"
+      201      depends_on:
+
+● Update(docker-compose.producao.yml)
+  ⎿  Added 3 lines
+      118      <<: *log
+      119      environment:
+      120        MAXX_SITE_ADDRESS: ${MAXX_URL_PUBLICA:?defina no .env}
+      121 +      # A CSP do build web (Caddyfile): a leitura pela CDN e o
+          + PUT direto ao endpoint do R2.                                
+      122 +      MAXX_CSP_FOTOS: ${MAXX_ARMAZENAMENTO_URL_DE_LEITURA:?def
+          +ina no .env}                                                  
+      123 +      MAXX_CSP_BUCKET: ${MAXX_ARMAZENAMENTO_ENDPOINT:?defina n
+          +o .env}                                                       
+      124      ports:
+      125        - "80:80"
+      126        - "443:443"
+
+● Valido o Caddyfile com a própria imagem do Caddy, nos dois cenários de
+  endereço:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Caddyfile válido e já formatado, nos dois cenários. Agora o teste e2e dos
+  cabeçalhos. Leio as convenções do e2e:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(e2e\tests\cabecalhos.spec.ts)  ⎿  Wrote 75 lines to e2e\tests\cabecalhos.spec.ts
+       1 import { expect, test } from "@playwright/test";
+       2 
+       3 // Os cabeçalhos de segurança do Caddy (passo 13), na web e na A
+         PI. Os fluxos com foto (post,
+       4 // reivindicação, purga) já provam que a CSP deixa a foto subir 
+         ao bucket e voltar pela CDN;
+       5 // aqui ficam os cabeçalhos em si e uma página sem violação nenh
+         uma da CSP.
+       6 
+       7 function diretiva(csp: string, nome: string): string[] {
+     … +68 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      npx prettier --write e2e/tests/cabecalhos.spec.ts >/dev/null && npm run
+      typecheck -w @max…)
+  ⎿  > tsc --noEmit
+
+     13:  await page.getByRole("button", { name: "Entrar" }).click();
+     29:      page.getByRole("radio", { name: "Entrar", checked: true }),
+  ⎿  Updated e2e\tests\cabecalhos.spec.ts (+2 -1)
+      68  
+      69      expect(
+      70        await page.evaluate(
+      71 -        () => (window as unknown as { violacoesDaCsp: string[] 
+         -}).violacoesDaCsp,                                             
+      71 +        () =>                                                  
+      72 +          (window as unknown as { violacoesDaCsp: string[] }).v
+         +iolacoesDaCsp,                                                 
+      73        ),
+      74      ).toEqual([]);
+      75    },
+
+● Os tipos estão limpos. Vou testar localmente com o compose, reconstruindo só o
+  Caddy e rodando o spec novo junto com um fluxo de foto, em segundo plano.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa 4 está rodando localmente: reconstrução do Caddy, o spec novo dos
+  cabeçalhos e os fluxos de foto de social e premios. A implantação da etapa 3
+  espera a publicação. Sigo quando os avisos chegarem.
+
+✻ Worked for 2m 34s · done 20:55
+
+※ recap: Passo 13: produção já está no ar na VPS, com o seed demo carregado, e a etapa 3 (domínios de e-mail aceitos) aguarda a publicação para subir. Próximo passo: conferir os cabeçalhos e a CSP da etapa 4, que estão em teste local.
+
+> /export ..\resultados\engenheiro\eng_13_endurecimento-sessao.txt              
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_13_endurecimento-sessao.txt
+
+● Background command "Rebuild local Caddy and run header and photo e2e"
+completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Os cabeçalhos saem como planejado, e os fluxos de premios, que sobem foto,
+  passaram. Mas o "post com foto" do social estourou o tempo nos dois temas.
+  Vejo onde ele parou:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A foto subiu e a CSP liberou o PUT e a leitura, mas o teste parou na tela de
+  comentários, perto do limite de 30 s, o que parece o problema de prazo já
+  registrado para a suíte local. Vou rodar só esse teste de novo, em segundo
+  plano, com o registro de violações da CSP ligado.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto isso, procuro no trace da falha alguma mensagem de violação da CSP no
+  console:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os traces foram limpos quando a nova rodada começou, então a resposta vem
+  dela. Aguardo.
+
+✻ Sautéed for 33s · done 20:59
+
+● Background command "Rerun the social photo e2e alone" completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● O teste passa sozinho em 15 s; a falha anterior foi só prazo com 12 testes em
+  paralelo, risco já registrado, não a CSP. Agora confiro a publicação da etapa
+  3, que teve um erro de rede pontual mas segue em nova tentativa.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● As duas rodadas da etapa 3 ainda estão rodando no e2e, então reconstruo a
+  pilha local no código atual, como a CI faz, e rodo a suíte inteira da camada
+  que a etapa 4 toca, em segundo plano.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto isso, adianto a leitura da etapa 5 (saúde do worker): o laço do
+  consumidor e as rotas de saúde.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Leio o registro da falha, para saber se o trabalho falho guarda quando falhou.
+  A regra aprovada é "falho nas últimas 24 horas":
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Quando um trabalho vira falho, disponivel_em recebe o instante da falha, então
+  a consulta das últimas 24 horas não precisa de coluna nova. Agora vou ver
+  como os testes de integração controlam o relógio.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Antes de escrever código da etapa 5, confiro se o build local da pilha já
+  terminou: ele copia o código da árvore de trabalho, e mexer na API durante o
+  build misturaria as etapas.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O build local e o e2e já estão rodando com as imagens prontas, então posso
+  alterar a árvore sem misturar etapas. Antes da etapa 5, vou verificar como o
+  contexto registra as entidades, o que os testes de arquitetura exigem e onde o
+  worker é registrado.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Escrevo a etapa 5. Primeiro o que a Application declara, com a avaliação dos
+  limites:
+
+● Write(apps\api\src\Maxx.Application\Fila\SaudeDoWorker.cs)  ⎿  Wrote 75 lines to apps\api\src\Maxx.Application\Fila\SaudeDoWorker.cs
+       1 namespace Maxx.Application.Fila;
+       2 
+       3 // A saúde do worker (ADR 0005, passo 13): o worker morto congel
+         a o ranking sem erro em tela,
+       4 // e por isso a API responde por ele, para um monitor de fora al
+         ertar. Três problemas:
+       5 // worker parado (sem batimento recente), fila parada (trabalho 
+         disponível esperando demais)
+       6 // e trabalho que ficou falho na janela.
+       7 public interface IConsultaDaSaudeDoWorker
+     … +68 lines (ctrl+o to expand)
+
+● Agora a Infrastructure: a tabela de uma linha do batimento, quem a grava e a
+  consulta:
+
+● Write(apps\api\src\Maxx.Infrastructure\Fila\BatimentoDoWorker.cs)
+  ⎿  Wrote 92 lines to
+     apps\api\src\Maxx.Infrastructure\Fila\BatimentoDoWorker.cs
+      1 using Maxx.Application.Fila;
+      2 using Maxx.Infrastructure.Persistence;
+      3 using Microsoft.EntityFrameworkCore;
+      4 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+      5 using Microsoft.Extensions.DependencyInjection;
+      6 using Microsoft.Extensions.Options;
+      7 using Npgsql;
+      8 
+      9 namespace Maxx.Infrastructure.Fila;
+     … +83 lines (ctrl+o to expand)
+
+● Ligo o batimento no laço do worker e registro os serviços:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src" && grep -n
+      "services.AddOptions<FilaOptions>();" Maxx.Infrastructure/Dependency…)
+  ⎿  111:        services.AddOptions<FilaOptions>();
+     8:using Maxx.Application.Fila;
+     using Maxx.Application;
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated apps\api\src\Maxx.Infrastructure\DependencyInjection.cs (+5 
+     -0)
+      109  
+      110          // Fila no Postgres (ADR 0008): a API e o worker enfil
+           eiram; só o worker consome.
+      111          services.AddOptions<FilaOptions>();
+      112 +                                                              
+      113 +        // A saúde do worker (ADR 0005): o worker grava o bati
+          +mento, a API responde por ele.                                
+      114 +        services.AddOptions<SaudeDoWorkerOptions>();          
+      115 +        services.AddSingleton<RegistroDeBatimento>();         
+      116 +        services.AddScoped<IConsultaDaSaudeDoWorker, ConsultaD
+          +aSaudeDoWorker>();                                            
+      117          services.AddScoped<IFilaDeTrabalhos, FilaDeTrabalhos>(
+           );
+      118          services.AddSingleton<TiposDeTrabalho>();
+      119          services.AddSingleton<ConsumidorDeTrabalhos>();
+
+● Update(apps\api\src\Maxx.Infrastructure\Fila\ConsumidorDeTrabalhos.cs)
+  ⎿  Added 21 lines, removed 2 lines
+      123  }
+      124  
+      125  // O laço do worker: processa enquanto houver trabalho e, com 
+           a fila vazia, espera o
+      126 -// intervalo ocioso antes de olhar de novo.                   
+      126 +// intervalo ocioso antes de olhar de novo. A cada volta, o ba
+          +timento (no máximo um por                                     
+      127 +// intervalo), que a API lê em /health/worker: laço parado, ba
+          +timento velho.                                                
+      128  internal sealed partial class ServicoDoWorker(
+      128 -    ConsumidorDeTrabalhos consumidor, IOptions<FilaOptions> op
+          -tions, ILogger<ServicoDoWorker> logger) : BackgroundService   
+      129 +    ConsumidorDeTrabalhos consumidor,                         
+      130 +    RegistroDeBatimento batimento,                            
+      131 +    IOptions<FilaOptions> options,                            
+      132 +    ILogger<ServicoDoWorker> logger) : BackgroundService      
+      133  {
+      134      protected override async Task ExecuteAsync(CancellationTok
+           en stoppingToken)
+      135      {
+      136          LogIniciado(logger);
+      137          while (!stoppingToken.IsCancellationRequested)
+      138          {
+      139 +            try                                               
+      140 +            {                                                 
+      141 +                await batimento.BaterSeDevidoAsync(stoppingTok
+          +en);                                                          
+      142 +            }                                                 
+      143 +            catch (OperationCanceledException) when (stoppingT
+          +oken.IsCancellationRequested)                                 
+      144 +            {                                                 
+      145 +                return;                                       
+      146 +            }                                                 
+      147 +#pragma warning disable CA1031 // Sem banco, sem batimento: é 
+          +o sinal que o monitor procura.                                
+      148 +            catch (Exception falha)                           
+      149 +#pragma warning restore CA1031                                
+      150 +            {                                                 
+      151 +                LogFalhaNoBatimento(logger, falha.GetType().Na
+          +me, falha.Message);                                           
+      152 +            }                                                 
+      153 +                                                              
+      154              bool havia;
+      155              try
+      156              {
+
+● Update(apps\api\src\Maxx.Infrastructure\Fila\ConsumidorDeTrabalhos.cs)
+  ⎿  Added 3 lines
+      187  
+      188      [LoggerMessage(Level = LogLevel.Error, Message = "Falha ao
+            consumir a fila: {Tipo}: {Erro}")]
+      189      private static partial void LogFalhaNoConsumo(ILogger logg
+           er, string tipo, string erro);
+      190 +                                                              
+      191 +    [LoggerMessage(Level = LogLevel.Warning, Message = "Falha 
+          +ao gravar o batimento do worker: {Tipo}: {Erro}")]            
+      192 +    private static partial void LogFalhaNoBatimento(ILogger lo
+          +gger, string tipo, string erro);                              
+      193  }
+
+● Agora a rota GET /api/health/worker:
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/api/src/Maxx.Api/Health"
+      && cat > HealthEndpoints.cs <<'EOF'
+      using Maxx.Application.Fila…)
+  ⎿      0 Aviso(s)
+         0 Erro(s)
+  ⎿  Updated apps\api\src\Maxx.Api\Health\HealthEndpoints.cs (+37 -0)
+      1 +using Maxx.Application.Fila;                                    
+      2  using Microsoft.AspNetCore.Http.HttpResults;
+      3  using Microsoft.Extensions.Diagnostics.HealthChecks;
+      4  
+     ...
+      18              .WithTags("Health")
+      19              .ProducesProblem(StatusCodes.Status503ServiceUnavai
+          lable);
+      20  
+      21 +        // Para o monitor de fora (docs/operacao.md): 503 com o
+         + mesmo corpo quando há problema.                               
+      22 +        // Só idades, contagens e códigos: nada de carga de tra
+         +balho, erro ou dado de alguém.                                 
+      23 +        routes.MapGet("/health/worker", GetWorkerAsync)        
+      24 +            .WithName("GetSaudeDoWorker")                      
+      25 +            .WithTags("Health")                                
+      26 +            .Produces<SaudeDoWorkerResponse>(StatusCodes.Status
+         +503ServiceUnavailable);                                        
+      27 +                                                               
+      28          return routes;
+      29      }
+      30  
+     ...
+      46  
+      47          return TypedResults.Ok(HealthResponse.Ok);
+      48      }
+      49 +                                                               
+      50 +    private static async Task<Results<Ok<SaudeDoWorkerResponse>
+         +, JsonHttpResult<SaudeDoWorkerResponse>>> GetWorkerAsync(      
+      51 +        IConsultaDaSaudeDoWorker consulta,                     
+      52 +        CancellationToken cancellationToken)                   
+      53 +    {                                                          
+      54 +        var saude = await consulta.ConsultarAsync(cancellationT
+         +oken);                                                         
+      55 +        var resposta = new SaudeDoWorkerResponse(              
+      56 +            saude.Saudavel ? "ok" : "problema",                
+      57 +            Segundos(saude.DesdeOBatimento),                   
+      58 +            Segundos(saude.EsperaDoMaisAntigo),                
+      59 +            saude.Disponiveis,                                 
+      60 +            saude.FalhosNaJanela,                              
+      61 +            saude.Problemas);                                  
+      62 +                                                               
+      63 +        return saude.Saudavel                                  
+      64 +            ? TypedResults.Ok(resposta)                        
+      65 +            : TypedResults.Json(resposta, statusCode: StatusCod
+         +es.Status503ServiceUnavailable);                               
+      66 +    }                                                          
+      67 +                                                               
+      68 +    private static int? Segundos(TimeSpan? duracao) => duracao 
+         +is { } valor ? (int)Math.Floor(valor.TotalSeconds) : null;     
+     … 15 more lines (ctrl+o to expand)
+
+● Background command "Deploy etapa 3 when published and check in production"
+completed (exit code 0)
+
+● A etapa 3 já está no ar e o aceite foi conferido em produção: e-mails de fora
+  da faculdade recebem 400, e um domínio aceito sem cadastro recebe 404. Vou
+  checar a CI do push da etapa 3 e seguir com a migration da etapa 5.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Background command "Rebuild local stack and run full e2e suite" completed
+(exit code 0)
+
+● A suíte e2e da etapa 4 terminou. Leio o resultado antes de seguir com a
+  migration:
+
+  Read 1 file (ctrl+o to expand)
+
+● Na suíte local, 84 passaram, 3 falharam e 3 foram pulados; cada falha ocorreu
+  só num tema, e o mesmo teste passou no outro, então parece ser ambiente e não
+  a CSP. Vou conferir o motivo das três para ver se alguma tem violação da CSP.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Nenhum dos traces tem erro de CSP; a falha de premios (prévia da foto com
+  blob:) passou no tema escuro nesta rodada, então vou rodar os três de novo,
+  isolados, enquanto sigo com a migration da etapa 5.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      dotnet tool run dotnet-ef migrations add BatimentoDoWorker --project
+      apps/api/src/Maxx.In…)
+  ⎿  Build succeeded.
+     Done. To undo this action, use 'ef migrations remove'
+     using System;
+     … +34 lines (ctrl+o to expand)
+  ⎿  Created apps\api\src\Maxx.Infrastructure\Persistence\Migrations\202611
+     10000928_BatimentoDoWorker.cs (+35 -0)
+       1 +using System;                                                  
+       2 +using Microsoft.EntityFrameworkCore.Migrations;                
+       3 +                                                               
+       4 +#nullable disable                                              
+       5 +                                                               
+       6 +namespace Maxx.Infrastructure.Persistence.Migrations           
+       7 +{                                                              
+       8 +    /// <inheritdoc />                                         
+       9 +    public partial class BatimentoDoWorker : Migration         
+      10 +    {                                                          
+      11 +        /// <inheritdoc />                                     
+      12 +        protected override void Up(MigrationBuilder migrationBu
+         +ilder)                                                         
+      13 +        {                                                      
+      14 +            migrationBuilder.CreateTable(                      
+      15 +                name: "batimento_do_worker",                   
+      16 +                columns: table => new                          
+      17 +                {                                              
+      18 +                    id = table.Column<int>(type: "integer", nul
+         +lable: false),                                                 
+      19 +                    batido_em = table.Column<DateTimeOffset>(ty
+         +pe: "timestamp with time zone", nullable: false)               
+      20 +                },                                             
+      21 +                constraints: table =>                          
+      22 +                {                                              
+      23 +                    table.PrimaryKey("pk_batimento_do_worker", 
+         +x => x.id);                                                    
+      24 +                    table.CheckConstraint("ck_batimento_do_work
+         +er_unico", "id = 1");                                          
+      25 +                });                                            
+      26 +        }                                                      
+      27 +                                                               
+      28 +        /// <inheritdoc />                                     
+      29 +        protected override void Down(MigrationBuilder migration
+         +Builder)                                                       
+      30 +        {                                                      
+      31 +            migrationBuilder.DropTable(                        
+      32 +                name: "batimento_do_worker");                  
+      33 +        }                                                      
+      34 +    }                                                          
+      35 +}                                                              
+  ⎿  … 2 more files changed
+
+● A migração foi gerada, com apenas a tabela de uma linha e a restrição id = 1.
+  Agora vou montar o banco migrado e verificar se os testes de integração
+  conseguem acessar o ServicoDoWorker, que é internal.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Escrevo os testes de integração da saúde do worker:
+
+● Write(apps\api\tests\Maxx.Api.IntegrationTests\Fila\SaudeDoWorkerTests.cs)
+  ⎿  Wrote 183 lines to
+     apps\api\tests\Maxx.Api.IntegrationTests\Fila\SaudeDoWorkerTests.cs
+      1 using System.Net;
+      2 using System.Net.Http.Json;
+      3 using Maxx.Api.Health;
+      4 using Maxx.Application.Fila;
+      5 using Maxx.Infrastructure.Fila;
+      6 using Maxx.Infrastructure.Persistence;
+      7 using Microsoft.EntityFrameworkCore;
+      8 using Microsoft.Extensions.DependencyInjection;
+      9 using static Maxx.Api.IntegrationTests.BancoDeTeste;
+     … +174 lines (ctrl+o to expand)
+
+● Rodo só esses testes, em segundo plano:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto rodam, escrevo no roteiro de operação a seção do monitor: o que o
+  UptimeRobot vigia e o que fazer em cada problema.
+
+● Update(docs\operacao.md)
+  ⎿  Added 23 lines
+      124  `ssh root@<vps> "cat > /tmp/maxx-src/<caminho>" < <caminho>`. 
+           Mandar o repositório inteiro
+      125  pela conexão de casa é lento demais.
+      126  
+      127 +## Saúde do worker e alerta                                   
+      128 +                                                              
+      129 +O worker morto congela o ranking sem erro em tela (ADR 0005). 
+          +Por isso a API responde por                                   
+      130 +ele em `https://app.maxx-unimax.com/api/health/worker`: 200 co
+          +m `"status": "ok"`, ou 503 com                                
+      131 +a lista `problemas`. O monitor de fora (UptimeRobot, criado pe
+          +lo autor) pergunta a cada 5                                   
+      132 +minutos e manda e-mail no 503. Ele também avisa se a VPS intei
+          +ra cair.                                                      
+      133 +                                                              
+      134 +| Problema | Quando | O que fazer |                           
+      135 +|---|---|---|                                                 
+      136 +| `worker-parado` | Sem batimento há mais de 2 minutos (o work
+          +er grava um a cada 15 s) | `dc ps worker` e `dc logs --tail=20
+          +0 worker`; `dc up -d worker` |                                
+      137 +| `fila-parada` | Um trabalho disponível espera há mais de 5 m
+          +inutos | O worker está vivo mas não avança: um handler travado
+          + ou o banco lento. Logs do worker |                           
+      138 +| `trabalho-falho` | Um trabalho ficou `falho` (5 tentativas) 
+          +nas últimas 24 horas | Ler o erro no banco (abaixo), corrigir 
+          +a causa e devolver o trabalho à fila |                        
+      139 +                                                              
+      140 +```sh                                                         
+      141 +dc exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES
+          +_DB" -c \                                                     
+      142 +  "SELECT id, tipo, disponivel_em, ultimo_erro FROM trabalho W
+          +HERE estado = '"'"'falho'"'"' ORDER BY id DESC LIMIT 20"'     
+      143 +# Devolver à fila, depois de corrigida a causa:               
+      144 +#   UPDATE trabalho SET estado = 'pendente', tentativas = 0, d
+          +isponivel_em = now() WHERE id = <id>;                         
+      145 +```                                                           
+      146 +                                                              
+      147 +O alerta de falho se apaga sozinho 24 horas depois da falha, o
+          +u quando o trabalho volta à                                   
+      148 +fila.                                                         
+      149 +                                                              
+      150  ## Voltar uma versão
+      151  
+      152  Trocar `MAXX_IMAGEM_TAG` pela tag anterior e `dc up -d`. Migra
+           tion não volta sozinha: se a
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Três tarefas correm em segundo plano:
+  - os testes da saúde do worker (etapa 5);
+  - a nova rodada, em série, dos 3 e2e que falharam na suíte local (etapa 4);
+  - o vigia dessa rodada.
+
+  O roteiro já tem a seção do monitor e do alerta. Sigo quando os avisos
+  chegarem.
+
+✻ Sautéed for 11m 1s · done 21:10
+● Background command "Run worker health integration tests" completed (exit code
+0)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Saúde do worker: 8 de 8. Faço a prova reversa do teste do laço, desligando a
+  chamada ao batimento numa cópia temporária e restaurando no fim. Fica em
+  segundo plano, num processo só:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Rerun the three failed e2e tests serially" completed (exit
+code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Background command "Read serial rerun of the 3 e2e failures" completed (exit
+code 0)
+
+● Background command "Reverse-proof the heartbeat loop test" completed (exit
+code 0)
+
+● Em série, os 3 e2e que tinham falhado passam nos dois temas (6 de 6). A falha
+  era a concorrência local, já registrada. Leio a prova reversa da etapa 5:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A prova reversa não valeu: a linha de resultado não apareceu, porque o
+  parâmetro batimento ficou sem uso e o aviso CS9113 virou erro de build.
+  Refaço, mantendo o parâmetro referenciado:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a prova reversa roda, commito e publico a etapa 4 só com os seus
+  arquivos; se a publicação passar, o encadeamento implanta e testa o HSTS na
+  VPS.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● O vigia da etapa 4 está em segundo plano. Enquanto a prova reversa da etapa 5
+  termina, não mexo na API: ela está com a linha desligada até a restauração.
+  Aguardo o aviso.
+
+✻ Cooked for 1m 29s · done 21:13
+
+● Background command "Redo reverse proof of heartbeat loop test" completed (exit
+code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Prova reversa confirmada: sem a chamada ao batimento, o teste do laço falha. A
+  linha foi restaurada.
+
+  A rota nova entra no OpenAPI, então regenero o cliente:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      grep -n '"gerar"\|"verificar"' packages/api-client/package.json && npm run
+      gerar -w @maxx…)
+  ⎿  9:    "gerar": "npm run gerar:openapi && npm run gerar:tipos",
+     12:    "verificar": "npm run gerar && git diff --exit-code -- .",
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\openapi.json (+74 -0)
+      55          }
+      56        }
+      57      },
+      58 +    "/api/health/worker": {                                    
+      59 +      "get": {                                                 
+      60 +        "tags": [                                              
+      61 +          "Health"                                             
+      62 +        ],                                                     
+      63 +        "operationId": "GetSaudeDoWorker",                     
+      64 +        "responses": {                                         
+      65 +          "200": {                                             
+      66 +            "description": "OK",                               
+      67 +            "content": {                                       
+      68 +              "application/json": {                            
+      69 +                "schema": {                                    
+      70 +                  "$ref": "#/components/schemas/SaudeDoWorkerRe
+         +sponse"                                                        
+      71 +                }                                              
+      72 +              }                                                
+      73 +            }                                                  
+      74 +          },                                                   
+      75 +          "503": {                                             
+      76 +            "description": "Service Unavailable",              
+      77 +            "content": {                                       
+      78 +              "application/json": {                            
+      79 +                "schema": {                                    
+      80 +                  "$ref": "#/components/schemas/SaudeDoWorkerRe
+         +sponse"                                                        
+      81 +                }                                              
+      82 +              }                                                
+      83 +            }                                                  
+      84 +          }                                                    
+      85 +        }                                                      
+      86 +      }                                                        
+      87 +    },                                                         
+      88      "/api/v1/eu": {
+      89        "get": {
+      90          "tags": [
+     ...
+      6919            }
+      6920          }
+      6921        },
+      6922 +      "SaudeDoWorkerResponse": {                             
+     … 46 more lines (ctrl+o to expand)
+  ⎿  Updated packages\api-client\src\schema.d.ts (+57 -0)
+      36          patch?: never;
+      37          trace?: never;
+      38      };
+      39 +    "/api/health/worker": {                                    
+      40 +        parameters: {                                          
+      41 +            query?: never;                                     
+      42 +            header?: never;                                    
+      43 +            path?: never;                                      
+      44 +            cookie?: never;                                    
+      45 +        };                                                     
+      46 +        get: operations["GetSaudeDoWorker"];                   
+      47 +        put?: never;                                           
+      48 +        post?: never;                                          
+      49 +        delete?: never;                                        
+      50 +        options?: never;                                       
+      51 +        head?: never;                                          
+      52 +        patch?: never;                                         
+      53 +        trace?: never;                                         
+      54 +    };                                                         
+      55      "/api/v1/eu": {
+      56          parameters: {
+      57              query?: never;
+     ...
+      1824          ReprovacaoRequest: {
+      1825              motivo: null | string;
+      1826          };
+      1827 +        SaudeDoWorkerResponse: {                             
+      1828 +            status: string;                                  
+      1829 +            /** Format: int32 */                             
+      1830 +            segundosDesdeOBatimento: null | number;          
+      1831 +            /** Format: int32 */                             
+      1832 +            segundosDeEsperaNaFila: null | number;           
+      1833 +            /** Format: int32 */                             
+      1834 +            disponiveis: number;                             
+      1835 +            /** Format: int32 */                             
+      1836 +            falhosEm24h: number;                             
+      1837 +            problemas: string[];                             
+      1838 +        };                                                   
+      1839          SessaoResponse: {
+      1840              accessToken: string;
+      1841              /** Format: date-time */
+     … 35 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Contrato gerado com 200 e 503 apontando para o mesmo corpo. Suíte inteira das
+  camadas da etapa 5 (API e contrato) antes do push, em segundo plano:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto a suíte roda, começo a leitura da etapa 6: o que o Expo 58 declara de
+  Node e o estado atual do npm audit.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O Expo 58, o React Native 0.88 e o Metro declaram suporte a ^24.3.0, então a
+  troca para o Node 24 é viável por esse lado. O npm audit ficou em segundo
+  plano (é lento pela rede). Aguardo os avisos: a suíte da etapa 5, a
+  implantação da etapa 4 e o npm audit.
+
+✻ Sautéed for 3m 43s · done 21:17
+
+● Background command "Check Node engines and npm audit findings" completed (exit
+code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os 33 achados vêm de três avisos de origem (glob, minimatch e deepmerge), e o
+  resto são pacotes que dependem deles. Não aplico os rebaixamentos sugeridos
+  pelo npm audit (expo@52, jest@29); vou checar as faixas vulneráveis e as
+  versões instaladas antes de avaliar um overrides.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Aguardo esse levantamento e as outras duas tarefas.
+
+✻ Cooked for 27s · done 21:18
+
+● Background command "Get vulnerable ranges and installed versions" completed
+(exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● Três avisos vêm de dependências, e deepmerge não tem versão corrigida; vou
+  simular se o npm audit fix sem --force resolve algo.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Aguardo a simulação, a suíte da etapa 5 e a implantação da etapa 4.
+
+✻ Churned for 35s · done 21:19
+
+※ recap: Fechando o passo 13: etapas 1 a 3 estão no ar na VPS, a 4 (CSP) está sendo implantada e a 5 (saúde do worker) está na suíte final. Quando a suíte voltar verde, faço o commit da etapa 5, publico e implanto.
+
+● Background command "Deploy etapa 4 when published and verify headers on VPS"
+completed (exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Stage 4 is live at sha-fd16c39, and the VPS checks pass: HSTS, the CSP, and
+  the spec run against production, including login with no CSP violations.
+  Production photo upload under the CSP will only be exercised in the rehearsal
+  with an account. Next I'm checking CI for the stage 4 push.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Background command "Dry-run npm audit fix and list direct parents" completed
+(exit code 0)
+
+● A CI do push da etapa 4 passou: etapa 4 fechada.
+
+  O npm audit fix sem --force termina com os mesmos 33 achados, então não há
+  correção fora dos rebaixamentos. Isso vai para o registro da etapa 6 com a
+  avaliação: os três pacotes chegam só por ferramenta de build, teste e lint
+  (CLI e Metro do Expo, Jest, ESLint), nenhum vai no bundle web, e o deepmerge
+  nem tem versão corrigida.
+
+  Aguardo a suíte da etapa 5.
+
+✻ Baked for 46s · done 21:23
+
+※ recap: Fechando o passo 13 (endurecimento, deploy e ensaio): etapas 1 a 4 prontas, com a CI verde e conferidas no ar na VPS. Próximo passo: com a suíte da etapa 5 (saúde do worker) verde, faço o commit, publico e confiro o `/api/health/worker` no ar.
+
+● Background command "Run full suite for etapa 5 before push" completed (exit
+code 0)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Suíte verde com 1.275 testes passando, sem falhas. Agora faço o commit, o push
+  e a publicação, e depois confiro se /api/health/worker está no ar.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A etapa 5 está publicando e o vigia confere a versão no ar; enquanto isso,
+  preparo a etapa 6, verificando onde o Node 22 aparece e se consigo rodar a
+  suíte com o Node 24.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● API Error: Connection dropped (ECONNRESET). A VPN, firewall, or 
+  security software can cause this. Check those or switch networks, then
+  try again.
+
+✻ Cooked for 3m 53s · done 21:40
+
+※ recap: Estamos no passo 13: endurecimento, deploy e ensaio. As etapas 1 a 4 estão prontas e no ar na VPS, e a etapa 5, a saúde do worker, espera a suíte local terminar. Próximo passo: o commit dela e a publicação, com o aceite conferido na VPS.
+
+● Background command "Deploy etapa 5 when published and check worker health in
+prod" completed (exit code 0)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● A etapa 5 já está no ar com a /api/health/worker respondendo 200. Vou parar o
+  worker por pouco mais de 2 minutos para checar o alerta worker-parado na
+  produção, e depois religo.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto o teste do alerta corre (cerca de 3 minutos), aplico a troca do Node
+  22 pelo 24 nos quatro lugares:
+
+● Bash(cd "/c/Users/Guilherme Gimenes/Documents/Repos/tcc/maxx-engenheiro" &&
+      grep -n '">=22.12"' package.json package-lock.json; echo 24 > .nvmrc &&
+      sed -i 's/"node":…)
+  ⎿  package.json:10:    "node": ">=22.12"
+     package-lock.json:17:        "node": ">=22.12"
+      .nvmrc                 | 2 +-
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated .nvmrc (+1 -1)
+      1 -22                                                              
+      1 +24                                                              
+  ⎿  Updated infra\caddy\Dockerfile (+1 -1)
+      1  # syntax=docker/dockerfile:1
+      2  # Contexto: raiz do repositório. O build web do Expo vai dentro 
+         da imagem do Caddy.
+      3  
+      4 -FROM node:22-alpine AS web                                      
+      4 +FROM node:24-alpine AS web                                      
+      5  WORKDIR /repo
+      6  
+      7  # Instalação em camada própria: só refaz quando um package.json 
+         ou o lock muda.
+  ⎿  Updated package-lock.json (+1 -1)
+      14          "prettier": "^3.9.10"
+      15        },
+      16        "engines": {
+      17 -        "node": ">=22.12"                                      
+      17 +        "node": ">=24.3"                                       
+      18        }
+      19      },
+      20      "apps/mobile": {
+  ⎿  Updated package.json (+1 -1)
+       7      "packages/*"
+       8    ],
+       9    "engines": {
+      10 -    "node": ">=22.12"                                          
+      10 +    "node": ">=24.3"                                           
+      11    },
+      12    "scripts": {
+      13      "format": "prettier --write apps/mobile e2e packages data",
+
+● Em segundo plano, estou rodando a suíte do cliente num contêiner node:24 e
+  reconstruindo a imagem do Caddy com Node 24.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Enquanto isso, levanto a versão do Trivy para fixar na CI. Consulto as versões
+  publicadas para escolher uma com mais de duas semanas:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Fixo a v0.76.1, de 21/10, com a soma conferida pelo arquivo de checksums.
+  Acrescento o passo ao job build, depois do docker compose build:
+
+● Update(.github\workflows\ci.yml)
+  ⎿  Added 15 lines
+      186            # Chave descartável, uma por execução: o .env.exampl
+           e vem sem chave de propósito.
+      187            sed -i "s|^MAXX_JWT_CHAVE=.*|MAXX_JWT_CHAVE=$(openss
+           l rand -base64 48)|" .env
+      188            docker compose build
+      189 +      # As duas imagens que vão para a VPS, com o mesmo corte 
+          +do NuGet e do npm: alto ou                                    
+      190 +      # crítico falha o job. Só o que já tem correção publicad
+          +a (--ignore-unfixed): o que a                                 
+      191 +      # imagem base ainda não corrigiu não tem ação possível a
+          +qui. Segredo esquecido dentro                                 
+      192 +      # da imagem também falha.                               
+      193 +      - name: Imagens vulneráveis (Trivy, alto ou crítico)    
+      194 +        env:                                                  
+      195 +          TRIVY_VERSION: 0.76.1                               
+      196 +        run: |                                                
+      197 +          curl -sSfLO "https://github.com/aquasecurity/trivy/r
+          +eleases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linu
+          +x-64bit.tar.gz"                                               
+      198 +          curl -sSfL "https://github.com/aquasecurity/trivy/re
+          +leases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_check
+          +sums.txt" \                                                   
+      199 +            | grep " trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz
+          +$" | sha256sum -c -                                           
+      200 +          tar -xzf "trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          + trivy                                                        
+      201 +          for imagem in maxx-api:local maxx-caddy:latest; do  
+      202 +            ./trivy image --quiet --scanners vuln,secret --sev
+          +erity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$imagem"  
+      203 +          done                                                
+      204  
+      205    # Imagens da API e do Caddy no GHCR, só com os seis jobs ver
+           des. No push da main, com as
+      206    # tags latest e sha-<curto>; no disparo à mão por uma branch
+           , só sha-<curto>, para o
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os nomes das imagens conferem. Rodo o Trivy localmente quando a imagem do
+  Caddy com o Node 24 terminar de construir, para saber o resultado antes do
+  push. Aguardo os avisos: o teste do alerta na VPS e a suíte do cliente no Node
+  24.
+✻ Cogitated for 2m 16s · done 21:51
+
+● Background command "Stop worker, confirm 503 alert, restart, confirm 200"
+completed (exit code 0)
+
+  Read 1 file (ctrl+o to expand)
+
+● O alerta funcionou na produção:
+  - com o worker parado, /api/health/worker respondeu 503 worker-parado, com o
+    batimento de 149 s atrás;
+  - religado o worker, voltou a 200 em segundos.
+
+  A CI do push da etapa 5 também passou: etapa 5 fechada. Falta só você criar o
+  monitor do UptimeRobot apontando para essa rota; o roteiro está em
+  docs/operacao.md.
+
+  Aguardo a suíte do cliente no Node 24.
+
+✻ Crunched for 10s · done 21:53
+
+※ recap: Estou no passo 13, com as etapas 1 a 5 no ar e com CI verde, inclusive o alerta de worker parado conferido na VPS. Agora estou na etapa 6, e o próximo passo é ler a suíte do cliente rodando no Node 24 e passar o Trivy nas imagens.
+
+● Background command "Run client suite on Node 24 and rebuild Caddy image" was
+stopped because the system is running low on memory
+  ⎿  UserPromptSubmit hook 
+     [C:/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile 
+     -EncodedCommand 
+     JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB
+     5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AG
+     kAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZ
+     QBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAt
+     AEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGU
+     AIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAIAA9ACAASg
+     BvAGkAbgAtAFAAYQB0AGgAIAAkAGUAbgB2ADoAVQBTAEUAUgBQAFIATwBGAEkATABFACAAJwAuA
+     G8AcgBjAGEAXABhAGcAZQBuAHQALQBoAG8AbwBrAHMAXABjAGwAYQB1AGQAZQAtAGgAbwBvAGsA
+     LgBjAG0AZAAnADsAIABpAGYAIAAoAFQAZQBzAHQALQBQAGEAdABoACAALQBMAGkAdABlAHIAYQB
+     sAFAAYQB0AGgAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAIAAtAFAAYQB0AGgAVAB5AHAAZQAgAE
+     wAZQBhAGYAKQAgAHsAIAAmACAAJABzAGMAcgBpAHAAdABQAGEAdABoADsAIABlAHgAaQB0ACAAJ
+     ABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQAgAH0AOwAgAFsAQwBvAG4AcwBvAGwAZQBdADoAOgBJ
+     AG4ALgBSAGUAYQBkAFQAbwBFAG4AZAAoACkAIAB8ACAATwB1AHQALQBOAHUAbABsADsAIABXAHI
+     AaQB0AGUALQBPAHUAdABwAHUAdAAgACcAewB9ACcAOwAgAGUAeABpAHQAIAAwAA==] timed 
+     out after 10s — output discarded. Raise the hook's "timeout" to allow more 
+     time.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O Claude Code parou a suíte do cliente no Node 24 por falta de memória,
+  durante o npm ci no contêiner. Vou checar se o contêiner ficou rodando sozinho
+  e parar apenas o que eu subi.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A etapa 6 está parada no meio. Não reiniciei a tarefa interrompida.
+
+  O que parou: a suíte do cliente no Node 24 (lint, tipos, Jest e formatação),
+  que rodava num contêiner node:24, e na sequência a reconstrução da imagem do
+  Caddy. O Claude Code interrompeu as duas porque a máquina ficou com pouca
+  memória. Não é falha do código: o contêiner tinha acabado de confirmar o Node
+  v24.22.2 e estava no npm ci havia 23 minutos. Ele tinha ficado rodando depois
+  da interrupção, e eu o parei para liberar memória.
+
+  Provável causa da pressão: a pilha local inteira do compose está no ar
+  (Postgres, duas réplicas da API, worker, Caddy, emulador e Mailpit), mais um
+  npm ci completo dentro de outro contêiner.
+
+  Estado das etapas:
+  - Etapas 1 a 5: fechadas, cada uma com a CI do push verde e conferida no ar.
+  - Etapa 6: as mudanças estão na árvore, sem commit:
+    - .nvmrc 24, engines >=24.3 (no package.json e no lock) e node:24-alpine no
+      Dockerfile do Caddy. O Expo 58, o React Native 0.88 e o Metro declaram
+      suporte a ^24.3.0;
+    - o passo do Trivy v0.76.1 no job build, com soma conferida, alto ou crítico
+      e --ignore-unfixed;
+    - a revisão do npm audit, que fica sem mudança: os 33 achados vêm de glob,
+      minimatch e deepmerge, só em ferramenta de build, teste e lint. O
+      deepmerge não tem versão corrigida, e a correção dos outros dois só sai
+      por rebaixamento do expo e do jest.
+  - Falta rodar a suíte do cliente no Node 24 e o Trivy nas imagens antes do
+    push.
+
+  Como você prefere seguir?
+  1. Eu derrubo a pilha local do compose (docker compose stop, a VPS não é
+     afetada) e rodo de novo a suíte do Node 24 com a memória livre.
+  2. Ou pulo a suíte local no Node 24 e deixo a CI decidir, já que ela roda tudo
+     com o Node do .nvmrc. Pela sua regra, se a CI não ficar verde de primeira,
+     volto ao Node 22 e registro a avaliação.
+
+✻ Sautéed for 1m 57s · done 22:16
+
+※ recap: Estamos no passo 13 (endurecimento e deploy): as etapas 1 a 5 estão fechadas e no ar, e a etapa 6 (Node 24, Trivy e npm audit) parou porque a suíte local foi interrompida por falta de memória. Preciso que você escolha: derrubo a pilha local e rodo de novo, ou deixo a CI decidir.
