@@ -1,0 +1,30 @@
+ID: eng_14_demo_papeis
+Trilha: engenheiro (passo posterior à avaliação, fora do experimento medido)
+Tela: entrada de demonstração com três papéis (aluno, professor, coordenação)
+Data: 2026-11-10
+Origem: pedido do autor depois de fechada e avaliada a trilha (`main` em `8910b51`, notas dos revisores e formulário cego do autor já registrados); redigido pelo Cowork (Anthropic) no molde das aberturas dos passos 12 e 13, a partir do `produto.md` 11 da `main`; decisões de produto do autor fixadas antes do envio. Ambiente: CLI 2.1.316, `claude-opus-5-5`, `medium`, auto mode.
+
+Notas de registro:
+- Motivo: a banca avalia o produto no ar durante o mês e, pela demonstração, só consegue entrar como aluno; as telas de professor e de instituição ficam inacessíveis a quem avalia. Decisão do autor em 10/11/2026: acrescentar à demonstração a entrada como professor e como coordenação.
+- Este passo não entra nas medidas do experimento: custo, commits, decisões do agente, notas da rubrica, inventário e testes de referência referem-se ao commit `8910b51`. O autor decidiu não rodar os revisores de novo. O registro da rodada fica em `resultados/engenheiro/eng_14_demo_papeis.md`, marcado como pós-avaliação, e o documento do TCC cita o passo só como preparação da avaliação pela banca.
+- Decisão de produto do autor, por escrito: a coordenação de demonstração pode fazer tudo o que a instituição faz, inclusive purgar, porque a base inteira é fictícia e existe só para a avaliação.
+- Mesmo protocolo dos passos anteriores: plano de etapas antes do código, pergunta em vez de suposição, CI verde por etapa, fix separado, parada com capturas nas etapas com tela, um PR para o passo.
+
+---
+Passo 14, posterior ao plano mestre: papéis na demonstração. Estamos na rodada/eng_14_demo_papeis, saída da main com os passos 1 a 13 mergeados e o produto no ar em app.maxx-unimax.com. Antes de qualquer código, me traga o plano de etapas, com entrega e critério de aceite por etapa, como combinamos no CLAUDE.md. Vale tudo que está lá: decisão que não está nos docs não foi tomada, então pergunte antes de assumir. Valem também as regras dos passos anteriores: cada etapa só é dada como pronta depois de a CI do push dela passar; etapas sem tela e sem pergunta de produto você emenda, cada uma com o próprio commit, push e CI verde, fix separado se a CI falhar; para antes de etapa com tela, com as capturas no claro e no escuro, em qualquer pergunta de produto que não esteja nos docs e se uma CI ficar vermelha depois do fix; comando longo em segundo plano, com trabalho independente em paralelo; suíte inteira só antes do push.
+
+O problema: a banca avalia o produto no ar ao longo do mês e hoje, pela demonstração, só entra como aluno. As telas de professor e da instituição ficam fora do alcance de quem avalia, porque as contas do seed dependem de e-mail que só eu recebo. Quero que a entrada de demonstração ofereça os três papéis.
+
+O que já está decidido, e vai para o produto.md 11 e para o índice de decisões:
+
+1. Com a flag da demonstração ligada, a tela de demonstração passa a oferecer três entradas: aluno, como hoje; professor; coordenação. Com a flag desligada nada muda: rotas em 404 e botão ausente.
+2. Professor de demonstração: informa nome e escolhe um dos quatro cursos de demonstração. Vira uma conta de professor marcada como demonstração e com o lote vigente, vinculada às turmas daquele curso no semestre vigente, com tudo que um professor tem: concede medalha aos alunos dessas turmas, do seed e de demonstração, vê e decide a fila de comprovações, contesta, publica aviso para as turmas dele. A regra de escopo continua valendo: ele não enxerga aluno de outro curso.
+3. Coordenação de demonstração: informa nome. Vira uma conta com o papel de instituição, marcada como demonstração e com o lote vigente, com todos os poderes da instituição, sem exceção: ficha do aluno, correção de e-mail, ex-aluno, troca de curso, concessão direta, anulação, contestações, aviso para a faculdade e para cursos, e a purga por lote, inclusive do lote vigente. Decisão minha, registrada: a base inteira é fictícia e existe só para a avaliação deste mês, então não há ato a proteger do avaliador.
+4. As duas contas novas seguem o que já vale para o aluno de demonstração: aceite do termo, lembrança local no dispositivo sem senha, com o hash da chave no banco e sessão comum com refresh rotativo, e o mesmo limite de taxa do registro de demonstração.
+5. A purga do lote remove também os professores e as coordenações de demonstração daquele lote.
+6. A área da instituição continua só no navegador; quem entra como coordenação pelo celular vê a mensagem que já existe.
+7. Nenhuma mudança nas contas do seed, no cadastro normal, no login nem nas regras de pontos.
+
+O que eu não decidi e quero que você me traga no plano, com a sua recomendação e o motivo, antes de codar: o que acontece, na purga, com o que um professor ou uma coordenação de demonstração deixou em contas que não são do lote (medalha concedida a aluno do seed, prêmio aprovado, aviso publicado, anulação, correção de e-mail, ex-aluno marcado); se a coordenação de demonstração que purga o lote vigente derruba a própria sessão e o que a tela mostra; os textos dos três botões e das telas de registro; e qualquer ponto do modelo de dados em que conta de professor ou de instituição sem linha no cadastro elegível do seed quebre uma invariante que hoje existe.
+
+O passo fecha com: produto.md 11, índice de decisões e plano mestre atualizados, com este passo registrado como posterior à avaliação; testes de domínio e de integração para os dois registros novos, para o escopo do professor de demonstração e para a purga; Jest das telas; um caso de e2e com a demonstração ligada entrando nos três papéis; CI verde; um PR da feat/passo-14-demo-papeis para a rodada/eng_14_demo_papeis; e a versão publicada e implantada na VPS com deploy.sh e a demonstração ligada, lote banca-2026, conferida no ar por você nos três papéis, sem credencial nenhuma passando por aqui. Eu reviso o plano e aí começamos a primeira etapa.
