@@ -5187,3 +5187,1005 @@ code 0)
   que também para nas capturas.
 
 ✻ Churned for 1h 6m 6s · done 22:35
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_14_demo_papeis-sessao.txt 
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_14_demo_papeis-sessao.txt
+
+※ recap: Estamos no passo 14, que leva os papéis de aluno, professor e coordenação à demonstração; as etapas 1 a 4 estão com CI verde e a 5 está pronta sem commit. Falta você revisar as capturas das telas de entrada e aprovar o commit. (disable recaps in /config)
+
+> Etapas 1 a 4 aprovadas, e a troca da busca pela marca no token de             
+  demonstração fica como você fez e registrou. Etapa 5 aprovada, capturas       
+  conferidas no claro e no escuro. As três decisões que você declarou ficam:    
+  "Aluno de teste" em tela própria, a mensagem do .invalid e o "Abre no         
+  navegador." só no aparelho. Commita a etapa 5, push, CI, e segue para a etapa 
+  6, a tela da purga; para nela com as capturas.                                
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Etapa 5 enviada com CI rodando; na etapa 6 começo pela lembrança, que passará
+  a guardar também o id da conta lido de /v1/eu após o login.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(apps\mobile\src\demonstracao\contas.ts)
+  ⎿  Added 3 lines
+      11    nome: string;
+      12    curso: string;
+      13    papel: PapelDeDemonstracao;
+      14 +  // O id da conta, lido logo depois de entrar: é por ele que a
+         + coordenação que purga o                                       
+      15 +  // próprio lote esquece a conta neste aparelho (passo 14, P2)
+         +.                                                              
+      16 +  usuarioId?: string;                                          
+      17  }
+      18  
+      19  // O que estiver guardado e não tiver a forma esperada é descar
+          tado: lista vazia, nunca
+
+● Update(apps\mobile\src\demonstracao\contas.ts)
+  ⎿  Added 3 lines
+      45              nome: conta.nome,
+      46              curso: conta.curso,
+      47              papel: (conta.papel ?? "aluno") as PapelDeDemonstra
+          cao,
+      48 +            ...(typeof conta.usuarioId === "string"            
+      49 +              ? { usuarioId: conta.usuarioId }                 
+      50 +              : {}),                                           
+      51            }))
+      52        : [];
+      53    } catch {
+
+● Update(apps\mobile\src\demonstracao\contas.ts)
+  ⎿  Added 8 lines
+      55    }
+      56  }
+      57  
+      58 +// A lista sem a conta de um usuário: a que a purga encerrou.  
+      59 +export function semAConta(                                     
+      60 +  contas: ContaDeDemonstracao[],                               
+      61 +  usuarioId: string,                                           
+      62 +): ContaDeDemonstracao[] {                                     
+      63 +  return contas.filter((conta) => conta.usuarioId !== usuarioId
+         +);                                                             
+      64 +}                                                              
+      65 +                                                               
+      66  // O botão da lista "Neste aparelho".
+      67  export function rotuloDaConta(conta: ContaDeDemonstracao): stri
+          ng {
+      68    switch (conta.papel) {
+
+● Update(apps\mobile\src\demonstracao\DemonstracaoScreen.tsx)
+  ⎿  Added 16 lines
+      156      await contasDoDispositivo.gravarContas(novas);
+      157    };
+      158  
+      159 +  // Já com a sessão, o id da conta entra na lembrança, para a
+          + purga do próprio lote poder                                  
+      160 +  // esquecê-la (passo 14, P2). Melhor esforço: sem ele, a con
+          +ta só some da lista quando a                                  
+      161 +  // chave deixar de abrir.                                   
+      162 +  const lembrarId = async (chave: string) => {                
+      163 +    try {                                                     
+      164 +      const { data } = await client.GET("/api/v1/eu");        
+      165 +      if (!data) return;                                      
+      166 +      const atuais = await contasDoDispositivo.lerContas();   
+      167 +      await guardar(                                          
+      168 +        atuais.map((c) => (c.chave === chave ? { ...c, usuario
+          +Id: data.id } : c)),                                          
+      169 +      );                                                      
+      170 +    } catch {                                                 
+      171 +      // Fica sem o id.                                       
+      172 +    }                                                         
+      173 +  };                                                          
+      174 +                                                              
+      175    const voltar = useMutation({
+      176      mutationFn: async (conta: ContaDeDemonstracao) => {
+      177        const { data, error } = await client.POST("/api/v1/demo/
+           entrar", {
+
+● Update(apps\mobile\src\demonstracao\DemonstracaoScreen.tsx)
+  ⎿  Added 3 lines
+      181          throw FalhaDaApi.doCorpo(error);
+      182        }
+      183        await iniciar(data);
+      184 +      if (!conta.usuarioId) {                                 
+      185 +        await lembrarId(conta.chave);                         
+      186 +      }                                                       
+      187      },
+      188      onMutate: () => setAviso(null),
+      189      onError: async (erro, conta) => {
+
+● Update(apps\mobile\src\demonstracao\DemonstracaoScreen.tsx)
+  ⎿  Added 1 line
+      228          ...contas,
+      229        ]);
+      230        await iniciar(data.sessao);
+      231 +      await lembrarId(data.chaveDoDispositivo);               
+      232        // Já com a sessão, a foto sobe como a de qualquer perfi
+           l. Melhor esforço: a conta já
+      233        // existe, e a foto pode ser posta depois em Editar perf
+           il.
+      234        if (papel === "aluno" && foto) {
+
+● Agora a tela da purga e o hook.
+
+● Update(apps\mobile\src\instituicao\api.ts)
+  ⎿  Added 4 lines, removed 1 line
+      131        }
+      132        return data;
+      133      },
+      134 -    onSuccess: () =>                                          
+      134 +    // Quem purgou o próprio lote (passo 14, P2) já não tem se
+          +ssão: recarregar daria 401 e                                  
+      135 +    // levaria ao login antes de a pessoa ler o resultado. A t
+          +ela leva, pelo botão.                                         
+      136 +    onSuccess: (resultado) =>                                 
+      137 +      resultado.contaPropriaEncerrada ||                      
+      138        Promise.all(
+      139          [["instituicao", "lotes"], ["feed"], ["perfil"]].map((
+           queryKey) =>
+      140            queryClient.invalidateQueries({ queryKey }),
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(apps\mobile\src\instituicao\api.ts)
+  ⎿  Added 7 lines, removed 4 lines
+      133      },
+      134      // Quem purgou o próprio lote (passo 14, P2) já não tem se
+           ssão: recarregar daria 401 e
+      135      // levaria ao login antes de a pessoa ler o resultado. A t
+           ela leva, pelo botão.
+      136 -    onSuccess: (resultado) =>                                 
+      137 -      resultado.contaPropriaEncerrada ||                      
+      138 -      Promise.all(                                            
+      136 +    onSuccess: async (resultado) => {                         
+      137 +      if (resultado.contaPropriaEncerrada) {                  
+      138 +        return;                                               
+      139 +      }                                                       
+      140 +      await Promise.all(                                      
+      141          [["instituicao", "lotes"], ["feed"], ["perfil"]].map((
+           queryKey) =>
+      142            queryClient.invalidateQueries({ queryKey }),
+      143          ),
+      142 -      ),                                                      
+      144 +      );                                                      
+      145 +    },                                                        
+      146    });
+      147  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I'll rewrite the screen file in full.
+
+● Write(apps\mobile\src\instituicao\PurgaScreen.tsx)
+  ⎿  Added 149 lines, removed 28 lines
+      1 +import { useRouter } from "expo-router";                        
+      2  import { useState } from "react";
+      3  import {
+      4    ActivityIndicator,
+     ...
+      10  import { useSafeAreaInsets } from "react-native-safe-area-conte
+          xt";
+      11  
+      12  import { falhaParaTela } from "../api/FalhaDaApi";
+      13 +import { useEu } from "../api/useEu";                          
+      14  import { Button } from "../components/Button";
+      15  import { EmptyState, ErrorState } from "../components/StateMess
+          age";
+      16  import { TextField } from "../components/TextField";
+      17 +import { semAConta, type ContaDeDemonstracao } from "../demonst
+         +racao/contas";                                                 
+      18 +import * as dispositivo from "../demonstracao/contasDoDispositi
+         +vo";                                                           
+      19 +import { useSessao } from "../sessao/SessaoProvider";          
+      20  import { fontFamily, textStyles } from "../theme/fonts";
+      21  import { useTheme } from "../theme/ThemeProvider";
+      22  import { espacamento, raios } from "../theme/tokens";
+     ...
+      25  import { useLotes, usePurgar, type LoteDaDemonstracao } from ".
+          /api";
+      26  import { TelaDaArea } from "./TelaDaArea";
+      27  
+      28 +interface ContasDoDispositivo {                                
+      29 +  lerContas: () => Promise<ContaDeDemonstracao[]>;             
+      30 +  gravarContas: (contas: ContaDeDemonstracao[]) => Promise<void
+         +>;                                                             
+      31 +}                                                              
+      32 +                                                               
+      33  // A purga dos dados de demonstração por lote (produto.md 11, p
+          asso 12): os lotes no banco,
+      34  // do mais recente ao mais antigo, com o vigente marcado, e a p
+          urga de um deles, que pede o
+      25 -// nome do lote digitado de novo (P6). Sai tudo do lote numa tr
+         -ansação, e as fotos dele vão                                   
+      26 -// para a remoção do bucket. Sem prancheta: segue a identidade 
+         -visual.                                                        
+      27 -export function PurgaScreen() {                                
+      35 +// nome do lote digitado de novo (P6). Desde o passo 14, os alu
+         +nos do lote são apagados e os                                  
+      36 +// professores e as coordenações, encerrados; a coordenação de 
+         +demonstração pode purgar o                                     
+      37 +// próprio lote, e a tela avisa antes e leva ao login depois (P
+         +2). Sem prancheta: segue a                                     
+      38 +// identidade visual.                                          
+      39 +export function PurgaScreen({                                  
+      40 +  contasDoDispositivo = dispositivo,                           
+      41 +}: {                                                           
+      42 +  contasDoDispositivo?: ContasDoDispositivo;                   
+      43 +}) {                                                           
+      44    return (
+      45      <TelaDaArea titulo="Purgar demonstração" voltarPara="/insti
+          tuicao">
+      30 -      <Lotes />                                                
+      46 +      <Lotes contasDoDispositivo={contasDoDispositivo} />      
+      47      </TelaDaArea>
+      48    );
+      49  }
+      50  
+      35 -function Lotes() {                                             
+      51 +function Lotes({                                               
+      52 +  contasDoDispositivo,                                         
+      53 +}: {                                                           
+      54 +  contasDoDispositivo: ContasDoDispositivo;                    
+      55 +}) {                                                           
+      56    const { colors } = useTheme();
+      57    const insets = useSafeAreaInsets();
+      58 +  const router = useRouter();                                  
+      59 +  const { sair } = useSessao();                                
+      60 +  const eu = useEu();                                          
+      61    const lotes = useLotes();
+      62    const purgar = usePurgar();
+      63    const [escolhido, setEscolhido] = useState<LoteDaDemonstracao
+           | null>(null);
+      64    const [confirmacao, setConfirmacao] = useState("");
+      65 +  const [saindo, setSaindo] = useState(false);                 
+      66  
+      67    const fechar = () => {
+      68      setEscolhido(null);
+      69      setConfirmacao("");
+      70    };
+      71  
+      72 +  // A conta de quem purgou foi encerrada junto: some da lembra
+         +nça do aparelho, a sessão                                      
+      73 +  // acaba e a pessoa volta ao login.                          
+      74 +  const voltarAoLogin = async () => {                          
+      75 +    setSaindo(true);                                           
+      76 +    try {                                                      
+      77 +      if (eu.data) {                                           
+      78 +        await contasDoDispositivo.gravarContas(                
+      79 +          semAConta(await contasDoDispositivo.lerContas(), eu.d
+         +ata.id),                                                       
+      80 +        );                                                     
+      81 +      }                                                        
+      82 +    } finally {                                                
+      83 +      await sair();                                            
+      84 +      router.replace("/login");                                
+      85 +    }                                                          
+      86 +  };                                                           
+      87 +                                                               
+      88    return (
+      89      <ScrollView
+      90        contentContainerStyle={[
+     ...
+       94        ]}
+       95      >
+       96        <Text style={[textStyles.corpo, { color: colors.ink2 }]}
+           >
+       57 -        Cada aluno de demonstração entra com o lote configurad
+          -o no momento do                                               
+       58 -        registro. Purgar tira do banco tudo do lote: contas, p
+          -osts, prêmios,                                                
+       59 -        curtidas e comentários, e manda as fotos para fora do 
+          -bucket. Não dá                                                
+       60 -        para desfazer.                                        
+       97 +        Cada conta de demonstração entra com o lote configurad
+          +o no momento do                                               
+       98 +        registro. Purgar apaga os alunos do lote, com posts, p
+          +rêmios, curtidas e                                            
+       99 +        comentários, e manda as fotos para fora do bucket. Pro
+          +fessores e                                                    
+      100 +        coordenações do lote são encerrados: o que fizeram fic
+          +a, com o nome                                                 
+      101 +        deles. Não dá para desfazer.                          
+      102        </Text>
+      103  
+      104        {purgar.isSuccess && (
+     ...
+      110            ]}
+      111          >
+      112            <Text style={[textStyles.corpo, { color: colors.ink 
+           }]}>
+       72 -            {`Lote ${purgar.data.lote} purgado: ${purgar.data.
+          -alunos} ${purgar.data.alunos === 1 ? "aluno" : "alunos"} e ${p
+          -urgar.data.fotos} ${purgar.data.fotos === 1 ? "foto" : "fotos"
+          -} a remover do bucket.`}                                      
+      113 +            {resultado(purgar.data)}                          
+      114            </Text>
+      115 +          {purgar.data.contaPropriaEncerrada && (             
+      116 +            <Button                                           
+      117 +              label={saindo ? "Saindo..." : "Voltar ao login"}
+      118 +              disabled={saindo}                               
+      119 +              onPress={() => void voltarAoLogin()}            
+      120 +            />                                                
+      121 +          )}                                                  
+      122          </View>
+      123        )}
+      124  
+       77 -      {lotes.isPending ? (                                    
+      125 +      {purgar.data?.contaPropriaEncerrada ? null : lotes.isPen
+          +ding ? (                                                      
+      126          <ActivityIndicator style={styles.espera} color={colors
+           .ink2} />
+      127        ) : lotes.isError ? (
+      128          <ErrorState
+     ...
+      147                >
+      148                  {lote.lote}
+      149                </Text>
+      102 -              {lote.vigente && (                              
+      103 -                <View                                         
+      104 -                  style={[styles.marca, { backgroundColor: col
+          -ors.highlight }]}                                             
+      105 -                >                                             
+      106 -                  <Text style={[styles.textoDaMarca, { color: 
+          -colors.ink }]}>                                               
+      107 -                    Vigente                                   
+      108 -                  </Text>                                     
+      109 -                </View>                                       
+      110 -              )}                                              
+      150 +              {lote.vigente && <Marca texto="Vigente" />}     
+      151 +              {lote.deQuemPede && <Marca texto="Seu lote" />} 
+      152              </View>
+      153              <Text style={[textStyles.legenda, { color: colors.
+           ink2 }]}>
+      113 -              {`${lote.alunos} ${lote.alunos === 1 ? "aluno" :
+          - "alunos"} · de ${dataCurta(lote.primeiroEm)} a ${dataCurta(lo
+          -te.ultimoEm)}`}                                               
+      154 +              {`${contas(lote)} · de ${dataCurta(lote.primeiro
+          +Em)} a ${dataCurta(lote.ultimoEm)}`}                          
+      155              </Text>
+      156              {lote.vigente && (
+      157                <Text style={[textStyles.legenda, { color: color
+           s.ink3 }]}>
+     ...
+      174        <FolhaDeAto
+      175          aberta={escolhido !== null}
+      176          titulo="Purgar lote"
+      136 -        explicacao={                                          
+      137 -          escolhido                                           
+      138 -            ? `Saem do banco os ${escolhido.alunos} ${escolhid
+          -o.alunos === 1 ? "aluno" : "alunos"} do lote ${escolhido.lote}
+          - e tudo o que fizeram. Para confirmar, digite o nome do lote.`
+      139 -            : ""                                              
+      140 -        }                                                     
+      177 +        explicacao={escolhido ? explicacao(escolhido) : ""}   
+      178          confirmar="Purgar lote"
+      179          podeConfirmar={confirmacao.trim() === escolhido?.lote}
+      180          enviando={purgar.isPending}
+     ...
+      201    );
+      202  }
+      203  
+      204 +function Marca({ texto }: { texto: string }) {                
+      205 +  const { colors } = useTheme();                              
+      206 +  return (                                                    
+      207 +    <View style={[styles.marca, { backgroundColor: colors.high
+          +light }]}>                                                    
+      208 +      <Text style={[styles.textoDaMarca, { color: colors.ink }
+          +]}>{texto}</Text>                                             
+      209 +    </View>                                                   
+      210 +  );                                                          
+      211 +}                                                             
+      212 +                                                              
+      213 +type Purgado = {                                              
+      214 +  lote: string;                                               
+      215 +  alunos: number;                                             
+      216 +  fotos: number;                                              
+      217 +  professores: number;                                        
+      218 +  coordenacoes: number;                                       
+      219 +  contaPropriaEncerrada: boolean;                             
+      220 +};                                                            
+      221 +                                                              
+      222 +function contar(n: number, singular: string, plural: string): 
+          +string {                                                      
+      223 +  return `${n} ${n === 1 ? singular : plural}`;               
+      224 +}                                                             
+      225 +                                                              
+      226 +// "a", "a e b", "a, b e c".                                  
+      227 +function emLista(partes: string[]): string {                  
+      228 +  return partes.length < 2                                    
+      229 +    ? (partes[0] ?? "")                                       
+      230 +    : `${partes.slice(0, -1).join(", ")} e ${partes.at(-1)}`; 
+      231 +}                                                             
+      232 +                                                              
+      233 +function equipe(professores: number, coordenacoes: number): st
+          +ring[] {                                                      
+      234 +  return [                                                    
+      235 +    ...(professores > 0                                       
+      236 +      ? [contar(professores, "professor", "professores")]     
+      237 +      : []),                                                  
+      238 +    ...(coordenacoes > 0                                      
+      239 +      ? [contar(coordenacoes, "coordenação", "coordenações")] 
+      240 +      : []),                                                  
+      241 +  ];                                                          
+      242 +}                                                             
+      243 +                                                              
+      244 +// As contas ativas do lote, por papel. Os alunos aparecem sem
+          +pre; a equipe, quando há.                                     
+      245 +function contas(lote: LoteDaDemonstracao): string {           
+      246 +  return emLista([                                            
+      247 +    contar(lote.alunos, "aluno", "alunos"),                   
+      248 +    ...equipe(lote.professores, lote.coordenacoes),           
+      249 +  ]);                                                         
+      250 +}                                                             
+      251 +                                                              
+      252 +function explicacao(lote: LoteDaDemonstracao): string {       
+      253 +  const daEquipe = equipe(lote.professores, lote.coordenacoes)
+          +;                                                             
+      254 +  return [                                                    
+      255 +    lote.alunos > 0                                           
+      256 +      ? `Saem do banco ${lote.alunos === 1 ? "o aluno" : `os $
+          +{lote.alunos} alunos`} do lote ${lote.lote} e tudo o que fizer
+          +am.`                                                          
+      257 +      : null,                                                 
+      258 +    daEquipe.length > 0                                       
+      259 +      ? `${emLista(daEquipe)} do lote ${lote.lote} ${lote.prof
+          +essores + lote.coordenacoes === 1 ? "é encerrado" : "são encer
+          +rados"}; o que fizeram fica.`                                 
+      260 +      : null,                                                 
+      261 +    lote.deQuemPede ? "Sua conta é deste lote e será encerrada
+          + junto." : null,                                              
+      262 +    "Para confirmar, digite o nome do lote.",                 
+      263 +  ]                                                           
+      264 +    .filter(Boolean)                                          
+      265 +    .join(" ");                                               
+      266 +}                                                             
+      267 +                                                              
+      268 +function resultado(purga: Purgado): string {                  
+      269 +  const daEquipe = equipe(purga.professores, purga.coordenacoe
+          +s);                                                           
+      270 +  return [                                                    
+      271 +    `Lote ${purga.lote} purgado: ${contar(purga.alunos, "aluno
+          +", "alunos")} e ${contar(purga.fotos, "foto", "fotos")} a remo
+          +ver do bucket.`,                                              
+      272 +    daEquipe.length > 0                                       
+      273 +      ? `${emLista(daEquipe)} ${purga.professores + purga.coor
+          +denacoes === 1 ? "encerrado" : "encerrados"}.`                
+      274 +      : null,                                                 
+      275 +    purga.contaPropriaEncerrada                               
+      276 +      ? "Sua conta era deste lote e foi encerrada."           
+      277 +      : null,                                                 
+      278 +  ]                                                           
+      279 +    .filter(Boolean)                                          
+      280 +    .join(" ");                                               
+      281 +}                                                             
+      282 +                                                              
+      283  const styles = StyleSheet.create({
+      284    margem: { paddingHorizontal: espacamento.margemLateral },
+      285    coluna: { gap: 16 },
+      286    espera: { marginTop: 32 },
+      171 -  aviso: { borderWidth: 1, borderRadius: raios.filtros, paddin
+          -g: 12 },                                                      
+      287 +  aviso: { borderWidth: 1, borderRadius: raios.filtros, paddin
+          +g: 12, gap: 12 },                                             
+      288    lote: { borderWidth: 1, borderRadius: 16, padding: 16, gap: 
+           8 },
+      173 -  titulo: { flexDirection: "row", alignItems: "center", gap: 8
+          - },                                                           
+      289 +  titulo: {                                                   
+      290 +    flexDirection: "row",                                     
+      291 +    alignItems: "center",                                     
+      292 +    flexWrap: "wrap",                                         
+      293 +    gap: 8,                                                   
+      294 +  },                                                          
+      295    nome: { flexShrink: 1 },
+      296    marca: {
+      297      height: 26,
+
+● Correcting the gender agreement for "encerrado/encerrada".
+
+● Update(apps\mobile\src\instituicao\PurgaScreen.tsx)
+  ⎿  Added 8 lines
+      241    ];
+      242  }
+      243  
+      244 +// Concordância com a equipe: "encerrado", "encerrada", "encer
+          +rados", "encerradas".                                         
+      245 +function encerrados(professores: number, coordenacoes: number)
+          +: string {                                                    
+      246 +  if (professores + coordenacoes === 1) {                     
+      247 +    return professores === 1 ? "encerrado" : "encerrada";     
+      248 +  }                                                           
+      249 +  return professores > 0 ? "encerrados" : "encerradas";       
+      250 +}                                                             
+      251 +                                                              
+      252  // As contas ativas do lote, por papel. Os alunos aparecem sem
+           pre; a equipe, quando há.
+      253  function contas(lote: LoteDaDemonstracao): string {
+      254    return emLista([
+
+● Update(apps\mobile\src\instituicao\PurgaScreen.tsx)
+  ⎿  Added 1 line, removed 1 line
+      264        ? `Saem do banco ${lote.alunos === 1 ? "o aluno" : `os $
+           {lote.alunos} alunos`} do lote ${lote.lote} e tudo o que fizer
+           am.`
+      265        : null,
+      266      daEquipe.length > 0
+      267 -      ? `${emLista(daEquipe)} do lote ${lote.lote} ${lote.prof
+          -essores + lote.coordenacoes === 1 ? "é encerrado" : "são encer
+          -rados"}; o que fizeram fica.`                                 
+      267 +      ? `${emLista(daEquipe)} do lote ${lote.lote} ${lote.prof
+          +essores + lote.coordenacoes === 1 ? "é" : "são"} ${encerrados(
+          +lote.professores, lote.coordenacoes)}; o que fizeram fica.`   
+      268        : null,
+      269      lote.deQuemPede ? "Sua conta é deste lote e será encerrada
+            junto." : null,
+      270      "Para confirmar, digite o nome do lote.",
+
+● Update(apps\mobile\src\instituicao\PurgaScreen.tsx)
+  ⎿  Added 1 line, removed 1 line
+      278    return [
+      279      `Lote ${purga.lote} purgado: ${contar(purga.alunos, "aluno
+           ", "alunos")} e ${contar(purga.fotos, "foto", "fotos")} a remo
+           ver do bucket.`,
+      280      daEquipe.length > 0
+      281 -      ? `${emLista(daEquipe)} ${purga.professores + purga.coor
+          -denacoes === 1 ? "encerrado" : "encerrados"}.`                
+      281 +      ? `${emLista(daEquipe)} ${encerrados(purga.professores, 
+          +purga.coordenacoes)}.`                                        
+      282        : null,
+      283      purga.contaPropriaEncerrada
+      284        ? "Sua conta era deste lote e foi encerrada."
+
+● Now the Jest tests of the purge. Reading the mocks.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/instituicao"
+      && sed -i \
+       -e 's|        alunos: 12,|        alunos: 12,\n…)
+  ⎿      json(201, { id: "aviso-1" }),
+       );
+       lotes = jest.fn(async (_pedido: Request) =>
+     … +39 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\instituicao\avisoEPurga.test.tsx (+14 -1)
+      42        {
+      43          lote: "banca-2",
+      44          alunos: 12,
+      45 +        professores: 0,                                        
+      46 +        coordenacoes: 0,                                       
+      47 +        deQuemPede: false,                                     
+      48          primeiroEm: "2026-11-20T13:00:00Z",
+      49          ultimoEm: "2026-11-27T18:00:00Z",
+      50          vigente: true,
+     ...
+      52        {
+      53          lote: "ensaio",
+      54          alunos: 1,
+      55 +        professores: 0,                                        
+      56 +        coordenacoes: 0,                                       
+      57 +        deQuemPede: false,                                     
+      58          primeiroEm: "2026-11-10T13:00:00Z",
+      59          ultimoEm: "2026-11-10T13:00:00Z",
+      60          vigente: false,
+     ...
+      62      ]),
+      63    );
+      64    purga = jest.fn(async (_pedido: Request) =>
+      59 -    json(200, { lote: "ensaio", alunos: 1, fotos: 4 }),        
+      65 +    json(200, {                                                
+      66 +      lote: "ensaio",                                          
+      67 +      alunos: 1,                                               
+      68 +      fotos: 4,                                                
+      69 +      professores: 0,                                          
+      70 +      coordenacoes: 0,                                         
+      71 +      contaPropriaEncerrada: false,                            
+      72 +    }),                                                        
+      73    );
+      74    api = jest.fn(async (pedido: Request) => {
+      75      const caminho = new URL(pedido.url).pathname;
+
+● Now the new tests for the team counts and the self-purge.
+
+● Update(apps\mobile\src\instituicao\avisoEPurga.test.tsx)
+  ⎿  Added 151 lines
+      219      );
+      220    });
+      221  
+      222 +  // Passo 14: professores e coordenações de demonstração no l
+          +ote, e o lote de quem pede.                                   
+      223 +  describe("com a equipe da demonstração", () => {            
+      224 +    const BANCA = {                                           
+      225 +      lote: "banca-2026",                                     
+      226 +      alunos: 3,                                              
+      227 +      professores: 2,                                         
+      228 +      coordenacoes: 1,                                        
+      229 +      deQuemPede: true,                                       
+      230 +      primeiroEm: "2026-11-20T13:00:00Z",                     
+      231 +      ultimoEm: "2026-11-27T18:00:00Z",                       
+      232 +      vigente: true,                                          
+      233 +    };                                                        
+      234 +    const EU = { ...COORDENACAO, id: "0193a000-0000-7000-8000-
+          +0000000000d1" };                                              
+      235 +                                                              
+      236 +    function aparelho() {                                     
+      237 +      let guardadas = [                                       
+      238 +        {                                                     
+      239 +          chave: "minha",                                     
+      240 +          nome: "Caio",                                       
+      241 +          curso: "",                                          
+      242 +          papel: "coordenacao" as const,                      
+      243 +          usuarioId: EU.id,                                   
+      244 +        },                                                    
+      245 +        { chave: "outra", nome: "Ana", curso: "CC", papel: "al
+          +uno" as const },                                              
+      246 +      ];                                                      
+      247 +      return {                                                
+      248 +        lerContas: jest.fn(async () => guardadas),            
+      249 +        gravarContas: jest.fn(async (novas: typeof guardadas) 
+          +=> {                                                          
+      250 +          guardadas = novas;                                  
+      251 +        }),                                                   
+      252 +        guardadas: () => guardadas,                           
+      253 +      };                                                      
+      254 +    }                                                         
+      255 +                                                              
+      256 +    beforeEach(() => {                                        
+      257 +      lotes.mockResolvedValue(json(200, [BANCA]));            
+      258 +      const anterior = api.getMockImplementation()!;          
+      259 +      api.mockImplementation(async (pedido: Request) =>       
+      260 +        new URL(pedido.url).pathname === "/api/v1/eu"         
+      261 +          ? json(200, EU)                                     
+      262 +          : anterior(pedido),                                 
+      263 +      );                                                      
+      264 +    });                                                       
+      265 +                                                              
+      266 +    it("conta por papel e marca o lote de quem pede", async ()
+          + => {                                                         
+      267 +      await renderComApi(<PurgaScreen />, api);               
+      268 +                                                              
+      269 +      const banca = await screen.findByTestId("lote-banca-2026
+          +");                                                           
+      270 +      expect(within(banca).getByText("Seu lote")).toBeOnTheScr
+          +een();                                                        
+      271 +      expect(within(banca).getByText("Vigente")).toBeOnTheScre
+          +en();                                                         
+      272 +      expect(                                                 
+      273 +        within(banca).getByText(                              
+      274 +          "3 alunos, 2 professores e 1 coordenação · de 20/11/
+          +2026 a 27/11/2026",                                           
+      275 +        ),                                                    
+      276 +      ).toBeOnTheScreen();                                    
+      277 +    });                                                       
+      278 +                                                              
+      279 +    it("avisa no modal que a própria conta será encerrada", as
+          +ync () => {                                                   
+      280 +      await renderComApi(<PurgaScreen />, api);               
+      281 +                                                              
+      282 +      await apertar("Purgar o lote banca-2026");              
+      283 +      const folha = await screen.findByTestId("folha-de-ato");
+      284 +      expect(                                                 
+      285 +        within(folha).getByText(                              
+      286 +          "Saem do banco os 3 alunos do lote banca-2026 e tudo
+          + o que fizeram. 2 professores e 1 coordenação do lote banca-20
+          +26 são encerrados; o que fizeram fica. Sua conta é deste lote 
+          +e será encerrada junto. Para confirmar, digite o nome do lote.
+          +",                                                            
+      287 +        ),                                                    
+      288 +      ).toBeOnTheScreen();                                    
+      289 +    });                                                       
+      290 +                                                              
+      291 +    it("purgado o próprio lote, mostra o resultado sem recarre
+          +gar e volta ao login esquecendo a conta", async () => {       
+      292 +      purga.mockResolvedValue(                                
+      293 +        json(200, {                                           
+      294 +          lote: "banca-2026",                                 
+      295 +          alunos: 3,                                          
+      296 +          fotos: 8,                                           
+      297 +          professores: 2,                                     
+      298 +          coordenacoes: 1,                                    
+      299 +          contaPropriaEncerrada: true,                        
+      300 +        }),                                                   
+      301 +      );                                                      
+      302 +      const dispositivo = aparelho();                         
+      303 +      const { gerenciador } = await renderComApi(             
+      304 +        <PurgaScreen contasDoDispositivo={dispositivo} />,    
+      305 +        api,                                                  
+      306 +      );                                                      
+      307 +                                                              
+      308 +      await apertar("Purgar o lote banca-2026");              
+      309 +      const folha = await screen.findByTestId("folha-de-ato");
+      310 +      await act(async () => {                                 
+      311 +        fireEvent.changeText(                                 
+      312 +          within(folha).getByLabelText("Nome do lote"),       
+      313 +          "banca-2026",                                       
+      314 +        );                                                    
+      315 +      });                                                     
+      316 +      await act(async () => {                                 
+      317 +        fireEvent.press(                                      
+      318 +          within(folha).getByRole("button", { name: "Purgar lo
+          +te" }),                                                       
+      319 +        );                                                    
+      320 +      });                                                     
+      321 +                                                              
+      322 +      expect(await screen.findByTestId("purga-concluida")).toH
+          +aveTextContent(                                               
+      323 +        "Lote banca-2026 purgado: 3 alunos e 8 fotos a remover
+          + do bucket. 2 professores e 1 coordenação encerrados. Sua cont
+          +a era deste lote e foi encerrada.",                           
+      324 +      );                                                      
+      325 +      expect(screen.queryByTestId("lote-banca-2026")).toBeNull
+          +();                                                           
+      326 +      expect(lotes).toHaveBeenCalledTimes(1);                 
+      327 +                                                              
+      328 +      await apertar("Voltar ao login");                       
+      329 +                                                              
+      330 +      expect(dispositivo.guardadas()).toEqual([               
+      331 +        { chave: "outra", nome: "Ana", curso: "CC", papel: "al
+          +uno" },                                                       
+      332 +      ]);                                                     
+      333 +      expect(gerenciador.estado).not.toBe("autenticado");     
+      334 +      expect(mockRoteador.replace).toHaveBeenCalledWith("/logi
+          +n");                                                          
+      335 +    });                                                       
+      336 +                                                              
+      337 +    it("só a coordenação encerrada concorda no feminino", asyn
+          +c () => {                                                     
+      338 +      purga.mockResolvedValue(                                
+      339 +        json(200, {                                           
+      340 +          lote: "banca-2026",                                 
+      341 +          alunos: 0,                                          
+      342 +          fotos: 0,                                           
+      343 +          professores: 0,                                     
+      344 +          coordenacoes: 1,                                    
+      345 +          contaPropriaEncerrada: false,                       
+      346 +        }),                                                   
+      347 +      );                                                      
+      348 +      await renderComApi(<PurgaScreen />, api);               
+      349 +                                                              
+      350 +      await apertar("Purgar o lote banca-2026");              
+      351 +      const folha = await screen.findByTestId("folha-de-ato");
+      352 +      await act(async () => {                                 
+      353 +        fireEvent.changeText(                                 
+      354 +          within(folha).getByLabelText("Nome do lote"),       
+      355 +          "banca-2026",                                       
+      356 +        );                                                    
+      357 +      });                                                     
+      358 +      await act(async () => {                                 
+      359 +        fireEvent.press(                                      
+      360 +          within(folha).getByRole("button", { name: "Purgar lo
+          +te" }),                                                       
+      361 +        );                                                    
+      362 +      });                                                     
+      363 +                                                              
+      364 +      expect(await screen.findByTestId("purga-concluida")).toH
+          +aveTextContent(                                               
+      365 +        "Lote banca-2026 purgado: 0 alunos e 0 fotos a remover
+          + do bucket. 1 coordenação encerrada.",                        
+      366 +      );                                                      
+      367 +      expect(                                                 
+      368 +        screen.queryByRole("button", { name: "Voltar ao login"
+          + }),                                                          
+      369 +      ).toBeNull();                                           
+      370 +    });                                                       
+      371 +  });                                                         
+      372 +                                                              
+      373    it("sem lote no banco, um estado vazio", async () => {
+      374      lotes.mockResolvedValueOnce(json(200, []));
+      375      await renderComApi(<PurgaScreen />, api);
+
+● Also a test for the id being remembered at registration.
+
+● Update(apps\mobile\src\demonstracao\demonstracao.test.tsx)
+  ⎿  Added 35 lines
+      424      ).toBeTruthy();
+      425    });
+      426  
+      427 +  test("depois de entrar, a lembrança guarda o id da conta, pa
+          +ra a purga do próprio lote", async () => {                    
+      428 +    const anterior = api.getMockImplementation()!;            
+      429 +    api.mockImplementation(async (pedido: Request) =>         
+      430 +      new URL(pedido.url).pathname === "/api/v1/eu"           
+      431 +        ? json(200, {                                         
+      432 +            id: "id-caio",                                    
+      433 +            papeis: ["instituicao"],                          
+      434 +            arroba: "@caioReis-UNIMAX",                       
+      435 +            nomeDeExibicao: "Caio Reis",                      
+      436 +            foto: null,                                       
+      437 +          })                                                  
+      438 +        : anterior(pedido),                                   
+      439 +    );                                                        
+      440 +    const dispositivo = aparelho();                           
+      441 +    await renderComApi(                                       
+      442 +      <DemonstracaoScreen contasDoDispositivo={dispositivo} />
+          +,                                                             
+      443 +      api,                                                    
+      444 +    );                                                        
+      445 +                                                              
+      446 +    await abrir("coordenação");                               
+      447 +    await fireEvent.changeText(screen.getByLabelText("Nome"), 
+          +"Caio Reis");                                                 
+      448 +    await apertar("Continuar");                               
+      449 +    await apertar("Aceitar e entrar");                        
+      450 +                                                              
+      451 +    expect(dispositivo.guardadas()).toEqual([                 
+      452 +      {                                                       
+      453 +        chave: "chave-c",                                     
+      454 +        nome: "Caio Reis",                                    
+      455 +        curso: "",                                            
+      456 +        papel: "coordenacao",                                 
+      457 +        usuarioId: "id-caio",                                 
+      458 +      },                                                      
+      459 +    ]);                                                       
+      460 +  });                                                         
+      461 +                                                              
+      462    test("a lista do aparelho diz o papel de cada conta", async 
+           () => {
+      463      entrada.mockResolvedValue(json(200, SESSAO));
+      464      await renderComApi(
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx prettier
+      --write src/instituicao src/demonstracao >/dev/null; npx tsc --n…)
+  ⎿            Type 'ContaDeDemonstracao' is not assignable to type '{ chav
+     e: string; nome: string; curso: string; papel: "coordenacao"; usuarioI
+     d: string; } | { chave: string; nome: string; curso: string; papel: "a
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated apps\mobile\src\demonstracao\DemonstracaoScreen.tsx (+3 -1)
+      165        if (!data) return;
+      166        const atuais = await contasDoDispositivo.lerContas();
+      167        await guardar(
+      168 -        atuais.map((c) => (c.chave === chave ? { ...c, usuario
+          -Id: data.id } : c)),                                          
+      168 +        atuais.map((c) =>                                     
+      169 +          c.chave === chave ? { ...c, usuarioId: data.id } : c
+          +,                                                             
+      170 +        ),                                                    
+      171        );
+      172      } catch {
+      173        // Fica sem o id.
+  ⎿  (timeout 10m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Only the matcher: the card also contains the button text. I'll match with a
+  regex and fix the test's type.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile/src/instituicao"
+      && sed -i '323s|.*|        /^Lote banca-2026 purgado: 3 alunos e…)
+  ⎿  Test Suites: 49 passed, 49 total
+     Tests:       533 passed, 533 total
+  ⎿  Updated apps\mobile\src\instituicao\avisoEPurga.test.tsx (+5 -4)
+      2  import { Platform } from "react-native";
+      3  
+      4  import { json, renderComApi } from "../test/renderComApi";
+      5 +import type { ContaDeDemonstracao } from "../demonstracao/contas
+        +";                                                              
+      6  import { NovoAvisoDaInstituicaoScreen } from "./NovoAvisoDaInsti
+         tuicaoScreen";
+      7  import { PurgaScreen } from "./PurgaScreen";
+      8  
+     ...
+      235      const EU = { ...COORDENACAO, id: "0193a000-0000-7000-8000-
+           0000000000d1" };
+      236  
+      237      function aparelho() {
+      237 -      let guardadas = [                                       
+      238 +      let guardadas: ContaDeDemonstracao[] = [                
+      239          {
+      240            chave: "minha",
+      241            nome: "Caio",
+      242            curso: "",
+      242 -          papel: "coordenacao" as const,                      
+      243 +          papel: "coordenacao",                               
+      244            usuarioId: EU.id,
+      245          },
+      245 -        { chave: "outra", nome: "Ana", curso: "CC", papel: "al
+          -uno" as const },                                              
+      246 +        { chave: "outra", nome: "Ana", curso: "CC", papel: "al
+          +uno" },                                                       
+      247        ];
+      248        return {
+      249          lerContas: jest.fn(async () => guardadas),
+     ...
+      321        });
+      322  
+      323        expect(await screen.findByTestId("purga-concluida")).toH
+           aveTextContent(
+      323 -        "Lote banca-2026 purgado: 3 alunos e 8 fotos a remover
+          - do bucket. 2 professores e 1 coordenação encerrados. Sua cont
+          -a era deste lote e foi encerrada.",                           
+      324 +        /^Lote banca-2026 purgado: 3 alunos e 8 fotos a remove
+          +r do bucket. 2 professores e 1 coordenação encerrados. Sua con
+          +ta era deste lote e foi encerrada./,                          
+      325        );
+      326        expect(screen.queryByTestId("lote-banca-2026")).toBeNull
+           ();
+      327        expect(lotes).toHaveBeenCalledTimes(1);
+  ⎿  (timeout 10m)
+
+● Jest inteiro verde: 533 testes, sem erro de tipo nem de lint. Confiro se o e2e
+  da purga depende de algum texto que mudou.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O e2e da purga continua valendo, porque o texto de um lote só com alunos não
+  mudou. Rebuildo o compose local com o código desta etapa para as capturas.
+
+  Made 1 scratchpad edit +64, ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Rebuild local compose with step 6 code" completed (exit
+code 0)
+
+● Background command "Watch CI for step 5" completed (exit code 0)
+
+● CI da etapa 5 verde. Tiro as capturas da purga.
+
+  Read 4 files, ran 1 shell command (ctrl+o to expand)
+
+● A etapa 6 está pronta e testada, sem commit, e parei nela para a sua revisão.
+  A etapa 5 entrou no 8d25268, com a CI verde.
+
+  Capturas da etapa 6
+
+  Feitas no compose local, no lote captura-local, em 1280 x 900, porque a área
+  da instituição só abre no navegador. Para mostrar a purga do próprio lote, o
+  script criou pela demonstração um aluno, um professor e a coordenação
+  "Conferência Maxx", e purgou esse lote. Foi uma vez por tema, tudo só nesta
+  máquina.
+
+  C:\Users\GUILHE~1\AppData\Local\Temp\claude\C--Users-Guilherme-Gimenes-Documen
+  ts-Repos-tcc-maxx-engenheiro\42ff04be-4d5a-4462-93e9-6da00ec430d9\scratchpad\c
+  apturas
+
+  - purga-1-lista: o lote com as marcas "Vigente" e "Seu lote" e a contagem "1
+    aluno, 1 professor e 1 coordenação". Os lotes antigos, só com alunos,
+    continuam como antes.
+  - purga-2-modal: o aviso "Sua conta é deste lote e será encerrada junto."
+  - purga-3-resultado: o resultado com "Voltar ao login". Depois da purga do
+    próprio lote, a lista não recarrega, para a sessão já encerrada não mandar a
+    pessoa ao login antes de ela ler o resultado.
+  - purga-4-login: o login depois do botão.
+
+  O que mudou no código
+
+  - Tela da purga: contagem por papel, a marca "Seu lote", o aviso no modal e o
+    resultado com "Voltar ao login".
+  - "Voltar ao login": tira a conta da lembrança do aparelho, encerra a sessão
+    local e abre o login.
+  - Lembrança do aparelho: para o botão saber qual conta esquecer, ela passa a
+    guardar também o id da conta. O app lê esse id de /v1/eu logo depois de
+    entrar, sem impedir a entrada se a leitura falhar. Isso mexe de novo na tela
+    de demonstração, mas sem mudança visual.
+  - Testes: o Jest inteiro passa, com 533 testes, e o typecheck e o lint estão
+    limpos. Os testes novos cobrem a contagem e a marca, o aviso no modal, o
+    resultado sem recarregar a lista com a conta esquecida e o login, a
+    concordância no feminino ("1 coordenação encerrada") e o id guardado no
+    registro.
+  - e2e: o da purga não precisou mudar, porque um lote só com alunos mostra o
+    mesmo texto de antes.
+
+  Textos que escrevi sem estar nos docs
+
+  1. Introdução da tela: "Cada conta de demonstração entra com o lote
+     configurado no momento do registro. Purgar apaga os alunos do lote, com
+     posts, prêmios, curtidas e comentários, e manda as fotos para fora do
+     bucket. Professores e coordenações do lote são encerrados: o que fizeram
+     fica, com o nome deles. Não dá para desfazer."
+  2. Modal: "Saem do banco os N alunos do lote X e tudo o que fizeram. P
+     professores e C coordenações do lote X são encerrados; o que fizeram fica."
+     Depois vem o aviso da própria conta, quando for o caso. Com um aluno só, a
+     frase vira "o aluno".
+  3. Resultado: a frase de antes, seguida de "P professores e C coordenações
+     encerrados." e, quando for o caso, "Sua conta era deste lote e foi
+     encerrada." O botão mostra "Saindo..." enquanto encerra a sessão.
+
+  O compose local continua no ar. Se aprovar, faço o commit da etapa 6, o push e
+  confiro a CI, e sigo para a etapa 7, o e2e nos três papéis.
+
+✻ Crunched for 8m 59s · done 22:52
