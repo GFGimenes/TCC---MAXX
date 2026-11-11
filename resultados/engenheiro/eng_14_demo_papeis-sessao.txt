@@ -6189,3 +6189,493 @@ code 0)
   confiro a CI, e sigo para a etapa 7, o e2e nos três papéis.
 
 ✻ Crunched for 8m 59s · done 22:52
+
+> /export C:\Users\Guilherme                                                    
+Gimenes\Documents\Repos\tcc\resultados\engenheiro\eng_14_demo_papeis-sessao.txt 
+  ⎿  Conversation exported to: C:\Users\Guilherme Gimenes\Documents\Repos\tcc\re
+     sultados\engenheiro\eng_14_demo_papeis-sessao.txt
+
+※ recap: O passo 14 põe aluno, professor e coordenação na entrada da demonstração; as etapas 1 a 5 estão commitadas, com a CI verde. A etapa 6, a tela da purga, está pronta com as capturas e aguarda sua aprovação para o commit. (disable recaps in /config)
+
+> Etapa 6 aprovada, capturas conferidas, com um ajuste de texto antes do        
+  commit: no modal, com um aluno só, a frase tem que concordar no singular,     
+  "Sai do banco o aluno do lote X e tudo o que fez"; com mais de um, fica como  
+  está. Cobre com o Jest que já testa a concordância. Os três textos que você   
+  escreveu ficam. Uma observação que não é para corrigir agora: no navegador a  
+  folha de confirmação ocupa a largura inteira da janela, enquanto a tela é uma 
+  coluna estreita. Se isso já era assim desde o passo 12, registra como limite  
+  conhecido de tela no índice de decisões; se foi introduzido agora, me avisa   
+  antes de seguir. Depois commita, push, CI, e segue para a etapa 7, o e2e nos  
+  três papéis, e para a 8; para na 8 com o PR aberto, a CI verde e a            
+  conferência no ar feita.                                                      
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● A folha vem do passo 12 (6eca0ec) e não foi tocada neste passo, então registro
+  o limite. Procuro a seção de limites do passo 12.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(docs\decisoes\README.md)
+  ⎿  Added 1 line
+      785  | A foto de cada post do seed é sorteada entre as do curso e p
+           ode não combinar com o evento | Aceito: dado de demonstração |
+      786  | Na fila de comprovações da instituição, "em comum" são todas
+            as matérias do aluno (regra do passo 8) | Aceito |
+      787  | O seed sobe as fotos antes do commit: falha depois disso dei
+           xa objetos sem dono no bucket | Aceito |
+      788 +| No navegador, a folha de confirmação dos atos (`FolhaDeAto`,
+          + um `Modal`) ocupa a largura inteira da janela, enquanto a tel
+          +a é a coluna estreita da moldura de celular. Notado pelo autor
+          + nas capturas da purga do passo 14; vem do passo 12 | Limite c
+          +onhecido de tela, sem correção na fase 1 |                    
+      789  
+      790  ## Endurecimento e ensaio (passo 13)
+      791  
+
+● Update(apps\mobile\src\instituicao\PurgaScreen.tsx)
+  ⎿  Added 3 lines, removed 1 line
+      261    const daEquipe = equipe(lote.professores, lote.coordenacoes)
+           ;
+      262    return [
+      263      lote.alunos > 0
+      264 -      ? `Saem do banco ${lote.alunos === 1 ? "o aluno" : `os $
+          -{lote.alunos} alunos`} do lote ${lote.lote} e tudo o que fizer
+          -am.`                                                          
+      264 +      ? lote.alunos === 1                                     
+      265 +        ? `Sai do banco o aluno do lote ${lote.lote} e tudo o 
+          +que fez.`                                                     
+      266 +        : `Saem do banco os ${lote.alunos} alunos do lote ${lo
+          +te.lote} e tudo o que fizeram.`                               
+      267        : null,
+      268      daEquipe.length > 0
+      269        ? `${emLista(daEquipe)} do lote ${lote.lote} ${lote.prof
+           essores + lote.coordenacoes === 1 ? "é" : "são"} ${encerrados(
+           lote.professores, lote.coordenacoes)}; o que fizeram fica.`
+
+● Now the Jest coverage for the singular modal text, next to the feminine
+  agreement test.
+
+● Update(apps\mobile\src\instituicao\avisoEPurga.test.tsx)  ⎿  Added 17 lines
+      335        expect(mockRoteador.replace).toHaveBeenCalledWith("/logi
+           n");
+      336      });
+      337  
+      338 +    it("com um aluno só, o modal concorda no singular", async 
+          +() => {                                                       
+      339 +      lotes.mockResolvedValue(                                
+      340 +        json(200, [                                           
+      341 +          { ...BANCA, alunos: 1, professores: 0, coordenacoes:
+          + 0, deQuemPede: false },                                      
+      342 +        ]),                                                   
+      343 +      );                                                      
+      344 +      await renderComApi(<PurgaScreen />, api);               
+      345 +                                                              
+      346 +      await apertar("Purgar o lote banca-2026");              
+      347 +      const folha = await screen.findByTestId("folha-de-ato");
+      348 +      expect(                                                 
+      349 +        within(folha).getByText(                              
+      350 +          "Sai do banco o aluno do lote banca-2026 e tudo o qu
+          +e fez. Para confirmar, digite o nome do lote.",               
+      351 +        ),                                                    
+      352 +      ).toBeOnTheScreen();                                    
+      353 +    });                                                       
+      354 +                                                              
+      355      it("só a coordenação encerrada concorda no feminino", asyn
+           c () => {
+      356        purga.mockResolvedValue(
+      357          json(200, {
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/apps/mobile" && npx prettier
+      --write src/instituicao >/dev/null; npx tsc --noEmit 2>&1 | tail…)
+  ⎿  Test Suites: 49 passed, 49 total
+     Tests:       534 passed, 534 total
+  ⎿  Updated apps\mobile\src\instituicao\avisoEPurga.test.tsx (+7 -1)
+      338      it("com um aluno só, o modal concorda no singular", async 
+           () => {
+      339        lotes.mockResolvedValue(
+      340          json(200, [
+      341 -          { ...BANCA, alunos: 1, professores: 0, coordenacoes:
+          - 0, deQuemPede: false },                                      
+      341 +          {                                                   
+      342 +            ...BANCA,                                         
+      343 +            alunos: 1,                                        
+      344 +            professores: 0,                                   
+      345 +            coordenacoes: 0,                                  
+      346 +            deQuemPede: false,                                
+      347 +          },                                                  
+      348          ]),
+      349        );
+      350        await renderComApi(<PurgaScreen />, api);
+  ⎿  (timeout 10m)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Etapa 7 enquanto a CI da 6 roda. Leio os e2e de medalha e da instituição para
+  reaproveitar os passos de tela.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Escrevendo o caso dos três papéis.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Update(e2e\tests\demonstracao.spec.ts)
+  ⎿  Added 32 lines, removed 1 line
+       1 -import { expect, test } from "@playwright/test";               
+       1 +import { expect, test, type Browser, type Page } from "@playwri
+         +ght/test";                                                     
+       2  
+       3  import { abrirMenu, abrirPerfil } from "./apoio/navegacao";
+       4  
+       5 +// Cada papel no próprio contexto, com a lembrança do aparelho 
+         +separada, na tela do projeto.                                  
+       6 +async function novaPagina(browser: Browser): Promise<Page> {   
+       7 +  const { viewport, isMobile, hasTouch, colorScheme, baseURL } 
+         +=                                                              
+       8 +    test.info().project.use;                                   
+       9 +  const contexto = await browser.newContext({                  
+      10 +    viewport,                                                  
+      11 +    isMobile,                                                  
+      12 +    hasTouch,                                                  
+      13 +    colorScheme,                                               
+      14 +    baseURL,                                                   
+      15 +  });                                                          
+      16 +  return contexto.newPage();                                   
+      17 +}                                                              
+      18 +                                                               
+      19 +// Da tela de demonstração até a sessão aberta, pelo termo.    
+      20 +async function registrar(                                      
+      21 +  page: Page,                                                  
+      22 +  papel: "aluno" | "professor" | "coordenação",                
+      23 +  nome: string,                                                
+      24 +) {                                                            
+      25 +  await page.goto("/demonstracao");                            
+      26 +  await page.getByRole("button", { name: `Entrar como ${papel}`
+         + }).click();                                                   
+      27 +  await page.getByLabel("Nome", { exact: true }).fill(nome);   
+      28 +  if (papel !== "coordenação") {                               
+      29 +    await page.getByRole("radio", { name: "Ciência da Computaçã
+         +o" }).click();                                                 
+      30 +  }                                                            
+      31 +  await page.getByRole("button", { name: "Continuar" }).click()
+         +;                                                              
+      32 +  await page.getByRole("button", { name: "Aceitar e entrar" }).
+         +click();                                                       
+      33 +  await expect(page).not.toHaveURL(/\/demonstracao$/);         
+      34 +}                                                              
+      35 +                                                               
+      36  // A demonstração existe só com a flag. Os testes @demo rodam n
+          uma passada própria, com o
+      37  // docker-compose.demo.yml por cima; a passada normal os exclui
+           (--grep-invert @demo) e
+      38  // confere a flag desligada.
+
+● Bash(cd "/c/Users/Guilherme
+      Gimenes/Documents/Repos/tcc/maxx-engenheiro/e2e/tests" && cat >>
+      demonstracao.spec.ts <<'EOF'…)
+  ⎿  ok
+  ⎿  Updated e2e\tests\demonstracao.spec.ts (+56 -0)
+      124      ).toBe("[]");
+      125    },
+      126  );
+      127 +                                                              
+      128 +// Passo 14: a banca entra nos três papéis pela demonstração. 
+          +O professor de CC concede                                     
+      129 +// medalha ao aluno de demonstração de CC, e a coordenação ach
+          +a esse aluno pela ficha e vê o                                
+      130 +// próprio lote marcado na purga, sem purgar: o lote vigente é
+          + o de todos os testes @demo.                                  
+      131 +test(                                                         
+      132 +  "entra como aluno, professor e coordenação, e cada papel che
+          +ga à sua tela",                                               
+      133 +  { tag: ["@demo", "@celular"] },                             
+      134 +  async ({ browser }) => {                                    
+      135 +    test.setTimeout(90_000);                                  
+      136 +    const n = Date.now().toString().slice(-6);                
+      137 +    const aluno = `Banca Aluno ${n}`;                         
+      138 +                                                              
+      139 +    const doAluno = await novaPagina(browser);                
+      140 +    await registrar(doAluno, "aluno", aluno);                 
+      141 +    await abrirPerfil(doAluno);                               
+      142 +    await expect(doAluno.getByTestId("arroba")).toHaveText(/-C
+          +C$/);                                                         
+      143 +    await doAluno.close();                                    
+      144 +                                                              
+      145 +    const doProfessor = await novaPagina(browser);            
+      146 +    await registrar(doProfessor, "professor", `Banca Professor
+          + ${n}`);                                                      
+      147 +    await abrirPerfil(doProfessor);                           
+      148 +    await expect(doProfessor.getByTestId("arroba")).toHaveText
+          +(/-PROF$/);                                                   
+      149 +    await abrirMenu(doProfessor);                             
+      150 +    await doProfessor.getByRole("button", { name: "Minhas turm
+          +as" }).click();                                               
+      151 +    await doProfessor.getByRole("button", { name: /^Banco de D
+          +ados/ }).click();                                             
+      152 +    await doProfessor                                         
+      153 +      .getByRole("button", { name: `Conceder medalha a ${aluno
+          +}` })                                                         
+      154 +      .click();                                               
+      155 +    await doProfessor                                         
+      156 +      .getByRole("radio", { name: /^Nota 10 em prova, Bronze, 
+          +30 pontos/ })                                                 
+      157 +      .click();                                               
+      158 +    await doProfessor                                         
+      159 +      .getByRole("button", { name: "Conceder", exact: true }) 
+      160 +      .click();                                               
+      161 +    await expect(                                             
+      162 +      doProfessor.getByText(`Medalha Nota 10 em prova concedid
+          +a a ${aluno}.`),                                              
+      163 +    ).toBeVisible();                                          
+     … 19 more lines (ctrl+o to expand)
+
+● Rodo os casos @demo contra o compose local, que está com a demonstração
+  ligada.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Os seis casos @demo passam localmente. Antes do push, rodo também a passada
+  sem a demonstração: a API volta a subir com a flag desligada.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Enquanto o e2e roda, preparo a etapa 8: leio o roteiro de implantação.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Background command "Run full e2e without demo" completed (exit code 0)
+
+● Three local failures. Before calling them flaky, I'm checking whether the demo
+  coordenações I created locally get in the way, since some e2e helpers pick
+  "the first institution account" by e-mail.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The institution tests create their own account, so that isn't it. Rerunning
+  only the three that failed.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Rodados de novo, os 23 testes dos dois arquivos passam. As três falhas eram de
+  carga local, com a suíte inteira em paralelo e sem a nova tentativa que a CI
+  faz. Confiro a CI da etapa 6.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Background command "Watch CI for step 6" completed (exit code 0)
+
+● CI da etapa 6 verde. Commit e push da etapa 7.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● CI da etapa 7 verde. Etapa 8: primeiro confiro o acesso à VPS e o estado dela,
+  sem ler segredo nenhum (só o lote, que não é segredo, e a versão no ar).
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● A demonstração no lote banca-2026 (sha-060f0b4) já tem 2 alunos da banca,
+  então vou disparar a publicação da imagem e abrir o PR enquanto ela roda,
+  depois de o deploy.sh fazer o dump antes da migração.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Enquanto publica, abro o PR no formato dos anteriores.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● A base rodada/eng_14_demo_papeis só existe local, nunca foi enviada ao GitHub.
+  Confiro que ela está no commit de partida e a envio, para o PR ter base.
+
+  Created PR #16 (ctrl+o to expand)
+
+● PR #16 aberto. Aguardo a publicação da imagem.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Enquanto a imagem publica, escrevo o roteiro da conferência no ar. Ele só
+  registra as três contas "Conferência Maxx", abre as telas e tira capturas, sem
+  nenhum ato.
+
+  Made 1 scratchpad edit +77, ran 1 shell command (ctrl+o to expand)
+● Background command "Watch publish run" completed (exit code 0)
+
+● Background command "Wait for publish run" completed (exit code 0)
+
+● Publicado sha-81bf896. Implanto na VPS com o deploy.sh e a demonstração
+  ligada.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Migração aplicada (encerrada_em existe), a API está pronta, o worker está
+  saudável e os 2 alunos da banca continuam no lote. Rodo a conferência no ar,
+  só de leitura.
+
+  Read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● Conferência feita nos três papéis, só de leitura. Registro a implantação e a
+  conferência em docs/operacao.md.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(docs\operacao.md)
+  ⎿  Added 3 lines, removed 1 line
+      90  
+      91  1. Desligar a demonstração (`dc up -d`), para ninguém entrar no
+           lote durante a purga.
+      92  2. Em `/instituicao/purga`, escolher o lote e digitar o nome de
+          le de novo. Banco e fila
+      93 -   saem numa transação; as fotos do lote vão para o trabalho `r
+         -emover-fotos`.                                                 
+      93 +   saem numa transação; as fotos do lote vão para o trabalho `r
+         +emover-fotos`. Desde o                                         
+      94 +   passo 14, os alunos do lote são apagados e os professores e 
+         +as coordenações do lote,                                       
+      95 +   encerrados: o que fizeram em contas do seed fica, com o auto
+         +r.                                                             
+      96  3. Esperar a fila esvaziar (`/api/health/worker` com `disponive
+          is` em 0).
+      97  4. **Limpar o cache da CDN**: painel da Cloudflare, Caching, Pu
+          rge Cache, Purge Everything
+      98     na zona de `fotos.maxx-unimax.com`. Sem isso, a borda contin
+          ua servindo a foto que já
+
+● Update(docs\operacao.md)
+  ⎿  Added 22 lines, removed 2 lines
+       97  4. **Limpar o cache da CDN**: painel da Cloudflare, Caching, P
+           urge Cache, Purge Everything
+       98     na zona de `fotos.maxx-unimax.com`. Sem isso, a borda conti
+           nua servindo a foto que já
+       99     tinha em cache até ela expirar, mesmo fora do bucket.
+      100 -5. Conferir: nenhum usuário com o lote, o registro em `purga_d
+          -a_demonstracao`, e a URL de                                   
+      101 -   uma foto do lote em 404 pela CDN.                          
+      100 +5. Conferir: nenhum aluno com o lote, os professores e as coor
+          +denações do lote com                                          
+      101 +   `encerrada_em`, o registro em `purga_da_demonstracao` (alun
+          +os, professores, coordenações e                               
+      102 +   fotos), e a URL de uma foto do lote em 404 pela CDN.       
+      103  
+      104 +## Papéis na demonstração (passo 14)                          
+      105 +                                                              
+      106 +Implantado em 10/11/2026 (horário de Brasília), `sha-81bf896`,
+          + publicado pelo disparo da CI                                 
+      107 +na branch `feat/passo-14-demo-papeis` e implantado com `deploy
+          +.sh <sha> demo`, lote                                         
+      108 +`banca-2026`. A migration `PapeisNaDemonstracao` rodou no migr
+          +ator, depois do dump; os 2                                    
+      109 +alunos que a banca já tinha no lote seguiram lá. `/api/ready` 
+          +em 200 e                                                      
+      110 +`/api/health/worker` sem problema depois da subida.           
+      111 +                                                              
+      112 +Conferência no ar, só de leitura (P7), por um navegador automa
+          +tizado de fora da VPS, sem                                    
+      113 +credencial: pela demonstração, as três contas "Conferência Max
+          +x".                                                           
+      114 +                                                              
+      115 +| Papel | Conferido |                                         
+      116 +|---|---|                                                     
+      117 +| Aluno | Registro em CC, arroba `@conferenciaMaxx-CC`, feed e
+          + perfil |                                                     
+      118 +| Professor | Registro em CC, arroba `@conferenciaMaxx2-PROF` 
+          +(o prefixo colidiu com o do aluno e recebeu o número, como man
+          +da a regra); Minhas turmas, Banco de Dados com 32 alunos, incl
+          +usive o aluno da conferência, sem conceder nada |             
+      119 +| Coordenação | Registro só com o nome; aba Perfil, Área da in
+          +stituição; na purga, `banca-2026` com "Vigente" e "Seu lote" e
+          + "3 alunos, 1 professor e 1 coordenação", sem purgar |        
+      120 +                                                              
+      121 +As três contas ficam no lote `banca-2026` e saem com ele na pu
+          +rga depois da avaliação.                                      
+      122 +                                                              
+      123  ## Seed de demonstração
+      124  
+      125  Uma vez, depois da primeira subida. Ele sobe as fotos dos post
+           s do mundo para o R2 e
+
+● Update(docs\plano-mestre.md)
+  ⎿  Added 2 lines, removed 1 line
+      400    conferida no ar, só de leitura, com contas "Conferência Maxx
+           ".
+      401  
+      402  Regras em `produto.md` 11; decisões em `decisoes/README.md`, P
+           apéis na demonstração
+      403 -(passo 14).                                                   
+      403 +(passo 14). Implantado em 10/11/2026 com a demonstração ligada
+          + no lote `banca-2026`, e                                      
+      404 +conferido no ar nos três papéis; registro em `operacao.md`.   
+      405  
+      406  ---
+      407  
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● O passo 14 está fechado na branch e no ar. Parei na etapa 8, com o PR #16
+  aberto e a CI verde: https://github.com/GFGimenes/maxx-engenheiro/pull/16
+
+  Etapas 6 e 7
+
+  - Etapa 6 (cff38e3): fiz o ajuste que você pediu. Com um aluno só, o modal diz
+    "Sai do banco o aluno do lote X e tudo o que fez."; com mais de um, ficou
+    como estava. O Jest da concordância cobre os dois casos.
+  - A folha de confirmação vem do passo 12 (6eca0ec) e não foi tocada neste
+    passo. Registrei a largura na janela inteira como limite conhecido de tela,
+    nos limites do passo 12 do índice de decisões.
+  - Etapa 7 (81bf896): um caso @demo novo nos três papéis. O aluno se registra
+    em CC. O professor vê o próprio arroba com -PROF e concede uma medalha a
+    esse aluno pela lista da turma. A coordenação acha o aluno pela ficha e vê
+    "Seu lote" na tela da purga, sem purgar. Os seis casos @demo passam
+    localmente, e a CI ficou verde.
+  - Falhas locais: na passada local sem a demonstração, 3 testes falharam com a
+    suíte inteira em paralelo (dois da instituição e um de login). Rodados de
+    novo, os dois arquivos passaram (23 testes), e a CI, que tem uma nova
+    tentativa, passou sem falha.
+
+  Etapa 8: implantação e conferência no ar
+
+  Base do PR. A rodada/eng_14_demo_papeis existia só na sua máquina, então
+  enviei ao GitHub no commit de partida (8910b51), para o PR ter base.
+
+  Implantação. A imagem sha-81bf896 foi publicada pelo disparo da CI na branch e
+  implantada com deploy.sh <sha> demo.
+  - O lote banca-2026 já estava no .env. Li só essa linha e a da versão no ar,
+    nenhum outro valor.
+  - O dump rodou antes da migração, e a migração foi aplicada (a coluna
+    encerrada_em existe).
+  - /api/ready respondeu 200, e /api/health/worker não mostrou problema.
+  - Os 2 alunos que a banca já tinha no lote continuam lá.
+
+  Conferência no ar. Foi só de leitura, por um navegador automatizado, com as
+  contas "Conferência Maxx". Nenhuma credencial passou por aqui.
+
+  ┌─────────────┬────────────────────────────────────────────────────────────┐
+  │    Papel    │                         Resultado                          │
+  ├─────────────┼────────────────────────────────────────────────────────────┤
+  │ Aluno       │ @conferenciaMaxx-CC, feed e perfil abrem                   │
+  ├─────────────┼────────────────────────────────────────────────────────────┤
+  │             │ @conferenciaMaxx2-PROF: o prefixo colidiu com o do aluno e │
+  │ Professor   │  recebeu o número, como manda a regra. Banco de Dados abre │
+  │             │  com 32 alunos, inclusive o da conferência, sem conceder   │
+  │             │ nada                                                       │
+  ├─────────────┼────────────────────────────────────────────────────────────┤
+  │             │ A Área da instituição abre. Na purga, banca-2026 aparece   │
+  │ Coordenação │ com "Vigente" e "Seu lote" e com "3 alunos, 1 professor e  │
+  │             │ 1 coordenação", sem purgar                                 │
+  └─────────────┴────────────────────────────────────────────────────────────┘
+
+  As três contas ficam no lote e saem com ele na purga depois da avaliação.
+
+  Registro (b73f4fd). A implantação e a conferência estão em docs/operacao.md,
+  que também ganhou os passos novos da purga (equipe encerrada, o que conferir).
+  O plano mestre aponta para esse registro. A CI desse push ficou verde, com os
+  seis jobs.
+
+  As capturas da conferência estão em C:\Users\GUILHE~1\AppData\Local\Temp\claud
+  e\C--Users-Guilherme-Gimenes-Documents-Repos-tcc-maxx-engenheiro\42ff04be-4d5a
+  -4462-93e9-6da00ec430d9\scratchpad\conferencia.
+
+  O compose local continua de pé, agora sem a demonstração, porque a passada do
+  e2e precisava dela desligada.
+
+✻ Cooked for 44m 8s · done 23:41
