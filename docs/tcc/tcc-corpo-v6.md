@@ -342,7 +342,7 @@ Dois defeitos só apareceram em produção, e nos dois o agente provou a causa a
 
 A medida de carga reduzida, com 50 usuários virtuais por dois minutos, registrou 9.488 requisições sem falha, com p95 geral de 43 ms e 71 ms na rota mais lenta, o feed, contra um alvo de 300 ms. No ensaio de avaliação remota, feito pelo autor de um celular pela rede móvel e de um computador pela banda larga, a tela de entrada abriu em 4 segundos com o cache limpo, uma medalha concedida por uma professora apareceu na posição do aluno no ranking em 2 segundos, e a purga da conta de demonstração pela tela da instituição removeu do banco e do armazenamento as contas e as fotos criadas no ensaio. O ensaio achou um defeito de tela, o prêmio selecionado numa reivindicação não podia ser trocado com um toque, corrigido no mesmo dia com teste; e um resíduo que nenhum teste pegaria, a cópia de uma foto apagada ainda servida por alguns minutos pelo cache da CDN, que virou um passo da rotina de purga.
 
-Depois de fechada e avaliada a trilha, um passo adicional preparou o produto para a avaliação pela banca: a entrada de demonstração, que só criava alunos, passou a oferecer também professor e coordenação, para que quem avalia alcance as telas desses papéis sem depender de uma conta entregue pelo autor. Esse passo fica fora de todas as medidas deste capítulo, que se referem ao commit avaliado, e está registrado à parte no repositório. Ele rendeu, porém, o exemplo mais claro da regra de não assumir aplicada contra o próprio operador. O autor escreveu que a coordenação de demonstração poderia fazer tudo, sem exceção, porque a base é fictícia. Antes de planejar, o agente leu o código, listou oito pontos em que o modelo de dados recusaria a mudança e apontou que a ordem, seguida ao pé da letra, permitiria a qualquer avaliador trocar o e-mail de um aluno fictício por um endereço real, disparar uma mensagem do produto para um terceiro e tomar a conta. Propôs restringir essa correção a domínios reservados e perguntou, por contrariar a instrução. Os endereços dos dois produtos e a forma de entrar em cada um estão no Apêndice B.
+Depois de fechada e avaliada a trilha, um passo adicional preparou o produto para a avaliação pela banca: a entrada de demonstração, que só criava alunos, passou a oferecer também professor e coordenação, para que quem avalia alcance as telas desses papéis sem depender de uma conta entregue pelo autor. Esse passo fica fora de todas as medidas deste capítulo, que se referem ao commit avaliado, e está registrado à parte no repositório. Ele rendeu, porém, o exemplo mais claro da regra de não assumir aplicada contra o próprio operador. O autor escreveu que a coordenação de demonstração poderia fazer tudo, sem exceção, porque a base é fictícia. Antes de planejar, o agente leu o código, listou oito pontos em que o modelo de dados recusaria a mudança e apontou que a ordem, seguida ao pé da letra, permitiria a qualquer avaliador trocar o e-mail de um aluno fictício por um endereço real, disparar uma mensagem do produto para um terceiro e tomar a conta. Propôs restringir essa correção a domínios reservados e perguntou, por contrariar a instrução. Os endereços dos dois produtos e a forma de entrar em cada um estão no Apêndice B, e as telas dos três papéis, no Apêndice C.
 
 # 5 Discussão
 
@@ -585,3 +585,19 @@ Os dois produtos do experimento ficam no ar até fevereiro de 2027. Todos os dad
 | Repositório do experimento | https://github.com/GFGimenes/TCC---MAXX | Prompts enviados, registros por rodada, transcrições das sessões, rubrica, reviews dos agentes avaliadores, formulário do autor, inventários, capturas de tela e as versões deste documento. |
 
 No repositório do experimento, a seção "Como avaliar" do arquivo de apresentação indica por onde começar: os prompts na ordem em que foram enviados (`prompts/`), o registro de cada rodada com custo, decisões do agente e ocorrências (`resultados/`), as avaliações (`avaliacoes/`) e o diário do experimento (`docs/tcc/`).
+
+# Apêndice C: Telas do produto do engenheiro
+
+Capturas feitas pelo autor em 11/11/2026 no produto no ar (`https://app.maxx-unimax.com`), em um celular, entrando pela demonstração nos três papéis. As 39 capturas originais estão no repositório do experimento, em `resultados/engenheiro/capturas/produto-final/`; as figuras abaixo reúnem as principais. Os nomes, cursos e avisos que aparecem são do mundo fictício de demonstração.
+
+![Figura C.1. Entrada pela demonstração e telas do aluno: escolha do papel, post com medalha no feed, prêmios no perfil de um aluno e Troféus](../../resultados/engenheiro/capturas/produto-final/apendice-c1-entrada-e-aluno.png)
+
+![Figura C.2. Telas do aluno: ranking geral, Mural e reivindicação de prêmio de participação com foto e evento](../../resultados/engenheiro/capturas/produto-final/apendice-c2-aluno.png)
+
+![Figura C.3. Telas do professor: registro na demonstração, perfil com as turmas do semestre, lista de uma turma e concessão de medalha](../../resultados/engenheiro/capturas/produto-final/apendice-c3-professor.png)
+
+![Figura C.4. Telas do professor: fila de comprovações, decisão de uma comprovação, Mural e novo aviso para as turmas](../../resultados/engenheiro/capturas/produto-final/apendice-c4-professor.png)
+
+![Figura C.5. Telas da coordenação: registro na demonstração, área da instituição, busca de alunos e ficha do aluno com os atos](../../resultados/engenheiro/capturas/produto-final/apendice-c5-coordenacao.png)
+
+![Figura C.6. Telas da coordenação: contestações, novo aviso, purga da demonstração por lote e perfil da conta](../../resultados/engenheiro/capturas/produto-final/apendice-c6-coordenacao.png)
