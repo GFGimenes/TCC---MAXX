@@ -20,6 +20,28 @@ engenheiro e arquiteto de software, ambas executadas pelo mesmo agente de IA (Cl
 varia entre as trilhas é quem pede e como pede; o que se mede é o produto que cada uma
 constrói, avaliado com a mesma rubrica em 5 eixos de qualidade de software.
 
+## Como avaliar: produtos no ar, acessos e repositórios
+
+Os dois produtos do experimento ficam no ar até fevereiro de 2027. Todos os dados são
+fictícios; as contas de demonstração são apagadas ao fim da avaliação.
+
+| O quê | Onde | Como entrar |
+|---|---|---|
+| Produto da trilha do leigo | https://maxx-guilherme.azurewebsites.net | Criar conta na própria tela com um e-mail em um dos domínios aceitos: `@al.unieduk.com.br` entra como aluno, `@prof.unieduk.com.br` entra como professor. Não há verificação de posse do e-mail, então qualquer endereço nesses domínios serve (é uma das falhas apontadas na avaliação). Hospedagem gratuita: o primeiro acesso do dia pode demorar alguns segundos. |
+| Produto da trilha do engenheiro | https://app.maxx-unimax.com | Botão "Demonstração" na tela de entrada, escolher aluno, professor ou coordenação, informar um nome e aceitar o termo. Sem senha. A coordenação abre no navegador do computador; aluno e professor também no celular. |
+| Código da trilha do leigo | https://github.com/GFGimenes/maxx-leigo | Commit avaliado: `2a7dad5`. |
+| Código da trilha do engenheiro | https://github.com/GFGimenes/maxx-engenheiro | Commit avaliado: `8910b51`. A entrada de demonstração com três papéis é posterior à avaliação (`fde8717`) e não entra nas medidas. |
+| Experimento (este repositório) | https://github.com/GFGimenes/TCC---MAXX | Prompts, registros por rodada, transcrições das sessões, avaliações, inventários e o documento. |
+
+Por onde começar neste repositório:
+
+- Documento do TCC: [`docs/tcc/versoes/`](docs/tcc/versoes/) (a versão de número mais alto é a vigente).
+- Prompts enviados ao agente, na ordem: [`prompts/leigo/`](prompts/leigo/) e [`prompts/engenheiro/`](prompts/engenheiro/).
+- Registro de cada rodada, com custo, decisões do agente e ocorrências: [`resultados/leigo/`](resultados/leigo/) e [`resultados/engenheiro/`](resultados/engenheiro/); as transcrições completas são os arquivos `-sessao.txt` e `-sessao.jsonl` ao lado.
+- Rubrica, reviews dos agentes avaliadores, formulário cego do autor e notas consolidadas: [`avaliacoes/`](avaliacoes/) ([`rubrica.md`](avaliacoes/rubrica.md), [`notas.md`](avaliacoes/notas.md), [`autor/`](avaliacoes/autor/), [`reviews/`](avaliacoes/reviews/), [`inventario/`](avaliacoes/inventario/)).
+- Diário e linha do tempo do experimento: [`docs/tcc/diario-do-experimento.md`](docs/tcc/diario-do-experimento.md) e [`docs/linha-do-tempo.md`](docs/linha-do-tempo.md).
+- Capturas de tela: [`resultados/leigo/capturas/`](resultados/leigo/capturas/) e [`resultados/engenheiro/capturas/`](resultados/engenheiro/capturas/).
+
 ## Desenho do experimento
 
 ```
