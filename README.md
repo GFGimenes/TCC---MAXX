@@ -28,9 +28,10 @@ fictícios; as contas de demonstração são apagadas ao fim da avaliação.
 | O quê | Onde | Como entrar |
 |---|---|---|
 | Produto da trilha do leigo | https://maxx-guilherme.azurewebsites.net | Criar conta na própria tela com um e-mail em um dos domínios aceitos: `@al.unieduk.com.br` entra como aluno, `@prof.unieduk.com.br` entra como professor. Não há verificação de posse do e-mail, então qualquer endereço nesses domínios serve (é uma das falhas apontadas na avaliação). Hospedagem gratuita: o primeiro acesso do dia pode demorar alguns segundos. |
-| Produto da trilha do engenheiro | https://app.maxx-unimax.com | Botão "Demonstração" na tela de entrada, escolher aluno, professor ou coordenação, informar um nome e aceitar o termo. Sem senha. A coordenação abre no navegador do computador; aluno e professor também no celular. |
+| Produto da trilha do engenheiro | https://app.maxx-unimax.com | Botão "Demonstração" na tela de entrada, escolher aluno, professor ou coordenação, informar um nome e aceitar o termo. Sem senha. Os três papéis abrem no navegador do celular e do computador. |
 | Código da trilha do leigo | https://github.com/GFGimenes/maxx-leigo | Commit avaliado: `2a7dad5`. |
 | Código da trilha do engenheiro | https://github.com/GFGimenes/maxx-engenheiro | Commit avaliado: `8910b51`. A entrada de demonstração com três papéis é posterior à avaliação (`fde8717`) e não entra nas medidas. |
+| Código do prompt único do leigo | https://github.com/GFGimenes/maxx-leigo-pu | Condição complementar: a persona leiga numa mensagem só, sem nenhuma resposta do autor. Commit único do agente: `ce76942`. Capturas das telas em [`resultados/leigo/capturas/leigo_pu/`](resultados/leigo/capturas/leigo_pu/). |
 | Experimento (este repositório) | https://github.com/GFGimenes/TCC---MAXX | Prompts, registros por rodada, transcrições das sessões, avaliações, inventários e o documento. |
 
 Por onde começar neste repositório:
