@@ -1,0 +1,321 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Ultra
+ ▝▝   ▝▝   ~\Documents\Repos\tcc\maxx-engenheiro\apps\api\src
+
+
+> Passo 14, posterior ao plano mestre: papéis na demonstração. Estamos na       
+  rodada/eng_14_demo_papeis, saída da main com os passos 1 a 13 mergeados e o   
+  produto no ar em app.maxx-unimax.com. Antes de qualquer código, me traga o    
+  plano de etapas, com entrega e critério de aceite por etapa, como combinamos  
+  no CLAUDE.md. Vale tudo que está lá: decisão que não está nos docs não foi    
+  tomada, então pergunte antes de assumir. Valem também as regras dos passos    
+  anteriores: cada etapa só é dada como pronta depois de a CI do push dela      
+  passar; etapas sem tela e sem pergunta de produto você emenda, cada uma com o 
+  próprio commit, push e CI verde, fix separado se a CI falhar; para antes de   
+  etapa com tela, com as capturas no claro e no escuro, em qualquer pergunta de 
+  produto que não esteja nos docs e se uma CI ficar vermelha depois do fix;     
+  comando longo em segundo plano, com trabalho independente em paralelo; suíte  
+  inteira só antes do push.                                                     
+                                                                                
+  O problema: a banca avalia o produto no ar ao longo do mês e hoje, pela       
+  demonstração, só entra como aluno. As telas de professor e da instituição     
+  ficam fora do alcance de quem avalia, porque as contas do seed dependem de    
+  e-mail que só eu recebo. Quero que a entrada de demonstração ofereça os três  
+  papéis.                                                                       
+                                                                                
+  O que já está decidido, e vai para o produto.md 11 e para o índice de         
+  decisões:                                                                     
+                                                                                
+  1. Com a flag da demonstração ligada, a tela de demonstração passa a oferecer 
+  três entradas: aluno, como hoje; professor; coordenação. Com a flag           
+  desligada nada muda: rotas em 404 e botão ausente.                            
+  2. Professor de demonstração: informa nome e escolhe um dos quatro cursos de  
+  demonstração. Vira uma conta de professor marcada como demonstração e com o   
+  lote vigente, vinculada às turmas daquele curso no semestre vigente, com tudo 
+  que um professor tem: concede medalha aos alunos dessas turmas, do seed e de  
+  demonstração, vê e decide a fila de comprovações, contesta, publica aviso     
+  para as turmas dele. A regra de escopo continua valendo: ele não enxerga      
+  aluno de outro curso.                                                         
+  3. Coordenação de demonstração: informa nome. Vira uma conta com o papel de   
+  instituição, marcada como demonstração e com o lote vigente, com todos os     
+  poderes da instituição, sem exceção: ficha do aluno, correção de e-mail,      
+  ex-aluno, troca de curso, concessão direta, anulação, contestações, aviso     
+  para a faculdade e para cursos, e a purga por lote, inclusive do lote         
+  vigente. Decisão minha, registrada: a base inteira é fictícia e existe só     
+  para a avaliação deste mês, então não há ato a proteger do avaliador.         
+  4. As duas contas novas seguem o que já vale para o aluno de demonstração:    
+  aceite do termo, lembrança local no dispositivo sem senha, com o hash da      
+  chave no banco e sessão comum com refresh rotativo, e o mesmo limite de taxa  
+  do registro de demonstração.                                                  
+  5. A purga do lote remove também os professores e as coordenações de          
+  demonstração daquele lote.                                                    
+  6. A área da instituição continua só no navegador; quem entra como            
+  coordenação pelo celular vê a mensagem que já existe.                         
+  7. Nenhuma mudança nas contas do seed, no cadastro normal, no login nem nas   
+  regras de pontos.                                                             
+                                                                                
+  O que eu não decidi e quero que você me traga no plano, com a sua             
+  recomendação e o motivo, antes de codar: o que acontece, na purga, com o que  
+  um professor ou uma coordenação de demonstração deixou em contas que não são  
+  do lote (medalha concedida a aluno do seed, prêmio aprovado, aviso publicado, 
+  anulação, correção de e-mail, ex-aluno marcado); se a coordenação de          
+  demonstração que purga o lote vigente derruba a própria sessão e o que a tela 
+  mostra; os textos dos três botões e das telas de registro; e qualquer ponto   
+  do modelo de dados em que conta de professor ou de instituição sem linha no   
+  cadastro elegível do seed quebre uma invariante que hoje existe.              
+                                                                                
+  O passo fecha com: produto.md 11, índice de decisões e plano mestre           
+  atualizados, com este passo registrado como posterior à avaliação; testes de  
+  domínio e de integração para os dois registros novos, para o escopo do        
+  professor de demonstração e para a purga; Jest das telas; um caso de e2e com  
+  a demonstração ligada entrando nos três papéis; CI verde; um PR da            
+  feat/passo-14-demo-papeis para a rodada/eng_14_demo_papeis; e a versão        
+  publicada e implantada na VPS com deploy.sh e a demonstração ligada, lote     
+  banca-2026, conferida no ar por você nos três papéis, sem credencial nenhuma  
+  passando por aqui. Eu reviso o plano e aí começamos a primeira etapa.         
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Estou lendo o código da demonstração, da purga e das chaves estrangeiras que
+  apontam para usuario, para trazer o plano com as perguntas em aberto
+  fundamentadas.
+
+  Ran 6 shell commands (ctrl+o to expand)
+
+● Ainda lendo: falta o comportamento da sessão quando a conta some e a tela de
+  demonstração do app.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Plano do passo 14 abaixo. Antes, li o código da demonstração, da purga, as
+  chaves estrangeiras que apontam para usuario, as checagens do banco e as telas
+  DemonstracaoScreen e PurgaScreen. Encontrei invariantes que hoje quebrariam,
+  e eles sustentam as respostas às suas quatro perguntas.
+
+  O que o modelo de hoje não aceita
+
+  #: I1
+  Onde: ck_usuario_demonstracao (IdentidadeConfiguration.cs:30)
+  O que acontece: Exige papeis = 1 em toda conta com lote. Uma conta de
+  professor
+  ou de coordenação com lote é recusada pelo banco
+  ────────────────────────────────────────
+  #: I2
+  Onde: Usuario.EntrarNaDemonstracao e CadastroElegivel.AlunoDeDemonstracao
+  O que acontece: Aceitam só aluno. Usuario.CadastroElegivelId é obrigatório,
+  então a conta nova precisa de uma linha na base, marcada como demonstração e
+  sem RA. Isso cabe no ck_cadastro_elegivel_aluno (para quem não é aluno, curso
+   e semestre ficam nulos)
+  ────────────────────────────────────────
+  #: I3
+  Onde: 13 colunas de auditoria com Restrict para usuario:
+  medalha.concedida_por_id e anulada_por_id, aprovado, reprovado e revogado
+  por, contestacao.contestada_por_id e decidida_por_id, aviso.autor_id,
+  correcao_de_email.corrigido_por_id, troca_de_curso.trocado_por_id,
+  usuario.ex_aluno_marcado_por_id, post e comentario.removido_por_id
+  O que acontece: Se a purga apagar um professor que concedeu medalha a aluno do
+
+  seed, o banco rejeita (23503) e a transação inteira volta
+  ────────────────────────────────────────
+  #: I4
+  Onde: purga_da_demonstracao.purgado_por_id, também Restrict
+  O que acontece: Uma coordenação que purga o próprio lote apaga a conta que o
+  registro da purga precisa apontar: violação de chave
+  ────────────────────────────────────────
+  #: I5
+  Onde: vinculo_professor.professor_id aponta para o cadastro
+  O que acontece: A purga apaga o cadastro com demonstração sem apagar o vínculo
+
+  antes
+  ────────────────────────────────────────
+  #: I6
+  Onde: ck_purga_da_demonstracao_contagens (alunos >= 1) e o construtor de
+  PurgaDaDemonstracao
+  O que acontece: Um lote só com professor ou coordenação não pode ser purgado
+  ────────────────────────────────────────
+  #: I7
+  Onde: LotesAsync conta toda conta com lote como "alunos"
+  O que acontece: A tela da purga mostraria números errados
+  ────────────────────────────────────────
+  #: I8
+  Onde: Token de acesso de 15 min, sem consulta ao banco
+  O que acontece: Depois da purga, a conta apagada ainda age por até 15 min com
+  o
+  token que tem em mãos
+
+  Os pontos abaixo continuam valendo sem mudança: ranking, raridade, conquistas
+  e lista de alunos filtram Papeis.Aluno; a recuperação de senha ignora contas
+  de demonstração; não há índice único por turma em vinculo_professor, então o
+  professor do seed e os de demonstração dividem a turma. Ainda preciso conferir
+  na etapa se alguma tela supõe "o professor da turma" no singular.
+
+  Minhas recomendações para as perguntas em aberto
+
+  P1. O que a purga faz com os rastros em contas fora do lote. Recomendo a conta
+  encerrada (lápide). As contas de professor e de coordenação do lote não são
+  apagadas. Elas são encerradas: saem a chave do dispositivo, as sessões, os
+  vínculos de turma, os seguimentos, as curtidas, os comentários, as
+  notificações e as leituras. A linha fica, com encerrada_em e o nome, apenas
+  como autora da auditoria. Os atos sobre contas do seed ficam como estão
+  (medalha, aprovação, aviso, anulação, correção de e-mail, ex-aluno).
+
+  Por que essa opção:
+  - A regra inviolável "toda concessão, aprovação... grava quem fez e quando"
+    continua verdadeira.
+  - Desfazer tudo é impossível, porque a marcação de ex-aluno não volta atrás
+    (produto 2.2). Desfazer só parte (apagar medalhas e avisos, manter
+    aprovações) deixaria uma história incoerente.
+  - Resolve I3 e I4 sem migração nas 13 colunas.
+
+  Alternativas que descartei: desfazer os atos (inviável, como acima); ou apagar
+  a conta e guardar o nome do autor em texto em cada coluna de auditoria
+  (migração em 13 colunas e mudanças no domínio, para o mesmo resultado).
+
+  Custo: isso ajusta o seu item 5. A conta "sai" de todo acesso e de toda lista,
+  mas a linha fica. Para fechar I8, a busca de quem age
+  (IUsuarioRepository.BuscarAsync) ignora conta encerrada, e o vínculo apagado
+  barra o escopo do professor. Assim, um token ainda válido recebe 401 ou 403 na
+  hora. O alvo da purga passa a separar aluno (apagado, como hoje) de professor
+  e coordenação (encerrados). O registro da purga ganha as contagens de
+  professores e de coordenações, e o check passa a exigir pelo menos uma conta.
+
+  P2. A coordenação que purga o próprio lote. Recomendo deixar purgar, como você
+  decidiu, e avisar antes:
+  - A lista de lotes ganha a marca "seu lote".
+  - O modal de confirmação acrescenta: "Sua conta é deste lote e será encerrada
+    junto."
+  - A resposta da purga diz se a própria conta foi encerrada. A tela mostra o
+    resultado com o botão "Voltar ao login", e esse botão encerra a sessão local
+    e tira a conta da lembrança do aparelho.
+  - As sessões de outros aparelhos morrem no próximo refresh. A chave lembrada
+    que já não vale cai no tratamento de chave desconhecida da tela de
+    demonstração (confiro na etapa 5).
+
+  P3. Textos (proposta).
+  - Demonstração, abertura: "Escolha como entrar, sem senha. As contas de teste
+    são apagadas ao fim da avaliação do projeto."
+  - Botões, cada um com uma linha de apoio:
+    - "Entrar como aluno": "Posta, reivindica prêmios e aparece no ranking."
+    - "Entrar como professor": "Concede medalhas e decide comprovações das
+      turmas de um curso."
+    - "Entrar como coordenação": "Cuida da faculdade inteira, pela área web." No
+      celular, acrescento "Abre no navegador."
+  - Tela "Professor de teste": Nome ("Como você quer aparecer"), Curso ("As
+    turmas deste curso no semestre ficam com você."), botão "Continuar", depois
+    o termo e "Aceitar e entrar".
+  - Tela "Coordenação de teste": Nome, a nota "A coordenação tem todos os
+    poderes da instituição sobre a base de teste, inclusive apagar as contas de
+    teste.", e "Continuar".
+  - Lista "Neste aparelho":
+    - "Entrar como Ana · CC" (aluno)
+    - "Entrar como Ana · Professor de CC"
+    - "Entrar como Ana · Coordenação"
+  - A lembrança local ganha o campo papel. Uma entrada antiga sem esse campo é
+    lida como aluno.
+
+  P4. Invariantes: a tabela do começo. As correções entram nas etapas 2 e 4.
+
+  Três perguntas novas que surgiram na leitura
+
+  - P5. Correção de e-mail pela coordenação de demonstração. Ela pode trocar o
+    e-mail de um aluno do seed para um endereço real em @unieduk.com.br, que é
+    domínio aceito. A recuperação de senha só barra conta com lote, e aluno do
+    seed não tem lote. Assim, o avaliador consegue mandar e-mail do Maxx para
+    uma pessoa real da UniEduk e ainda tomar a conta do aluno do seed. Recomendo
+    que a correção feita por conta de demonstração aceite só os domínios
+    reservados .invalid. O ato continua demonstrável e nunca gera e-mail para
+    terceiros. Isso abre uma exceção no seu "sem exceção", por isso pergunto.
+  - P6. Limite de taxa. Recomendo um único limite de 60 por hora por IP, somado
+    entre as três rotas de registro, já que o limite protege contra a criação de
+    contas em massa. A alternativa é um limite de 60 por hora por rota.
+  - P7. Conferência no ar. Ela cria três contas minhas no lote banca-2026, e o
+    meu professor aparece nas turmas do curso escolhido. Proponho uma
+    conferência só de leitura (entrar, abrir as telas, nenhum ato), com o nome
+    "Conferência Maxx". Essas contas saem com o lote na purga. Pode ser assim?
+
+  Etapas
+
+  Branch feat/passo-14-demo-papeis, saindo da rodada/eng_14_demo_papeis. Um
+  commit por etapa, com push e CI verde antes de dar a etapa como pronta. As
+  etapas 1 a 4 eu emendo uma na outra. Paro nas etapas 5 e 6, que têm tela, e na
+  8.
+
+  Etapa: 1. Docs docs(docs)
+  Entrega: Seção 11 do produto.md com os três papéis e as respostas de P1 a P7.
+  Linhas novas em 2.1 e 10.2. Seção "Passo 14" no índice de decisões. Passo 14
+  no plano mestre, marcado como posterior à avaliação
+  Critério de aceite: Nenhum travessão. Toda decisão das etapas 2 a 8 já está
+  escrita. CI verde
+  ────────────────────────────────────────
+  Etapa: 2. Domínio e migração feat(api)
+  Entrega: CadastroElegivel.ProfessorDeDemonstracao e CoordenacaoDeDemonstracao
+  (e-mail .invalid, sem RA). Usuario.EntrarNaDemonstracao por papel, com sufixo
+   -PROF ou -UNIMAX. Usuario.Encerrar. Contagens novas em PurgaDaDemonstracao.
+  Migração: coluna encerrada_em, check novo de demonstração (qualquer papel
+  simples, sem senha, chave presente ou conta encerrada), colunas professores e
+   coordenacoes na purga com o check novo. Migração aplicada
+  Critério de aceite: xUnit de domínio cobre as fábricas novas, a recusa de
+  aluno
+  pelas fábricas de equipe e vice-versa, o encerramento e as contagens. O teste
+   de integração dos checks passa. Lint limpo
+  ────────────────────────────────────────
+  Etapa: 3. Registros novos feat(api)
+  Entrega: POST /v1/demo/professores (nome, curso, versão do termo): conta,
+  cadastro e vínculos nas turmas vigentes do curso. POST  /v1/demo/coordenacoes
+   (nome, versão do termo). /demo/entrar abre conta de qualquer papel e recusa
+  conta encerrada. Limite de taxa conforme P6. OpenAPI e schema.d.ts
+  regenerados
+  Critério de aceite: Integração: registro e reentrada nos dois papéis; 404 com
+  a
+  flag desligada; limite compartilhado; aceite gravado. Escopo do professor de
+  demonstração: concede a aluno do seed e a aluno de demonstração do curso,
+  recebe 403 para aluno de outro curso, a fila mostra só o curso dele, publica
+  aviso para as turmas dele. Coordenação executa um ato de instituição. Cliente
+   sem diferença pendente
+  ────────────────────────────────────────
+  Etapa: 4. Purga feat(api)
+  Entrega: A purga apaga os alunos do lote e encerra a equipe do lote (vínculos,
+
+  sessões, chave, presença social). As contas encerradas ficam fora dos lotes e
+   do alvo. Contagens por papel. Marca "seu lote" na lista. A resposta diz se a
+   própria conta foi encerrada. A busca de quem age ignora conta encerrada. P5
+  entra aqui ou na etapa 3, conforme a sua resposta
+  Critério de aceite: Integração: lote em que a equipe concedeu medalha,
+  aprovou,
+  anulou e corrigiu e-mail em contas do seed. A purga passa, os atos ficam com
+  o autor e as contas do seed não mudam. A coordenação purga o próprio lote, o
+  token dela recebe 401 e o refresh também. Um lote só com professor é purgado.
+   A segunda purga não acha nada. Uma falha no meio desfaz tudo. Domínio verde
+  ────────────────────────────────────────
+  Etapa: 5. Telas de entrada feat(mobile)
+  Entrega: Três entradas, telas "Professor de teste" e "Coordenação de teste",
+  lembrança com papel, aviso de navegador para a coordenação no celular
+  Critério de aceite: Jest: as três rotas, a validação, o termo, a lembrança
+  antiga lida como aluno, a chave encerrada some da lista. Paro com as capturas
+   no claro e no escuro
+  ────────────────────────────────────────
+  Etapa: 6. Tela da purga feat(mobile)
+  Entrega: Contagens por papel, marca "seu lote", aviso no modal, resultado com
+  "Voltar ao login"
+  Critério de aceite: Jest dos estados. Paro com as capturas no claro e no 
+  escuro
+  ────────────────────────────────────────
+  Etapa: 7. e2e test(...)
+  Entrega: Caso com a demonstração ligada, nos três papéis: aluno chega ao feed;
+
+  professor vê as turmas e concede medalha a um aluno do seed; coordenação abre
+   a área web e a ficha de um aluno
+  Critério de aceite: Playwright verde no CI. Suíte inteira rodada antes do push
+  ────────────────────────────────────────
+  Etapa: 8. PR e implantação
+  Entrega: PR para a rodada. Implantação com deploy.sh, Demo__Habilitada=true e
+  Demo__Lote=banca-2026. Conferência no ar nos três papéis conforme P7.
+  Registro em operacao.md
+  Critério de aceite: CI verde no PR. app.maxx-unimax.com oferece os três papéis
+
+  e cada um chega à sua tela. Nenhuma credencial passa por aqui. Paro para a 
+  sua revisão do PR
+
+  Se você aprovar P1 a P7 como estão, ou com ajustes, começo pela etapa 1.
+
+✻ Worked for 4m 23s · done 21:21
